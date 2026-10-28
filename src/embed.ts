@@ -24,6 +24,8 @@ export interface EmbedConfig {
   label?: string;
   palette?: Palette;
   easterEgg?: boolean | EasterEgg;
+  /** With no easter egg: open right away (default) or wait closed behind the toggle key. */
+  open?: boolean;
 }
 export interface Mounted {
   destroy(): void;
@@ -137,7 +139,8 @@ export function embed(load: () => Promise<Mount> | Mount, cfg: EmbedConfig) {
       addEventListener("click", (ev) => {
         if (allowed(egg.scope?.click, "all") && (ev.target as Element)?.closest?.(egg.click as string)) (ev.preventDefault(), unlock());
       }, on);
-  } else void open();
+  } else if (cfg.open === false) paint();
+  else void open();
 
   return {
     open,

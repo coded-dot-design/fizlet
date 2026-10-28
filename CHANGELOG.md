@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- `fizlet/embed`: `open: false` waits closed behind the toggle key (a PLAY key on the page) instead
+  of opening right away.
+
 ## 0.2.0
 
 E2, the first bricks (the ones Battlefield Blitz needs):

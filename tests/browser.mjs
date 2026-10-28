@@ -197,9 +197,14 @@ try {
     press("Escape");
     const closed = !game.opened && destroyed === 1;
     game.destroy();
-    return { dormant, mounted, opened, toggle, closed, cmd, left: document.querySelectorAll("[data-fizlet-host], [data-blitz-ignore]").length };
+    // open: false waits closed behind the toggle key.
+    const waiting = fizlet.embed(() => () => ({ destroy() {} }), { name: "wait", open: false });
+    const waitKey = [...document.querySelectorAll("[data-wait-ignore]")].some((h) => h.shadowRoot?.querySelector("button")?.textContent.includes("WAIT"));
+    const waitClosed = !waiting.opened;
+    waiting.destroy();
+    return { dormant, mounted, opened, toggle, closed, cmd, waitKey, waitClosed, left: document.querySelectorAll("[data-fizlet-host], [data-blitz-ignore]").length };
   });
-  assert.deepEqual(emb, { dormant: 0, mounted: 1, opened: true, toggle: true, closed: true, cmd: "#8573ee|", left: 0 }, "dormant until the sequence, palette hex only, Escape closes, destroy cleans up");
+  assert.deepEqual(emb, { dormant: 0, mounted: 1, opened: true, toggle: true, closed: true, cmd: "#8573ee|", waitKey: true, waitClosed: true, left: 0 }, "dormant until the sequence, palette hex only, Escape closes, destroy cleans up");
 
   assert.deepEqual(errors, []);
   console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed passed.");
