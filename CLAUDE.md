@@ -13,4 +13,5 @@
   `CHROMIUM_PATH=/opt/pw-browsers/chromium npm run test:browser`).
 - Board UI lives in `src/ui/` (source of truth; `dom-battlefield/board-ui/` is a copy until
   Battlefield consumes this package). Spec: `src/ui/BOARD-UI.md`.
+- Website: `site/` → `npm run site` → `site-dist/` (no framework), `npm run test:site`, Pages via `pages.yml`.
 - Release: bump `package.json` version (+ lockfile), add a CHANGELOG entry, push `main`; CI tags.

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.2
+
+- **The website**: https://coded-dot-design.github.io/fizlet/, styled with the Board UI kit (the
+  Battlefield design system). The contract, every brick with its measured size and a usage snippet,
+  Recall, the spec sheet, the games built on Fizlet, the E0–E6 roadmap and a quick start. A live
+  demo built with Fizlet itself: blast a small page, watch `engine.stats()`, press Recall.
+- The site hosts the builds: `fizlet.js` (one script tag, `window.fizlet`, kernel and every brick
+  but debug) and the ES modules under `dist/`, so the quick start works without npm.
+- `npm run site` builds it (`scripts/site.mjs`, static HTML, no framework); `npm run test:site`
+  checks every page at desktop and 360px (no errors, links, no overflow, the demo, reduced motion,
+  the quick start). `pages.yml` deploys it on push to `main`. Not part of the published package.
+- `scripts/sizes.mjs`: one size measurement for `npm run size` and the site.
+
 ## 0.2.1
 
 - `fizlet/embed`: `open: false` waits closed behind the toggle key (a PLAY key on the page) instead

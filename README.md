@@ -4,6 +4,8 @@
 bounded everything, zero allocation in the steady state, and the page always comes back exactly as
 it was. No runtime dependencies, ever.
 
+**Website, live demo and quick start: https://coded-dot-design.github.io/fizlet/**
+
 The "fiz" is fizz (the pop of an effect) and a nod to physics; the "-let" is small, like an applet.
 Fizlet powers the [DOM VIRUS](https://coded-dot-design.github.io/dom-virus/) arcade and
 [DOM Battlefield](https://coded-dot-design.github.io/dom-battlefield/).
@@ -43,13 +45,13 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
    restores it exactly, and a newer edit by the host page always wins. One `AbortSignal` removes
    every listener and observer.
 8. **Embed-safe.** No globals, no global styles, many engines per page.
-9. **Budgets in CI.** Kernel ≤ 4 KB gzip (today: ~2.6 KB), each brick ~1.5 KB.
+9. **Budgets in CI.** Kernel ≤ 4 KB gzip (today: ~2.8 KB), each brick ~1.5 KB.
 
 ## What's in the box
 
 | Import | What | Size (min + gzip) |
 |---|---|---|
-| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | ~2.6 KB |
+| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | ~2.8 KB |
 | `fizlet/debug` | `guardLayout(engine)`: counts layout reads during a step (dev only) | ~0.5 KB |
 | `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` | ~1.0 KB |
 | `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | ~0.8 KB |
@@ -80,7 +82,22 @@ npm ci
 npm run check         # typecheck, contract tests (node), build
 npm run size          # size budgets
 npm run test:browser  # contract tests in Chromium (Playwright)
+npm run site          # the website, into site-dist/
 ```
+
+### The website
+
+`site/` is the source of https://coded-dot-design.github.io/fizlet/: template-string pages
+(`site/layout.mjs`, `site/pages/`), `site/site.css` on top of the Board UI kit, and a live demo
+(`site/demo.ts`) built with Fizlet itself. No framework: `scripts/site.mjs` writes static HTML.
+
+```sh
+npm run site        # build dist/ and site-dist/ (gitignored); open site-dist/index.html
+npm run test:site   # every page at desktop and 360px: errors, links, overflow, the demo (Chromium)
+```
+
+The site also hosts the builds for the quick start: `fizlet.js` (one file, `window.fizlet`) and
+the ES modules under `dist/`. `.github/workflows/pages.yml` deploys it on every push to `main`.
 
 Releases: bump `version` in `package.json`; CI tags `vX.Y.Z` on `main` after the checks pass.
 
