@@ -1,0 +1,34 @@
+{
+  "name": "fizlet",
+  "version": "0.1.0",
+  "description": "Tiny physics for your page: a micro game and animation engine for the DOM. One loop, bounded everything, and the page always comes back.",
+  "license": "MIT",
+  "author": "Chris Cooley <https://coded.design>",
+  "repository": { "type": "git", "url": "git+https://github.com/coded-dot-design/fizlet.git" },
+  "homepage": "https://github.com/coded-dot-design/fizlet#readme",
+  "type": "module",
+  "sideEffects": ["*.css"],
+  "files": ["dist", "LICENSE", "README.md"],
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./kernel": { "types": "./dist/kernel/index.d.ts", "default": "./dist/kernel/index.js" },
+    "./debug": { "types": "./dist/debug.d.ts", "default": "./dist/debug.js" },
+    "./ui": { "types": "./dist/ui/board-ui.d.ts", "default": "./dist/ui/board-ui.js" },
+    "./ui/board-ui.css": "./dist/ui/board-ui.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --expose-gc --import tsx --test tests/*.test.mjs",
+    "build": "node scripts/build.mjs",
+    "check": "npm run typecheck && npm test && npm run build",
+    "size": "node scripts/size.mjs",
+    "test:browser": "node tests/browser.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "playwright": "1.58.2",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2"
+  }
+}
