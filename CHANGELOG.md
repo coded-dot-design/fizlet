@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.3
+
+- ui: the SURRENDER key's white-flag icon keeps its grid lines, white frame and flag outline. The
+  sticker key's icon rule (fill only, no stroke) wiped them; each part now has a class
+  (`bui-grid`, `bui-frame`, `bui-pole`, `bui-cloth`) the kit colours. Markup in BOARD-UI.md 9.3.
+
 ## 0.2.2
 
 - **The website**: https://coded-dot-design.github.io/fizlet/, styled with the Board UI kit (the

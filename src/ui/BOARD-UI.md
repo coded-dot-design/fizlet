@@ -349,6 +349,10 @@ Rename per game (e.g. SQUAD, CREW, SHIPS) but keep the grammar.
 
 - Icon: a 4 × 4 grid in your **team colour** with a **white flag** (white with a rim outline) in
   any theme; the face never turns red when pressed.
+- Markup (64 × 64, `.bui-sticker-key.bui-second.bui-surrender`): `<g class="bui-cells">` (16 rects,
+  `--i` = white-out order) · `<path class="bui-grid">` (the 16u grid lines) · `<rect class="bui-frame">`
+  (white frame) · `<path class="bui-pole">` + `<path class="bui-cloth">` (the flag). The kit colours
+  each part by class; never rely on SVG attributes (the key's icon rule overrides them).
 - Press: the cells white out one by one (16 × 18ms, steps(2)), the flag waves (120ms × 4), a hurt
   cue plays, then at 480ms the game-over cue and the **launch burst** (section 10) as the board
   resets underneath.
