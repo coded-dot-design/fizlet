@@ -6,7 +6,7 @@ import { build } from "esbuild";
 import { chromium } from "playwright";
 
 const bundle = (await build({
-  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts";', resolveDir: process.cwd(), loader: "ts" },
+  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "fizlet", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 
@@ -150,8 +150,59 @@ try {
   });
   assert.equal(guard, 1, "only the read inside the step counts");
 
+  where = "input";
+  const inp = await page.evaluate(() => {
+    const e = fizlet.createEngine({ root: document.getElementById("title") });
+    const c = fizlet.controls(e, { keys: { fire: ["Space"], left: ["KeyA"], right: ["KeyD"] } });
+    e.start();
+    const key = (type, code, target = window) => target.dispatchEvent(new KeyboardEvent(type, { code, bubbles: true, cancelable: true }));
+    key("keydown", "Space");
+    key("keydown", "KeyD");
+    e.advance(0);
+    const first = [c.hit("fire"), c.down("fire"), c.axis("left", "right")];
+    e.advance(0);
+    const second = [c.hit("fire"), c.down("fire")];
+    key("keyup", "Space");
+    e.advance(0);
+    const released = c.down("fire");
+    // Keys typed in the host page's own field never count.
+    key("keydown", "KeyA", document.getElementById("field"));
+    e.advance(0);
+    const typed = c.down("left");
+    c.press("fire");
+    e.advance(0);
+    const onScreen = c.hit("fire");
+    c.press("fire", false);
+    e.destroy();
+    key("keydown", "Space");
+    return { first, second, released, typed, onScreen, after: c.down("fire") };
+  });
+  assert.deepEqual(inp, { first: [true, true, 1], second: [false, true], released: false, typed: false, onScreen: true, after: false });
+
+  where = "embed";
+  const emb = await page.evaluate(async () => {
+    let mounted = 0, destroyed = 0, cmd = "";
+    const game = fizlet.embed(() => (host) => {
+      mounted++;
+      cmd = host.style.getPropertyValue("--k-cmd") + "|" + host.style.getPropertyValue("--k-sys");
+      return { destroy: () => destroyed++ };
+    }, { name: "blitz", palette: { cmd: "#8573ee", sys: "red; background: url(x)" }, easterEgg: { sequence: ["KeyB", "Enter"].map((k) => (k === "KeyB" ? "b" : k)), gesture: false, scope: { sequence: "all" } } });
+    const press = (key) => window.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+    const dormant = mounted;
+    press("b");
+    press("Enter");
+    await new Promise((r) => setTimeout(r, 50));
+    const opened = game.opened;
+    const toggle = [...document.querySelectorAll("[data-blitz-ignore]")].some((h) => h.shadowRoot?.querySelector("button"));
+    press("Escape");
+    const closed = !game.opened && destroyed === 1;
+    game.destroy();
+    return { dormant, mounted, opened, toggle, closed, cmd, left: document.querySelectorAll("[data-fizlet-host], [data-blitz-ignore]").length };
+  });
+  assert.deepEqual(emb, { dormant: 0, mounted: 1, opened: true, toggle: true, closed: true, cmd: "#8573ee|", left: 0 }, "dormant until the sequence, palette hex only, Escape closes, destroy cleans up");
+
   assert.deepEqual(errors, []);
-  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard passed.");
+  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed passed.");
 } catch (e) {
   console.error(`::error title=Fizlet browser test (${where})::${e.message}`);
   throw e;

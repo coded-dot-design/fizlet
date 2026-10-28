@@ -31,7 +31,9 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 1. **One clock per page.** Every engine shares one `requestAnimationFrame`. Fixed step (default
    60 Hz) with an accumulator and a catch-up cap: a long frame drops time, it never spirals.
 2. **Bounded everything.** Pools and the event ring have a fixed capacity and refuse work when full.
-3. **Zero steady-state allocation.** Tested: 1M steps of a busy system cause no young-generation GC.
+3. **Zero steady-state allocation.** Tested: 1M kernel steps of a busy system cause no young-generation
+   GC; each brick alone allocates nothing. Hot-path tip: pass typed arrays and indices (`grid.add`,
+   `grid.near`, `overlap`) rather than many numbers, so V8 never boxes them in big step functions.
 4. **No layout reads in the step.** Read in `read`, simulate in `step`, write in `render`.
    `fizlet/debug` counts any layout read made during a step.
 5. **Change-only writes.** The ledger skips writes that change nothing.
@@ -49,10 +51,15 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 |---|---|---|
 | `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | ~2.6 KB |
 | `fizlet/debug` | `guardLayout(engine)`: counts layout reads during a step (dev only) | ~0.5 KB |
+| `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` | ~1.0 KB |
+| `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | ~0.8 KB |
+| `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | ~1.5 KB |
+| `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues (or your own player), unlock on gesture | ~0.9 KB |
+| `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | ~2.0 KB |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
 
-More bricks land in phase E2 (input, collide, fx, sound, embed, and more): see the
-[engine plan](https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md).
+More bricks land through phase E2 (actor, steer, aim, rules, board-page, board-grid, camera,
+view-dom, presence): see the [engine plan](https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md).
 
 ### Engine API
 

@@ -1,19 +1,60 @@
 {
   "name": "fizlet",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Tiny physics for your page: a micro game and animation engine for the DOM. One loop, bounded everything, and the page always comes back.",
   "license": "MIT",
   "author": "Chris Cooley <https://coded.design>",
-  "repository": { "type": "git", "url": "git+https://github.com/coded-dot-design/fizlet.git" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coded-dot-design/fizlet.git"
+  },
   "homepage": "https://github.com/coded-dot-design/fizlet#readme",
   "type": "module",
-  "sideEffects": ["*.css"],
-  "files": ["dist", "LICENSE", "README.md"],
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
-    "./kernel": { "types": "./dist/kernel/index.d.ts", "default": "./dist/kernel/index.js" },
-    "./debug": { "types": "./dist/debug.d.ts", "default": "./dist/debug.js" },
-    "./ui": { "types": "./dist/ui/board-ui.d.ts", "default": "./dist/ui/board-ui.js" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./kernel": {
+      "types": "./dist/kernel/index.d.ts",
+      "default": "./dist/kernel/index.js"
+    },
+    "./debug": {
+      "types": "./dist/debug.d.ts",
+      "default": "./dist/debug.js"
+    },
+    "./input": {
+      "types": "./dist/input.d.ts",
+      "default": "./dist/input.js"
+    },
+    "./collide": {
+      "types": "./dist/collide.d.ts",
+      "default": "./dist/collide.js"
+    },
+    "./fx": {
+      "types": "./dist/fx.d.ts",
+      "default": "./dist/fx.js"
+    },
+    "./sound": {
+      "types": "./dist/sound.d.ts",
+      "default": "./dist/sound.js"
+    },
+    "./embed": {
+      "types": "./dist/embed.d.ts",
+      "default": "./dist/embed.js"
+    },
+    "./ui": {
+      "types": "./dist/ui/board-ui.d.ts",
+      "default": "./dist/ui/board-ui.js"
+    },
     "./ui/board-ui.css": "./dist/ui/board-ui.css",
     "./package.json": "./package.json"
   },

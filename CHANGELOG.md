@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.0
+
+E2, the first bricks (the ones Battlefield Blitz needs):
+- `fizlet/input`: keys → intents with one-frame edges latched in the read phase, pointer, a touch
+  stick, on-screen `press()`; keys typed in the host's fields never count.
+- `fizlet/collide`: fixed-capacity spatial hash (`add` / `near` take typed arrays and indices so
+  nothing boxes), `overlap`, `circles`, `circleRect`, `inRect`, swept `segCircle`.
+- `fizlet/fx`: pooled particles (struct of arrays), the hero `blast()`, pop words, scorch, shake.
+- `fizlet/sound`: the event ring → synth cues adapter (or your own player); gesture unlock.
+- `fizlet/embed`: palette (hex only), easter-egg triggers (sequence, gesture, click; desktop /
+  mobile scope), lazy load, the open / close toggle, Escape to close.
+- Tests for every brick (Node and Chromium); budgets in CI.
+
 ## 0.1.0
 
 E1, the kernel:

@@ -5,6 +5,11 @@ import { gzipSync } from "node:zlib";
 const BUDGETS = [
   ["fizlet (kernel)", "src/index.ts", 4096],
   ["fizlet/debug", "src/debug.ts", 1536],
+  ["fizlet/input", "src/input.ts", 1536],
+  ["fizlet/collide", "src/collide.ts", 1536],
+  ["fizlet/fx", "src/fx.ts", 2048],
+  ["fizlet/sound", "src/sound.ts", 1536],
+  ["fizlet/embed", "src/embed.ts", 2560],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
 ];
 let failed = false;
