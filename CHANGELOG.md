@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.4
+
+- ui: `.bui-grip` matches DOM Battlefield's card grip exactly: a flat violet tab with a strip of dark
+  dots (was white dots), no rim, base or press motion even as a button, and a wider invisible area
+  for thumbs.
+
 ## 0.2.3
 
 - ui: the SURRENDER key's white-flag icon keeps its grid lines, white frame and flag outline. The
