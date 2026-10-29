@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.15.0
 
 For page scenes in the gallery (`fe anim`'s second scene type: it reads the page's own elements):
 
@@ -19,6 +19,11 @@ For page scenes in the gallery (`fe anim`'s second scene type: it reads the page
   only through the ledger; kernel + board-page + slot): live 8,852 B · total 10,752 B gzip (with the
   1,900 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
   to zero frames.
+- **Website: the gallery shows one size, both parts named**: the live chunk on the badge and the
+  total with the shared loader beside it; #004 and #005 re-published (no byte numbers in the
+  entries; the spray scene rains around a tap on an edge source).
+- Size: kernel 3,413 B gzip (budget 4,096); `fizlet/board-page` 4,050 B (4,010 in 0.14.0, budget
+  4,096); `fizlet/arcade` 17,246 B (budget 17,408).
 
 ## 0.14.0
 

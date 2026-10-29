@@ -289,10 +289,12 @@ try {
     for (const e of GALLERY.filter((x) => x.stage === "page")) {
       const fig = page.locator(`figure[data-gallery="${e.id}"]`);
       await fig.scrollIntoViewIfNeeded();
+      const unlit = () => page.waitForFunction((id) => !document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 8000 });
+      await unlit(); // the sweep on mount has passed
       const before = await fig.evaluate((f) => f.querySelector(".gal-mini").outerHTML);
       await fig.click({ position: { x: 40, y: 10 } });
       await page.waitForFunction((id) => document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 4000 });
-      await page.waitForFunction((id) => !document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 8000 });
+      await unlit();
       assert.equal(await fig.evaluate((f) => f.querySelector(".gal-mini").outerHTML), before, `${e.id}: the page it lit is back as it was`);
     }
     assert.deepEqual(errors, []);
