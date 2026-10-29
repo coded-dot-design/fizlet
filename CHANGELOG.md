@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.8.1
 
 - **Layers story** (`site/demos/layers/`, `examples/layers/`): a landing-page graphic. A Battlefield
   Blitz-style board plays, turns and fans out into eight DOM layers in CSS 3D (board grid,
