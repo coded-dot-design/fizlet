@@ -57,6 +57,12 @@ press(key, () => fire(), signal); // touch-safe
 launch(startKey, start); // press, invert, shatter` },
   { id: "perf", tag: "PERF", role: "sys", modules: [mod("fizlet/perf", "perf")] },
   { id: "rules", tag: "RULES", role: "advance", modules: [mod("fizlet/rules", "rules")] },
+  { id: "arcade", tag: "ARCADE", role: "go", modules: [mod("fizlet/arcade", "arcade")],
+    snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
+  hint: "Mouse / WASD · Space fires", css: KIT_CSS, fire: true,
+  readouts: [["Score", "team"], ["Wave"]], colors: ["#06c4ff"],
+  cues: { fire: "fire" }, create: (ctx) => myRules(ctx) }, { root: "main" });
+game.start(); // Escape: Recall` },
   { id: "debug", tag: "DEBUG", role: "aim", modules: [mod("fizlet/debug", "debug")],
     snippet: `import { guardLayout } from "fizlet/debug";
 guardLayout(e);  // dev builds only
