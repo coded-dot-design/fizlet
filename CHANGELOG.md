@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.12.0
+
+- **`fizlet/arcade`: in-page art and keys-only games**, for Byte Runner and Sherman Bytes:
+  - `ctx.attach(el)` gives a game a shadow root in an overlay inside a page element. The overlay
+    follows the page's layout, scrolling and transforms natively (Byte Runner's maze is SVG in the
+    page). A static element becomes relative. It goes through the ledger, so Recall removes it and
+    restores the style.
+  - `keyboard: true` means the mouse never steers.
+  - Without `fire`, the first action is the big touch key.
+- **`fizlet/board-page`: in-page art never makes the board rescan.** Mutations inside any
+  `[data-fizlet-host]` count as the engine's own, like its root (before, a game redrawing SVG in the
+  page made the board rescan).
+
 ## 0.11.0
 
 - **`fizlet/arcade`** (new brick): the shell every page arcade game repeats (DOM VIRUS ENGINE.md E3),

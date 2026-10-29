@@ -93,7 +93,7 @@ in included, 1 KB = 1024 bytes.
 | `fizlet/match` | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.5 KB |
 | `fizlet/rules` | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
 | `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 3.7 KB |
-| `fizlet/arcade` | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard (sound, pause, fold, exit, readouts, meter, action keys, comms toast), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 16.3 KB with every brick it composes (6.3 KB its own) |
+| `fizlet/arcade` | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard (sound, pause, fold, exit, readouts, meter, action keys, comms toast), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 16.5 KB with every brick it composes (6.5 KB its own; in-page art via `ctx.attach`) |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.6 KB + 4.5 KB css |
 | `fizlet/ui/tokens.json` | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
 
@@ -496,6 +496,7 @@ const game = arcade({
 game.start(); // Escape, the exit key or game.stop(): Recall gives the page back exactly
 ```
 
+- **In-page art:** `ctx.attach(el)` returns a shadow root in an overlay inside `el` that follows the page's layout and scrolling natively (Recall removes it). `keyboard: true` makes a keys-only game; without `fire` the first action is the big touch key.
 - **One run, one engine.** `start()` builds the engine, the board and the overlay; `stop()` destroys
   the engine (the page comes back through its ledger) and removes the overlay. When the game reports
   `over()` the page comes back at once and the scoreboard stays with the result and a Restart key.
