@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.4
+
+- pad: a touch tap on a `toggle` key no longer flips it back. The tap's follow-up click was taken for a keyboard press when it carried `detail: 0`; keyboard clicks are now told apart by `pointerType === ""`.
+- tests: each CDP touch waits a frame round trip before the next read, and the toggle assertion prints what it got.
+
 ## 0.3.3
 
 - **`fizlet/pad`**: swappable on-screen controls for touch (and mouse). `pad(engine, controls, {

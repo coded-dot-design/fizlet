@@ -136,7 +136,10 @@ export function pad(e: Engine, c: Controls, o: PadOptions = {}) {
     if (!t) return;
     if (p.type === "click") {
       // Keyboard (Enter / Space on a focused key) is a tap; pointer clicks already acted on down.
-      if (!p.detail && key) i ? tap(+i, false) : (c.press(move[+d!]!), c.press(move[+d!]!, false));
+      // A click is a PointerEvent with pointerType "" when a key made it; `detail` alone is not
+      // enough (a touch tap's click can carry detail 0, which flipped a toggle straight back).
+      const kbd = p.pointerType !== undefined ? p.pointerType === "" : !p.detail;
+      if (kbd && key) i ? tap(+i, false) : (c.press(move[+d!]!), c.press(move[+d!]!, false));
     } else if (p.type === "pointerdown") {
       if (p.button > 0) return;
       p.preventDefault(); // no focus steal, no text selection, no emulated mouse
