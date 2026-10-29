@@ -1,8 +1,9 @@
 # Board UI: the game board and controls design system
 
-**Status:** v1.1 (2026-10-28). Lives in the DOM Battlefield repo. Live guide:
+**Status:** v1.1 (2026-10-28). Lives in Fizlet (`src/ui/`, published as `fizlet/ui`); DOM
+Battlefield keeps a copy in `board-ui/` until it imports the package. Live guide:
 https://coded-dot-design.github.io/dom-battlefield/style-guide/ (built from the kit only). Kit:
-`board-ui/board-ui.css` + `board-ui/board-ui.ts`. Tokens: `board-ui/tokens.json`.
+`src/ui/board-ui.css` + `src/ui/board-ui.ts`. Tokens: `src/ui/tokens.json`.
 
 This is the spec for **every DOM VIRUS game board**. A new board reuses this UI exactly: the keys,
 their states, the cards, overlays, launch bursts, comms toast, tips, boot screen and the layouts
@@ -45,10 +46,10 @@ building, then section 16 (lessons: mistakes we already paid for) and section 17
 
 | File | What it is |
 |---|---|
-| `board-ui/board-ui.css` | Tokens and every component, scoped under `.bui` |
-| `board-ui/board-ui.ts` | `mount`, `applyPalette`, `press`, `slam`, `toast`, `launch` (≈2.4 KB gzip; the CSS is 3.7 KB gzip) |
-| `board-ui/tokens.json` | Machine-readable tokens, timings, breakpoints, z-layers, storage keys |
-| `board-ui/BOARD-UI.md` | This spec |
+| `src/ui/board-ui.css` | Tokens and every component, scoped under `.bui`. CSS containment (Fizlet contract rule 8): the pad and the overlay are `contain: layout style` |
+| `src/ui/board-ui.ts` | `mount`, `applyPalette`, `press`, `slam`, `toast`, `launch` (2.4 KB gzip; the CSS is 4.5 KB gzip, as `npm run size` measures them). The mount root is `contain: style`, the launch burst `contain: layout style` |
+| `src/ui/tokens.json` | Machine-readable tokens, timings, breakpoints, z-layers, storage keys. **Authoritative**: published as `fizlet/ui/tokens.json`; the build (`scripts/tokens.mjs`) fails when a `board-ui.css` default (every palette role, ink, surface, `--k-*`, `--u`, motion curve) or `applyPalette`'s variable map disagrees with it |
+| `src/ui/BOARD-UI.md` | This spec |
 | `/style-guide/` (Battlefield site) | Live guide built from the kit only |
 
 ```html
@@ -68,8 +69,12 @@ applyPalette(root, { sys: "#06c4ff", cmd: "#8573ee", teamA: "#4bce82", teamB: "#
   page. Use it for first-party pages (the hub's guide, a game's own page). A host page's own CSS
   *can* still reach in (a global `button {}` rule, a reset).
 - **Shadow DOM (`mount()`)**: for embeds on someone else's site. `mount(host, css, { theme, side,
-  palette })` attaches a shadow root, adopts one shared constructed stylesheet and returns the
-  `.bui` root to build in. Nothing crosses either way. This is the engine contract (owned UI in a
+  palette })` attaches a shadow root, adopts a shared constructed stylesheet and returns the
+  `.bui` root to build in. **Stylesheet ownership:** the kit keeps one constructed sheet per CSS
+  text (keyed by the text itself), so two games composed independently with different CSS each get
+  their own, and boards mounted with the same text share one. The sheet is the kit's: treat it as
+  read-only. It is appended to the shadow root's `adoptedStyleSheets`, never replacing sheets you
+  adopted there. Nothing crosses either way. This is the engine contract (owned UI in a
   shadow root) and the default for `easterEgg` installs.
 - The launch burst renders on `<body>` with **inline styles only**, so it works from inside a
   shadow root and survives any layout change.
@@ -208,6 +213,19 @@ calm: `animation: none` on locked footer keys.
   2u at 2u offset; lost = disabled, pressed flat, number struck through.
 - **Pager** (`.bui-pager`): ‹ ★ › as one sys bar; ★ = your own unit, pressed when you are selected.
 - **Shortcut chip** (`kbd`): 9u mono, 1u currentColor border, 70% opacity, always right-aligned.
+
+### 5.5 Touch pad (`fizlet/pad`, CSS section 11)
+
+- **`.bui-pad`**: absolute along the board's bottom edge, notch-safe, 14u in from the edges; the
+  move control under one thumb, the action keys under the other (right; `data-hand="left"` swaps).
+  Only its controls take pointers; the rest of the strip lets the field through.
+- **Stick** (`.bui-stick` + `.bui-knob`): Battlefield's cockpit stick, 128u, sys ring and arrows;
+  the knob springs back (160ms), and follows the finger with no transition while `.down`.
+- **D-pad** (`.bui-dpad`): four 44u sys arcade keys in a cross; one finger, eight ways; the arrows
+  under the finger take `.down`. **Move keys**: the same arrows as round 62u keys in a row.
+- **Action keys**: round `.bui-arcade` + role, 62u (Blitz's pad); the first is `.bui-primary`,
+  96u. Caption 8u/900; `kbd` chip on the top-left rim, hidden on coarse pointers. Toggles use
+  `aria-pressed` (locked state); hold and tap keys use `.down` while the finger is on them.
 
 ---
 
@@ -484,14 +502,18 @@ Reduced motion: no loops, no bursts, no slams (static end states), instant trans
 
 | Event | Cue |
 |---|---|
-| start / ready | `start` (two rising notes) |
+| Event | Cue |
+|---|---|
+| start / ready | `ready` (two rising notes) |
 | fire | `fire` |
 | hit / tank destroyed | `hit` |
 | hurt / surrender press | `hurt` |
-| win | `won` (three notes) |
-| lose / surrender | `gameover` |
+| win | `win` (three notes) |
+| lose / surrender | `end` |
 
-Audio unlocks on the first trusted gesture; cues have cooldowns; at most 6 voices; muted state is
+Cue names are `fizlet/sound`'s (`src/sound.ts`); it also has `boom`, `power` and `click`.
+
+Audio unlocks on the first trusted gesture; cues have cooldowns; at most 8 voices; muted state is
 remembered (`dom-virus:<game>:sound`).
 
 ---

@@ -7,10 +7,23 @@ export const BUDGETS = [
   ["fizlet (kernel)", "src/index.ts", 4096],
   ["fizlet/debug", "src/debug.ts", 1536],
   ["fizlet/input", "src/input.ts", 1536],
+  ["fizlet/pad", "src/pad.ts", 2048],
   ["fizlet/collide", "src/collide.ts", 1536],
+  ["fizlet/grid", "src/grid.ts", 1536],
   ["fizlet/fx", "src/fx.ts", 2048],
+  ["fizlet/sprite", "src/sprite.ts", 1536],
   ["fizlet/sound", "src/sound.ts", 1536],
   ["fizlet/embed", "src/embed.ts", 2560],
+  ["fizlet/slot", "src/slot.ts", 2048],
+  ["fizlet/presence", "src/presence.ts", 2048],
+  ["fizlet/presence/check", "src/presence-check.ts", 5120],
+  ["fizlet/hud", "src/hud.ts", 1536],
+
+  ["fizlet/match", "src/match.ts", 2816],
+  // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
+  ["fizlet/board-page", "src/board-page.ts", 4096],
+  // A hero's live chunk is ≤ 10 KB gz (fizlet-engine docs/LAYERS.md); the bricks take ≤ 7 KB, the scene ≥ 3 KB.
+  ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7168],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
   ["fizlet/ui (css)", "src/ui/board-ui.css", 5120],
 ];
