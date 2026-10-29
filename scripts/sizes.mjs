@@ -6,6 +6,9 @@ import { gzipSync } from "node:zlib";
 export const BUDGETS = [
   ["fizlet (kernel)", "src/index.ts", 4096],
   ["fizlet/debug", "src/debug.ts", 1536],
+  // The player-facing performance overlay (off by default). Logic ~1.5 KB gz; its look is inline
+  // on the kit tokens (~0.45 KB) so it works on pages without board-ui.css.
+  ["fizlet/perf", "src/perf.ts", 2048],
   ["fizlet/input", "src/input.ts", 1536],
   ["fizlet/pad", "src/pad.ts", 2048],
   ["fizlet/collide", "src/collide.ts", 1536],

@@ -62,7 +62,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
    `contain: style` (it is static, so layout or paint containment could move or clip a board's own
    layers). `hud` and `board-page` own no box: they write into the host's markup and never add
    containment to it.
-9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,275 bytes); each brick has its own budget,
+9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,347 bytes); each brick has its own budget,
    1.5 to 5 KB, and a page build (kernel + slot + input + fx) ≤ 7 KB (`scripts/sizes.mjs`); over
    budget, the build fails.
 
@@ -73,8 +73,9 @@ in included, 1 KB = 1024 bytes.
 
 | Import | What | Size (min + gzip) |
 |---|---|---|
-| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | 3.2 KB |
+| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | 3.3 KB |
 | `fizlet/debug` | `guardLayout(engine)`: counts layout reads during a step (dev only) | 0.5 KB |
+| `fizlet/perf` | `perf(engine, { host, corner })`: the players' performance overlay (off by default): fps, a frame-time bar chart, dropped frames, engine work, live entities, JS heap | 1.9 KB |
 | `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer`, `dispose` | 1.3 KB |
 | `fizlet/pad` | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | 1.9 KB |
 | `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | 1.3 KB |
@@ -90,7 +91,7 @@ in included, 1 KB = 1024 bytes.
 | `fizlet/match` | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.5 KB |
 | `fizlet/rules` | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
 | `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 3.7 KB |
-| `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | 2.4 KB + 4.5 KB css |
+| `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.6 KB + 4.5 KB css |
 | `fizlet/ui/tokens.json` | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
 
 More bricks land through phase E2 (actor, steer, aim, rules, camera, view-dom): see the
@@ -266,6 +267,45 @@ touch.setScheme("dpad"); // fingers on the old control let go; no listener is ad
   `destroy()` (or `engine.destroy()`) gives the page back exactly. Keys are named buttons;
   Enter / Space taps them; reduced motion turns the kit's transitions off.
 
+### Performance overlay (`fizlet/perf`)
+
+A stats panel for players, behind a Settings switch: live fps, a rolling frame-time bar chart,
+dropped frames, the engine's work per frame, live entities and (Chromium) the JS heap. Off by
+default, so shipped gameplay doesn't change until a player turns it on.
+
+```ts
+import { perf } from "fizlet/perf";
+import { setting, PERF_KEY } from "fizlet/ui";
+
+let opt;
+const overlay = perf(engine, { corner: "tr", change: (on) => opt?.set(on) }); // F9 toggles it too
+opt = setting(settingsKey, PERF_KEY, (on) => overlay.show(on), engine.signal); // remembered, off by default
+```
+
+- `perf(engine, { host, corner, key, on, budget, change })` → `{ el, show(on?), on, frames, dropped, ring, destroy() }`.
+  `host` defaults to the engine root (position it), else `document.body` (then it is fixed);
+  `corner` `"tl" | "tr" | "bl" | "br"`; `key` a `KeyboardEvent.code` (default `"F9"`, `null` for none).
+- **Readouts** (updated every 0.5 s of frames): `FPS`; `MS` the mean frame interval; `DROP` dropped
+  frames so far (a frame over 1.5 budgets counts the budgets it swallowed; `budget` defaults to
+  1000/60 ms); `WORK` mean ms of the engine's hooks per frame (read, steps, render: `engine.timing[1]`);
+  `LIVE` pooled entities in use (`engine.live`); `MB` used JS heap where `performance.memory` exists, else `--`.
+- **Chart**: one canvas, the last 120 frames as 1px bars, go / hurt / critical colours from the
+  kit tokens (under 1.25, 2 and over 2 budgets), the budget line over them.
+- **Measures, doesn't distort**: it reads the engine's frames on the shared clock (no rAF, no timer
+  of its own); frame times go into a `Float32Array` ring; nothing is allocated per frame, shown or
+  hidden (Node test: 200k shown frames, at most 1 young GC; numbers format from typed-array slots
+  into cached strings). Hidden, it only records. It never calls `engine.busy()`: a settling engine
+  settles and the chart rests with it; the first frame after a sleep is not counted as dropped.
+- **Look and a11y**: a flat arcade card on the Board UI tokens (inline, with the dark defaults as
+  fallbacks, so it works with or without the kit CSS). `hidden` and `aria-hidden` while off; a
+  labelled group while on (numbers as text, no live region). `pointer-events: none`.
+- **Contained, Recall exact**: one root, `contain: layout paint style`, added through the ledger;
+  shows and hides through it too. `destroy()` (or `engine.destroy()`) removes it, its key and its
+  system, and the host is back byte for byte.
+- **Settings switch** (`fizlet/ui`): `setting(button, key, change, signal, fallback = false)` keeps a
+  kit key `aria-pressed` (the locked state) and stores `"1"` / `"0"` in localStorage; storage that
+  throws (private mode, a sandboxed frame) is ignored. `PERF_KEY` is `"dom-virus:perf"`.
+
 ### Overload policy
 
 Bounded everything (contract 2) means something has to give at capacity. What gives depends on the job:
@@ -306,6 +346,9 @@ Bounded everything (contract 2) means something has to give at capacity. What gi
 - `engine.advance(seconds)`: run time by hand (tests, headless, a server); a hook's error throws.
 - `engine.time` (seconds simulated) and `engine.steps` (fixed steps run; an integer, so reading it
   in a hot path never boxes).
+- `engine.timing`: this frame as a `Float64Array` view, `[0]` seconds it advances on the shared
+  clock (0 after a pause or a settle), `[1]` ms the last finished frame's hooks took. A slot, not a
+  getter, so reading it never boxes. `engine.live`: pooled things in use, over every pool.
 - `engine.pool(name, cap, create)`: a named bounded pool (shows in `stats()`).
 - `engine.events`: the event ring (`emit(type, a, b, x, y, v)`, `size`, `at(i)`), cleared each frame.
 - `engine.ledger`: `text`, `style`, `attr`, `cls`, `add(node)`, `restore()`.
