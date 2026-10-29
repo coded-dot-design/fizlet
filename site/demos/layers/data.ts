@@ -69,6 +69,9 @@ export const LABEL_W = 204;
  *  the exploded gap between layers widens so labels never sit closer than this. 28, not 22: the
  *  perspective draws the far (lower) layers a few % smaller, so their pitch shrinks a little too. */
 export const PITCH = 28;
+/** Room the controls keep (screen px): a column on each side in landscape (play key, slider), a row
+ *  at the bottom in portrait. */
+export const RESERVE = 56;
 /** sin(TILT): how much of the layer gap shows as vertical spacing on screen. */
 export const SIN_TILT = Math.sin((TILT * Math.PI) / 180);
 

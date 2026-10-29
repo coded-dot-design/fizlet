@@ -1,7 +1,23 @@
 # Changelog
 
-## 0.10.1
+## Unreleased
 
+- **Layers story: controls** (owner feedback). A play/pause key (the kit's arcade key) on one side
+  and a 3D slider on the other that scrubs the explode/assemble timeline: vertical down the right
+  edge when the slot is wide, along the bottom when it is tall. The slider is a small copy of the
+  stack (eight tilted plates on a kit rail, collision in green) that fans out as the real one does,
+  with the kit's arcade key as its knob. `role="slider"`: arrows, Page Up/Down, Home/End, touch and
+  mouse drag, the kit's focus ring. Scrubbing pauses; play resumes from that pose; paused, it
+  settles (0 frames). Reduced motion: the play key is hidden and the scene never loads, but the
+  slider still scrubs the still view (the poster is posed by one CSS variable, `--e`). One writer
+  at a time: the inline controller before the scene loads, the scene (through its ledger) once it
+  is mounted, so Recall restores the controls exactly. The figure is now labelled and described
+  (`aria-describedby`) instead of `role="img"`, so its controls stay reachable. The HUD's clock
+  and the tank hit flash went to keep the live chunk ≥ 5% under budget: 9,716 B gzip (≤ 9,728);
+  poster, controls and inline script 5,253 B (budget 6 KB). The demo page shows the live chunk on
+  the size badge (`site/size-badge.mjs`). Tests: the controls with the scene (pause settles, keys,
+  pointer, play, Recall) and under reduced motion (keys, pointer); the budget test now fails above
+  9,728 B.
 - **Layers story: clean labels at every size** (owner feedback: "at the end the layer labels get
   a little jumbled"). Four causes, each fixed:
   - while the fix phase dimmed the other layers, `opacity` on a `preserve-3d` layer flattened it,
@@ -20,6 +36,9 @@
   stays inside the figure and overlaps no other (fails on 0.10.0). Measured (Chromium 153, 4× CPU
   throttle): live chunk 9,609 → 9,717 B gzip (still ≥ 5% under 10 KB), poster + loader 2,962 →
   3,153 B; script per frame 0.8 ms median, 3.1 ms p95; CLS 0; 0 frames settled.
+
+## 0.10.1
+
 - **`fizlet/rules` drops: per-drop age and landing spot.** `drops()` now exposes `age` (seconds since
   each drop spawned), `landY` (where it lands: `(x[i], landY[i])`, moved by `scroll`) and `life`,
   and emits `drop:land` once when a drop touches down. Blitz can draw its fall shadow, landing puff
