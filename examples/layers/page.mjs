@@ -1,12 +1,12 @@
 // The example host page for the layers story: a plain page with one slot. The figure (and its
-// poster) is inline; the scene loads through fizlet/slot. The caption prints only measured numbers
+// poster) and a tiny loader are inline; the live chunk (fizlet/slot + scene) loads when the slot is near. The caption prints only measured numbers
 // (site/demos/layers/measured.json, written by site/demos/layers/measure.mjs). The page is a Board UI
 // root: colours, keys and cards come from the kit (src/ui/board-ui.css), no style of its own.
 const kb = (b) => `${(b / 1024).toFixed(1)} KB`;
 
-export function page({ figure, css, measured: m }) {
+export function page({ figure, css, loader, measured: m }) {
   const caption = m
-    ? `Live chunk ${kb(m.bytes.live)} gzip: slot ${kb(m.bytes.entry)} up front, scene ${kb(m.bytes.scene)} once the slot is near. Poster ${kb(m.bytes.poster)} inline. ` +
+    ? `Live chunk ${kb(m.bytes.live)} gzip (slot + scene, one file), loaded only once the slot is near. Inline poster and loader ${kb(m.bytes.poster)}. ` +
       `At 4× CPU throttle, script per frame ${m.frame.p50} ms median, ${m.frame.p95} ms p95, capped at ${m.frame.fps} fps. ` +
       `Layout shift ${m.cls}. Settled: ${m.settledFrames} frames. Measured in Chromium ${m.chromium.split(".")[0]} on Fizlet ${m.version}.`
     : "Not measured yet: run node site/demos/layers/measure.mjs.";
@@ -40,7 +40,7 @@ ${figure}
 <p class="cap">${caption}</p>
 <p class="cap">Layer bytes: Battlefield Blitz c8c8ca4, layer manifest (game code per layer, min + gzip; Effects is all brick, min). Built on fizlet, fizlet/slot, fizlet/grid, fizlet/sprite and fizlet/fx. By <a href="https://coded.design/">Chris Cooley</a>.</p>
 </main>
-<script type="module" src="entry.js"></script>
+${loader}
 </body>
 </html>
 `;

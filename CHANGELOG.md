@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- **Layers story fits the hero budget** (fizlet-engine docs/LAYERS.md): live chunk 12,621 →
+  10,054 B gzip (≤ 10 KB), and 0 B of JS before the slot nears the viewport (was 1,957 B). The
+  tanks patrol fixed loops instead of searching paths, so the hero drops `fizlet/grid`; a ~300 B
+  inline loader imports one `layers.js` (slot + scene) when the slot is near (never with reduced
+  motion); the scene's state styles moved to the page CSS. Measured (Chromium 153, 4× CPU
+  throttle): script per frame 0.8 ms median, 2.6 ms p95; poster + loader inline 2,962 B; CLS 0;
+  0 frames once settled. `npm run test:layers` now also checks the loader and fails over budget.
+
 ## 0.8.1
 
 - **Layers story** (`site/demos/layers/`, `examples/layers/`): a landing-page graphic. A Battlefield

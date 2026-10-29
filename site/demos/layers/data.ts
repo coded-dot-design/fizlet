@@ -9,22 +9,22 @@ export const SOURCE = "Battlefield Blitz c8c8ca4, layers manifest";
 export interface Layer {
   id: string;
   name: string;
-  brick: string;
   /** Bytes shown on the label. */
   bytes: number;
   /** What `bytes` counts. */
   unit: "B gz" | "B min";
 }
 
+/** Bottom to top. Bricks: grid, sprite, steer (planned), collide, rules (planned), fx, input, hud. */
 export const LAYERS: Layer[] = [
-  { id: "grid", name: "Board: grid", brick: "fizlet/grid", bytes: 630, unit: "B gz" },
-  { id: "characters", name: "Characters", brick: "fizlet/sprite", bytes: 5674, unit: "B gz" },
-  { id: "movement", name: "Movement", brick: "fizlet/steer", bytes: 3495, unit: "B gz" },
-  { id: "collision", name: "Collision", brick: "fizlet/collide", bytes: 127, unit: "B gz" },
-  { id: "rules", name: "Rules", brick: "fizlet/rules", bytes: 6052, unit: "B gz" },
-  { id: "fx", name: "Effects", brick: "fizlet/fx", bytes: 2899, unit: "B min" },
-  { id: "input", name: "Input intents", brick: "fizlet/input", bytes: 2627, unit: "B gz" },
-  { id: "hud", name: "HUD", brick: "fizlet/hud", bytes: 228, unit: "B gz" },
+  { id: "grid", name: "Board: grid", bytes: 630, unit: "B gz" },
+  { id: "characters", name: "Characters", bytes: 5674, unit: "B gz" },
+  { id: "movement", name: "Movement", bytes: 3495, unit: "B gz" },
+  { id: "collision", name: "Collision", bytes: 127, unit: "B gz" },
+  { id: "rules", name: "Rules", bytes: 6052, unit: "B gz" },
+  { id: "fx", name: "Effects", bytes: 2899, unit: "B min" },
+  { id: "input", name: "Input intents", bytes: 2627, unit: "B gz" },
+  { id: "hud", name: "HUD", bytes: 228, unit: "B gz" },
 ];
 
 /** The layer that faults and gets fixed each cycle. */
@@ -83,9 +83,11 @@ export function bounds() {
   }
   return { w: x1 - x0, h: y1 - y0, cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 };
 }
+/** bounds(), precomputed for the live chunk: the stack is symmetric (centre 0, 0). build.mjs fails
+ *  if these drift from bounds(). */
+export const BOUNDS = { w: 358.14, h: 479.09 };
 export function fit(W: number, H: number) {
-  const b = bounds();
   const sp = Math.min((W - 24) / (BW + 16), (H - 24) / (BH + 20));
-  const se = Math.min((W - 28 - LABEL_W) / b.w, (H - 24) / b.h);
-  return { sp, se, ex: -LABEL_W / 2 - b.cx * se, ey: -b.cy * se };
+  const se = Math.min((W - 28 - LABEL_W) / BOUNDS.w, (H - 24) / BOUNDS.h);
+  return { sp, se, ex: -LABEL_W / 2, ey: 0 };
 }

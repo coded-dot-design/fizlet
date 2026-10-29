@@ -1,9 +1,10 @@
 /**
- * The host side: mount the layers story into its slot. Nothing below the slot loads until the
- * slot nears the viewport and the main thread is idle (fizlet/slot); then scene.ts comes in as
- * its own chunk. With reduced motion the scene never loads and the poster's still exploded view stays.
+ * The live chunk, one file (layers.js): fizlet/slot and the scene together. Nothing loads it until
+ * the slot nears the viewport: the page's inline loader (poster.ts, `loader()`) imports it then.
+ * The slot then waits for an idle main thread and mounts the scene. With reduced motion it never loads.
  */
 import { slot } from "../../../src/slot";
+import { mountSlot } from "./scene";
 
 const target = document.querySelector<HTMLElement>("figure.lyr[data-slot-target]");
-if (target) slot(target, () => import("./scene").then((m) => m.mountSlot));
+if (target) slot(target, () => mountSlot);
