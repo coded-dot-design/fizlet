@@ -25,6 +25,34 @@
   settles with the engine with no dropped-frame burst on wake, no layout reads in a step, Recall
   byte for byte, `destroy()` alone).
 
+## 0.6.1
+
+- **The fizz demo** (`site/demos/fizz/`, live at `demos/fizz/`; host-page example in
+  `examples/fizz/`), the proof piece behind the name: an 80s arcade soda can whose tab pops (on
+  load or on a tap), fizz sprays from the opening, a drip runs down the side, and the page itself
+  zooms in on it. Built from the kernel (`settle` + `fps: 30`), `fizlet/fx` and `fizlet/sprite`
+  only, mounted through `fizlet/slot`. The zoom is one `transform` on a host element
+  (`[data-fizz-zoom]`) written through the engine's ledger, so Recall gives it back. Reduced
+  motion: the scene never loads; the poster (the same sprite pixels as an SVG) is the still frame.
+  Measured (`site/demos/fizz/measure.mjs`, Chromium 153): live chunk 8,400 B gzip, loader 2,105 B,
+  poster 1,989 B; script per frame at 4× CPU throttle 1.2 ms avg, 4.0 ms p95, 25.3 ms max; 0 frames
+  once settled, offscreen or with reduced motion; layout shift from the slot 0; the scene loads
+  only once the slot is near. New browser test `tests/fizz.mjs` (in `test:browser`): mounts,
+  animates, zooms, settles, wakes on a tap, Recall byte for byte, reduced motion still.
+  Brick gaps found: `fizlet/fx` exports no particle kinds and has no constant force (buoyancy or
+  gravity), so the demo uses raw kind numbers and drag-only spray; there is no `camera` brick yet,
+  so the zoom is done in the demo.
+
+## 0.6.0
+
+- **`fizlet/rules`** (new brick, 1,264 B gzip, budget 1,536): `waves`, `drops` and `score`, the
+  rules every arcade game repeats, as DOM-free systems that step without allocating and report on
+  the event ring (`wave:start`, `wave:clear`, `drop:spawn`, `drop:collect`, `drop:expire`, `score`,
+  `combo:end`, `level`). Defaults are the DOM VIRUS core's WaveDirector and SupplyDrops numbers and
+  Null Invaders' combo, so a port keeps its feel; a test runs `waves` frame by frame against the
+  core's WaveDirector and they match. Rules is the biggest layer in the games measured so far
+  (42,076 B gzip of game code across eight builds). No version bump.
+
 ## 0.5.1
 
 - **CSS containment on every root Fizlet owns** (contract rule 8): the pad and the match overlay

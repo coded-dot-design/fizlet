@@ -89,6 +89,7 @@ in included, 1 KB = 1024 bytes.
 | `fizlet/presence/check` | `syncCheck(setup, opts)`: runs a sim as lockstep clients and finds the first diverged frame (tests only) | 4.6 KB |
 | `fizlet/hud` | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | 1.3 KB |
 | `fizlet/match` | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.5 KB |
+| `fizlet/rules` | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
 | `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 3.7 KB |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.6 KB + 4.5 KB css |
 | `fizlet/ui/tokens.json` | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
@@ -450,6 +451,25 @@ engine.add({ step() { if (m.phase !== "play") return; /* the game */ } });
   elsewhere on the host page. Reduced motion: no wave wait or burst on surrender, no slams.
 - Your own overlay content (a mode picker, the standings table) goes in `m.el`; style it by
   `[data-phase]`.
+
+### Rules (`fizlet/rules`)
+
+The rules every arcade game repeats, as three small systems. They hold no DOM and draw nothing:
+the game decides where and what to spawn, and the HUD, sound and fx react to the events.
+
+```ts
+import { waves, drops, score } from "fizlet/rules";
+
+const w = waves(engine, { alive: () => enemies.length }); // prepare → assault → rebuild
+const d = drops(engine, { kinds: ["repair", "charge"], every: 6, place: (out) => spot(out) });
+const s = score(engine, { levels: [8, 24, 50] });         // combo 1 + floor(streak / 3), up to 5
+
+engine.add({ step() {
+  if (w.ready()) { spawnEnemy(); w.spawned(); }
+  if (d.collect(player.x, player.y, 24) === "repair") player.hp++;
+  if (hit) s.add(25, 4, hit.x, hit.y);                       // event "score": a = points, b = combo
+} });
+```
 
 ### Board: the page
 
