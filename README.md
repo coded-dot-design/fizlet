@@ -92,12 +92,14 @@ in included, 1 KB = 1024 bytes.
 | `fizlet/hud` | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | 1.3 KB |
 | `fizlet/match` | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.5 KB |
 | `fizlet/rules` | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
+| `fizlet/steer` | `steer({ cap, speed, turn, blocked, random })`: movers on typed arrays (`x`, `y`, heading `a`) with `seek`, `flee`, `arrive`, `wander` and `patrol`; a turn-rate-limited heading and per-axis wall slide (Blitz's tank drive); DOM-free, zero allocation | 0.9 KB |
+| `fizlet/coach` | `flag(key)` (a localStorage switch that never throws), `tour(engine, { steps, tips, every })` (tutorial steps, then tips in turn; `coach:step` on the ring; zero allocation) and `card(host, { onEnd })` (the Board UI coach card, rings the control it is about) | 1.2 KB |
 | `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 3.7 KB |
 | `fizlet/arcade` | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard (sound, pause, fold, exit, readouts, meter, action keys, comms toast), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 16.5 KB with every brick it composes (6.5 KB its own; in-page art via `ctx.attach`) |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.6 KB + 4.5 KB css |
 | `fizlet/ui/tokens.json` | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
 
-More bricks land through phase E2 (actor, steer, aim, rules, camera, view-dom): see the
+More bricks land through phase E2 (actor, aim, view-dom): see the
 [engine plan](https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md).
 
 ### Input, sound and embed semantics
@@ -474,6 +476,54 @@ engine.add({ step() {
 } });
 // Drawing a drop: d.x[i], d.y[i] now; d.landY[i] where it lands; d.age[i] seconds since it spawned
 // (blink when d.life - d.age[i] < 2). Event "drop:land" once it touches down (a landing puff).
+```
+
+### Steer (`fizlet/steer`)
+
+How things move toward, away from and around a point. Every mover has a position, a heading that
+turns at most `turn` rad/s, and a speed; walls are checked per axis, so movers slide along them. The
+defaults are DOM Battlefield Blitz's tank numbers (150 px/s, 7 rad/s), and a test runs `seek`,
+`wander` and `arrive` frame by frame against Blitz's own bots and wingmen.
+
+```ts
+import { steer } from "fizlet/steer";
+
+const m = steer({ cap: 16, random: engine.random,                 // seeded: runs replay
+  blocked: (i, at) => wall(at[0], at[1]),                         // the spot comes in a typed array
+  area: [60, 90, 840, 480] });                                    // wander picks goals in here
+m.place(0, 100, 200);
+
+engine.add({ step(_, dt) {
+  m.seek(0, player.x, player.y, dt);    // stops inside `stop` (16 px)
+  m.flee(1, bomb.x, bomb.y, dt);        // until `far` (240 px)
+  m.arrive(2, slot.x, slot.y, dt);      // slows inside `slow` (140), stops inside `near` (14)
+  m.wander(3, dt, 0.55);                // a pace scales dt, so the turn slows too
+  m.patrol(4, ROUTE, dt);               // ROUTE = new Float64Array([x0, y0, x1, y1, …])
+} });
+// Draw from m.x[i], m.y[i], m.a[i]; m.moved[i] is how far it went (tread marks, dust).
+```
+
+### Coach (`fizlet/coach`)
+
+The hints and tutorial layer. `flag` remembers once-only things (tips turned off, tour seen) in
+localStorage and answers "not set" when storage is blocked. `tour` walks the player through steps,
+then cycles tips; `show()` names the card only when it changes, so `card` writes the DOM once per
+card. The card is DOM Battlefield's coach card on the Board UI tokens (put it inside `.bui`).
+
+```ts
+import { flag, tour, card } from "fizlet/coach";
+
+const tips = flag("my-game:tips", "off");
+if (!tips.on) {
+  const t = tour(engine, { steps: STEPS.length }), c = card(root, { onEnd: quit, signal });
+  engine.add({
+    step(_, dt) { t.tick(dt); if (didIt(t.step) || t.time[0] > 9) t.pass(); }, // "coach:step" on the ring
+    render() {
+      const k = t.show();
+      if (k >= 0) k < t.steps ? c.show(`${k + 1}/${t.steps}`, STEPS[k][0], STEPS[k][1], keyFor(k)) : c.show("✓", "TIP", TIPS[k - t.steps]);
+    },
+  });
+}
 ```
 
 ### Arcade: a page game's shell

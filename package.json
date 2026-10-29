@@ -96,6 +96,14 @@
       "types": "./dist/rules.d.ts",
       "default": "./dist/rules.js"
     },
+    "./steer": {
+      "types": "./dist/steer.d.ts",
+      "default": "./dist/steer.js"
+    },
+    "./coach": {
+      "types": "./dist/coach.d.ts",
+      "default": "./dist/coach.js"
+    },
     "./arcade": {
       "types": "./dist/arcade.d.ts",
       "default": "./dist/arcade.js"
