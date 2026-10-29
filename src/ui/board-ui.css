@@ -864,3 +864,39 @@
     display: none;
   }
 }
+
+/* ---------- 12. Readouts: DOM Battlefield's metrics (ARMOR, FRIENDLY, HOSTILE, ELAPSED) ----------
+   A readout is not a key: flat, no hard shadow, never pressed. A muted caps label over a big value
+   (tabular numbers so a ticking clock never jiggles); team and enemy tints come from the palette.
+   readouts() in board-ui.ts builds the markup; fizlet/hud writes the values. */
+.bui .bui-readouts {
+  display: flex;
+  gap: calc(30 * var(--u));
+}
+.bui .bui-readout {
+  font-size: calc(8 * var(--u));
+  letter-spacing: calc(1.4 * var(--u));
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.bui .bui-readout b {
+  display: block;
+  margin-top: calc(6 * var(--u));
+  font-size: calc(20 * var(--u));
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.bui .bui-readout[data-tone="team"] b {
+  color: var(--team-ink);
+}
+.bui .bui-readout[data-tone="enemy"] b {
+  color: var(--team-b);
+}
+/* On the map (Battlefield's phone cockpit panel): a flat see-through plate under the readouts. */
+.bui .bui-readouts.bui-on-map {
+  gap: calc(3 * var(--u)) calc(12 * var(--u));
+  padding: calc(5 * var(--u)) calc(9 * var(--u));
+  background: color-mix(in srgb, var(--surface) 74%, transparent);
+  border: calc(1.5 * var(--u)) solid var(--line);
+  border-radius: calc(5 * var(--u));
+}

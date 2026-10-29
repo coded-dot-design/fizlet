@@ -14,6 +14,16 @@
   12,621 B gzip (over the 10 KB hero budget), poster 2,560 B; CLS 0; 0 frames once settled. New
   `npm run test:layers` (in CI): mounts, cycles once, settles, Recall is exact, reduced motion.
 
+## 0.8.0
+
+- **`fizlet/ui` readouts:** DOM Battlefield's metrics row (ARMOR · FRIENDLY · HOSTILE · ELAPSED) as a kit part, `.bui-readouts` / `.bui-readout`.
+  - A muted caps label over a 20u tabular value.
+  - `data-tone="team|enemy"` tints the value from the palette.
+  - `.bui-on-map` gives the phone cockpit's flat see-through plate.
+  - The `readouts(parent, items, onMap)` helper returns the value elements for `fizlet/hud`.
+  - BOARD-UI.md section 18; the browser test renders it with the real kit CSS.
+  - ui js 2,446 → 2,574 B gzip; ui css 4,602 → 4,737 B (budgets 3,072 / 5,120). No new tokens.
+
 ## 0.7.0
 
 - **`fizlet/perf`**, the players' performance overlay (new brick, its own import rather than part
