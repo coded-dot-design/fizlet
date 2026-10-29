@@ -59,7 +59,9 @@ For Swarm Protocol's port onto the kernel (its own engine kept page-level hooks 
 - **`board-page.char(i)`**: the letter glyph i was before the game changed it (a bite reports which
   letter it ate). **`board-page.parent(i)`**: the element that holds it, for a game's own
   read-phase checks (what covers it). Neither is for a step.
-- Size: kernel 3,415 B gzip (budget 4,096); `fizlet/board-page` 4,010 B (3,960 in 0.13.0, budget
+- **`board-page.scans`**: how many rescans so far. A rescan renumbers glyph indices, so a game that
+  keeps an index across frames (a bug's reserved letter) drops it when this moves.
+- Size: kernel 3,415 B gzip (budget 4,096); `fizlet/board-page` 4,022 B (3,960 in 0.13.0, budget
   4,096); `fizlet/arcade` 17,206 B (budget 17,408).
 
 ## 0.13.0

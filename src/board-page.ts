@@ -70,7 +70,7 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
   const recs: Rec[] = [], byNode = new Map<Text, Rec>(), targets: BoardTarget[] = [], byEl = new Map<Element, BoardTarget>();
   const grid = new Grid(32, MAX, 1, 1), range = doc.createRange(), seg = new Intl.Segmenter(undefined, { granularity: "grapheme" });
   // Small integers stay unboxed in `let`s; times and the hit fraction (doubles) live in a typed array.
-  let count = 0, queued = 0, cursor = 0, reads = 0, dirty = 1, rescan = 1, mark = 0;
+  let count = 0, queued = 0, cursor = 0, reads = 0, dirty = 1, rescan = 1, mark = 0, scans = 0;
   let shown = new Int32Array(0);
   // Query scratch: the grid's typed form and the plain-number API's own copies, so the hot path
   // never passes a number to a call V8 may not inline (each would box: one allocation).
@@ -101,6 +101,7 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
 
   function scan() {
     rescan = 0;
+    scans++;
     const seen = new Set<Rec>();
     let total = 0, visited = 0;
     if (textSel) for (const el of [...root.querySelectorAll(textSel)].slice(0, 160)) {
@@ -327,6 +328,10 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
       return n[T]!;
     },
     /** Range reads made by the last refresh (never more than `reads`). */
+    /** Rescans so far: glyph indices from before a rescan mean nothing after it. */
+    get scans() {
+      return scans;
+    },
     get reads() {
       return reads;
     },
