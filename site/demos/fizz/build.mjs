@@ -50,7 +50,7 @@ sizes.poster = gzipSync(poster).length;
 const m = existsSync(`${DIR}/measured.json`) ? JSON.parse(readFileSync(`${DIR}/measured.json`, "utf8")) : null;
 const fmt = (n) => n.toLocaleString("en-GB");
 const caption = [
-  `Live chunk <b>${fmt(sizes.chunk)} B</b> gzip (kernel + fx + sprite + the can)`,
+  `Live chunk <b>${fmt(sizes.chunk)} B</b> gzip (kernel + fx + sprite + camera + the can)`,
   `loader <b>${fmt(sizes.loader)} B</b> (fizlet/slot)`,
   `poster <b>${fmt(sizes.poster)} B</b>`,
   ...(m ? [
@@ -88,7 +88,7 @@ const body = `${CSS}
       <div>
         <p class="eyebrow"><span class="index">FZ</span> THE NAME · A PROOF PIECE</p>
         <h1 id="fz-title" class="fz-title">Crack a can.<br><em>The page leans in.</em></h1>
-        <p class="lead">The soda-ad shot: the tab pops, it fizzes, and the camera pushes in on the bubbles and the drip. There is no camera here. The page itself zooms, and Recall gives it back.</p>
+        <p class="lead">The soda-ad shot: the tab pops, it fizzes, and the camera pushes in on the bubbles and the drip. The camera is the page: fizlet/camera zooms the page itself, and Recall gives it back.</p>
         <p class="lead">By <a href="https://coded.design/">Chris Cooley</a>.</p>
       </div>
       <div class="panel lit fz-board">
@@ -103,8 +103,9 @@ const body = `${CSS}
     </div>
     <div class="fz-how">
       <div class="panel"><h3>Kernel</h3><p><code>settle</code> and <code>fps: 30</code>. It runs while something moves, then sleeps: no frames at all until a tap.</p></div>
-      <div class="panel"><h3>fizlet/fx</h3><p>The spray, the bubbles, the splat and the pop words. One fixed pool of particles; a full pool refuses more.</p></div>
+      <div class="panel"><h3>fizlet/fx</h3><p>Gravity and named kinds as data: spray, bubbles and splash are <code>emit()</code> calls. One fixed pool; a full pool refuses more.</p></div>
       <div class="panel"><h3>fizlet/sprite</h3><p>The can is 20 × 40 pixels of data, baked once. The poster is the same pixels as an SVG.</p></div>
+      <div class="panel"><h3>fizlet/camera</h3><p>One eased transform on the page, through the ledger. It settles, stays contained, and jumps with reduced motion.</p></div>
       <div class="panel"><h3>fizlet/slot</h3><p>Loads near the viewport, on an idle main thread. Reduced motion keeps the still frame; the scene never loads.</p></div>
     </div>
   </div>

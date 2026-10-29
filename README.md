@@ -80,7 +80,8 @@ in included, 1 KB = 1024 bytes.
 | `fizlet/pad` | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | 1.9 KB |
 | `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | 1.3 KB |
 | `fizlet/grid` | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | 1.5 KB |
-| `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | 1.9 KB |
+| `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake, `gravity`; `emitter(fx, KINDS)`: named particle kinds as data (bubble, spark, drip, debris, or your own), tree-shaken when unused | 2.1 KB (2.8 KB with `emitter`) |
+| `fizlet/camera` | `camera(engine, el, { ease, min, max, contain })`: the page is the camera. `zoomAt`, `flyTo`, `fit`, `pan`, `home`, `toWorld` / `toScreen`; eased, settles, jumps with reduced motion, contained (no sideways scroll), one transform through the ledger (Recall exact), no allocation per step | 1.3 KB |
 | `fizlet/sprite` | `sprites(defs, { palettes, cap })`: pixel-art characters as data, re-tinted by palette role, baked once per sprite/frame/scale/palette into a capped cache, `draw()` with no allocation; `svg()` / `url()` for page characters | 1.3 KB |
 | `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues `fire`, `hit`, `boom`, `hurt`, `power`, `ready`, `win`, `end`, `click` (or your own player), at most 8 voices, unlock on gesture, `dispose` | 1.0 KB |
 | `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | 2.0 KB |

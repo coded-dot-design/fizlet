@@ -330,3 +330,62 @@ test("input: hit() and down() in a step allocate nothing", async (t) => {
   // (reading engine.time in read) showed as 7-9.
   assert.ok(minor <= 3, `young-generation GCs over 1M frames: ${minor}`);
 });
+
+// Gravity and named kinds (phase 2: page interactions).
+const { emitter, KINDS } = await import("../src/fx.ts");
+
+test("fx: gravity pulls each kind by its share; kinds are data", () => {
+  const fx = effects({ cap: 64, gravity: 300 }), { ids, emit } = emitter(fx, KINDS);
+  assert.deepEqual(ids, { bubble: 6, spark: 7, drip: 8, debris: 9 });
+  fx.gravity = NaN; // ignored
+  emit(ids.drip, 0, 0, 1);
+  emit(ids.bubble, 0, 0, 1);
+  assert.equal(fx.live, 2);
+  const { f } = fx.raw, VY = f[3];
+  for (let i = 0; i < 20; i++) fx.step(1 / 60);
+  assert.ok(VY[0] > 50, `a drip falls (vy ${VY[0]})`);
+  assert.ok(VY[1] < 0, `a bubble floats up (vy ${VY[1]})`);
+  // Without gravity the blast is as before: its debris only slows down.
+  const calm = effects({ cap: 64 });
+  calm.blast(0, 0, 1);
+  const v0 = calm.raw.f[3][5];
+  calm.step(1 / 60);
+  assert.ok(Math.abs(calm.raw.f[3][5]) <= Math.abs(v0));
+});
+
+test("fx: emit is bounded, validated, and a second emitter adds after the first", () => {
+  const fx = effects({ cap: 10 }), a = emitter(fx, { bubble: KINDS.bubble });
+  a.emit(a.ids.bubble, 5, 5, 4, 1, 3);
+  assert.equal(fx.live, 4);
+  const cols = fx.raw.col.slice(0, 4);
+  assert.ok(cols.every((c) => c >= 1 && c <= 3), `colours from the range (${cols})`);
+  a.emit(a.ids.bubble, 0, 0, 1e9);
+  assert.equal(fx.live, 10);
+  assert.equal(fx.dropped, 1e9 - 6, "the rest are counted, not looped over");
+  a.emit(a.ids.bubble, NaN, 0, 3);
+  a.emit(0, 0, 0, 3); // ids 0-5 are the blast's own parts, not emitter kinds
+  a.emit(a.ids.bubble, 0, 0, Infinity);
+  assert.equal(fx.dropped, 1e9 - 6 + 3);
+  const b = emitter(fx, { spark: KINDS.spark });
+  assert.deepEqual(b.ids, { spark: 7 });
+  assert.throws(() => emitter(fx, { bad: { ...KINDS.spark, life: [0, 0] } }), RangeError, "a life that never ends");
+  assert.throws(() => emitter(fx, { bad: { ...KINDS.spark, shape: "blob" } }), RangeError);
+  assert.equal(effects({ gravity: NaN }).raw.st[4], 0, "non-finite gravity is ignored");
+});
+
+test("fx: emitting kinds under gravity allocates nothing", async (t) => {
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  const fx = effects({ cap: 400, gravity: 240 }), { ids, emit } = emitter(fx, KINDS), s = new Int32Array(1);
+  const frame = () => {
+    const i = s[0]++;
+    emit(ids.bubble + (i & 3), (i * 13) % 640, 100, 3, i & 3, 2, 1.5);
+    fx.step(1 / 60);
+  };
+  for (let i = 0; i < 20000; i++) frame();
+  gc();
+  const minor = await minorGCs(() => {
+    for (let i = 0; i < 200000; i++) frame();
+  });
+  assert.ok(fx.live > 50, `populated (${fx.live})`);
+  assert.ok(minor <= 1, `young-generation GCs over 200k frames: ${minor}`);
+});

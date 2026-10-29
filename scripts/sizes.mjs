@@ -13,7 +13,11 @@ export const BUDGETS = [
   ["fizlet/pad", "src/pad.ts", 2048],
   ["fizlet/collide", "src/collide.ts", 1536],
   ["fizlet/grid", "src/grid.ts", 1536],
-  ["fizlet/fx", "src/fx.ts", 2048],
+  // Whole module: effects() 2,1xx B + gravity, plus emitter() and KINDS (~0.6 KB), which tree-shake
+  // away when unused (the page build below ships effects() alone).
+  ["fizlet/fx", "src/fx.ts", 3072],
+  // Pan/zoom of a DOM stage through the ledger (fizlet-engine docs/LAYERS.md: camera ≈ 1.5 KB).
+  ["fizlet/camera", "src/camera.ts", 1536],
   ["fizlet/sprite", "src/sprite.ts", 1536],
   ["fizlet/sound", "src/sound.ts", 1536],
   ["fizlet/embed", "src/embed.ts", 2560],

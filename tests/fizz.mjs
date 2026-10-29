@@ -46,8 +46,8 @@ try {
       return { frames: st.frames, live: st.paused.length === 0, transform: el.style.transform, origin: el.style.transformOrigin };
     });
     assert.ok(mid.frames > 10 && mid.live, `animates (${mid.frames} frames)`);
-    assert.match(mid.transform, /^scale\(1\.[0-9]+\)$/, `the page zooms (${mid.transform})`);
-    assert.match(mid.origin, /px .*px/, "zooms about the opening");
+    assert.match(mid.transform, /^translate\(-?[0-9.]+px, -?[0-9.]+px\) scale\(1\.[0-9]+\)$/, `the page zooms through fizlet/camera (${mid.transform})`);
+    assert.equal(mid.origin, "0px 0px", "the camera transforms from the stage corner");
     const px = await p.evaluate(() => {
       const c = document.querySelector("[data-fizlet-slot] canvas"), d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
       let n = 0;

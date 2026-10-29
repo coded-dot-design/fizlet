@@ -1,9 +1,10 @@
 // The fizz: an arcade soda can that pops, sprays and drips while the page itself zooms in on it.
-// Mounted through fizlet/slot. Bricks: the kernel (settle + fps cap), fizlet/fx (spray, bubbles,
-// splat, pop words), fizlet/sprite (the can). There is no camera brick: the "camera" is one
-// transform on a host element, written through the engine's ledger so Recall gives it back.
+// Mounted through fizlet/slot. Bricks: the kernel (settle + fps cap), fizlet/fx (gravity and named
+// kinds: spray, bubbles, splash; pop words), fizlet/sprite (the can), fizlet/camera (the page is the
+// camera: one eased transform on a host element, through the ledger, so Recall gives it back).
 import { createEngine } from "../../../src/kernel/index";
-import { effects } from "../../../src/fx";
+import { effects, emitter, KINDS, type Kind } from "../../../src/fx";
+import { camera } from "../../../src/camera";
 import { sprites } from "../../../src/sprite";
 import type { SlotScene, SlotTap } from "../../../src/slot";
 import { CAN, C, H, MOUTH, W } from "./can";
@@ -25,18 +26,23 @@ export type FizzScene = SlotScene & {
   pop(): void;
 };
 
-// fx particle kinds (fizlet/fx does not export them yet).
-const DEBRIS = 0, RING = 2;
+// The blast's ring part (fx ids 0-5); the other kinds are data, in art pixels (scaled by K).
+const RING = 2, UP = -Math.PI / 2;
+const KIND = {
+  bubble: KINDS.bubble,
+  spray: { shape: "square" as const, drag: 1.4, gravity: 0.4, angle: UP, spread: 1.3, speed: [40, 130], size: [0.75, 2.25], life: [0.6, 1.3] },
+  splash: { shape: "square" as const, drag: 1.4, gravity: 1, angle: UP, spread: 2.4, speed: [15, 40], size: [1, 1], life: [0.35, 0.5] },
+} satisfies Record<string, Kind>;
 // fx colour indices.
-const INK = 0, SYS = 1, GO = 2, AIM = 3;
-
-const ease = (t: number) => 1 - (1 - Math.min(1, Math.max(0, t))) ** 3;
+const INK = 0, SYS = 1, AIM = 3;
 
 export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | null, o: FizzOptions = {}): FizzScene {
   const zoomEl = o.zoom === undefined ? slot.closest<HTMLElement>("[data-fizz-zoom]") : o.zoom;
   const Z = o.scale ?? 1.5, delay = o.delay ?? 0.7, fx0 = o.x ?? 0.5;
   const engine = createEngine({ root: stage, fps: 30, settle: 0.6 });
   const fx = effects({ cap: 260, colors: [C.ink, C.sys, C.go, C.aim, C.attack], words: ["PSST!", "FIZZ"], scorch: 0 });
+  const { ids, emit } = emitter(fx, KIND);
+  const cam = zoomEl && camera(engine, zoomEl, { ease: 5 });
   const art = sprites({ can: CAN });
   const canvas = engine.ledger.add(document.createElement("canvas"));
   canvas.style.cssText = "position:absolute;left:0;top:0;image-rendering:pixelated";
@@ -44,7 +50,7 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
   const ctx = canvas.getContext("2d")!;
 
   // Layout in art pixels (P CSS px each); the can is drawn at K art px per sprite pixel.
-  let P = 4, w = 0, h = 0, K = 1, cx = 0, by = 0, resized = true, sw = stage.clientWidth, sh = stage.clientHeight;
+  let P = 4, w = 0, h = 0, K = 1, g = 200, cx = 0, by = 0, resized = true, sw = stage.clientWidth, sh = stage.clientHeight;
   const ro = new ResizeObserver((l) => {
     const b = l[0]!.contentRect;
     if (b.width !== sw || b.height !== sh) (sw = b.width), (sh = b.height), (resized = true), engine.wake();
@@ -53,10 +59,10 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
   engine.signal.addEventListener("abort", () => ro.disconnect(), { once: true });
 
   // The story, in seconds. t: time since the pop (-1: sealed). Drips: column, start, end row, row now.
-  const s = { t: -1, wait: first ? 0 : delay, bubbles: 0, ox: 0, oy: 0, z: 1, dirty: true, origin: false };
+  const s = { t: -1, wait: first ? 0 : delay, bubbles: 0, ox: 0, oy: 0, dirty: true, origin: false };
   const drips = [
-    { col: 16, at: 0.35, end: 36, y: -1, fall: -1, v: 0, puddle: false },
-    { col: 3, at: 1.2, end: 24, y: -1, fall: -1, v: 0, puddle: false },
+    { col: 16, at: 0.35, end: 36, y: -1, fall: -1, puddle: false },
+    { col: 3, at: 1.2, end: 24, y: -1, fall: -1, puddle: false },
   ];
   const left = () => cx - (W / 2) * K, top = () => by - H * K;
   const mouthX = () => left() + (MOUTH.x + 0.5) * K, mouthY = () => top() + MOUTH.y * K;
@@ -64,13 +70,10 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
   function pop() {
     s.t = 0;
     s.bubbles = 0;
-    s.origin = s.z === 1; // read the zoom origin once, while the page is at rest
+    s.origin = true; // the read phase zooms in on the opening
     for (const d of drips) (d.y = -1), (d.fall = -1), (d.puddle = false);
     const x = mouthX(), y = mouthY();
-    for (let i = 0; i < 44; i++) {
-      const a = -Math.PI / 2 + (engine.random() - 0.5) * 1.3, v = K * (40 + engine.random() * 90);
-      fx.spawn(DEBRIS, x, y, Math.cos(a) * v, Math.sin(a) * v, K * (1 + (i % 3)) * 0.75, 0.6 + engine.random() * 0.7, i % 4);
-    }
+    emit(ids.spray, x, y, 44, 0, 4, K);
     fx.spawn(RING, x, y, 0, 0, 2 * K, 0.45, INK);
     fx.word(x - 8 * K, y - 6 * K, 0, AIM, 6 * K);
     fx.kick(6);
@@ -92,13 +95,18 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
         K = Math.max(1, Math.min(Math.round((h * 0.6) / H), Math.floor((h * 0.8) / H)));
         cx = Math.round(w * fx0);
         by = Math.round(h * 0.86);
+        fx.gravity = g = 200 * K;
         s.dirty = true;
       }
-      if (s.origin && zoomEl) {
+      if (s.origin && cam) {
         s.origin = false;
-        const r = zoomEl.getBoundingClientRect(), q = stage.getBoundingClientRect();
-        s.ox = Math.round(q.left - r.left + mouthX() * P);
-        s.oy = Math.round(q.top - r.top + mouthY() * P);
+        // Measure the opening while the page is at rest (mid-zoom, the last origin still holds).
+        if (cam.zoom === 1 && !cam.moving) {
+          const r = zoomEl!.getBoundingClientRect(), q = stage.getBoundingClientRect();
+          s.ox = q.left - r.left + mouthX() * P;
+          s.oy = q.top - r.top + mouthY() * P;
+        }
+        cam.zoomAt(s.ox, s.oy, Z);
       }
     },
     step(e, dt) {
@@ -106,13 +114,14 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
       fx.step(dt);
       if (s.t >= 0) {
         const t = (s.t += dt);
+        // The page zooms in on the opening (read phase), holds through the fizz, then is given back.
+        if (t - dt < 3.1 && t >= 3.1) cam?.home();
         // Fizz: bubbles rise off the opening, fast at first, then fewer.
         if (t < 2.8) {
           s.bubbles += dt * 70 * (1 - t / 2.8) ** 1.5;
-          for (; s.bubbles >= 1; s.bubbles--) {
-            const x = mouthX() + (e.random() - 0.5) * 3 * K;
-            fx.spawn(DEBRIS, x, mouthY(), (e.random() - 0.5) * 16 * K, -K * (25 + e.random() * 50), K * (e.random() < 0.25 ? 1.5 : 1), 0.7 + e.random() * 0.9, e.random() < 0.7 ? INK : SYS);
-          }
+          const n = Math.floor(s.bubbles);
+          emit(ids.bubble, mouthX(), mouthY(), n, INK, 2, K);
+          s.bubbles -= n;
         }
         if (t - dt < 0.6 && t >= 0.6) fx.word(mouthX() + 8 * K, mouthY() - 4 * K, 1, SYS, 6 * K);
         // Drips: stop-and-go down the side, then off the base and onto the floor.
@@ -120,30 +129,16 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
           if (t < d.at) continue;
           if (d.y < 0) d.y = 10;
           if (d.y < d.end) d.y = Math.min(d.end, d.y + dt * (2 + 9 * Math.abs(Math.sin((t - d.at) * 3.1 + d.col))));
-          else if (d.end >= 36 && d.fall < 0) (d.fall = 0), (d.v = 0);
-          if (d.fall >= 0 && !d.puddle) {
-            d.v += 200 * K * dt;
-            d.fall += d.v * dt;
-            if (top() + 37 * K + d.fall >= by) {
-              d.puddle = true;
-              const x = left() + (d.col + 1.5) * K;
-              for (let i = 0; i < 6; i++) fx.spawn(DEBRIS, x, by - 1, (i - 2.5) * 12 * K, -K * (15 + e.random() * 15), K, 0.4, i % 2 ? SYS : INK);
-            }
-          }
+          else if (d.end >= 36 && d.fall < 0) d.fall = t;
+          // Off the base it falls under the pool's gravity, then splashes on the floor.
+          if (d.fall >= 0 && !d.puddle && top() + 37 * K + 0.5 * g * (t - d.fall) ** 2 >= by)
+            (d.puddle = true), emit(ids.splash, left() + (d.col + 1.5) * K, by - 1, 6, INK, 2, K);
         }
-        // The page zooms in on the opening, holds through the fizz, then gives the page back.
-        s.z = t < 0.9 ? 1 + (Z - 1) * ease(t / 0.9) : t < 3.1 ? Z : 1 + (Z - 1) * (1 - ease((t - 3.1) / 0.9));
-        if (t > 4) s.t = -2, s.z = 1; // the story is over: the last frame stays, the engine settles
+        if (t > 4) s.t = -2; // the story is over: the last frame stays, the engine settles
       }
       if (s.wait >= 0 || s.t >= 0 || fx.live || fx.shake) (e.busy(), (s.dirty = true));
     },
     render() {
-      if (zoomEl) {
-        const L = engine.ledger, on = s.z !== 1;
-        L.style(zoomEl, "transform-origin", on ? `${s.ox}px ${s.oy}px` : "");
-        L.style(zoomEl, "transform", on ? `scale(${s.z.toFixed(4)})` : "");
-        L.style(zoomEl, "will-change", on ? "transform" : "");
-      }
       if (!s.dirty) return;
       s.dirty = false;
       const k = fx.shake ? Math.round(fx.shake / 5) * (engine.steps % 4 < 2 ? 1 : -1) : 0;
@@ -161,7 +156,7 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
         ctx.fillRect(x, y0 + 10 * K, K, (Math.floor(d.y) - 10) * K);
         ctx.fillStyle = C.ink;
         if (d.fall < 0) ctx.fillRect(x, y0 + (Math.floor(d.y) - 1) * K, K, K * 2);
-        else if (!d.puddle) ctx.fillRect(x + K, Math.round(y0 + 37 * K + d.fall), K, K * 2);
+        else if (!d.puddle) ctx.fillRect(x + K, Math.round(y0 + 37 * K + 0.5 * g * (s.t - d.fall) ** 2), K, K * 2);
         else ctx.fillRect(x, by, K * 3, K), (ctx.fillStyle = C.sys), ctx.fillRect(x + K, by, K, K);
       }
       fx.draw(ctx);
