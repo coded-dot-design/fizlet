@@ -14,7 +14,9 @@
 - **Home:** the bricks section comes from the same catalog and links to each page; a page profile
   section explains settle, the fps cap and slot with the measured page-build size; "by Chris
   Cooley" links to coded.design; `npm install` is marked coming soon (here and in the README);
-  the roadmap reflects the shipped bricks; Blitz's unmeasured "~17 KB" claim is gone.
+  the roadmap reflects the shipped bricks; Blitz's unmeasured "~17 KB" claim is gone. A "The
+  name" section tells the origin story (-let from applet, fiz from the soda-commercial fizz, DOM
+  VIRUS first) and holds an empty, hidden slot (`data-slot="fizz"`) for the soda-can fizz scene.
 - **SEO and accessibility gates** (`scripts/check-html.mjs`, run by `npm run test:site` on every
   built page): one title and description of sane length, canonical and `og:url` equal to the
   page's URL, Open Graph tags (a generated `og.png`, PNG-encoded with `node:zlib`), lang, one

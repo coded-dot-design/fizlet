@@ -188,6 +188,21 @@ export function home({ version, sizes, bundle, bricks: catalog }) {
   </div>
 </section>
 
+<!-- THE NAME: the origin story (owner-stated), and the slot for the soda-can fizz scene -->
+<section id="story" class="section" aria-labelledby="story-title">
+  <div class="wrap split">
+    <div>
+      <p class="eyebrow"><span class="index">FZ</span> THE NAME</p>
+      <h2 id="story-title">Crack the can.<br><em>Hear the fizz.</em></h2>
+      <p class="lead"><b>-let</b>, as in applet: a very small app with one job. <b>Fiz-</b>, from the old soda commercial: a can cracks, the shot zooms in on the bubbles and the drip running down the side.</p>
+      <p class="body">That shot looks expensive. Up close the fizz is full of detail, the kind of thing you'd reach for a heavy animation library to make. You don't need much to make it, though. That's the whole point: motion that looks complex, a tiny footprint, and the page as the stage.</p>
+      <p class="body">It started with DOM VIRUS: small games with a few characters, running right inside a page, changing the DOM itself and then giving it back. The bar for every brick since is simple: do one thing well, and fit with everything around it.</p>
+    </div>
+    <!-- Hero slot for the soda-can fizz scene (site/demos/fizz/, built separately). Empty and hidden until a scene mounts into it. -->
+    <div class="fizz-slot" data-slot="fizz" hidden></div>
+  </div>
+</section>
+
 <!-- THE PAGE PROFILE -->
 <section id="profile" class="section" aria-labelledby="profile-title">
   <div class="wrap split">

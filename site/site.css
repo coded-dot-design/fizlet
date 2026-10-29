@@ -1859,3 +1859,7 @@ html.bui[data-theme="light"] .phases b {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+.fizz-slot {
+  min-height: 320px;
+  contain: strict;
+}
