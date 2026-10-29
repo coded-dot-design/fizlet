@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Tests: the camera's reduced-motion check waits for frames, not 120 ms of wall time**, so slow CI
+  runners no longer fail it.
 - **Tests: zero-allocation checks no longer flake.** `match` and `rules` count young GCs with the
   shared best-of-3 helper (`tests/gc.mjs`) like every other check, and assert at most one over the
   bare engine (was three). `npm test` runs test files one at a time (`--test-concurrency=1`): with
