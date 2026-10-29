@@ -111,8 +111,8 @@ export function createEngine(o: EngineOptions = {}) {
   let held = STOPPED, phase = IDLE, dead = false, gone = false, moved = false;
   // Running numbers live in one typed array: updating it never allocates (a captured `let` holding
   // a double would box a new number on every write).
-  const n = new Float64Array(9);
-  const ACC = 0, LAST = 1, TIME = 2, FRAMES = 3, STEPS = 4, DROPPED = 5, MS = 6, MAX = 7, QUIET = 8;
+  const n = new Float64Array(11);
+  const ACC = 0, LAST = 1, TIME = 2, FRAMES = 3, STEPS = 4, DROPPED = 5, MS = 6, MAX = 7, QUIET = 8, DELTA = 9, WORK = 10;
   n[LAST] = -1;
 
   const set = (bit: number, on: boolean) => {
@@ -130,6 +130,12 @@ export function createEngine(o: EngineOptions = {}) {
     ledger,
     random,
     root,
+    /**
+     * The current (or last) frame, as a typed-array view (reading a slot never boxes a number):
+     * `[0]` seconds this frame advances on the shared clock (0 after a pause or a settle), `[1]` ms
+     * the last finished frame's hooks took (read, steps, render). Read-only by convention.
+     */
+    timing: n.subarray(DELTA, WORK + 1),
     /** Fixed step length in seconds. */
     dt,
     get time() {
@@ -141,6 +147,12 @@ export function createEngine(o: EngineOptions = {}) {
     },
     get phase() {
       return phase;
+    },
+    /** Pooled things in use right now, summed over every `engine.pool` (no allocation). */
+    get live() {
+      let k = 0;
+      for (let i = 0; i < pools.length; i++) k += pools[i]![1].size;
+      return k;
     },
     get running() {
       return !held && !dead;
@@ -204,6 +216,7 @@ export function createEngine(o: EngineOptions = {}) {
       phase = READ;
       for (let i = 0; i < systems.length; i++) systems[i]!.read?.(engine);
       phase = STEP;
+      n[DELTA] = sec;
       if (sec > 0) n[ACC]! += sec;
       for (let k = 0; n[ACC]! >= dt; k++) {
         if (k === maxSteps) {
@@ -229,7 +242,7 @@ export function createEngine(o: EngineOptions = {}) {
         else if ((n[QUIET]! += sec) >= settle) set(SETTLED, true);
         moved = false;
       }
-      const ms = performance.now() - t0;
+      const ms = (n[WORK] = performance.now() - t0);
       n[FRAMES]!++;
       n[MS]! += ms;
       if (ms > n[MAX]!) n[MAX] = ms;

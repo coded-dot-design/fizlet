@@ -6,6 +6,9 @@ import { gzipSync } from "node:zlib";
 export const BUDGETS = [
   ["fizlet (kernel)", "src/index.ts", 4096],
   ["fizlet/debug", "src/debug.ts", 1536],
+  // The player-facing performance overlay (off by default). Logic ~1.5 KB gz; its look is inline
+  // on the kit tokens (~0.45 KB) so it works on pages without board-ui.css.
+  ["fizlet/perf", "src/perf.ts", 2048],
   ["fizlet/input", "src/input.ts", 1536],
   ["fizlet/pad", "src/pad.ts", 2048],
   ["fizlet/collide", "src/collide.ts", 1536],
@@ -20,6 +23,7 @@ export const BUDGETS = [
   ["fizlet/hud", "src/hud.ts", 1536],
 
   ["fizlet/match", "src/match.ts", 2816],
+  ["fizlet/rules", "src/rules.ts", 1536],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   ["fizlet/board-page", "src/board-page.ts", 4096],
   // A hero's live chunk is ≤ 10 KB gz (fizlet-engine docs/LAYERS.md); the bricks take ≤ 7 KB, the scene ≥ 3 KB.

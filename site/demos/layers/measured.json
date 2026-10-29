@@ -1,20 +1,20 @@
 {
-  "version": "0.5.1",
+  "version": "0.7.0",
   "chromium": "153.0.8010.12",
   "bytes": {
-    "entry": 1959,
-    "scene": 10600,
-    "live": 12559,
+    "entry": 1957,
+    "scene": 10664,
+    "live": 12621,
     "poster": 2560
   },
   "frame": {
     "throttle": 4,
     "fps": 30,
-    "frames": 739,
+    "frames": 742,
     "p50": 0.9,
-    "p95": 5.2,
-    "max": 14.3,
-    "gapP95": 33.3
+    "p95": 4.5,
+    "max": 10.3,
+    "gapP95": 33.2
   },
   "cls": 0,
   "settledFrames": 0,

@@ -42,11 +42,11 @@ Optional data attributes on the figure: `data-loops` (cycles before it settles, 
 
 ## Measured
 
-See `site/demos/layers/measured.json`. On Fizlet 0.5.1, Chromium 153: live chunk 12,559 B gzip
-(slot 1,959 B up front, scene 10,600 B lazy), poster 2,560 B gzip inline; at 4× CPU throttle,
-script per frame 0.9 ms median, 5.2 ms p95; layout shift 0; 0 frames once settled; 0 scene bytes
+See `site/demos/layers/measured.json`. On Fizlet 0.7.0, Chromium 153: live chunk 12,621 B gzip
+(slot 1,957 B up front, scene 10,664 B lazy), poster 2,560 B gzip inline; at 4× CPU throttle,
+script per frame 0.9 ms median, 4.5 ms p95; layout shift 0; 0 frames once settled; 0 scene bytes
 before the slot nears the viewport.
 
 Against the hero budgets in fizlet-engine `docs/LAYERS.md`: poster ≤ 6 KB ✔, CLS 0 ✔, 0 frames
 settled ✔, **live chunk ≤ 10 KB ✘ (12.3 KB)**: kernel + slot + grid + sprite + fx take most of it.
-The slot's 1,959 B also load before the slot is near (the budget says 0 B).
+The slot's 1,957 B also load before the slot is near (the budget says 0 B).
