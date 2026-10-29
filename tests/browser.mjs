@@ -3,12 +3,15 @@
 // debug guard catches layout reads in a step, and fizlet/slot (lazy, reduced motion, a11y, Recall).
 // debug guard catches layout reads in a step. Sprites: pixel-exact Sherman tile, drawn pixels, cache
 // cap, SVG for page characters, and no JS heap allocation in a draw loop (sampled heap profiler).
+// rules, one real requestAnimationFrame for many engines, destroy leaves nothing running, the
+// debug guard catches layout reads in a step, and the touch pad (real multi-touch through CDP).
 import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { chromium } from "playwright";
+import { readFileSync } from "node:fs";
 
 const bundle = (await build({
-  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs";', resolveDir: process.cwd(), loader: "ts" },
+  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "fizlet", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 
@@ -19,6 +22,129 @@ const PAGE = `<!doctype html><meta charset="utf-8"><body>
 <div style="height:3000px"></div>
 <div id="far">far down</div>
 <script>${bundle}</script></body>`;
+
+const CSS = readFileSync("src/ui/board-ui.css", "utf8");
+/** fizlet/pad on a phone-sized board: names, scheme swaps (no new listeners), fire while steering
+ *  with two real fingers, the d-pad, move keys, toggles, keyboard, reduced motion, exact Recall. */
+async function padTest() {
+  const ctx = await browser.newContext({ viewport: { width: 844, height: 390 }, hasTouch: true, reducedMotion: "reduce" });
+  const tp = await ctx.newPage();
+  const errs = [];
+  tp.on("pageerror", (e) => errs.push(e.message));
+  await tp.setContent(`<!doctype html><meta charset="utf-8"><body style="margin:0"><style>${CSS}</style>
+<div class="bui" id="board" style="position:relative;width:844px;height:390px"><p id="keep" class="x" style="margin:0">field</p></div><script>${bundle}</script></body>`);
+  const cdp = await ctx.newCDPSession(tp);
+  const touch = (type, points) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: points.map(([x, y, id]) => ({ x, y, id })) });
+  const centre = (sel) => tp.evaluate((s) => {
+    const r = document.querySelector(s).getBoundingClientRect();
+    return [r.left + r.width / 2, r.top + r.height / 2, r.width];
+  }, sel);
+
+  const setup = await tp.evaluate(() => {
+    // Record every listener added from here on (target, type, signal) to prove none leak.
+    const added = (window.added = []), orig = (window.origAdd = EventTarget.prototype.addEventListener);
+    EventTarget.prototype.addEventListener = function (type, fn, opt) {
+      added.push({ type, signal: opt && opt.signal });
+      return orig.call(this, type, fn, opt);
+    };
+    const board = document.getElementById("board");
+    window.before = board.outerHTML;
+    const e = (window.e = fizlet.createEngine({ root: board }));
+    const c = (window.c = fizlet.controls(e, { keys: { up: ["KeyW"], down: ["KeyS"], left: ["KeyA"], right: ["KeyD"], fire: ["Space"], auto: ["KeyQ"], jump: ["KeyJ"] }, stick: "left" }));
+    window.base = added.length;
+    const p = (window.p = fizlet.pad(e, c, { actions: [
+      { intent: "fire", label: "", name: "Hold to fire (Space)", hold: true, key: "SPACE", icon: '<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="5"/></svg>' },
+      { intent: "auto", label: "AUTO", name: "Auto-aim (Q)", role: "aim", toggle: true, key: "Q" },
+      { intent: "jump", label: "JUMP" },
+    ] }));
+    const mine = added.length - window.base;
+    for (const s of ["dpad", "buttons", "stick", "buttons", "dpad", "stick", "dpad", "buttons", "stick", "stick"]) p.setScheme(s);
+    const named = [...p.el.querySelectorAll("button, [role=application]")].every((n) => n.getAttribute("aria-label"));
+    return { mine, afterSwaps: added.length - window.base, scheme: p.scheme, named, moveNodes: p.el.querySelector(".bui-pad-move").children.length, ignored: p.el.hasAttribute("data-fizlet-ignore") };
+  });
+  assert.deepEqual(setup, { mine: setup.mine, afterSwaps: setup.mine, scheme: "stick", named: true, moveNodes: 1, ignored: true }, "ten scheme swaps add no listeners and leave one move control");
+
+  // Two fingers: drive with the stick, then hold FIRE while still steering.
+  const [sx, sy, sw] = await centre(".bui-stick"), [fx, fy] = await centre(".bui-primary");
+  await touch("touchStart", [[sx, sy, 1]]);
+  await touch("touchMove", [[sx + 40, sy, 1]]);
+  await touch("touchStart", [[sx + 40, sy, 1], [fx, fy, 2]]);
+  const both = await tp.evaluate(() => (e.advance(0), {
+    x: c.stick.x, y: c.stick.y, active: c.stick.active, axis: c.axis("left", "right", 0), fire: c.down("fire"), hit: c.hit("fire"),
+    knob: p.el.querySelector(".bui-knob").style.translate, keys: [...p.el.querySelectorAll(".down")].map((n) => n.className).join("|"),
+  }));
+  const want = (40 / (sw * 0.36) - 0.15) / 0.85;
+  assert.ok(Math.abs(both.x - want) < 0.02 && Math.abs(both.y) < 1e-9 && both.active, `steering x ${both.x} (want ${want.toFixed(3)})`);
+  assert.equal(both.axis, both.x, "axis() reads the pad stick like the field stick");
+  assert.deepEqual([both.fire, both.hit], [true, true], "fire held while steering");
+  assert.ok(both.knob.startsWith("40") && /bui-stick down/.test(both.keys) && /bui-primary down/.test(both.keys), `knob drawn in render, both pressed (${both.knob}; ${both.keys})`);
+  await touch("touchEnd", [[fx, fy, 2]]); // lift FIRE only (touchEnd lists the lifted points)
+  const one = await tp.evaluate(() => (e.advance(0), { fire: c.down("fire"), steering: c.stick.active }));
+  assert.deepEqual(one, { fire: false, steering: true }, "lifting FIRE keeps the stick");
+  await touch("touchEnd", [[sx + 40, sy, 1]]);
+  const none = await tp.evaluate(() => (e.advance(0), { active: c.stick.active, x: c.stick.x, knob: p.el.querySelector(".bui-knob").style.translate, down: p.el.querySelectorAll(".down").length }));
+  assert.deepEqual(none, { active: false, x: 0, knob: "", down: 0 }, "the stick lets go and the knob returns");
+
+  // D-pad: one finger, eight ways; a scheme swap mid-press lets go.
+  await tp.evaluate(() => p.setScheme("dpad"));
+  const [dx, dy, dw] = await centre(".bui-dpad");
+  await touch("touchStart", [[dx + dw * 0.35, dy - dw * 0.35, 3]]);
+  const diag = await tp.evaluate(() => [c.down("up"), c.down("right"), c.down("down"), c.down("left"), p.el.querySelectorAll(".down").length]);
+  assert.deepEqual(diag, [true, true, false, false, 3], "up-right holds two intents (dpad + two arrows pressed)");
+  await touch("touchMove", [[dx - dw * 0.4, dy, 3]]);
+  const rolled = await tp.evaluate(() => [c.down("up"), c.down("right"), c.down("left")]);
+  assert.deepEqual(rolled, [false, false, true], "rolling the thumb changes direction without lifting");
+  await tp.evaluate(() => p.setScheme("buttons"));
+  const swapped = await tp.evaluate(() => [c.down("left"), p.el.querySelectorAll(".down").length, p.el.querySelectorAll(".bui-pad-move > button").length]);
+  assert.deepEqual(swapped, [false, 0, 4], "a swap releases held directions; buttons shows four move keys");
+  await touch("touchEnd", [[dx - dw * 0.4, dy, 3]]);
+
+  // Move keys: hold LEFT and FIRE together.
+  const [lx, ly] = await centre('.bui-pad-move [data-d="2"]');
+  await touch("touchStart", [[lx, ly, 4], [fx, fy, 5]]);
+  const keys2 = await tp.evaluate(() => [c.down("left"), c.down("fire")]);
+  await touch("touchEnd", [[lx, ly, 4], [fx, fy, 5]]);
+  const keys3 = await tp.evaluate(() => [c.down("left"), c.down("fire")]);
+  assert.deepEqual([keys2, keys3], [[true, true], [false, false]], "move keys and fire are separate fingers");
+
+  // Toggle: a tap flips the intent and paints at once; game code flipping it repaints in render.
+  const [ax, ay] = await centre('[data-i="1"]');
+  await touch("touchStart", [[ax, ay, 6]]);
+  await touch("touchEnd", [[ax, ay, 6]]);
+  const tog = await tp.evaluate(() => {
+    const k = p.el.querySelector('[data-i="1"]'), out = [c.down("auto"), k.getAttribute("aria-pressed")];
+    c.press("auto", false);
+    e.advance(0);
+    return [...out, k.getAttribute("aria-pressed")];
+  });
+  assert.deepEqual(tog, [true, "true", "false"], "toggle on by tap, off from game code");
+
+  // Keyboard: Enter on a focused key is one tap.
+  await tp.focus('[data-i="2"]');
+  await tp.keyboard.press("Enter");
+  const kb = await tp.evaluate(() => (e.advance(0), [c.hit("jump"), c.down("jump")]));
+  assert.deepEqual(kb, [true, false], "keyboard activation taps");
+
+  // Reduced motion: the kit turns transitions off (the knob snaps back).
+  const still = await tp.evaluate(() => (p.setScheme("stick"), getComputedStyle(p.el.querySelector(".bui-knob")).transitionDuration));
+  assert.equal(still, "0s");
+
+  // Recall: pad.destroy(), then a second pad given back by engine.destroy(); listeners all aborted.
+  const recall = await tp.evaluate(() => {
+    const board = document.getElementById("board");
+    p.destroy();
+    const first = board.outerHTML === window.before;
+    const q = fizlet.pad(e, c, { scheme: "dpad", side: "left", actions: [{ intent: "fire", label: "FIRE", hold: true }] });
+    q.setScheme("buttons");
+    e.destroy();
+    EventTarget.prototype.addEventListener = window.origAdd;
+    const leaked = window.added.slice(window.base).filter((l) => !l.signal || !l.signal.aborted).map((l) => l.type);
+    return { first, second: board.outerHTML === window.before, leaked };
+  });
+  assert.deepEqual(recall, { first: true, second: true, leaked: [] }, "destroy restores the board exactly and aborts every listener");
+  assert.deepEqual(errs, []);
+  await ctx.close();
+}
 
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 let where = "start";
@@ -388,6 +514,11 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
 
   assert.deepEqual(errors, []);
   console.log(`Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, sprite (draw loop: ${bytes} bytes sampled) passed.`);
+  where = "pad";
+  await padTest();
+
+  assert.deepEqual(errors, []);
+  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, pad passed.");
 } catch (e) {
   console.error(`::error title=Fizlet browser test (${where})::${e.message}`);
   throw e;
