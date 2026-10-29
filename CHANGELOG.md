@@ -14,6 +14,11 @@ For page scenes in the gallery (`fe anim`'s second scene type: it reads the page
   `advance()` (V8 had no feedback for a store that runs only on a new record).
 - **Tests find Chromium by themselves** (`tests/chromium.mjs`): `CHROMIUM_PATH`, else
   `/opt/pw-browsers/chromium`, else Playwright's own; every browser test and the site test use it.
+- **Website: gallery #006, "a scanline sweep that lights up every heading it passes".** Made by `fe
+  anim` from the prompt (recipe sweep, a page scene that reads the page's own headings and writes
+  only through the ledger; kernel + board-page + slot): live 8,852 B · total 10,752 B gzip (with the
+  1,900 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
 
 ## 0.14.0
 
