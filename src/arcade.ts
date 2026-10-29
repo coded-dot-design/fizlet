@@ -128,7 +128,7 @@ export interface ArcadeDef<S> {
   /** Touch move control (default "stick"; "dpad" for grid games). */
   pad?: "stick" | "dpad";
   /** Readouts: label, tone, how the value shows, and whether it hides when the board is folded. */
-  readouts: [label: string, tone?: "team" | "enemy", fmt?: (v: number) => string, fold?: boolean][];
+  readouts: [label: string, tone?: "team" | "enemy" | undefined, fmt?: ((v: number) => string) | undefined, fold?: boolean | undefined][];
   meter?: { label: string };
   /** Spark colours, by index. */
   colors: string[];
