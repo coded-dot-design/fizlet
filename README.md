@@ -106,7 +106,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 
 More bricks land through phase E2 (actor, steer, aim, rules, board-page, camera,
 
-| `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | ~3.4 KB |
+| `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | ~3.8 KB |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
 
 More bricks land through phase E2 (actor, steer, aim, rules, board-grid, camera,

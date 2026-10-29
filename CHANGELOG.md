@@ -7,8 +7,8 @@
   `targets`, `near`, `hit` (+ `t`), `consume`, `refresh`, `reads`, `system`. Geometry measured in the
   read phase only, Range reads capped per refresh (900), 12.5 Hz while the page moves and 2 Hz once
   still, indexed with collide `Grid`; `consume` writes 0/1 into the page's own Text node through
-  the ledger (queued from a step, written in render; seeded bits). Budget 3.5 KB gzip (measured
-  ~3.4 KB with Grid). Browser tests: index, near/hit, consume, erase, no layout reads in step,
+  the ledger (queued from a step, written in render; seeded bits). Budget 4 KB gzip: 3.8 KB measured
+  with Grid (3.4 KB on the Grid before 0.4.1's hardening, which adds 379 B here). Browser tests: index, near/hit, consume, erase, no layout reads in step,
   rescan, host edit wins, byte-for-byte Recall, read cap, steady-state allocation, scroll.
 
 ## 0.4.3

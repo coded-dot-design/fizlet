@@ -20,7 +20,8 @@ export const BUDGETS = [
   ["fizlet/hud", "src/hud.ts", 1536],
 
   ["fizlet/match", "src/match.ts", 2816],
-  ["fizlet/board-page", "src/board-page.ts", 3584],
+  // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
+  ["fizlet/board-page", "src/board-page.ts", 4096],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
   ["fizlet/ui (css)", "src/ui/board-ui.css", 5120],
 ];
