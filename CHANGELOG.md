@@ -1,7 +1,6 @@
 # Changelog
 
-<<<<<<< HEAD
-## Unreleased
+## 0.6.1
 
 - **The fizz demo** (`site/demos/fizz/`, live at `demos/fizz/`; host-page example in
   `examples/fizz/`), the proof piece behind the name: an 80s arcade soda can whose tab pops (on
@@ -18,7 +17,7 @@
   Brick gaps found: `fizlet/fx` exports no particle kinds and has no constant force (buoyancy or
   gravity), so the demo uses raw kind numbers and drag-only spray; there is no `camera` brick yet,
   so the zoom is done in the demo.
-=======
+
 ## 0.6.0
 
 - **`fizlet/rules`** (new brick, 1,264 B gzip, budget 1,536): `waves`, `drops` and `score`, the
@@ -28,7 +27,6 @@
   Null Invaders' combo, so a port keeps its feel; a test runs `waves` frame by frame against the
   core's WaveDirector and they match. Rules is the biggest layer in the games measured so far
   (42,076 B gzip of game code across eight builds). No version bump.
->>>>>>> origin/main
 
 ## 0.5.1
 
