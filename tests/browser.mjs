@@ -34,7 +34,13 @@ async function padTest() {
   await tp.setContent(`<!doctype html><meta charset="utf-8"><body style="margin:0"><style>${CSS}</style>
 <div class="bui" id="board" style="position:relative;width:844px;height:390px"><p id="keep" class="x" style="margin:0">field</p></div><script>${bundle}</script></body>`);
   const cdp = await ctx.newCDPSession(tp);
-  const touch = (type, points) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: points.map(([x, y, id]) => ({ x, y, id })) });
+  // CDP returns before the renderer has handled the input; a frame round-trip flushes it, so the
+  // next read sees the pointer handlers' effect (CI runners are slow enough to lose this race).
+  const flush = () => tp.evaluate(() => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0))));
+  const touch = async (type, points) => {
+    await cdp.send("Input.dispatchTouchEvent", { type, touchPoints: points.map(([x, y, id]) => ({ x, y, id })) });
+    await flush();
+  };
   const centre = (sel) => tp.evaluate((s) => {
     const r = document.querySelector(s).getBoundingClientRect();
     return [r.left + r.width / 2, r.top + r.height / 2, r.width];
@@ -117,7 +123,7 @@ async function padTest() {
     e.advance(0);
     return [...out, k.getAttribute("aria-pressed")];
   });
-  assert.deepEqual(tog, [true, "true", "false"], "toggle on by tap, off from game code");
+  assert.deepEqual(tog, [true, "true", "false"], `toggle on by tap, off from game code (got ${JSON.stringify(tog)})`);
 
   // Keyboard: Enter on a focused key is one tap.
   await tp.focus('[data-i="2"]');
