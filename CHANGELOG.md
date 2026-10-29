@@ -25,6 +25,19 @@ For page scenes in the gallery (`fe anim`'s second scene type: it reads the page
 - Size: kernel 3,413 B gzip (budget 4,096); `fizlet/board-page` 4,050 B (4,010 in 0.14.0, budget
   4,096); `fizlet/arcade` 17,246 B (budget 17,408).
 
+## 0.14.1
+
+- **Board UI: page keys press right (`.bui-key`, links and buttons).** On a mouse, a pressed link
+  key stayed lifted: its hover rule outranked the press rule, so the face never dropped onto its
+  base. Press now always beats hover. A click on the base (a box-shadow, which takes no pointer) or
+  just under the top edge (which the dropping face leaves) missed the key; an invisible `::before`
+  now covers face and base and stays put while the face travels. New `pressCue(root)` in
+  `fizlet/ui`: Enter (and Space on a button) shows the pressed face, and iOS Safari applies
+  `:active`. Disabled link keys (`aria-disabled="true"`), and a darker face as the press cue under
+  reduced motion. The site's keys all wear `bui-key`; `tests/keys.mjs` presses every page key at
+  its centre, top edge and base (mouse and keyboard at 1440, taps at 390). ui CSS 4,858 B gz
+  (was 4,737), ui JS 2,887 B gz (was 2,745).
+
 ## 0.14.0
 
 For Swarm Protocol's port onto the kernel (its own engine kept page-level hooks the bricks lacked):

@@ -15,7 +15,7 @@ export default function soundDemo(host: HTMLElement) {
   for (const cue of CUES) {
     const k = document.createElement("button");
     k.type = "button";
-    k.className = "bui-arcade bui-sys bd-key";
+    k.className = "bui-key bui-arcade bui-sys bd-key";
     k.textContent = cue;
     keys.append(k);
     press(k, () => {

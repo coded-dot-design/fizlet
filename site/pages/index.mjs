@@ -100,9 +100,9 @@ export function playFigure() {
         <p class="demo-hint" data-hint aria-hidden="true"><span class="blink"></span>CLICK THE PAGE</p>
       </div>
       <div class="demo-keys">
-        <button class="bui-arcade bui-attack" type="button" data-blast>${icon("fire", 18)}Blast<kbd>B</kbd></button>
-        <button class="bui-arcade bui-cmd" type="button" data-recall>${icon("recall", 18)}Recall<kbd>R</kbd></button>
-        <button class="bui-icon-key" type="button" data-sound aria-pressed="false" aria-label="Sound"><span class="snd-off">${icon("mute")}</span><span class="snd-on">${icon("sound")}</span></button>
+        <button class="bui-key bui-arcade bui-attack" type="button" data-blast>${icon("fire", 18)}Blast<kbd>B</kbd></button>
+        <button class="bui-key bui-arcade bui-cmd" type="button" data-recall>${icon("recall", 18)}Recall<kbd>R</kbd></button>
+        <button class="bui-key bui-icon-key" type="button" data-sound aria-pressed="false" aria-label="Sound"><span class="snd-off">${icon("mute")}</span><span class="snd-on">${icon("sound")}</span></button>
       </div>
       <dl class="demo-stats" aria-label="engine.stats(), live">
         <div><dt>FRAMES</dt><dd data-stat="frames">0</dd></div>
@@ -176,7 +176,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz }) 
         <a class="bui-key bui-arcade bui-sys" href="#contract">${icon("down", 16)}The contract</a>
         <a class="hero-link" href="${REPO}">${icon("github", 16)}coded-dot-design/fizlet ↗</a>
       </div>
-      <div class="hero-install code-card"><div class="code-head"><span class="bui-label"><b>SCRIPT TAG</b> · ${kb(bundle)} KB, EVERY BRICK</span><button class="copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div>${code(`<script src="${SITE}fizlet.js"></script>`, "wrap")}</div>
+      <div class="hero-install code-card"><div class="code-head"><span class="bui-label"><b>SCRIPT TAG</b> · ${kb(bundle)} KB, EVERY BRICK</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div>${code(`<script src="${SITE}fizlet.js"></script>`, "wrap")}</div>
     </div>
 
     <div class="hero-layers">
@@ -442,8 +442,8 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz }) 
       </div>
     </div>
     <div class="start-code">
-      <div class="panel lit code-card"><div class="code-head"><span class="bui-label"><b>SCRIPT TAG</b> · index.html</span><button class="copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div>${code(QUICK_START(SITE + "fizlet.js"))}</div>
-      <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>MODULES</b> · only what you use</span><button class="copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div>${code(`<script type="module">
+      <div class="panel lit code-card"><div class="code-head"><span class="bui-label"><b>SCRIPT TAG</b> · index.html</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div>${code(QUICK_START(SITE + "fizlet.js"))}</div>
+      <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>MODULES</b> · only what you use</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div>${code(`<script type="module">
   import { createEngine } from "${SITE}dist/index.js";
   import { effects } from "${SITE}dist/fx.js";
   import { controls } from "${SITE}dist/input.js";
