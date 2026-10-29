@@ -3,7 +3,7 @@
 // host script (fizlet/slot only) and the scene comes in as its own chunk once the slot is near.
 import { build } from "esbuild";
 import { gzipSync } from "node:zlib";
-import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const OUT = process.argv[2] ?? "site-dist/demos/layers";
@@ -22,6 +22,7 @@ const { page } = await import("../../../examples/layers/page.mjs");
 
 let measured = null;
 try { measured = JSON.parse(readFileSync(`${HERE}/measured.json`, "utf8")); } catch {}
+copyFileSync("src/ui/board-ui.css", join(OUT, "board-ui.css"));
 writeFileSync(join(OUT, "index.html"), page({ figure: poster(), css: POSTER_CSS, measured }));
 
 const gz = (b) => gzipSync(b).length;

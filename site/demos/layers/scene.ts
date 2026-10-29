@@ -34,7 +34,7 @@ const smooth = (a: number, b: number, t: number) => {
   return k * k * (3 - 2 * k);
 };
 
-const TANK = sprites(
+const tank = (pal: Record<string, string>[]) => sprites(
   {
     tank: {
       frames: [
@@ -49,10 +49,10 @@ const TANK = sprites(
         "ttttttttt",
       ],
       colors: { t: "tread", b: "team", h: "hatch", c: "team" },
-      outline: "#07060f",
+      outline: "rim",
     },
   },
-  { palettes: [{ tread: "#1d1738", team: "#39ffb0", hatch: "#07060f" }, { team: "#ff5c8f" }] },
+  { palettes: pal },
 );
 
 export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene & { engine: Engine } {
@@ -60,6 +60,10 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene &
   const engine = createEngine({ root: stage, fps: 30, settle: opts.settle ?? 0.5, seed: opts.seed ?? 7 });
   const rand = engine.random;
   const W = stage.clientWidth || 360, H = stage.clientHeight || 420; // one read, at mount
+  // The tanks wear the Board UI kit's tokens (sprites take hex: read them once, here).
+  const cs = getComputedStyle(stage), tok = (v: string, d: string) => cs.getPropertyValue(v).trim() || d;
+  const rim = tok("--rim", "#07060f");
+  const TANK = tank([{ tread: tok("--raised", "#1d1738"), team: tok("--team-a", "#39ffb0"), hatch: rim, rim }, { team: tok("--team-b", "#ff5c8f") }]);
 
   // ---------- the board (fizlet/grid) ----------
   const bd = makeBoard(COLS, ROWS, { cell: CELL });
@@ -116,6 +120,8 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene &
   const fx = effects({ cap: 160, scorch: 12, words: ["HIT", "BLAM"] });
   // Input: a thumb ring with an aim line (the intent the lead tank follows).
   const ring = el(inL, "lz-r"), aim = el(inL, "lz-a");
+  // The kit's own arcade fire key (Board UI), as the player's on-screen control.
+  el(inL, "bui-key bui-arcade bui-fire lz-fire").textContent = "FIRE";
   // HUD.
   const hud = el(hudL, "lz-hud");
   hud.innerHTML = "<b>GREEN 0</b><span>0:00</span><i>PINK 0</i>";
@@ -234,14 +240,14 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene &
         l.style.transform = `translateZ(${(i - (N - 1) / 2) * GAP * open}px)`;
         tags[i]!.style.transform = `rotateZ(${-TURN * open}deg) rotateX(${-TILT * open}deg)`;
         tags[i]!.style.opacity = `${smooth(0.6, 1, open)}`;
-        if (i) l.style.borderColor = open > 0.02 ? (i === FAULT ? "" : "#3b3170") : "transparent";
-        if (i) l.style.backgroundColor = open > 0.02 ? "rgba(17,13,34,.42)" : "";
+        if (i) l.style.borderColor = open > 0.02 ? (i === FAULT ? "" : "var(--line)") : "transparent";
+        if (i) l.style.backgroundColor = open > 0.02 ? "color-mix(in srgb,var(--surface) 42%,transparent)" : "";
       }
       // Fault, scan, patch, green.
       const bad = t >= FAULT_AT && t < SCAN_END, ok = t >= SCAN_END && t < OK_END;
       const p = smooth(SCAN_AT, SCAN_END, t);
-      colL.style.borderColor = bad ? "#ff2b4e" : ok ? "#39ffb0" : open > 0.02 ? "#3b3170" : "transparent";
-      colL.style.backgroundColor = bad ? "rgba(255,43,78,.28)" : ok ? `rgba(57,255,176,${0.5 * (1 - smooth(SCAN_END, OK_END, t))})` : colL.style.backgroundColor;
+      colL.style.borderColor = bad ? "var(--k-fire)" : ok ? "var(--k-go)" : open > 0.02 ? "var(--line)" : "transparent";
+      colL.style.backgroundColor = bad ? "color-mix(in srgb,var(--k-fire) 28%,transparent)" : ok ? `color-mix(in srgb,var(--k-go) ${Math.round(50 * (1 - smooth(SCAN_END, OK_END, t)))}%,transparent)` : colL.style.backgroundColor;
       colL.style.opacity = `${open > 0.02 || bad ? 1 : 0}`;
       const h = `${t >= SCAN_AT && t < OK_END ? p * BH : t >= OK_END || t < FAULT_AT ? BH : 0}px`;
       if (fixed.style.height !== h) fixed.style.height = h;
@@ -251,8 +257,8 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene &
       const word = bad ? (t < SCAN_AT ? "FAULT" : "SCANNING") : ok ? "PATCHED" : "";
       if (tag.dataset.state !== word) {
         tag.dataset.state = word;
-        tag.style.borderColor = bad ? "#ff2b4e" : ok ? "#39ffb0" : "";
-        tag.innerHTML = word ? `${LAYERS[FAULT]!.name} <u style="color:${bad ? "#ff7389" : "#39ffb0"}">· ${word}</u>` : `${LAYERS[FAULT]!.name} <u>· ${LAYERS[FAULT]!.bytes} ${LAYERS[FAULT]!.unit}</u>`;
+        tag.style.borderColor = bad ? "var(--k-fire)" : ok ? "var(--k-go)" : "";
+        tag.innerHTML = word ? `${LAYERS[FAULT]!.name} <u style="color:var(${bad ? "--k-aim" : "--k-go"})">· ${word}</u>` : `${LAYERS[FAULT]!.name} <u>· ${LAYERS[FAULT]!.bytes.toLocaleString("en-GB")} ${LAYERS[FAULT]!.unit}</u>`;
       }
       for (let i = 1; i < N; i++) if (i !== FAULT) layers[i]!.style.opacity = bad || ok ? "0.4" : "";
       // Game-mode helpers (paths, hitboxes, rules) show only when the stack is open.

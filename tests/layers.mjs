@@ -17,7 +17,8 @@ const bundle = (await build({
 })).outputFiles[0].text;
 // The built page, with the test's own script (keeps the slot handle) in place of entry.js.
 const PAGE = html
-  .replace('<figure class="ae-slot lyr"', '<figure data-loops="1" data-speed="4" data-settle="0.3" class="ae-slot lyr"')
+  .replace('<link rel="stylesheet" href="board-ui.css">', `<style>${readFileSync("src/ui/board-ui.css", "utf8")}</style>`)
+  .replace('<figure class=', '<figure data-loops="1" data-speed="4" data-settle="0.3" class=')
   .replace('<script type="module" src="entry.js"></script>', `<script>${bundle}
 (() => {
   const raf = window.requestAnimationFrame.bind(window);
@@ -49,6 +50,7 @@ await test("mounts, cycles once, settles, Recall is exact", async () => {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
+  page.on("console", (m) => m.type() === "error" && errs.push(m.text()));
   await page.setContent(PAGE);
   await page.waitForSelector("[data-fizlet-slot] .lz", { timeout: 10000 });
   const m = await page.evaluate(() => ({
@@ -59,6 +61,9 @@ await test("mounts, cycles once, settles, Recall is exact", async () => {
   }));
   assert.deepEqual(m.layers, ["grid", "characters", "movement", "collision", "rules", "fx", "input", "hud"]);
   assert.equal(m.hidden, "true");
+  // The Board UI kit styles it: the fire key is the kit's arcade key in the fire colour.
+  const fire = await page.evaluate(() => getComputedStyle(document.querySelector(".lz-fire")).backgroundColor);
+  assert.equal(fire, "rgb(255, 43, 78)");
   assert.equal(m.role, "img");
   assert.match(m.label, /fans out into its eight stacked layers.*collision layer turns red.*folds back/);
   // One cycle at 4× speed is 3.25 s; then 0.3 s of quiet and the kernel settles.

@@ -1,6 +1,7 @@
 // The example host page for the layers story: a plain page with one slot. The figure (and its
 // poster) is inline; the scene loads through fizlet/slot. The caption prints only measured numbers
-// (site/demos/layers/measured.json, written by site/demos/layers/measure.mjs).
+// (site/demos/layers/measured.json, written by site/demos/layers/measure.mjs). The page is a Board UI
+// root: colours, keys and cards come from the kit (src/ui/board-ui.css), no style of its own.
 const kb = (b) => `${(b / 1024).toFixed(1)} KB`;
 
 export function page({ figure, css, measured: m }) {
@@ -10,22 +11,23 @@ export function page({ figure, css, measured: m }) {
       `Layout shift ${m.cls}. Settled: ${m.settledFrames} frames. Measured in Chromium ${m.chromium.split(".")[0]} on Fizlet ${m.version}.`
     : "Not measured yet: run node site/demos/layers/measure.mjs.";
   return `<!doctype html>
-<html lang="en">
+<html lang="en" class="bui" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Layers · Fizlet</title>
 <meta name="description" content="A game is a stack of layers. Battlefield Blitz fans out into its bricks, one faults, gets patched, and folds back.">
+<link rel="stylesheet" href="board-ui.css">
 <style>
 :root{color-scheme:dark}
-body{margin:0;background:#07060f;color:#f6f3ff;font:16px/1.6 Inter,"SF Pro Display","Segoe UI",system-ui,-apple-system,Arial,sans-serif}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,"SF Pro Display","Segoe UI",system-ui,-apple-system,Arial,sans-serif}
 main{max-width:1200px;margin:0 auto;padding:32px 16px 48px}
-.k{font:700 11px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;color:#19f0ff;margin:0}
+.k{font:700 11px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--k-sys-ink);margin:0}
 h1{font-weight:800;font-size:clamp(32px,4.4vw,54px);line-height:1.02;letter-spacing:-.035em;margin:8px 0 12px}
-h1 em{font-style:normal;color:#ff2e88}
-p{max-width:62ch;color:#aea4d6}
-figcaption,.cap{font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#aea4d6;margin-top:12px}
-a{color:#19f0ff}
+h1 em{font-style:normal;color:var(--k-attack)}
+p{max-width:62ch;color:var(--muted)}
+figcaption,.cap{font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--muted);margin-top:12px}
+a{color:var(--k-sys-ink)}
 ${css}
 </style>
 </head>

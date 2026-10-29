@@ -3,7 +3,9 @@
 A landing-page story graphic. A Battlefield Blitz-style board plays, turns and fans out into its
 eight layers (real DOM layers in CSS 3D), each labelled with the bytes Blitz's own code spends on
 it. The collision layer faults red, a scan patches it, it flashes green, and the stack folds back
-into the game. By [Chris Cooley](https://coded.design/).
+into the game. It wears the Board UI kit (`src/ui`, from DOM Battlefield): every colour is a kit
+token, the on-screen control is the kit's arcade fire key, and the figure is a `.bui` root, so the
+host page loads `board-ui.css`. By [Chris Cooley](https://coded.design/).
 
 ![The story, one cycle](screens/layers.gif)
 
@@ -40,11 +42,11 @@ Optional data attributes on the figure: `data-loops` (cycles before it settles, 
 
 ## Measured
 
-See `site/demos/layers/measured.json`. On Fizlet 0.5.1, Chromium 153: live chunk 12,407 B gzip
-(slot 1,957 B up front, scene 10,450 B lazy), poster 2,500 B gzip inline; at 4× CPU throttle,
-script per frame 0.9 ms median, 4.9 ms p95; layout shift 0; 0 frames once settled; 0 scene bytes
+See `site/demos/layers/measured.json`. On Fizlet 0.5.1, Chromium 153: live chunk 12,559 B gzip
+(slot 1,959 B up front, scene 10,600 B lazy), poster 2,560 B gzip inline; at 4× CPU throttle,
+script per frame 0.9 ms median, 5.2 ms p95; layout shift 0; 0 frames once settled; 0 scene bytes
 before the slot nears the viewport.
 
 Against the hero budgets in fizlet-engine `docs/LAYERS.md`: poster ≤ 6 KB ✔, CLS 0 ✔, 0 frames
-settled ✔, **live chunk ≤ 10 KB ✘ (12.1 KB)**: kernel + slot + grid + sprite + fx take most of it.
-The slot's 1,957 B also load before the slot is near (the budget says 0 B).
+settled ✔, **live chunk ≤ 10 KB ✘ (12.3 KB)**: kernel + slot + grid + sprite + fx take most of it.
+The slot's 1,959 B also load before the slot is near (the budget says 0 B).

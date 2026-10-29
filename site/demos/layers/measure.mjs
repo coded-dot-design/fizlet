@@ -49,7 +49,7 @@ const p2 = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 await p2.addInitScript(PROBE);
 await p2.route(srv.url, async (route) => {
   const res = await route.fetch();
-  route.fulfill({ response: res, body: (await res.text()).replace('<figure class="ae-slot lyr"', '<figure data-loops="1" data-speed="4" class="ae-slot lyr"') });
+  route.fulfill({ response: res, body: (await res.text()).replace('<figure class=', '<figure data-loops="1" data-speed="4" class=') });
 });
 await p2.goto(srv.url);
 await p2.waitForSelector("[data-fizlet-slot] .lz", { timeout: 15000 });

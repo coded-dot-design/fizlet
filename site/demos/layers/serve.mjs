@@ -9,7 +9,7 @@ export function serve(root) {
       const p = new URL(q.url, "http://x").pathname;
       try {
         const body = await readFile(join(root, p === "/" ? "index.html" : p));
-        r.setHeader("content-type", p.endsWith(".js") ? "text/javascript" : "text/html; charset=utf-8");
+        r.setHeader("content-type", p.endsWith(".js") ? "text/javascript" : p.endsWith(".css") ? "text/css" : "text/html; charset=utf-8");
         r.end(body);
       } catch {
         r.statusCode = 404;
