@@ -4,7 +4,7 @@
 // No framework, no dependencies beyond the repo's dev tools. Run `npm run build` first (npm run site).
 import { build } from "esbuild";
 import { gzipSync } from "node:zlib";
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "./sizes.mjs";
 import { page, mark, SITE } from "../site/layout.mjs";
 import { home } from "../site/pages/index.mjs";
@@ -52,6 +52,17 @@ writeFileSync(`${OUT}/icon.svg`, mark(64).replace("<svg ", '<svg xmlns="http://w
 writeFileSync(`${OUT}/og.png`, ogImage());
 writeFileSync(`${OUT}/.nojekyll`, "");
 
+// The two story demos, each built by its own script: layers (the home hero) and fizz (the name).
+// Their markup and sizes come from those builds; the home page embeds them.
+await import("../site/demos/layers/build.mjs");
+const posterMod = await build({ entryPoints: ["site/demos/layers/poster.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
+const L = await import("data:text/javascript;base64," + Buffer.from(posterMod.outputFiles[0].text).toString("base64"));
+const layers = { figure: L.poster(), css: L.POSTER_CSS, loader: L.loader("./demos/layers/layers.js"), sizes: JSON.parse(readFileSync(`${OUT}/demos/layers/sizes.json`, "utf8")) };
+const { sizes: fizzSizes } = await import("../site/demos/fizz/build.mjs");
+const fizzFigure = readFileSync(`${OUT}/demos/fizz/index.html`, "utf8").match(/<figure class="ae-slot" data-slot-target="fizz#hero"[\s\S]*?<\/figure>/)?.[0];
+if (!fizzFigure) throw new Error("demos/fizz/index.html: no fizz figure to embed");
+const fizz = { figure: fizzFigure, sizes: fizzSizes };
+
 const sizes = await measure();
 const kernel = sizes[0];
 // Every brick's API, from its source comment and its built declarations.
@@ -63,7 +74,7 @@ const pages = [
   ["index.html", page({
     title: "Fizlet · Tiny physics for your page",
     description: `A micro game engine for the DOM: one shared loop, bounded everything, and the page always comes back. Kernel ${(kernel.gzip / 1024).toFixed(1)} KB gzip, no dependencies.`,
-    base: "./", version, path: "", body: home({ version, sizes, bundle, bricks }), scripts: ["site.js", "demo.js"],
+    base: "./", version, path: "", body: home({ version, sizes, bundle, bricks, layers, fizz }), scripts: ["site.js", "demo.js", "demos/fizz/main.js"],
   })],
   ["examples/quick-start.html", page({
     title: "Quick start · Fizlet",
@@ -90,6 +101,7 @@ const pages = [
 ];
 for (const [file, html] of pages) writeFileSync(`${OUT}/${file}`, html);
 // Search engines: every page but the 404, at its canonical URL.
-const urls = pages.map(([f]) => f).filter((f) => f !== "404.html").map((f) => SITE + f.replace(/(^|\/)index\.html$/, "$1"));
+// Every page but the 404, the demos' own pages included, at its canonical URL.
+const urls = readdirSync(OUT, { recursive: true }).map((f) => f.replace(/\\/g, "/")).filter((f) => f.endsWith(".html") && f !== "404.html" && !f.startsWith("dist/")).sort().map((f) => SITE + f.replace(/(^|\/)index\.html$/, "$1"));
 writeFileSync(`${OUT}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${u}</loc></url>`).join("\n")}\n</urlset>\n`);
 console.log(`Built ${OUT}/: ${pages.length} pages, fizlet.js ${bundle} B gzip, kernel ${kernel.gzip} B gzip`);

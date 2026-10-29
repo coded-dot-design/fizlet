@@ -14,15 +14,20 @@
 - **Home:** the bricks section comes from the same catalog and links to each page; a page profile
   section explains settle, the fps cap and slot with the measured page-build size; "by Chris
   Cooley" links to coded.design; `npm install` is marked coming soon (here and in the README);
-  the roadmap reflects the shipped bricks; Blitz's unmeasured "~17 KB" claim is gone. A "The
-  name" section tells the origin story (-let from applet, fiz from the soda-commercial fizz, DOM
-  VIRUS first) and holds an empty, hidden slot (`data-slot="fizz"`) for the soda-can fizz scene.
+  the roadmap reflects the shipped bricks; Blitz's unmeasured "~17 KB" claim is gone. The hero
+  is the layers story (Blitz as a stack of bricks: its poster, CSS and loader from
+  `site/demos/layers/poster.ts`, the live chunk loading only near the viewport); the blast demo
+  moves to its own "Blast it. Recall it." section below it. A "The name" section tells the origin
+  story (-let from applet, fiz from the soda-commercial fizz, DOM VIRUS first) with the fizz can
+  live in it (the figure and poster from the fizz build). Each links to its own demo page; the
+  sizes shown are the ones their builds measure. `npm run site` now runs both demo builds.
 - **SEO and accessibility gates** (`scripts/check-html.mjs`, run by `npm run test:site` on every
   built page): one title and description of sane length, canonical and `og:url` equal to the
   page's URL, Open Graph tags (a generated `og.png`, PNG-encoded with `node:zlib`), lang, one
   `h1`, one `main` plus header, nav and footer landmarks, no skipped heading levels, unique ids,
   alt on every image, every svg and canvas hidden or named, every link and button named. A
-  `sitemap.xml` lists every page. Kernel lead comment rewritten (it is the kernel page's summary);
+  `sitemap.xml` lists every page. The demos' own standalone pages (`demos/fizz/`, `demos/layers/`,
+  `examples/fizz/`) are gated too, with their open gaps listed exactly in `tests/site.mjs`. Kernel lead comment rewritten (it is the kernel page's summary);
   no code or size change.
 
 ## 0.10.0

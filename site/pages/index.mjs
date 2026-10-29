@@ -88,7 +88,8 @@ function demoPage() {
     </div>`;
 }
 
-export function home({ version, sizes, bundle, bricks: catalog }) {
+export function home({ version, sizes, bundle, bricks: catalog, layers, fizz }) {
+  const fmt = (n) => n.toLocaleString("en-US");
   const size = (name) => sizes.find((s) => s.name === name);
   const kernel = size("fizlet (kernel)");
   const css = size("fizlet/ui (css)");
@@ -148,6 +149,35 @@ export function home({ version, sizes, bundle, bricks: catalog }) {
       <div class="hero-install code-card"><div class="code-head"><span class="bui-label"><b>SCRIPT TAG</b> · ${kb(bundle)} KB, EVERY BRICK</span><button class="copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div>${code(`<script src="${SITE}fizlet.js"></script>`, "wrap")}</div>
     </div>
 
+    <div class="hero-layers">
+      <style>${layers.css}</style>
+      ${layers.figure}
+      <p class="hero-cap bui-label"><b>LIVE</b> · Battlefield Blitz as a stack of bricks · live chunk ${fmt(layers.sizes.live)} B gzip, loaded only once it nears the screen · <a href="demos/layers/">The layers story</a></p>
+      ${layers.loader}
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats" aria-label="Fizlet in numbers">
+  <div class="wrap stats-row">
+    <span><b>${kb(kernel.gzip)} KB</b><small>KERNEL GZIP</small></span>
+    <span><b>${catalog.length - 1}</b><small>BRICKS</small></span>
+    <span><b>0</b><small>DEPENDENCIES</small></span>
+    <span><b>1</b><small>rAF PER PAGE</small></span>
+    <span><b>1M</b><small>STEPS · NO GC</small></span>
+    <span class="soon"><i></i><b>V${esc(version)}</b><small>MIT · OPEN SOURCE</small></span>
+  </div>
+</section>
+
+<!-- PLAY: the live board, running on Fizlet itself -->
+<section id="play" class="section" aria-labelledby="play-title">
+  <div class="wrap split">
+    <div>
+      <p class="eyebrow"><span class="index">▶</span> BLAST IT · RECALL IT</p>
+      <h2 id="play-title">Blast it.<br><em>Recall it.</em></h2>
+      <p class="lead">Every letter in this little page is a real element. Click it, blast it, then press <b>Recall</b>: the ledger puts back every change the engine made.</p>
+    </div>
     <figure class="demo panel lit" data-demo aria-label="Live demo: a small page you can blast. Recall puts it back.">
       <div class="demo-chrome"><i></i><i></i><i></i><span class="demo-url">your.page</span><span class="demo-state" data-state>BOOTING</span></div>
       <div class="demo-board" data-board>
@@ -176,18 +206,6 @@ export function home({ version, sizes, bundle, bricks: catalog }) {
   </div>
 </section>
 
-<!-- STATS -->
-<section class="stats" aria-label="Fizlet in numbers">
-  <div class="wrap stats-row">
-    <span><b>${kb(kernel.gzip)} KB</b><small>KERNEL GZIP</small></span>
-    <span><b>${catalog.length - 1}</b><small>BRICKS</small></span>
-    <span><b>0</b><small>DEPENDENCIES</small></span>
-    <span><b>1</b><small>rAF PER PAGE</small></span>
-    <span><b>1M</b><small>STEPS · NO GC</small></span>
-    <span class="soon"><i></i><b>V${esc(version)}</b><small>MIT · OPEN SOURCE</small></span>
-  </div>
-</section>
-
 <!-- THE NAME: the origin story (owner-stated), and the slot for the soda-can fizz scene -->
 <section id="story" class="section" aria-labelledby="story-title">
   <div class="wrap split">
@@ -198,8 +216,11 @@ export function home({ version, sizes, bundle, bricks: catalog }) {
       <p class="body">That shot looks expensive. Up close the fizz is full of detail, the kind of thing you'd reach for a heavy animation library to make. You don't need much to make it, though. That's the whole point: motion that looks complex, a tiny footprint, and the page as the stage.</p>
       <p class="body">It started with DOM VIRUS: small games with a few characters, running right inside a page, changing the DOM itself and then giving it back. The bar for every brick since is simple: do one thing well, and fit with everything around it.</p>
     </div>
-    <!-- Hero slot for the soda-can fizz scene (site/demos/fizz/, built separately). Empty and hidden until a scene mounts into it. -->
-    <div class="fizz-slot" data-slot="fizz" hidden></div>
+    <!-- The soda-can fizz scene (site/demos/fizz/): its own figure and poster; demos/fizz/main.js mounts it. -->
+    <div class="fizz-slot" data-slot="fizz">
+      ${fizz.figure}
+      <p class="hero-cap bui-label"><b>LIVE</b> · tap the can · live chunk ${fmt(fizz.sizes.chunk)} B gzip · <a href="demos/fizz/">The fizz proof piece</a></p>
+    </div>
   </div>
 </section>
 
@@ -300,7 +321,7 @@ export function home({ version, sizes, bundle, bricks: catalog }) {
       <h2 id="recall-title">Recall gives<br><em>the page back.</em></h2>
       <p class="lead">Every change Fizlet makes to the page goes through one ledger. It records the original and what the engine wrote. <code>destroy()</code> puts back everything the engine still owns, newest first.</p>
       <p class="body">If the host page changed something after the engine did, the host wins: the ledger stops writing it and never restores over it. A style attribute comes back byte for byte. Try it in the demo: blast the heading, then press <b>Recall</b>. That key runs <code>engine.ledger.restore()</code>, the same call <code>destroy()</code> makes.</p>
-      <div class="split-keys"><a class="bui-key bui-arcade bui-cmd" href="#main">${icon("recall", 16)}Back to the demo</a></div>
+      <div class="split-keys"><a class="bui-key bui-arcade bui-cmd" href="#play">${icon("recall", 16)}Back to the demo</a></div>
     </div>
     <div class="panel lit ledger">
       <div class="ledger-head"><span class="bui-label"><b>engine.ledger</b> · WHAT IT OWNS</span><span class="ledger-led">TESTED IN CHROMIUM</span></div>

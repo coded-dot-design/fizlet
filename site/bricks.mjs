@@ -53,6 +53,8 @@ sfx.on = false;        // mute` },
     snippet: `applyPalette(root, { sys: "#06c4ff" }); // hex only
 press(key, () => fire(), signal); // touch-safe
 launch(startKey, start); // press, invert, shatter` },
+  { id: "perf", tag: "PERF", role: "sys", modules: [mod("fizlet/perf", "perf")] },
+  { id: "rules", tag: "RULES", role: "advance", modules: [mod("fizlet/rules", "rules")] },
   { id: "debug", tag: "DEBUG", role: "aim", modules: [mod("fizlet/debug", "debug")],
     snippet: `import { guardLayout } from "fizlet/debug";
 guardLayout(e);  // dev builds only

@@ -52,7 +52,15 @@ export function checkHtml(html, path) {
 
   // Every image has alt text; every svg is hidden or named; every link and button has a name.
   for (const t of tags(body, "img")) need(attr(t, "alt") !== null, `<img> without alt: ${t}`);
-  for (const t of tags(body, "svg")) need(attr(t, "aria-hidden") === "true" || attr(t, "aria-label") || attr(t, "role") === "img", `<svg> neither hidden nor named: ${t.slice(0, 60)}`);
+  // Only outermost svgs: one nested in another is hidden or named with it.
+  let depth = 0;
+  for (const [t] of body.matchAll(/<\/?svg\b[^>]*>/gi)) {
+    if (t.startsWith("</")) depth--;
+    else {
+      if (!depth) need(attr(t, "aria-hidden") === "true" || attr(t, "aria-label") || attr(t, "role") === "img", `<svg> neither hidden nor named: ${t.slice(0, 60)}`);
+      if (!t.endsWith("/>")) depth++;
+    }
+  }
   for (const t of tags(body, "canvas")) need(attr(t, "aria-hidden") === "true" || attr(t, "aria-label"), `<canvas> neither hidden nor named: ${t.slice(0, 60)}`);
   for (const [, open, inner] of body.matchAll(/<(a\b[^>]*|button\b[^>]*)>([\s\S]*?)<\/(?:a|button)>/gi))
     need(text(inner) || attr(`<${open}>`, "aria-label"), `a link or button without a name: <${open.slice(0, 60)}>`);
