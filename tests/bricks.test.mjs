@@ -1,5 +1,4 @@
-// Brick tests (Node): collide, fx and sprite. Input, sound and embed need a browser: tests/browser.mjs.
-// Brick tests (Node): collide, fx and the pad's maths. Input, pad, sound and embed need a browser: tests/browser.mjs.
+// Brick tests (Node): collide, fx, sprite and the pad's maths. Input, pad, sound and embed need a browser: tests/browser.mjs.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { PerformanceObserver, constants } from "node:perf_hooks";
