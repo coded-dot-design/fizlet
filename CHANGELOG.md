@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.3.5
+
+### Fixed
+
+- kernel: the root's `IntersectionObserver` is disconnected on `destroy()` and when the parent
+  `signal` aborts, before or after `start()`. Its abort listener was tied to the same signal, so
+  the browser removed it before it could run.
+- kernel: starting, stopping or destroying engines from inside a hook no longer asks for a second
+  `requestAnimationFrame` or skips the next engine's frame, and a restarted engine runs once per
+  frame, not twice.
+- kernel: `engine.remove(system)` inside a hook no longer skips the next system's hooks that frame.
+- kernel: a hook that throws no longer stops the shared clock for every engine on the page. Only
+  that engine stops (`paused: ["stopped"]`, `start()` resumes); the error goes to the new
+  `onError(error, engine)` option, or `console.error`.
+- kernel: `destroy()` is idempotent and leaves the engine inert: `advance`, `add` and `start` do
+  nothing, and a destroy from inside a step runs no more steps that frame.
+
+### Changed
+
+- kernel: options are validated at setup. `step` must be a finite number > 0, `seed` finite,
+  `maxSteps`, `events` and pool caps positive integers (`new EventRing` and `new Pool` too); a bad
+  value throws a `RangeError` that names it. Kernel size 2839 → 3106 bytes gzip (budget 4096).
+
 ## 0.3.4
 
 - `fizlet/pad`: a touch tap's `click` (some Chromium builds report it with `detail` 0, like a keyboard

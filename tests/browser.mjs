@@ -276,6 +276,56 @@ try {
   });
   assert.deepEqual(pause, { running: true, hidden: "hidden", back: true, editing: "editable", afterEdit: true, offscreen: "offscreen", onscreen: true, dead: true });
 
+  where = "observers-abort";
+  const obs = await page.evaluate(() => {
+    // Count every observer and listener the kernel makes, and whether each one is let go.
+    const Real = window.IntersectionObserver, made = [];
+    window.IntersectionObserver = class extends Real {
+      constructor(cb, o) { super(cb, o); this.live = true; made.push(this); }
+      disconnect() { this.live = false; super.disconnect(); }
+    };
+    const listening = new Set(), targets = [document, window];
+    const add = EventTarget.prototype.addEventListener;
+    EventTarget.prototype.addEventListener = function (type, fn, o) {
+      if (targets.includes(this) && o?.signal) {
+        const key = [this, type, fn];
+        listening.add(key);
+        o.signal.addEventListener("abort", () => listening.delete(key));
+      }
+      return add.call(this, type, fn, o);
+    };
+    const root = document.getElementById("title");
+    const opts = { root, pause: { reducedMotion: true } };
+    const out = {};
+    try {
+      // 1. The engine's own signal: destroy().
+      const a = fizlet.createEngine(opts);
+      a.start();
+      out.made = made.length;
+      a.destroy();
+      a.destroy();
+      out.destroy = made.filter((o) => o.live).length;
+      // 2. A parent AbortSignal aborted while running.
+      const p = new AbortController();
+      fizlet.createEngine({ ...opts, signal: p.signal }).start();
+      p.abort();
+      out.parent = made.filter((o) => o.live).length;
+      // 3. A parent signal already aborted before the engine starts.
+      const q = new AbortController();
+      q.abort();
+      const c = fizlet.createEngine({ ...opts, signal: q.signal });
+      c.start();
+      out.preAborted = made.filter((o) => o.live).length;
+      out.running = c.running;
+      out.listeners = listening.size;
+    } finally {
+      window.IntersectionObserver = Real;
+      EventTarget.prototype.addEventListener = add;
+    }
+    return out;
+  });
+  assert.deepEqual(obs, { made: 1, destroy: 0, parent: 0, preAborted: 0, running: false, listeners: 0 }, "every observer and listener goes on destroy, on abort, and on abort before start");
+
   where = "layout-guard";
   const guard = await page.evaluate(() => {
     const e = fizlet.createEngine();
@@ -430,7 +480,7 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   await sp.close();
 
   assert.deepEqual(errors, []);
-  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, slot passed.");
+  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, observers let go on abort, layout guard, input, embed, slot passed.");
   where = "sprite";
   const spr = await page.evaluate(async () => {
     const { sprites, sherman } = fizlet;

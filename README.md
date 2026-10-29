@@ -55,13 +55,13 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
    restores it exactly, and a newer edit by the host page always wins. One `AbortSignal` removes
    every listener and observer.
 8. **Embed-safe.** No globals, no global styles, many engines per page.
-9. **Budgets in CI.** Kernel ≤ 4 KB gzip (today: ~2.8 KB), each brick ~1.5 KB.
+9. **Budgets in CI.** Kernel ≤ 4 KB gzip (today: ~3.1 KB), each brick ~1.5 KB.
 
 ## What's in the box
 
 | Import | What | Size (min + gzip) |
 |---|---|---|
-| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | ~2.8 KB |
+| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | ~3.1 KB |
 | `fizlet/debug` | `guardLayout(engine)`: counts layout reads during a step (dev only) | ~0.5 KB |
 | `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer` | ~1.0 KB |
 | `fizlet/pad` | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | ~1.8 KB |
@@ -214,10 +214,18 @@ touch.setScheme("dpad"); // fingers on the old control let go; no listener is ad
 
 ### Engine API
 
-- `createEngine({ root, step, maxSteps, seed, events, signal, pause })`
+- `createEngine({ root, step, maxSteps, seed, events, signal, pause, onError })`: numbers are
+  checked at setup (`step` > 0, `seed` finite, `maxSteps`, `events` and pool caps positive
+  integers); a bad one throws a `RangeError` naming the option.
 - `engine.add(system)` / `remove(system)`: systems run in order; hooks `read`, `step`, `render`.
+  `remove` is safe inside a hook (the other systems still run that frame).
 - `engine.start()` / `stop()` / `destroy()`; `engine.running`, `engine.paused` (reasons).
-- `engine.advance(seconds)`: run time by hand (tests, headless, a server).
+  `destroy()` is idempotent and leaves the engine inert. Engines may start, stop or destroy each
+  other from inside a hook: every engine still runs once per frame, on one rAF.
+- A hook that throws in a scheduled frame stops only its own engine (`paused: ["stopped"]`,
+  `start()` resumes) and goes to `onError(error, engine)` (default `console.error`); the shared
+  clock and every other engine keep running.
+- `engine.advance(seconds)`: run time by hand (tests, headless, a server); a hook's error throws.
 - `engine.pool(name, cap, create)`: a named bounded pool (shows in `stats()`).
 - `engine.events`: the event ring (`emit(type, a, b, x, y, v)`, `size`, `at(i)`), cleared each frame.
 - `engine.ledger`: `text`, `style`, `attr`, `cls`, `add(node)`, `restore()`.
