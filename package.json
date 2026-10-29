@@ -48,6 +48,10 @@
       "types": "./dist/fx.d.ts",
       "default": "./dist/fx.js"
     },
+    "./sprite": {
+      "types": "./dist/sprite.d.ts",
+      "default": "./dist/sprite.js"
+    },
     "./sound": {
       "types": "./dist/sound.d.ts",
       "default": "./dist/sound.js"
