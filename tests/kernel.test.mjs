@@ -55,6 +55,51 @@ test("phases: read, then steps, then render", () => {
   e.destroy();
 });
 
+test("settle: no frames once nothing is busy; wake() and start() bring it back; no pause hooks", () => {
+  const e = createEngine({ settle: 0.1 });
+  let moving = true, steps = 0, pauses = 0;
+  e.add({ step: (x) => (steps++, moving && x.busy()), pause: () => pauses++ });
+  e.start();
+  let t = 0;
+  const frames = (k) => { for (let i = 0; i < k; i++) flush((t += 1000 / 60)); };
+  frames(30);
+  assert.equal(e.running, true, "busy every frame: awake");
+  moving = false;
+  frames(4);
+  assert.equal(e.running, true, "quiet for less than settle: still awake");
+  frames(6);
+  assert.deepEqual(e.paused, ["settled"], "quiet for settle seconds: asleep");
+  assert.equal(queue.length, 0, "asleep: no requestAnimationFrame at all");
+  const ran = steps;
+  flush((t += 5000));
+  assert.equal(steps, ran);
+  assert.equal(pauses, 0, "settling is not a pause: held input and sounds are kept");
+  e.wake();
+  assert.equal(e.running, true);
+  frames(2);
+  assert.ok(steps - ran <= 2, "waking does not replay the time asleep");
+  frames(10);
+  assert.deepEqual(e.paused, ["settled"], "and it settles again");
+  e.stop();
+  e.start();
+  assert.equal(e.running, true, "start() wakes it too");
+  assert.throws(() => createEngine({ settle: 0 }), RangeError);
+  e.destroy();
+});
+
+test("fps cap: frames closer than 1/fps do no work; time still adds up", () => {
+  const e = createEngine({ fps: 30 });
+  let frames = 0;
+  e.add({ render: () => frames++ });
+  e.start();
+  let t = 1000;
+  for (let i = 0; i < 61; i++) flush((t += 1000 / 60));
+  assert.ok(frames >= 29 && frames <= 31, `30 fps cap on a 60 Hz clock: ${frames} frames a second`);
+  assert.ok(Math.abs(e.time - 1) < 0.05, `simulated time still follows the clock: ${e.time}`);
+  assert.throws(() => createEngine({ fps: -1 }), RangeError);
+  e.destroy();
+});
+
 test("pause stops all work; resume does not replay the gap", () => {
   const e = createEngine();
   let steps = 0;

@@ -67,6 +67,7 @@ export function controls(e: Engine, o: ControlsOptions = {}) {
   addEventListener("keydown", (ev) => {
     const list = byCode.get(ev.code);
     if (!list || editing(ev.target) || ev.metaKey || ev.ctrlKey || ev.altKey) return;
+    e.wake(); // a settled engine (page interactions) wakes on its own keys
     if (e.running) ev.preventDefault();
     if (keys.has(ev.code)) return;
     keys.add(ev.code);
@@ -83,6 +84,7 @@ export function controls(e: Engine, o: ControlsOptions = {}) {
   const el: EventTarget = target ?? window;
   el.addEventListener("pointermove", (ev) => {
     const pe = ev as PointerEvent;
+    e.wake();
     if (pe.pointerId === s[5]) {
       let dx = pe.clientX - s[3]!, dy = pe.clientY - s[4]!;
       const d = Math.hypot(dx, dy);
@@ -99,6 +101,7 @@ export function controls(e: Engine, o: ControlsOptions = {}) {
   el.addEventListener("pointerdown", (ev) => {
     const pe = ev as PointerEvent;
     if (editing(pe.target)) return;
+    e.wake();
     measure(); // a press is rare and decides the stick side: measure it fresh
     if (pe.pointerType === "touch" && o.stick && s[5]! < 0 && (o.stick === "any" || pe.clientX - p[6]! < p[8]! / 2)) {
       s[2] = 1;

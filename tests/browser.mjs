@@ -820,10 +820,51 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
     return r;
   });
   assert.deepEqual(stopped, { mounted: false, same: true }, "reduced motion turned on mid-scene: the scene goes, the fallback comes back");
+  await sp.emulateMedia({ reducedMotion: "no-preference" });
+  // Page profile: the load waits for an idle main thread; a first tap skips the wait and reaches the
+  // scene as numbers; input wakes a settled engine.
+  const pp = await sp.evaluate(async () => {
+    const out = {}, ric = window.requestIdleCallback, idleQ = [];
+    window.requestIdleCallback = (cb) => idleQ.push(cb);
+    let got = "unset";
+    const capture = () => (stage, figure, first) => ((got = first), { destroy() {} });
+    const hero = fizlet.slot("home#hero", capture);
+    await frame();
+    await frame();
+    out.beforeIdle = { mounted: hero.mounted, queued: idleQ.length };
+    idleQ.splice(0).forEach((cb) => cb({ didTimeout: false, timeRemaining: () => 10 }));
+    await frame();
+    out.afterIdle = { mounted: hero.mounted, first: got };
+    hero.destroy();
+    const below = fizlet.slot("home#below", capture, { margin: "0px" });
+    await frame();
+    const r = below.el.getBoundingClientRect();
+    below.el.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, isPrimary: true, clientX: r.left + 30, clientY: r.top + 20 }));
+    await frame();
+    out.tap = { mounted: below.mounted, idleWaits: idleQ.length, x: Math.round(got?.x), y: Math.round(got?.y), number: typeof got?.at, event: got instanceof Event };
+    below.destroy();
+    window.requestIdleCallback = ric;
+    const e = fizlet.createEngine({ settle: 0.05 });
+    fizlet.controls(e, { keys: { go: ["Space"] } });
+    e.start();
+    for (let i = 0; i < 12 && e.running; i++) await frame();
+    out.settled = e.paused.join();
+    dispatchEvent(new KeyboardEvent("keydown", { code: "Space", key: " " }));
+    out.woke = e.running;
+    e.destroy();
+    out.same = snap() === before;
+    return out;
+  });
+  assert.deepEqual(pp.beforeIdle, { mounted: false, queued: 1 }, "near the viewport: the load waits for an idle main thread");
+  assert.deepEqual(pp.afterIdle, { mounted: true, first: null }, "idle: the scene mounts, with no first tap");
+  assert.deepEqual(pp.tap, { mounted: true, idleWaits: 0, x: 30, y: 20, number: "number", event: false }, "a first tap loads at once and reaches the scene as numbers");
+  assert.equal(pp.settled, "settled", "nothing busy: the engine settles");
+  assert.equal(pp.woke, true, "its own key wakes it");
+  assert.equal(pp.same, true);
   await sp.close();
 
   assert.deepEqual(errors, []);
-  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, observers let go on abort, layout guard, input, embed, slot passed.");
+  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, observers let go on abort, layout guard, input, embed, slot (idle wait, first tap, settle) passed.");
   where = "sprite";
   const spr = await page.evaluate(async () => {
     const { sprites, sherman } = fizlet;
