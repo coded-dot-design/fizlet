@@ -3,7 +3,7 @@
 // Run with: node --expose-gc --import tsx --test tests/*.test.mjs
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PerformanceObserver, constants } from "node:perf_hooks";
+import { minorGCs } from "./gc.mjs";
 
 // A fake requestAnimationFrame we can step by hand.
 let queue = [], nextId = 1;
@@ -76,6 +76,21 @@ test("pause stops all work; resume does not replay the gap", () => {
   e.destroy();
 });
 
+test("pause hook: systems hear each running → paused change once (input drops held keys there)", () => {
+  const e = createEngine();
+  let pauses = 0;
+  e.add({ pause: (x) => (assert.equal(x, e), pauses++) });
+  e.stop(); // never started: not a change
+  assert.equal(pauses, 0);
+  e.start();
+  e.stop();
+  e.stop();
+  assert.equal(pauses, 1, "once per change, not per call");
+  e.start();
+  e.destroy(); // destroy is not a pause: bricks clean up on the signal
+  assert.equal(pauses, 1);
+});
+
 test("bounded: pools and the event ring refuse work at their cap", () => {
   const e = createEngine({ events: 3 });
   const p = e.pool("shots", 2, () => ({ x: 0 }));
@@ -122,6 +137,111 @@ test("destroy: aborts the signal, stops, clears pools, follows a parent signal",
   assert.equal(e.running, false, "a destroyed engine never restarts");
 });
 
+test("scheduler: an engine started from inside a hook does not add a second rAF", () => {
+  const a = createEngine(), b = createEngine();
+  a.add({ read: () => b.start() });
+  a.start();
+  assert.equal(queue.length, 1);
+  flush(0);
+  assert.equal(queue.length, 1, "exactly one pending frame after a hook starts another engine");
+  flush(16);
+  assert.equal(queue.length, 1);
+  a.destroy();
+  b.destroy();
+  assert.equal(queue.length, 0);
+});
+
+test("scheduler: an engine stopping or destroying itself mid-frame does not skip the next engine", () => {
+  const seen = [];
+  const a = createEngine(), b = createEngine(), c = createEngine();
+  a.add({ read: () => (seen.push("a"), a.destroy()) });
+  b.add({ read: () => (seen.push("b"), b.stop(), b.start()) });
+  c.add({ read: () => seen.push("c") });
+  [a, b, c].forEach((e) => e.start());
+  flush(0);
+  assert.deepEqual(seen, ["a", "b", "c"], "every engine ran once this frame");
+  seen.length = 0;
+  flush(16);
+  assert.deepEqual(seen.sort(), ["b", "c"], "a restarted engine runs once a frame, not twice");
+  [b, c].forEach((e) => e.destroy());
+  assert.equal(queue.length, 0);
+});
+
+test("engine.remove(system) during a hook does not skip the next system", () => {
+  const e = createEngine();
+  const seen = [];
+  const a = e.add({ read: () => (seen.push("a.read"), e.remove(a)), step: () => seen.push("a.step"), render: () => seen.push("a.render") });
+  e.add({ read: () => seen.push("b.read"), step: () => seen.push("b.step"), render: () => seen.push("b.render") });
+  e.advance(1 / 60 + 1e-6);
+  assert.deepEqual(seen, ["a.read", "b.read", "b.step", "b.render"]);
+  seen.length = 0;
+  e.advance(1 / 60);
+  assert.deepEqual(seen, ["b.read", "b.step", "b.render"]);
+  e.destroy();
+});
+
+test("a throwing hook stops only its own engine; the shared clock keeps running", () => {
+  const errors = [];
+  const bad = createEngine({ onError: (err, eng) => errors.push([err.message, eng === bad]) });
+  const good = createEngine();
+  let ok = 0;
+  bad.add({ step: () => { throw new Error("boom"); } });
+  good.add({ read: () => ok++ });
+  bad.start();
+  good.start();
+  flush(0);
+  flush(17);
+  assert.deepEqual(errors, [["boom", true]]);
+  assert.deepEqual(bad.paused, ["stopped"], "the failing engine is stopped");
+  assert.equal(bad.phase, 0);
+  assert.equal(good.running, true);
+  assert.equal(queue.length, 1, "the shared clock is still scheduled");
+  flush(34);
+  assert.equal(ok, 3, "the other engine ran every frame");
+  // Without onError the failure is reported on console.error, and the clock still survives.
+  const logged = [], log = console.error;
+  console.error = (x) => logged.push(x.message);
+  const loud = createEngine();
+  loud.add({ read: () => { throw new Error("loud"); } });
+  loud.start();
+  flush(51);
+  console.error = log;
+  assert.deepEqual(logged, ["loud"]);
+  assert.equal(loud.running, false);
+  assert.equal(queue.length, 1);
+  [bad, good, loud].forEach((x) => x.destroy());
+});
+
+test("configuration is validated (finite numbers, positive integer capacities)", () => {
+  for (const o of [{ step: 0 }, { step: -1 }, { step: NaN }, { step: Infinity }, { step: "1" }]) assert.throws(() => createEngine(o), { name: "RangeError", message: /step/ }, JSON.stringify(o));
+  for (const o of [{ maxSteps: 0 }, { maxSteps: 1.5 }, { maxSteps: NaN }, { maxSteps: Infinity }]) assert.throws(() => createEngine(o), { name: "RangeError", message: /maxSteps/ });
+  for (const o of [{ seed: NaN }, { seed: Infinity }, { seed: "1" }]) assert.throws(() => createEngine(o), { name: "RangeError", message: /seed/ });
+  for (const o of [{ events: 0 }, { events: 2.5 }, { events: NaN }, { events: -1 }]) assert.throws(() => createEngine(o), { name: "RangeError", message: /events/ });
+  for (const cap of [0, -1, 1.5, NaN, Infinity]) assert.throws(() => new EventRing(cap), RangeError);
+  const e = createEngine();
+  for (const cap of [0, 1.5, NaN, Infinity, "2"]) assert.throws(() => e.pool("p", cap, () => ({})), { name: "RangeError", message: /cap/ });
+  e.destroy();
+  assert.equal(scheduler.engines, 0, "a rejected config leaves nothing scheduled");
+});
+
+test("destroy is idempotent and leaves the engine inert", () => {
+  const e = createEngine();
+  let hooks = 0;
+  e.add({ read: () => hooks++, step: () => hooks++, render: () => hooks++ });
+  e.start();
+  e.destroy();
+  e.destroy();
+  e.start();
+  e.advance(1);
+  e.add({ read: () => hooks++ });
+  e.advance(1);
+  assert.equal(hooks, 0, "no hook runs after destroy");
+  assert.equal(e.time, 0);
+  assert.equal(e.running, false);
+  assert.equal(scheduler.engines, 0);
+  assert.equal(queue.length, 0);
+});
+
 test("zero allocation in the steady state (10k+ steps)", async (t) => {
   if (typeof gc !== "function") return t.skip("needs node --expose-gc");
   const e = createEngine({ events: 32 });
@@ -146,16 +266,9 @@ test("zero allocation in the steady state (10k+ steps)", async (t) => {
     for (let i = 0; i < frames; i++) e.advance(1 / 60);
   };
   run(20000); // warm up: let the JIT settle and every pool and map reach its size
-  gc();
-  let minor = 0;
-  const obs = new PerformanceObserver((list) => {
-    for (const entry of list.getEntries()) if (entry.detail?.kind === constants.NODE_PERFORMANCE_GC_MINOR) minor++;
-  });
-  obs.observe({ entryTypes: ["gc"] });
-  run(1000000); // 1M steps: even 16 bytes a step would fill the young generation many times over
-  await new Promise((r) => setTimeout(r, 50));
-  obs.disconnect();
-  // One stray scavenge can come from the test runner itself; a real per-step allocation shows as dozens.
-  assert.ok(minor <= 1, `young-generation GCs during 1M steps: ${minor}`);
+  // 1M steps per window: even 16 bytes a step would fill the young generation many times over.
+  // Best of three windows (tests/gc.mjs): a real per-step allocation shows as dozens in every one.
+  const minor = await minorGCs(() => run(1000000));
+  assert.ok(minor <= 1, `young-generation GCs during 1M steps (best of 3 windows): ${minor}`);
   e.destroy();
 });

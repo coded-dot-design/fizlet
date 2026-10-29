@@ -12,6 +12,118 @@
   restart, zero allocation against a bare engine) and a browser test (overlays, keys, Escape,
   hidden tab, surrender, reduced motion, Recall restores the DOM exactly).
 
+## 0.4.2
+
+- tests: the fx live-scene and input allocation checks use `tests/gc.mjs` (best of 3 windows); they had lost their `perf_hooks` import when the GC helper landed, which only failed when a GC actually ran.
+
+Hardening from the engineering review of 0.2.4 (input, sound, embed); each item has a regression
+test in `tests/browser.mjs`.
+- `fizlet/input`:
+  - Several keys per intent: releasing one of two held keys (A and ArrowLeft) keeps the intent
+    down. Auto-repeat keydowns are not new presses.
+  - The pointer and the stick let go on a release outside the target, on `pointercancel` anywhere
+    and on `lostpointercapture` (they stayed down before).
+  - Multitouch: the pointer and the stick each follow their own pointer id; the stick finger no
+    longer moves `pointer.x/y`.
+  - Pause and destroy drop held keys, `press()` holds, the pointer and the stick (only window blur
+    did); no ghost press on resume.
+  - `hit` / `pointer.hit` in a step: a press is seen by exactly one step, the first after it. It
+    was lost when the latching frame ran 0 steps, and seen by every step of a frame that ran
+    several. Outside a step it stays "the frame that latched it", as before.
+  - `dispose()`: remove one controller (listeners, system, held state) without destroying the engine.
+  - Pointer events no longer call `getBoundingClientRect` (one forced layout per event when the page
+    had pending style changes: 2,000 pointermoves on a 3,000-paragraph page took 3.8 s, now 9 ms in
+    Chromium). The read phase measures the target once per frame when the pointer moved.
+- `fizlet/sound`:
+  - A custom `play` installs no AudioContext and no unlock listeners.
+  - While switched off, gestures no longer resume a suspended context; switched on, any later
+    trusted gesture resumes one the browser or OS suspended. `pointerup` also unlocks (touch grants
+    the gesture on release).
+  - `dispose()`: remove the sound provider (listeners, system, close its context) while the engine runs.
+- `fizlet/embed`: `close()` during a pending lazy load cancels it (the game no longer mounts after
+  being closed); Escape cancels a pending load too, and a later `open()` starts a fresh one.
+- Kernel: systems can have a `pause(engine)` hook (called when a running engine pauses), and
+  `engine.steps` (fixed steps run, an integer: reading it in a hot path never boxes).
+
+## 0.4.1
+
+Hardening from the engineering review (2026-10-29, §8: UI and tokens, collision and effects).
+
+- pack smoke test: data subpaths (`.css`, `.json`) resolve instead of importing.
+- ui: `mount()` keys its shared constructed stylesheet by the CSS text. It cached the first sheet
+  for the whole page, so a second game mounted with different CSS got the first game's styles.
+  Stylesheet ownership is documented (BOARD-UI.md 2.1). No visual change.
+- ui: `tokens.json` is the authoritative token source. Published as `fizlet/ui/tokens.json`; the
+  build fails when a `board-ui.css` default or `applyPalette`'s variable map disagrees with it
+  (`scripts/tokens.mjs`, tested). `board-ui.css` is byte-identical.
+- collide: `Grid` separates entity capacity (`cap`), index capacity (new 5th argument `nodes`,
+  default `cap * 4`) and query-result capacity (`out`), and every saturation is counted:
+  `dropped` (index full; now counts every refused cell entry), `rejected` (id outside `0..cap-1`
+  or a non-finite circle; such ids used to alias the dedupe stamps), `truncated` and `missed`
+  (query results that did not fit; they used to vanish silently). The constructor and `resize`
+  throw a `RangeError` on non-finite sizes or non-integer capacities.
+- collide: `add`, `near`, `insert` and `query` pass numbers through a typed array, so the grid
+  allocates nothing even when V8 does not inline it (the mixed collide + fx test went from ~24
+  young GCs per 200k frames to 0; its allowance drops from 100 to 1).
+- fx: `blast()` stops at capacity instead of attempting every particle on a full pool (10 blasts
+  of power 1e6 on a full pool: ~4.7 s before, ~0 ms now), and counts refused particles in
+  `fx.dropped`. `effects()` validates `cap`, `scorch` (0 now turns scorch marks off) and the
+  colour and word tables; `spawn`, `blast` and `kick` refuse non-finite input (a NaN life used to
+  hold a pool slot forever).
+- fx: no allocation in a live scene. `blast()` allocated on every call (Math.random returns a new
+  heap number); the visual random is now a private generator seeded from Math.random (still never
+  the simulation's seeded random) and blast writes the pool directly. Same recipe, same
+  distributions.
+- tests: the allocation test runs a populated fx scene (blasts every frame window, the pool full,
+  drops counted) and asserts no young-generation GC; new regression tests for every item above,
+  and a browser test for two games mounting different CSS.
+- README: the overload policy (decorative particles may drop, counted; collision results never
+  drop silently).
+
+## 0.4.0
+
+- **presence** brick (`fizlet/presence`, 1.8 KB gzip): lockstep input exchange on the seeded,
+  fixed-step kernel. Inputs are sent `delay` frames ahead into fixed typed-array rings; a frame
+  runs only when every player's input is in (it waits, never guesses); state hashes are exchanged to
+  catch a desync. Transports behind a 3-method adapter: `memory()` (bounded, latency + jitter, for
+  tests) and `websocket()` / `join(url)`.
+- `fizlet/presence/check`: `syncCheck(setup, opts)`, the determinism check as a function. It runs a
+  game's sim as N lockstep clients and returns pass/fail plus the first divergent frame.
+- `rooms/`: a room server prototype (Cloudflare Worker + Durable Object, hibernating WebSockets)
+  that seats players, hands out one seed and relays inputs. Its own package; not deployed.
+
+## 0.3.6
+
+- `fizlet/hud`: change-only, allocation-free HUD bindings fed by the event ring. `hud(engine, root)`
+  → `num` (int, clock, rank, pct or your own format), `meter` (width %, `aria-valuenow`, `low`),
+  `flag` (class), `feed` (last N events of a type, newest first) and `banner` (title + sub on an
+  event). Values compare as numbers and write only when the shown value changes; formatted strings
+  are cached; every write goes through the ledger. Tests: 1M renders with unchanged values cause no
+  young GC and no DOM write; 0 mutations over 120 idle frames in Chromium; destroy restores exactly.
+
+## 0.3.5
+
+### Fixed
+
+- kernel: the root's `IntersectionObserver` is disconnected on `destroy()` and when the parent
+  `signal` aborts, before or after `start()`. Its abort listener was tied to the same signal, so
+  the browser removed it before it could run.
+- kernel: starting, stopping or destroying engines from inside a hook no longer asks for a second
+  `requestAnimationFrame` or skips the next engine's frame, and a restarted engine runs once per
+  frame, not twice.
+- kernel: `engine.remove(system)` inside a hook no longer skips the next system's hooks that frame.
+- kernel: a hook that throws no longer stops the shared clock for every engine on the page. Only
+  that engine stops (`paused: ["stopped"]`, `start()` resumes); the error goes to the new
+  `onError(error, engine)` option, or `console.error`.
+- kernel: `destroy()` is idempotent and leaves the engine inert: `advance`, `add` and `start` do
+  nothing, and a destroy from inside a step runs no more steps that frame.
+
+### Changed
+
+- kernel: options are validated at setup. `step` must be a finite number > 0, `seed` finite,
+  `maxSteps`, `events` and pool caps positive integers (`new EventRing` and `new Pool` too); a bad
+  value throws a `RangeError` that names it. Kernel size 2839 → 3106 bytes gzip (budget 4096).
+
 ## 0.3.4
 
 - `fizlet/pad`: a touch tap's `click` (some Chromium builds report it with `detail` 0, like a keyboard

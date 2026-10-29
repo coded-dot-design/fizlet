@@ -55,26 +55,54 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
    restores it exactly, and a newer edit by the host page always wins. One `AbortSignal` removes
    every listener and observer.
 8. **Embed-safe.** No globals, no global styles, many engines per page.
-9. **Budgets in CI.** Kernel ≤ 4 KB gzip (today: ~2.8 KB), each brick ~1.5 KB.
+9. **Budgets in CI.** Kernel ≤ 4 KB gzip (today: ~3.1 KB), each brick ~1.5 KB.
 
 ## What's in the box
 
 | Import | What | Size (min + gzip) |
 |---|---|---|
-| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | ~2.8 KB |
+| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | ~3.1 KB |
 | `fizlet/debug` | `guardLayout(engine)`: counts layout reads during a step (dev only) | ~0.5 KB |
-| `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer` | ~1.0 KB |
+| `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer`, `dispose` | ~1.3 KB |
 | `fizlet/pad` | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | ~1.8 KB |
-| `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | ~0.8 KB |
+| `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | ~1.3 KB |
 | `fizlet/grid` | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | ~1.5 KB |
-| `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | ~1.5 KB |
+| `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | ~1.9 KB |
 | `fizlet/sprite` | `sprites(defs, { palettes, cap })`: pixel-art characters as data, re-tinted by palette role, baked once per sprite/frame/scale/palette into a capped cache, `draw()` with no allocation; `svg()` / `url()` for page characters | ~1.3 KB |
-| `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues (or your own player), unlock on gesture | ~0.9 KB |
+| `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues (or your own player), unlock on gesture, `dispose` | ~1.0 KB |
 | `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | ~2.0 KB |
 | `fizlet/slot` | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | ~1.5 KB |
+| `fizlet/presence` | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | ~1.8 KB |
+| `fizlet/hud` | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | ~1.3 KB |
 
 | `fizlet/match` | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | ~2.5 KB |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
+| `fizlet/ui/tokens.json` | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
+
+### Input, sound and embed semantics
+
+- **Bindings:** an intent can have several keys and a key several intents; an intent stays down while
+  any of its keys (or `press()`) holds it. Auto-repeat is not a new press.
+- **`hit`:** a press is seen by exactly one fixed step: the first step after it, even when that step
+  comes frames later (0-step frames while catching up), and never by later steps of the same frame.
+  Outside a step (`read`, `render`) `hit` is true for the one frame whose read latched it. Presses
+  between two steps count once. `pointer.hit` works the same way.
+- **Pointer and stick:** each is owned by the pointer id that pressed it. A release anywhere (outside
+  the target too), `pointercancel` or `lostpointercapture` lets go; other fingers never move or
+  release the stick, and the stick finger never moves the pointer. Pointer events record client
+  coordinates only; the read phase measures the target once per frame when the pointer moved, so a
+  pointer event never forces layout (`pointerdown` measures once, to pick the stick side).
+- **No stuck input:** held keys, `press()` holds, the pointer and the stick are dropped on window
+  blur, when the engine pauses, on `dispose()` and on `destroy()`.
+- **Independent providers:** `controls(...).dispose()` and `sound(...).dispose()` remove that provider
+  only (its listeners, its system, its held state or its AudioContext) while the engine keeps
+  running; both are idempotent and also run when the engine is destroyed. With `play` (your own
+  player), `sound` installs no AudioContext and no unlock listeners.
+- **Sound unlock:** a trusted `pointerdown`, `pointerup` or `keydown` creates the synth's context, and
+  resumes it whenever the browser or the OS suspended it. While switched off (`on = false`), gestures
+  leave it suspended.
+- **Embed:** `close()` (or Escape) while the game is still loading cancels that load: it never mounts
+  afterwards, and a later `open()` starts a fresh one.
 
 More bricks land through phase E2 (actor, steer, aim, rules, board-page, camera,
 view-dom, presence): see the [engine plan](https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md).
@@ -214,18 +242,110 @@ touch.setScheme("dpad"); // fingers on the old control let go; no listener is ad
   `destroy()` (or `engine.destroy()`) gives the page back exactly. Keys are named buttons;
   Enter / Space taps them; reduced motion turns the kit's transitions off.
 
+### Overload policy
+
+Bounded everything (contract 2) means something has to give at capacity. What gives depends on the job:
+
+- **Decorative particles may drop, counted.** `fx` refuses particles when its pool is full and
+  counts them in `fx.dropped`; a `blast()` stops its per-particle work as soon as the pool is full,
+  so a huge or repeated blast costs nothing extra. Invalid input (non-finite numbers, a life that
+  would never end) is refused and counted the same way.
+- **Collision results must not drop silently.** `new Grid(cell, cap, w, h, nodes = cap * 4)` has
+  three separate capacities, and each one saturates visibly:
+  - entities (`cap`): ids `0..cap-1`; any other id, or a non-finite circle, is refused: `grid.rejected`;
+  - index (`nodes`): one entry per cell a body covers; past it, `grid.dropped`;
+  - query results (the `out` buffer you pass): ids that did not fit set `grid.missed` (this query)
+    and count in `grid.truncated`.
+
+  Size them so every counter stays 0 and treat any rise as a bug (a missed candidate is a missed
+  hit). Bad constructor or `resize` input (non-finite sizes, non-integer capacities) throws a `RangeError`.
+
 ### Engine API
 
-- `createEngine({ root, step, maxSteps, seed, events, signal, pause })`
-- `engine.add(system)` / `remove(system)`: systems run in order; hooks `read`, `step`, `render`.
+- `createEngine({ root, step, maxSteps, seed, events, signal, pause, onError })`: numbers are
+  checked at setup (`step` > 0, `seed` finite, `maxSteps`, `events` and pool caps positive
+  integers); a bad one throws a `RangeError` naming the option.
+- `engine.add(system)` / `remove(system)`: systems run in order; hooks `read`, `step`, `render`,
+  and `pause` (the engine just stopped running: `stop()` or an auto-pause rule).
+  `remove` is safe inside a hook (the other systems still run that frame).
 - `engine.start()` / `stop()` / `destroy()`; `engine.running`, `engine.paused` (reasons).
-- `engine.advance(seconds)`: run time by hand (tests, headless, a server).
+  `destroy()` is idempotent and leaves the engine inert. Engines may start, stop or destroy each
+  other from inside a hook: every engine still runs once per frame, on one rAF.
+- A hook that throws in a scheduled frame stops only its own engine (`paused: ["stopped"]`,
+  `start()` resumes) and goes to `onError(error, engine)` (default `console.error`); the shared
+  clock and every other engine keep running.
+- `engine.advance(seconds)`: run time by hand (tests, headless, a server); a hook's error throws.
+- `engine.time` (seconds simulated) and `engine.steps` (fixed steps run; an integer, so reading it
+  in a hot path never boxes).
 - `engine.pool(name, cap, create)`: a named bounded pool (shows in `stats()`).
 - `engine.events`: the event ring (`emit(type, a, b, x, y, v)`, `size`, `at(i)`), cleared each frame.
 - `engine.ledger`: `text`, `style`, `attr`, `cls`, `add(node)`, `restore()`.
 - `engine.random()`: seeded; `engine.random.state` snapshots and restores it.
 - `engine.stats()`: frames, steps, dropped time, frame ms, pools, events, ledger size, pause reasons.
 
+### Multiplayer (`fizlet/presence`)
+
+Every peer runs the same fixed-step sim from the same seed; only inputs cross the wire (12 bytes
+each). Your input is sent `delay` frames ahead, and a frame runs only once every player's input
+for it is here, so peers can't drift. Keep the sim on `engine.random` and typed arrays.
+
+```js
+import { createEngine } from "fizlet";
+import { presence, join, hash32 } from "fizlet/presence";
+
+const { transport, slot, players, seed } = await join("wss://your-rooms.example/room/abc?players=2");
+const e = createEngine({ seed }), state = new Float64Array(64), bytes = new Uint8Array(state.buffer);
+const net = presence(e, {
+  transport, slot, players, delay: 2,
+  input: () => (keys.down("left") ? 1 : 0) | (keys.down("right") ? 2 : 0), // your bits for a future frame
+  step: (e, inputs, frame) => { /* simulate one frame from inputs[0..players-1] */ },
+  hash: () => hash32(bytes), // compared across peers every 30 frames: net.desync
+});
+e.start();
+```
+
+**Check a game is deterministic** (any test, Node or browser): `syncCheck(setup, { players, frames,
+latency, jitter })` from `fizlet/presence/check` runs your sim as lockstep clients over the memory
+link and returns `{ ok, frames, diverged, stalls }`, where `diverged` is the first frame whose state
+differed (or -1). `setup(e, slot, players)` returns `{ input(), step(e, inputs, frame), state }`, where
+`state` is a byte view of the sim's typed arrays.
+
+`net.frame`, `net.stalls`, `net.desync`, `net.lost`, `net.confirmed(slot, frame)` (the input log
+a rollback layer can replay). A transport is `{ send(bytes), listen(fn), close() }`; the room server
+prototype (Cloudflare Worker + Durable Object) is in [`rooms/`](rooms/README.md).
+
+## Develop
+
+```sh
+npm ci
+npm run check         # typecheck, contract tests (node), build
+npm run size          # size budgets
+npm run test:browser  # contract tests in Chromium (Playwright)
+npm run test:pack     # pack, install the tarball, import + typecheck every subpath
+npm run site          # the website, into site-dist/
+```
+
+### HUD
+
+```ts
+import { hud } from "fizlet/hud";
+
+const s = new Float64Array(2); // clock, armor (0..1): running fractions live in a typed array
+hud(engine, wrap)
+  .num("[data-k]", () => you.kills)            // 12
+  .num("[data-t]", [s, 0], "clock")            // 2:59 (also "int", "rank" #2, "pct" 75%, or (v) => string)
+  .meter("[data-hp]", [s, 1], 0.34)            // width 33%, aria-valuenow on a progressbar, class "low"
+  .flag(fireKey, "hot", () => you.hot > 0)
+  .feed(".feed", 4, "kill", (a, b) => NAMES[a] + " ✕ " + NAMES[b])
+  .banner(".banner", "streak", (a) => [a + " KILL STREAK", REWARD[a]]);
+```
+
+Each value is compared as a number after rounding to what it shows (a clock compares whole
+seconds), so it is formatted and written only when that changes; strings for 0–1023 are made once
+and reused. `feed` and `banner` read `engine.events` in render (emit `kill` / `streak` from the
+step), never per-frame state. Writes go through `engine.ledger`; rows or text nodes it adds are
+removed on `destroy()`. It has no visuals of its own: it binds to your markup. A getter V8 doesn't
+inline boxes a fractional double, so pass running fractions as a `[typedArray, index]` slot.
 ### Match flow (`fizlet/match`)
 
 The flow every board shares, on the Board UI kit's overlay ([spec](src/ui/BOARD-UI.md) section 9):

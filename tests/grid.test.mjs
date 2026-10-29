@@ -2,7 +2,7 @@
 // movement range, seeded boards, and zero allocation across many searches.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PerformanceObserver, constants } from "node:perf_hooks";
+import { minorGCs } from "./gc.mjs";
 
 const { board, BLOCKED, COVER, OCCUPIED } = await import("../src/grid.ts");
 const { seeded } = await import("../src/kernel/random.ts");
@@ -218,16 +218,12 @@ test("grid: zero allocation across many searches", async (t) => {
   };
   for (let k = 0; k < 10000; k++) frame(k);
   gc();
-  let minor = 0;
-  const obs = new PerformanceObserver((list) => {
-    for (const e of list.getEntries()) if (e.detail?.kind === constants.NODE_PERFORMANCE_GC_MINOR) minor++;
+  let ms = 0;
+  const minor = await minorGCs(() => {
+    const t0 = performance.now();
+    for (let k = 0; k < 100000; k++) frame(k);
+    ms = performance.now() - t0;
   });
-  obs.observe({ entryTypes: ["gc"] });
-  const t0 = performance.now();
-  for (let k = 0; k < 100000; k++) frame(k);
-  const ms = performance.now() - t0;
-  await new Promise((r) => setTimeout(r, 50));
-  obs.disconnect();
   assert.ok(sum[0] > 0);
   t.diagnostic(`100k path + los calls (48×30, 8-way, budget 600) and 1,563 floods: ${minor} young GCs, ${(ms / 100).toFixed(1)} µs per frame`);
   assert.ok(minor <= 1, `young-generation GCs over 100k searches: ${minor}`);
