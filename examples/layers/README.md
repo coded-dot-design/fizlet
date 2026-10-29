@@ -10,19 +10,22 @@ host page loads `board-ui.css`. By [Chris Cooley](https://coded.design/).
 ![The story, one cycle](screens/layers.gif)
 
 - Source: [`site/demos/layers/`](../../site/demos/layers/) (`scene.ts` the scene, `poster.ts` the
-  slot markup and still poster, `entry.ts` the host script, `data.ts` the layers and bytes).
+  slot markup, still poster and inline loader, `entry.ts` the live chunk's entry, `data.ts` the
+  layers and bytes).
 - Build: `node site/demos/layers/build.mjs [outDir]` (default `site-dist/demos/layers/`). This page
   template is `page.mjs`.
 - Measure: `node site/demos/layers/measure.mjs` writes `site/demos/layers/measured.json`; the
   caption prints only those numbers.
-- Test: `npm run test:layers` (mounts, cycles once, settles, Recall is exact; reduced motion).
+- Test: `npm run test:layers` (mounts, cycles once, settles, Recall is exact; reduced motion; no JS
+  before the slot is near; the hero budgets).
 
 ## Embed it
 
 ```html
 <!-- poster(): the slot figure with its poster inline; POSTER_CSS in a <style> -->
-<figure class="ae-slot lyr" data-slot-target="index#layers" role="img" aria-label="…">…</figure>
-<script type="module" src="demos/layers/entry.js"></script>
+<figure class="ae-slot lyr bui" data-slot-target="index#layers" role="img" aria-label="…">…</figure>
+<!-- loader("demos/layers/layers.js"): ~300 B inline; imports the live chunk when the slot is near -->
+<script type="module">…</script>
 ```
 
 Optional data attributes on the figure: `data-loops` (cycles before it settles, default 3),
@@ -30,23 +33,30 @@ Optional data attributes on the figure: `data-loops` (cycles before it settles, 
 
 ## Behaviour
 
-- **Lazy:** only the slot (`fizlet/slot`) loads up front; the scene chunk loads when the slot nears
-  the viewport and the main thread is idle.
+- **Lazy:** no JS file loads up front. A ~300 B inline loader imports `layers.js` (`fizlet/slot`
+  and the scene, one file) when the slot comes within 200px or is tapped; the slot then waits for an
+  idle main thread and mounts the scene. The tap that triggers the load is not replayed (the scene
+  takes no tap input; a pointer only wakes a settled scene).
 - **Calm:** 30 fps cap; after `data-loops` cycles it rests on the game frame and the kernel settles
   (no `requestAnimationFrame` at all). A pointer on the slot runs one more cycle. Off screen or in a
   hidden tab it pauses.
-- **Reduced motion:** the scene never loads; the poster shows the still exploded view with every
+- **Reduced motion:** nothing loads; the poster shows the still exploded view with every
   label (CSS only, sized by container queries).
 - **Accessible:** the figure is `role="img"` with an `aria-label` describing the whole sequence.
 - **Recall:** `destroy()` gives the page back exactly.
 
 ## Measured
 
-See `site/demos/layers/measured.json`. On Fizlet 0.7.0, Chromium 153: live chunk 12,621 B gzip
-(slot 1,957 B up front, scene 10,664 B lazy), poster 2,560 B gzip inline; at 4× CPU throttle,
-script per frame 0.9 ms median, 4.5 ms p95; layout shift 0; 0 frames once settled; 0 scene bytes
-before the slot nears the viewport.
+See `site/demos/layers/measured.json`. On Fizlet 0.8.1, Chromium 153: live chunk 10,054 B gzip
+(`fizlet/slot` + scene, loaded only once the slot is near); poster and loader inline 2,962 B gzip
+(loader 308 B); at 4× CPU throttle, script per frame 0.8 ms median, 2.6 ms p95, 6.3 ms max; layout
+shift 0; 0 frames once settled; 0 B of JS fetched before the slot nears the viewport.
 
-Against the hero budgets in fizlet-engine `docs/LAYERS.md`: poster ≤ 6 KB ✔, CLS 0 ✔, 0 frames
-settled ✔, **live chunk ≤ 10 KB ✘ (12.3 KB)**: kernel + slot + grid + sprite + fx take most of it.
-The slot's 1,957 B also load before the slot is near (the budget says 0 B).
+Against the hero budgets in fizlet-engine `docs/LAYERS.md`: live chunk ≤ 10 KB ✔, poster ≤ 6 KB ✔,
+0 B JS before the slot is near ✔, CLS 0 ✔, 0 frames settled ✔. `npm run test:layers` fails the
+build if the live chunk or the poster goes over.
+
+How it fits: the tanks patrol fixed loops (the dotted rectangles on the movement layer), so the hero
+carries no path search and no `fizlet/grid` (−1.5 KB); slot and scene ship as one file loaded by the
+inline loader; the scene's state styles live in the page CSS; the stack's bounds are precomputed
+(`build.mjs` checks them against the formula). Bricks in the live chunk: kernel, slot, sprite, fx.

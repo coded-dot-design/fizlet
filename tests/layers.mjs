@@ -1,12 +1,14 @@
 // Browser test for the layers story (site/demos/layers): it mounts through fizlet/slot, runs one
 // full cycle (open, fault, scan, patch, fold), settles (no requestAnimationFrame at all), Recall
-// gives the page back byte for byte, and reduced motion keeps the still exploded poster.
+// gives the page back byte for byte, reduced motion keeps the still exploded poster, and the inline
+// loader fetches no JS until the slot nears the viewport.
 // Run: node tests/layers.mjs (set CHROMIUM_PATH to use a preinstalled Chromium).
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { build } from "esbuild";
 import { chromium } from "playwright";
+import { serve } from "../site/demos/layers/serve.mjs";
 
 const OUT = "site-dist/test-layers";
 execFileSync(process.execPath, ["site/demos/layers/build.mjs", OUT], { stdio: "inherit" });
@@ -15,11 +17,11 @@ const bundle = (await build({
   stdin: { contents: 'export { slot } from "./src/slot.ts"; export { mountSlot } from "./site/demos/layers/scene.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "L", write: false, logLevel: "silent",
 })).outputFiles[0].text;
-// The built page, with the test's own script (keeps the slot handle) in place of entry.js.
+// The built page, with the test's own script (keeps the slot handle) in place of the inline loader.
 const PAGE = html
   .replace('<link rel="stylesheet" href="board-ui.css">', `<style>${readFileSync("src/ui/board-ui.css", "utf8")}</style>`)
   .replace('<figure class=', '<figure data-loops="1" data-speed="4" data-settle="0.3" class=')
-  .replace('<script type="module" src="entry.js"></script>', `<script>${bundle}
+  .replace(/<script type="module">[\s\S]*?<\/script>/, () => `<script>${bundle}
 (() => {
   const raf = window.requestAnimationFrame.bind(window);
   window.frames_ = 0;
@@ -98,6 +100,41 @@ await test("reduced motion: the scene never loads; the still exploded view shows
   assert.match(r.labels[0], /^Board: grid · 630 B gz$/);
   assert.equal(r.overflow, false);
   await page.close();
+});
+
+await test("the inline loader: no JS until the slot is near; then the live chunk mounts", async () => {
+  const srv = await serve(OUT);
+  try {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    const js = [];
+    page.on("request", (r) => r.url().endsWith(".js") && js.push(r.url().split("/").pop()));
+    await page.route(srv.url, async (route) => {
+      const res = await route.fetch();
+      route.fulfill({ response: res, body: (await res.text()).replace("<main>", '<main><div style="height:5000px"></div>') });
+    });
+    await page.goto(srv.url);
+    await page.waitForTimeout(1500);
+    assert.deepEqual(js, [], "no JS while the slot is far");
+    await page.evaluate(() => document.querySelector("figure.lyr").scrollIntoView());
+    await page.waitForSelector("[data-fizlet-slot] .lz", { timeout: 10000 });
+    assert.deepEqual(js, ["layers.js"]);
+    await page.close();
+    const rm = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+    const js2 = [];
+    rm.on("request", (r) => r.url().endsWith(".js") && js2.push(r.url()));
+    await rm.goto(srv.url);
+    await rm.waitForTimeout(1500);
+    assert.deepEqual(js2, [], "reduced motion: nothing loads");
+    await rm.close();
+  } finally {
+    srv.close();
+  }
+});
+
+await test("hero budgets (fizlet-engine docs/LAYERS.md): live chunk ≤ 10 KB, poster ≤ 6 KB gzip", async () => {
+  const sizes = JSON.parse(readFileSync(`${OUT}/sizes.json`, "utf8"));
+  assert.ok(sizes.live <= 10240, `live chunk ${sizes.live} B gzip`);
+  assert.ok(sizes.poster <= 6144, `inline poster + loader ${sizes.poster} B gzip`);
 });
 
 await browser.close();

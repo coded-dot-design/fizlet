@@ -1,6 +1,6 @@
 // Measure the layers story and write site/demos/layers/measured.json (the only numbers its caption
 // prints): gzip bytes, script time per frame under 4× CPU throttle, layout shift, frames once
-// settled, and JS fetched before the slot nears the viewport. Budgets: fizlet-engine docs/LAYERS.md.
+// settled, and JS fetched before the slot nears the viewport (the inline loader is in the poster bytes). Budgets: fizlet-engine docs/LAYERS.md.
 // Run: node site/demos/layers/measure.mjs (builds first).
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -69,7 +69,7 @@ await p3.route(srv.url, async (route) => {
 });
 await p3.goto(srv.url);
 await p3.waitForTimeout(3000);
-const before = js.filter(([f]) => f.startsWith("scene")).length, eagerJs = js.length;
+const before = js.reduce((n, [, size]) => n + size, 0); // bytes of JS fetched while the slot is far
 await p3.close();
 
 const measured = {
@@ -79,8 +79,7 @@ const measured = {
   frame: { throttle: 4, fps: 30, frames: ms.length, p50: r2(pct(ms, 0.5)), p95: r2(pct(ms, 0.95)), max: r2(Math.max(...ms)), gapP95: r2(pct(gaps, 0.95)) },
   cls: r2(cls),
   settledFrames: settled,
-  sceneBeforeNear: before,
-  eagerFiles: eagerJs,
+  jsBeforeNear: before,
 };
 await browser.close();
 srv.close();
@@ -89,6 +88,6 @@ console.log(JSON.stringify(measured, null, 2));
 const BUDGET = { poster: 6144, live: 10240 };
 console.log(`poster ${sizes.poster} B gz (hero budget ${BUDGET.poster}): ${sizes.poster <= BUDGET.poster ? "ok" : "OVER"}`);
 console.log(`live chunk ${sizes.live} B gz (hero budget ${BUDGET.live}): ${sizes.live <= BUDGET.live ? "ok" : "OVER"}`);
-console.log(`CLS ${measured.cls} (budget 0) · frames once settled ${settled} (budget 0) · scene chunks before the slot is near ${before} (budget 0)`);
+console.log(`CLS ${measured.cls} (budget 0) · frames once settled ${settled} (budget 0) · JS fetched before the slot is near ${before} B (budget 0)`);
 // Rebuild so the page's caption carries these numbers.
 execFileSync(process.execPath, ["site/demos/layers/build.mjs", OUT], { stdio: "inherit" });

@@ -14,6 +14,8 @@ for (let v = 250; v <= 1500; v += 50)
 
 const N = LAYERS.length;
 
+export { bounds, BOUNDS } from "./data";
+
 export const POSTER_CSS = SCENE_CSS + `
 .lyr{position:relative;margin:0;width:100%;aspect-ratio:4/5;max-height:640px;container-type:size;background:var(--rim);border:2px solid var(--line);border-radius:14px;overflow:hidden;contain:layout paint}
 .lyr__p{position:absolute;inset:0;perspective:2200px;font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink)}
@@ -46,3 +48,13 @@ export function poster(target = "index#layers") {
   return `<figure class="ae-slot lyr bui" data-slot-target="${target}" role="img" aria-label="${ARIA}">` +
     `<div class="ae-slot__placeholder lyr__p" aria-hidden="true"><div class="lyr__s">${layers}</div></div></figure>`;
 }
+
+/**
+ * The inline loader: the only script before the slot nears the viewport. It imports the live chunk
+ * (`src`, resolved against the page) once the slot comes within 200px or is tapped, and never while
+ * reduced motion is on (it waits for the setting to change).
+ */
+export const loader = (src = "./layers.js") =>
+  `<script type="module">{const f=document.querySelector("figure.lyr"),m=matchMedia("(prefers-reduced-motion: reduce)");let d=0;` +
+  `const go=()=>{if(d++)return;o.disconnect();import(${JSON.stringify(src)})},o=new IntersectionObserver(e=>e.some(x=>x.isIntersecting)&&go(),{rootMargin:"200px"}),` +
+  `arm=()=>{o.observe(f);f.addEventListener("pointerdown",go,{once:true})};f&&(m.matches?m.addEventListener("change",arm,{once:true}):arm())}</script>`;
