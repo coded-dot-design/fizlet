@@ -1,7 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.13.0
 
+- **`fizlet/board-page`: hot-path forms `hitAt(p, i)` and `nearAt(p, i, out)`.** They take the
+  segment (x0, y0, x1, y1) or the circle (x, y, r) from a typed array, and `hitAt` writes how far
+  along the segment the glyph is into `p[i + 4]`. The reason: a number passed to a call V8 doesn't
+  inline is boxed (one allocation), and a big game step stops V8 inlining `hit` and `near`. Sherman
+  Bytes' step boxed four numbers per shell per step through `hit`; with `hitAt`, 20,000 busy steps
+  make no minor GC (its test). `near` and `hit` are unchanged; inside, they now go through the
+  grid's typed `near` too. Lesson K4: hot-path forms take typed arrays plus indices.
+- Size: `fizlet/board-page` is 3,960 B gzip (3,841 in 0.12.1, budget 4,096); `fizlet/arcade` is 17,081 B
+  (budget 17,408).
 - **Website: gallery #005, "cyan and purple neon rain falls when you tap".** Made by `fe anim` from
   the prompt (recipe fall, an engine rain kind, kernel + fx + slot): 6,502 B gzip live chunk on this
   build, loaded only near the viewport, never under reduced motion; settles to zero frames.

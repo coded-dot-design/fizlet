@@ -1345,6 +1345,10 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
     const first = b.hit(-50, mid, 790, mid), t = b.t, last = b.hit(790, mid, -50, mid);
     out.hit = Math.abs(G.x[first] - rh.left) < 0.5 && Math.abs(G.x[last] - rd.left) < 0.5 && t > 0 && t < 0.1;
     out.miss = b.hit(-50, 590, 790, 590);
+    // The hot-path forms read typed arrays (no number boxes) and agree with near / hit.
+    const seg = new Float64Array([0, -50, mid, 790, mid, 0]), cp = new Float64Array([0, rw.left + rw.width / 2, rw.top + rw.height / 2, 1]), idx2 = new Int32Array(64);
+    out.hitAt = b.hitAt(seg, 1) === first && Math.abs(seg[5] - t) < 1e-9;
+    out.nearAt = b.nearAt(cp, 1, idx2) === 1 && idx2[0] === idx[0];
     // Targets: the page's button only (not the host's, not a field).
     out.targets = b.targets.map((t) => [t.el.id, t.w > 0, t.hp]);
     // consume from a step is queued, written in render through the ledger, into the same Text node.
@@ -1441,6 +1445,8 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   assert.equal(board.near, true, "near finds the glyph under the point");
   assert.equal(board.hit, true, "hit returns the first glyph along the segment");
   assert.equal(board.miss, -1);
+  assert.equal(board.hitAt, true, "hitAt reads the segment from a typed array and agrees with hit (t in p[i + 4])");
+  assert.equal(board.nearAt, true, "nearAt reads the circle from a typed array and agrees with near");
   assert.deepEqual(board.targets, [["go", true, 100]], "targets: the page's button only");
   assert.match(board.consumed[0], /^[01]at $/, "consume writes a literal 0/1 into the same Text node");
   assert.deepEqual(board.consumed.slice(1), [false, 1, true]);

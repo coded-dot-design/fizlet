@@ -30,7 +30,7 @@ export const BUDGETS = [
   // 1,318 B gz with per-drop age, landing spot and drop:land (0.10.1).
   ["fizlet/rules", "src/rules.ts", 1536],
   // The whole arcade shell with every brick it composes (kernel, board-page, input, pad, sound, ui js):
-  // 16,960 B gz in 0.12.1 (16,946 in 0.12.0, 16,731 in 0.11.0), of which arcade's own code, markup and CSS was 6,694 B in 0.12.0. The
+  // 17,081 B gz in 0.13.0 (16,960 in 0.12.1, 16,946 in 0.12.0, 16,731 in 0.11.0), of which arcade's own code, markup and CSS was 6,694 B in 0.12.0. The
   // Board UI kit CSS is the game's (it bakes in the sections it uses).
   ["fizlet/arcade", "src/arcade.ts", 17408],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
