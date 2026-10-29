@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.0
 
 - **`fizlet/perf`**, the players' performance overlay (new brick, its own import rather than part
   of the dev-only `fizlet/debug`, which patches Element prototypes and must never ship).
