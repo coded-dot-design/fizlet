@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.1
+
+- **`fizlet/arcade`: scoreboard keys keep their labels on one line.** The keys size to their labels
+  and wrap as whole keys. Before, four keys shared one row, and "M · Refresh maze" broke onto three lines in
+  Byte Runner. Three short keys (Null Invaders) still share one row.
+
 ## 0.12.0
 
 - **`fizlet/arcade`: in-page art and keys-only games**, for Byte Runner and Sherman Bytes:
