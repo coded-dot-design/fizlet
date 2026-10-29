@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.2
+
+- **`fizlet/sprite`** (new brick, ~1.3 KB gzip): the character layer's drawing primitive.
+  `sprites(defs, { palettes, cap, canvas })` takes pixel art as data (rows of characters, a colour
+  map whose values can be palette roles such as `team`, frames, a pivot, an optional 1px outline)
+  or a vector `paint()`, bakes each (sprite, frame, scale, palette) once into a capped cache
+  (OffscreenCanvas when available) and `draw(ctx, id, frame, x, y, angle, scale, palette)` blits it
+  with no allocation. `svg()` / `url()` give the same pixels for characters placed in the page. A
+  test fixture redraws the Sherman tank hull pixel for pixel.
+
 ## 0.3.1
 
 - **`fizlet/grid`**, the board layer (1,533 B gzip, budget 1,536): `board(cols, rows, { cell,
