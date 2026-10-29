@@ -1,0 +1,16 @@
+{
+  "$comment": "astro-base-engine config for the Fizlet engine site. Fizlet's site is a static HTML build (scripts/site.mjs), not Astro yet; run the engine with --site site. siteUrl is the GitHub Pages address until fizlet.com (or fizlet.coded.design) is pointed. Voice: ~100% engine (brand/voice.md).",
+  "brand": {
+    "name": "Fizlet",
+    "siteUrl": "https://coded-dot-design.github.io/fizlet",
+    "defaultImage": "/og/fizlet.png"
+  },
+  "inputs": { "voice": "../brand/voice.md", "styleGuide": "../brand/style-guide.md" },
+  "pageTypes": {
+    "home":     { "template": "marketing", "path": "/",               "eyebrow": "",          "schemaPageType": "SoftwareSourceCode", "requires": ["hero"] },
+    "guide":    { "template": "article",   "path": "/guides/{slug}",  "eyebrow": "Guide",     "schemaPageType": "TechArticle", "related": true },
+    "brick":    { "template": "marketing", "path": "/bricks/{slug}",  "eyebrow": "Brick",     "schemaPageType": "SoftwareSourceCode", "requires": ["hero"] },
+    "example":  { "template": "marketing", "path": "/examples/{slug}", "eyebrow": "Example",   "schemaPageType": "WebPage", "requires": ["hero"] },
+    "blog":     { "template": "article",   "path": "/blog/{slug}",    "eyebrow": "Blog",      "schemaPageType": "BlogPosting", "related": true }
+  }
+}
