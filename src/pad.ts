@@ -90,7 +90,8 @@ export function pad(e: Engine, c: Controls, o: PadOptions = {}) {
   let dk: HTMLElement[] = [], knob: HTMLElement | null = null, mask = 0, scheme: Scheme | "" = "";
   // Move control: centre x, y, radius (read once per touch start), knob offset wanted (3, 4) and
   // drawn (5, 6), and the pointer id holding it (7). The stick vector goes through v.
-  const g = new Float64Array(8), v = new Float64Array(2);
+  const g = new Float64Array(9), v = new Float64Array(2);
+  let pk: Element | null = null; // the key the last pointer pressed (its click is not a second tap)
   g[7] = -1;
 
   const paint = (i: number, now: boolean) => {
@@ -136,9 +137,14 @@ export function pad(e: Engine, c: Controls, o: PadOptions = {}) {
     if (!t) return;
     if (p.type === "click") {
       // Keyboard (Enter / Space on a focused key) is a tap; pointer clicks already acted on down.
+      // Some browsers report a touch tap's click with detail 0 too, so a click on the key a pointer
+      // just pressed is never a second tap.
+      if (key && key === pk && p.timeStamp - g[8]! < 1000) return void (pk = null);
       if (!p.detail && key) i ? tap(+i, false) : (c.press(move[+d!]!), c.press(move[+d!]!, false));
     } else if (p.type === "pointerdown") {
       if (p.button > 0) return;
+      pk = key;
+      g[8] = p.timeStamp;
       p.preventDefault(); // no focus steal, no text selection, no emulated mouse
       try {
         t.setPointerCapture(p.pointerId);

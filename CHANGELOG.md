@@ -31,6 +31,14 @@
 - kernel: options are validated at setup. `step` must be a finite number > 0, `seed` finite,
   `maxSteps`, `events` and pool caps positive integers (`new EventRing` and `new Pool` too); a bad
   value throws a `RangeError` that names it. Kernel size 2839 → 3106 bytes gzip (budget 4096).
+
+## 0.3.4
+
+- `fizlet/pad`: a touch tap's `click` (some Chromium builds report it with `detail` 0, like a keyboard
+  press) no longer flips a toggle key back off. Regression test added; this was red on `main` in CI.
+- CI: failing lines from check, browser and site tests are echoed as annotations, so they can be read
+  through the API.
+
 ## 0.3.3
 
 - **`fizlet/pad`**: swappable on-screen controls for touch (and mouse). `pad(engine, controls, {
