@@ -73,6 +73,23 @@ export function applyPalette(root: HTMLElement, palette: Palette): () => void {
  * follow an uncancellable touch is skipped. Run your state change and repaint synchronously in
  * fn: a frame between release and the new pressed state makes the key bounce.
  */
+/** Readouts (BOARD-UI.md section 18): a `.bui-readouts` group of `[label, tone?]` items, appended to
+ *  `parent`. Returns the value elements in order, for fizlet/hud (or your own change-only writes).
+ *  Text is set with textContent. The caller owns the group: add it through the engine's ledger. */
+export function readouts(parent: HTMLElement, items: [label: string, tone?: "team" | "enemy"][], onMap = false) {
+  const group = parent.ownerDocument.createElement("div");
+  group.className = onMap ? "bui-readouts bui-on-map" : "bui-readouts";
+  const values = items.map(([label, tone]) => {
+    const item = group.appendChild(parent.ownerDocument.createElement("span"));
+    item.className = "bui-readout";
+    if (tone) item.dataset.tone = tone;
+    item.append(label);
+    return item.appendChild(parent.ownerDocument.createElement("b"));
+  });
+  parent.append(group);
+  return { group, values };
+}
+
 export function press(el: HTMLElement, fn: () => void, signal: AbortSignal) {
   let touched = 0;
   el.addEventListener("touchstart", (e) => {
