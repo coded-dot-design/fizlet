@@ -1,7 +1,7 @@
 // Brick tests (Node): collide, fx, sprite and the pad's maths. Input, pad, sound and embed need a browser: tests/browser.mjs.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PerformanceObserver, constants } from "node:perf_hooks";
+import { minorGCs } from "./gc.mjs";
 
 const { Grid, circles, circleRect, segCircle, inRect, overlap } = await import("../src/collide.ts");
 const { effects } = await import("../src/fx.ts");
@@ -111,14 +111,9 @@ test("collide + fx: near-zero allocation while stepping", async (t) => {
   };
   for (let i = 0; i < 20000; i++) frame();
   gc();
-  let minor = 0;
-  const obs = new PerformanceObserver((list) => {
-    for (const e of list.getEntries()) if (e.detail?.kind === constants.NODE_PERFORMANCE_GC_MINOR) minor++;
+  const minor = await minorGCs(() => {
+    for (let i = 0; i < 200000; i++) frame();
   });
-  obs.observe({ entryTypes: ["gc"] });
-  for (let i = 0; i < 200000; i++) frame();
-  await new Promise((r) => setTimeout(r, 50));
-  obs.disconnect();
   assert.ok(hits[0] > 0);
   assert.ok(fx.live > 50, `the fx pool is populated (${fx.live} live)`);
   // Grid and fx keep every running number in typed arrays (no number crosses a call V8 may not
@@ -307,14 +302,9 @@ test("sprite: draw allocates nothing once baked", async (t) => {
   };
   for (let i = 0; i < 20000; i++) frame();
   gc();
-  let minor = 0;
-  const obs = new PerformanceObserver((list) => {
-    for (const e of list.getEntries()) if (e.detail?.kind === constants.NODE_PERFORMANCE_GC_MINOR) minor++;
+  const minor = await minorGCs(() => {
+    for (let i = 0; i < 100000; i++) frame();
   });
-  obs.observe({ entryTypes: ["gc"] });
-  for (let i = 0; i < 100000; i++) frame();
-  await new Promise((r) => setTimeout(r, 50));
-  obs.disconnect();
   assert.equal(sp.baked, 12, "hull 2 frames + turret 1, x 2 scales x 2 palettes");
   assert.equal(minor, 0, `young-generation GCs over 3.2M draws: ${minor}`);
 });
