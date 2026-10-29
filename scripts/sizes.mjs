@@ -8,6 +8,7 @@ export const BUDGETS = [
   ["fizlet/debug", "src/debug.ts", 1536],
   ["fizlet/input", "src/input.ts", 1536],
   ["fizlet/collide", "src/collide.ts", 1536],
+  ["fizlet/grid", "src/grid.ts", 1536],
   ["fizlet/fx", "src/fx.ts", 2048],
   ["fizlet/sound", "src/sound.ts", 1536],
   ["fizlet/embed", "src/embed.ts", 2560],

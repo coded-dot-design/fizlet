@@ -1,6 +1,6 @@
 {
   "name": "fizlet",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Tiny physics for your page: a micro game and animation engine for the DOM, by Chris Cooley. One loop, bounded everything, and the page always comes back.",
   "license": "MIT",
   "author": "Chris Cooley <https://coded.design>",
@@ -39,6 +39,10 @@
     "./collide": {
       "types": "./dist/collide.d.ts",
       "default": "./dist/collide.js"
+    },
+    "./grid": {
+      "types": "./dist/grid.d.ts",
+      "default": "./dist/grid.js"
     },
     "./fx": {
       "types": "./dist/fx.d.ts",
