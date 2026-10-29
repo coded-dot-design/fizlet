@@ -93,6 +93,7 @@ in included, 1 KB = 1024 bytes.
 | `fizlet/match` | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.5 KB |
 | `fizlet/rules` | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
 | `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 3.7 KB |
+| `fizlet/arcade` | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard (sound, pause, fold, exit, readouts, meter, action keys, comms toast), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 16.3 KB with every brick it composes (6.3 KB its own) |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.6 KB + 4.5 KB css |
 | `fizlet/ui/tokens.json` | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
 
@@ -474,6 +475,36 @@ engine.add({ step() {
 // Drawing a drop: d.x[i], d.y[i] now; d.landY[i] where it lands; d.age[i] seconds since it spawned
 // (blink when d.life - d.age[i] < 2). Event "drop:land" once it touches down (a landing puff).
 ```
+
+### Arcade: a page game's shell
+
+`fizlet/arcade` is what Null Invaders, Byte Runner and Sherman Bytes share: everything but the rules
+and the art. The game passes its definition and a `create(ctx)` that adds its own systems to
+`ctx.engine`; the shell writes the controls into `ctx.ctl` in the read phase, so a step only reads
+typed arrays.
+
+```ts
+import { arcade, MODE, PX, PY, KX, KY, FIRE, VW, VH } from "fizlet/arcade";
+
+const game = arcade({
+  id: "null-invaders", title: "Null Invaders", color: "#06c4ff", css: KIT_CSS, fire: true,
+  hint: "Move: mouse / WASD · Fire: click / Space · G: next gate",
+  readouts: [["Score", "team", (v) => String(v).padStart(6, "0")], ["Wave"]],
+  colors: ["#06c4ff", "#f4457a"], cues: { fire: "fire", kill: "boom" },
+  create: (ctx) => rules(ctx), // { reset, over, draw, hud, stats, react?, scroll?, meter? }
+}, { root: "main", seed: 7 });
+game.start(); // Escape, the exit key or game.stop(): Recall gives the page back exactly
+```
+
+- **One run, one engine.** `start()` builds the engine, the board and the overlay; `stop()` destroys
+  the engine (the page comes back through its ledger) and removes the overlay. When the game reports
+  `over()` the page comes back at once and the scoreboard stays with the result and a Restart key.
+- **The page keeps what it owns.** While a run is live, a click on the page fires instead of following
+  a link; the scoreboard, fields, dialogs and `[data-virus-ignore]` / `[data-fizlet-ignore]` keep their
+  clicks and keys. Typing in a field pauses the engine (the kernel's rule).
+- **The snapshot a hub reads:** `status` (idle, running, paused, won, gameover, destroyed), `elapsed`,
+  the game's `stats()`, frame time, `board` (letters indexed, visible, spent, range reads) and
+  `particles`.
 
 ### Board: the page
 

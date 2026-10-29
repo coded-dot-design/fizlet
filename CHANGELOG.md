@@ -37,6 +37,19 @@
   throttle): live chunk 9,609 → 9,717 B gzip (still ≥ 5% under 10 KB), poster + loader 2,962 →
   3,153 B; script per frame 0.8 ms median, 3.1 ms p95; CLS 0; 0 frames settled.
 
+## 0.11.0
+
+- **`fizlet/arcade`** (new brick): the shell every page arcade game repeats (DOM VIRUS ENGINE.md E3),
+  so Null Invaders, Byte Runner and Sherman Bytes share one instead of each carrying a copy. One
+  engine per run over the page (`board-page`), an overlay canvas and a Board UI scoreboard (sound,
+  pause, fold, exit, readouts, a meter, action keys, the comms toast), keys and pointer (`input`), the
+  touch pad (`pad`), sound cues (`sound`), sparks and stacking popups, target health painted into the
+  buttons through the ledger, and the controller a hub drives. Extracted from Null Invaders 1.0.0
+  (null-invaders#4) with its review fixes: a failed start leaves nothing behind, Escape and P work
+  after a run ends, the end of a run is read from the game (never from a ring that may drop events),
+  G scrolls in render. 16,731 B gzip with every brick it composes (budget 17,408); its own code,
+  markup and CSS 6,448 B. The Board UI kit CSS stays the game's (it bakes in the sections it uses).
+
 ## 0.10.1
 
 - **`fizlet/rules` drops: per-drop age and landing spot.** `drops()` now exposes `age` (seconds since
