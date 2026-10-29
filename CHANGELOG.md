@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.14.0
+
+For Swarm Protocol's port onto the kernel (its own engine kept page-level hooks the bricks lacked):
+
+- **Kernel `Ledger.unstyle(el, prop)`**: put one style property back now, as Recall would, and
+  forget it (a later `style` records the value then as the new original). Hands off if the host
+  changed it since our last write. Swarm drops a breached button's paint and a hit's wobble mid-round.
+- **`fizlet/board-page` `letters: true`**: letters only (digits stay page text, not glyphs).
+- **`board-page.char(i)`**: the letter glyph i was before the game changed it (a bite reports which
+  letter it ate). **`board-page.parent(i)`**: the element that holds it, for a game's own
+  read-phase checks (what covers it). Neither is for a step.
+- Size: kernel 3,415 B gzip (budget 4,096); `fizlet/board-page` 4,010 B (3,960 in 0.13.0, budget
+  4,096); `fizlet/arcade` 17,206 B (budget 17,408).
+
 ## 0.13.0
 
 - **`fizlet/board-page`: hot-path forms `hitAt(p, i)` and `nearAt(p, i, out)`.** They take the

@@ -24,6 +24,8 @@ export interface BoardPageOptions {
   maxGlyphs?: number;
   /** Targets at most (default 32). */
   maxTargets?: number;
+  /** Letters only (default false: letters and digits are glyphs). */
+  letters?: boolean;
   /** Range reads per refresh at most (default 900); the rest are measured on the next refresh. */
   reads?: number;
   /** Hex colour for consumed glyphs (a CSS Custom Highlight, where supported). Off by default. */
@@ -42,7 +44,7 @@ export interface BoardTarget {
 }
 
 /** One Text node: our last value of it; per glyph offset, length, state (0, 1 binary, 2 erase), range. */
-type Rec = [node: Text, value: string, off: number[], len: number[], state: number[], ranges: (Range | undefined)[]];
+type Rec = [node: Text, value: string, off: number[], len: number[], state: number[], ranges: (Range | undefined)[], chars: string[]];
 
 /** Never a target or food: fields, editable, live regions, dialogs, opted out, a Fizlet host. */
 const SKIP = "input,textarea,select,[contenteditable],[aria-live],dialog,[role=dialog],[data-fizlet-ignore],[data-fizlet-host]";
@@ -56,6 +58,7 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
   const targetSel = o.targets ?? "button,[role=button],a.button,a.btn,[data-fizlet-target]";
   const skip = o.exclude ? SKIP + "," + o.exclude : SKIP, skipText = skip + NOT_TEXT;
   const MAX = o.maxGlyphs ?? 8000, READS = o.reads ?? 900, MAXT = o.maxTargets ?? 32;
+  const eligible = o.letters ? /\p{L}/u : /\p{L}|\p{N}/u;
   const x = new Float32Array(MAX), y = new Float32Array(MAX), w = new Float32Array(MAX), h = new Float32Array(MAX);
   const spent = new Uint8Array(MAX), gr = new Int32Array(MAX), gk = new Int32Array(MAX), queue = new Int32Array(MAX), found = new Int32Array(MAX);
   // Queued writes name the node record and its glyph slot, so a rescan in between can't lose them.
@@ -102,8 +105,8 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
         if (r && !ours(r)) drop(r), (r = undefined);
         if (!r) {
           if (!node.data.trim() || node.parentElement!.closest(skipText) || mine(node)) continue;
-          byNode.set(node, (r = [node, node.data, [], [], [], []]));
-          for (const p of seg.segment(node.data)) if (/\p{L}|\p{N}/u.test(p.segment)) r[2].push(p.index), r[3].push(p.segment.length), r[4].push(0);
+          byNode.set(node, (r = [node, node.data, [], [], [], [], []]));
+          for (const p of seg.segment(node.data)) if (eligible.test(p.segment)) r[2].push(p.index), r[3].push(p.segment.length), r[4].push(0), r[6].push(p.segment);
         }
         if (!seen.has(r)) seen.add(r), (total += r[2].length);
       }
@@ -333,6 +336,10 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
       else (qr[queued] = recs[gr[i]!]!), (queue[queued++] = gk[i]!);
       return true;
     },
+    /** Glyph i as it was before the game changed it (the letter a bite ate). Not for a step: a string. */
+    char: (i: number) => (i >= 0 && i < count ? recs[gr[i]!]![6][gk[i]!]! : ""),
+    /** The element that holds glyph i's text (for a game's own read-phase checks, e.g. what covers it). */
+    parent: (i: number) => (i >= 0 && i < count ? recs[gr[i]!]![0].parentElement : null),
     /** Rescan and re-measure now; from a step, at the next read. */
     refresh() {
       rescan = 1;
