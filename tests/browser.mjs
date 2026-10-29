@@ -157,6 +157,78 @@ async function padTest() {
   await ctx.close();
 }
 
+/** Contract rule 8: CSS containment on every root Fizlet owns, measured on a real board. Each
+ *  contained root lays out exactly as it did without containment (every box inside it, to the
+ *  pixel), host boxes get none, and Recall still gives the page back byte for byte. */
+async function containTest() {
+  const ctx = await browser.newContext({ viewport: { width: 844, height: 390 }, hasTouch: true });
+  const cp = await ctx.newPage();
+  const errs = [];
+  cp.on("pageerror", (e) => errs.push(e.message));
+  await cp.setContent(`<!doctype html><meta charset="utf-8"><body style="margin:0"><style>${CSS}</style>
+<div class="bui" id="board" style="position:relative;width:844px;height:390px"><p id="keep" style="margin:0">field <b data-k>0</b></p><ul class="feed"></ul></div>
+<h1 id="h">Glyphs for the board</h1><button id="go" type="button">GO</button><div id="ui"></div><script>${bundle}</script></body>`);
+  const out = await cp.evaluate(async () => {
+    const snap = () => document.documentElement.outerHTML;
+    const before = snap();
+    const board = document.getElementById("board");
+    const e = fizlet.createEngine({ root: board });
+    const c = fizlet.controls(e, { keys: { fire: ["Space"] } });
+    const p = fizlet.pad(e, c, { actions: [{ intent: "fire", label: "FIRE" }] });
+    const m = fizlet.match(e, board, { count: 0 });
+    let kills = 3;
+    const h = fizlet.hud(e, board).num("[data-k]", () => kills).feed(".feed", 2, "kill", (a) => "kill " + a);
+    const b = fizlet.boardPage(e);
+    b.refresh();
+    e.advance(0.1);
+    const ui = fizlet.mount(document.getElementById("ui"), "");
+    // The launch burst lives on <body> while it runs; fire it from a key on the kit's own root.
+    const key = ui.appendChild(document.createElement("button"));
+    key.textContent = "GO";
+    fizlet.launch(key, () => {});
+    const burst = document.querySelector("body > .bui-burst");
+    const contain = (el) => (el ? getComputedStyle(el).contain : "missing");
+    // Every box inside a root, with its containment on and then off: nothing may move or resize.
+    const boxes = (el) => [el, ...el.querySelectorAll("*")].map((n) => { const r = n.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].join(); }).join("|");
+    const same = (el) => {
+      const on = boxes(el), was = el.style.getPropertyValue("contain");
+      el.style.setProperty("contain", "none");
+      const off = boxes(el);
+      was ? el.style.setProperty("contain", was) : el.style.removeProperty("contain");
+      if (!el.getAttribute("style")) el.removeAttribute("style");
+      return on === off && on.length > 0;
+    };
+    const res = {
+      contain: {
+        mount: contain(ui), pad: contain(p.el), overlay: contain(m.el), burst: contain(burst),
+        // Host boxes stay the host's: the board root, hud markup, board-page text, the page itself.
+        board: contain(board), hud: contain(board.querySelector("[data-k]")), feed: contain(board.querySelector(".feed")),
+        text: contain(document.getElementById("h")), body: contain(document.body), html: contain(document.documentElement),
+      },
+      still: { pad: same(p.el), overlay: !m.el.hidden && same(m.el), burst: same(burst) },
+      shown: board.querySelector("[data-k]").textContent,
+    };
+    // Recall: the engine gives back the board, the burst ends, the kit mount is the host's to remove.
+    await new Promise((r) => setTimeout(r, 1000));
+    e.destroy();
+    document.getElementById("ui").shadowRoot.replaceChildren();
+    res.burstGone = !document.querySelector(".bui-burst");
+    // A shadow root can't be detached; compare the light DOM, which is all the page serialises.
+    res.back = snap() === before;
+    return res;
+  });
+  assert.deepEqual(out.contain, {
+    mount: "style", pad: "layout style", overlay: "layout style", burst: "layout style",
+    board: "none", hud: "none", feed: "none", text: "none", body: "none", html: "none",
+  }, "every root Fizlet owns is contained; host boxes are not");
+  assert.deepEqual(out.still, { pad: true, overlay: true, burst: true }, "containment moves and resizes nothing");
+  assert.equal(out.shown, "3", "the hud still writes into the host's markup");
+  assert.equal(out.burstGone, true, "the launch burst removes itself");
+  assert.equal(out.back, true, "Recall restores the page exactly with containment on");
+  assert.deepEqual(errs, []);
+  await ctx.close();
+}
+
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 let where = "start";
 try {
@@ -1227,6 +1299,10 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   assert.deepEqual(errors, []);
   console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, board-page passed.");
   }
+
+  where = "containment";
+  await containTest();
+  console.log("Browser: CSS containment on every owned root (mount, pad, match overlay, launch burst; slot stage strict), nothing moves, Recall exact passed.");
 } catch (e) {
   console.error(`::error title=Fizlet browser test (${where})::${e.message}`);
   throw e;

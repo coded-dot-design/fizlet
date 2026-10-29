@@ -7,8 +7,8 @@ it was. No runtime dependencies, ever.
 **Website, live demo and quick start: https://coded-dot-design.github.io/fizlet/**
 
 The "fiz" is fizz (the pop of an effect) and a nod to physics; the "-let" is small, like an applet.
-Fizlet powers the [DOM VIRUS](https://coded-dot-design.github.io/dom-virus/) arcade and
-[DOM Battlefield](https://coded-dot-design.github.io/dom-battlefield/).
+Fizlet runs Battlefield Blitz; the [DOM VIRUS](https://coded-dot-design.github.io/dom-virus/) arcade
+and [DOM Battlefield](https://coded-dot-design.github.io/dom-battlefield/) move onto it next.
 
 ## Install
 
@@ -43,9 +43,10 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 1. **One clock per page.** Every engine shares one `requestAnimationFrame`. Fixed step (default
    60 Hz) with an accumulator and a catch-up cap: a long frame drops time, it never spirals.
 2. **Bounded everything.** Pools and the event ring have a fixed capacity and refuse work when full.
-3. **Zero steady-state allocation.** Tested: 1M kernel steps of a busy system cause no young-generation
-   GC; each brick alone allocates nothing. Hot-path tip: pass typed arrays and indices (`grid.add`,
-   `grid.near`, `overlap`) rather than many numbers, so V8 never boxes them in big step functions.
+3. **Zero steady-state allocation.** Measured: 1M kernel steps of a busy system cause 0
+   young-generation GCs on Node 24 (best of three windows; the test fails above 1); each brick
+   alone allocates nothing. Hot-path tip: pass typed arrays and indices (`grid.add`, `grid.near`,
+   `overlap`) rather than many numbers, so V8 never boxes them in big step functions.
 4. **No layout reads in the step.** Read in `read`, simulate in `step`, write in `render`.
    `fizlet/debug` counts any layout read made during a step.
 5. **Change-only writes.** The ledger skips writes that change nothing.
@@ -54,30 +55,44 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 7. **Own nothing you can't give back.** Every page change goes through the ledger; `destroy()`
    restores it exactly, and a newer edit by the host page always wins. One `AbortSignal` removes
    every listener and observer.
-8. **Embed-safe.** No globals, no global styles, many engines per page.
-9. **Budgets in CI.** Kernel ≤ 4 KB gzip (today: ~3.1 KB), each brick ~1.5 KB.
+8. **Embed-safe.** No globals, no global styles, many engines per page. Every root Fizlet owns is
+   CSS-contained: the slot stage `contain: strict`; the pad, the match overlay and the launch burst
+   `contain: layout style` (each is already positioned, so nothing moves or clips: a browser test
+   compares every box inside with containment on and off); the `fizlet/ui` mount root
+   `contain: style` (it is static, so layout or paint containment could move or clip a board's own
+   layers). `hud` and `board-page` own no box: they write into the host's markup and never add
+   containment to it.
+9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,140 bytes); each brick has its own budget,
+   1.5 to 5 KB (`scripts/sizes.mjs`); over budget, the build fails.
 
 ## What's in the box
 
+Sizes as `npm run size` measures them on this build: minified + gzip, everything an import pulls
+in included, 1 KB = 1024 bytes.
+
 | Import | What | Size (min + gzip) |
 |---|---|---|
-| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | ~3.1 KB |
-| `fizlet/debug` | `guardLayout(engine)`: counts layout reads during a step (dev only) | ~0.5 KB |
-| `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer`, `dispose` | ~1.3 KB |
-| `fizlet/pad` | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | ~1.8 KB |
-| `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | ~1.3 KB |
-| `fizlet/grid` | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | ~1.5 KB |
-| `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | ~1.9 KB |
-| `fizlet/sprite` | `sprites(defs, { palettes, cap })`: pixel-art characters as data, re-tinted by palette role, baked once per sprite/frame/scale/palette into a capped cache, `draw()` with no allocation; `svg()` / `url()` for page characters | ~1.3 KB |
-| `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues (or your own player), unlock on gesture, `dispose` | ~1.0 KB |
-| `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | ~2.0 KB |
-| `fizlet/slot` | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | ~1.5 KB |
-| `fizlet/presence` | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | ~1.8 KB |
-| `fizlet/hud` | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | ~1.3 KB |
-
-| `fizlet/match` | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | ~2.5 KB |
-| `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
+| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | 3.1 KB |
+| `fizlet/debug` | `guardLayout(engine)`: counts layout reads during a step (dev only) | 0.5 KB |
+| `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer`, `dispose` | 1.2 KB |
+| `fizlet/pad` | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | 1.9 KB |
+| `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | 1.3 KB |
+| `fizlet/grid` | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | 1.5 KB |
+| `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | 1.9 KB |
+| `fizlet/sprite` | `sprites(defs, { palettes, cap })`: pixel-art characters as data, re-tinted by palette role, baked once per sprite/frame/scale/palette into a capped cache, `draw()` with no allocation; `svg()` / `url()` for page characters | 1.3 KB |
+| `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues `fire`, `hit`, `boom`, `hurt`, `power`, `ready`, `win`, `end`, `click` (or your own player), at most 8 voices, unlock on gesture, `dispose` | 1.0 KB |
+| `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | 2.0 KB |
+| `fizlet/slot` | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | 1.5 KB |
+| `fizlet/presence` | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | 1.8 KB |
+| `fizlet/presence/check` | `syncCheck(setup, opts)`: runs a sim as lockstep clients and finds the first diverged frame (tests only) | 4.5 KB |
+| `fizlet/hud` | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | 1.3 KB |
+| `fizlet/match` | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.5 KB |
+| `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 3.7 KB |
+| `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | 2.4 KB + 4.5 KB css |
 | `fizlet/ui/tokens.json` | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
+
+More bricks land through phase E2 (actor, steer, aim, rules, camera, view-dom): see the
+[engine plan](https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md).
 
 ### Input, sound and embed semantics
 
@@ -103,14 +118,6 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
   leave it suspended.
 - **Embed:** `close()` (or Escape) while the game is still loading cancels that load: it never mounts
   afterwards, and a later `open()` starts a fresh one.
-
-More bricks land through phase E2 (actor, steer, aim, rules, board-page, camera,
-
-| `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | ~3.8 KB |
-| `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
-
-More bricks land through phase E2 (actor, steer, aim, rules, board-grid, camera,
-view-dom, presence): see the [engine plan](https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md).
 
 ### Fill an astro-base-engine slot
 
@@ -319,17 +326,6 @@ differed (or -1). `setup(e, slot, players)` returns `{ input(), step(e, inputs, 
 a rollback layer can replay). A transport is `{ send(bytes), listen(fn), close() }`; the room server
 prototype (Cloudflare Worker + Durable Object) is in [`rooms/`](rooms/README.md).
 
-## Develop
-
-```sh
-npm ci
-npm run check         # typecheck, contract tests (node), build
-npm run size          # size budgets
-npm run test:browser  # contract tests in Chromium (Playwright)
-npm run test:pack     # pack, install the tarball, import + typecheck every subpath
-npm run site          # the website, into site-dist/
-```
-
 ### HUD
 
 ```ts
@@ -351,6 +347,7 @@ and reused. `feed` and `banner` read `engine.events` in render (emit `kill` / `s
 step), never per-frame state. Writes go through `engine.ledger`; rows or text nodes it adds are
 removed on `destroy()`. It has no visuals of its own: it binds to your markup. A getter V8 doesn't
 inline boxes a fractional double, so pass running fractions as a `[typedArray, index]` slot.
+
 ### Match flow (`fizlet/match`)
 
 The flow every board shares, on the Board UI kit's overlay ([spec](src/ui/BOARD-UI.md) section 9):

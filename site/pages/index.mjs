@@ -13,8 +13,8 @@ const CONTRACT = [
   ["Change-only writes", "The ledger skips writes that change nothing. Writing the same value twice makes zero DOM mutations."],
   ["Pause by default", "Hidden tab, page leaving, root off screen, typing in the host's own fields. Zero CPU while paused."],
   ["Own nothing you can't give back", "Every page change goes through the ledger. destroy() restores it exactly, and a newer host edit always wins."],
-  ["Embed-safe", "No globals, no global styles, many engines per page. One AbortSignal removes every listener and observer."],
-  ["Budgets in CI", "Kernel at most 4 KB gzip, each brick about 1.5 KB. Over budget, the build fails."],
+  ["Embed-safe", "No globals, no global styles, many engines per page. Every root Fizlet owns is CSS-contained. One AbortSignal removes every listener and observer."],
+  ["Budgets in CI", "Kernel at most 4 KB gzip, each brick its own budget of 1.5 to 5 KB. Over budget, the build fails."],
 ];
 
 // One card per module: [import, tag, what, size entry name, snippet, role colour]

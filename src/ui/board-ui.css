@@ -457,6 +457,7 @@
   position: absolute;
   inset: 0;
   z-index: 30;
+  contain: layout style; /* rule 8: already positioned and stacked, so nothing moves or clips */
   background: color-mix(in srgb, #2a2d38 82%, transparent);
 }
 .bui .bui-overlay[hidden] {
@@ -716,6 +717,7 @@
   position: absolute;
   inset: auto 0 0;
   z-index: 12;
+  contain: layout style; /* rule 8: already positioned and stacked, so nothing moves or clips */
   display: flex;
   justify-content: space-between;
   align-items: flex-end;

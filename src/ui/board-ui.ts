@@ -44,6 +44,9 @@ export function mount(host: HTMLElement, css: string, opts: { theme?: "dark" | "
   }
   const root = document.createElement("div");
   root.className = "bui";
+  // Contract rule 8: style containment only (counters and quotes stay inside). The root is static,
+  // so layout or paint containment would move or clip a board's own absolute layers.
+  root.style.contain = "style";
   root.dataset.theme = opts.theme ?? "dark";
   root.dataset.side = String(opts.side ?? 0);
   shadow.append(root);
@@ -121,7 +124,7 @@ export function launch(button: HTMLElement, action: () => void, opts: { reduced?
     layer.className = "bui-burst";
     layer.setAttribute("aria-hidden", "true");
     // Inline styles only: the burst lives on <body>, outside any shadow root the board is in.
-    Object.assign(layer.style, { position: "fixed", zIndex: "2147483000", pointerEvents: "none", left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px` });
+    Object.assign(layer.style, { position: "fixed", contain: "layout style", zIndex: "2147483000", pointerEvents: "none", left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px` });
     document.body.append(layer);
     const sink = Number(style.boxShadow.match(/(-?[\d.]+)px\s+(-?[\d.]+)px/)?.[2] || 5);
     const copy = () => {
