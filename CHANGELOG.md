@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Website: a size badge on every live demo** ("9.4 KB GZ"): the layers hero, the blast board,
+  the fizz can, the quick start, each brick page's demo and every gallery entry. The number is what that demo ships,
+  gzipped, with every chunk it imports statically (`scripts/live-bytes.mjs`), measured on the built
+  file at build time and never typed; kit tokens only; the full byte count is in screen-reader
+  text and the tooltip. One component for all of them: `sizeBadge(bytes, live, what)` in `site/size-badge.mjs`
+  (it replaces the gallery's `{ name, note }` form; one `.size-badge` style).
+  `tests/site.mjs` fails if a live demo has no badge, if a badge's bytes differ from a fresh
+  measurement of the file it names, or if it is hidden. The demos' own standalone pages
+  (`demos/fizz/`, `demos/layers/`, `examples/fizz/`) have none yet; they are listed in the test.
 - **Tests: the camera's reduced-motion check waits for frames, not 120 ms of wall time**, so slow CI
   runners no longer fail it.
 - **Tests: zero-allocation checks no longer flake.** `match` and `rules` count young GCs with the
