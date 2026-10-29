@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- **Website: the gallery (`gallery/`).** Every animation, newest first: the prompt (or, for the
+  hand-built ones, the brief) it was made from, the live demo lazy-mounted through `fizlet/slot`
+  (one shared loader; each entry's live chunk is its own bundle and loads only near the viewport,
+  never under reduced motion, where the poster stays), and a size badge with that chunk's gzip
+  bytes, measured by `scripts/gallery.mjs` on this build. Seeded with the fizz can, the layers
+  story and the blast demo ("How it works"), plus the first animation made by the engine's
+  `fe anim` from one prompt ("pink sparks burst where you tap": the spray scene,
+  `site/gallery/scenes/spray.ts`, kernel + fx, settles to zero frames). Entries are data
+  (`site/gallery/entries/*.json`). New shared `site/size-badge.mjs`; `site/demo.ts` exports
+  `run()` and the home page's blast figure is `playFigure()`, so the gallery can mount it.
+  `tests/site.mjs`: order, a measured badge and the prompt on every entry, each demo mounts
+  only near the screen, a spray draws on a tap, reduced motion loads no scene.
 - **Website: one page per brick, generated from the source.** `bricks/<id>.html` for the kernel
   and every brick (input, pad, collide, grid, fx, sprite, sound, embed, slot, hud, match,
   board-page, presence, ui, perf, rules, camera, debug) plus a bricks index. Each page has the module's summary (its

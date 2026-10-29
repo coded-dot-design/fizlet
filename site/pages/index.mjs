@@ -89,6 +89,35 @@ function demoPage() {
     </div>`;
 }
 
+/** The "Blast it. Recall it." demo figure (site/demo.ts runs it). The gallery mounts it in a slot. */
+export function playFigure() {
+  return `<figure class="demo panel lit" data-demo aria-label="Live demo: a small page you can blast. Recall puts it back.">
+      <div class="demo-chrome"><i></i><i></i><i></i><span class="demo-url">your.page</span><span class="demo-state" data-state>BOOTING</span></div>
+      <div class="demo-board" data-board>
+        ${demoPage()}
+        <canvas class="demo-fx" data-fx aria-hidden="true"></canvas>
+        <div class="demo-slam" data-slam hidden><div class="bui-sticker"><span>RECALL</span><b>RESTORED</b></div></div>
+        <p class="demo-hint" data-hint aria-hidden="true"><span class="blink"></span>CLICK THE PAGE</p>
+      </div>
+      <div class="demo-keys">
+        <button class="bui-arcade bui-attack" type="button" data-blast>${icon("fire", 18)}Blast<kbd>B</kbd></button>
+        <button class="bui-arcade bui-cmd" type="button" data-recall>${icon("recall", 18)}Recall<kbd>R</kbd></button>
+        <button class="bui-icon-key" type="button" data-sound aria-pressed="false" aria-label="Sound"><span class="snd-off">${icon("mute")}</span><span class="snd-on">${icon("sound")}</span></button>
+      </div>
+      <dl class="demo-stats" aria-label="engine.stats(), live">
+        <div><dt>FRAMES</dt><dd data-stat="frames">0</dd></div>
+        <div><dt>STEPS</dt><dd data-stat="steps">0</dd></div>
+        <div><dt>DROPPED</dt><dd data-stat="dropped">0</dd></div>
+        <div><dt>FRAME MS</dt><dd data-stat="ms">0.00</dd></div>
+        <div><dt>WAVES</dt><dd data-stat="waves">0/8</dd></div>
+        <div><dt>PARTICLES</dt><dd data-stat="particles">0/420</dd></div>
+        <div><dt>LEDGER</dt><dd data-stat="ledger">0</dd></div>
+        <div><dt>LAYOUT IN STEP</dt><dd data-stat="layout">0</dd></div>
+      </dl>
+      <figcaption class="bui-label"><b>LIVE</b> · fizlet + input + fx + sound + debug, running this board</figcaption>
+    </figure>`;
+}
+
 export function home({ version, sizes, bundle, bricks: catalog, layers, fizz }) {
   const fmt = (n) => n.toLocaleString("en-US");
   const size = (name) => sizes.find((s) => s.name === name);
@@ -179,31 +208,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz }) 
       <h2 id="play-title">Blast it.<br><em>Recall it.</em></h2>
       <p class="lead">Every letter in this little page is a real element. Click it, blast it, then press <b>Recall</b>: the ledger puts back every change the engine made.</p>
     </div>
-    <figure class="demo panel lit" data-demo aria-label="Live demo: a small page you can blast. Recall puts it back.">
-      <div class="demo-chrome"><i></i><i></i><i></i><span class="demo-url">your.page</span><span class="demo-state" data-state>BOOTING</span></div>
-      <div class="demo-board" data-board>
-        ${demoPage()}
-        <canvas class="demo-fx" data-fx aria-hidden="true"></canvas>
-        <div class="demo-slam" data-slam hidden><div class="bui-sticker"><span>RECALL</span><b>RESTORED</b></div></div>
-        <p class="demo-hint" data-hint aria-hidden="true"><span class="blink"></span>CLICK THE PAGE</p>
-      </div>
-      <div class="demo-keys">
-        <button class="bui-arcade bui-attack" type="button" data-blast>${icon("fire", 18)}Blast<kbd>B</kbd></button>
-        <button class="bui-arcade bui-cmd" type="button" data-recall>${icon("recall", 18)}Recall<kbd>R</kbd></button>
-        <button class="bui-icon-key" type="button" data-sound aria-pressed="false" aria-label="Sound"><span class="snd-off">${icon("mute")}</span><span class="snd-on">${icon("sound")}</span></button>
-      </div>
-      <dl class="demo-stats" aria-label="engine.stats(), live">
-        <div><dt>FRAMES</dt><dd data-stat="frames">0</dd></div>
-        <div><dt>STEPS</dt><dd data-stat="steps">0</dd></div>
-        <div><dt>DROPPED</dt><dd data-stat="dropped">0</dd></div>
-        <div><dt>FRAME MS</dt><dd data-stat="ms">0.00</dd></div>
-        <div><dt>WAVES</dt><dd data-stat="waves">0/8</dd></div>
-        <div><dt>PARTICLES</dt><dd data-stat="particles">0/420</dd></div>
-        <div><dt>LEDGER</dt><dd data-stat="ledger">0</dd></div>
-        <div><dt>LAYOUT IN STEP</dt><dd data-stat="layout">0</dd></div>
-      </dl>
-      <figcaption class="bui-label"><b>LIVE</b> · fizlet + input + fx + sound + debug, running this board</figcaption>
-    </figure>
+    ${playFigure()}
   </div>
 </section>
 

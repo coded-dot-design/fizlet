@@ -13,6 +13,8 @@ import { chromium } from "playwright";
 import { checkHtml } from "../scripts/check-html.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
+import { entries as galleryEntries } from "../scripts/gallery.mjs";
+import { gzipSync } from "node:zlib";
 
 const ROOT = "site-dist", BASE = "/fizlet/";
 if (!existsSync(`${ROOT}/index.html`)) throw new Error("site-dist/ is missing: run `npm run site` first");
@@ -92,6 +94,21 @@ try {
     }
     const pb = sizes.find((x) => x.name.startsWith("page build"));
     assert.ok(readFileSync(`${ROOT}/index.html`, "utf8").includes(`${pb.gzip.toLocaleString("en-US")} B</b>`), "home: the page build size");
+  }
+
+  // ---------- Gallery: newest first, a size badge measured on this build on every entry ----------
+  where = "gallery sizes";
+  const GALLERY = galleryEntries();
+  {
+    const html = readFileSync(`${ROOT}/gallery/index.html`, "utf8");
+    assert.deepEqual([...html.matchAll(/<li class="panel gal-item" id="([^"]+)"/g)].map((m) => m[1]), GALLERY.map((e) => e.id), "entries in order, newest first");
+    for (let i = 1; i < GALLERY.length; i++) assert.ok(GALLERY[i - 1].date >= GALLERY[i].date, "newest first");
+    for (const e of GALLERY) {
+      const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
+      assert.ok(html.includes(`data-size="gallery:${e.id}"><b>${bytes.toLocaleString("en-US")} B</b>`), `${e.id}: its badge shows ${bytes} B`);
+      assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
+    }
+    for (const id of ["fizz", "layers", "howitworks"]) assert.ok(GALLERY.some((e) => e.id === id), `seeded with ${id}`);
   }
 
   // ---------- Every page, desktop and phone: errors, links, overflow ----------
@@ -216,6 +233,53 @@ try {
     await context.close();
   }
 
+  // ---------- Gallery: each live demo loads only near the screen, plays, and gives the page back ----------
+  where = "gallery";
+  {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    const { page, errors } = await open(context, "gallery/");
+    const loaded = [];
+    page.on("request", (r) => r.url().includes("/gallery/") && r.url().endsWith(".js") && loaded.push(r.url().split("/gallery/")[1]));
+    await page.waitForTimeout(600);
+    const last = GALLERY[GALLERY.length - 1].id;
+    assert.ok(!loaded.includes(`${last}.js`), `${last} (far below) has not loaded yet`);
+    for (const e of GALLERY) {
+      await page.$eval(`#${e.id}`, (el) => el.scrollIntoView({ block: "center" }));
+      await page.waitForSelector(`figure[data-gallery="${e.id}"][data-live]`, { timeout: 8000 });
+      await page.waitForFunction((id) => document.querySelector(`figure[data-gallery="${id}"] > :not(.ae-slot__placeholder):not(template)`), e.id, { timeout: 8000 });
+    }
+    assert.deepEqual(GALLERY.map((e) => e.id).filter((id) => !loaded.includes(`${id}.js`)), [], "every entry mounted");
+    // A generated spray draws on a tap.
+    const spray = GALLERY.find((e) => e.made === "fe anim");
+    if (spray) {
+      const fig = page.locator(`figure[data-gallery="${spray.id}"]`);
+      await fig.scrollIntoViewIfNeeded();
+      await fig.click({ position: { x: 120, y: 80 } });
+      await page.waitForTimeout(120);
+      const ink = await page.$eval(`figure[data-gallery="${spray.id}"] canvas`, (c) => {
+        const d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+        let n = 0;
+        for (let i = 3; i < d.length; i += 4) if (d[i]) n++;
+        return n;
+      });
+      assert.ok(ink > 30, `${spray.id}: a tap sprays (${ink} px)`);
+    }
+    assert.deepEqual(errors, []);
+    await context.close();
+  }
+  where = "gallery, reduced motion";
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+    const { page, errors } = await open(context, "gallery/");
+    const loaded = [];
+    page.on("request", (r) => r.url().includes("/gallery/") && r.url().endsWith(".js") && !r.url().endsWith("gallery.js") && loaded.push(r.url()));
+    for (const e of GALLERY) await page.$eval(`#${e.id}`, (el) => el.scrollIntoView({ block: "center" })), await page.waitForTimeout(250);
+    assert.deepEqual(loaded, [], "reduced motion: no scene loads, the posters stay");
+    assert.equal(await page.locator("figure[data-gallery] .ae-slot__placeholder").count(), GALLERY.length);
+    assert.deepEqual(errors, []);
+    await context.close();
+  }
+
   // ---------- Reduced motion: a still frame, never an animation ----------
   where = "reduced motion";
   {
@@ -318,7 +382,7 @@ try {
     assert.deepEqual(errors, []);
     await context.close();
   }
-  console.log(`site: ${PAGES.length} pages × 2 widths, html gates, ${checked.size} internal links, demo, brick demos, reduced motion and quick start ok`);
+  console.log(`site: ${PAGES.length} pages × 2 widths, html gates, gallery (${GALLERY.length} entries), ${checked.size} internal links, demo, brick demos, reduced motion and quick start ok`);
 } catch (err) {
   console.error(`site test failed at: ${where}`);
   throw err;

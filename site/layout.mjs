@@ -44,6 +44,7 @@ export const mark = (size = 40) =>
 const NAV = [
   ["contract", "Contract"],
   ["bricks/", "Bricks"],
+  ["gallery/", "Gallery"],
   ["recall", "Recall"],
   ["games", "Games"],
   ["roadmap", "Roadmap"],
@@ -114,6 +115,7 @@ ${body}
       <ul>
         <li><a href="${home}#contract">The contract</a></li>
         <li><a href="${home}bricks/">Kernel and bricks</a></li>
+        <li><a href="${home}gallery/">Gallery</a></li>
         <li><a href="${home}#recall">Recall</a></li>
         <li><a href="${home}#roadmap">Roadmap</a></li>
         <li><a href="${home}examples/quick-start.html">Quick start example</a></li>
