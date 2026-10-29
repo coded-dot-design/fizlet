@@ -19,7 +19,8 @@ import { press, slam } from "../src/ui/board-ui";
 const root = document.querySelector<HTMLElement>("[data-demo]");
 if (root) run(root);
 
-function run(root: HTMLElement) {
+/** Run the demo on its figure (`[data-demo]`); the gallery mounts it in a slot. Returns its engine. */
+export function run(root: HTMLElement) {
   const board = root.querySelector<HTMLElement>("[data-board]")!;
   const page = root.querySelector<HTMLElement>("[data-page]")!;
   const canvas = root.querySelector<HTMLCanvasElement>("canvas[data-fx]")!;
@@ -264,4 +265,5 @@ function run(root: HTMLElement) {
   hud();
   // For the site test (and the curious): the engine behind the demo.
   (window as unknown as { fizletDemo: unknown }).fizletDemo = { engine, fx };
+  return engine;
 }
