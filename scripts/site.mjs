@@ -11,6 +11,9 @@ import { home } from "../site/pages/index.mjs";
 import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
 import { brickPage, bricksIndex } from "../site/pages/brick.mjs";
+import { galleryPage } from "../site/pages/gallery.mjs";
+import { playFigure } from "../site/pages/index.mjs";
+import { buildGallery } from "./gallery.mjs";
 import { BRICKS, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
@@ -22,6 +25,7 @@ if (!existsSync("dist/index.js")) throw new Error("dist/ is missing: run `npm ru
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(`${OUT}/examples`, { recursive: true });
 mkdirSync(`${OUT}/bricks`, { recursive: true });
+mkdirSync(`${OUT}/gallery`, { recursive: true });
 
 // The script-tag build: kernel and every brick except debug (dev only) on window.fizlet.
 const all = 'export * from "./src/index.ts"; export * from "./src/input.ts"; export * from "./src/collide.ts"; export * from "./src/fx.ts"; export * from "./src/sound.ts"; export * from "./src/embed.ts"; export * from "./src/ui/board-ui.ts";';
@@ -63,6 +67,15 @@ const fizzFigure = readFileSync(`${OUT}/demos/fizz/index.html`, "utf8").match(/<
 if (!fizzFigure) throw new Error("demos/fizz/index.html: no fizz figure to embed");
 const fizz = { figure: fizzFigure, sizes: fizzSizes };
 
+// The gallery: one bundle per entry, each measured here (its size badge). The story demos keep
+// their own posters as their figures; the blast demo waits in a <template> until its slot mounts.
+const gallery = await buildGallery(OUT);
+const figures = {
+  layers: L.poster("gallery#layers"),
+  fizz: fizzFigure.replace('data-slot-target="fizz#hero"', 'data-slot-target="gallery#fizz"').replace('<figure class="ae-slot"', '<figure class="ae-slot gal-fig"'),
+  howitworks: `<figure class="ae-slot gal-fig gal-tall" data-slot-target="gallery#howitworks" role="img" aria-label="The blast demo: a small page you can knock around; Recall puts it back."><span class="ae-slot__placeholder gal-still" aria-hidden="true">“Hello, page.” Every letter is a real element.</span><template>${playFigure()}</template></figure>`,
+};
+
 const sizes = await measure();
 const kernel = sizes[0];
 // Every brick's API, from its source comment and its built declarations.
@@ -85,6 +98,11 @@ const pages = [
     title: "Kernel and bricks · Fizlet",
     description: `Every Fizlet module with its API and its measured size: the kernel is ${(kernel.gzip / 1024).toFixed(1)} KB gzip, each brick its own import.`,
     base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version }), scripts: ["site.js"],
+  })],
+  ["gallery/index.html", page({
+    title: "Gallery · Fizlet",
+    description: `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by Chris Cooley).`,
+    base: "../", version, path: "gallery/", body: `<style>${layers.css}</style>` + galleryPage({ entries: gallery.entries, loader: gallery.loader, figures, base: "../" }), scripts: ["site.js", "gallery/gallery.js"],
   })],
   ...bricks.map((b, i) => [brickPath(b), page({
     title: `${b.name} · Fizlet`,

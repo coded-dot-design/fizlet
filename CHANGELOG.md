@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.10.1
 
 - **Layers story: clean labels at every size** (owner feedback: "at the end the layer labels get
   a little jumbled"). Four causes, each fixed:
@@ -20,6 +20,23 @@
   stays inside the figure and overlaps no other (fails on 0.10.0). Measured (Chromium 153, 4× CPU
   throttle): live chunk 9,609 → 9,717 B gzip (still ≥ 5% under 10 KB), poster + loader 2,962 →
   3,153 B; script per frame 0.8 ms median, 3.1 ms p95; CLS 0; 0 frames settled.
+- **`fizlet/rules` drops: per-drop age and landing spot.** `drops()` now exposes `age` (seconds since
+  each drop spawned), `landY` (where it lands: `(x[i], landY[i])`, moved by `scroll`) and `life`,
+  and emits `drop:land` once when a drop touches down. Blitz can draw its fall shadow, landing puff
+  and blink from these instead of keeping its own spawn time per crate (dom-battlefield-blitz#4).
+  Still no allocation per step; 1,264 → 1,318 B gzip (budget 1,536).
+- **Website: the gallery (`gallery/`).** Every animation, newest first: the prompt (or, for the
+  hand-built ones, the brief) it was made from, the live demo lazy-mounted through `fizlet/slot`
+  (one shared loader; each entry's live chunk is its own bundle and loads only near the viewport,
+  never under reduced motion, where the poster stays), and a size badge with that chunk's gzip
+  bytes, measured by `scripts/gallery.mjs` on this build. Seeded with the fizz can, the layers
+  story and the blast demo ("How it works"), plus the first animation made by the engine's
+  `fe anim` from one prompt ("pink sparks burst where you tap": the spray scene,
+  `site/gallery/scenes/spray.ts`, kernel + fx, settles to zero frames). Entries are data
+  (`site/gallery/entries/*.json`). New shared `site/size-badge.mjs`; `site/demo.ts` exports
+  `run()` and the home page's blast figure is `playFigure()`, so the gallery can mount it.
+  `tests/site.mjs`: order, a measured badge and the prompt on every entry, each demo mounts
+  only near the screen, a spray draws on a tap, reduced motion loads no scene.
 - **Website: one page per brick, generated from the source.** `bricks/<id>.html` for the kernel
   and every brick (input, pad, collide, grid, fx, sprite, sound, embed, slot, hud, match,
   board-page, presence, ui, perf, rules, camera, debug) plus a bricks index. Each page has the module's summary (its

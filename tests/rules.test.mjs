@@ -113,6 +113,29 @@ test("drops: cap, manual spawns, scroll and a skipped placement", () => {
   assert.equal(d.collect(5, 5, 4), "a", "landed where the page moved it");
 });
 
+test("drops: per-drop age and landing spot, a drop:land event, kept in step on remove and scroll", () => {
+  const e = createEngine();
+  const d = drops(e, { kinds: ["a", "b"], cap: 3, fall: 90, speed: 90, life: 5 });
+  const log = listen(e);
+  during(e, () => d.spawn(10, 100, 0));
+  run(e, 0.5);
+  during(e, () => d.spawn(40, 300, 1));
+  assert.equal(d.life, 5);
+  assert.deepEqual([d.landY[0], d.landY[1]], [100, 300], "landing spots");
+  assert.ok(Math.abs(d.age[0] - 0.5) < 0.02 && d.age[1] === 0, `ages ${d.age[0]}, ${d.age[1]}`);
+  run(e, 0.6);
+  assert.ok(d.landed(0) && !d.landed(1));
+  assert.equal(log.filter((l) => l.startsWith("drop:land")).length, 1, "landing is an event, once");
+  // The first is collected: the second moves into slot 0 with its own age and spot.
+  run(e, 0.5);
+  assert.equal(during(e, () => d.collect(10, 100, 4)), "a");
+  assert.equal(d.landY[0], 300);
+  assert.ok(Math.abs(d.age[0] - 1.1) < 0.02, `${d.age[0]}`);
+  d.scroll(0, 50);
+  assert.equal(d.landY[0], 250, "the landing spot scrolls with the page");
+  assert.deepEqual(log.filter((l) => l.startsWith("drop:land")), ["drop:land:0", "drop:land:1"]);
+});
+
 test("score: combo multiplier, decay, levels and events", () => {
   const e = createEngine();
   const s = score(e, { levels: [8, 24, 50] });
