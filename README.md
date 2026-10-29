@@ -1,6 +1,6 @@
 # Fizlet
 
-**Tiny physics for your page.** A micro game and animation engine for the DOM: one shared loop,
+By [Chris Cooley](https://coded.design/). **Tiny physics for your page.** A micro game and animation engine for the DOM: one shared loop,
 bounded everything, zero allocation in the steady state, and the page always comes back exactly as
 it was. No runtime dependencies, ever.
 
@@ -9,6 +9,16 @@ it was. No runtime dependencies, ever.
 The "fiz" is fizz (the pop of an effect) and a nod to physics; the "-let" is small, like an applet.
 Fizlet powers the [DOM VIRUS](https://coded-dot-design.github.io/dom-virus/) arcade and
 [DOM Battlefield](https://coded-dot-design.github.io/dom-battlefield/).
+
+## Install
+
+```sh
+npm install fizlet
+```
+
+One package, one import per piece (`fizlet`, `fizlet/fx`, `fizlet/slot`, ...): you ship only what
+you import. ES modules with TypeScript types; no runtime dependencies. No npm? The site hosts the
+same builds (see the [quick start](https://coded-dot-design.github.io/fizlet/)).
 
 ```ts
 import { createEngine } from "fizlet";
@@ -58,11 +68,49 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 | `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | ~1.5 KB |
 | `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues (or your own player), unlock on gesture | ~0.9 KB |
 | `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | ~2.0 KB |
+| `fizlet/slot` | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | ~1.5 KB |
 | `fizlet/presence` | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | ~1.8 KB |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
 
 More bricks land through phase E2 (actor, steer, aim, rules, board-page, board-grid, camera,
 view-dom, presence): see the [engine plan](https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md).
+
+### Fill an astro-base-engine slot
+
+[astro-base-engine](https://github.com/brain-cache/astro-engine) renders each `[slot animation]`
+as a sized, described placeholder:
+`<figure class="ae-slot" data-slot-target="<page>#<slot>" role="img" aria-label="…">`.
+`fizlet/slot` fills it with a scene:
+
+```ts
+import { slot } from "fizlet/slot";
+
+slot("home#hero", () => import("./hero-scene.js").then((m) => m.mount));
+
+// hero-scene.ts: build inside the stage; return destroy (and accessible: true only when the
+// scene renders real accessible content, which drops the slot's role="img").
+import { createEngine } from "fizlet";
+import { effects } from "fizlet/fx";
+export function mount(stage: HTMLElement) {
+  const engine = createEngine({ root: stage, pause: { reducedMotion: true } });
+  const canvas = engine.ledger.add(document.createElement("canvas"));
+  stage.append(canvas);
+  const ctx = canvas.getContext("2d")!, fx = effects();
+  engine.add({ step: (e, dt) => fx.step(dt), render: () => (ctx.clearRect(0, 0, canvas.width, canvas.height), fx.draw(ctx)) });
+  engine.start();
+  return { destroy: () => engine.destroy() };
+}
+```
+
+- **Lazy:** nothing loads until the slot comes within `margin` (default `"200px"`) of the viewport.
+- **Reduced motion:** with `prefers-reduced-motion: reduce` the scene never loads and the slot's
+  placeholder and fallback stay; if the setting turns on mid-scene, the scene goes and they come back.
+- **Accessible:** `role="img"` and `aria-label` stay; the stage is `aria-hidden` until the scene
+  returns `accessible: true`.
+- **Contained:** the scene gets its own stage (`position: absolute; inset: 0; contain: strict`)
+  inside the slot. Every change goes through a ledger: `destroy()` puts the slot back exactly.
+- `findSlot("<page>#<slot>")` returns the figure; `slot(figure, load)` takes the element too. An
+  unknown target is inert (`el` is `null`).
 
 ### Engine API
 
@@ -108,6 +156,7 @@ npm ci
 npm run check         # typecheck, contract tests (node), build
 npm run size          # size budgets
 npm run test:browser  # contract tests in Chromium (Playwright)
+npm run test:pack     # pack, install the tarball, import + typecheck every subpath
 npm run site          # the website, into site-dist/
 ```
 
@@ -125,7 +174,10 @@ npm run test:site   # every page at desktop and 360px: errors, links, overflow, 
 The site also hosts the builds for the quick start: `fizlet.js` (one file, `window.fizlet`) and
 the ES modules under `dist/`. `.github/workflows/pages.yml` deploys it on every push to `main`.
 
-Releases: bump `version` in `package.json`; CI tags `vX.Y.Z` on `main` after the checks pass.
+Releases: bump `version` in `package.json` (and the lockfile) and add a CHANGELOG entry; CI tags
+`vX.Y.Z` on `main` after the checks pass, and `.github/workflows/release.yml` publishes that tag to
+npm with provenance (it also runs on a `v*` tag pushed by hand). Publishing needs the `NPM_TOKEN`
+repository secret; without it the release job checks and packs, then skips the publish with a warning.
 
 ## Licence
 

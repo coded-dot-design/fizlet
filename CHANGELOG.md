@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0
 
 - **presence** brick (`fizlet/presence`, 1.8 KB gzip): lockstep input exchange on the seeded,
   fixed-step kernel. Inputs are sent `delay` frames ahead into fixed typed-array rings; a frame
@@ -9,6 +9,22 @@
   tests) and `websocket()` / `join(url)`.
 - `rooms/`: a room server prototype (Cloudflare Worker + Durable Object, hibernating WebSockets)
   that seats players, hands out one seed and relays inputs. Its own package; not deployed.
+
+## 0.3.0
+
+- **`fizlet/slot`**: mount a scene into an astro-base-engine slot
+  (`figure.ae-slot[data-slot-target="<page>#<slot>"]`). Lazy start near the viewport, reduced motion
+  keeps the placeholder and fallback (and removes a running scene), `role="img"` + `aria-label` kept
+  until the scene says it is accessible, a contained stage (`contain: strict`), and `destroy()` gives
+  the slot back exactly (a Ledger). 1515 bytes min + gzip, Ledger included; budget 2048.
+- **Publish-ready on npm**: `exports` gains `./slot`; `files` ships `dist`, CHANGELOG, LICENSE,
+  README; `publishConfig` sets public access and provenance; `prepack` builds.
+- Types: relative imports in the shipped `.d.ts` now carry `.js`, so TypeScript consumers on
+  `moduleResolution: node16 / nodenext` resolve them (they failed before).
+- `npm run test:pack` (CI): pack, install the tarball in an empty project, import and typecheck every
+  subpath.
+- `.github/workflows/release.yml`: publishes a `v*` tag to npm with provenance, after the checks,
+  using the `NPM_TOKEN` secret. CI's version tag on `main` calls it.
 
 ## 0.2.4
 
