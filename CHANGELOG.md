@@ -7,8 +7,20 @@
   runs only when every player's input is in (it waits, never guesses); state hashes are exchanged to
   catch a desync. Transports behind a 3-method adapter: `memory()` (bounded, latency + jitter, for
   tests) and `websocket()` / `join(url)`.
+- `fizlet/presence/check`: `syncCheck(setup, opts)`, the determinism check as a function. It runs a
+  game's sim as N lockstep clients and returns pass/fail plus the first divergent frame.
 - `rooms/`: a room server prototype (Cloudflare Worker + Durable Object, hibernating WebSockets)
   that seats players, hands out one seed and relays inputs. Its own package; not deployed.
+
+## 0.3.2
+
+- **`fizlet/sprite`** (new brick, ~1.3 KB gzip): the character layer's drawing primitive.
+  `sprites(defs, { palettes, cap, canvas })` takes pixel art as data (rows of characters, a colour
+  map whose values can be palette roles such as `team`, frames, a pivot, an optional 1px outline)
+  or a vector `paint()`, bakes each (sprite, frame, scale, palette) once into a capped cache
+  (OffscreenCanvas when available) and `draw(ctx, id, frame, x, y, angle, scale, palette)` blits it
+  with no allocation. `svg()` / `url()` give the same pixels for characters placed in the page. A
+  test fixture redraws the Sherman tank hull pixel for pixel.
 
 ## 0.3.1
 

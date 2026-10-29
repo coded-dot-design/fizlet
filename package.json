@@ -48,6 +48,10 @@
       "types": "./dist/fx.d.ts",
       "default": "./dist/fx.js"
     },
+    "./sprite": {
+      "types": "./dist/sprite.d.ts",
+      "default": "./dist/sprite.js"
+    },
     "./sound": {
       "types": "./dist/sound.d.ts",
       "default": "./dist/sound.js"
@@ -63,6 +67,10 @@
     "./presence": {
       "types": "./dist/presence.d.ts",
       "default": "./dist/presence.js"
+    },
+    "./presence/check": {
+      "types": "./dist/presence-check.d.ts",
+      "default": "./dist/presence-check.js"
     },
     "./ui": {
       "types": "./dist/ui/board-ui.d.ts",

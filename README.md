@@ -67,6 +67,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 | `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | ~0.8 KB |
 | `fizlet/grid` | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | ~1.5 KB |
 | `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | ~1.5 KB |
+| `fizlet/sprite` | `sprites(defs, { palettes, cap })`: pixel-art characters as data, re-tinted by palette role, baked once per sprite/frame/scale/palette into a capped cache, `draw()` with no allocation; `svg()` / `url()` for page characters | ~1.3 KB |
 | `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues (or your own player), unlock on gesture | ~0.9 KB |
 | `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | ~2.0 KB |
 | `fizlet/slot` | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | ~1.5 KB |
@@ -144,6 +145,40 @@ corner cutting). `path` avoids `BLOCKED | OCCUPIED` by default (an occupied goal
 it). Not collision: `fizlet/collide` re-buckets moving bodies every step; the board is the ground
 they cross. Use one cell size for both.
 
+### Sprites
+
+`fizlet/sprite` is the character layer's drawing primitive: good and bad characters, weapons,
+pickups, written as data a prompt can compose.
+
+```ts
+import { sprites } from "fizlet/sprite";
+
+const art = sprites({
+  bug: {
+    colors: { o: "rim", b: "team", e: "#fff6d6" },   // hex, or a role a palette fills
+    frames: [                                         // one frame = rows; "." (any unlisted char) is empty
+      [".o.o.", "obbbo", "obebo", ".o.o."],
+      ["o...o", "obbbo", "obebo", "o...o"],
+    ],
+    ax: 2.5, ay: 2,                                   // pivot (default: the centre)
+  },
+}, { palettes: [{ team: "#39ffb0", rim: "#07060f" }, { team: "#ff5c8f" }, { "*": "#fff" }], cap: 256 });
+
+art.draw(ctx, "bug", frame, x, y, angle, 3, side);   // palette 0 = side A, 1 = side B, 2 = hit flash
+host.innerHTML = art.svg("bug");                      // or <img src={art.url("bug")}> on the page
+```
+
+- **Format**: `frames` is rows of characters (one frame) or a list of those; `colors` maps a
+  character to a hex or a role. `outline` adds a 1px rim (readable on light and dark). A vector
+  sprite gives `w`, `h`, `n` (frames) and `paint(c, frame, color)` instead; it is baked the same way.
+- **Palettes**: role → hex. Palette 0 is the default and fills roles the others leave out, so one
+  sprite serves every side; `*` paints every pixel one colour (a hit flash).
+- **Cache**: one tile per (sprite, frame, whole scale 1–8, palette), on an `OffscreenCanvas` when
+  there is one; the oldest is dropped past `cap`. `size` and `baked` (misses) show it working.
+  Limits: 64 frames and 32 palettes per sprite.
+- **Draw**: one `drawImage` (plus save/rotate/restore when turned), smoothing off, nothing
+  allocated once baked (tested in Node and with Chromium's sampling heap profiler).
+
 ### Engine API
 
 - `createEngine({ root, step, maxSteps, seed, events, signal, pause })`
@@ -176,6 +211,12 @@ const net = presence(e, {
 });
 e.start();
 ```
+
+**Check a game is deterministic** (any test, Node or browser): `syncCheck(setup, { players, frames,
+latency, jitter })` from `fizlet/presence/check` runs your sim as lockstep clients over the memory
+link and returns `{ ok, frames, diverged, stalls }`, where `diverged` is the first frame whose state
+differed (or -1). `setup(e, slot, players)` returns `{ input(), step(e, inputs, frame), state }`, where
+`state` is a byte view of the sim's typed arrays.
 
 `net.frame`, `net.stalls`, `net.desync`, `net.lost`, `net.confirmed(slot, frame)` (the input log
 a rollback layer can replay). A transport is `{ send(bytes), listen(fn), close() }`; the room server

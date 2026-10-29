@@ -10,10 +10,12 @@ export const BUDGETS = [
   ["fizlet/collide", "src/collide.ts", 1536],
   ["fizlet/grid", "src/grid.ts", 1536],
   ["fizlet/fx", "src/fx.ts", 2048],
+  ["fizlet/sprite", "src/sprite.ts", 1536],
   ["fizlet/sound", "src/sound.ts", 1536],
   ["fizlet/embed", "src/embed.ts", 2560],
   ["fizlet/slot", "src/slot.ts", 2048],
   ["fizlet/presence", "src/presence.ts", 2048],
+  ["fizlet/presence/check", "src/presence-check.ts", 5120],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
   ["fizlet/ui (css)", "src/ui/board-ui.css", 5120],
 ];

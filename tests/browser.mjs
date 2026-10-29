@@ -1,12 +1,14 @@
 // Browser contract tests (Playwright + Chromium): the ledger gives the page back exactly, auto-pause
 // rules, one real requestAnimationFrame for many engines, destroy leaves nothing running, and the
 // debug guard catches layout reads in a step, and fizlet/slot (lazy, reduced motion, a11y, Recall).
+// debug guard catches layout reads in a step. Sprites: pixel-exact Sherman tile, drawn pixels, cache
+// cap, SVG for page characters, and no JS heap allocation in a draw loop (sampled heap profiler).
 import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { chromium } from "playwright";
 
 const bundle = (await build({
-  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { slot, findSlot } from "./src/slot.ts";', resolveDir: process.cwd(), loader: "ts" },
+  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "fizlet", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 
@@ -292,6 +294,100 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
 
   assert.deepEqual(errors, []);
   console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, slot passed.");
+  where = "sprite";
+  const spr = await page.evaluate(async () => {
+    const { sprites, sherman } = fizlet;
+    // Reference: the hull tile exactly as sherman-bytes/src/sprites.ts paints it (copied for the test).
+    const original = (color, frame) => {
+      const tile = document.createElement("canvas");
+      tile.width = tile.height = 32;
+      const c = tile.getContext("2d");
+      c.fillStyle = "#151020";
+      c.fillRect(3, 5, 26, 7);
+      c.fillRect(3, 21, 26, 7);
+      c.fillStyle = "#8573ee";
+      for (let i = 0; i < 6; i++) (c.fillRect(4 + i * 4 + frame, 6, 2, 5), c.fillRect(4 + i * 4 + frame, 22, 2, 5));
+      c.fillStyle = color;
+      c.fillRect(5, 11, 22, 11);
+      c.fillRect(9, 9, 13, 15);
+      c.fillRect(25, 13, 4, 7);
+      c.fillStyle = "#241a35";
+      c.fillRect(7, 12, 4, 9);
+      c.fillRect(13, 13, 4, 7);
+      c.fillStyle = "#06c4ff";
+      c.fillRect(20, 14, 2, 5);
+      c.fillRect(18, 16, 6, 1);
+      return tile;
+    };
+    const pixels = (t) => {
+      const c = document.createElement("canvas");
+      c.width = t.width;
+      c.height = t.height;
+      const x = c.getContext("2d");
+      x.drawImage(t, 0, 0);
+      return x.getImageData(0, 0, t.width, t.height).data;
+    };
+    const same = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+    const sp = sprites(sherman, { palettes: [{ team: "#39ffb0" }, { team: "#ff5c8f" }, { team: "#fff8d4" }] });
+    const out = {};
+    out.offscreen = sp.tile("hull") instanceof OffscreenCanvas;
+    out.identical = [0, 1].every((f) => same(pixels(sp.tile("hull", f)), pixels(original("#39ffb0", f)))) && same(pixels(sp.tile("hull", 0, 1, 1)), pixels(original("#ff5c8f", 0)));
+    // Drawn pixels: pivot at (x, y), scale, rotation, palette.
+    const cv = document.createElement("canvas");
+    cv.width = cv.height = 200;
+    const ctx = cv.getContext("2d");
+    const at = (x, y) => "#" + [...ctx.getImageData(x, y, 1, 1).data.slice(0, 3)].map((v) => v.toString(16).padStart(2, "0")).join("");
+    sp.draw(ctx, "hull", 0, 50, 50);
+    sp.draw(ctx, sp.ids.hull, 0, 140, 50, 0, 2, 1);
+    sp.draw(ctx, "hull", 0, 50, 150, Math.PI);
+    sp.draw(ctx, "turret", 0, 140, 150, 0, 1, 2);
+    out.drawn = [at(50 - 16 + 20, 50 - 16 + 16), at(50 - 16 + 6, 50 - 16 + 16), at(50 - 16 + 4, 50 - 16 + 6), at(0, 0),
+      at(140 - 32 + 41, 50 - 32 + 33), at(140 - 32 + 12, 50 - 32 + 32), at(50 - 5, 150 - 1), at(140 - 7 + 1, 150 - 8 + 8)];
+    // The cache is capped.
+    const small = sprites(sherman, { cap: 4, palettes: [{}, {}, {}] });
+    for (let p = 0; p < 3; p++) for (let s = 1; s <= 3; s++) small.draw(ctx, "hull", 0, 0, 0, 0, s, p);
+    out.cap = [small.size, small.baked];
+    // An SVG page character: same size, crisp.
+    const img = new Image();
+    img.src = sp.url("hull", 1, 1);
+    await img.decode();
+    out.img = [img.naturalWidth, img.naturalHeight];
+    return out;
+  });
+  assert.deepEqual(spr, {
+    offscreen: true, identical: true,
+    drawn: ["#06c4ff", "#39ffb0", "#8573ee", "#000000", "#06c4ff", "#ff5c8f", "#06c4ff", "#fff8d4"],
+    cap: [4, 9], img: [32, 32],
+  }, "sprite tiles match the Sherman original, draw places the pivot, the cache stays capped");
+
+  where = "sprite-alloc";
+  const cdp = await page.context().newCDPSession(page);
+  await page.evaluate(() => {
+    const sp = fizlet.sprites(fizlet.sherman, { palettes: [{ team: "#39ffb0" }, { team: "#ff5c8f" }] });
+    const cv = document.createElement("canvas");
+    cv.width = cv.height = 256;
+    const ctx = cv.getContext("2d"), a = new Float64Array(1);
+    window.drawLoop = (n) => {
+      for (let k = 0; k < n; k++) {
+        for (let i = 0; i < 32; i++) sp.draw(ctx, i & 1, (i >> 1) & 1, i * 7.5, 40.25, a[0] + i, 1 + ((i >> 2) & 1), (i >> 3) & 1);
+        a[0] += 0.01;
+      }
+    };
+    window.drawLoop(2000); // bake and warm up
+  });
+  await cdp.send("HeapProfiler.enable");
+  await cdp.send("HeapProfiler.startSampling", { samplingInterval: 64, includeObjectsCollectedByMinorGC: true, includeObjectsCollectedByMajorGC: true });
+  await page.evaluate(() => window.drawLoop(5000)); // 160k draws
+  const { profile } = await cdp.send("HeapProfiler.stopSampling");
+  const inDraw = (n, under) => {
+    const here = under || /(^|\.)(draw|tile|drawLoop)$/.test(n.callFrame.functionName);
+    return (here ? n.selfSize : 0) + n.children.reduce((s, c) => s + inDraw(c, here), 0);
+  };
+  const bytes = inDraw(profile.head, false);
+  assert.ok(bytes < 16384, `JS heap allocated by 160k sprite draws: ${bytes} bytes (sampled)`);
+
+  assert.deepEqual(errors, []);
+  console.log(`Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, sprite (draw loop: ${bytes} bytes sampled) passed.`);
 } catch (e) {
   console.error(`::error title=Fizlet browser test (${where})::${e.message}`);
   throw e;

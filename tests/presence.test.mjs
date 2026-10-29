@@ -5,6 +5,7 @@ import { PerformanceObserver, constants } from "node:perf_hooks";
 
 const { createEngine, seeded } = await import("../src/index.ts");
 const { presence, memory, hash32, INPUT, LEAVE } = await import("../src/presence.ts");
+const { syncCheck } = await import("../src/presence-check.ts");
 
 const UP = 1, DOWN = 2, LEFT = 4, RIGHT = 8, FIRE = 16, SHOTS = 32;
 
@@ -156,4 +157,35 @@ test("presence: adds no allocation to the steady state (exchange + memory link)"
   console.log(`# young-generation GCs over 2 x 200k frames: same sim alone ${base}, over presence ${net}`);
   assert.ok(net <= base + 1, `presence added scavenges: ${base} -> ${net}`);
   [x, y, a, b].forEach((c) => c.e.destroy());
+});
+
+// A tiny game for syncCheck: one ship per player; `leak` makes it read a per-client value.
+function tiny(leak) {
+  return (e, slot, players) => {
+    const S = new Float64Array(players * 2 + 1), mine = seeded(77 + slot);
+    return {
+      state: new Uint8Array(S.buffer),
+      input: () => (mine() * 16) | 0,
+      step(e, inputs, f) {
+        for (let p = 0; p < players; p++) (S[p * 2] += (inputs[p] & 3) - 1.5 + e.random()), (S[p * 2 + 1] += inputs[p] >> 2);
+        S[players * 2] = e.random.state;
+        if (leak && f === leak) S[0] += slot; // reads something only this client has
+      },
+    };
+  };
+}
+
+test("syncCheck: a deterministic game passes, a leaky one names its first divergent frame", () => {
+  const good = syncCheck(tiny(0), { frames: 500, latency: 4, jitter: 3 });
+  assert.deepEqual([good.ok, good.frames, good.diverged], [true, 500, -1]);
+  assert.ok(good.stalls > 0);
+  assert.equal(syncCheck(tiny(0), { players: 4, frames: 300 }).ok, true);
+  const bad = syncCheck(tiny(123), { frames: 500 });
+  assert.deepEqual([bad.ok, bad.frames, bad.diverged], [false, 500, 123]);
+  // Math.random in the sim: caught on the first frame.
+  const rand = syncCheck((e, s, p) => {
+    const S = new Float64Array(1);
+    return { state: new Uint8Array(S.buffer), input: () => 0, step: () => (S[0] += Math.random()) };
+  }, { frames: 50 });
+  assert.equal(rand.diverged, 0);
 });
