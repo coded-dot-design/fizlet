@@ -15,3 +15,6 @@
   Battlefield consumes this package). Spec: `src/ui/BOARD-UI.md`.
 - Website: `site/` → `npm run site` → `site-dist/` (no framework), `npm run test:site`, Pages via `pages.yml`.
 - Release: bump `package.json` version (+ lockfile), add a CHANGELOG entry, push `main`; CI tags.
+  Landing a PR: `node scripts/land.mjs bump <version>` (package, lockfile, CHANGELOG Unreleased),
+  `land.mjs changelog` (resolve a CHANGELOG rebase conflict), `land.mjs ci <sha>` (wait; fails unless
+  every check is green). Code conflicts are resolved by hand, never by script.
