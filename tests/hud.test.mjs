@@ -3,7 +3,7 @@
 // The real DOM (exact restore, 0 mutations on unchanged frames) is in tests/browser.mjs.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PerformanceObserver, constants } from "node:perf_hooks";
+import { minorGCs } from "./gc.mjs";
 
 const { createEngine } = await import("../src/index.ts");
 const { hud } = await import("../src/hud.ts");
@@ -167,18 +167,7 @@ test("feed and banner: driven by the event ring, newest first, capped at rows", 
   e.destroy();
 });
 
-const youngGCs = async (frames, run) => {
-  gc();
-  let minor = 0;
-  const obs = new PerformanceObserver((list) => {
-    for (const x of list.getEntries()) if (x.detail?.kind === constants.NODE_PERFORMANCE_GC_MINOR) minor++;
-  });
-  obs.observe({ entryTypes: ["gc"] });
-  run(frames);
-  await new Promise((r) => setTimeout(r, 50));
-  obs.disconnect();
-  return minor;
-};
+const youngGCs = (frames, run) => minorGCs(() => run(frames));
 
 test("zero allocation in the steady state, bounded when values change", async (t) => {
   if (typeof gc !== "function") return t.skip("needs node --expose-gc");

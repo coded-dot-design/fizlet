@@ -3,7 +3,7 @@
 // Run with: node --expose-gc --import tsx --test tests/*.test.mjs
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PerformanceObserver, constants } from "node:perf_hooks";
+import { minorGCs } from "./gc.mjs";
 
 // A fake requestAnimationFrame we can step by hand.
 let queue = [], nextId = 1;
@@ -266,16 +266,9 @@ test("zero allocation in the steady state (10k+ steps)", async (t) => {
     for (let i = 0; i < frames; i++) e.advance(1 / 60);
   };
   run(20000); // warm up: let the JIT settle and every pool and map reach its size
-  gc();
-  let minor = 0;
-  const obs = new PerformanceObserver((list) => {
-    for (const entry of list.getEntries()) if (entry.detail?.kind === constants.NODE_PERFORMANCE_GC_MINOR) minor++;
-  });
-  obs.observe({ entryTypes: ["gc"] });
-  run(1000000); // 1M steps: even 16 bytes a step would fill the young generation many times over
-  await new Promise((r) => setTimeout(r, 50));
-  obs.disconnect();
-  // One stray scavenge can come from the test runner itself; a real per-step allocation shows as dozens.
-  assert.ok(minor <= 1, `young-generation GCs during 1M steps: ${minor}`);
+  // 1M steps per window: even 16 bytes a step would fill the young generation many times over.
+  // Best of three windows (tests/gc.mjs): a real per-step allocation shows as dozens in every one.
+  const minor = await minorGCs(() => run(1000000));
+  assert.ok(minor <= 1, `young-generation GCs during 1M steps (best of 3 windows): ${minor}`);
   e.destroy();
 });

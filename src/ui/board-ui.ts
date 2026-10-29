@@ -20,18 +20,23 @@ const VARS: Record<keyof Palette, string> = {
 };
 const HEX = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 
-let shared: CSSStyleSheet | null = null;
+/** One constructed sheet per distinct CSS text, shared by every board mounted with that text. */
+const sheets = new Map<string, CSSStyleSheet>();
 /**
  * Mount a board inside a shadow root on `host`, isolated both ways: the kit can't touch the page
  * and the page's CSS (a global `button {}` rule, a reset) can't touch the board. Pass the kit CSS
  * text (e.g. `import css from "board-ui/board-ui.css?raw"`). Returns the `.bui` root to build in.
- * One constructed stylesheet is shared by every board on the page.
+ * Stylesheet ownership: the kit owns one constructed sheet per CSS text (keyed by the text), so
+ * games composed independently with different CSS each get their own, and boards with the same
+ * text share one. Treat it as read-only; it is appended to the shadow root's adoptedStyleSheets,
+ * never replacing sheets you adopted there yourself.
  */
 export function mount(host: HTMLElement, css: string, opts: { theme?: "dark" | "light"; side?: 0 | 1; palette?: Palette } = {}) {
   const shadow = host.shadowRoot ?? host.attachShadow({ mode: "open" });
   if ("adoptedStyleSheets" in shadow && typeof CSSStyleSheet === "function" && "replaceSync" in CSSStyleSheet.prototype) {
-    if (!shared) (shared = new CSSStyleSheet()).replaceSync(css);
-    if (!shadow.adoptedStyleSheets.includes(shared)) shadow.adoptedStyleSheets = [...shadow.adoptedStyleSheets, shared];
+    let sheet = sheets.get(css);
+    if (!sheet) (sheet = new CSSStyleSheet()).replaceSync(css), sheets.set(css, sheet);
+    if (!shadow.adoptedStyleSheets.includes(sheet)) shadow.adoptedStyleSheets = [...shadow.adoptedStyleSheets, sheet];
   } else {
     const style = document.createElement("style");
     style.textContent = css;
