@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.8.2
 
 - **Layers story fits the hero budget** (fizlet-engine docs/LAYERS.md): live chunk 12,621 →
   10,054 B gzip (≤ 10 KB), and 0 B of JS before the slot nears the viewport (was 1,957 B). The
