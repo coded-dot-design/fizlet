@@ -15,6 +15,7 @@ export const BUDGETS = [
   ["fizlet/sound", "src/sound.ts", 1536],
   ["fizlet/embed", "src/embed.ts", 2560],
   ["fizlet/slot", "src/slot.ts", 2048],
+  ["fizlet/hud", "src/hud.ts", 1536],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
   ["fizlet/ui (css)", "src/ui/board-ui.css", 5120],
 ];
