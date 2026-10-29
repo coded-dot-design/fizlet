@@ -5,9 +5,11 @@
 //
 // Template: copy this file into a game's repo, point TARGET at the game's built page, give it a
 // scripted run (seeded clicks or keys), measure an idle and a scripted run, then set MAX_MINOR_GC
-// from what you measured. Run `npm run site` first. Options: ALLOC_FRAMES (default 600).
+// from what you measured. `npm run perf` runs it too (and puts it in the JSON report); on its own:
+// `npm run test:alloc` after `npm run site`. Options: ALLOC_FRAMES (default 600).
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { clicker, gcStats, launch, serve } from "./harness.mjs";
 
 const FRAMES = Number(process.env.ALLOC_FRAMES ?? 600);
@@ -15,18 +17,30 @@ const FRAMES = Number(process.env.ALLOC_FRAMES ?? 600);
 // 3 per ~600 frames. The scripted run includes the browser's own input events. Minor GCs only see
 // sustained allocation (V8 grows its young generation: an injected 4 KB/frame showed 2 scavenges,
 // 16 KB/frame showed 6, per 600 frames), so the sampled per-function bytes are printed as well.
-const MAX_MINOR_GC = 8;
+export const MAX_MINOR_GC = 8;
 
-if (!existsSync("site-dist/index.html")) throw new Error("site-dist/ is missing: run `npm run site` first");
-const site = await serve("site-dist", "/fizlet/");
-const TARGET = {
-  url: `${site.origin}/fizlet/`,
+/** The demo as an allocation target. A game swaps in its own page and scripted run. */
+export const demoTarget = (origin) => ({
+  url: `${origin}/fizlet/`,
   ready: (page) => page.locator("[data-demo]").scrollIntoViewIfNeeded(),
   drive: clicker("[data-demo] [data-board]", 250),
-};
+});
+
+/** Idle and scripted runs of FRAMES frames each; `over` lists what broke the bound. */
+export async function allocCheck(browser, target) {
+  const idle = await run(browser, target, false);
+  const scripted = await run(browser, target, true);
+  const over = [];
+  if (scripted.errors.length) over.push(`alloc: page errors: ${scripted.errors.join("; ")}`);
+  if (idle.minorGC > MAX_MINOR_GC) over.push(`alloc: idle run ${idle.minorGC} minor GCs > ${MAX_MINOR_GC}`);
+  if (scripted.minorGC > MAX_MINOR_GC) over.push(`alloc: scripted run ${scripted.minorGC} minor GCs > ${MAX_MINOR_GC}`);
+  console.log(`alloc    idle: ${idle.minorGC} minor GC / ${idle.frames} frames · scripted: ${scripted.minorGC} minor GC / ${scripted.frames} frames (max ${MAX_MINOR_GC})`);
+  console.log(`         top allocators (sampled): ${scripted.top.join(" · ")}`);
+  return { maxMinorGC: MAX_MINOR_GC, idle, scripted, over };
+}
 
 /** Run `drive` in slices until FRAMES frames have passed; count scavenges over exactly that window. */
-async function run(browser, scripted) {
+async function run(browser, TARGET, scripted) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   const page = await context.newPage();
   const errors = [];
@@ -71,16 +85,16 @@ function allocators(head, frames) {
   return [...by].filter(([, b]) => b > 0).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, b]) => `${k} ${(b / frames / 1024).toFixed(2)} KB/frame`);
 }
 
-const browser = await launch();
-try {
-  const idle = await run(browser, false);
-  const scripted = await run(browser, true);
-  console.log(`alloc    idle: ${idle.minorGC} minor GC / ${idle.frames} frames · scripted: ${scripted.minorGC} minor GC / ${scripted.frames} frames (max ${MAX_MINOR_GC})`);
-  console.log(`         top allocators (sampled): ${scripted.top.join(" · ")}`);
-  assert.deepEqual(scripted.errors, [], "no page errors");
-  assert.ok(idle.minorGC <= MAX_MINOR_GC, `idle run: ${idle.minorGC} minor GCs > ${MAX_MINOR_GC}`);
-  assert.ok(scripted.minorGC <= MAX_MINOR_GC, `scripted run: ${scripted.minorGC} minor GCs > ${MAX_MINOR_GC}`);
-} finally {
-  await browser.close();
-  await site.close();
+// Standalone: `node tests/perf/alloc.mjs`.
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  if (!existsSync("site-dist/index.html")) throw new Error("site-dist/ is missing: run `npm run site` first");
+  const site = await serve("site-dist", "/fizlet/");
+  const browser = await launch();
+  try {
+    const { over } = await allocCheck(browser, demoTarget(site.origin));
+    assert.deepEqual(over, [], over.join("\n"));
+  } finally {
+    await browser.close();
+    await site.close();
+  }
 }

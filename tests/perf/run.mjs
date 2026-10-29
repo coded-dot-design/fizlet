@@ -1,10 +1,12 @@
-// Perf run: each target under a CPU throttle, against the budgets in tests/perf/budgets.json.
-// Exits 1 when a number is over budget. Run `npm run site` first.
-//   PERF_SECONDS (default 10)   PERF_THROTTLE (default 4)   PERF_OUT=<file> writes the JSON results
+// Perf run, one command (`npm run perf`, which builds the site first): each target under a CPU
+// throttle against tests/perf/budgets.json, then the allocation test. Writes a JSON report and
+// exits 1 when anything is over budget. CI and the brain's perf auditor both call this.
+//   PERF_SECONDS (default 10)   PERF_THROTTLE (default 4)   PERF_OUT (default perf-results.json)
 //   BLITZ_DIR=<built Blitz dir> also measures Battlefield Blitz (BLITZ_PATH: page inside it, default play/)
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
 import { clicker, fmt, launch, measure, serve } from "./harness.mjs";
+import { allocCheck, demoTarget } from "./alloc.mjs";
 
 const seconds = Number(process.env.PERF_SECONDS ?? 10), throttle = Number(process.env.PERF_THROTTLE ?? 4);
 const budgets = JSON.parse(readFileSync(new URL("./budgets.json", import.meta.url), "utf8"));
@@ -30,6 +32,7 @@ if (process.env.BLITZ_DIR) {
 
 const browser = await launch();
 const results = [], over = [];
+let alloc = null;
 try {
   for (const t of targets) {
     const r = await measure(browser, t, { seconds, throttle });
@@ -43,13 +46,17 @@ try {
       if (!(value <= max)) over.push(`${r.name}: ${key} ${Number(value).toFixed(2)} > budget ${max}`);
     }
   }
+  alloc = await allocCheck(browser, demoTarget(site.origin));
+  over.push(...alloc.over);
 } finally {
   await browser.close();
   for (const s of servers) await s.close();
 }
 const machine = `${cpus()[0]?.model ?? "unknown CPU"} × ${cpus().length}, Chromium ${browser.version()}, ${throttle}× CPU throttle, ${seconds} s`;
 console.log(`machine  ${machine}`);
-if (process.env.PERF_OUT) writeFileSync(process.env.PERF_OUT, JSON.stringify({ machine, results }, null, 2));
+const out = process.env.PERF_OUT ?? "perf-results.json";
+writeFileSync(out, JSON.stringify({ machine, throttle, seconds, budgets, results, alloc, over, pass: over.length === 0 }, null, 2) + "\n");
+console.log(`report   ${out}`);
 if (over.length) {
   console.error("Over budget:\n  " + over.join("\n  "));
   process.exit(1);

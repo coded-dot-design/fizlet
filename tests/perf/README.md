@@ -3,9 +3,9 @@
 Measured numbers, not claims. Playwright + Chromium over CDP; it loads built pages and only observes.
 
 ```sh
-npm run site                 # build site-dist/ (the demo)
-npm run perf                 # 4x CPU throttle, 10 s per target, fails over budgets.json
-npm run test:alloc           # game-level allocation test (minor GCs over N frames)
+npm run perf                 # one command: builds the site, 4x CPU throttle, 10 s per target, then the
+                             # allocation test; writes perf-results.json, exits 1 over budget
+npm run test:alloc           # the allocation test alone (after `npm run site`)
 # cloud sessions: CHROMIUM_PATH=/opt/pw-browsers/chromium npm run perf
 # options: PERF_SECONDS, PERF_THROTTLE, PERF_OUT=<file.json>, ALLOC_FRAMES
 # Battlefield Blitz: BLITZ_DIR=<its built dir> [BLITZ_PATH=play/] npm run perf

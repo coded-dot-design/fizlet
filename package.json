@@ -128,7 +128,7 @@
     "site": "npm run build && node scripts/site.mjs",
     "test:site": "node tests/site.mjs",
     "prepack": "npm run build",
-    "perf": "node tests/perf/run.mjs",
+    "perf": "npm run site && node tests/perf/run.mjs",
     "test:alloc": "node tests/perf/alloc.mjs"
   },
   "devDependencies": {
