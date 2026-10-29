@@ -209,6 +209,19 @@ calm: `animation: none` on locked footer keys.
 - **Pager** (`.bui-pager`): ‹ ★ › as one sys bar; ★ = your own unit, pressed when you are selected.
 - **Shortcut chip** (`kbd`): 9u mono, 1u currentColor border, 70% opacity, always right-aligned.
 
+### 5.5 Touch pad (`fizlet/pad`, CSS section 11)
+
+- **`.bui-pad`**: absolute along the board's bottom edge, notch-safe, 14u in from the edges; the
+  move control under one thumb, the action keys under the other (right; `data-hand="left"` swaps).
+  Only its controls take pointers; the rest of the strip lets the field through.
+- **Stick** (`.bui-stick` + `.bui-knob`): Battlefield's cockpit stick, 128u, sys ring and arrows;
+  the knob springs back (160ms), and follows the finger with no transition while `.down`.
+- **D-pad** (`.bui-dpad`): four 44u sys arcade keys in a cross; one finger, eight ways; the arrows
+  under the finger take `.down`. **Move keys**: the same arrows as round 62u keys in a row.
+- **Action keys**: round `.bui-arcade` + role, 62u (Blitz's pad); the first is `.bui-primary`,
+  96u. Caption 8u/900; `kbd` chip on the top-left rim, hidden on coarse pointers. Toggles use
+  `aria-pressed` (locked state); hold and tap keys use `.down` while the finger is on them.
+
 ---
 
 

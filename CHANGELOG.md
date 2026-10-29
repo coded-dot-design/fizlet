@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.5
 
 ### Fixed
 
@@ -22,6 +22,55 @@
 - kernel: options are validated at setup. `step` must be a finite number > 0, `seed` finite,
   `maxSteps`, `events` and pool caps positive integers (`new EventRing` and `new Pool` too); a bad
   value throws a `RangeError` that names it. Kernel size 2839 → 3106 bytes gzip (budget 4096).
+## 0.3.3
+
+- **`fizlet/pad`**: swappable on-screen controls for touch (and mouse). `pad(engine, controls, {
+  scheme, actions, side, host, move })` → `{ el, scheme, setScheme, destroy }`. Schemes: `stick`
+  (analog, drives the stick axes), `dpad` (one finger, 8-way) and `buttons` (a key per move intent),
+  each with round arcade action keys (tap, `hold` or `toggle`, the first is the big primary key).
+  Drives `controls` intents only, so a game swaps its mobile scheme with one config change.
+  Multi-touch with pointer capture (fire while steering), one delegated set of listeners on the
+  engine's signal (a scheme swap adds none), one ledger node, exact Recall. ~1.8 KB gzip (budget 2 KB).
+- input: `controls().steer(x, y, on)` drives the stick axes from code (the pad's stick).
+- ui: Board UI section 11, the pad: `.bui-pad`, `.bui-stick` + `.bui-knob` (Battlefield's cockpit
+  stick), `.bui-dpad`, round pad keys (Blitz's pad), `data-hand="left"`.
+
+## 0.3.2
+
+- **`fizlet/sprite`** (new brick, ~1.3 KB gzip): the character layer's drawing primitive.
+  `sprites(defs, { palettes, cap, canvas })` takes pixel art as data (rows of characters, a colour
+  map whose values can be palette roles such as `team`, frames, a pivot, an optional 1px outline)
+  or a vector `paint()`, bakes each (sprite, frame, scale, palette) once into a capped cache
+  (OffscreenCanvas when available) and `draw(ctx, id, frame, x, y, angle, scale, palette)` blits it
+  with no allocation. `svg()` / `url()` give the same pixels for characters placed in the page. A
+  test fixture redraws the Sherman tank hull pixel for pixel.
+
+## 0.3.1
+
+- **`fizlet/grid`**, the board layer (1,533 B gzip, budget 1,536): `board(cols, rows, { cell,
+  diagonal })` with per-cell `terrain`, `cost` and `flags` (`BLOCKED`, `COVER`, `OCCUPIED`) in typed
+  arrays; world ↔ cell (`at`, `cellOf`, `center`); A* `path(from, to, out, budget, avoid)` into your
+  `Int32Array` with a decrease-key heap and stamped buffers made once (no allocation per call), a
+  per-call expansion budget that returns a partial path instead of stalling a frame, 4- or 8-way
+  without corner cutting; symmetric Bresenham `los` and `hit`; `flood` for movement range with `dist`;
+  seeded `scatter` and `pick` so a seed reproduces the board. Tested against a reference Dijkstra
+  on random weighted boards; 0 young-generation GCs over 100k path + LOS calls.
+
+## 0.3.0
+
+- **`fizlet/slot`**: mount a scene into an astro-base-engine slot
+  (`figure.ae-slot[data-slot-target="<page>#<slot>"]`). Lazy start near the viewport, reduced motion
+  keeps the placeholder and fallback (and removes a running scene), `role="img"` + `aria-label` kept
+  until the scene says it is accessible, a contained stage (`contain: strict`), and `destroy()` gives
+  the slot back exactly (a Ledger). 1515 bytes min + gzip, Ledger included; budget 2048.
+- **Publish-ready on npm**: `exports` gains `./slot`; `files` ships `dist`, CHANGELOG, LICENSE,
+  README; `publishConfig` sets public access and provenance; `prepack` builds.
+- Types: relative imports in the shipped `.d.ts` now carry `.js`, so TypeScript consumers on
+  `moduleResolution: node16 / nodenext` resolve them (they failed before).
+- `npm run test:pack` (CI): pack, install the tarball in an empty project, import and typecheck every
+  subpath.
+- `.github/workflows/release.yml`: publishes a `v*` tag to npm with provenance, after the checks,
+  using the `NPM_TOKEN` secret. CI's version tag on `main` calls it.
 
 ## 0.2.4
 
