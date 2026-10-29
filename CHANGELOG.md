@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.15.0
+
+For page scenes in the gallery (`fe anim`'s second scene type: it reads the page's own elements):
+
+- **`fizlet/board-page` `text: false`**: targets only, no glyphs indexed. **`still`**: seconds
+  between re-measures while the page is still (default 0.5); `Infinity` re-measures only after a
+  scroll, resize or change, so a still frame reads no layout.
+- **`fizlet/board-page` reads its refresh clock from `engine.timing`** (a typed array), not the
+  `time` getter: the getter returned a double and boxed a number every frame (12 B a frame in steady
+  state, measured with the sampling heap profiler while time advances).
+- **Kernel: the frame-time maximum is written every frame**, so a new maximum no longer deopts
+  `advance()` (V8 had no feedback for a store that runs only on a new record).
+- **Tests find Chromium by themselves** (`tests/chromium.mjs`): `CHROMIUM_PATH`, else
+  `/opt/pw-browsers/chromium`, else Playwright's own; every browser test and the site test use it.
+- **Website: gallery #006, "a scanline sweep that lights up every heading it passes".** Made by `fe
+  anim` from the prompt (recipe sweep, a page scene that reads the page's own headings and writes
+  only through the ledger; kernel + board-page + slot): live 8,852 B · total 10,752 B gzip (with the
+  1,900 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: the gallery shows one size, both parts named**: the live chunk on the badge and the
+  total with the shared loader beside it; #004 and #005 re-published (no byte numbers in the
+  entries; the spray scene rains around a tap on an edge source).
+- Size: kernel 3,413 B gzip (budget 4,096); `fizlet/board-page` 4,050 B (4,010 in 0.14.0, budget
+  4,096); `fizlet/arcade` 17,246 B (budget 17,408).
+
 ## 0.14.1
 
 - **Board UI: page keys press right (`.bui-key`, links and buttons).** On a mouse, a pressed link

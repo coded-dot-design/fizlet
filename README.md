@@ -515,7 +515,7 @@ and food, its buttons become targets, and Recall gives every one back.
 ```ts
 import { boardPage } from "fizlet/board-page";
 
-const board = boardPage(engine, { exclude: ".no-game" }); // root, text, targets, maxGlyphs, maxTargets, reads, color
+const board = boardPage(engine, { exclude: ".no-game" }); // root, text, targets, maxGlyphs, maxTargets, letters, reads, still, color
 const near = new Int32Array(16);
 engine.add({
   step() {
@@ -534,8 +534,11 @@ engine.add({
   `a.button`, `a.btn`, `[data-fizlet-target]`; 32 at most). `hp` is the game's and survives a rescan.
 - **Measured in `read` only, on a budget**: one reused `Range`, at most `reads` (default 900) Range
   reads per refresh (the rest on the next one), every 0.08 s while the page moves (scroll, resize,
-  `ResizeObserver`, `MutationObserver`) and every 0.5 s once it is still. Indexed with a collide
-  `Grid`; `near`, `hit` and `consume` never read layout or allocate.
+  `ResizeObserver`, `MutationObserver`) and every `still` s (default 0.5) once it is still. Indexed
+  with a collide `Grid`; `near`, `hit` and `consume` never read layout or allocate.
+- **Targets only**: `text: false` indexes no glyphs; with `still: Infinity` it re-measures only after
+  a scroll, resize or change, so a scene that reads page elements (headings it lights, keys it rains
+  on) reads no layout in a still frame.
 - **Changes through the ledger only**: `consume(i, "binary" | "erase")` writes `0`/`1` (or a no-break
   space) into the existing Text node with `engine.ledger.text`: no wrappers, spans or clones. From a
   step it waits for render. `color: "#f4457a"` tints the rubble with a CSS Custom Highlight.

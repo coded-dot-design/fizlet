@@ -8,6 +8,7 @@
 import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { chromium } from "playwright";
+import { launchOptions } from "./chromium.mjs";
 import { readFileSync } from "node:fs";
 
 const bundle = (await build({
@@ -352,7 +353,7 @@ async function perfTest() {
   await ctx.close();
 }
 
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await chromium.launch(launchOptions());
 let where = "start";
 try {
   const page = await browser.newPage({ viewport: { width: 800, height: 600 } });
@@ -1442,6 +1443,18 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
     const b3 = fizlet.boardPage(e2, { maxGlyphs: 7, maxTargets: 0 });
     b3.refresh();
     out.maxGlyphs = [b3.glyphs.count, b3.targets.length];
+    // Targets only (no glyphs), re-measured only after a change: still frames read no layout.
+    const e4 = fizlet.createEngine(), b4 = fizlet.boardPage(e4, { text: false, targets: "h1,#go", still: Infinity });
+    const gbcr = Element.prototype.getBoundingClientRect;
+    let rects = 0;
+    Element.prototype.getBoundingClientRect = function () { rects++; return gbcr.call(this); };
+    e4.advance(0);
+    const rects0 = rects;
+    for (let i = 0; i < 120; i++) e4.advance(1 / 60);
+    const still = rects - rects0;
+    Element.prototype.getBoundingClientRect = gbcr;
+    out.targetsOnly = [b4.glyphs.count, b4.targets.map((t) => t.el.id).join(), b4.targets[0].w > 0, rects0 > 0, still];
+    e4.destroy();
     // Scrolling re-measures at the dirty rate: the paragraph far below comes on screen.
     const far = () => { let n = 0; for (let i = 0; i < ref.glyphs.count; i++) if (ref.glyphs.w[i] > 0 && ref.glyphs.y[i] > 300) n++; return n; };
     const farBefore = far();
@@ -1496,6 +1509,7 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   assert.equal(board.cap, true, "Range reads per refresh never pass the cap");
   assert.equal(board.capCovers, true, "capped refreshes still cover every on-screen glyph");
   assert.deepEqual(board.maxGlyphs, [7, 0]);
+  assert.deepEqual(board.targetsOnly, [0, "h,go", true, true, 0], "text: false indexes no glyphs; still: Infinity re-measures only after a change");
   assert.deepEqual(board.scroll, [0, 8], "scrolling re-measures: far text comes on screen");
   assert.equal(board.queuedSurvives, true, "a queued write survives a rescan");
   assert.equal(board.restored2, true);
