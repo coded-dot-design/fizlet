@@ -30,6 +30,8 @@ jobs:
         run: |
           set -o pipefail
           npm run test:browser 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
+      # The layers story (site/demos/layers): mounts, cycles once, settles, Recall is exact.
+      - run: npm run test:layers
       # The npm package: pack, install the tarball, import and typecheck every subpath.
       - run: npm run test:pack
       # The website builds and passes its checks (deployed by pages.yml).
