@@ -400,6 +400,28 @@ try {
   assert.equal(result.size, 0);
   assert.equal(result.titleStyle, "color: red", "the style attribute text comes back byte for byte");
 
+  where = "ledger unstyle";
+  const un = await page.evaluate(() => {
+    const e = fizlet.createEngine(), L = e.ledger, title = document.getElementById("title");
+    L.style(title, "translate", "2px 1px");
+    L.style(title, "color", "lime");
+    L.unstyle(title, "translate");
+    const mid = [title.style.getPropertyValue("translate"), title.style.getPropertyValue("color")];
+    // Forgotten: a later write records the value then as the original, and Recall puts that back.
+    L.style(title, "translate", "4px 0px");
+    title.style.setProperty("rotate", "3deg");
+    L.style(title, "rotate", "9deg");
+    title.style.setProperty("rotate", "1deg"); // the host edits it: unstyle keeps hands off
+    const host = L.unstyle(title, "rotate");
+    e.destroy();
+    const after = [title.style.getPropertyValue("translate"), title.style.getPropertyValue("color"), title.style.getPropertyValue("rotate")];
+    title.style.removeProperty("rotate");
+    return { mid, host, after, attr: title.getAttribute("style") };
+  });
+  assert.deepEqual(un.mid, ["", "lime"], "unstyle puts one property back now, the others stay");
+  assert.equal(un.host, false, "a host edit wins over unstyle");
+  assert.deepEqual(un.after, ["", "red", "1deg"], "Recall after unstyle: the rest restored, the host's value kept");
+
   where = "host-wins";
   const host = await page.evaluate(() => {
     const e = fizlet.createEngine(), L = e.ledger;
@@ -1345,6 +1367,14 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
     const first = b.hit(-50, mid, 790, mid), t = b.t, last = b.hit(790, mid, -50, mid);
     out.hit = Math.abs(G.x[first] - rh.left) < 0.5 && Math.abs(G.x[last] - rd.left) < 0.5 && t > 0 && t < 0.1;
     out.miss = b.hit(-50, 590, 790, 590);
+    // The letter a glyph was, and the element that holds it (for a game's own read-phase checks).
+    out.char = b.char(first);
+    out.parent = b.parent(first)?.id;
+    // letters: true leaves the digits ("42") out.
+    const eL = fizlet.createEngine({ root: document.getElementById("game") }), bL = fizlet.boardPage(eL, { exclude: ".skip", letters: true });
+    bL.refresh();
+    out.letters = out.count - bL.glyphs.count;
+    eL.destroy();
     // The hot-path forms read typed arrays (no number boxes) and agree with near / hit.
     const seg = new Float64Array([0, -50, mid, 790, mid, 0]), cp = new Float64Array([0, rw.left + rw.width / 2, rw.top + rw.height / 2, 1]), idx2 = new Int32Array(64);
     out.hitAt = b.hitAt(seg, 1) === first && Math.abs(seg[5] - t) < 1e-9;
@@ -1445,6 +1475,9 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   assert.equal(board.near, true, "near finds the glyph under the point");
   assert.equal(board.hit, true, "hit returns the first glyph along the segment");
   assert.equal(board.miss, -1);
+  assert.equal(board.char, "H", "char(i) is the glyph's letter");
+  assert.equal(board.parent, "h", "parent(i) is the element holding it");
+  assert.equal(board.letters, 2, "letters: true indexes letters only (the 2 digits are out)");
   assert.equal(board.hitAt, true, "hitAt reads the segment from a typed array and agrees with hit (t in p[i + 4])");
   assert.equal(board.nearAt, true, "nearAt reads the circle from a typed array and agrees with near");
   assert.deepEqual(board.targets, [["go", true, 100]], "targets: the page's button only");
