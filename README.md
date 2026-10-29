@@ -63,7 +63,8 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 |---|---|---|
 | `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | ~2.8 KB |
 | `fizlet/debug` | `guardLayout(engine)`: counts layout reads during a step (dev only) | ~0.5 KB |
-| `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` | ~1.0 KB |
+| `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer` | ~1.0 KB |
+| `fizlet/pad` | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | ~1.8 KB |
 | `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | ~0.8 KB |
 | `fizlet/grid` | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | ~1.5 KB |
 | `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | ~1.5 KB |
@@ -178,6 +179,39 @@ host.innerHTML = art.svg("bug");                      // or <img src={art.url("b
   Limits: 64 frames and 32 palettes per sprite.
 - **Draw**: one `drawImage` (plus save/rotate/restore when turned), smoothing off, nothing
   allocated once baked (tested in Node and with Chromium's sampling heap profiler).
+
+### Touch pad (`fizlet/pad`)
+
+On-screen controls that drive your `controls` intents, so game code reads `down`, `hit` and `axis`
+and never knows which control scheme is on screen. Swap it with one call, at any time.
+
+```ts
+import { controls } from "fizlet/input";
+import { pad } from "fizlet/pad";
+
+const input = controls(e, { keys: { up: ["KeyW"], down: ["KeyS"], left: ["KeyA"], right: ["KeyD"], fire: ["Space"], auto: ["KeyQ"] } });
+const touch = pad(e, input, {
+  scheme: "stick", // "stick" (analog: input.axis(..., 0 | 1)) · "dpad" (one finger, 8-way) · "buttons" (a key per move intent)
+  actions: [
+    { intent: "fire", label: "", name: "Hold to fire (Space)", icon: FIRE_SVG, hold: true, key: "SPACE" }, // first = big primary key
+    { intent: "auto", label: "AUTO", role: "aim", toggle: true, key: "Q" }, // down("auto") is the switch
+  ],
+  side: "right", // action keys under the right thumb (default); the move control takes the other
+});
+touch.setScheme("dpad"); // fingers on the old control let go; no listener is added
+```
+
+- `pad(engine, controls, { scheme?, actions?, side?, host?, move? })` → `{ el, scheme, setScheme(s), destroy() }`.
+  `move` names the intents `[up, down, left, right]` for the d-pad and move keys (`""` leaves one out:
+  `["", "", "left", "right"]` for a runner). Action keys tap (one `hit`), `hold`, or `toggle`.
+- Looks: the Board UI kit (`.bui-pad`, `.bui-stick`, `.bui-dpad`, round `.bui-arcade` keys with roles;
+  [spec](src/ui/BOARD-UI.md) §5.5). Put it inside a `.bui` root (`host`, default the engine root);
+  show it only on touch layouts with your own CSS.
+- Multi-touch: pointer capture per finger (fire while steering); a new finger on the move control
+  takes it. The stick reads layout once per touch start; the knob moves in `render`, change-only.
+- Recall: one element through the ledger, listeners delegated on it under the engine's signal.
+  `destroy()` (or `engine.destroy()`) gives the page back exactly. Keys are named buttons;
+  Enter / Space taps them; reduced motion turns the kit's transitions off.
 
 ### Engine API
 

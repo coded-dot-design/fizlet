@@ -124,6 +124,12 @@ export function controls(e: Engine, o: ControlsOptions = {}) {
       if (on && !held[i]) pend[i] = 1;
       held[i] = on ? 1 : 0;
     },
+    /** Drive the stick from code (an on-screen stick, fizlet/pad): x, y in -1..1; `on = false` lets go. */
+    steer(x: number, y: number, on = true) {
+      s[0] = on ? x : 0;
+      s[1] = on ? y : 0;
+      s[2] = on ? 1 : 0;
+    },
     system,
   };
 }
