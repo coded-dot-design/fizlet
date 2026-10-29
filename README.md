@@ -105,6 +105,11 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
   afterwards, and a later `open()` starts a fresh one.
 
 More bricks land through phase E2 (actor, steer, aim, rules, board-page, camera,
+
+| `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | ~3.4 KB |
+| `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
+
+More bricks land through phase E2 (actor, steer, aim, rules, board-grid, camera,
 view-dom, presence): see the [engine plan](https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md).
 
 ### Fill an astro-base-engine slot
@@ -389,6 +394,43 @@ engine.add({ step() { if (m.phase !== "play") return; /* the game */ } });
   elsewhere on the host page. Reduced motion: no wave wait or burst on surrender, no slams.
 - Your own overlay content (a mode picker, the standings table) goes in `m.el`; style it by
   `[data-phase]`.
+
+### Board: the page
+
+`fizlet/board-page` is the layer behind every embedded game: the host page's letters become terrain
+and food, its buttons become targets, and Recall gives every one back.
+
+```ts
+import { boardPage } from "fizlet/board-page";
+
+const board = boardPage(engine, { exclude: ".no-game" }); // root, text, targets, maxGlyphs, maxTargets, reads, color
+const near = new Int32Array(16);
+engine.add({
+  step() {
+    const n = board.near(px, py, 12, near);          // unspent on-screen glyphs, no layout reads
+    for (let k = 0; k < n; k++) board.consume(near[k]); // written in render: a literal 0 or 1
+    const i = board.hit(x0, y0, x1, y1);             // first glyph on a shot, or -1 (`board.t`: where)
+  },
+});
+```
+
+- **Glyphs**: `board.glyphs` = `{ count, x, y, w, h, spent }`, typed arrays in viewport CSS px. Letters
+  and digits of `text` containers (default headings, `p`, `li`, `blockquote`, `[data-fizlet-text]`),
+  160 containers and 8,000 glyphs at most, interleaved 8 per text node so one paragraph can't take
+  the cap. `w = 0` while not on screen. Indices hold for a frame (a rescan renumbers them).
+- **Targets**: `board.targets` = `{ el, x, y, w, h, hp }[]` (default `button`, `[role=button]`,
+  `a.button`, `a.btn`, `[data-fizlet-target]`; 32 at most). `hp` is the game's and survives a rescan.
+- **Measured in `read` only, on a budget**: one reused `Range`, at most `reads` (default 900) Range
+  reads per refresh (the rest on the next one), every 0.08 s while the page moves (scroll, resize,
+  `ResizeObserver`, `MutationObserver`) and every 0.5 s once it is still. Indexed with a collide
+  `Grid`; `near`, `hit` and `consume` never read layout or allocate.
+- **Changes through the ledger only**: `consume(i, "binary" | "erase")` writes `0`/`1` (or a no-break
+  space) into the existing Text node with `engine.ledger.text`: no wrappers, spans or clones. From a
+  step it waits for render. `color: "#f4457a"` tints the rubble with a CSS Custom Highlight.
+  `destroy()` gives back every text still ours, byte for byte; a newer host edit wins.
+- **Leaves alone**: fields, editable content, `[aria-live]`, dialogs, `[data-fizlet-ignore]`, any
+  Fizlet host (`[data-fizlet-host]`), the engine's own root, your `exclude`; links, buttons and code
+  are never food.
 
 ## Develop
 

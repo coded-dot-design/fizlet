@@ -20,6 +20,7 @@ export const BUDGETS = [
   ["fizlet/hud", "src/hud.ts", 1536],
 
   ["fizlet/match", "src/match.ts", 2816],
+  ["fizlet/board-page", "src/board-page.ts", 3584],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
   ["fizlet/ui (css)", "src/ui/board-ui.css", 5120],
 ];

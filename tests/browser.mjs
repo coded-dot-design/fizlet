@@ -11,7 +11,7 @@ import { chromium } from "playwright";
 import { readFileSync } from "node:fs";
 
 const bundle = (await build({
-  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { hud } from "./src/hud.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts"; export { mount } from "./src/ui/board-ui.ts"; export { match } from "./src/match.ts"; export { launch } from "./src/ui/board-ui.ts"', resolveDir: process.cwd(), loader: "ts" },
+  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { hud } from "./src/hud.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts"; export { mount } from "./src/ui/board-ui.ts"; export { match } from "./src/match.ts"; export { launch } from "./src/ui/board-ui.ts"; export { boardPage } from "./src/board-page.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "fizlet", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 
@@ -1048,6 +1048,185 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
 
   assert.deepEqual(errors, []);
   console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, match passed.");
+
+  {
+  where = "board-page";
+  const bp = await browser.newPage({ viewport: { width: 800, height: 600 } });
+  bp.on("pageerror", (e) => errors.push(e.message));
+  await bp.setContent(`<!doctype html><meta charset="utf-8"><style>body{margin:0;font:20px/1.2 monospace}h1,p{margin:0 0 10px}</style><body>
+<h1 id="h">Hello world</h1>
+<p id="p">Eat <b>these</b> 42 words, <a href="#">not links</a>.</p>
+<p data-fizlet-ignore>ignored text</p>
+<p class="skip">excluded text</p>
+<p style="display:none">hidden text</p>
+<p><input id="field" value="field text"> <code>code text</code></p>
+<div id="game"><p>game text</p><button>host key</button></div>
+<button id="go">Go</button> <input type="button" value="nope">
+<div style="height:2000px"></div><p id="below">far below</p>
+<script>${bundle}</script></body>`);
+  const board = await bp.evaluate(async () => {
+    const tick = () => new Promise((r) => setTimeout(r, 0));
+    const snap = () => document.documentElement.outerHTML;
+    const before = snap();
+    const e = fizlet.createEngine({ root: document.getElementById("game") });
+    const b = fizlet.boardPage(e, { exclude: ".skip", color: "#f4457a" });
+    b.refresh();
+    const out = {};
+    // Indexed: only letters and digits of eligible text (no links, fields, code, ignored, excluded, host).
+    out.count = b.glyphs.count;
+    const G = b.glyphs, idx = new Int32Array(64);
+    const box = (node, i) => { const r = document.createRange(); r.setStart(node, i); r.setEnd(node, i + 1); return r.getBoundingClientRect(); };
+    const H = document.getElementById("h").firstChild;
+    const onScreen = [...Array(G.count).keys()].filter((i) => G.w[i] > 0).length;
+    out.onScreen = onScreen;
+    // near: a point on the "w" of "world" finds exactly that glyph.
+    const rw = box(H, 6);
+    const k = b.near(rw.left + rw.width / 2, rw.top + rw.height / 2, 1, idx);
+    out.near = k === 1 && Math.abs(G.x[idx[0]] - rw.left) < 0.5 && Math.abs(G.y[idx[0]] - rw.top) < 0.5;
+    // hit: a shot from the left along the heading meets "H" first; from the right, "d".
+    const rh = box(H, 0), rd = box(H, 10), mid = rh.top + rh.height / 2;
+    const first = b.hit(-50, mid, 790, mid), t = b.t, last = b.hit(790, mid, -50, mid);
+    out.hit = Math.abs(G.x[first] - rh.left) < 0.5 && Math.abs(G.x[last] - rd.left) < 0.5 && t > 0 && t < 0.1;
+    out.miss = b.hit(-50, 590, 790, 590);
+    // Targets: the page's button only (not the host's, not a field).
+    out.targets = b.targets.map((t) => [t.el.id, t.w > 0, t.hp]);
+    // consume from a step is queued, written in render through the ledger, into the same Text node.
+    fizlet.guardLayout(e);
+    const P = document.getElementById("p").firstChild;
+    const rp = box(P, 0), pmid = rp.top + rp.height / 2;
+    let picked = -1, again = true;
+    e.add({ step() {
+      if (picked >= 0) return;
+      picked = b.hit(-50, pmid, 790, pmid);
+      b.consume(picked);
+      again = b.consume(picked);
+      b.near(400, 300, 300, idx);
+    } });
+    e.advance(1 / 60 + 1e-6);
+    out.consumed = [P.data, again, G.spent[picked], document.getElementById("p").firstChild === P];
+    // Erase writes a no-break space; outside a step it writes at once.
+    b.consume(b.hit(-50, pmid, 790, pmid), "erase");
+    out.erased = P.data;
+    out.highlight = CSS.highlights.size === 1;
+    // Steps never read layout, even across refreshes and rescans.
+    for (let i = 0; i < 40; i++) e.advance(1 / 60);
+    out.violations = e.violations;
+    // A rescan sees new text; geometry of spent glyphs stays out of near/hit.
+    const np = document.createElement("p");
+    np.textContent = "new";
+    document.getElementById("h").after(np);
+    await tick();
+    for (let i = 0; i < 40; i++) e.advance(1 / 60);
+    out.rescanned = b.glyphs.count - out.count;
+    out.spentKept = [...b.glyphs.spent].filter(Boolean).length;
+    np.remove();
+    await tick();
+    // The host edits a text we changed: it wins, our next write is refused, Recall leaves it.
+    b.near(rw.left + rw.width / 2, rw.top + rw.height / 2, 1, idx);
+    b.consume(idx[0]);
+    const headingAfter = H.data;
+    H.data = "Host wins";
+    b.near(rh.left + 2, rh.top + 4, 1, idx);
+    out.refused = b.consume(idx[0]);
+    e.destroy();
+    out.headingAfter = headingAfter;
+    out.hostKept = H.data;
+    H.data = "Hello world";
+    out.restored = snap() === before;
+    out.highlightGone = CSS.highlights.size === 0;
+    // Range-read cap: 5 per refresh, the rest picked up by the next refreshes.
+    const e2 = fizlet.createEngine(), b2 = fizlet.boardPage(e2, { reads: 5 });
+    b2.refresh();
+    const reads = [b2.reads];
+    let measured = 0;
+    for (let i = 0; i < 60; i++) (e2.advance(1 / 60), reads.push(b2.reads));
+    for (let i = 0; i < b2.glyphs.count; i++) if (b2.glyphs.w[i] > 0) measured++;
+    out.cap = Math.max(...reads) <= 5;
+    const ref = fizlet.boardPage(e2);
+    ref.refresh();
+    let all = 0;
+    for (let i = 0; i < ref.glyphs.count; i++) if (ref.glyphs.w[i] > 0) all++;
+    out.capCovers = measured === all && all > 30 && ref.reads === all;
+    // maxGlyphs caps the index.
+    const b3 = fizlet.boardPage(e2, { maxGlyphs: 7, maxTargets: 0 });
+    b3.refresh();
+    out.maxGlyphs = [b3.glyphs.count, b3.targets.length];
+    // Scrolling re-measures at the dirty rate: the paragraph far below comes on screen.
+    const far = () => { let n = 0; for (let i = 0; i < ref.glyphs.count; i++) if (ref.glyphs.w[i] > 0 && ref.glyphs.y[i] > 300) n++; return n; };
+    const farBefore = far();
+    const scrolled = new Promise((r) => addEventListener("scroll", r, { once: true }));
+    scrollTo(0, 1800);
+    await scrolled;
+    for (let i = 0; i < 10; i++) e2.advance(1 / 60);
+    out.scroll = [farBefore, far()];
+    scrollTo(0, 0);
+    await tick();
+    for (let i = 0; i < 10; i++) e2.advance(1 / 60);
+    // A write queued in a read survives a rescan in the same frame (indices renumber, slots don't).
+    let fired = 0;
+    e2.add({ read() {
+      if (fired++) return;
+      ref.near(rh.left + 2, rh.top + 4, 1, q2);
+      ref.consume(q2[0]);
+      ref.refresh();
+    } });
+    const q2 = new Int32Array(4);
+    e2.advance(0);
+    out.queuedSurvives = /^[01]ello world$/.test(H.data);
+    e2.destroy();
+    out.restored2 = snap() === before;
+    return out;
+  });
+  // Eligible: "Hello world" 10, "Eat these 42 words" 15, "far below" 8 (off screen) and "hidden text"
+  // 10 (display: none): indexed, but only what is on screen gets geometry.
+  assert.equal(board.count, 43, "glyph index: letters and digits of eligible text only");
+  assert.equal(board.onScreen, 25, "off-screen glyphs are indexed but have no geometry");
+  assert.equal(board.near, true, "near finds the glyph under the point");
+  assert.equal(board.hit, true, "hit returns the first glyph along the segment");
+  assert.equal(board.miss, -1);
+  assert.deepEqual(board.targets, [["go", true, 100]], "targets: the page's button only");
+  assert.match(board.consumed[0], /^[01]at $/, "consume writes a literal 0/1 into the same Text node");
+  assert.deepEqual(board.consumed.slice(1), [false, 1, true]);
+  assert.equal(board.erased, board.consumed[0][0] + "\u00a0t ", "erase writes a no-break space");
+  assert.equal(board.highlight, true);
+  assert.equal(board.violations, 0, "no layout reads in the step");
+  assert.equal(board.rescanned, 3, "a rescan indexes new text");
+  assert.equal(board.spentKept, 2, "spent glyphs survive a rescan");
+  assert.match(board.headingAfter, /^Hello [01]orld$/);
+  assert.equal(board.refused, false, "a host-edited node is no longer ours");
+  assert.equal(board.hostKept, "Host wins", "Recall never restores over a newer host edit");
+  assert.equal(board.restored, true, "destroy gives the page back byte for byte");
+  assert.equal(board.highlightGone, true);
+  assert.equal(board.cap, true, "Range reads per refresh never pass the cap");
+  assert.equal(board.capCovers, true, "capped refreshes still cover every on-screen glyph");
+  assert.deepEqual(board.maxGlyphs, [7, 0]);
+  assert.deepEqual(board.scroll, [0, 8], "scrolling re-measures: far text comes on screen");
+  assert.equal(board.queuedSurvives, true, "a queued write survives a rescan");
+  assert.equal(board.restored2, true);
+
+  where = "board-page allocation";
+  // Steady state: frames between refreshes (no time passes) plus near / hit / step. The sampling heap
+  // profiler counts objects the young GC already swept (the heap size alone hides them). One object
+  // a frame shows as ~16+ bytes a frame; the board's frames show ~0.
+  await bp.evaluate(() => {
+    const e = fizlet.createEngine(), b = fizlet.boardPage(e), q = new Int32Array(64);
+    b.refresh();
+    window.__bp = { e, run(n) { for (let i = 0; i < n; i++) (e.advance(0), b.near(100, 20, 40, q), b.hit(0, 20, 800, 20)); } };
+    __bp.run(50000);
+  });
+  const cdp = await bp.context().newCDPSession(bp);
+  await cdp.send("HeapProfiler.enable");
+  await cdp.send("HeapProfiler.startSampling", { samplingInterval: 128, includeObjectsCollectedByMinorGC: true, includeObjectsCollectedByMajorGC: true });
+  await bp.evaluate(() => __bp.run(400000));
+  const { profile } = await cdp.send("HeapProfiler.stopSampling");
+  const perFrame = profile.samples.reduce((s, x) => s + x.size, 0) / 400000;
+  assert.ok(perFrame < 2, `steady-state frames allocate nothing (${perFrame.toFixed(2)} bytes a frame)`);
+  assert.equal(await bp.evaluate(() => (__bp.e.destroy(), delete window.__bp, document.querySelectorAll("style").length)), 1, "Recall");
+  await bp.close();
+
+  assert.deepEqual(errors, []);
+  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, board-page passed.");
+  }
 } catch (e) {
   console.error(`::error title=Fizlet browser test (${where})::${e.message}`);
   throw e;
