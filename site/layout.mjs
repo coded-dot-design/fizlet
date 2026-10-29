@@ -8,6 +8,7 @@ export const SITE = "https://coded-dot-design.github.io/fizlet/";
 export const HUB = "https://coded-dot-design.github.io/dom-virus/";
 export const BATTLEFIELD = "https://coded-dot-design.github.io/dom-battlefield/";
 export const BLITZ = `${BATTLEFIELD}blitz/`;
+export const AUTHOR = "https://coded.design";
 export const ENGINE_PLAN = "https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md";
 
 /** Escape text for HTML. */
@@ -42,7 +43,7 @@ export const mark = (size = 40) =>
 
 const NAV = [
   ["contract", "Contract"],
-  ["bricks", "Bricks"],
+  ["bricks/", "Bricks"],
   ["recall", "Recall"],
   ["games", "Games"],
   ["roadmap", "Roadmap"],
@@ -54,7 +55,7 @@ const NAV = [
  */
 export function page({ title, description, base, version, body, scripts = [], path = "" }) {
   const home = base;
-  const nav = NAV.map(([id, label]) => `<a href="${home}#${id}">${label}</a>`).join("");
+  const nav = NAV.map(([id, label]) => `<a href="${home}${id.endsWith("/") ? id : "#" + id}"${path.startsWith(id) && id.endsWith("/") ? ' aria-current="page"' : ""}>${label}</a>`).join("");
   return `<!doctype html>
 <html lang="en" class="bui" data-theme="dark">
 <head>
@@ -68,6 +69,13 @@ export function page({ title, description, base, version, body, scripts = [], pa
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${SITE}${path}">
+<meta property="og:site_name" content="Fizlet">
+<meta property="og:image" content="${SITE}og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Fizlet: the page is the board.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="author" content="Chris Cooley">
 <link rel="icon" href="${base}icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="${base}board-ui.css">
 <link rel="stylesheet" href="${base}site.css">
@@ -99,13 +107,13 @@ ${body}
         <span class="brand-mark">${mark(40)}</span>
         <span class="brand-text"><small>DOM ENGINE</small><b>FIZLET</b></span>
       </a>
-      <p>Tiny physics for your page. A micro game engine for the DOM by coded.design: the page is the board, and it always comes back.</p>
+      <p>Tiny physics for your page. A micro game engine for the DOM by <a href="${AUTHOR}">Chris Cooley</a>: the page is the board, and it always comes back.</p>
     </div>
     <div>
       <h4>ENGINE</h4>
       <ul>
         <li><a href="${home}#contract">The contract</a></li>
-        <li><a href="${home}#bricks">Kernel and bricks</a></li>
+        <li><a href="${home}bricks/">Kernel and bricks</a></li>
         <li><a href="${home}#recall">Recall</a></li>
         <li><a href="${home}#roadmap">Roadmap</a></li>
         <li><a href="${home}examples/quick-start.html">Quick start example</a></li>
@@ -130,7 +138,7 @@ ${body}
     </div>
   </div>
   <div class="foot-base">
-    <div class="wrap"><span>© 2026 coded.design · MIT licence · no runtime dependencies</span><span>Created by Chris Cooley</span></div>
+    <div class="wrap"><span>© 2026 coded.design · MIT licence · no runtime dependencies</span><span>By <a href="${AUTHOR}">Chris Cooley</a> · coded.design</span></div>
   </div>
 </footer>
 ${scripts.map((s) => `<script type="module" src="${base}${s}"></script>`).join("\n")}

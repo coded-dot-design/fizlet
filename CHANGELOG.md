@@ -1,5 +1,35 @@
 # Changelog
 
+## Unreleased
+
+- **Website: one page per brick, generated from the source.** `bricks/<id>.html` for the kernel
+  and every brick (input, pad, collide, grid, fx, sprite, sound, embed, slot, hud, match,
+  board-page, presence, ui, perf, rules, camera, debug) plus a bricks index. Each page has the module's summary (its
+  leading comment), every export with its doc comment (read from the built `.d.ts` by
+  `scripts/api.mjs`), the gzip size measured by `scripts/sizes.mjs`, ESM imports from the hosted
+  `dist/`, and npm marked coming soon. Live demos where cheap: kernel settle (the frame count stops
+  once the puck does), fx, grid (A* on a seeded board), sprite and sound; each loads only its own
+  chunk. `tests/api.test.mjs`: the catalog covers every public module in `package.json`, each page
+  lists every runtime export, the page shows the measured bytes.
+- **Home:** the bricks section comes from the same catalog and links to each page; a page profile
+  section explains settle, the fps cap and slot with the measured page-build size; "by Chris
+  Cooley" links to coded.design; `npm install` is marked coming soon (here and in the README);
+  the roadmap reflects the shipped bricks; Blitz's unmeasured "~17 KB" claim is gone. The hero
+  is the layers story (Blitz as a stack of bricks: its poster, CSS and loader from
+  `site/demos/layers/poster.ts`, the live chunk loading only near the viewport); the blast demo
+  moves to its own "Blast it. Recall it." section below it. A "The name" section tells the origin
+  story (-let from applet, fiz from the soda-commercial fizz, DOM VIRUS first) with the fizz can
+  live in it (the figure and poster from the fizz build). Each links to its own demo page; the
+  sizes shown are the ones their builds measure. `npm run site` now runs both demo builds.
+- **SEO and accessibility gates** (`scripts/check-html.mjs`, run by `npm run test:site` on every
+  built page): one title and description of sane length, canonical and `og:url` equal to the
+  page's URL, Open Graph tags (a generated `og.png`, PNG-encoded with `node:zlib`), lang, one
+  `h1`, one `main` plus header, nav and footer landmarks, no skipped heading levels, unique ids,
+  alt on every image, every svg and canvas hidden or named, every link and button named. A
+  `sitemap.xml` lists every page. The demos' own standalone pages (`demos/fizz/`, `demos/layers/`,
+  `examples/fizz/`) are gated too, with their open gaps listed exactly in `tests/site.mjs`. Kernel lead comment rewritten (it is the kernel page's summary);
+  no code or size change.
+
 ## 0.10.0
 
 - **Both heroes 5% under the 10 KB live budget** (fizlet-engine docs/LAYERS.md), by making bricks
