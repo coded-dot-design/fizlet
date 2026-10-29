@@ -1,7 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.10.1
 
+- **`fizlet/rules` drops: per-drop age and landing spot.** `drops()` now exposes `age` (seconds since
+  each drop spawned), `landY` (where it lands: `(x[i], landY[i])`, moved by `scroll`) and `life`,
+  and emits `drop:land` once when a drop touches down. Blitz can draw its fall shadow, landing puff
+  and blink from these instead of keeping its own spawn time per crate (dom-battlefield-blitz#4).
+  Still no allocation per step; 1,264 → 1,318 B gzip (budget 1,536).
 - **Website: the gallery (`gallery/`).** Every animation, newest first: the prompt (or, for the
   hand-built ones, the brief) it was made from, the live demo lazy-mounted through `fizlet/slot`
   (one shared loader; each entry's live chunk is its own bundle and loads only near the viewport,

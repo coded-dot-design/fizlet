@@ -471,6 +471,8 @@ engine.add({ step() {
   if (d.collect(player.x, player.y, 24) === "repair") player.hp++;
   if (hit) s.add(25, 4, hit.x, hit.y);                       // event "score": a = points, b = combo
 } });
+// Drawing a drop: d.x[i], d.y[i] now; d.landY[i] where it lands; d.age[i] seconds since it spawned
+// (blink when d.life - d.age[i] < 2). Event "drop:land" once it touches down (a landing puff).
 ```
 
 ### Board: the page

@@ -27,6 +27,7 @@ export const BUDGETS = [
   ["fizlet/hud", "src/hud.ts", 1536],
 
   ["fizlet/match", "src/match.ts", 2816],
+  // 1,318 B gz with per-drop age, landing spot and drop:land (0.10.1).
   ["fizlet/rules", "src/rules.ts", 1536],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   ["fizlet/board-page", "src/board-page.ts", 4096],
