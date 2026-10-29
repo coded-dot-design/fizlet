@@ -1,7 +1,7 @@
 {
   "name": "fizlet",
-  "version": "0.2.4",
-  "description": "Tiny physics for your page: a micro game and animation engine for the DOM. One loop, bounded everything, and the page always comes back.",
+  "version": "0.3.0",
+  "description": "Tiny physics for your page: a micro game and animation engine for the DOM, by Chris Cooley. One loop, bounded everything, and the page always comes back.",
   "license": "MIT",
   "author": "Chris Cooley <https://coded.design>",
   "repository": {
@@ -15,6 +15,7 @@
   ],
   "files": [
     "dist",
+    "CHANGELOG.md",
     "LICENSE",
     "README.md"
   ],
@@ -51,12 +52,20 @@
       "types": "./dist/embed.d.ts",
       "default": "./dist/embed.js"
     },
+    "./slot": {
+      "types": "./dist/slot.d.ts",
+      "default": "./dist/slot.js"
+    },
     "./ui": {
       "types": "./dist/ui/board-ui.d.ts",
       "default": "./dist/ui/board-ui.js"
     },
     "./ui/board-ui.css": "./dist/ui/board-ui.css",
     "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
     "typecheck": "tsc --noEmit && tsc -p site/tsconfig.json",
@@ -65,13 +74,28 @@
     "check": "npm run typecheck && npm test && npm run build",
     "size": "node scripts/size.mjs",
     "test:browser": "node tests/browser.mjs",
+    "test:pack": "node scripts/pack-smoke.mjs",
     "site": "npm run build && node scripts/site.mjs",
-    "test:site": "node tests/site.mjs"
+    "test:site": "node tests/site.mjs",
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "esbuild": "0.28.2",
     "playwright": "1.58.2",
     "tsx": "4.23.15",
     "typescript": "7.0.2"
+  },
+  "keywords": [
+    "dom",
+    "animation",
+    "game-engine",
+    "physics",
+    "micro",
+    "canvas",
+    "astro",
+    "zero-dependencies"
+  ],
+  "bugs": {
+    "url": "https://github.com/coded-dot-design/fizlet/issues"
   }
 }

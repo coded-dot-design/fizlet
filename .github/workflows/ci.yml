@@ -21,6 +21,8 @@ jobs:
       - run: node -e "const p=require('./package.json'); if (Object.keys(p.dependencies||{}).length || Object.keys(p.peerDependencies||{}).length) { console.error('Fizlet ships no runtime dependencies'); process.exit(1) }"
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
+      # The npm package: pack, install the tarball, import and typecheck every subpath.
+      - run: npm run test:pack
       # The website builds and passes its checks (deployed by pages.yml).
       - run: npm run site
       - run: npm run test:site
@@ -30,13 +32,28 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - run: |
+      - id: tag
+        run: |
           tag="v$(node -p 'require("./package.json").version')"
           git fetch origin --tags
           if git show-ref --verify --quiet "refs/tags/$tag"; then exit 0; fi
           git tag "$tag"
           git push origin "$tag"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+  # A new tag publishes to npm (a tag pushed with GITHUB_TOKEN starts no workflow by itself).
+  release:
+    needs: tag-version
+    if: needs.tag-version.outputs.tag != ''
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/release.yml
+    with:
+      tag: ${{ needs.tag-version.outputs.tag }}
+    secrets: inherit
