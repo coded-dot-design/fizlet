@@ -1,8 +1,9 @@
 # Board UI: the game board and controls design system
 
-**Status:** v1.1 (2026-10-28). Lives in the DOM Battlefield repo. Live guide:
+**Status:** v1.1 (2026-10-28). Lives in Fizlet (`src/ui/`, published as `fizlet/ui`); DOM
+Battlefield keeps a copy in `board-ui/` until it imports the package. Live guide:
 https://coded-dot-design.github.io/dom-battlefield/style-guide/ (built from the kit only). Kit:
-`board-ui/board-ui.css` + `board-ui/board-ui.ts`. Tokens: `board-ui/tokens.json`.
+`src/ui/board-ui.css` + `src/ui/board-ui.ts`. Tokens: `src/ui/tokens.json`.
 
 This is the spec for **every DOM VIRUS game board**. A new board reuses this UI exactly: the keys,
 their states, the cards, overlays, launch bursts, comms toast, tips, boot screen and the layouts
@@ -45,10 +46,10 @@ building, then section 16 (lessons: mistakes we already paid for) and section 17
 
 | File | What it is |
 |---|---|
-| `board-ui/board-ui.css` | Tokens and every component, scoped under `.bui` |
-| `board-ui/board-ui.ts` | `mount`, `applyPalette`, `press`, `slam`, `toast`, `launch` (≈2.4 KB gzip; the CSS is 3.7 KB gzip) |
-| `board-ui/tokens.json` | Machine-readable tokens, timings, breakpoints, z-layers, storage keys. **Authoritative**: published as `fizlet/ui/tokens.json`; the build (`scripts/tokens.mjs`) fails when a `board-ui.css` default (every palette role, ink, surface, `--k-*`, `--u`, motion curve) or `applyPalette`'s variable map disagrees with it |
-| `board-ui/BOARD-UI.md` | This spec |
+| `src/ui/board-ui.css` | Tokens and every component, scoped under `.bui`. CSS containment (Fizlet contract rule 8): the pad and the overlay are `contain: layout style` |
+| `src/ui/board-ui.ts` | `mount`, `applyPalette`, `press`, `slam`, `toast`, `launch` (2.4 KB gzip; the CSS is 4.5 KB gzip, as `npm run size` measures them). The mount root is `contain: style`, the launch burst `contain: layout style` |
+| `src/ui/tokens.json` | Machine-readable tokens, timings, breakpoints, z-layers, storage keys. **Authoritative**: published as `fizlet/ui/tokens.json`; the build (`scripts/tokens.mjs`) fails when a `board-ui.css` default (every palette role, ink, surface, `--k-*`, `--u`, motion curve) or `applyPalette`'s variable map disagrees with it |
+| `src/ui/BOARD-UI.md` | This spec |
 | `/style-guide/` (Battlefield site) | Live guide built from the kit only |
 
 ```html
@@ -501,14 +502,18 @@ Reduced motion: no loops, no bursts, no slams (static end states), instant trans
 
 | Event | Cue |
 |---|---|
-| start / ready | `start` (two rising notes) |
+| Event | Cue |
+|---|---|
+| start / ready | `ready` (two rising notes) |
 | fire | `fire` |
 | hit / tank destroyed | `hit` |
 | hurt / surrender press | `hurt` |
-| win | `won` (three notes) |
-| lose / surrender | `gameover` |
+| win | `win` (three notes) |
+| lose / surrender | `end` |
 
-Audio unlocks on the first trusted gesture; cues have cooldowns; at most 6 voices; muted state is
+Cue names are `fizlet/sound`'s (`src/sound.ts`); it also has `boom`, `power` and `click`.
+
+Audio unlocks on the first trusted gesture; cues have cooldowns; at most 8 voices; muted state is
 remembered (`dom-virus:<game>:sound`).
 
 ---

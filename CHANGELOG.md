@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.5.1
+
+- **CSS containment on every root Fizlet owns** (contract rule 8): the pad and the match overlay
+  (kit CSS) and the launch burst are `contain: layout style`; the `fizlet/ui` mount root is
+  `contain: style` (it is static, so layout or paint containment could move or clip a board's own
+  layers); the slot stage stays `contain: strict`. `hud` and `board-page` own no box and add none
+  to the host's markup. New browser test: each root's computed `contain`, every box inside the
+  pad, overlay and burst identical with containment on and off (nothing moves or clips), host
+  boxes uncontained, and Recall still restores the page byte for byte. No visual change. Sizes:
+  `fizlet/ui` js 2,424 → 2,446 B, css 4,585 → 4,602 B gzip.
+- **README truth pass** (measured numbers only): "runs Battlefield Blitz; the arcade and Battlefield
+  move onto it next" replaces "powers the arcade and Battlefield"; every size is what
+  `npm run size` measures (several were stale: pad, match, board-page, ui css); "each brick
+  ~1.5 KB" is now the per-brick budgets (1.5 to 5 KB); the allocation claim says how it is measured
+  (0 young GCs in 1M steps on Node 24, best of three); `sound` lists its real cue names and
+  8 voices; the split size table, duplicate rows, duplicate "More bricks" note (which still listed
+  `presence` and `board-page` as planned) and duplicate Develop section are fixed.
+  `src/ui/BOARD-UI.md`: cue names (`ready`, `win`, `end`, not `start`, `won`, `gameover`), 8 voices
+  not 6, it lives in Fizlet (`src/ui/`) now, measured kit sizes. Site: the contract cards say the
+  same.
+
 ## 0.5.0
 
 The page profile for heroes and interactive diagrams (fizlet-engine docs/LAYERS.md, "Page
