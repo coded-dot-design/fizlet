@@ -555,3 +555,20 @@ remembered (`dom-virus:<game>:sound`).
     screen, both themes, both sides, 4 and 12 units.
 11. Reduced motion, keyboard (focus ring, Esc, shortcuts), screen reader names.
 12. Size budget in CI; no layout reads in the frame loop; one `AbortSignal` teardown.
+
+## 18. Readouts (CSS section 12, `readouts()`)
+
+Battlefield's metrics row (ARMOR · FRIENDLY · HOSTILE · ELAPSED) as a kit part, so a game's score,
+timer or lives read the same everywhere. A readout is **not a key**: flat, no hard shadow, never
+pressed, never focusable.
+
+- **Anatomy:**
+  - **label:** muted caps, 8u, 1.4u tracking;
+  - **value:** a block of 20u ink with tabular numbers, so a ticking clock never jiggles;
+  - **group gap:** 30u.
+- **Tone** (`data-tone`): `team` paints the value `--team-ink`, `enemy` paints it `--team-b`, and no tone leaves it ink. That matches Battlefield: ARMOR is team, HOSTILE is enemy.
+- **On the map** (`.bui-on-map`, the phone cockpit's panel): a flat plate of `--surface` at 74% with a 1.5u `--line` rim and a 5u radius. Use it whenever readouts sit over a playfield.
+- **JS:** `readouts(parent, [["Score", "team"], ["Time"]], onMap?)` builds the group and returns `{ group, values }`.
+  - Bind `values` with `fizlet/hud` (`num(values[0], [state, SCORE])`): change-only and allocation-free.
+  - Add the group through the engine's ledger, or mount it inside a kit root the game owns, so Recall removes it.
+- **Placement is the game's layout:** where the group sits (corner, rail, header) may vary per game. The look may not.

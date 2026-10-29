@@ -11,7 +11,7 @@ import { chromium } from "playwright";
 import { readFileSync } from "node:fs";
 
 const bundle = (await build({
-  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { hud } from "./src/hud.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts"; export { mount } from "./src/ui/board-ui.ts"; export { match } from "./src/match.ts"; export { launch } from "./src/ui/board-ui.ts"; export { boardPage } from "./src/board-page.ts";', resolveDir: process.cwd(), loader: "ts" },
+  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { hud } from "./src/hud.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts"; export { mount, readouts } from "./src/ui/board-ui.ts"; export { match } from "./src/match.ts"; export { launch } from "./src/ui/board-ui.ts"; export { boardPage } from "./src/board-page.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "fizlet", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 
@@ -1057,7 +1057,28 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   assert.deepEqual(ui, { a: "one", b: "two", c: "one", shared: true, own: true, sheets: "1,1,1", leak: 0 }, "each CSS text gets its own shared sheet; nothing reaches the page");
 
   assert.deepEqual(errors, []);
-  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, ui mount passed.");
+  where = "ui-readouts";
+  const kitCss = readFileSync("src/ui/board-ui.css", "utf8");
+  const ro = await page.evaluate((css) => {
+    const h = document.createElement("div");
+    document.body.append(h);
+    const root = fizlet.mount(h, css);
+    const { group, values } = fizlet.readouts(root, [["Score", "team"], ["Hostile", "enemy"], ["Time"]], true);
+    values[0].textContent = "12";
+    const probe = (v) => { const i = root.appendChild(document.createElement("i")); i.style.color = `var(${v})`; const c = getComputedStyle(i).color; i.remove(); return c; };
+    const cs = (e) => getComputedStyle(e);
+    const out = {
+      n: values.length, cls: group.className, text: group.children[0].textContent,
+      label: cs(group.children[0]).fontSize, value: cs(values[0]).fontSize, upper: cs(group.children[0]).textTransform,
+      team: cs(values[0]).color === probe("--team-ink"), enemy: cs(values[1]).color === probe("--team-b"), plain: cs(values[2]).color === probe("--ink"),
+      flat: cs(group).boxShadow, nums: cs(values[0]).fontVariantNumeric,
+    };
+    h.remove();
+    return out;
+  }, kitCss);
+  assert.deepEqual(ro, { n: 3, cls: "bui-readouts bui-on-map", text: "Score12", label: "8px", value: "20px", upper: "uppercase", team: true, enemy: true, plain: true, flat: "none", nums: "tabular-nums" }, "readouts: Battlefield's metrics, toned by the palette, flat");
+
+  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, ui mount, readouts passed.");
   }
   where = "match";
   await page.addStyleTag({ content: readFileSync("src/ui/board-ui.css", "utf8") });
