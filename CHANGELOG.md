@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.4.1
+
+Hardening from the engineering review (2026-10-29, §8: UI and tokens, collision and effects).
+
+- pack smoke test: data subpaths (`.css`, `.json`) resolve instead of importing.
+- ui: `mount()` keys its shared constructed stylesheet by the CSS text. It cached the first sheet
+  for the whole page, so a second game mounted with different CSS got the first game's styles.
+  Stylesheet ownership is documented (BOARD-UI.md 2.1). No visual change.
+- ui: `tokens.json` is the authoritative token source. Published as `fizlet/ui/tokens.json`; the
+  build fails when a `board-ui.css` default or `applyPalette`'s variable map disagrees with it
+  (`scripts/tokens.mjs`, tested). `board-ui.css` is byte-identical.
+- collide: `Grid` separates entity capacity (`cap`), index capacity (new 5th argument `nodes`,
+  default `cap * 4`) and query-result capacity (`out`), and every saturation is counted:
+  `dropped` (index full; now counts every refused cell entry), `rejected` (id outside `0..cap-1`
+  or a non-finite circle; such ids used to alias the dedupe stamps), `truncated` and `missed`
+  (query results that did not fit; they used to vanish silently). The constructor and `resize`
+  throw a `RangeError` on non-finite sizes or non-integer capacities.
+- collide: `add`, `near`, `insert` and `query` pass numbers through a typed array, so the grid
+  allocates nothing even when V8 does not inline it (the mixed collide + fx test went from ~24
+  young GCs per 200k frames to 0; its allowance drops from 100 to 1).
+- fx: `blast()` stops at capacity instead of attempting every particle on a full pool (10 blasts
+  of power 1e6 on a full pool: ~4.7 s before, ~0 ms now), and counts refused particles in
+  `fx.dropped`. `effects()` validates `cap`, `scorch` (0 now turns scorch marks off) and the
+  colour and word tables; `spawn`, `blast` and `kick` refuse non-finite input (a NaN life used to
+  hold a pool slot forever).
+- fx: no allocation in a live scene. `blast()` allocated on every call (Math.random returns a new
+  heap number); the visual random is now a private generator seeded from Math.random (still never
+  the simulation's seeded random) and blast writes the pool directly. Same recipe, same
+  distributions.
+- tests: the allocation test runs a populated fx scene (blasts every frame window, the pool full,
+  drops counted) and asserts no young-generation GC; new regression tests for every item above,
+  and a browser test for two games mounting different CSS.
+- README: the overload policy (decorative particles may drop, counted; collision results never
+  drop silently).
+
 ## 0.4.0
 
 - **presence** brick (`fizlet/presence`, 1.8 KB gzip): lockstep input exchange on the seeded,

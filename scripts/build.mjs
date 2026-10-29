@@ -4,8 +4,12 @@ import { build } from "esbuild";
 import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { checkTokens, readTokenSources } from "./tokens.mjs";
 
 export const ENTRIES = ["src/index.ts", "src/kernel/index.ts", "src/debug.ts", "src/input.ts", "src/collide.ts", "src/fx.ts", "src/sound.ts", "src/embed.ts", "src/slot.ts", "src/grid.ts", "src/sprite.ts", "src/pad.ts", "src/presence.ts", "src/presence-check.ts", "src/hud.ts", "src/ui/board-ui.ts"];
+// tokens.json is the authoritative token source: refuse to build when the CSS or the palette map drifts.
+const drift = checkTokens(readTokenSources());
+if (drift.length) throw new Error(`Board UI tokens disagree with src/ui/tokens.json:\n  ${drift.join("\n  ")}`);
 rmSync("dist", { recursive: true, force: true });
 await build({ entryPoints: ENTRIES, outdir: "dist", outbase: "src", bundle: true, splitting: true, chunkNames: "chunks/[name]-[hash]", format: "esm", target: "es2022", platform: "browser", legalComments: "none", logLevel: "warning" });
 execFileSync("npx", ["tsc", "-p", "tsconfig.json"], { stdio: "inherit" });
@@ -23,4 +27,5 @@ for (const f of readdirSync("dist", { recursive: true })) {
   writeFileSync(file, text);
 }
 cpSync("src/ui/board-ui.css", "dist/ui/board-ui.css");
+cpSync("src/ui/tokens.json", "dist/ui/tokens.json");
 console.log(`Built dist/: ${ENTRIES.length} entries`);

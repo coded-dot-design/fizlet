@@ -96,8 +96,10 @@ test("collide + fx: near-zero allocation while stepping", async (t) => {
   const g = new Grid(32, 64, 640, 480), out = new Int32Array(64), fx = effects({ cap: 300 });
   const xs = new Float64Array(64), ys = new Float64Array(64), rs = new Float64Array(64).fill(12);
   for (let i = 0; i < 64; i++) (xs[i] = (i * 9) % 640), (ys[i] = (i % 8) * 18);
-  const hits = new Int32Array(1);
+  const hits = new Int32Array(2); // [hits, frame]
   const frame = () => {
+    // A live fx scene, not an empty pool: a blast every 8th frame keeps ~150 particles alive.
+    if ((hits[1]++ & 7) === 0) fx.blast(xs[hits[1] & 63], ys[hits[1] & 63], 2);
     g.clear();
     for (let i = 0; i < 64; i++) g.add(xs, ys, rs, i);
     for (let i = 0; i < 64; i++) {
@@ -113,10 +115,119 @@ test("collide + fx: near-zero allocation while stepping", async (t) => {
     for (let i = 0; i < 200000; i++) frame();
   });
   assert.ok(hits[0] > 0);
-  // The bricks never allocate on their own (each passes 0 alone). Mixed into one big frame, V8's
-  // inlining limits can box a few numbers: well under one young GC per 2,000 frames. A real
-  // per-frame allocation (an array, an object, a closure) shows up as thousands here.
-  assert.ok(minor <= 100, `young-generation GCs over 200k frames: ${minor}`);
+  assert.ok(fx.live > 50, `the fx pool is populated (${fx.live} live)`);
+  // Grid and fx keep every running number in typed arrays (no number crosses a call V8 may not
+  // inline), so even mixed into one big frame they allocate nothing. One stray scavenge can come
+  // from the test runner; a real per-frame allocation shows up as dozens.
+  assert.ok(minor <= 1, `young-generation GCs over 200k frames: ${minor}`);
+});
+
+// Hardening (engineering review 2026-10-29, §8): capacities, saturation, validated inputs, bounded work.
+test("collide: entity, index and query capacities are separate and saturation is counted", () => {
+  // 4 entities, 6 index nodes (one per covered cell), results cut by the caller's buffer.
+  const g = new Grid(10, 4, 100, 100, 6);
+  assert.equal(g.cap, 4);
+  assert.equal(g.nodes, 6);
+  for (let i = 0; i < 4; i++) g.insert(i, 5, 5, 1); // 4 nodes, one cell each
+  assert.equal(g.dropped, 0);
+  g.insert(0, 10, 10, 4); // covers 4 cells, only 2 nodes left
+  assert.equal(g.dropped, 2, "the index refuses nodes past its own capacity and counts them");
+  const out = new Int32Array(2);
+  const n = g.query(5, 5, 1, out);
+  assert.equal(n, 2);
+  assert.equal(g.missed, 2, "the last query says how many ids did not fit in out");
+  assert.equal(g.truncated, 1, "and truncated queries are counted, never silent");
+  const big = new Int32Array(8);
+  assert.equal(g.query(5, 5, 1, big), 4);
+  assert.equal(g.missed, 0);
+  assert.equal(g.truncated, 1);
+});
+
+test("collide: inputs are validated (finite numbers, integer capacities, ids in range)", () => {
+  assert.throws(() => new Grid(0, 4, 10, 10), RangeError);
+  assert.throws(() => new Grid(NaN, 4, 10, 10), RangeError);
+  assert.throws(() => new Grid(8, 2.5, 10, 10), RangeError);
+  assert.throws(() => new Grid(8, 0, 10, 10), RangeError);
+  assert.throws(() => new Grid(8, 4, Infinity, 10), RangeError);
+  assert.throws(() => new Grid(8, 4, 10, 10, -1), RangeError);
+  const g = new Grid(8, 4, 64, 64);
+  assert.throws(() => g.resize(NaN, 10), RangeError);
+  g.insert(4, 1, 1, 1); // id out of range: would alias the dedupe stamps
+  g.insert(-1, 1, 1, 1);
+  g.insert(1.5, 1, 1, 1);
+  g.insert(0, NaN, 1, 1);
+  g.insert(0, 1, Infinity, 1);
+  g.insert(0, 1, 1, -2);
+  assert.equal(g.rejected, 6, "bad inserts are refused and counted");
+  const out = new Int32Array(4);
+  assert.equal(g.query(1, 1, 4, out), 0, "nothing was indexed");
+  assert.equal(g.query(NaN, 1, 4, out), 0);
+  assert.equal(g.rejected, 7, "a non-finite query is counted too");
+});
+
+test("fx: a full pool stops the blast's work and counts the drops", () => {
+  const fx = effects({ cap: 8 });
+  fx.blast(0, 0, 1); // 5 + 15 + 4 = 24 wanted, 8 fit
+  assert.equal(fx.live, 8);
+  assert.equal(fx.dropped, 16, "every refused particle is counted");
+  const t0 = performance.now();
+  for (let i = 0; i < 10; i++) fx.blast(0, 0, 1e6); // 5,000,010 debris wanted each: none can fit
+  const ms = performance.now() - t0;
+  assert.ok(ms < 20, `a full pool does no per-particle work (10 huge blasts took ${ms.toFixed(1)} ms)`);
+  fx.blast(0, 0, 200); // 1,010 debris wanted
+  assert.equal(fx.dropped, 16 + 10 * (5 + 5000010 + 4) + 5 + 1010 + 4);
+  assert.equal(fx.live, 8);
+});
+
+test("fx: inputs are validated (capacities, finite numbers, a life that ends)", () => {
+  assert.throws(() => effects({ cap: 0 }), RangeError);
+  assert.throws(() => effects({ cap: 1.5 }), RangeError);
+  assert.throws(() => effects({ scorch: -1 }), RangeError);
+  assert.throws(() => effects({ colors: Array(257).fill("#000") }), RangeError);
+  const fx = effects({ cap: 16 });
+  assert.equal(fx.spawn(0, 0, 0, 0, 0, 4, NaN, 0), false, "a particle that never dies would leak the pool");
+  assert.equal(fx.spawn(0, NaN, 0, 0, 0, 4, 1, 0), false);
+  fx.blast(NaN, 0, 1);
+  fx.blast(0, 0, Infinity);
+  assert.equal(fx.live, 0);
+  assert.equal(fx.shake, 0, "a rejected blast has no effect");
+  assert.ok(fx.dropped >= 4);
+  const nos = effects({ cap: 64, scorch: 0 });
+  nos.blast(0, 0, 1);
+  assert.ok(nos.live > 0, "scorch: 0 turns scorch marks off");
+});
+
+test("fx: a live, populated scene (emitting every frame) allocates nothing", async (t) => {
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  const fx = effects({ cap: 300 });
+  const xs = new Float64Array(8);
+  for (let i = 0; i < 8; i++) xs[i] = i * 80;
+  const peak = new Float64Array(2); // [sum of live, frames]
+  const frame = (f) => {
+    // A blast every 4th frame plus a pop word each frame: the pool stays busy and often full.
+    if (f % 4 === 0) fx.blast(xs[f & 7], 200, 1 + (f & 3));
+    fx.word(xs[(f >> 1) & 7], 100, f % 5, f & 7);
+    fx.kick(0.5);
+    fx.step(1 / 60);
+    peak[0] += fx.live;
+    peak[1]++;
+  };
+  for (let f = 0; f < 20000; f++) frame(f);
+  gc();
+  peak[0] = peak[1] = 0;
+  let minor = 0;
+  const obs = new PerformanceObserver((list) => {
+    for (const e of list.getEntries()) if (e.detail?.kind === constants.NODE_PERFORMANCE_GC_MINOR) minor++;
+  });
+  obs.observe({ entryTypes: ["gc"] });
+  for (let f = 0; f < 200000; f++) frame(f);
+  await new Promise((r) => setTimeout(r, 50));
+  obs.disconnect();
+  const avg = peak[0] / peak[1];
+  assert.ok(avg > 150, `the scene is populated (average live particles: ${avg.toFixed(0)})`);
+  assert.ok(fx.dropped > 0, "and saturated: drops happen and are counted");
+  console.log(`fx live scene: ${avg.toFixed(0)} particles alive on average, ${fx.dropped} dropped, ${minor} young GCs`);
+  assert.ok(minor <= 1, `young-generation GCs over 200k live fx frames: ${minor}`);
 });
 
 test("sprite: rows + colour map, roles filled by palettes, frames wrap, pivot", () => {

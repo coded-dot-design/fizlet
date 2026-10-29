@@ -11,7 +11,7 @@ import { chromium } from "playwright";
 import { readFileSync } from "node:fs";
 
 const bundle = (await build({
-  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { hud } from "./src/hud.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts";', resolveDir: process.cwd(), loader: "ts" },
+  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { hud } from "./src/hud.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts"; export { mount } from "./src/ui/board-ui.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "fizlet", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 
@@ -627,6 +627,29 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
 
   assert.deepEqual(errors, []);
   console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, pad passed.");
+  {
+  where = "ui-mount";
+  const ui = await page.evaluate(() => {
+    // Two games composed independently on one page, each with its own kit CSS.
+    const a = document.createElement("div"), b = document.createElement("div"), c = document.createElement("div");
+    document.body.append(a, b, c);
+    const ra = fizlet.mount(a, ".bui { --probe: one; }"), rb = fizlet.mount(b, ".bui { --probe: two; }"), rc = fizlet.mount(c, ".bui { --probe: one; }");
+    const probe = (r) => getComputedStyle(r).getPropertyValue("--probe").trim();
+    const out = {
+      a: probe(ra), b: probe(rb), c: probe(rc),
+      shared: a.shadowRoot.adoptedStyleSheets[0] === c.shadowRoot.adoptedStyleSheets[0],
+      own: a.shadowRoot.adoptedStyleSheets[0] !== b.shadowRoot.adoptedStyleSheets[0],
+      sheets: [a, b, c].map((h) => h.shadowRoot.adoptedStyleSheets.length).join(),
+      leak: [...document.styleSheets].length + document.adoptedStyleSheets.length,
+    };
+    a.remove(), b.remove(), c.remove();
+    return out;
+  });
+  assert.deepEqual(ui, { a: "one", b: "two", c: "one", shared: true, own: true, sheets: "1,1,1", leak: 0 }, "each CSS text gets its own shared sheet; nothing reaches the page");
+
+  assert.deepEqual(errors, []);
+  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, ui mount passed.");
+  }
 } catch (e) {
   console.error(`::error title=Fizlet browser test (${where})::${e.message}`);
   throw e;

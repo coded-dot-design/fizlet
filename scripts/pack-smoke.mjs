@@ -20,8 +20,10 @@ try {
   run("npm", ["install", "--no-audit", "--no-fund", "--ignore-scripts", join(dir, filename)], dir);
 
   const subpaths = Object.keys(pkg.exports).filter((k) => k !== "./package.json");
-  const js = subpaths.filter((k) => !k.endsWith(".css")).map((k) => (k === "." ? pkg.name : `${pkg.name}/${k.slice(2)}`));
-  const css = subpaths.filter((k) => k.endsWith(".css")).map((k) => `${pkg.name}/${k.slice(2)}`);
+  // Data files (CSS, JSON tokens) only need to resolve; JS subpaths import and typecheck.
+  const data = (k) => /\.(css|json)$/.test(k);
+  const js = subpaths.filter((k) => !data(k)).map((k) => (k === "." ? pkg.name : `${pkg.name}/${k.slice(2)}`));
+  const css = subpaths.filter(data).map((k) => `${pkg.name}/${k.slice(2)}`);
 
   // Runtime: every JS subpath imports and exports something; CSS subpaths resolve to a file.
   const probe = `const out = [];
@@ -35,7 +37,7 @@ console.log(out.join("\\n"));`;
   writeFileSync(join(dir, "types.ts"), js.map((s, i) => `import * as m${i} from "${s}";\nvoid m${i};`).join("\n"));
   writeFileSync(join(dir, "tsconfig.json"), JSON.stringify({ compilerOptions: { target: "ES2022", module: "NodeNext", moduleResolution: "NodeNext", lib: ["ES2022", "DOM"], strict: true, noEmit: true }, files: ["types.ts"] }));
   run(resolve("node_modules/.bin/tsc"), ["-p", "tsconfig.json"], dir);
-  console.log(`Pack smoke: ${filename}, ${files.length} files, ${js.length} JS subpaths import and typecheck, ${css.length} CSS subpath resolves.`);
+  console.log(`Pack smoke: ${filename}, ${files.length} files, ${js.length} JS subpaths import and typecheck, ${css.length} data subpaths (CSS/JSON) resolve.`);
 } finally {
   rmSync(dir, { recursive: true, force: true });
 }

@@ -47,7 +47,7 @@ building, then section 16 (lessons: mistakes we already paid for) and section 17
 |---|---|
 | `board-ui/board-ui.css` | Tokens and every component, scoped under `.bui` |
 | `board-ui/board-ui.ts` | `mount`, `applyPalette`, `press`, `slam`, `toast`, `launch` (≈2.4 KB gzip; the CSS is 3.7 KB gzip) |
-| `board-ui/tokens.json` | Machine-readable tokens, timings, breakpoints, z-layers, storage keys |
+| `board-ui/tokens.json` | Machine-readable tokens, timings, breakpoints, z-layers, storage keys. **Authoritative**: published as `fizlet/ui/tokens.json`; the build (`scripts/tokens.mjs`) fails when a `board-ui.css` default (every palette role, ink, surface, `--k-*`, `--u`, motion curve) or `applyPalette`'s variable map disagrees with it |
 | `board-ui/BOARD-UI.md` | This spec |
 | `/style-guide/` (Battlefield site) | Live guide built from the kit only |
 
@@ -68,8 +68,12 @@ applyPalette(root, { sys: "#06c4ff", cmd: "#8573ee", teamA: "#4bce82", teamB: "#
   page. Use it for first-party pages (the hub's guide, a game's own page). A host page's own CSS
   *can* still reach in (a global `button {}` rule, a reset).
 - **Shadow DOM (`mount()`)**: for embeds on someone else's site. `mount(host, css, { theme, side,
-  palette })` attaches a shadow root, adopts one shared constructed stylesheet and returns the
-  `.bui` root to build in. Nothing crosses either way. This is the engine contract (owned UI in a
+  palette })` attaches a shadow root, adopts a shared constructed stylesheet and returns the
+  `.bui` root to build in. **Stylesheet ownership:** the kit keeps one constructed sheet per CSS
+  text (keyed by the text itself), so two games composed independently with different CSS each get
+  their own, and boards mounted with the same text share one. The sheet is the kit's: treat it as
+  read-only. It is appended to the shadow root's `adoptedStyleSheets`, never replacing sheets you
+  adopted there. Nothing crosses either way. This is the engine contract (owned UI in a
   shadow root) and the default for `easterEgg` installs.
 - The launch burst renders on `<body>` with **inline styles only**, so it works from inside a
   shadow root and survives any layout change.

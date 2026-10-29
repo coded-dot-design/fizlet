@@ -63,11 +63,11 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 |---|---|---|
 | `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | ~3.1 KB |
 | `fizlet/debug` | `guardLayout(engine)`: counts layout reads during a step (dev only) | ~0.5 KB |
-| `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer` | ~1.0 KB |
+| `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` | ~1.0 KB |
 | `fizlet/pad` | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | ~1.8 KB |
-| `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | ~0.8 KB |
+| `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | ~1.3 KB |
 | `fizlet/grid` | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | ~1.5 KB |
-| `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | ~1.5 KB |
+| `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | ~1.9 KB |
 | `fizlet/sprite` | `sprites(defs, { palettes, cap })`: pixel-art characters as data, re-tinted by palette role, baked once per sprite/frame/scale/palette into a capped cache, `draw()` with no allocation; `svg()` / `url()` for page characters | ~1.3 KB |
 | `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues (or your own player), unlock on gesture | ~0.9 KB |
 | `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | ~2.0 KB |
@@ -75,6 +75,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 | `fizlet/presence` | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | ~1.8 KB |
 | `fizlet/hud` | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | ~1.3 KB |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
+| `fizlet/ui/tokens.json` | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
 
 More bricks land through phase E2 (actor, steer, aim, rules, board-page, camera,
 view-dom, presence): see the [engine plan](https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md).
@@ -213,6 +214,24 @@ touch.setScheme("dpad"); // fingers on the old control let go; no listener is ad
 - Recall: one element through the ledger, listeners delegated on it under the engine's signal.
   `destroy()` (or `engine.destroy()`) gives the page back exactly. Keys are named buttons;
   Enter / Space taps them; reduced motion turns the kit's transitions off.
+
+### Overload policy
+
+Bounded everything (contract 2) means something has to give at capacity. What gives depends on the job:
+
+- **Decorative particles may drop, counted.** `fx` refuses particles when its pool is full and
+  counts them in `fx.dropped`; a `blast()` stops its per-particle work as soon as the pool is full,
+  so a huge or repeated blast costs nothing extra. Invalid input (non-finite numbers, a life that
+  would never end) is refused and counted the same way.
+- **Collision results must not drop silently.** `new Grid(cell, cap, w, h, nodes = cap * 4)` has
+  three separate capacities, and each one saturates visibly:
+  - entities (`cap`): ids `0..cap-1`; any other id, or a non-finite circle, is refused: `grid.rejected`;
+  - index (`nodes`): one entry per cell a body covers; past it, `grid.dropped`;
+  - query results (the `out` buffer you pass): ids that did not fit set `grid.missed` (this query)
+    and count in `grid.truncated`.
+
+  Size them so every counter stays 0 and treat any rise as a bug (a missed candidate is a missed
+  hit). Bad constructor or `resize` input (non-finite sizes, non-integer capacities) throws a `RangeError`.
 
 ### Engine API
 
