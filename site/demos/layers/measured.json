@@ -1,0 +1,23 @@
+{
+  "version": "0.5.1",
+  "chromium": "153.0.8010.12",
+  "bytes": {
+    "entry": 1957,
+    "scene": 10450,
+    "live": 12407,
+    "poster": 2500
+  },
+  "frame": {
+    "throttle": 4,
+    "fps": 30,
+    "frames": 739,
+    "p50": 0.9,
+    "p95": 4.9,
+    "max": 8.2,
+    "gapP95": 33.3
+  },
+  "cls": 0,
+  "settledFrames": 0,
+  "sceneBeforeNear": 0,
+  "eagerFiles": 2
+}

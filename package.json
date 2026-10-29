@@ -107,6 +107,7 @@
     "check": "npm run typecheck && npm test && npm run build",
     "size": "node scripts/size.mjs",
     "test:browser": "node tests/browser.mjs",
+    "test:layers": "tsc -p site/demos/layers/tsconfig.json && node tests/layers.mjs",
     "test:pack": "node scripts/pack-smoke.mjs",
     "site": "npm run build && node scripts/site.mjs",
     "test:site": "node tests/site.mjs",

@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- **Layers story** (`site/demos/layers/`, `examples/layers/`): a landing-page graphic. A Battlefield
+  Blitz-style board plays, turns and fans out into eight DOM layers in CSS 3D (board grid,
+  characters, movement, collision, rules, effects, input, HUD), each labelled with Blitz's measured
+  bytes for that layer (layer manifest, Blitz c8c8ca4). The collision layer faults red, a scan
+  patches it, it flashes green, and the stack folds back into the game. Built on the kernel (30 fps
+  cap, settle), `grid`, `sprite` and `fx`; mounted through `fizlet/slot`. After 3 cycles it rests on
+  the game frame and settles; reduced motion keeps a CSS-only still exploded view with labels.
+  Measured (Chromium 153, 4× CPU throttle): script per frame 0.9 ms median, 4.9 ms p95; live chunk
+  12,407 B gzip (over the 10 KB hero budget), poster 2,500 B; CLS 0; 0 frames once settled. New
+  `npm run test:layers` (in CI): mounts, cycles once, settles, Recall is exact, reduced motion.
+
 ## 0.5.1
 
 - **CSS containment on every root Fizlet owns** (contract rule 8): the pad and the match overlay
