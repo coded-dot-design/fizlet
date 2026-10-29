@@ -62,8 +62,9 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
    `contain: style` (it is static, so layout or paint containment could move or clip a board's own
    layers). `hud` and `board-page` own no box: they write into the host's markup and never add
    containment to it.
-9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,140 bytes); each brick has its own budget,
-   1.5 to 5 KB (`scripts/sizes.mjs`); over budget, the build fails.
+9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,275 bytes); each brick has its own budget,
+   1.5 to 5 KB, and a page build (kernel + slot + input + fx) ≤ 7 KB (`scripts/sizes.mjs`); over
+   budget, the build fails.
 
 ## What's in the box
 
@@ -72,9 +73,9 @@ in included, 1 KB = 1024 bytes.
 
 | Import | What | Size (min + gzip) |
 |---|---|---|
-| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | 3.1 KB |
+| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | 3.2 KB |
 | `fizlet/debug` | `guardLayout(engine)`: counts layout reads during a step (dev only) | 0.5 KB |
-| `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer`, `dispose` | 1.2 KB |
+| `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer`, `dispose` | 1.3 KB |
 | `fizlet/pad` | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | 1.9 KB |
 | `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | 1.3 KB |
 | `fizlet/grid` | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | 1.5 KB |
@@ -82,9 +83,9 @@ in included, 1 KB = 1024 bytes.
 | `fizlet/sprite` | `sprites(defs, { palettes, cap })`: pixel-art characters as data, re-tinted by palette role, baked once per sprite/frame/scale/palette into a capped cache, `draw()` with no allocation; `svg()` / `url()` for page characters | 1.3 KB |
 | `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues `fire`, `hit`, `boom`, `hurt`, `power`, `ready`, `win`, `end`, `click` (or your own player), at most 8 voices, unlock on gesture, `dispose` | 1.0 KB |
 | `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | 2.0 KB |
-| `fizlet/slot` | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | 1.5 KB |
+| `fizlet/slot` | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | 1.7 KB |
 | `fizlet/presence` | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | 1.8 KB |
-| `fizlet/presence/check` | `syncCheck(setup, opts)`: runs a sim as lockstep clients and finds the first diverged frame (tests only) | 4.5 KB |
+| `fizlet/presence/check` | `syncCheck(setup, opts)`: runs a sim as lockstep clients and finds the first diverged frame (tests only) | 4.6 KB |
 | `fizlet/hud` | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | 1.3 KB |
 | `fizlet/match` | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.5 KB |
 | `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 3.7 KB |
@@ -135,18 +136,28 @@ slot("home#hero", () => import("./hero-scene.js").then((m) => m.mount));
 // scene renders real accessible content, which drops the slot's role="img").
 import { createEngine } from "fizlet";
 import { effects } from "fizlet/fx";
-export function mount(stage: HTMLElement) {
-  const engine = createEngine({ root: stage, pause: { reducedMotion: true } });
+import type { SlotTap } from "fizlet/slot";
+export function mount(stage: HTMLElement, figure: HTMLElement, first: SlotTap | null) {
+  // settle: no frames once nothing moves (0.5 s quiet); fps: an ambient hero needs no more than 30.
+  const engine = createEngine({ root: stage, pause: { reducedMotion: true }, settle: 0.5, fps: 30 });
   const canvas = engine.ledger.add(document.createElement("canvas"));
   stage.append(canvas);
   const ctx = canvas.getContext("2d")!, fx = effects();
-  engine.add({ step: (e, dt) => fx.step(dt), render: () => (ctx.clearRect(0, 0, canvas.width, canvas.height), fx.draw(ctx)) });
+  engine.add({ step: (e, dt) => (fx.step(dt), fx.live && e.busy()), render: () => (ctx.clearRect(0, 0, canvas.width, canvas.height), fx.draw(ctx)) });
+  if (first) fx.blast(first.x, first.y); // the tap that loaded the scene: an intent, not a stale event
   engine.start();
   return { destroy: () => engine.destroy() };
 }
 ```
 
-- **Lazy:** nothing loads until the slot comes within `margin` (default `"200px"`) of the viewport.
+- **Lazy:** nothing loads until the slot comes within `margin` (default `"200px"`) of the viewport,
+  and then not before the main thread is idle (`requestIdleCallback`, at most `idle` ms, default 1000).
+- **First tap:** a tap on the slot before the scene is up loads it at once (no idle wait) and reaches
+  `mount` as `first = { x, y, at }` (px from the slot's top left, `performance.now()`), never as the
+  original `PointerEvent`, whose pointer is gone by then.
+- **Page build:** kernel + `slot` + `input` + `fx` is budgeted at 7 KB gzip (`npm run size`), so a
+  hero's live chunk stays under 10 KB with 3 KB for the scene; sound, debug, pad, HUD, match and the
+  Board UI are never pulled in (`tests/page.test.mjs`).
 - **Reduced motion:** with `prefers-reduced-motion: reduce` the scene never loads and the slot's
   placeholder and fallback stay; if the setting turns on mid-scene, the scene goes and they come back.
 - **Accessible:** `role="img"` and `aria-label` stay; the stage is `aria-hidden` until the scene
@@ -274,7 +285,7 @@ Bounded everything (contract 2) means something has to give at capacity. What gi
 
 ### Engine API
 
-- `createEngine({ root, step, maxSteps, seed, events, signal, pause, onError })`: numbers are
+- `createEngine({ root, step, maxSteps, seed, events, signal, pause, onError, settle, fps })`: numbers are
   checked at setup (`step` > 0, `seed` finite, `maxSteps`, `events` and pool caps positive
   integers); a bad one throws a `RangeError` naming the option.
 - `engine.add(system)` / `remove(system)`: systems run in order; hooks `read`, `step`, `render`,
@@ -283,6 +294,11 @@ Bounded everything (contract 2) means something has to give at capacity. What gi
 - `engine.start()` / `stop()` / `destroy()`; `engine.running`, `engine.paused` (reasons).
   `destroy()` is idempotent and leaves the engine inert. Engines may start, stop or destroy each
   other from inside a hook: every engine still runs once per frame, on one rAF.
+- **Settle** (`settle: seconds`, off by default): systems call `engine.busy()` in any frame where
+  something moves; after `settle` seconds without one, the engine sleeps (`paused: ["settled"]`,
+  no frames at all) until `engine.wake()`, its `controls` input or `start()`. Settling is not a
+  pause: `pause` hooks don't run and held input stays. **`fps`** caps the engine's frame rate on
+  the shared clock (frames closer than `1/fps` do no work; time still follows the clock).
 - A hook that throws in a scheduled frame stops only its own engine (`paused: ["stopped"]`,
   `start()` resumes) and goes to `onError(error, engine)` (default `console.error`); the shared
   clock and every other engine keep running.
