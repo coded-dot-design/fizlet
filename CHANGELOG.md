@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.3
 
 - **`fizlet/match`**: the match flow every board shares (layer 11): intro → count → play → paused →
   end on the Board UI kit's overlay, built once and flipped through the ledger. Esc / P pause and
