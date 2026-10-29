@@ -65,19 +65,19 @@ const CSS = `<style>
 .fz-top { display: grid; gap: 28px; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center; }
 @media (max-width: 860px) { .fz-top { grid-template-columns: minmax(0, 1fr); } }
 .fz-title { font-size: clamp(44px, 6.4vw, 88px); line-height: .92; letter-spacing: -.05em; margin: 10px 0 18px; }
-.fz-title em { font-style: normal; color: var(--attack, #ff2e88); }
+.fz-title em { font-style: normal; color: var(--k-attack); }
 .fz-board { position: relative; padding: 14px; }
 .fz figure.ae-slot { position: relative; margin: 0; width: 100%; aspect-ratio: 16 / 10; border-radius: 10px; overflow: hidden; cursor: pointer;
-  background-color: #0b0918; background-image: linear-gradient(#3b317055 1px, transparent 1px), linear-gradient(90deg, #3b317055 1px, transparent 1px); background-size: 22px 22px; }
+  background-color: #0b0918; background-image: linear-gradient(color-mix(in srgb, var(--line) 35%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--line) 35%, transparent) 1px, transparent 1px); background-size: 22px 22px; }
 @media (max-width: 600px) { .fz figure.ae-slot { aspect-ratio: 1 / 1; } }
 .fz .fz-poster { position: absolute; inset: 0; width: 100%; height: 100%; }
 .fz-keys { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 16px; }
-.fz-cap { margin: 14px 0 0; font: 12px/1.7 var(--mono, ui-monospace, monospace); color: var(--muted, #aea4d6); }
-.fz-cap b { color: var(--ink, #f6f3ff); }
+.fz-cap { margin: 14px 0 0; font: 12px/1.7 var(--mono); color: var(--muted); }
+.fz-cap b { color: var(--ink); }
 .fz-how { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); margin-top: 40px; }
 .fz-how .panel { padding: 20px; }
 .fz-how h3 { margin: 0 0 6px; font-size: 18px; }
-.fz-how p { margin: 0; color: var(--muted, #aea4d6); }
+.fz-how p { margin: 0; color: var(--muted); }
 </style>`;
 
 const body = `${CSS}
