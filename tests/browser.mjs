@@ -1376,6 +1376,18 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
     bL.refresh();
     out.letters = out.count - bL.glyphs.count;
     eL.destroy();
+    // consume(i, "1") writes the game's own digit (its own element and engine; Recall puts it back).
+    const own = document.createElement("p");
+    own.className = "digit-proof";
+    own.textContent = "xyz";
+    document.body.prepend(own);
+    const eD = fizlet.createEngine(), bD = fizlet.boardPage(eD, { text: ".digit-proof" });
+    bD.refresh();
+    bD.consume(0, "1");
+    out.one = own.textContent === "1yz";
+    eD.destroy();
+    out.one = out.one && own.textContent === "xyz";
+    own.remove();
     // The hot-path forms read typed arrays (no number boxes) and agree with near / hit.
     const seg = new Float64Array([0, -50, mid, 790, mid, 0]), cp = new Float64Array([0, rw.left + rw.width / 2, rw.top + rw.height / 2, 1]), idx2 = new Int32Array(64);
     out.hitAt = b.hitAt(seg, 1) === first && Math.abs(seg[5] - t) < 1e-9;
@@ -1493,6 +1505,7 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   assert.equal(board.parent, "h", "parent(i) is the element holding it");
   assert.equal(board.letters, 2, "letters: true indexes letters only (the 2 digits are out)");
   assert.equal(board.scans, true, "scans counts the rescans (glyph indices renumber)");
+  assert.equal(board.one, true, 'consume(i, "1") writes a 1');
   assert.equal(board.hitAt, true, "hitAt reads the segment from a typed array and agrees with hit (t in p[i + 4])");
   assert.equal(board.nearAt, true, "nearAt reads the circle from a typed array and agrees with near");
   assert.deepEqual(board.targets, [["go", true, 100]], "targets: the page's button only");
