@@ -1409,6 +1409,7 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
     await tick();
     for (let i = 0; i < 40; i++) e.advance(1 / 60);
     out.rescanned = b.glyphs.count - out.count;
+    out.scans = b.scans > 1;
     out.spentKept = [...b.glyphs.spent].filter(Boolean).length;
     np.remove();
     await tick();
@@ -1478,6 +1479,7 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   assert.equal(board.char, "H", "char(i) is the glyph's letter");
   assert.equal(board.parent, "h", "parent(i) is the element holding it");
   assert.equal(board.letters, 2, "letters: true indexes letters only (the 2 digits are out)");
+  assert.equal(board.scans, true, "scans counts the rescans (glyph indices renumber)");
   assert.equal(board.hitAt, true, "hitAt reads the segment from a typed array and agrees with hit (t in p[i + 4])");
   assert.equal(board.nearAt, true, "nearAt reads the circle from a typed array and agrees with near");
   assert.deepEqual(board.targets, [["go", true, 100]], "targets: the page's button only");
