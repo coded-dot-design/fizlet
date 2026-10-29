@@ -1,0 +1,76 @@
+# Publish fizlet to npm (with provenance) for a vX.Y.Z tag.
+# Runs when:
+#   - a v* tag is pushed by a person (git push origin v0.3.0),
+#   - ci.yml tags a new version on main (it calls this workflow: tags pushed with GITHUB_TOKEN
+#     do not start other workflows by themselves),
+#   - someone runs it by hand (Actions > Release to npm > Run workflow) for an existing tag.
+# Needs the NPM_TOKEN repository secret (an npm automation token), added by the owner in
+# Settings > Secrets and variables > Actions. Without it the job checks everything, then skips
+# the publish with a warning.
+name: Release to npm
+on:
+  push:
+    tags: ["v*"]
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+    secrets:
+      NPM_TOKEN:
+        required: false
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to publish (vX.Y.Z)"
+        required: true
+permissions:
+  contents: read
+  id-token: write # npm provenance
+concurrency:
+  group: npm-release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.tag || github.ref_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - name: Tag matches package.json
+        run: |
+          case "$TAG" in v[0-9]*.[0-9]*.[0-9]*) ;; *) echo "::error::not a version tag: $TAG"; exit 1 ;; esac
+          version="$(node -p 'require("./package.json").version')"
+          if [ "v$version" != "$TAG" ]; then echo "::error::tag $TAG does not match package.json $version"; exit 1; fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check
+      - run: npm run size
+      - name: No runtime dependencies
+        run: node -e "const p=require('./package.json'); if (Object.keys(p.dependencies||{}).length || Object.keys(p.peerDependencies||{}).length) { console.error('Fizlet ships no runtime dependencies'); process.exit(1) }"
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      # Pack, install the tarball, import and typecheck every subpath.
+      - run: npm run test:pack
+      - name: Publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if npm view "fizlet@$VERSION" version >/dev/null 2>&1; then
+            echo "fizlet@$VERSION is already on npm; nothing to do." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::warning::NPM_TOKEN is not set: fizlet@$VERSION checked and packed, not published. Add the secret, then re-run (Actions > Release to npm > Run workflow, tag $TAG)."
+            exit 0
+          fi
+          npm publish --provenance --access public
+          echo "Published fizlet@$VERSION: https://www.npmjs.com/package/fizlet/v/$VERSION" | tee -a "$GITHUB_STEP_SUMMARY"

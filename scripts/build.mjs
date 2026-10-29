@@ -2,11 +2,25 @@
 // Consumers minify; scripts/size.mjs checks the minified + gzipped budget.
 import { build } from "esbuild";
 import { execFileSync } from "node:child_process";
-import { cpSync, rmSync } from "node:fs";
+import { cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 
-export const ENTRIES = ["src/index.ts", "src/kernel/index.ts", "src/debug.ts", "src/input.ts", "src/collide.ts", "src/fx.ts", "src/sound.ts", "src/embed.ts", "src/hud.ts", "src/ui/board-ui.ts"];
+export const ENTRIES = ["src/index.ts", "src/kernel/index.ts", "src/debug.ts", "src/input.ts", "src/collide.ts", "src/fx.ts", "src/sound.ts", "src/embed.ts", "src/slot.ts", "src/grid.ts", "src/sprite.ts", "src/pad.ts", "src/hud.ts", "src/ui/board-ui.ts"];
 rmSync("dist", { recursive: true, force: true });
 await build({ entryPoints: ENTRIES, outdir: "dist", outbase: "src", bundle: true, splitting: true, chunkNames: "chunks/[name]-[hash]", format: "esm", target: "es2022", platform: "browser", legalComments: "none", logLevel: "warning" });
 execFileSync("npx", ["tsc", "-p", "tsconfig.json"], { stdio: "inherit" });
+// Declarations: give relative imports their file extension, so consumers on any module resolution
+// (Bundler, Node16, NodeNext) can follow them: "./kernel/index" -> "./kernel/index.js".
+for (const f of readdirSync("dist", { recursive: true })) {
+  if (!f.endsWith(".d.ts")) continue;
+  const file = join("dist", f), dir = dirname(file);
+  const text = readFileSync(file, "utf8").replace(/(from |import\()(["'])(\.{1,2}\/[^"']+?)\2/g, (m, pre, q, spec) => {
+    if (/\.(js|mjs|cjs|css)$/.test(spec)) return m;
+    if (existsSync(join(dir, spec + ".d.ts"))) return `${pre}${q}${spec}.js${q}`;
+    if (existsSync(join(dir, spec, "index.d.ts"))) return `${pre}${q}${spec}/index.js${q}`;
+    throw new Error(`${file}: cannot resolve ${spec}`);
+  });
+  writeFileSync(file, text);
+}
 cpSync("src/ui/board-ui.css", "dist/ui/board-ui.css");
 console.log(`Built dist/: ${ENTRIES.length} entries`);
