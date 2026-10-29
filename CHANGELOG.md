@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.4
 
 - **`fizlet/board-page`**, the page-as-board brick (from DOM VIRUS `board.ts`): `boardPage(engine,
   { root, text, targets, exclude, maxGlyphs, maxTargets, reads, color })` → `glyphs` (typed arrays),
