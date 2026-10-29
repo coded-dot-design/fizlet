@@ -84,6 +84,10 @@
       "types": "./dist/match.d.ts",
       "default": "./dist/match.js"
     },
+    "./rules": {
+      "types": "./dist/rules.d.ts",
+      "default": "./dist/rules.js"
+    },
     "./board-page": {
       "types": "./dist/board-page.d.ts",
       "default": "./dist/board-page.js"
