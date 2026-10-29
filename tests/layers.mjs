@@ -8,6 +8,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { build } from "esbuild";
 import { chromium } from "playwright";
+import { launchOptions } from "./chromium.mjs";
 import { serve } from "../site/demos/layers/serve.mjs";
 
 const OUT = "site-dist/test-layers";
@@ -36,7 +37,7 @@ const PAGE = html
 })();
 </script>`);
 
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await chromium.launch(launchOptions());
 let failed = 0;
 async function test(name, fn) {
   try {

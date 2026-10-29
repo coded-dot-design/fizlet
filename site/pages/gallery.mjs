@@ -1,5 +1,6 @@
 // The gallery: every animation, newest first. Each entry shows the prompt it was made from, the
-// live demo (lazy-mounted through fizlet/slot) and its size badge, measured on this build.
+// live demo (lazy-mounted through fizlet/slot) and its size, measured on this build: the live chunk
+// on the badge and the total with the shared loader beside it (one size, both parts named).
 // Entries are data (site/gallery/entries/*.json); `fe anim --publish` in the engine adds new ones.
 import { esc, icon } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
@@ -10,12 +11,23 @@ const fmt = (n) => n.toLocaleString("en-US");
 const plainFigure = (e) =>
   `<figure class="ae-slot gal-fig gal-tap" data-slot-target="gallery#${esc(e.id)}" role="img" aria-label="${esc(e.title)}: ${esc(e.prompt)}" style="aspect-ratio: ${esc(e.aspect ?? "16 / 9")}"><span class="ae-slot__placeholder gal-still" aria-hidden="true">“${esc(e.prompt)}”</span></figure>`;
 
+/**
+ * A figure for a page scene (`stage: "page"`): a small page of real elements (headings, keys) the
+ * scene reads and lights up through the ledger; Recall gives it back. It is the poster too.
+ */
+const pageFigure = (e) =>
+  `<figure class="ae-slot gal-fig gal-tap gal-page" data-slot-target="gallery#${esc(e.id)}" role="img" aria-label="${esc(e.title)}: ${esc(e.prompt)}" style="aspect-ratio: ${esc(e.aspect ?? "16 / 9")}">` +
+  `<span class="gal-mini" aria-hidden="true"><b class="gal-mini-h1" data-fizlet-heading>Hello, page.</b><span class="gal-mini-p">Real elements under a Fizlet scene.</span>` +
+  `<b class="gal-mini-h2" data-fizlet-heading>Every heading is real</b><span class="gal-mini-row"><span class="gal-mini-key" data-fizlet-target>Hover me</span><span class="gal-mini-key" data-fizlet-target>Or me</span></span>` +
+  `<b class="gal-mini-h2" data-fizlet-heading>Recall gives it back</b></span>` +
+  `<span class="ae-slot__placeholder gal-cap" aria-hidden="true">“${esc(e.prompt)}”</span></figure>`;
+
 export function galleryPage({ entries, loader, figures, base }) {
   const cards = entries.map((e) => {
-    const fig = (figures[e.figure] ?? plainFigure(e)).replace("<figure ", `<figure data-gallery="${esc(e.id)}" `);
+    const fig = (figures[e.figure] ?? (e.stage === "page" ? pageFigure : plainFigure)(e)).replace("<figure ", `<figure data-gallery="${esc(e.id)}" `);
     const measured = e.pageCost?.measured;
     const cost = [
-      `<li>${sizeBadge(e.size, { name: `gallery:${e.id}`, note: "live chunk" })}</li>`,
+      `<li>${sizeBadge(e.size, { name: `gallery:${e.id}`, note: "live chunk" })} <span class="gal-total" data-total="gallery:${esc(e.id)}">live ${fmt(e.size)} B · total <b>${fmt(e.size + loader)} B</b> with the loader</span></li>`,
       `<li><b>${fmt(loader)} B</b> before it nears the screen (the shared loader)</li>`,
       measured ? `<li><b>${measured.framesSettled}</b> frames a second once still · <b>${measured.framesOffscreen}</b> off screen · Recall ${measured.recallExact ? "exact" : "not exact"} <small>(Chromium ${esc(measured.chromium.split(".")[0])})</small></li>` : "",
     ].join("");

@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { build, transform } from "esbuild";
 import { readFileSync } from "node:fs";
 import { chromium } from "playwright";
+import { launchOptions } from "./chromium.mjs";
 
 const kit = (await transform(readFileSync("src/ui/board-ui.css", "utf8"), { loader: "css", minify: true })).code;
 const GAME = `
@@ -62,7 +63,7 @@ const PAGE = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewp
 <form><input id="field"></form>
 </main><script>${bundle}</script></body></html>`;
 
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await chromium.launch(launchOptions());
 const html = (p) => p.evaluate(() => document.documentElement.outerHTML);
 const snap = (p) => p.evaluate(() => window.g.getSnapshot());
 let where = "desktop";

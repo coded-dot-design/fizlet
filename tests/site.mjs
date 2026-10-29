@@ -10,6 +10,7 @@ import { createServer } from "node:http";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { chromium } from "playwright";
+import { launchOptions } from "./chromium.mjs";
 import { checkHtml } from "../scripts/check-html.mjs";
 import { SITE, ROOT as SITE_ROOT } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
@@ -45,7 +46,7 @@ const status = async (path) => (await fetch(ORIGIN + path)).status;
 // Every built page, at its URL path ("" is the home page, "bricks/" the bricks index).
 const PAGES = readdirSync(ROOT, { recursive: true }).filter((f) => f.endsWith(".html") && !f.startsWith("dist")).map((f) => f.replace(/\\/g, "/").replace(/(^|\/)index\.html$/, "$1")).sort();
 for (const b of BRICKS) assert.ok(PAGES.includes(`bricks/${b.id}.html`), `a page for ${b.name}`);
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await chromium.launch(launchOptions());
 const shots = process.env.SITE_SHOTS;
 let where = "start";
 
@@ -123,6 +124,8 @@ try {
     for (const e of GALLERY) {
       const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
       assert.ok(html.includes(`data-size="gallery:${e.id}"><b>${bytes.toLocaleString("en-US")} B</b>`), `${e.id}: its badge shows ${bytes} B`);
+      const loader = gzipSync(readFileSync(`${ROOT}/gallery/gallery.js`)).length;
+      assert.ok(html.includes(`data-total="gallery:${e.id}">live ${bytes.toLocaleString("en-US")} B · total <b>${(bytes + loader).toLocaleString("en-US")} B</b>`), `${e.id}: live and total, one size`);
       assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
     }
     for (const id of ["fizz", "layers", "howitworks"]) assert.ok(GALLERY.some((e) => e.id === id), `seeded with ${id}`);
@@ -267,7 +270,7 @@ try {
     }
     assert.deepEqual(GALLERY.map((e) => e.id).filter((id) => !loaded.includes(`${id}.js`)), [], "every entry mounted");
     // A generated spray draws on a tap.
-    const spray = GALLERY.find((e) => e.made === "fe anim");
+    const spray = GALLERY.find((e) => e.made === "fe anim" && e.stage !== "page");
     if (spray) {
       const fig = page.locator(`figure[data-gallery="${spray.id}"]`);
       await fig.scrollIntoViewIfNeeded();
@@ -280,6 +283,17 @@ try {
         return n;
       });
       assert.ok(ink > 30, `${spray.id}: a tap sprays (${ink} px)`);
+    }
+    // A page scene reads its figure's own elements: a tap starts the sweep there, headings light up
+    // (through the ledger), and they go back to exactly what they were.
+    for (const e of GALLERY.filter((x) => x.stage === "page")) {
+      const fig = page.locator(`figure[data-gallery="${e.id}"]`);
+      await fig.scrollIntoViewIfNeeded();
+      const before = await fig.evaluate((f) => f.querySelector(".gal-mini").outerHTML);
+      await fig.click({ position: { x: 40, y: 10 } });
+      await page.waitForFunction((id) => document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 4000 });
+      await page.waitForFunction((id) => !document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 8000 });
+      assert.equal(await fig.evaluate((f) => f.querySelector(".gal-mini").outerHTML), before, `${e.id}: the page it lit is back as it was`);
     }
     assert.deepEqual(errors, []);
     await context.close();

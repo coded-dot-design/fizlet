@@ -4,6 +4,7 @@
 import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { chromium } from "playwright";
+import { launchOptions } from "./chromium.mjs";
 
 const bundle = (await build({
   stdin: { contents: 'export { createEngine } from "./src/kernel/index.ts"; export { camera, zoomAt, flyTo } from "./src/camera.ts";', resolveDir: process.cwd(), loader: "ts" },
@@ -15,7 +16,7 @@ const PAGE = `<!doctype html><meta charset="utf-8"><body style="margin:0">
 <h1 style="color:#ff2e88">Host page</h1><i id="dot" style="position:absolute;left:300px;top:200px;width:2px;height:2px"></i>
 </main></div><script>${bundle}</script></body>`;
 
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await chromium.launch(launchOptions());
 try {
   {
     const p = await browser.newPage({ viewport: { width: 900, height: 700 } });

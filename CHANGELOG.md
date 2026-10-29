@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+For page scenes in the gallery (`fe anim`'s second scene type: it reads the page's own elements):
+
+- **`fizlet/board-page` `text: false`**: targets only, no glyphs indexed. **`still`**: seconds
+  between re-measures while the page is still (default 0.5); `Infinity` re-measures only after a
+  scroll, resize or change, so a still frame reads no layout.
+- **`fizlet/board-page` reads its refresh clock from `engine.timing`** (a typed array), not the
+  `time` getter: the getter returned a double and boxed a number every frame (12 B a frame in steady
+  state, measured with the sampling heap profiler while time advances).
+- **Kernel: the frame-time maximum is written every frame**, so a new maximum no longer deopts
+  `advance()` (V8 had no feedback for a store that runs only on a new record).
+- **Tests find Chromium by themselves** (`tests/chromium.mjs`): `CHROMIUM_PATH`, else
+  `/opt/pw-browsers/chromium`, else Playwright's own; every browser test and the site test use it.
+
 ## 0.14.0
 
 For Swarm Protocol's port onto the kernel (its own engine kept page-level hooks the bricks lacked):

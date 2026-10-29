@@ -2028,6 +2028,51 @@ html.bui[data-theme="light"] .phases b {
   align-items: center;
   color: var(--k-sys-ink);
 }
+/* A page scene's figure: a small page of real elements the scene reads (the poster too). */
+.gal-mini {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 22px;
+}
+.gal-mini-h1,
+.gal-mini-h2 {
+  display: block;
+  color: var(--ink);
+  font: 700 clamp(18px, 3vw, 26px)/1.15 var(--sans);
+}
+.gal-mini-h2 {
+  font-size: clamp(15px, 2.2vw, 19px);
+}
+.gal-mini-p {
+  color: var(--muted);
+  font: 13px/1.4 var(--mono);
+}
+.gal-mini-row {
+  display: flex;
+  gap: 10px;
+}
+.gal-mini-key {
+  padding: 5px 12px;
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  font: 700 12px/1.4 var(--mono);
+}
+.gal-stage .gal-cap {
+  inset: auto 0 6px;
+  display: block;
+  padding: 0 12px;
+  text-align: left;
+  font: 11px/1.4 var(--mono);
+  color: var(--muted);
+}
+.gal-total {
+  margin-left: 8px;
+}
 /* A spray settles to an empty stage: say it plays again on a tap (motion only: never under reduced motion). */
 @media (prefers-reduced-motion: no-preference) {
   .gal-stage figure.gal-tap[data-live]::after {
