@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.0
 
 The page profile for heroes and interactive diagrams (fizlet-engine docs/LAYERS.md, "Page
 interactions"; lab audit docs/audit-heroes.md: idle CPU while visible was the hero's real cost).
