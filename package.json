@@ -32,6 +32,10 @@
       "types": "./dist/debug.d.ts",
       "default": "./dist/debug.js"
     },
+    "./perf": {
+      "types": "./dist/perf.d.ts",
+      "default": "./dist/perf.js"
+    },
     "./input": {
       "types": "./dist/input.d.ts",
       "default": "./dist/input.js"

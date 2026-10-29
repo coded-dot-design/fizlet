@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased
+
+- **`fizlet/perf`**, the players' performance overlay (new brick, its own import rather than part
+  of the dev-only `fizlet/debug`, which patches Element prototypes and must never ship).
+  `perf(engine, { host, corner, key, on, budget, change })` → `{ el, show(on?), destroy, ... }`:
+  live fps, a 120-frame bar chart on one canvas (go / hurt / critical against the frame budget),
+  dropped frames, the engine's work per frame, live pooled entities and the JS heap where Chromium
+  exposes it. Off by default; F9 toggles it. Typed-array ring, numbers twice a second from
+  typed-array slots into cached strings through the ledger: no allocation per frame, shown or
+  hidden. Never keeps a settling engine awake. Board UI tokens inline (works without the kit CSS),
+  `contain: layout paint style`, `aria-hidden` while hidden, Recall exact. 1,947 B gzip (budget
+  2,048: the logic is ~1.5 KB, the inline token styles ~0.45 KB).
+- kernel: `engine.timing`, a `Float64Array` view of this frame (`[0]` the shared clock's delta in
+  seconds, `[1]` ms the last finished frame's hooks took, the number `stats().frameMs` averages,
+  no extra clock read), and `engine.live`, pooled things in use over every pool. Slots, not
+  getters, so a reader never boxes a number. Kernel 3,275 → 3,347 B gzip.
+- `fizlet/ui`: `setting(button, key, change, signal)`, a Settings switch on a kit key
+  (`aria-pressed`) that persists `"1"` / `"0"` in localStorage, wrapped in try/catch, and
+  `PERF_KEY` (`"dom-virus:perf"`, also in `tokens.json` storage). 2,446 → 2,624 B gzip.
+- Tests: Node (ring, fps and dropped-frame math, `timing` / `live`, show/hide and the key through
+  the ledger, 200k shown frames with at most 1 young GC); Chromium (off by default, the Settings
+  switch and F9 kept in step and persisted, storage that throws, the chart moves with real frames,
+  settles with the engine with no dropped-frame burst on wake, no layout reads in a step, Recall
+  byte for byte, `destroy()` alone).
+
 ## 0.5.1
 
 - **CSS containment on every root Fizlet owns** (contract rule 8): the pad and the match overlay
