@@ -11,7 +11,7 @@ import { chromium } from "playwright";
 import { readFileSync } from "node:fs";
 
 const bundle = (await build({
-  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { hud } from "./src/hud.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts"; export { mount, readouts } from "./src/ui/board-ui.ts"; export { match } from "./src/match.ts"; export { launch } from "./src/ui/board-ui.ts"; export { boardPage } from "./src/board-page.ts";', resolveDir: process.cwd(), loader: "ts" },
+  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { hud } from "./src/hud.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts"; export { mount, readouts } from "./src/ui/board-ui.ts"; export { match } from "./src/match.ts"; export { launch } from "./src/ui/board-ui.ts"; export { boardPage } from "./src/board-page.ts"; export { perf } from "./src/perf.ts"; export { setting, PERF_KEY } from "./src/ui/board-ui.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "fizlet", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 
@@ -225,6 +225,129 @@ async function containTest() {
   assert.equal(out.shown, "3", "the hud still writes into the host's markup");
   assert.equal(out.burstGone, true, "the launch burst removes itself");
   assert.equal(out.back, true, "Recall restores the page exactly with containment on");
+  assert.deepEqual(errs, []);
+  await ctx.close();
+}
+
+/** fizlet/perf on a real board: off by default, the kit's Settings switch (persisted, storage
+ *  failures ignored) and the key toggle it in step, the chart moves with real frames, it settles
+ *  with the engine (no frames, no dropped-frame burst on wake), no layout reads in a step, and
+ *  Recall gives the board back byte for byte. */
+async function perfTest() {
+  const ctx = await browser.newContext({ viewport: { width: 844, height: 390 } });
+  const pp = await ctx.newPage();
+  const errs = [];
+  pp.on("pageerror", (e) => errs.push(e.message));
+  // A real origin (about:blank denies localStorage outright, which the switch survives too).
+  const html = `<!doctype html><meta charset="utf-8"><body style="margin:0"><style>${CSS}</style>
+<div class="bui" id="board" style="position:relative;width:844px;height:390px;background:#07060f"><p id="keep" style="margin:0">field</p></div>
+<div class="bui" id="settings"><button id="perf-set" type="button" class="bui-key">Performance overlay</button></div><script>${bundle}</script></body>`;
+  await pp.route("http://fizlet.test/", (r) => r.fulfill({ body: html, contentType: "text/html" }));
+  await pp.goto("http://fizlet.test/");
+  const wait = (ms) => pp.evaluate((ms) => new Promise((r) => setTimeout(r, ms)), ms);
+  const setup = await pp.evaluate(() => {
+    const board = document.getElementById("board");
+    window.before = board.outerHTML;
+    const e = (window.e = fizlet.createEngine({ root: board, settle: 0.3 }));
+    window.moving = true;
+    e.add({ step: (en) => window.moving && en.busy() });
+    fizlet.guardLayout(e);
+    let s;
+    const p = (window.p = fizlet.perf(e, { change: (on) => s?.set(on) }));
+    const btn = document.getElementById("perf-set");
+    s = window.s = fizlet.setting(btn, fizlet.PERF_KEY, (on) => p.show(on), e.signal);
+    const off = { on: p.on, hidden: p.el.hidden, aria: p.el.getAttribute("aria-hidden"), pressed: btn.getAttribute("aria-pressed"), stored: localStorage.getItem(fizlet.PERF_KEY) };
+    btn.click();
+    const cs = getComputedStyle(p.el);
+    return {
+      off,
+      on: { on: p.on, hidden: p.el.hidden, aria: p.el.hasAttribute("aria-hidden"), pressed: btn.getAttribute("aria-pressed"), stored: localStorage.getItem(fizlet.PERF_KEY) },
+      contain: cs.contain, events: cs.pointerEvents, parent: p.el.parentElement.id, ignore: p.el.hasAttribute("data-fizlet-ignore"),
+      // Board UI tokens: the card is the kit's surface on the rim.
+      look: [cs.backgroundColor, cs.borderTopColor, cs.position, cs.top, cs.right].join(),
+    };
+  });
+  assert.deepEqual(setup.off, { on: false, hidden: true, aria: "true", pressed: "false", stored: null }, "off by default, hidden from assistive tech");
+  assert.deepEqual(setup.on, { on: true, hidden: false, aria: false, pressed: "true", stored: "1" }, "the Settings switch shows it and remembers");
+  assert.ok(["layout paint style", "content"].includes(setup.contain), `contained root (${setup.contain})`);
+  assert.deepEqual([setup.events, setup.parent, setup.ignore], ["none", "board", true]);
+  assert.equal(setup.look, "rgb(17, 13, 34),rgb(7, 6, 15),absolute,8px,8px", "kit tokens, top right of the board");
+
+  await pp.evaluate(() => e.start());
+  await wait(700);
+  const pixels = () => pp.evaluate(() => {
+    const c = p.el.querySelector("canvas"), d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+    let lit = 0, sum = 0;
+    for (let i = 0; i < d.length; i += 4) if (d[i + 3]) (lit++, (sum = (sum * 31 + d[i] + d[i + 1] * 7 + d[i + 2] * 13 + i) % 1e9));
+    return { lit, sum, frames: p.frames, text: [...p.el.querySelectorAll("b")].map((b) => b.textContent) };
+  });
+  const a = await pixels();
+  await wait(250);
+  const b = await pixels();
+  assert.ok(a.frames > 15 && b.frames > a.frames, `frames recorded (${a.frames} → ${b.frames})`);
+  assert.ok(a.lit > 100, `the chart draws (${a.lit} lit pixels)`);
+  assert.notEqual(a.sum, b.sum, "the chart moves with the frames");
+  const [fps, ms, , work, live, mb] = b.text;
+  assert.ok(+fps > 10 && +ms > 0 && +work >= 0 && live === "0" && /^(\d+|--)$/.test(mb), `readouts ${b.text.join(" ")}`);
+
+  // The key flips it, and the Settings switch follows (and stores it).
+  await pp.keyboard.press("F9");
+  const keyed = await pp.evaluate(() => [p.on, p.el.hidden, p.el.getAttribute("aria-hidden"), s.on, document.getElementById("perf-set").getAttribute("aria-pressed"), localStorage.getItem(fizlet.PERF_KEY)]);
+  assert.deepEqual(keyed, [false, true, "true", false, "false", "0"], "F9 hides it; the switch and storage follow");
+  await pp.keyboard.press("F9");
+  assert.equal(await pp.evaluate(() => p.on && s.on), true);
+
+  // Settle: nothing moves, the engine sleeps, the chart rests with it; waking costs no dropped frames.
+  await pp.evaluate(() => (window.moving = false));
+  await wait(700);
+  const slept = await pixels();
+  await wait(300);
+  const still = await pixels();
+  const rest = await pp.evaluate(() => ({ paused: e.paused.join(), dropped: p.dropped, violations: e.violations }));
+  assert.equal(rest.paused, "settled");
+  assert.deepEqual([still.frames, still.sum], [slept.frames, slept.sum], "no frames and an unchanged chart while settled");
+  await pp.evaluate(() => ((window.moving = true), e.wake()));
+  await wait(200);
+  const woke = await pp.evaluate(() => ({ frames: p.frames, dropped: p.dropped }));
+  assert.ok(woke.frames > still.frames, "frames again after wake");
+  assert.ok(woke.dropped - rest.dropped < 3, `a 1 s sleep is not dropped frames (${rest.dropped} → ${woke.dropped})`);
+  assert.equal(rest.violations, 0, "no layout reads in a step");
+
+  // Storage that throws: the switch still works (it just forgets); a stored "1" switches it on.
+  const blocked = await pp.evaluate(() => {
+    const saved = Object.getOwnPropertyDescriptor(window, "localStorage");
+    Object.defineProperty(window, "localStorage", { configurable: true, get() { throw new Error("blocked"); } });
+    const k = document.createElement("button"), seen = [];
+    const t = fizlet.setting(k, "x", (on) => seen.push(on), e.signal);
+    k.click();
+    Object.defineProperty(window, "localStorage", saved);
+    localStorage.setItem("y", "1");
+    const back = fizlet.setting(document.createElement("button"), "y", () => {}, e.signal);
+    return { seen, on: t.on, pressed: k.getAttribute("aria-pressed"), restored: back.on };
+  });
+  assert.deepEqual(blocked, { seen: [false, true], on: true, pressed: "true", restored: true });
+
+  // Recall: the board comes back byte for byte; the key and the system go with the engine.
+  const recall = await pp.evaluate(async () => {
+    e.destroy();
+    document.dispatchEvent(new KeyboardEvent("keydown", { code: "F9" }));
+    return { back: document.getElementById("board").outerHTML === window.before, left: document.querySelectorAll(".fizlet-perf").length, on: p.on };
+  });
+  assert.deepEqual(recall, { back: true, left: 0, on: true }, "Recall exact; the key is gone");
+  // perf.destroy() alone gives the page back too, and the engine keeps running.
+  const alone = await pp.evaluate(async () => {
+    const board = document.getElementById("board"), before = board.outerHTML;
+    const e2 = fizlet.createEngine({ root: board });
+    const q = fizlet.perf(e2, { on: true, corner: "bl" });
+    e2.start();
+    await new Promise((r) => setTimeout(r, 100));
+    const shown = getComputedStyle(q.el).bottom + " " + getComputedStyle(q.el).left;
+    q.destroy();
+    const res = { shown, back: board.outerHTML === before, running: e2.running };
+    e2.destroy();
+    return res;
+  });
+  assert.deepEqual(alone, { shown: "8px 8px", back: true, running: true });
   assert.deepEqual(errs, []);
   await ctx.close();
 }
@@ -1361,6 +1484,10 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   assert.deepEqual(errors, []);
   console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, board-page passed.");
   }
+
+  where = "perf";
+  await perfTest();
+  console.log("Browser: perf overlay (off by default, Settings switch + key in step, chart moves, settles with the engine, Recall exact) passed.");
 
   where = "containment";
   await containTest();

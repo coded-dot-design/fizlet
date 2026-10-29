@@ -413,6 +413,18 @@ own action** (a reset that cancels effects must be told to keep it).
 
 ---
 
+### 11.1 Settings switch and the performance overlay
+
+- **Settings switch** (`setting(button, key, change, signal)` in `board-ui.ts`): a base key that rests
+  locked (`aria-pressed="true"`) while on. Its state lives in localStorage as `"1"` / `"0"` under a
+  key from `tokens.json` `storage`; storage that throws is ignored (the switch works, it forgets).
+- **Performance overlay** (`fizlet/perf`, switch label "Performance overlay", key `dom-virus:perf`,
+  **off by default**, F9 toggles it): a flat card in a corner of the board, `--surface` on a 2u
+  `--rim` border with a 3u rim base straight below, 9u/700 mono caps, numbers in `--ink`, labels in
+  `--muted`. One 120 × 36u chart on `--bg`: a bar per frame, `--k-go` within 1.25 frame budgets,
+  `--hurt` within 2, `--critical` beyond, the budget line in `--line` over the bars. z-index 60
+  (between gate and boot), `pointer-events: none`, never covers a key the player needs.
+
 ## 12. Boot screen and door hand-off
 
 ### 12.1 Boot (opening the game directly)

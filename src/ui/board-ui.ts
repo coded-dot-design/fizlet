@@ -103,6 +103,40 @@ export function press(el: HTMLElement, fn: () => void, signal: AbortSignal) {
   }, { signal });
 }
 
+/** localStorage key of the Settings "Performance overlay" switch (off by default). */
+export const PERF_KEY = "dom-virus:perf";
+/**
+ * A Settings switch: a key that is `aria-pressed` (the kit's locked state) while on, remembered
+ * in localStorage under `key` as "1" / "0". Storage that throws (private mode, blocked cookies,
+ * a sandboxed frame) is ignored: the switch still works, it just forgets. `change` runs once
+ * with the stored value and on every flip; `set(on)` flips it from code (a keyboard shortcut).
+ * Example: `setting(btn, PERF_KEY, (on) => overlay.show(on), signal)` with `fizlet/perf`.
+ */
+export function setting(button: HTMLElement, key: string, change: (on: boolean) => void, signal: AbortSignal, fallback = false) {
+  let on = fallback;
+  try {
+    const v = localStorage.getItem(key);
+    if (v === "1" || v === "0") on = v === "1";
+  } catch {}
+  const set = (next: boolean, save = true) => {
+    on = next;
+    button.setAttribute("aria-pressed", "" + on);
+    if (save)
+      try {
+        localStorage.setItem(key, on ? "1" : "0");
+      } catch {}
+    change(on);
+  };
+  button.addEventListener("click", () => set(!on), { signal });
+  set(on, false);
+  return {
+    get on() {
+      return on;
+    },
+    set,
+  };
+}
+
 /** Restart an overlay sticker's slam and press (on every entry, and on return to a hidden tab). */
 export function slam(sticker: HTMLElement | null) {
   if (!sticker) return;
