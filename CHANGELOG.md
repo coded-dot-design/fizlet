@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.6.0
 
 - **`fizlet/rules`** (new brick, 1,264 B gzip, budget 1,536): `waves`, `drops` and `score`, the
   rules every arcade game repeats, as DOM-free systems that step without allocating and report on
