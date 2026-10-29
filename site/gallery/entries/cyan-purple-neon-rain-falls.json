@@ -1,0 +1,31 @@
+{
+  "no": 5,
+  "id": "cyan-purple-neon-rain-falls",
+  "date": "2026-10-29",
+  "prompt": "cyan and purple neon rain falls when you tap",
+  "title": "Cyan and purple neon rain falls when you tap",
+  "by": "Chris Cooley",
+  "recipe": "fall",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "jsBeforeNear": 1850,
+    "jsWhenNear": 8351,
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 30,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true
+    }
+  },
+  "fizlet": "0.12.1",
+  "made": "fe anim",
+  "module": "anims/cyan-purple-neon-rain-falls.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}
