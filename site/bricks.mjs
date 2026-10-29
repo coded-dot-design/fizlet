@@ -32,10 +32,12 @@ const n = b.path(from, to, out, 400); // -1 = no path` },
     snippet: `const fx = effects({ cap: 420 });
 fx.blast(x, y, 1.2);       // flash, rings, debris, scorch
 fx.step(dt); fx.draw(ctx); // pooled: never allocates` },
+  { id: "camera", tag: "CAMERA", role: "go", modules: [mod("fizlet/camera", "camera")] },
   { id: "sprite", tag: "SPRITE", role: "fallin", modules: [mod("fizlet/sprite", "sprite")], demo: "sprite",
     snippet: `const art = sprites({ bug: { colors: { b: "team" }, frames: [rows] } },
   { palettes: [{ team: "#39ffb0" }, { team: "#ff5c8f" }] });
-art.draw(ctx, "bug", frame, x, y, angle, 3, side);` },
+art.draw(ctx, "bug", frame, x, y, angle, 3, side);
+img.src = spriteURL(def, 0, palettes); // the same pixels as SVG` },
   { id: "sound", tag: "SOUND", role: "advance", modules: [mod("fizlet/sound", "sound")], demo: "sound",
     snippet: `const sfx = sound(e, { cues: { boom: "boom" } });
 e.events.emit("boom"); // in a step; plays after render

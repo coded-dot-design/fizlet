@@ -35,7 +35,8 @@ const ROADMAP = [
     [1, "grid · sprite · hud · match · board-page"],
     [1, "slot and the page profile: settle, fps cap, idle load"],
     [0, "steer · rules · coach"],
-    [0, "camera · layout"],
+    [1, "camera"],
+    [0, "layout"],
   ]],
   ["E3", "Port the games", "next", "NOT STARTED", "One game at a time, smallest first, each as a 1.0 engine cut with the old build still playable.", [
     [0, "Null Invaders → Byte Runner → Sherman Bytes"],

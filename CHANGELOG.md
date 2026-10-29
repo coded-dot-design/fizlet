@@ -4,7 +4,7 @@
 
 - **Website: one page per brick, generated from the source.** `bricks/<id>.html` for the kernel
   and every brick (input, pad, collide, grid, fx, sprite, sound, embed, slot, hud, match,
-  board-page, presence, ui, perf, rules, debug) plus a bricks index. Each page has the module's summary (its
+  board-page, presence, ui, perf, rules, camera, debug) plus a bricks index. Each page has the module's summary (its
   leading comment), every export with its doc comment (read from the built `.d.ts` by
   `scripts/api.mjs`), the gzip size measured by `scripts/sizes.mjs`, ESM imports from the hosted
   `dist/`, and npm marked coming soon. Live demos where cheap: kernel settle (the frame count stops
