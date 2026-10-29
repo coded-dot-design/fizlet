@@ -16,6 +16,7 @@ import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
 import { entries as galleryEntries } from "../scripts/gallery.mjs";
 import { gzipSync } from "node:zlib";
+import { checkKeys, checkTaps } from "./keys.mjs";
 
 const ROOT = "site-dist", BASE = SITE_ROOT;
 if (!existsSync(`${ROOT}/index.html`)) throw new Error("site-dist/ is missing: run `npm run site` first");
@@ -176,6 +177,22 @@ try {
       await page.close();
     }
     await context.close();
+  }
+
+  // ---------- Page keys: every in-page key presses (face drops) and clicks on face and base ----------
+  let keyCount = 0;
+  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/"]) {
+    where = `page keys ${path || "index"}`;
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const { page, errors } = await open(context, path);
+    if (path === "bricks/sound.html") await page.waitForSelector("[data-brick-demo][data-ready]");
+    keyCount += await checkKeys(page, where);
+    assert.deepEqual(errors, [], `${where}: errors`);
+    await context.close();
+    const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+    const tap = await open(phone, path);
+    await checkTaps(tap.page, `${where} (phone)`);
+    await phone.close();
   }
 
   // ---------- 404 at any depth ----------
@@ -399,7 +416,7 @@ try {
     assert.deepEqual(errors, []);
     await context.close();
   }
-  console.log(`site: ${PAGES.length} pages × 2 widths, html gates, gallery (${GALLERY.length} entries), ${checked.size} internal links, demo, brick demos, reduced motion and quick start ok`);
+  console.log(`site: ${PAGES.length} pages × 2 widths, html gates, gallery (${GALLERY.length} entries), ${checked.size} internal links, demo, brick demos, ${keyCount} page keys, reduced motion and quick start ok`);
 } catch (err) {
   console.error(`site test failed at: ${where}`);
   throw err;
