@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.4
+
+- **`fizlet/board-page`**, the page-as-board brick (from DOM VIRUS `board.ts`): `boardPage(engine,
+  { root, text, targets, exclude, maxGlyphs, maxTargets, reads, color })` → `glyphs` (typed arrays),
+  `targets`, `near`, `hit` (+ `t`), `consume`, `refresh`, `reads`, `system`. Geometry measured in the
+  read phase only, Range reads capped per refresh (900), 12.5 Hz while the page moves and 2 Hz once
+  still, indexed with collide `Grid`; `consume` writes 0/1 into the page's own Text node through
+  the ledger (queued from a step, written in render; seeded bits). Budget 4 KB gzip: 3.8 KB measured
+  with Grid (3.4 KB on the Grid before 0.4.1's hardening, which adds 379 B here). Browser tests: index, near/hit, consume, erase, no layout reads in step,
+  rescan, host edit wins, byte-for-byte Recall, read cap, steady-state allocation, scroll.
+
 ## 0.4.3
 
 - **`fizlet/match`**: the match flow every board shares (layer 11): intro → count → play → paused →
