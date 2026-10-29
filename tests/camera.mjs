@@ -59,8 +59,11 @@ try {
       const e = fz.createEngine(), cam = fz.camera(e, document.getElementById("page"));
       e.start();
       fz.zoomAt(cam, 300, 200, 2);
-      // A few frames: the first advances no time; then one fixed step lands the whole move.
-      await new Promise((ok) => setTimeout(ok, 120));
+      // Wait for frames, not wall time: the first frame advances no time; then one fixed step lands
+      // the whole move. Slow CI runners can draw fewer frames in a fixed delay.
+      const frame = () => new Promise((ok) => requestAnimationFrame(() => ok()));
+      for (let i = 0; i < 60 && (e.steps < 1 || cam.moving); i++) await frame();
+      await frame();
       const out = { zoom: cam.zoom, moving: cam.moving, steps: e.steps < 12 };
       e.destroy();
       return out;
