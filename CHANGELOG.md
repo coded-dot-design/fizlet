@@ -10,6 +10,17 @@
 - `rooms/`: a room server prototype (Cloudflare Worker + Durable Object, hibernating WebSockets)
   that seats players, hands out one seed and relays inputs. Its own package; not deployed.
 
+## 0.3.1
+
+- **`fizlet/grid`**, the board layer (1,533 B gzip, budget 1,536): `board(cols, rows, { cell,
+  diagonal })` with per-cell `terrain`, `cost` and `flags` (`BLOCKED`, `COVER`, `OCCUPIED`) in typed
+  arrays; world ↔ cell (`at`, `cellOf`, `center`); A* `path(from, to, out, budget, avoid)` into your
+  `Int32Array` with a decrease-key heap and stamped buffers made once (no allocation per call), a
+  per-call expansion budget that returns a partial path instead of stalling a frame, 4- or 8-way
+  without corner cutting; symmetric Bresenham `los` and `hit`; `flood` for movement range with `dist`;
+  seeded `scatter` and `pick` so a seed reproduces the board. Tested against a reference Dijkstra
+  on random weighted boards; 0 young-generation GCs over 100k path + LOS calls.
+
 ## 0.3.0
 
 - **`fizlet/slot`**: mount a scene into an astro-base-engine slot

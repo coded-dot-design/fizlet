@@ -40,6 +40,10 @@
       "types": "./dist/collide.d.ts",
       "default": "./dist/collide.js"
     },
+    "./grid": {
+      "types": "./dist/grid.d.ts",
+      "default": "./dist/grid.js"
+    },
     "./fx": {
       "types": "./dist/fx.d.ts",
       "default": "./dist/fx.js"

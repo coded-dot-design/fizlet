@@ -65,6 +65,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 | `fizlet/debug` | `guardLayout(engine)`: counts layout reads during a step (dev only) | ~0.5 KB |
 | `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` | ~1.0 KB |
 | `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | ~0.8 KB |
+| `fizlet/grid` | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | ~1.5 KB |
 | `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | ~1.5 KB |
 | `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues (or your own player), unlock on gesture | ~0.9 KB |
 | `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | ~2.0 KB |
@@ -72,7 +73,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 | `fizlet/presence` | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | ~1.8 KB |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
 
-More bricks land through phase E2 (actor, steer, aim, rules, board-page, board-grid, camera,
+More bricks land through phase E2 (actor, steer, aim, rules, board-page, camera,
 view-dom, presence): see the [engine plan](https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md).
 
 ### Fill an astro-base-engine slot
@@ -111,6 +112,37 @@ export function mount(stage: HTMLElement) {
   inside the slot. Every change goes through a ledger: `destroy()` puts the slot back exactly.
 - `findSlot("<page>#<slot>")` returns the figure; `slot(figure, load)` takes the element too. An
   unknown target is inert (`el` is `null`).
+
+### The board (`fizlet/grid`)
+
+The board layer a board game sits on, separate from the rules. A `cols × rows` grid in typed
+arrays (`terrain` id, move `cost`, `flags`: `BLOCKED`, `COVER`, `OCCUPIED`, bits 8–128 yours).
+Every search reuses buffers made once in `board()`, so paths, sight and ranges never allocate.
+
+```ts
+import { board, BLOCKED, COVER, OCCUPIED } from "fizlet/grid";
+import { seeded } from "fizlet";
+
+const ROCK = 1, HEDGE = 2;                  // your terrain ids (0 = open ground)
+
+const b = board(48, 30, { cell: 40, diagonal: false });
+const rand = seeded(1234);                   // the same seed lays the same board
+b.scatter(rand, 0.12, ROCK, 1, BLOCKED);     // density, terrain id, cost, flags
+b.scatter(rand, 0.08, HEDGE, 1, COVER, 4, 1, 44, 29); // only inside a rect
+b.flags[b.at(x, y)] |= OCCUPIED;             // world → cell, clamped
+
+const out = new Int32Array(256);             // yours, reused
+const n = b.path(from, to, out, 400);        // steps (start excluded, goal last), -1 = no path
+if (b.partial) { /* budget hit: out leads toward the goal; replan next frame */ }
+b.los(a, z, BLOCKED | COVER);                // symmetric; endpoints never block
+b.hit(a, z);                                 // first blocking cell on the way (a shell's stop)
+const m = b.flood(unit, 4, out);             // movement range, nearest first; b.dist(i)
+```
+
+Costs are per cell entered: an orthogonal step into a cost-1 cell costs 1, a diagonal 1.4 (no
+corner cutting). `path` avoids `BLOCKED | OCCUPIED` by default (an occupied goal is allowed: attack
+it). Not collision: `fizlet/collide` re-buckets moving bodies every step; the board is the ground
+they cross. Use one cell size for both.
 
 ### Engine API
 
