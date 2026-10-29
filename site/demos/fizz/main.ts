@@ -6,7 +6,7 @@ import type { FizzScene } from "./scene";
 
 const fig = document.querySelector<HTMLElement>("figure.ae-slot[data-slot-target='fizz#hero']")!;
 let scene: FizzScene | null = null;
-const load = () => import("./scene").then((m) => (stage: HTMLElement, el: HTMLElement, first: Parameters<typeof m.fizz>[2]) => (scene = m.fizz(stage, el, first)));
+const load = () => import("./scene.js").then((m) => (stage: HTMLElement, el: HTMLElement, first: Parameters<typeof m.fizz>[2]) => (scene = m.fizz(stage, el, first)));
 let hero = slot(fig, load);
 
 const status = document.querySelector<HTMLElement>("[data-fizz-status]");

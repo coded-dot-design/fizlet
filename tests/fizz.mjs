@@ -1,6 +1,7 @@
-// The fizz demo (site/demos/fizz/) in Chromium: it mounts through fizlet/slot, animates (the tab
-// pops, fizz spawns, the page zooms), settles (no frames), wakes on a tap, Recall gives the page
-// back byte for byte, and reduced motion keeps the still poster (the scene never mounts).
+// The fizz demo (site/demos/fizz/) in Chromium: it mounts through fizlet/slot, animates (the can
+// crunches, the tab pops, the spray flies up out of the card, the camera moves inside the card and
+// never the page), settles (no frames), wakes on a tap, Recall gives the page back byte for byte,
+// and reduced motion keeps the still poster (the scene never mounts).
 import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { chromium } from "playwright";
@@ -11,11 +12,11 @@ const bundle = (await build({
 })).outputFiles[0].text;
 
 const PAGE = `<!doctype html><meta charset="utf-8"><body style="margin:0">
-<div style="overflow:clip"><main id="page" data-fizz-zoom class="host" data-x="1">
+<main id="page" class="host" data-x="1">
 <h1 style="color:#ff2e88">Host page</h1>
-<figure class="ae-slot" data-slot-target="fizz#hero" role="img" aria-label="A soda can" style="width:640px;height:400px;margin:0">
-<svg class="ae-slot__placeholder" viewBox="0 0 10 10"><rect width="10" height="10"/></svg></figure>
-<p>Copy after the can.</p></main></div>
+<div id="card" style="padding-top:220px"><figure class="ae-slot" data-slot-target="fizz#hero" role="img" aria-label="A soda can" style="width:640px;height:400px;margin:0">
+<svg class="ae-slot__placeholder" viewBox="0 0 10 10"><rect width="10" height="10"/></svg></figure></div>
+<p>Copy after the can.</p></main>
 <script>${bundle}</script></body>`;
 
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
@@ -34,20 +35,30 @@ try {
     await p.waitForFunction(() => window.scene);
     const mounted = await p.evaluate(() => ({
       canvas: !!document.querySelector("[data-fizlet-slot] canvas"),
+      spray: !!document.querySelector("#card > canvas[aria-hidden='true']"),
+      host: document.getElementById("card").style.position,
       poster: getComputedStyle(document.querySelector(".ae-slot__placeholder")).display,
       hidden: document.querySelector("[data-fizlet-slot]").getAttribute("aria-hidden"),
     }));
-    assert.deepEqual(mounted, { canvas: true, poster: "none", hidden: "true" }, "mounts a canvas in the slot stage; the poster steps aside");
+    assert.deepEqual(mounted, { canvas: true, spray: true, host: "relative", poster: "none", hidden: "true" }, "mounts the card canvas in the slot stage and the spray layer over the host; the poster steps aside");
 
-    // Animates: the tab pops by itself, particles fly, the page zooms in on the opening.
+    // Animates: the can crunches and pops by itself, the spray flies up out of the card, and the
+    // camera zooms inside the card (the world in the stage), never the page.
     await p.waitForTimeout(1500);
-    const mid = await p.evaluate(() => {
-      const el = document.getElementById("page"), st = scene.engine.stats();
-      return { frames: st.frames, live: st.paused.length === 0, transform: el.style.transform, origin: el.style.transformOrigin };
-    });
+    const world = "[data-fizlet-slot] > div";
+    const mid = await p.evaluate((world) => {
+      const w = document.querySelector(world), st = scene.engine.stats();
+      const l = document.querySelector("#card > canvas"), f = document.querySelector("figure").getBoundingClientRect();
+      const above = Math.floor(f.top - l.getBoundingClientRect().top), d = l.getContext("2d").getImageData(0, 0, l.width, above).data;
+      let out = 0;
+      for (let i = 3; i < d.length; i += 4) if (d[i]) out++;
+      return { frames: st.frames, live: st.paused.length === 0, transform: w.style.transform, origin: w.style.transformOrigin, page: document.getElementById("page").getAttribute("style"), out };
+    }, world);
     assert.ok(mid.frames > 10 && mid.live, `animates (${mid.frames} frames)`);
-    assert.match(mid.transform, /^translate\(-?[0-9.]+px, -?[0-9.]+px\) scale\(1\.[0-9]+\)$/, `the page zooms through fizlet/camera (${mid.transform})`);
+    assert.match(mid.transform, /^translate\(-?[0-9.]+px, -?[0-9.]+px\) scale\(1\.[0-9]+\)$/, `the card zooms through fizlet/camera (${mid.transform})`);
     assert.equal(mid.origin, "0px 0px", "the camera transforms from the stage corner");
+    assert.equal(mid.page, null, "the page itself never zooms");
+    assert.ok(mid.out > 200, `the spray flies up out of the card (${mid.out} px above it)`);
     const px = await p.evaluate(() => {
       const c = document.querySelector("[data-fizlet-slot] canvas"), d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
       let n = 0;
@@ -61,16 +72,16 @@ try {
     const still = await p.evaluate(async () => {
       const a = scene.engine.stats().frames;
       await new Promise((r) => setTimeout(r, 600));
-      return { more: scene.engine.stats().frames - a, transform: document.getElementById("page").style.transform };
+      return { more: scene.engine.stats().frames - a, transform: document.querySelector("[data-fizlet-slot] > div").style.transform };
     });
-    assert.deepEqual(still, { more: 0, transform: "" }, "settled: no frames, zoom given back");
+    assert.deepEqual(still, { more: 0, transform: "" }, "settled: no frames, the camera home");
 
     // A tap on the can wakes it and cracks it again.
     const box = await p.locator("[data-fizlet-slot]").boundingBox();
     await p.mouse.click(box.x + box.width / 2, box.y + box.height * 0.7);
-    await p.waitForTimeout(700);
-    const again = await p.evaluate(() => ({ running: scene.engine.running, transform: document.getElementById("page").style.transform }));
-    assert.ok(again.running && /scale/.test(again.transform), "a tap wakes it and zooms again");
+    await p.waitForTimeout(900);
+    const again = await p.evaluate(() => ({ running: scene.engine.running, transform: document.querySelector("[data-fizlet-slot] > div").style.transform }));
+    assert.ok(again.running && /scale/.test(again.transform), "a tap crunches it again and the camera moves in");
 
     // Recall mid-zoom: the page comes back exactly.
     const after = await p.evaluate(() => (hero.destroy(), { same: document.body.innerHTML === window.before, running: scene.engine.running }));
@@ -94,7 +105,7 @@ try {
     assert.deepEqual(rm, { made: 0, mounted: false, same: true, poster: "inline" }, "reduced motion: still poster, no scene");
     await ctx.close();
   }
-  console.log("fizz: mounts, animates, zooms, settles, wakes, Recall exact, reduced motion still — ok");
+  console.log("fizz: mounts, crunches, sprays out of the card, card-only camera, settles, wakes, Recall exact, reduced motion still — ok");
 } finally {
   await browser.close();
 }
