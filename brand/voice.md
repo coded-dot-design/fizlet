@@ -1,151 +1,109 @@
-# Fizlet: voice
+# Voice — Fizlet
 
-How Fizlet sounds on its site, in its README, release notes and posts, and in anything the
-marketing engine writes for it. Look: [`style-guide.md`](style-guide.md). Family rules:
-`dom-virus/brand/README.md` (§1, §2, §9) and `DECISIONS.md`. Persona: Chris Cooley's persona story
-(`coded` `clients/domvirus/cd-domvirus-persona-story.md`, "The voice").
+Brand level: engine · by Chris Cooley (https://coded.design/)
 
-**Brand level: engine. Content mix: ~100% the engine**: speed, size, performance, consistent games
-built fast at a small scale. DOM VIRUS and the games appear only as use cases and proof.
-
----
-
-## Who's talking
-
-**The engine first.** Fizlet stands on its own: the contract, the numbers, the tests. Chris Cooley
-is **proof, not the pitch**: the maker who built it and the games that ran on it. His voice
-(excited, opinionated about small-engine design, generous with technique) colours the explanations,
-the release notes and the "why" posts; it never replaces a measurement. Creative licence on tone,
-never on facts or biography.
+Fizlet is the micro animation and game engine for the DOM. It speaks for itself: speed, size and
+consistency at small scale. The engine leads; the games and the maker are proof, never the pitch.
 
 ## Who we talk to
 
 - **Developers and makers** who want a page to *do* something (a hero that reacts, a diagram you
-  can play, a tiny game) without shipping a big engine; small-game makers who care about bytes;
-  agencies building fast sites.
-- **The curious** from a DOM VIRUS game, who should leave understanding the trick.
-- **Agents**, later (E5). Until then, write copy a person or an agent could follow step by step.
+  can poke, a tiny game) without shipping a big engine.
+- **Small-game makers who count bytes**, and studios building fast sites that must stay fast.
+- **The curious**, arriving from a game, who should leave knowing the trick.
 
-They know HTML, CSS and some JavaScript; they don't know game-loop theory, and we teach it.
+They know HTML, CSS and some JavaScript. They may not know game-loop theory, so we teach it in
+plain words, then show the real API name beside it.
 
 ## How we sound
 
-**Confident, plain and specific. Arcade swagger, backed by a test.**
+**Confident, plain, specific. Arcade swagger, backed by a test.**
 
-- Short, loud, two-line headlines with the turn on line two ("Nine promises. / *Each one tested.*").
-- One idea per sentence, with the real API name in `code` beside it.
-- The maker's opinions as teaching: "Most jank is self-inflicted." "Every kilobyte is a choice."
-  "Measure before you believe." Each one followed by the mechanism and the number.
-- British spelling ("licence"), present tense, active voice; "we" for the project, "you" for the
-  reader, "I" only in Chris's notes and posts.
+- Two-line headlines, the turn on line two: "Nine promises. / *Each one tested.*"
+- One idea per sentence. The real name in `code` next to the claim (`engine.ledger`, `destroy()`).
+- Opinions as teaching, then the mechanism, then the number: "Every kilobyte is a choice."
+- The engine is a polite guest. It plays on your page and leaves it exactly as it found it.
+- Present tense, active voice. "We" is the project, "you" is the reader. British spelling (licence).
+- Joy over hype: the pop of an effect, the click of a key, the page coming back.
 
-Real lines that set the tone:
-- "**Tiny physics for your page.** A micro game and animation engine for the DOM."
-- "Most engines assume they own the page. Fizlet is a guest."
-- "Pools are filled up front and never grow; when one is full it says no, and the frame stays inside
-  its budget."
-- "Limits constrain work; they are not frame-rate promises."
+Lines that set the tone (from the live site and README):
+
+- "**Tiny physics for your page.**"
+- "The page / *is the board.*"
+- "One loop. / *Bounded work.*"
+- "Recall gives / *the page back.*"
+- "Take only / *what you need.*"
 - "Make the page play."
 
 ### Do / don't
 
 | Don't | Do |
 |---|---|
-| "Blazing-fast games that run at full speed on anything." | "One rAF for every engine on the page. Paused, it does no work." |
-| "Build games in days instead of months." | "Blitz went from 0.1.0 to 0.6.5 in one day of commits." (git, C4) |
-| "I've been coding for twenty years, so trust me." | "A million steps of a busy system cause no young-generation GC. The test is in the repo." |
-| "Fizlet powers the DOM VIRUS arcade." | "Fizlet runs Battlefield Blitz; the arcade and Battlefield move onto it next." (A9) |
+| "Blazing-fast games on any device." | "One `requestAnimationFrame` for every engine on the page. Paused, it does no work." |
+| "A tiny kernel." | "The kernel is 3,275 bytes gzip, budget 4 KB, checked in CI." |
+| "Zero garbage, ever." | "1M kernel steps of a busy system: 0 young-generation GCs on Node 24." |
+| "Fizlet powers the whole arcade." | "Fizlet runs Battlefield Blitz. The DOM VIRUS arcade and DOM Battlefield move onto it next." |
+| "Drop it in and forget it." | "`destroy()` restores every page change exactly. A newer host edit wins." |
 
-Sample maker's lines for posts and notes (style, not facts):
-- "The DOM is faster than you think if you stop fighting it. Fizlet is me not fighting it."
-- "I wanted an engine that's a polite guest: it plays on your page and leaves no trace."
+### Words we use / words we skip
 
-## The byline
-
-Every page says **"by Chris Cooley"**: **By Chris Cooley · coded.design** (`family.json` →
-`credit`), linked to <https://coded.design/>, in the footer and the About/credits. JSON-LD `author`
-/ `creator`: Person "Chris Cooley", url `https://coded.design/`. Today the footer reads "Created by
-Chris Cooley", unlinked (`site/layout.mjs`); it moves to the family line (A6).
-
-## Words we use / words we never use
-
-| Use | Not |
+| Use | Skip |
 |---|---|
-| engine, micro game engine for the DOM | framework, library, platform |
-| kernel; brick (`fizlet/input`, `fizlet/fx` …) | core, runtime; plugin, harness, add-on |
-| the contract, promise, each one tested | guarantee, best practice |
-| the page is the board, host page, guest | canvas, "your app" (for the page) |
-| Recall, give the page back, the ledger | undo, cleanup, reset |
-| bounded, pool, cap, says no, drops time | unlimited, scales infinitely |
-| one shared loop, one requestAnimationFrame | a game loop per widget |
+| engine, micro animation and game engine for the DOM | framework, platform |
+| kernel; brick (`fizlet/fx`, `fizlet/input` …) | plugin, add-on |
+| the contract, each one tested | guarantee, best practice |
+| host page, guest, the page is the board | "your app" (for the page) |
+| Recall, the ledger, give the page back | cleanup, reset |
+| bounded, pool, cap, refuses work when full | unlimited, infinite |
 | KB gzip (1 KB = 1024 bytes), measured, budget | "tiny" with no number |
-| no runtime dependencies; embed-safe | "dependency-free*"; sandboxed, isolated |
 
-Never virus or attack words for the engine itself ("infect", "hijack", "take over"): blast and
-break are for what a game does, because the page always comes back. Never hype with no number.
+Virus and attack words never describe the engine itself. Blast and break are what a game does,
+because the page always comes back.
 
-## CTA labels
+## Facts we say
 
-Keys, one to three words. Primary is *try or build*: **Quick start**, **Run the example**.
-Secondary is *understand* or *read*: **The contract**, **Read the API**, **Source on GitHub**. Demo
-keys **Blast** / **Recall**. Games: **Play Blitz** · **About Blitz** · **Visit DOM VIRUS ↗** ·
-**DOM Battlefield ↗**. Playing a game is never the primary CTA. `↗` marks a link off the site.
-Fizlet never uses "Get the code & setup instructions" (embedded-game pages only).
+Measured on Fizlet 0.5.1. Sizes are minified + gzip, everything an import pulls in included.
+Re-measure (`npm run size`) before any release copy.
 
-## What we never do
+- Kernel: **3,275 bytes gzip**, budget ≤ 4 KB; over budget, the build fails. <!-- src: README.md 0.5.1, contract rule 9; scripts/sizes.mjs -->
+- Each brick has its own budget, **1.5 to 5 KB**; a page build (kernel + slot + input + fx) is budgeted at **≤ 7 KB**. <!-- src: README.md 0.5.1; scripts/sizes.mjs -->
+- Brick sizes: input 1.3 KB · collide 1.3 KB · grid 1.5 KB · fx 1.9 KB · sprite 1.3 KB · sound 1.0 KB · slot 1.7 KB · embed 2.0 KB · presence 1.8 KB · hud 1.3 KB · match 2.5 KB · ui 2.4 KB + 4.5 KB css. <!-- src: README.md 0.5.1, "What's in the box" -->
+- **One clock per page:** every engine shares one `requestAnimationFrame`; fixed step, default 60 Hz, with a catch-up cap. A long frame drops time; it never spirals. <!-- src: README.md 0.5.1, contract rule 1 -->
+- **Zero steady-state allocation:** 1M kernel steps of a busy system cause 0 young-generation GCs on Node 24 (best of three; the test fails above 1). <!-- src: README.md 0.5.1, contract rule 3 -->
+- **Bounded everything:** pools and the event ring have a fixed capacity and refuse work when full. <!-- src: README.md 0.5.1, contract rule 2 -->
+- **Pause by default:** hidden tab, page leaving, root off screen. Zero CPU while paused. <!-- src: README.md 0.5.1, contract rule 6 -->
+- **Recall:** every page change goes through the ledger; `destroy()` restores it exactly. <!-- src: README.md 0.5.1, contract rule 7 -->
+- **Nine rules, each with a test.** No runtime dependencies, ever. MIT. <!-- src: README.md 0.5.1 -->
+- Lockstep multiplayer brick: only inputs cross the wire, **12 bytes each**. The room server is a prototype. <!-- src: README.md 0.5.1, "Multiplayer" -->
+- Version on the site and in copy: **0.5.1**. <!-- src: package.json -->
 
-1. Numbers we didn't measure, or old ones (the Blitz "17 KB" is stale, C2).
-2. Benchmarks we haven't run: no "faster than [engine]", no fps promises, no "60 fps on any device".
-3. Planned work as done: multiplayer and presence (E4), playground, recipes and AGENTS.md (E5),
-   ports of the DOM VIRUS games (E3) are **planned**.
-4. "Install from npm": not published yet (A10). Today: a script tag, hosted ES modules or source.
-5. Copy-paste-into-your-app framing: Fizlet is taught; snippets show the API's shape (the quick
-   start is the one runnable snippet, because the site test clicks it).
-6. Leading with a game, or with Chris's story. The engine leads; they are proof.
-7. Install directions for board games; competitor territory (shaders, thousands of sprites, physics
-   sims, UI tweening).
-8. Persona claims that aren't measured: "run at full speed on anything", "days instead of months".
-9. Biography beyond the persona (no employers, family, places or hobbies).
+**Proof, not the pitch.** Fizlet runs **Battlefield Blitz** today, built on `fizlet`, `input`,
+`collide`, `fx`, `sound`, `embed` and `ui`. The DOM VIRUS arcade and DOM Battlefield **move onto
+it next** (planned, future tense). <!-- src: README.md 0.5.1; site/pages/index.mjs:358 -->
+More bricks (actor, steer, aim, rules, camera, view-dom) are **planned**. <!-- src: README.md 0.5.1 -->
 
-## Claims: numbers and tests
+Never said: a frame rate promise, a benchmark against another engine, a size we did not measure,
+or planned work as shipped.
 
-**Only measured numbers, each with its source; re-measure before you publish.** The site reads sizes
-at build time (`scripts/sizes.mjs`); copy outside the site quotes the latest `npm run size`. On
-v0.2.4 (2026-10-28): kernel 2,839 bytes gzip (budget 4,096, say "2.8 KB kernel"); bricks input
-979, collide 897, fx 1,475, sound 915, embed 1,984, ui 2,412 js + 3,905 css, debug 493; the
-script-tag bundle ~10.1 KB. "Each brick ~1.5 KB" is a target; say "most bricks about 1 KB, none over
-its budget, checked on every push".
+### Calls to action
 
-**Behaviour, tested** (cite the test): one rAF for N engines; fixed 60 Hz step with a catch-up cap;
-pause stops all work and doesn't replay the gap; bounded pools and event ring; seeded random; "a
-million steps of a busy system cause no young-generation GC" (never "zero garbage, ever"); rewriting
-the same values makes 0 DOM mutations and Recall restores the exact DOM; a newer host edit wins.
+Keys of one to three words. Primary is *try or build*: **Quick start**, **Run the example**.
+Secondary is *understand*: **The contract**, **Read the API**, **Source on GitHub**. Demo keys:
+**Blast** · **Recall**. Proof: **Play Blitz** · **About Blitz**. `↗` marks a link off the site.
+<!-- src: site/pages/index.mjs:178-179, 194-195, 360-361, 407-408, 428-429 -->
 
-**Done vs planned:** E1 kernel done; E2 bricks in progress (shipped: input, collide, fx, sound,
-embed, ui, debug); E0 partly done; E3–E6 planned. **Only Battlefield Blitz runs on Fizlet today.**
-Safe always: "No runtime dependencies, ever" (a CI rule) and "MIT". Never safe: a frame rate.
+## Byline
 
-## How we explain the tech
+Every surface says **by Chris Cooley**, linked to <https://coded.design/>: the header or footer,
+the About or credits, and JSON-LD `author` / `creator` (Person "Chris Cooley",
+url `https://coded.design/`). The README opens with it: "By [Chris Cooley](https://coded.design/)."
+<!-- src: README.md 0.5.1 line 3; package.json author -->
 
-Theory first, in plain words. Then a diagram of the real mechanism with real counts. Then a live
-experiment to poke (shows `engine.stats()`, sleeps offscreen, gives the page back). Then how to hook
-in by use case: add an action to a page (`createEngine`, `input`, `fx`, writes through
-`engine.ledger`); drop a game on any page (`embed`); build a shooter (`input`, `collide`, `fx`,
-`sound`, pools sized up front); a board with controls (`ui`); multiplayer is planned (E4), never
-shown as code.
-
-## The games and the maker, as proof
-
-Pattern: what the game needed → which bricks did it → a measured fact. "Battlefield Blitz is built on
-`fizlet`, `input`, `collide`, `fx`, `sound`, `embed` and `ui`." DOM VIRUS is where the discipline was
-proved (past tense); the ports are next (future tense). DOM Battlefield is "the game whose board UI
-became this design system" and doesn't run on Fizlet yet. Chris appears as the byline, in release
-notes and in the "why I built it" post; about one section in ten on the home page, or less, is games.
+Chris appears as the byline, in release notes and in "why I built it" posts. His voice (excited,
+opinionated about small engines, generous with technique) colours the explanation; it never
+replaces a measurement.
 
 ## Avoid
-
-<!-- Read by astro-base-engine (voice.avoid): one word or phrase per bullet, flagged wherever it
-appears in page copy. The reasons are in the sections above. -->
 
 - revolutionary
 - game-changing
@@ -153,33 +111,23 @@ appears in page copy. The reasons are in the sections above. -->
 - best-in-class
 - world-class
 - seamless
-- synergy
 - blazing
+- lightning-fast
 - insanely fast
-- infect
-- hijack
-- dependency-free*
-- scales infinitely
 - next-gen
-- disruptive
 - unleash
 - supercharge
-- lightning-fast
+- infect
+- hijack
+- unlimited
+- scales infinitely
+- zero garbage
 - full speed on anything
-- days instead of months
-- powers the dom virus arcade
+- 60 fps on any device
+- faster than
+- powers the arcade
 
 ## Limits
 
-<!-- Read by astro-base-engine (voice.maxSentenceWords, voice.maxExclamations). -->
-
 - max sentence words: 30
 - max exclamations: 1
-
-## Open questions
-
-1. **Brick size line:** keep "each brick ~1.5 KB" as a target, or "about 1 KB each, budgets in CI"?
-2. **Benchmarks:** run and publish a measured comparison against named engines? Until then, none.
-3. **Game CTAs:** "Play Blitz" vs the family's "Play {board}"; "About Blitz" has no family label.
-4. **Unit:** Fizlet uses KB = 1024 bytes; the hub uses decimal kB. One unit, or always state it?
-5. **Who leads:** human developers first and agents second, or both equally once E5 ships?
