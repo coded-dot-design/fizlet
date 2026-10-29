@@ -1,4 +1,8 @@
-// Every page: the theme toggle (shared with DOM VIRUS and Battlefield) and the copy keys.
+// Every page: the theme toggle (shared with DOM VIRUS and Battlefield), the copy keys and the
+// kit's press cue for page keys (keyboard press, iOS :active).
+import { pressCue } from "../src/ui/board-ui";
+
+pressCue(document);
 const html = document.documentElement;
 document.querySelector("[data-theme-toggle]")?.addEventListener("click", () => {
   const next = html.dataset.theme === "light" ? "dark" : "light";

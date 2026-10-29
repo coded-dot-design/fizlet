@@ -4,6 +4,7 @@
 import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { chromium } from "playwright";
+import { launchOptions } from "./chromium.mjs";
 
 const bundle = (await build({
   stdin: { contents: 'export { slot } from "./src/slot.ts"; export { fizz } from "./site/demos/fizz/scene.ts";', resolveDir: process.cwd(), loader: "ts" },
@@ -18,7 +19,7 @@ const PAGE = `<!doctype html><meta charset="utf-8"><body style="margin:0">
 <p>Copy after the can.</p></main></div>
 <script>${bundle}</script></body>`;
 
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await chromium.launch(launchOptions());
 try {
   // ---------- Mount, animate, settle, wake, Recall ----------
   {
