@@ -1,7 +1,7 @@
 // Presence tests (Node): simulated clients over the in-memory transport stay byte-identical.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PerformanceObserver, constants } from "node:perf_hooks";
+import { minorGCs } from "./gc.mjs";
 
 const { createEngine, seeded } = await import("../src/index.ts");
 const { presence, memory, hash32, INPUT, LEAVE } = await import("../src/presence.ts");
@@ -136,16 +136,9 @@ test("presence: adds no allocation to the steady state (exchange + memory link)"
   if (typeof gc !== "function") return t.skip("needs node --expose-gc");
   const count = async (frame) => {
     for (let i = 0; i < 20000; i++) frame(); // warm up (and let V8 optimise)
-    gc();
-    let minor = 0;
-    const obs = new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) if (entry.detail?.kind === constants.NODE_PERFORMANCE_GC_MINOR) minor++;
+    return minorGCs(() => {
+      for (let i = 0; i < 200000; i++) frame();
     });
-    obs.observe({ entryTypes: ["gc"] });
-    for (let i = 0; i < 200000; i++) frame();
-    await new Promise((r) => setTimeout(r, 50));
-    obs.disconnect();
-    return minor;
   };
   const x = client(0, 2, null, { alone: true }), y = client(1, 2, null, { alone: true });
   const base = await count(() => (x.e.advance(1 / 60), y.e.advance(1 / 60)));
