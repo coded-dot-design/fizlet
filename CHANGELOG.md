@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.4.2
+
+- tests: the fx live-scene and input allocation checks use `tests/gc.mjs` (best of 3 windows); they had lost their `perf_hooks` import when the GC helper landed, which only failed when a GC actually ran.
+
+Hardening from the engineering review of 0.2.4 (input, sound, embed); each item has a regression
+test in `tests/browser.mjs`.
+- `fizlet/input`:
+  - Several keys per intent: releasing one of two held keys (A and ArrowLeft) keeps the intent
+    down. Auto-repeat keydowns are not new presses.
+  - The pointer and the stick let go on a release outside the target, on `pointercancel` anywhere
+    and on `lostpointercapture` (they stayed down before).
+  - Multitouch: the pointer and the stick each follow their own pointer id; the stick finger no
+    longer moves `pointer.x/y`.
+  - Pause and destroy drop held keys, `press()` holds, the pointer and the stick (only window blur
+    did); no ghost press on resume.
+  - `hit` / `pointer.hit` in a step: a press is seen by exactly one step, the first after it. It
+    was lost when the latching frame ran 0 steps, and seen by every step of a frame that ran
+    several. Outside a step it stays "the frame that latched it", as before.
+  - `dispose()`: remove one controller (listeners, system, held state) without destroying the engine.
+  - Pointer events no longer call `getBoundingClientRect` (one forced layout per event when the page
+    had pending style changes: 2,000 pointermoves on a 3,000-paragraph page took 3.8 s, now 9 ms in
+    Chromium). The read phase measures the target once per frame when the pointer moved.
+- `fizlet/sound`:
+  - A custom `play` installs no AudioContext and no unlock listeners.
+  - While switched off, gestures no longer resume a suspended context; switched on, any later
+    trusted gesture resumes one the browser or OS suspended. `pointerup` also unlocks (touch grants
+    the gesture on release).
+  - `dispose()`: remove the sound provider (listeners, system, close its context) while the engine runs.
+- `fizlet/embed`: `close()` during a pending lazy load cancels it (the game no longer mounts after
+  being closed); Escape cancels a pending load too, and a later `open()` starts a fresh one.
+- Kernel: systems can have a `pause(engine)` hook (called when a running engine pauses), and
+  `engine.steps` (fixed steps run, an integer: reading it in a hot path never boxes).
+
 ## 0.4.1
 
 Hardening from the engineering review (2026-10-29, §8: UI and tokens, collision and effects).

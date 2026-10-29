@@ -63,19 +63,44 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 |---|---|---|
 | `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | ~3.1 KB |
 | `fizlet/debug` | `guardLayout(engine)`: counts layout reads during a step (dev only) | ~0.5 KB |
-| `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` | ~1.0 KB |
+| `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer`, `dispose` | ~1.3 KB |
 | `fizlet/pad` | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | ~1.8 KB |
 | `fizlet/collide` | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | ~1.3 KB |
 | `fizlet/grid` | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | ~1.5 KB |
 | `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | ~1.9 KB |
 | `fizlet/sprite` | `sprites(defs, { palettes, cap })`: pixel-art characters as data, re-tinted by palette role, baked once per sprite/frame/scale/palette into a capped cache, `draw()` with no allocation; `svg()` / `url()` for page characters | ~1.3 KB |
-| `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues (or your own player), unlock on gesture | ~0.9 KB |
+| `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues (or your own player), unlock on gesture, `dispose` | ~1.0 KB |
 | `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | ~2.0 KB |
 | `fizlet/slot` | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | ~1.5 KB |
 | `fizlet/presence` | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | ~1.8 KB |
 | `fizlet/hud` | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | ~1.3 KB |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
 | `fizlet/ui/tokens.json` | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
+
+### Input, sound and embed semantics
+
+- **Bindings:** an intent can have several keys and a key several intents; an intent stays down while
+  any of its keys (or `press()`) holds it. Auto-repeat is not a new press.
+- **`hit`:** a press is seen by exactly one fixed step: the first step after it, even when that step
+  comes frames later (0-step frames while catching up), and never by later steps of the same frame.
+  Outside a step (`read`, `render`) `hit` is true for the one frame whose read latched it. Presses
+  between two steps count once. `pointer.hit` works the same way.
+- **Pointer and stick:** each is owned by the pointer id that pressed it. A release anywhere (outside
+  the target too), `pointercancel` or `lostpointercapture` lets go; other fingers never move or
+  release the stick, and the stick finger never moves the pointer. Pointer events record client
+  coordinates only; the read phase measures the target once per frame when the pointer moved, so a
+  pointer event never forces layout (`pointerdown` measures once, to pick the stick side).
+- **No stuck input:** held keys, `press()` holds, the pointer and the stick are dropped on window
+  blur, when the engine pauses, on `dispose()` and on `destroy()`.
+- **Independent providers:** `controls(...).dispose()` and `sound(...).dispose()` remove that provider
+  only (its listeners, its system, its held state or its AudioContext) while the engine keeps
+  running; both are idempotent and also run when the engine is destroyed. With `play` (your own
+  player), `sound` installs no AudioContext and no unlock listeners.
+- **Sound unlock:** a trusted `pointerdown`, `pointerup` or `keydown` creates the synth's context, and
+  resumes it whenever the browser or the OS suspended it. While switched off (`on = false`), gestures
+  leave it suspended.
+- **Embed:** `close()` (or Escape) while the game is still loading cancels that load: it never mounts
+  afterwards, and a later `open()` starts a fresh one.
 
 More bricks land through phase E2 (actor, steer, aim, rules, board-page, camera,
 view-dom, presence): see the [engine plan](https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md).
@@ -238,7 +263,8 @@ Bounded everything (contract 2) means something has to give at capacity. What gi
 - `createEngine({ root, step, maxSteps, seed, events, signal, pause, onError })`: numbers are
   checked at setup (`step` > 0, `seed` finite, `maxSteps`, `events` and pool caps positive
   integers); a bad one throws a `RangeError` naming the option.
-- `engine.add(system)` / `remove(system)`: systems run in order; hooks `read`, `step`, `render`.
+- `engine.add(system)` / `remove(system)`: systems run in order; hooks `read`, `step`, `render`,
+  and `pause` (the engine just stopped running: `stop()` or an auto-pause rule).
   `remove` is safe inside a hook (the other systems still run that frame).
 - `engine.start()` / `stop()` / `destroy()`; `engine.running`, `engine.paused` (reasons).
   `destroy()` is idempotent and leaves the engine inert. Engines may start, stop or destroy each
@@ -247,6 +273,8 @@ Bounded everything (contract 2) means something has to give at capacity. What gi
   `start()` resumes) and goes to `onError(error, engine)` (default `console.error`); the shared
   clock and every other engine keep running.
 - `engine.advance(seconds)`: run time by hand (tests, headless, a server); a hook's error throws.
+- `engine.time` (seconds simulated) and `engine.steps` (fixed steps run; an integer, so reading it
+  in a hot path never boxes).
 - `engine.pool(name, cap, create)`: a named bounded pool (shows in `stats()`).
 - `engine.events`: the event ring (`emit(type, a, b, x, y, v)`, `size`, `at(i)`), cleared each frame.
 - `engine.ledger`: `text`, `style`, `attr`, `cls`, `add(node)`, `restore()`.

@@ -15,6 +15,8 @@ export interface System {
   step?(e: Engine, dt: number): void;
   /** Once per frame, after the steps: write the DOM (change-only), play sounds from the ring. */
   render?(e: Engine, alpha: number): void;
+  /** When a running engine pauses (stop() or an auto-pause rule): drop held input, stop sounds. */
+  pause?(e: Engine): void;
 }
 
 export interface EngineOptions {
@@ -108,9 +110,11 @@ export function createEngine(o: EngineOptions = {}) {
   n[LAST] = -1;
 
   const set = (bit: number, on: boolean) => {
+    const was = !held && !dead;
     held = on ? held | bit : held & ~bit;
     if (held) n[LAST] = -1;
     schedule(engine, !held && !dead);
+    if (was && held) for (let i = 0; i < systems.length; i++) systems[i]!.pause?.(engine);
   };
 
   const engine = {
@@ -123,6 +127,10 @@ export function createEngine(o: EngineOptions = {}) {
     dt,
     get time() {
       return n[TIME]!;
+    },
+    /** Fixed steps run so far: an integer, so reading it in a hot path never boxes a number. */
+    get steps() {
+      return n[STEPS]!;
     },
     get phase() {
       return phase;

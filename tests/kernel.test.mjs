@@ -76,6 +76,21 @@ test("pause stops all work; resume does not replay the gap", () => {
   e.destroy();
 });
 
+test("pause hook: systems hear each running → paused change once (input drops held keys there)", () => {
+  const e = createEngine();
+  let pauses = 0;
+  e.add({ pause: (x) => (assert.equal(x, e), pauses++) });
+  e.stop(); // never started: not a change
+  assert.equal(pauses, 0);
+  e.start();
+  e.stop();
+  e.stop();
+  assert.equal(pauses, 1, "once per change, not per call");
+  e.start();
+  e.destroy(); // destroy is not a pause: bricks clean up on the signal
+  assert.equal(pauses, 1);
+});
+
 test("bounded: pools and the event ring refuse work at their cap", () => {
   const e = createEngine({ events: 3 });
   const p = e.pool("shots", 2, () => ({ x: 0 }));
