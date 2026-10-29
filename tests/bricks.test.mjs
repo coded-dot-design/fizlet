@@ -5,7 +5,7 @@ import { minorGCs } from "./gc.mjs";
 
 const { Grid, circles, circleRect, segCircle, inRect, overlap } = await import("../src/collide.ts");
 const { effects } = await import("../src/fx.ts");
-const { sprites } = await import("../src/sprite.ts");
+const { sprites, spriteSVG, spriteURL } = await import("../src/sprite.ts");
 const { sherman } = await import("./fixtures/sherman.mjs");
 
 // A fake canvas for Node: fillRect paints a grid of colour strings (integer transforms only).
@@ -250,10 +250,12 @@ test("sprite: outline rim, SVG for page characters", () => {
   const t = sp.tile("p");
   assert.equal(t.width, 3);
   assert.deepEqual(t.px[1], ["#eaf8ff", "#f00", "#eaf8ff"]);
-  const svg = sp.svg("p");
+  const def = { frames: ["x"], colors: { x: "#f00" }, outline: "rim" }, pals = [{ rim: "#eaf8ff" }];
+  const svg = spriteSVG(def, 0, pals);
   assert.ok(svg.startsWith('<svg xmlns="http://www.w3.org/2000/svg" width="3" height="3" viewBox="0 0 3 3" shape-rendering="crispEdges">'));
   assert.ok(svg.includes('<rect x="1" y="1" width="1" height="1" fill="#f00"/>'));
-  assert.ok(sp.url("p").startsWith("data:image/svg+xml,%3Csvg"));
+  assert.ok(spriteURL(def, 0, pals).startsWith("data:image/svg+xml,%3Csvg"));
+  assert.equal(sp.svg, undefined, "the SVG half stands alone (spriteSVG), so canvas-only scenes leave it out");
 });
 
 test("sprite: the cache bakes once per key and is capped", () => {

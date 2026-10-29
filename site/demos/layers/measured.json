@@ -1,19 +1,19 @@
 {
-  "version": "0.8.1",
+  "version": "0.9.0",
   "chromium": "153.0.8010.12",
   "bytes": {
     "loader": 308,
-    "live": 10054,
+    "live": 9609,
     "poster": 2962
   },
   "frame": {
     "throttle": 4,
     "fps": 30,
-    "frames": 725,
-    "p50": 0.8,
-    "p95": 2.6,
-    "max": 6.3,
-    "gapP95": 33.3
+    "frames": 678,
+    "p50": 1,
+    "p95": 3.2,
+    "max": 8.8,
+    "gapP95": 33.4
   },
   "cls": 0,
   "settledFrames": 0,

@@ -6,7 +6,7 @@ import { build } from "esbuild";
 import { chromium } from "playwright";
 
 const bundle = (await build({
-  stdin: { contents: 'export { createEngine } from "./src/kernel/index.ts"; export { camera } from "./src/camera.ts";', resolveDir: process.cwd(), loader: "ts" },
+  stdin: { contents: 'export { createEngine } from "./src/kernel/index.ts"; export { camera, zoomAt, flyTo } from "./src/camera.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "fz", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 
@@ -29,13 +29,13 @@ try {
       const e = fz.createEngine({ settle: 0.3 }), cam = fz.camera(e, document.getElementById("page"));
       e.start();
       const d0 = dot();
-      cam.zoomAt(300, 200, 2.5);
+      fz.zoomAt(cam, 300, 200, 2.5);
       await frame(6);
       const mid = { zoom: cam.zoom, moving: cam.moving, d: dot() };
       await new Promise((ok) => setTimeout(ok, 2000));
       const end = { zoom: cam.zoom, settled: e.paused.includes("settled"), d: dot(), clip: document.getElementById("frame").style.overflow,
         scrollW: document.scrollingElement.scrollWidth, innerW: innerWidth };
-      cam.flyTo(850, 50, 3);
+      fz.flyTo(cam, 850, 50, 3);
       await frame(4);
       e.destroy(); // Recall mid-move
       return { d0, mid, end, same: document.body.innerHTML === before, scrollAfter: document.scrollingElement.scrollWidth };
@@ -57,7 +57,7 @@ try {
     const r = await p.evaluate(async () => {
       const e = fz.createEngine(), cam = fz.camera(e, document.getElementById("page"));
       e.start();
-      cam.zoomAt(300, 200, 2);
+      fz.zoomAt(cam, 300, 200, 2);
       // A few frames: the first advances no time; then one fixed step lands the whole move.
       await new Promise((ok) => setTimeout(ok, 120));
       const out = { zoom: cam.zoom, moving: cam.moving, steps: e.steps < 12 };

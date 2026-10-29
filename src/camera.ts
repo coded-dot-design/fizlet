@@ -43,13 +43,15 @@ export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOp
   };
   // Move the pin without moving the picture: re-express the current focus about the new pin.
   const pin = (px: number, py: number) => {
-    s[FX] = px - (s[PX]! - s[FX]! * s[Z]!) / s[Z]!;
-    s[FY] = py - (s[PY]! - s[FY]! * s[Z]!) / s[Z]!;
-    s[GX] = px - (s[PX]! - s[GX]! * s[GZ]!) / s[GZ]!;
-    s[GY] = py - (s[PY]! - s[GY]! * s[GZ]!) / s[GZ]!;
+    const dx = px - s[PX]!, dy = py - s[PY]!;
+    s[FX] = s[FX]! + dx / s[Z]!;
+    s[FY] = s[FY]! + dy / s[Z]!;
+    s[GX] = s[GX]! + dx / s[GZ]!;
+    s[GY] = s[GY]! + dy / s[GZ]!;
     s[PX] = px;
     s[PY] = py;
   };
+
   const go = () => {
     s[GX] = fit(s[GX]!, s[PX]!, s[GZ]!, s[W]!);
     s[GY] = fit(s[GY]!, s[PY]!, s[GZ]!, s[H]!);
@@ -79,17 +81,12 @@ export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOp
       s[GZ] = clampZ(zoom);
       go();
     },
-    /** Zoom about world point (x, y): it stays where it is on screen. */
-    zoomAt(x: number, y: number, zoom: number) {
-      cam.to(x, y, zoom);
+    /** Stage size in px (untransformed), as last measured. */
+    get width() {
+      return s[W]!;
     },
-    /** Centre world point (x, y) on the stage at `zoom`. */
-    flyTo(x: number, y: number, zoom = s[GZ]!) {
-      cam.to(x, y, zoom, s[W]! / 2, s[H]! / 2);
-    },
-    /** Fit a world box (x, y, w, h) in the stage, with `pad` (fraction, default 0.1) around it. */
-    fit(x: number, y: number, w: number, h: number, pad = 0.1) {
-      if (w > 0 && h > 0 && s[W]) cam.flyTo(x + w / 2, y + h / 2, Math.min(s[W]! / w, s[H]! / h) * (1 - pad));
+    get height() {
+      return s[H]!;
     },
     /** Drag by a screen delta (px): follows at once, no easing. */
     pan(dx: number, dy: number) {
@@ -107,23 +104,10 @@ export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOp
       s[GZ] = 1;
       go();
     },
-    /** Jump to the target now (no easing). */
-    snap() {
-      s[FX] = s[GX]!;
-      s[FY] = s[GY]!;
-      s[Z] = s[GZ]!;
-      go();
-    },
     /** Screen (stage box px) to world, into `out` (no allocation). */
     toWorld<T extends { [i: number]: number }>(x: number, y: number, out: T): T {
       out[0] = s[FX]! + (x - s[PX]!) / s[Z]!;
       out[1] = s[FY]! + (y - s[PY]!) / s[Z]!;
-      return out;
-    },
-    /** World to screen (stage box px), into `out`. */
-    toScreen<T extends { [i: number]: number }>(x: number, y: number, out: T): T {
-      out[0] = s[PX]! + (x - s[FX]!) * s[Z]!;
-      out[1] = s[PY]! + (y - s[FY]!) * s[Z]!;
       return out;
     },
     get zoom() {
@@ -131,7 +115,7 @@ export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOp
     },
     /** Still easing toward the target. */
     get moving() {
-      return s[MOVE] === 1;
+      return s[MOVE]! > 0;
     },
     read() {
       if (s[MEASURE]) measure();
@@ -164,3 +148,24 @@ export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOp
   return cam;
 }
 export type Camera = ReturnType<typeof camera>;
+
+// Helpers stand alone, so a hero that only zooms never ships them.
+/** Zoom about world point (x, y): it stays where it is on screen. The same as `cam.to(x, y, zoom)`. */
+export function zoomAt(cam: Camera, x: number, y: number, zoom: number) {
+  cam.to(x, y, zoom);
+}
+/** Centre world point (x, y) on the stage at `zoom`. */
+export function flyTo(cam: Camera, x: number, y: number, zoom = cam.zoom) {
+  cam.to(x, y, zoom, cam.width / 2, cam.height / 2);
+}
+/** World to screen (stage box px), into `out`: the inverse of `cam.toWorld`. */
+export function toScreen<T extends { [i: number]: number }>(cam: Camera, x: number, y: number, out: T): T {
+  cam.toWorld(0, 0, out); // the world point at the screen's 0,0
+  out[0] = (x - out[0]!) * cam.zoom;
+  out[1] = (y - out[1]!) * cam.zoom;
+  return out;
+}
+/** Fit a world box (x, y, w, h) in the stage, with `pad` (fraction, default 0.1) around it. */
+export function fit(cam: Camera, x: number, y: number, w: number, h: number, pad = 0.1) {
+  if (w > 0 && h > 0 && cam.width) flyTo(cam, x + w / 2, y + h / 2, Math.min(cam.width / w, cam.height / h) * (1 - pad));
+}
