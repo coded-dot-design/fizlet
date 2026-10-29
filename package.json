@@ -56,6 +56,10 @@
       "types": "./dist/fx.d.ts",
       "default": "./dist/fx.js"
     },
+    "./camera": {
+      "types": "./dist/camera.d.ts",
+      "default": "./dist/camera.js"
+    },
     "./sprite": {
       "types": "./dist/sprite.d.ts",
       "default": "./dist/sprite.js"
@@ -114,7 +118,7 @@
     "build": "node scripts/build.mjs",
     "check": "npm run typecheck && npm test && npm run build",
     "size": "node scripts/size.mjs",
-    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs",
+    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs",
     "test:layers": "tsc -p site/demos/layers/tsconfig.json && node tests/layers.mjs",
     "test:pack": "node scripts/pack-smoke.mjs",
     "site": "npm run build && node scripts/site.mjs && node site/demos/fizz/build.mjs",

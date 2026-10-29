@@ -2,10 +2,38 @@
  * fizlet/fx: explosions that land. One fixed pool of particles (struct-of-arrays, no allocation),
  * drawn on a canvas: square debris, flashes, shock rings, spinning square rings, smoke, scorch marks
  * and pop words, plus screen shake. `blast()` is the DOM VIRUS / Battlefield hero recipe.
- * Visual only: its own random (seeded from Math.random), never the simulation's seeded random.
+ * Gravity (`gravity`, px/s²) pulls each kind by its own share. Particle kinds are data (shape, drag,
+ * gravity, how they leave an emitter): `emitter(fx, KINDS)` registers the built-in bubble, spark,
+ * drip and debris (or your own) and sprays them; a page that never calls it never ships it. Visual only: its own random (seeded from Math.random), never the
+ * simulation's seeded random.
  */
-const DEBRIS = 0, DISC = 1, RING = 2, SQUARE = 3, WORD = 4, SMOKE = 5;
 const TAU = Math.PI * 2;
+const DEBRIS = 0, DISC = 1, RING = 2, SQUARE = 3, WORD = 4, SMOKE = 5, STREAK = 6;
+/** Shapes a kind can draw as (a streak trails its velocity: sparks, drips). */
+export const SHAPES = ["square", "disc", "ring", "frame", "word", "smoke", "streak"] as const;
+
+/** A particle kind, as data. Ranges are [min, max]; speed and size scale with emit's `scale`. */
+export interface Kind {
+  shape: (typeof SHAPES)[number];
+  /** Velocity lost per second, as a fraction (1.4 is the blast's smoke and flashes). */
+  drag: number;
+  /** Share of the pool's gravity (0: none; negative floats up, like a bubble). */
+  gravity: number;
+  /** Emit direction in radians (-π/2 is up) and the spread around it (2π: all round). */
+  angle: number;
+  spread: number;
+  speed: readonly [number, number];
+  size: readonly [number, number];
+  life: readonly [number, number];
+}
+/** The named kinds: `emitter(fx, KINDS)`, or pick some (`emitter(fx, { bubble: KINDS.bubble })`).
+ *  Angles are literals (not Math.PI) so this stays pure and tree-shakes when unused. */
+export const KINDS = {
+  bubble: { shape: "square", drag: 1.4, gravity: -0.3, angle: -1.5708, spread: 0.7, speed: [25, 75], size: [1, 1.5], life: [0.7, 1.6] },
+  spark: { shape: "streak", drag: 3, gravity: 0.6, angle: 0, spread: 6.2832, speed: [160, 420], size: [1, 2], life: [0.2, 0.5] },
+  drip: { shape: "streak", drag: 0, gravity: 1, angle: 1.5708, spread: 0.2, speed: [0, 20], size: [1, 2], life: [0.6, 1.2] },
+  debris: { shape: "square", drag: 2.6, gravity: 1, angle: 0, spread: 6.2832, speed: [120, 300], size: [4, 9], life: [0.5, 0.9] },
+} satisfies Record<string, Kind>;
 // blast()'s five hero parts: flash, fireball, core, shock ring, spinning square ring.
 const HERO_KIND = [DISC, DISC, DISC, RING, SQUARE], HERO_SIZE = [26, 20, 14, 18, 24], HERO_LIFE = [0.28, 0.5, 0.42, 0.5, 0.6], HERO_COL = [0, 1, 2, 0, 3];
 
@@ -18,6 +46,8 @@ export interface FxOptions {
   words?: string[];
   /** Max scorch marks kept on the ground (default 36; 0 turns them off). */
   scorch?: number;
+  /** Gravity in px/s² down (default 0); each kind takes its own share of it. */
+  gravity?: number;
 }
 
 /** `v` is a finite number (NaN and ±Infinity fail). No allocation: safe in the hot path. */
@@ -36,16 +66,21 @@ export function effects(o: FxOptions = {}) {
   const colors = o.colors ?? ["#fff4ff", "#ffc21a", "#ff8a1f", "#ff2e88", "#19f0ff", "#39ffb0", "#9a63ff", "#07060f"];
   const words = o.words ?? ["BOOM", "KABOOM", "WRECKED", "DIRECT HIT", "BLAM"];
   const sc = o.scorch ?? 36;
-  check(Number.isInteger(cap) && cap > 0, "cap must be a positive integer");
-  check(Number.isInteger(sc) && sc >= 0, "scorch must be an integer >= 0");
-  check(colors.length <= 256 && words.length <= 256, "at most 256 colors and words (stored as bytes)");
+  check(Number.isInteger(cap) && cap > 0, "cap");
+  check(Number.isInteger(sc) && sc >= 0, "scorch");
+  check(colors.length <= 256 && words.length <= 256, "at most 256 colors and words");
   // x, y, vx, vy, rot, spin, size, life, max: one Float32Array per field.
   const f = Array.from({ length: 9 }, () => new Float32Array(cap));
   const [X, Y, VX, VY, ROT, SPIN, SIZE, LIFE, MAX] = f as [Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array];
   const kind = new Uint8Array(cap), col = new Uint8Array(cap), word = new Uint8Array(cap);
   const SX = new Float32Array(sc), SY = new Float32Array(sc), SR = new Float32Array(sc), SL = new Float32Array(sc);
   const U = new Float64Array(6);
-  const st = new Float64Array(4); // live count, next scorch, shake, dropped
+  const st = new Float64Array(5); // live count, next scorch, shake, dropped, gravity
+  // The kind table: one row of numbers per kind (shape, drag, gravity share, then emitter() ranges),
+  // read by id in the hot path. Ids 0-5 are the blast's own parts (its debris falls); emitter() adds 6+.
+  const K = new Float32Array(32 * 11);
+  for (let i = 0; i < 6; i++) (K[i * 11] = i), (K[i * 11 + 1] = i ? 1.4 : 2.6);
+  K[2] = 1;
 
   function spawn(k: number, x: number, y: number, vx: number, vy: number, size: number, life: number, c: number, rot = 0, spin = 0, w = 0) {
     const i = st[0]!;
@@ -86,6 +121,12 @@ export function effects(o: FxOptions = {}) {
     get dropped() {
       return st[3]!;
     },
+    /** Set gravity in px/s² down (each kind takes its own share; read it back from your own state). */
+    set gravity(g: number) {
+      if (finite(g)) st[4] = g;
+    },
+    /** The pool itself, for emitter() and other helpers in this file. Not public API. */
+    raw: { f, kind, col, word, st, K, cap, rnd },
     /** Add screen shake (decays on its own; read `shake` when drawing). */
     kick(amount: number) {
       if (finite(amount)) st[2] = Math.min(18, Math.max(0, st[2]! + amount));
@@ -165,7 +206,8 @@ export function effects(o: FxOptions = {}) {
           word[i] = word[n]!;
           continue;
         }
-        const drag = kind[i] === DEBRIS ? 2.6 : 1.4;
+        const r = kind[i]! * 11, drag = K[r + 1]!;
+        VY[i]! += st[4]! * K[r + 2]! * dt;
         X[i]! += VX[i]! * dt;
         Y[i]! += VY[i]! * dt;
         VX[i]! -= VX[i]! * drag * dt;
@@ -193,7 +235,15 @@ export function effects(o: FxOptions = {}) {
       const n = st[0]!;
       for (let i = 0; i < n; i++) {
         const k = LIFE[i]! / MAX[i]!, c = colors[col[i]!]!, x = X[i]!, y = Y[i]!, s = SIZE[i]!;
-        switch (kind[i]) {
+        switch (K[kind[i]! * 11]) {
+          case STREAK: {
+            // A streak stretches with its speed (falling drips, sparks), square to the page.
+            const l = Math.abs(VY[i]!) * 0.03 + s;
+            ctx.globalAlpha = Math.min(1, k * 2);
+            ctx.fillStyle = c;
+            ctx.fillRect(x - s / 2, y - l, s, l);
+            break;
+          }
           case DEBRIS:
             ctx.globalAlpha = Math.min(1, k * 1.6);
             ctx.fillStyle = c;
@@ -205,7 +255,7 @@ export function effects(o: FxOptions = {}) {
             break;
           case DISC:
           case SMOKE: {
-            const smoke = kind[i] === SMOKE;
+            const smoke = K[kind[i]! * 11] === SMOKE;
             ctx.globalAlpha = smoke ? k * (light ? 0.12 : 0.2) : k;
             ctx.fillStyle = smoke ? (light ? "#5d5684" : "#2a2150") : c;
             ctx.beginPath();
@@ -218,8 +268,8 @@ export function effects(o: FxOptions = {}) {
             ctx.globalAlpha = k;
             ctx.strokeStyle = c;
             ctx.lineWidth = 4 * k + 1;
-            const r = s * (0.5 + (1 - k) * (kind[i] === RING ? 4.2 : 3));
-            if (kind[i] === RING) {
+            const r = s * (0.5 + (1 - k) * (K[kind[i]! * 11] === RING ? 4.2 : 3));
+            if (K[kind[i]! * 11] === RING) {
               ctx.beginPath();
               ctx.arc(x, y, r, 0, TAU);
               ctx.stroke();
@@ -255,6 +305,58 @@ export function effects(o: FxOptions = {}) {
       st[2] = 0;
     },
   };
+  fx.gravity = o.gravity ?? 0; // the setter ignores a non-finite value
   return fx;
 }
 export type Effects = ReturnType<typeof effects>;
+
+/**
+ * Named particle kinds on a pool: `const { ids, emit } = emitter(fx, KINDS)`, then
+ * `emit(ids.bubble, x, y, 12)`. Its own export, so a page that never sprays kinds never ships it.
+ * At most 26 kinds per pool (ids 6-31); a second emitter on the same pool adds after the first.
+ */
+export function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>) {
+  const { f, kind, col, word, st, K, cap, rnd } = fx.raw, U = new Float64Array(5);
+  const [X, Y, VX, VY, ROT, SPIN, SIZE, LIFE, MAX] = f as Float32Array[] as [Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array];
+  const ids = {} as Record<N, number>;
+  let nk = 6;
+  while (nk < 32 && K[nk * 11 + 9]) nk++; // after kinds an earlier emitter added (each has a life > 0)
+  for (const name in kinds) {
+    const d = kinds[name], row = [SHAPES.indexOf(d.shape), d.drag, d.gravity, d.angle, d.spread, ...d.speed, ...d.size, ...d.life];
+    check(nk < 32 && row[0]! >= 0 && row.every(finite) && row[9]! > 0 && row[10]! >= row[9]!, `kind ${name}`);
+    K.set(row, nk * 11);
+    ids[name] = nk++;
+  }
+  return {
+    ids,
+    /**
+     * `n` particles of kind `k` from (x, y), as that kind's data says: direction, spread, speed, size
+     * and life (speed and size times `scale`). Colours are picked from `c`...`c + cn - 1`. Bounded: it
+     * stops at capacity and counts the rest in `dropped`. Writes the arrays directly: nothing boxes.
+     */
+    emit(k: number, x: number, y: number, n: number, c = 0, cn = 1, scale = 1) {
+      if (!(k >= 6 && k < nk && finite(x) && finite(y) && finite(scale) && n >= 0 && n < Infinity)) return void st[3]!++;
+      const r = k * 11 + 1;
+      for (let i = 0; i < n; i++) {
+        const p = st[0]!;
+        if (p >= cap) {
+          st[3] = st[3]! + Math.ceil(n - i);
+          break;
+        }
+        st[0] = p + 1;
+        for (let q = 0; q < 5; q++) U[q] = rnd(0, 1);
+        const a = K[r + 2]! + (U[0]! - 0.5) * K[r + 3]!, v = (K[r + 4]! + U[1]! * (K[r + 5]! - K[r + 4]!)) * scale;
+        kind[p] = k;
+        X[p] = x;
+        Y[p] = y;
+        VX[p] = Math.cos(a) * v;
+        VY[p] = Math.sin(a) * v;
+        SIZE[p] = (K[r + 6]! + U[2]! * (K[r + 7]! - K[r + 6]!)) * scale;
+        LIFE[p] = MAX[p] = K[r + 8]! + U[3]! * (K[r + 9]! - K[r + 8]!);
+        col[p] = c + ((U[4]! * cn) | 0);
+        // Square to the page (pixel bubbles stay crisp): no rotation, no spin.
+        ROT[p] = SPIN[p] = word[p] = 0;
+      }
+    },
+  };
+}

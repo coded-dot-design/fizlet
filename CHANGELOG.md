@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+- **`fizlet/camera`** (new, 1,330 B gzip, budget 1,536): the page is the camera. `camera(engine, el)`
+  pans and zooms a DOM stage with one transform written through the ledger (Recall exact, even
+  mid-move). `zoomAt`, `flyTo`, `fit`, `pan`, `home`, `snap`, `toWorld` / `toScreen` (into a caller's
+  array). Moves ease (`ease`, per second) and land exactly on the target, then the engine settles;
+  with reduced motion every move jumps. `contain` (default on) keeps the stage over its own box and
+  clips its parent while moved, so the page never scrolls sideways. Zoom limits `min` / `max`. No
+  allocation per step (tests/camera.test.mjs); Chromium: tests/camera.mjs (in `test:browser`).
+- **fx: gravity and named particle kinds as data.** `effects({ gravity })` (px/s², settable), and each
+  kind takes its own share (the blast's debris falls; its other parts don't). `emitter(fx, KINDS)`
+  registers kinds (shape, drag, gravity, angle, spread, speed, size, life) and `emit(id, x, y, n, c,
+  cn, scale)` sprays them: built-in `bubble`, `spark`, `drip`, `debris`, or your own (up to 26 per
+  pool). Capacity-bounded (a full pool counts the rest in `dropped` without looping) and zero
+  allocation (tests/bricks.test.mjs). New shape `streak`. `emitter` and `KINDS` tree-shake away when
+  unused: `effects()` alone is 2,1xx B in the page build (7,029 / 7,168 B; was 6,859). The whole
+  module is 2,758 B (budget raised 2,048 → 3,072 for `emitter`).
+- **Fizz demo on camera + fx kinds:** the hand-rolled zoom (origin, ease curve, ledger writes) is
+  now `fizlet/camera`; the spray, bubble and splash loops are three `emit()` calls on kinds as data;
+  drips fall under the pool's gravity. Scene source 8,422 → 8,220 B (180 → 175 lines). Live chunk
+  8,400 → 10,100 B gzip (+camera; still ≤ 10 KB). Measured (Chromium 153, 4× CPU throttle): script
+  per frame 1.2 → 1.1 ms avg, p95 4.0 → 4.1 ms, max 25.3 → 22.4 ms; 0 frames settled, offscreen and
+  with reduced motion; CLS from the slot 0. The layers story's live chunk is 10,230 B (≤ 10,240).
+
 ## 0.8.2
 
 - **Layers story fits the hero budget** (fizlet-engine docs/LAYERS.md): live chunk 12,621 →
