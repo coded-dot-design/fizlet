@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.9.0
 
 - **`fizlet/camera`** (new, 1,330 B gzip, budget 1,536): the page is the camera. `camera(engine, el)`
   pans and zooms a DOM stage with one transform written through the ledger (Recall exact, even
