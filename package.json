@@ -85,6 +85,7 @@
       "default": "./dist/ui/board-ui.js"
     },
     "./ui/board-ui.css": "./dist/ui/board-ui.css",
+    "./ui/tokens.json": "./dist/ui/tokens.json",
     "./package.json": "./package.json"
   },
   "publishConfig": {
