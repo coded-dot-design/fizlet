@@ -13,19 +13,32 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci --no-audit --no-fund
-      # Typecheck, kernel contract tests (incl. zero allocation), build.
-      - run: npm run check
+      # Typecheck, kernel contract tests (incl. zero allocation), build. Failures are echoed as
+      # annotations so they can be read through the API (job logs are not always reachable).
+      - name: npm run check
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run check 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
       # Size budgets: kernel <= 4 KB gzip, each brick ~1.5 KB.
       - run: npm run size
       # The runtime has no dependencies, ever.
       - run: node -e "const p=require('./package.json'); if (Object.keys(p.dependencies||{}).length || Object.keys(p.peerDependencies||{}).length) { console.error('Fizlet ships no runtime dependencies'); process.exit(1) }"
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:browser
+      - name: npm run test:browser
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test:browser 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
       # The npm package: pack, install the tarball, import and typecheck every subpath.
       - run: npm run test:pack
       # The website builds and passes its checks (deployed by pages.yml).
       - run: npm run site
-      - run: npm run test:site
+      - name: npm run test:site
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test:site 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
   tag-version:
     needs: check
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

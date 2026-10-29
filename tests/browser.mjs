@@ -118,6 +118,17 @@ async function padTest() {
     return [...out, k.getAttribute("aria-pressed")];
   });
   assert.deepEqual(tog, [true, "true", "false"], "toggle on by tap, off from game code");
+  // Some Chromium builds deliver a touch tap's click with detail 0: it must not flip the toggle back.
+  const tog2 = await tp.evaluate(() => {
+    const k = p.el.querySelector('[data-i="1"]');
+    k.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerId: 41, pointerType: "touch", isPrimary: true }));
+    k.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, pointerId: 41, pointerType: "touch", isPrimary: true }));
+    k.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 0 }));
+    const on = c.down("auto");
+    k.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 0 })); // a real keyboard press later still taps
+    return [on, c.down("auto")];
+  });
+  assert.deepEqual(tog2, [true, false], "a tap's click is not a second tap; a keyboard click still is");
 
   // Keyboard: Enter on a focused key is one tap.
   await tp.focus('[data-i="2"]');
