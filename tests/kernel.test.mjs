@@ -122,6 +122,111 @@ test("destroy: aborts the signal, stops, clears pools, follows a parent signal",
   assert.equal(e.running, false, "a destroyed engine never restarts");
 });
 
+test("scheduler: an engine started from inside a hook does not add a second rAF", () => {
+  const a = createEngine(), b = createEngine();
+  a.add({ read: () => b.start() });
+  a.start();
+  assert.equal(queue.length, 1);
+  flush(0);
+  assert.equal(queue.length, 1, "exactly one pending frame after a hook starts another engine");
+  flush(16);
+  assert.equal(queue.length, 1);
+  a.destroy();
+  b.destroy();
+  assert.equal(queue.length, 0);
+});
+
+test("scheduler: an engine stopping or destroying itself mid-frame does not skip the next engine", () => {
+  const seen = [];
+  const a = createEngine(), b = createEngine(), c = createEngine();
+  a.add({ read: () => (seen.push("a"), a.destroy()) });
+  b.add({ read: () => (seen.push("b"), b.stop(), b.start()) });
+  c.add({ read: () => seen.push("c") });
+  [a, b, c].forEach((e) => e.start());
+  flush(0);
+  assert.deepEqual(seen, ["a", "b", "c"], "every engine ran once this frame");
+  seen.length = 0;
+  flush(16);
+  assert.deepEqual(seen.sort(), ["b", "c"], "a restarted engine runs once a frame, not twice");
+  [b, c].forEach((e) => e.destroy());
+  assert.equal(queue.length, 0);
+});
+
+test("engine.remove(system) during a hook does not skip the next system", () => {
+  const e = createEngine();
+  const seen = [];
+  const a = e.add({ read: () => (seen.push("a.read"), e.remove(a)), step: () => seen.push("a.step"), render: () => seen.push("a.render") });
+  e.add({ read: () => seen.push("b.read"), step: () => seen.push("b.step"), render: () => seen.push("b.render") });
+  e.advance(1 / 60 + 1e-6);
+  assert.deepEqual(seen, ["a.read", "b.read", "b.step", "b.render"]);
+  seen.length = 0;
+  e.advance(1 / 60);
+  assert.deepEqual(seen, ["b.read", "b.step", "b.render"]);
+  e.destroy();
+});
+
+test("a throwing hook stops only its own engine; the shared clock keeps running", () => {
+  const errors = [];
+  const bad = createEngine({ onError: (err, eng) => errors.push([err.message, eng === bad]) });
+  const good = createEngine();
+  let ok = 0;
+  bad.add({ step: () => { throw new Error("boom"); } });
+  good.add({ read: () => ok++ });
+  bad.start();
+  good.start();
+  flush(0);
+  flush(17);
+  assert.deepEqual(errors, [["boom", true]]);
+  assert.deepEqual(bad.paused, ["stopped"], "the failing engine is stopped");
+  assert.equal(bad.phase, 0);
+  assert.equal(good.running, true);
+  assert.equal(queue.length, 1, "the shared clock is still scheduled");
+  flush(34);
+  assert.equal(ok, 3, "the other engine ran every frame");
+  // Without onError the failure is reported on console.error, and the clock still survives.
+  const logged = [], log = console.error;
+  console.error = (x) => logged.push(x.message);
+  const loud = createEngine();
+  loud.add({ read: () => { throw new Error("loud"); } });
+  loud.start();
+  flush(51);
+  console.error = log;
+  assert.deepEqual(logged, ["loud"]);
+  assert.equal(loud.running, false);
+  assert.equal(queue.length, 1);
+  [bad, good, loud].forEach((x) => x.destroy());
+});
+
+test("configuration is validated (finite numbers, positive integer capacities)", () => {
+  for (const o of [{ step: 0 }, { step: -1 }, { step: NaN }, { step: Infinity }, { step: "1" }]) assert.throws(() => createEngine(o), { name: "RangeError", message: /step/ }, JSON.stringify(o));
+  for (const o of [{ maxSteps: 0 }, { maxSteps: 1.5 }, { maxSteps: NaN }, { maxSteps: Infinity }]) assert.throws(() => createEngine(o), { name: "RangeError", message: /maxSteps/ });
+  for (const o of [{ seed: NaN }, { seed: Infinity }, { seed: "1" }]) assert.throws(() => createEngine(o), { name: "RangeError", message: /seed/ });
+  for (const o of [{ events: 0 }, { events: 2.5 }, { events: NaN }, { events: -1 }]) assert.throws(() => createEngine(o), { name: "RangeError", message: /events/ });
+  for (const cap of [0, -1, 1.5, NaN, Infinity]) assert.throws(() => new EventRing(cap), RangeError);
+  const e = createEngine();
+  for (const cap of [0, 1.5, NaN, Infinity, "2"]) assert.throws(() => e.pool("p", cap, () => ({})), { name: "RangeError", message: /cap/ });
+  e.destroy();
+  assert.equal(scheduler.engines, 0, "a rejected config leaves nothing scheduled");
+});
+
+test("destroy is idempotent and leaves the engine inert", () => {
+  const e = createEngine();
+  let hooks = 0;
+  e.add({ read: () => hooks++, step: () => hooks++, render: () => hooks++ });
+  e.start();
+  e.destroy();
+  e.destroy();
+  e.start();
+  e.advance(1);
+  e.add({ read: () => hooks++ });
+  e.advance(1);
+  assert.equal(hooks, 0, "no hook runs after destroy");
+  assert.equal(e.time, 0);
+  assert.equal(e.running, false);
+  assert.equal(scheduler.engines, 0);
+  assert.equal(queue.length, 0);
+});
+
 test("zero allocation in the steady state (10k+ steps)", async (t) => {
   if (typeof gc !== "function") return t.skip("needs node --expose-gc");
   const e = createEngine({ events: 32 });
