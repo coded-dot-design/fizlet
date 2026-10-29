@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.1
 
 - **CSS containment on every root Fizlet owns** (contract rule 8): the pad and the match overlay
   (kit CSS) and the launch burst are `contain: layout style`; the `fizlet/ui` mount root is
