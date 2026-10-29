@@ -12,9 +12,10 @@
   slider still scrubs the still view (the poster is posed by one CSS variable, `--e`). One writer
   at a time: the inline controller before the scene loads, the scene (through its ledger) once it
   is mounted, so Recall restores the controls exactly. The figure is now labelled and described
-  (`aria-describedby`) instead of `role="img"`, so its controls stay reachable. The HUD's clock
-  and the tank hit flash went to keep the live chunk ≥ 5% under budget: 9,716 B gzip (≤ 9,728);
-  poster, controls and inline script 5,253 B (budget 6 KB). The demo page shows the live chunk on
+  (`aria-describedby`) instead of `role="img"`, so its controls stay reachable. The HUD's clock,
+  the tank hit flash, the scene's hex fallbacks for kit tokens (the figure is always a `.bui` root
+  with `board-ui.css`) and its `data-settle` option went to keep the live chunk ≥ 5% under budget on
+  0.15.0's bricks: 9,713 B gzip (≤ 9,728); poster, controls and inline script 5,258 B (budget 6 KB). The demo page shows the live chunk on
   the size badge (`site/size-badge.mjs`). Tests: the controls with the scene (pause settles, keys,
   pointer, play, Recall) and under reduced motion (keys, pointer); the budget test now fails above
   9,728 B.
