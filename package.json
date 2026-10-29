@@ -101,14 +101,14 @@
     "provenance": true
   },
   "scripts": {
-    "typecheck": "tsc --noEmit && tsc -p site/tsconfig.json",
+    "typecheck": "tsc --noEmit && tsc -p site/tsconfig.json && tsc -p site/demos/fizz/tsconfig.json",
     "test": "node --expose-gc --import tsx --test tests/*.test.mjs",
     "build": "node scripts/build.mjs",
     "check": "npm run typecheck && npm test && npm run build",
     "size": "node scripts/size.mjs",
-    "test:browser": "node tests/browser.mjs",
+    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs",
     "test:pack": "node scripts/pack-smoke.mjs",
-    "site": "npm run build && node scripts/site.mjs",
+    "site": "npm run build && node scripts/site.mjs && node site/demos/fizz/build.mjs",
     "test:site": "node tests/site.mjs",
     "prepack": "npm run build"
   },
