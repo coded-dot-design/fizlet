@@ -59,12 +59,11 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
   let P = 4, w = 0, h = 0, K = 1, KT = 1, cx = 0, by = 0, tx = 0, ty = 0, oy = 0, x0 = 0, y0 = 0, mx = 0, my = 0, hx = 0, hy = 0, resized = true;
   const ro = new ResizeObserver(() => ((resized = true), engine.wake()));
   ro.observe(stage);
-  ro.observe(host);
   engine.signal.addEventListener("abort", () => ro.disconnect());
 
   // The story, in seconds since the crunch (t; -1: not yet; the pop is at 0.3). The drip: its row
-  // down the side (dy; -1: none yet), when it left the base (fall), and whether it has landed.
-  let st = -1, wait = first ? 0 : 0.8, sn = 0, snt = 0, frame = 0, dy = -1, fall = -1, land = false, dirty = true;
+  // down the side (dy; -1: none yet; 36: it has reached the floor).
+  let st = -1, wait = first ? 0 : 0.8, sn = 0, snt = 0, frame = 0, dy = -1, dirty = true;
   const v = [0, 0]; // camera scratch, reused (no allocation per frame)
 
   // Each frame of both views, rasterised once into a bitmap at its pixel size (side: sealed, open,
@@ -114,8 +113,7 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
       if (wait >= 0 && (wait -= dt) < 0) {
         // Crunch: the can squeezes and dents, flakes fly; the tab pops 0.3 s later.
         st = 0;
-        dy = fall = -1;
-        land = false;
+        dy = -1;
         fx.word(mx - 10 * K, y0 + 18 * K, 0, AIM, 5 * K);
         emit(burst, x0 + 10 * K, y0 + 28 * K, 14, INK, 2, K * 0.4);
       }
@@ -132,7 +130,7 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
           emitT(pop, hx, hy, 40, INK, 2, KT);
           cam.to(mx * P, my * P, Z); // in on the opening
         }
-        if (at(1.4)) cam.to(hx * P, hy * P, Z, cam.width / 2, cam.height / 2); // across to the top view
+        if (at(1.4)) cam.to(hx * P, hy * P, Z); // across to the top view: a zoom about its opening
         if (at(3)) cam.home();
         if (at(0.9)) emit(burst, mx, my, 70, 0, 4, K); // a glug
         // The fizz: a geyser and bubbles off the side, pops and rings in the top view, easing off.
@@ -146,16 +144,12 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
           sn -= n;
           snt -= m;
         }
-        // The drip: stop-and-go down the shaded edge (column 17), then off the base and onto the floor.
-        if (p > 0.6) {
-          if (dy < 36) dy = Math.min(36, Math.max(10, dy) + dt * (4 + 14 * Math.abs(Math.sin(p * 3.1))));
-          else if (fall < 0) fall = p;
-          if (fall >= 0 && !land && y0 + 37 * K + 0.5 * fx.gravity * (p - fall) ** 2 >= by)
-            (land = true), emit(burst, x0 + 18.5 * K, by - 1, 6, INK, 2, K * 0.2);
-        }
+        // The drip: stop-and-go down the shaded edge (column 17), then a splash on the floor.
+        if (p > 0.6 && dy < 36 && (dy = Math.min(36, Math.max(10, dy) + dt * (4 + 14 * Math.abs(Math.sin(p * 3.1))))) === 36)
+          emit(burst, x0 + 18.5 * K, by - 1, 6, INK, 2, K * 0.2);
         if (p > 4.2) st = -2; // the story is over: the last frame stays, the engine settles
       }
-      if (wait >= 0 || st >= 0 || fx.live || fxT.live || cam.moving) (e.busy(), (dirty = true));
+      if (wait >= 0 || st >= 0 || fx.live || fxT.live) (e.busy(), (dirty = true));
     },
     render() {
       if (!dirty) return;
@@ -177,8 +171,7 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
         ctx.fillStyle = C.aim;
         ctx.fillRect(x, y0 + 10 * K, K, (y - 10) * K);
         ctx.fillStyle = C.ink;
-        if (fall < 0) ctx.fillRect(x, y0 + (y - 1) * K, K, K * 2);
-        else if (!land) ctx.fillRect(x + K, Math.round(y0 + 37 * K + 0.5 * fx.gravity * (st - 0.3 - fall) ** 2), K, K * 2);
+        if (y < 36) ctx.fillRect(x, y0 + (y - 1) * K, K, K * 2);
         else ctx.fillRect(x, by, K * 3, K); // the puddle
       }
       fxT.draw(ctx);

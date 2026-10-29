@@ -14,9 +14,10 @@
   - Bytes: the scene draws `spriteURL` frames (each rasterised once into a bitmap, so no SVG work
     per frame) instead of the whole `sprites()` cache. Scene and loader are two files with no
     shared chunk (a split cost ~260 B). The story state is plain locals. To fit, the screen shake,
-    the third pop word, the slow bubbles and a second drip went.
-  - Measured (Chromium 153, 4× CPU throttle): live chunk **9,720 B** gzip (5.1% under 10,240),
-    loader 1,959 B, poster 3,457 B; script per frame 1.4 ms avg, 4.7 ms p95, 19.3 ms max; 0 frames
+    the third pop word, the slow bubbles, a second drip and the drip's fall off the base went (it
+    runs down the side and splashes at the floor).
+  - Measured (Chromium 153, 4× CPU throttle): live chunk **9,701 B** gzip (5.3% under 10,240),
+    loader 2,023 B, poster 3,457 B; script per frame 1.3 ms avg, 4.0 ms p95, 18.2 ms max; 0 frames
     settled, offscreen and with reduced motion; CLS from the slot 0. `tests/fizz.mjs`: the spray
     leaves the card, and the camera moves the card, never the page.
 - **Tests: the camera's reduced-motion check waits for frames, not 120 ms of wall time**, so slow CI
