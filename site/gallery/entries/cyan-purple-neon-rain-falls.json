@@ -12,18 +12,18 @@
     "fizlet/slot"
   ],
   "pageCost": {
-    "jsBeforeNear": 1850,
-    "jsWhenNear": 8351,
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 30,
+      "framesPlaying": 31,
       "framesSettled": 0,
       "framesOffscreen": 0,
-      "recallExact": true
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 20.28
     }
   },
-  "fizlet": "0.12.1",
+  "fizlet": "0.14.0",
   "made": "fe anim",
   "module": "anims/cyan-purple-neon-rain-falls.ts",
   "export": "mount",
