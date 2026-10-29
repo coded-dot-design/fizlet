@@ -11,7 +11,7 @@ import { chromium } from "playwright";
 import { readFileSync } from "node:fs";
 
 const bundle = (await build({
-  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts";', resolveDir: process.cwd(), loader: "ts" },
+  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts"; export { match } from "./src/match.ts"; export { launch } from "./src/ui/board-ui.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "fizlet", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 
@@ -530,6 +530,108 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
 
   assert.deepEqual(errors, []);
   console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, pad passed.");
+  where = "match";
+  await page.addStyleTag({ content: readFileSync("src/ui/board-ui.css", "utf8") });
+  const mt = await page.evaluate(async () => {
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const until = async (ok, ms = 3000) => {
+      for (const t0 = performance.now(); !ok() && performance.now() - t0 < ms; ) await wait(20);
+      return ok();
+    };
+    const key = (code, target = window) => target.dispatchEvent(new KeyboardEvent("keydown", { code, key: code, bubbles: true, cancelable: true }));
+    const board = document.createElement("div");
+    board.className = "bui";
+    board.setAttribute("style", "position: relative; width: 640px; height: 400px");
+    board.innerHTML = '<canvas width="640" height="400"></canvas><button type="button" id="game-key">FIRE</button>';
+    document.body.prepend(board);
+    const snap = () => document.body.outerHTML;
+    const before = snap();
+    const e = fizlet.createEngine({ root: board });
+    const events = [], ends = [];
+    e.add({ render: (x) => { for (let i = 0; i < x.events.size; i++) x.events.at(i).type.startsWith("match:") && events.push(x.events.at(i).type); } });
+    const m = fizlet.match(e, board, { count: 1, seconds: 60, launch: fizlet.launch, end: (r) => void ends.push(r.why) });
+    e.start();
+    const ov = m.el, gameKey = document.getElementById("game-key");
+    const shown = () => [...ov.querySelectorAll("[data-k]")].filter((k) => getComputedStyle(k).display !== "none").map((k) => k.textContent);
+    const view = () => ({ phase: m.phase, open: !ov.hidden && getComputedStyle(ov).display !== "none", words: ov.querySelector(".bui-sticker").textContent, keys: shown(), focus: document.activeElement === ov ? "dialog" : document.activeElement?.textContent ?? "", inert: gameKey.inert });
+    const out = {};
+    out.intro = view();
+    ov.querySelector("[data-k=start]").click();
+    out.count = view();
+    out.played = await until(() => m.phase === "play");
+    out.play = view();
+    gameKey.focus();
+    key("Escape");
+    out.paused = { ...view(), running: e.running };
+    key("KeyP");
+    out.resumed = { ...view(), running: e.running };
+    // Keys typed into the page's own field never pause.
+    key("KeyP", document.getElementById("field"));
+    out.typed = m.phase;
+    // A hidden tab during play shows the pause overlay; coming back keeps it up until the player chooses.
+    Object.defineProperty(document, "visibilityState", { value: "hidden", configurable: true });
+    document.dispatchEvent(new Event("visibilitychange"));
+    out.hidden = m.phase;
+    Object.defineProperty(document, "visibilityState", { value: "visible", configurable: true });
+    document.dispatchEvent(new Event("visibilitychange"));
+    out.back = { phase: m.phase, open: !ov.hidden };
+    // Surrender: the white flag, then the launch burst on <body>, then the result.
+    const flag = ov.querySelector("[data-k=surrender]");
+    flag.click();
+    out.go = flag.classList.contains("go");
+    key("Escape");
+    out.noResume = m.phase;
+    out.burst = await until(() => document.querySelector(".bui-burst"));
+    out.ended = await until(() => m.phase === "end");
+    out.end = view();
+    // Rematch → count → play; reduced motion: the surrender ends at once (no wave wait, no burst).
+    ov.querySelector("[data-k=again]").click();
+    await until(() => m.phase === "play");
+    window.mt = { m, e, ov, out, events, ends, before, snap, board, key, wait };
+    return out;
+  });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  Object.assign(mt, await page.evaluate(async () => {
+    const { m, e, ov, out, events, ends, before, snap, board, key, wait } = window.mt;
+    delete window.mt;
+    key("Escape");
+    ov.querySelector("[data-k=surrender]").click();
+    await wait(30);
+    out.reducedEnd = m.phase;
+    out.ends = ends;
+    ov.querySelector("[data-k=next]").click();
+    out.back2intro = m.phase;
+    e.advance(0);
+    out.events = events;
+    await wait(900); // let the first burst finish
+    e.destroy();
+    out.same = snap() === before;
+    board.remove();
+    return out;
+  }));
+  await page.emulateMedia({ reducedMotion: null });
+  assert.deepEqual(mt.intro, { phase: "intro", open: true, words: "PLAYER 1READY?", keys: ["PRESS START"], focus: "PRESS START", inert: true }, "intro: sticker, one key, focus on it, the board behind is inert");
+  assert.deepEqual(mt.count, { phase: "count", open: true, words: "GET READY1", keys: [], focus: "dialog", inert: true });
+  assert.ok(mt.played, "the countdown ends in play");
+  assert.deepEqual({ ...mt.play, focus: undefined }, { phase: "play", open: false, words: "GET READY1", keys: [], focus: undefined, inert: false });
+  assert.deepEqual(mt.paused, { phase: "paused", open: true, words: "BATTLE PAUSEDGIVE UP?", keys: ["KEEP FIGHTING", "SURRENDER"], focus: "KEEP FIGHTING", inert: true, running: false }, "Escape pauses: the surrender question, focus on KEEP FIGHTING, engine stopped");
+  assert.deepEqual(mt.resumed, { phase: "play", open: false, words: "BATTLE PAUSEDGIVE UP?", keys: [], focus: "FIRE", inert: false, running: true }, "P resumes and focus goes back");
+  assert.equal(mt.typed, "play");
+  assert.equal(mt.hidden, "paused", "a hidden tab pauses with the overlay");
+  assert.deepEqual(mt.back, { phase: "paused", open: true });
+  assert.equal(mt.go, true, "the white flag waves");
+  assert.equal(mt.noResume, "paused", "no resume once the flag is up");
+  assert.ok(mt.burst, "the launch burst lives on <body>");
+  assert.ok(mt.ended);
+  assert.deepEqual(mt.end, { phase: "end", open: true, words: "WHITE FLAGGAME OVER", keys: ["REMATCH", "NEW GAME"], focus: "REMATCH", inert: true });
+  assert.equal(mt.reducedEnd, "end", "reduced motion: surrender ends without the wait");
+  assert.deepEqual(mt.ends, ["flag", "flag"]);
+  assert.equal(mt.back2intro, "intro");
+  assert.deepEqual(mt.events.slice(0, 7), ["match:count", "match:play", "match:paused", "match:play", "match:paused", "match:flag", "match:lost"]);
+  assert.equal(mt.same, true, "destroy (Recall) restores the exact DOM: overlay gone, inert and focus marks undone");
+
+  assert.deepEqual(errors, []);
+  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, match passed.");
 } catch (e) {
   console.error(`::error title=Fizlet browser test (${where})::${e.message}`);
   throw e;

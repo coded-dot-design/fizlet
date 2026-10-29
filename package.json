@@ -68,6 +68,10 @@
       "types": "./dist/slot.d.ts",
       "default": "./dist/slot.js"
     },
+    "./match": {
+      "types": "./dist/match.d.ts",
+      "default": "./dist/match.js"
+    },
     "./ui": {
       "types": "./dist/ui/board-ui.d.ts",
       "default": "./dist/ui/board-ui.js"
