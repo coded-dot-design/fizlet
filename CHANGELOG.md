@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.8.0
 
 - **`fizlet/ui` readouts:** DOM Battlefield's metrics row (ARMOR · FRIENDLY · HOSTILE · ELAPSED) as a kit part, `.bui-readouts` / `.bui-readout`.
   - A muted caps label over a 20u tabular value.
