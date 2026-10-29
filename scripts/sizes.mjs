@@ -18,6 +18,8 @@ export const BUDGETS = [
   ["fizlet/presence", "src/presence.ts", 2048],
   ["fizlet/presence/check", "src/presence-check.ts", 5120],
   ["fizlet/hud", "src/hud.ts", 1536],
+
+  ["fizlet/match", "src/match.ts", 2816],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
   ["fizlet/ui (css)", "src/ui/board-ui.css", 5120],
 ];

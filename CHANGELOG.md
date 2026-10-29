@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.3
+
+- **`fizlet/match`**: the match flow every board shares (layer 11): intro → count → play → paused →
+  end on the Board UI kit's overlay, built once and flipped through the ledger. Esc / P pause and
+  resume, a hidden tab during play shows the pause overlay, SURRENDER runs the white-flag ritual and
+  the launch burst (pass `launch` from `fizlet/ui`), REMATCH and NEW GAME. The clock counts in the
+  step without allocating; every transition is an event on the ring (`match:play`, `match:won`, …).
+  Siblings go `inert` while an overlay is up, focus moves to the primary key and back, reduced
+  motion skips the waits. Runs headless with a `null` root. Node tests (phases, clock, events,
+  restart, zero allocation against a bare engine) and a browser test (overlays, keys, Escape,
+  hidden tab, surrender, reduced motion, Recall restores the DOM exactly).
+
 ## 0.4.2
 
 - tests: the fx live-scene and input allocation checks use `tests/gc.mjs` (best of 3 windows); they had lost their `perf_hooks` import when the GC helper landed, which only failed when a GC actually ran.

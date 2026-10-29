@@ -74,6 +74,8 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 | `fizlet/slot` | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | ~1.5 KB |
 | `fizlet/presence` | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | ~1.8 KB |
 | `fizlet/hud` | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | ~1.3 KB |
+
+| `fizlet/match` | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | ~2.5 KB |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
 | `fizlet/ui/tokens.json` | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
 
@@ -344,6 +346,49 @@ and reused. `feed` and `banner` read `engine.events` in render (emit `kill` / `s
 step), never per-frame state. Writes go through `engine.ledger`; rows or text nodes it adds are
 removed on `destroy()`. It has no visuals of its own: it binds to your markup. A getter V8 doesn't
 inline boxes a fractional double, so pass running fractions as a `[typedArray, index]` slot.
+### Match flow (`fizlet/match`)
+
+The flow every board shares, on the Board UI kit's overlay ([spec](src/ui/BOARD-UI.md) section 9):
+a grey dim, a sticker that slams in, at most two sticker keys. The overlay is built once inside
+`root` (pass `null` to run headless); each phase only flips attributes and text through the ledger,
+so `destroy()` gives the page back exactly.
+
+```ts
+import { match } from "fizlet/match";
+import { launch } from "fizlet/ui";
+
+const m = match(engine, board, {
+  count: 3,          // 3-2-1 beats of one second (0 skips the countdown)
+  seconds: 180,      // the match clock; leave it out for no limit (the clock counts up)
+  begin() { /* a new round: reset the field (runs in the click) */ },
+  end({ won, why }) { /* why: "time", "flag" (surrender) or yours; may return a sticker */ },
+  timeUp: () => myScore > theirs,  // who won when the clock runs out
+  launch,            // PRESS START and SURRENDER blow up with the kit's launch burst
+  labels: { intro: ["BATTLEFIELD", "BLITZ!"] },
+});
+engine.add({ step() { if (m.phase !== "play") return; /* the game */ } });
+// m.phase, m.clock, m.start(), m.pause(on?), m.finish(won, why?), m.restart(), m.intro(), m.el
+```
+
+| Phase | Sticker (default words) | Keys |
+|---|---|---|
+| `intro` | PLAYER 1 / READY? | PRESS START |
+| `count` | GET READY / 3, 2, 1 | none |
+| `play` | (overlay hidden) | Esc / P pauses; a hidden tab pauses |
+| `paused` | BATTLE PAUSED / GIVE UP? | KEEP FIGHTING · SURRENDER (the white flag) |
+| `end` | STAGE CLEAR / MISSION COMPLETE, INSERT COIN / GAME OVER, WHITE FLAG / GAME OVER | REMATCH · NEW GAME |
+
+- **Events, not callbacks, for the other layers:** `match:intro`, `match:count` (`a` = the number),
+  `match:play` (`a` = 1 on resume), `match:paused` (`a` = 1 from a hidden tab), `match:flag`
+  (surrender pressed), `match:won` / `match:lost` (`a` = the clock). Map them to cues in `sound()`.
+  Transitions made outside a frame (a click) reach the ring in the next frame's read.
+- **Pause is zero CPU:** `paused` stops the engine; the clock only counts in `play`, in the step,
+  without allocating. Your systems check `m.phase` (the engine runs in the other phases).
+- **Modal and focus:** while the overlay is up, its siblings in `root` are `inert`; focus moves to
+  the primary key (the dialog when it has none) and goes back on play, unless the player is busy
+  elsewhere on the host page. Reduced motion: no wave wait or burst on surrender, no slams.
+- Your own overlay content (a mode picker, the standings table) goes in `m.el`; style it by
+  `[data-phase]`.
 
 ## Develop
 
