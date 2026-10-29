@@ -1,4 +1,5 @@
 // Brick tests (Node): collide, fx and sprite. Input, sound and embed need a browser: tests/browser.mjs.
+// Brick tests (Node): collide, fx and the pad's maths. Input, pad, sound and embed need a browser: tests/browser.mjs.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { PerformanceObserver, constants } from "node:perf_hooks";
@@ -15,6 +16,7 @@ function fakeCanvas(w, h) {
     fillRect(x, y, ww, hh) { const k = this.k; for (let j = y * k; j < (y + hh) * k; j++) for (let i = x * k; i < (x + ww) * k; i++) if (px[j] && i >= 0 && i < w) px[j][i] = this.fillStyle; } };
   return { width: w, height: h, px, getContext: () => ctx };
 }
+const { stickAt, dpadAt } = await import("../src/pad.ts");
 
 test("collide: shape tests", () => {
   const X = new Float64Array([0, 9, 30]), Y = new Float64Array(3), R = new Float64Array([5, 5, 5]);
@@ -57,6 +59,37 @@ test("fx: blast spawns, particles age out, the pool is capped", () => {
   for (let i = 0; i < 200; i++) fx.step(1 / 60);
   assert.equal(fx.live, 0, "everything ages out");
   assert.equal(fx.shake, 0);
+});
+
+test("pad: the stick has a dead zone, creeps, and clamps to the unit circle", () => {
+  const v = new Float64Array(2);
+  stickAt(0.1, 0, v);
+  assert.deepEqual([...v], [0, 0], "inside the dead zone nothing moves");
+  stickAt(0.3, 0, v);
+  assert.ok(v[0] > 0 && v[0] < 0.3, "a light push still creeps (rescaled past the dead zone)");
+  stickAt(3, 4, v);
+  assert.ok(Math.abs(Math.hypot(v[0], v[1]) - 1) < 1e-9, "a drag past the rim is full speed");
+  assert.ok(Math.abs(v[0] / v[1] - 0.75) < 1e-9, "direction kept");
+  stickAt(0, -1, v);
+  assert.equal(v[1], -1);
+});
+
+test("pad: the d-pad reads eight equal sectors", () => {
+  const UP = 1, DOWN = 2, LEFT = 4, RIGHT = 8;
+  assert.equal(dpadAt(0.1, 0.1), 0, "dead zone");
+  assert.equal(dpadAt(0, -1), UP);
+  assert.equal(dpadAt(0, 1), DOWN);
+  assert.equal(dpadAt(-1, 0), LEFT);
+  assert.equal(dpadAt(1, 0), RIGHT);
+  assert.equal(dpadAt(0.7, -0.7), UP | RIGHT);
+  assert.equal(dpadAt(-0.7, 0.7), DOWN | LEFT);
+  // Sector borders sit at 22.5° either side of an axis.
+  const at = (deg) => dpadAt(Math.cos((deg * Math.PI) / 180), Math.sin((deg * Math.PI) / 180));
+  assert.equal(at(20), RIGHT);
+  assert.equal(at(25), RIGHT | DOWN);
+  assert.equal(at(65), RIGHT | DOWN);
+  assert.equal(at(70), DOWN);
+  assert.equal(at(-160), LEFT);
 });
 
 test("collide + fx: near-zero allocation while stepping", async (t) => {

@@ -36,6 +36,10 @@
       "types": "./dist/input.d.ts",
       "default": "./dist/input.js"
     },
+    "./pad": {
+      "types": "./dist/pad.d.ts",
+      "default": "./dist/pad.js"
+    },
     "./collide": {
       "types": "./dist/collide.d.ts",
       "default": "./dist/collide.js"

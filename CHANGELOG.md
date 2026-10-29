@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.3
+
+- **`fizlet/pad`**: swappable on-screen controls for touch (and mouse). `pad(engine, controls, {
+  scheme, actions, side, host, move })` → `{ el, scheme, setScheme, destroy }`. Schemes: `stick`
+  (analog, drives the stick axes), `dpad` (one finger, 8-way) and `buttons` (a key per move intent),
+  each with round arcade action keys (tap, `hold` or `toggle`, the first is the big primary key).
+  Drives `controls` intents only, so a game swaps its mobile scheme with one config change.
+  Multi-touch with pointer capture (fire while steering), one delegated set of listeners on the
+  engine's signal (a scheme swap adds none), one ledger node, exact Recall. ~1.8 KB gzip (budget 2 KB).
+- input: `controls().steer(x, y, on)` drives the stick axes from code (the pad's stick).
+- ui: Board UI section 11, the pad: `.bui-pad`, `.bui-stick` + `.bui-knob` (Battlefield's cockpit
+  stick), `.bui-dpad`, round pad keys (Blitz's pad), `data-hand="left"`.
+
 ## 0.3.2
 
 - **`fizlet/sprite`** (new brick, ~1.3 KB gzip): the character layer's drawing primitive.
