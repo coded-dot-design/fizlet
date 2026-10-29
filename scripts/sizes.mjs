@@ -22,6 +22,8 @@ export const BUDGETS = [
   ["fizlet/match", "src/match.ts", 2816],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   ["fizlet/board-page", "src/board-page.ts", 4096],
+  // A hero's live chunk is ≤ 10 KB gz (fizlet-engine docs/LAYERS.md); the bricks take ≤ 7 KB, the scene ≥ 3 KB.
+  ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7168],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
   ["fizlet/ui (css)", "src/ui/board-ui.css", 5120],
 ];

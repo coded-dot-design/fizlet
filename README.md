@@ -128,18 +128,28 @@ slot("home#hero", () => import("./hero-scene.js").then((m) => m.mount));
 // scene renders real accessible content, which drops the slot's role="img").
 import { createEngine } from "fizlet";
 import { effects } from "fizlet/fx";
-export function mount(stage: HTMLElement) {
-  const engine = createEngine({ root: stage, pause: { reducedMotion: true } });
+import type { SlotTap } from "fizlet/slot";
+export function mount(stage: HTMLElement, figure: HTMLElement, first: SlotTap | null) {
+  // settle: no frames once nothing moves (0.5 s quiet); fps: an ambient hero needs no more than 30.
+  const engine = createEngine({ root: stage, pause: { reducedMotion: true }, settle: 0.5, fps: 30 });
   const canvas = engine.ledger.add(document.createElement("canvas"));
   stage.append(canvas);
   const ctx = canvas.getContext("2d")!, fx = effects();
-  engine.add({ step: (e, dt) => fx.step(dt), render: () => (ctx.clearRect(0, 0, canvas.width, canvas.height), fx.draw(ctx)) });
+  engine.add({ step: (e, dt) => (fx.step(dt), fx.live && e.busy()), render: () => (ctx.clearRect(0, 0, canvas.width, canvas.height), fx.draw(ctx)) });
+  if (first) fx.blast(first.x, first.y); // the tap that loaded the scene: an intent, not a stale event
   engine.start();
   return { destroy: () => engine.destroy() };
 }
 ```
 
-- **Lazy:** nothing loads until the slot comes within `margin` (default `"200px"`) of the viewport.
+- **Lazy:** nothing loads until the slot comes within `margin` (default `"200px"`) of the viewport,
+  and then not before the main thread is idle (`requestIdleCallback`, at most `idle` ms, default 1000).
+- **First tap:** a tap on the slot before the scene is up loads it at once (no idle wait) and reaches
+  `mount` as `first = { x, y, at }` (px from the slot's top left, `performance.now()`), never as the
+  original `PointerEvent`, whose pointer is gone by then.
+- **Page build:** kernel + `slot` + `input` + `fx` is budgeted at 7 KB gzip (`npm run size`), so a
+  hero's live chunk stays under 10 KB with 3 KB for the scene; sound, debug, pad, HUD, match and the
+  Board UI are never pulled in (`tests/page.test.mjs`).
 - **Reduced motion:** with `prefers-reduced-motion: reduce` the scene never loads and the slot's
   placeholder and fallback stay; if the setting turns on mid-scene, the scene goes and they come back.
 - **Accessible:** `role="img"` and `aria-label` stay; the stage is `aria-hidden` until the scene
@@ -267,7 +277,7 @@ Bounded everything (contract 2) means something has to give at capacity. What gi
 
 ### Engine API
 
-- `createEngine({ root, step, maxSteps, seed, events, signal, pause, onError })`: numbers are
+- `createEngine({ root, step, maxSteps, seed, events, signal, pause, onError, settle, fps })`: numbers are
   checked at setup (`step` > 0, `seed` finite, `maxSteps`, `events` and pool caps positive
   integers); a bad one throws a `RangeError` naming the option.
 - `engine.add(system)` / `remove(system)`: systems run in order; hooks `read`, `step`, `render`,
@@ -276,6 +286,11 @@ Bounded everything (contract 2) means something has to give at capacity. What gi
 - `engine.start()` / `stop()` / `destroy()`; `engine.running`, `engine.paused` (reasons).
   `destroy()` is idempotent and leaves the engine inert. Engines may start, stop or destroy each
   other from inside a hook: every engine still runs once per frame, on one rAF.
+- **Settle** (`settle: seconds`, off by default): systems call `engine.busy()` in any frame where
+  something moves; after `settle` seconds without one, the engine sleeps (`paused: ["settled"]`,
+  no frames at all) until `engine.wake()`, its `controls` input or `start()`. Settling is not a
+  pause: `pause` hooks don't run and held input stays. **`fps`** caps the engine's frame rate on
+  the shared clock (frames closer than `1/fps` do no work; time still follows the clock).
 - A hook that throws in a scheduled frame stops only its own engine (`paused: ["stopped"]`,
   `start()` resumes) and goes to `onError(error, engine)` (default `console.error`); the shared
   clock and every other engine keep running.

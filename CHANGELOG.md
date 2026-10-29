@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.5.0
+
+The page profile for heroes and interactive diagrams (fizlet-engine docs/LAYERS.md, "Page
+interactions"; lab audit docs/audit-heroes.md: idle CPU while visible was the hero's real cost).
+
+- kernel: `settle` option. Systems call `engine.busy()` while something moves; after `settle`
+  seconds without it the engine sleeps (`paused: ["settled"]`, no requestAnimationFrame at all)
+  until `engine.wake()`, its `controls` input (keys, pointer down/move) or `start()`. Not a pause:
+  `pause` hooks don't run. `fps` option: a frame-rate cap on the shared clock. Both off by default;
+  kernel 3106 → 3275 B gzip.
+- slot: waits for an idle main thread once near the viewport (`idle`, default 1000 ms). A tap on
+  the slot before the scene is up loads it at once and reaches `mount(stage, slot, first)` as
+  `{ x, y, at }`, never as the stale PointerEvent (the DOM VIRUS hero threw on `setPointerCapture`
+  for exactly this). Slot 1767 B gzip.
+- Page build budget: kernel + slot + input + fx ≤ 7 KB gzip (6,792 B), leaving a 10 KB hero chunk
+  ≥ 3 KB for the scene. `tests/page.test.mjs` fails if a game-only brick gets into it.
+- Tests: settle (sleeps, no rAF, no pause hooks, wake and start), fps cap (30 on a 60 Hz clock),
+  and in Chromium the idle wait, the first tap and a key waking a settled engine.
+
 ## 0.4.4
 
 - **`fizlet/board-page`**, the page-as-board brick (from DOM VIRUS `board.ts`): `boardPage(engine,
