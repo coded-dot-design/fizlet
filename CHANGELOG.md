@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.1
 
 Hardening from the engineering review (2026-10-29, §8: UI and tokens, collision and effects).
 
