@@ -69,6 +69,9 @@ const STICK = '<div class="bui-stick" role="application" aria-label="Move: drag 
 const arrows = (move: string[]) =>
   move.map((m, d) => (m ? `<button type="button" class="bui-arcade bui-sys" data-d="${d}" aria-label="${DIRS[d]}">${ARROW}</button>` : "")).join("");
 
+// Labels, names and keys are text (escaped); `icon` is trusted SVG markup supplied by the game.
+const esc = (t: string) => t.replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
+
 export function pad(e: Engine, c: Controls, o: PadOptions = {}) {
   const acts = o.actions ?? [], move = o.move ?? ["up", "down", "left", "right"];
   const ctl = new AbortController(), on = { signal: ctl.signal };
@@ -79,7 +82,7 @@ export function pad(e: Engine, c: Controls, o: PadOptions = {}) {
   el.setAttribute("data-fizlet-ignore", ""); // the field stick and pointer never see pad touches
   // Labels, names and icons are game code (trusted), like any markup the game writes.
   el.innerHTML = `<div class="bui-pad-move"></div><div class="bui-pad-keys">${acts
-    .map((a, i) => `<button type="button" class="bui-arcade bui-${a.role ?? (i ? "sys" : "fire")}${i ? "" : " bui-primary"}" data-i="${i}" aria-label="${a.name ?? a.label}"${a.toggle ? ' aria-pressed="false"' : ""}>${a.icon ?? ""}${a.label ? `<small>${a.label}</small>` : ""}${a.key ? `<kbd>${a.key}</kbd>` : ""}</button>`)
+    .map((a, i) => `<button type="button" class="bui-arcade bui-${(a.role ?? (i ? "sys" : "fire")).replace(/[^a-z-]/g, "")}${i ? "" : " bui-primary"}" data-i="${i}" aria-label="${esc(a.name ?? a.label)}"${a.toggle ? ' aria-pressed="false"' : ""}>${a.icon ?? ""}${a.label ? `<small>${esc(a.label)}</small>` : ""}${a.key ? `<kbd>${esc(a.key)}</kbd>` : ""}</button>`)
     .join("")}</div>`;
   const moveEl = el.firstChild as HTMLElement, kb = (el.lastChild as HTMLElement).children as HTMLCollectionOf<HTMLElement>;
   // Move keys (d-pad arrows or move keys) by direction; the knob when the stick is on.
