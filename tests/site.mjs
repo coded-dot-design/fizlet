@@ -1,4 +1,4 @@
-// Site test (Playwright + Chromium): serves site-dist/ at /fizlet/ (as GitHub Pages does) and checks
+// Site test (Playwright + Chromium): serves site-dist/ at its root path on the site host (ROOT, "/" on fizlet.com) and checks
 // every page at desktop and phone widths: no console errors, every internal link (and #anchor)
 // resolves, no horizontal overflow at 360px, the live demo runs (blast, ledger, Recall, pause
 // offscreen, reduced motion still frame), the quick start example works, the hosted modules load,
@@ -11,16 +11,17 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { chromium } from "playwright";
 import { checkHtml } from "../scripts/check-html.mjs";
+import { SITE, ROOT as SITE_ROOT } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
 import { entries as galleryEntries } from "../scripts/gallery.mjs";
 import { gzipSync } from "node:zlib";
 
-const ROOT = "site-dist", BASE = "/fizlet/";
+const ROOT = "site-dist", BASE = SITE_ROOT;
 if (!existsSync(`${ROOT}/index.html`)) throw new Error("site-dist/ is missing: run `npm run site` first");
 const TYPES = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml", ".ts": "text/plain", ".png": "image/png", ".xml": "application/xml" };
 
-// A tiny static server shaped like Pages: /fizlet/<path>, dir → index.html, else 404.html with 404.
+// A tiny static server shaped like Pages: <BASE><path>, dir → index.html, else 404.html with 404.
 const server = createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   let file = null;
@@ -66,19 +67,35 @@ try {
   // standalone host pages; their open gaps are listed exactly, so a new gap or a fix both fail here
   // until this list is updated.
   const SEO = ["og:type", "og:title", "og:description", "og:url", "og:image", "og:site_name"].map((p) => `<meta property="${p}">`);
-  const SOCIAL = (path) => [`canonical is https://coded-dot-design.github.io/fizlet/${path}`, ...SEO, "og:url matches the canonical", "a <header> landmark", "a <nav> landmark", "a <footer> landmark"];
-  const KNOWN = {
-    "demos/fizz/": ["heading levels in <main> skip from h1 to h3"],
-    "demos/layers/": SOCIAL("demos/layers/"),
-    "examples/fizz/": ["meta description 50–300 characters (0)", ...SOCIAL("examples/fizz/")],
-  };
+  const LANDMARKS = ["a <header> landmark", "a <nav> landmark", "a <footer> landmark"];
+  const KNOWN = { "demos/layers/": LANDMARKS, "examples/fizz/": LANDMARKS };
   for (const path of PAGES) {
     const file = path === "" || path.endsWith("/") ? `${path}index.html` : path;
     const want = KNOWN[path] ?? [];
     assert.deepEqual(checkHtml(readFileSync(`${ROOT}/${file}`, "utf8"), path).sort(), [...want].sort(), `${path || "index"}: html gates`);
   }
-  const sitemap = readFileSync(`${ROOT}/sitemap.xml`, "utf8");
-  for (const path of PAGES.filter((p) => p !== "404.html")) assert.ok(sitemap.includes(`<loc>https://coded-dot-design.github.io/fizlet/${path}</loc>`), `sitemap lists ${path || "index"}`);
+  // Search snippets: every indexable page has its own title (30–60) and description (70–155), and
+  // JSON-LD that parses; sitemap.xml and llms.txt list exactly those pages; robots.txt points at both.
+  const sitemap = readFileSync(`${ROOT}/sitemap.xml`, "utf8"), llms = readFileSync(`${ROOT}/llms.txt`, "utf8"), robots = readFileSync(`${ROOT}/robots.txt`, "utf8");
+  const indexable = PAGES.filter((p) => p !== "404.html");
+  const heads = indexable.map((path) => {
+    const html = readFileSync(`${ROOT}/${path === "" || path.endsWith("/") ? `${path}index.html` : path}`, "utf8");
+    for (const [, ld] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(ld);
+    return { path, title: html.match(/<title>([^<]*)<\/title>/)[1], desc: html.match(/<meta name="description" content="([^"]*)"/)[1] };
+  });
+  for (const { path, title, desc } of heads) {
+    assert.ok(title.length >= 30 && title.length <= 60, `${path || "index"}: title 30–60 characters (${title.length})`);
+    assert.ok(desc.length >= 70 && desc.length <= 155, `${path || "index"}: description 70–155 characters (${desc.length})`);
+  }
+  assert.equal(new Set(heads.map((h) => h.title)).size, heads.length, "titles are unique");
+  assert.equal(new Set(heads.map((h) => h.desc)).size, heads.length, "descriptions are unique");
+  assert.equal(sitemap.match(/<loc>/g).length, indexable.length, "the sitemap lists only indexable pages");
+  assert.equal(llms.match(/^- \[/gm).length, indexable.length, "llms.txt lists only indexable pages");
+  for (const path of indexable) {
+    assert.ok(sitemap.includes(`<loc>${SITE}${path}</loc>`), `sitemap lists ${path || "index"}`);
+    assert.ok(llms.includes(`](${SITE}${path}):`), `llms.txt lists ${path || "index"}`);
+  }
+  assert.ok(robots.includes(`Sitemap: ${SITE}sitemap.xml`) && /User-agent: \*\nAllow: \//.test(robots), "robots.txt admits crawlers and names the sitemap");
   assert.equal(await status(`${BASE}og.png`), 200, "the social card");
 
   // ---------- Brick pages: the sizes are the ones measured on this build ----------
@@ -219,15 +236,15 @@ try {
     await page.waitForFunction(() => window.fizletDemo.engine.running);
     // The home page also carries the two story demos: the layers hero and the fizz can.
     assert.equal(await page.locator("figure.lyr[data-slot-target]").count(), 1, "the layers hero");
-    assert.equal(await page.locator("[data-slot='fizz'] figure.ae-slot[data-slot-target='fizz#hero']").count(), 1, "the fizz can in the story");
+    assert.equal(await page.locator(".fizz-slot figure.ae-slot[data-slot-target='fizz#hero']").count(), 1, "the fizz can in the story");
     // The theme toggle (shared key with DOM VIRUS and Battlefield).
     await page.click("[data-theme-toggle]");
     assert.equal(await page.evaluate(() => [document.documentElement.dataset.theme, localStorage.getItem("dom-virus:theme")].join()), "light,light");
     // The hosted ES modules from the quick start load.
-    const mods = await page.evaluate(async () => {
-      const k = await import("/fizlet/dist/index.js"), fx = await import("/fizlet/dist/fx.js"), input = await import("/fizlet/dist/input.js");
+    const mods = await page.evaluate(async (base) => {
+      const k = await import(`${base}dist/index.js`), fx = await import(`${base}dist/fx.js`), input = await import(`${base}dist/input.js`);
       return [typeof k.createEngine, typeof fx.effects, typeof input.controls].join();
-    });
+    }, BASE);
     assert.equal(mods, "function,function,function");
     assert.deepEqual(errors, []);
     await context.close();

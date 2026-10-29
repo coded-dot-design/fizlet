@@ -35,7 +35,7 @@ ${LAYERS.map((_, i) => `.lyr__l:nth-child(${i + 1}){transform:translateZ(${(i - 
 .lyr__t{display:block;font-size:calc(11px / var(--se));border-width:calc(2px / var(--se));transform:rotateZ(${-TURN}deg) rotateX(${-TILT}deg)}
 }`;
 
-/** The slot figure: `<figure class="ae-slot lyr bui" data-slot-target="…">` with its poster inside. */
+/** The slot figure: `<figure class="ae-slot ae-slot--4x5 lyr bui" data-slot-target="…">` with its poster inside. */
 export function poster(target = "index#layers") {
   let cells = "";
   for (let r = 0; r < ROWS; r++)
@@ -45,7 +45,7 @@ export function poster(target = "index#layers") {
     }
   const layers = LAYERS.map((l, i) =>
     `<div class="lyr__l${i ? "" : " lyr__g"}${i === FAULT ? " lyr__f" : ""}">${i ? "" : cells}<span class="lyr__t">${l.name} <u>· ${l.bytes.toLocaleString("en-GB")} ${l.unit}</u></span></div>`).join("");
-  return `<figure class="ae-slot lyr bui" data-slot-target="${target}" role="img" aria-label="${ARIA}">` +
+  return `<figure class="ae-slot ae-slot--4x5 lyr bui" data-slot-target="${target}" role="img" aria-label="${ARIA}">` +
     `<div class="ae-slot__placeholder lyr__p" aria-hidden="true"><div class="lyr__s">${layers}</div></div></figure>`;
 }
 

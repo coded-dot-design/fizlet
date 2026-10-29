@@ -5,6 +5,7 @@ import { build } from "esbuild";
 import { gzipSync } from "node:zlib";
 import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { esc, social, jsonLd } from "../../layout.mjs";
 
 const OUT = process.argv[2] ?? "site-dist/demos/layers";
 const HERE = "site/demos/layers";
@@ -27,7 +28,11 @@ const { page } = await import("../../../examples/layers/page.mjs");
 let measured = null;
 try { measured = JSON.parse(readFileSync(`${HERE}/measured.json`, "utf8")); } catch {}
 copyFileSync("src/ui/board-ui.css", join(OUT, "board-ui.css"));
-writeFileSync(join(OUT, "index.html"), page({ figure: poster(), css: POSTER_CSS, loader: loader(), measured }));
+// The site's search and sharing tags on the example host page (the example itself stays plain).
+const head = { title: "Layers: a game is a stack, each layer one brick · Fizlet", path: "demos/layers/",
+  description: "A game is a stack of layers. Battlefield Blitz fans out into its bricks, one faults, gets patched, and folds back." };
+writeFileSync(join(OUT, "index.html"), page({ figure: poster(), css: POSTER_CSS, loader: loader(), measured })
+  .replace(/<title>[^<]*<\/title>/, `<title>${esc(head.title)}</title>`).replace(/(<meta name="description"[^>]*>)/, `$1\n${social(head)}\n${jsonLd()}`));
 
 const gz = (b) => gzipSync(b).length;
 const sizes = { loader: gz(loader()), live: gz(readFileSync(join(OUT, "layers.js"))) };
