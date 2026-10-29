@@ -11,6 +11,13 @@
   `tests/site.mjs` fails if a live demo has no badge, if a badge's bytes differ from a fresh
   measurement of the file it names, or if it is hidden. The demos' own standalone pages
   (`demos/fizz/`, `demos/layers/`, `examples/fizz/`) have none yet; they are listed in the test.
+
+## 0.16.0
+
+- **`board-page.consume(i, "0" | "1")`**: the game picks the digit (its particle and event show the
+  same one); `"binary"` still lets the board draw it.
+- **`board-page.scans`**: how many rescans so far. A rescan renumbers glyph indices, so a game that
+  keeps an index across frames (a bug's reserved letter) drops it when this moves.
 - **Tests: the camera's reduced-motion check waits for frames, not 120 ms of wall time**, so slow CI
   runners no longer fail it.
 - **Tests: zero-allocation checks no longer flake.** `match` and `rules` count young GCs with the
@@ -68,7 +75,7 @@ For Swarm Protocol's port onto the kernel (its own engine kept page-level hooks 
 - **`board-page.char(i)`**: the letter glyph i was before the game changed it (a bite reports which
   letter it ate). **`board-page.parent(i)`**: the element that holds it, for a game's own
   read-phase checks (what covers it). Neither is for a step.
-- Size: kernel 3,415 B gzip (budget 4,096); `fizlet/board-page` 4,010 B (3,960 in 0.13.0, budget
+- Size: kernel 3,415 B gzip (budget 4,096); `fizlet/board-page` 4,043 B (3,960 in 0.13.0, budget
   4,096); `fizlet/arcade` 17,206 B (budget 17,408).
 
 ## 0.13.0
