@@ -4,6 +4,7 @@
 
 Hardening from the engineering review (2026-10-29, §8: UI and tokens, collision and effects).
 
+- pack smoke test: data subpaths (`.css`, `.json`) resolve instead of importing.
 - ui: `mount()` keys its shared constructed stylesheet by the CSS text. It cached the first sheet
   for the whole page, so a second game mounted with different CSS got the first game's styles.
   Stylesheet ownership is documented (BOARD-UI.md 2.1). No visual change.
