@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.10.0
+
+- **Both heroes 5% under the 10 KB live budget** (fizlet-engine docs/LAYERS.md), by making bricks
+  leave out what a page doesn't call:
+  - Layers story: live chunk 10,230 → 9,616 B gzip (6.1% under). It places its tanks as SVG
+    backgrounds, so it now imports `spriteURL` instead of all of `fizlet/sprite`.
+  - Fizz: live chunk 10,100 → 9,725 B gzip (5.0% under). It takes `BUBBLE` alone, the camera
+    helpers it doesn't use stay out, and it uses the default camera ease (7: ~0.9 s in, like the
+    original curve).
+  - Measured (Chromium 153, 4× CPU throttle). Fizz: script per frame 1.0 ms avg, 3.7 ms p95,
+    16.8 ms max (was 1.1 / 4.1 / 22.4). Layers: p50 1.0, p95 3.2, max 8.8 ms (0.8.1 measured 0.8 /
+    2.6 / 6.3). Both: 0 frames once settled, CLS 0 from the slot.
+- **Breaking (`fizlet/sprite`):** `sprites().svg()` / `.url()` are now the standalone
+  `spriteSVG(def, frame, palettes, palette)` / `spriteURL(...)`, the same output. A canvas scene no
+  longer ships the SVG writer, and an SVG-only page never ships the canvas cache.
+- **Breaking (`fizlet/camera`, new in 0.9.0):** `zoomAt(cam, …)`, `flyTo(cam, …)`, `fit(cam, …)` and
+  `toScreen(cam, …)` are standalone exports, and `snap()` is gone (use `motion: false`). New
+  `cam.width` / `cam.height`. `flyTo`'s zoom now defaults to the current zoom.
+- **fx:** the built-in kinds are also separate consts (`BUBBLE`, `SPARK`, `DRIP`, `DEBRIS_KIND`), so
+  taking one ships only that one; `KINDS` still groups all four. A turned particle now draws with
+  one save/restore, and an unturned one with none.
+
 ## 0.9.0
 
 - **`fizlet/camera`** (new, 1,330 B gzip, budget 1,536): the page is the camera. `camera(engine, el)`

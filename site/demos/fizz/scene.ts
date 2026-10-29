@@ -3,7 +3,7 @@
 // kinds: spray, bubbles, splash; pop words), fizlet/sprite (the can), fizlet/camera (the page is the
 // camera: one eased transform on a host element, through the ledger, so Recall gives it back).
 import { createEngine } from "../../../src/kernel/index";
-import { effects, emitter, KINDS, type Kind } from "../../../src/fx";
+import { effects, emitter, BUBBLE, type Kind } from "../../../src/fx";
 import { camera } from "../../../src/camera";
 import { sprites } from "../../../src/sprite";
 import type { SlotScene, SlotTap } from "../../../src/slot";
@@ -29,7 +29,7 @@ export type FizzScene = SlotScene & {
 // The blast's ring part (fx ids 0-5); the other kinds are data, in art pixels (scaled by K).
 const RING = 2, UP = -Math.PI / 2;
 const KIND = {
-  bubble: KINDS.bubble,
+  bubble: BUBBLE,
   spray: { shape: "square" as const, drag: 1.4, gravity: 0.4, angle: UP, spread: 1.3, speed: [40, 130], size: [0.75, 2.25], life: [0.6, 1.3] },
   splash: { shape: "square" as const, drag: 1.4, gravity: 1, angle: UP, spread: 2.4, speed: [15, 40], size: [1, 1], life: [0.35, 0.5] },
 } satisfies Record<string, Kind>;
@@ -42,7 +42,7 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
   const engine = createEngine({ root: stage, fps: 30, settle: 0.6 });
   const fx = effects({ cap: 260, colors: [C.ink, C.sys, C.go, C.aim, C.attack], words: ["PSST!", "FIZZ"], scorch: 0 });
   const { ids, emit } = emitter(fx, KIND);
-  const cam = zoomEl && camera(engine, zoomEl, { ease: 5 });
+  const cam = zoomEl && camera(engine, zoomEl); // default ease 7: ~0.9 s in, like the original curve
   const art = sprites({ can: CAN });
   const canvas = engine.ledger.add(document.createElement("canvas"));
   canvas.style.cssText = "position:absolute;left:0;top:0;image-rendering:pixelated";
@@ -106,7 +106,7 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
           s.ox = q.left - r.left + mouthX() * P;
           s.oy = q.top - r.top + mouthY() * P;
         }
-        cam.zoomAt(s.ox, s.oy, Z);
+        cam.to(s.ox, s.oy, Z); // a zoom about the opening
       }
     },
     step(e, dt) {

@@ -2,10 +2,10 @@
   "date": "2026-10-29",
   "browser": "153",
   "throttle4x": {
-    "frames": 368,
-    "avgMs": 1.1,
-    "p95Ms": 4.1,
-    "maxMs": 22.4
+    "frames": 342,
+    "avgMs": 1,
+    "p95Ms": 3.7,
+    "maxMs": 16.8
   },
   "settled": {
     "framesPerSecond": 0
@@ -28,7 +28,7 @@
   },
   "bytes": {
     "loader": 2105,
-    "chunk": 10100,
+    "chunk": 9725,
     "poster": 1989
   }
 }

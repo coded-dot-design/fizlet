@@ -26,14 +26,14 @@ export interface Kind {
   size: readonly [number, number];
   life: readonly [number, number];
 }
-/** The named kinds: `emitter(fx, KINDS)`, or pick some (`emitter(fx, { bubble: KINDS.bubble })`).
- *  Angles are literals (not Math.PI) so this stays pure and tree-shakes when unused. */
-export const KINDS = {
-  bubble: { shape: "square", drag: 1.4, gravity: -0.3, angle: -1.5708, spread: 0.7, speed: [25, 75], size: [1, 1.5], life: [0.7, 1.6] },
-  spark: { shape: "streak", drag: 3, gravity: 0.6, angle: 0, spread: 6.2832, speed: [160, 420], size: [1, 2], life: [0.2, 0.5] },
-  drip: { shape: "streak", drag: 0, gravity: 1, angle: 1.5708, spread: 0.2, speed: [0, 20], size: [1, 2], life: [0.6, 1.2] },
-  debris: { shape: "square", drag: 2.6, gravity: 1, angle: 0, spread: 6.2832, speed: [120, 300], size: [4, 9], life: [0.5, 0.9] },
-} satisfies Record<string, Kind>;
+// The built-in kinds, one const each so a page that takes one ships only that one. Angles are
+// literals (not Math.PI) so these stay pure and tree-shake.
+export const BUBBLE: Kind = { shape: "square", drag: 1.4, gravity: -0.3, angle: -1.5708, spread: 0.7, speed: [25, 75], size: [1, 1.5], life: [0.7, 1.6] };
+export const SPARK: Kind = { shape: "streak", drag: 3, gravity: 0.6, angle: 0, spread: 6.2832, speed: [160, 420], size: [1, 2], life: [0.2, 0.5] };
+export const DRIP: Kind = { shape: "streak", drag: 0, gravity: 1, angle: 1.5708, spread: 0.2, speed: [0, 20], size: [1, 2], life: [0.6, 1.2] };
+export const DEBRIS_KIND: Kind = { shape: "square", drag: 2.6, gravity: 1, angle: 0, spread: 6.2832, speed: [120, 300], size: [4, 9], life: [0.5, 0.9] };
+/** All four by name: `emitter(fx, KINDS)`, or pick some (`emitter(fx, { bubble: BUBBLE })`). */
+export const KINDS = { bubble: BUBBLE, spark: SPARK, drip: DRIP, debris: DEBRIS_KIND };
 // blast()'s five hero parts: flash, fireball, core, shock ring, spinning square ring.
 const HERO_KIND = [DISC, DISC, DISC, RING, SQUARE], HERO_SIZE = [26, 20, 14, 18, 24], HERO_LIFE = [0.28, 0.5, 0.42, 0.5, 0.6], HERO_COL = [0, 1, 2, 0, 3];
 
@@ -68,7 +68,7 @@ export function effects(o: FxOptions = {}) {
   const sc = o.scorch ?? 36;
   check(Number.isInteger(cap) && cap > 0, "cap");
   check(Number.isInteger(sc) && sc >= 0, "scorch");
-  check(colors.length <= 256 && words.length <= 256, "at most 256 colors and words");
+  check(colors.length <= 256 && words.length <= 256, "256 colors, words");
   // x, y, vx, vy, rot, spin, size, life, max: one Float32Array per field.
   const f = Array.from({ length: 9 }, () => new Float32Array(cap));
   const [X, Y, VX, VY, ROT, SPIN, SIZE, LIFE, MAX] = f as [Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array];
@@ -234,8 +234,11 @@ export function effects(o: FxOptions = {}) {
     draw(ctx: CanvasRenderingContext2D, light = false) {
       const n = st[0]!;
       for (let i = 0; i < n; i++) {
-        const k = LIFE[i]! / MAX[i]!, c = colors[col[i]!]!, x = X[i]!, y = Y[i]!, s = SIZE[i]!;
-        switch (K[kind[i]! * 11]) {
+        const k = LIFE[i]! / MAX[i]!, c = colors[col[i]!]!, s = SIZE[i]!, sh = K[kind[i]! * 11], a = ROT[i]!;
+        let x = X[i]!, y = Y[i]!;
+        // A turned particle draws about its own origin (one save/restore, only when it is turned).
+        if (a) ctx.save(), ctx.translate(x, y), ctx.rotate(a), (x = y = 0);
+        switch (sh) {
           case STREAK: {
             // A streak stretches with its speed (falling drips, sparks), square to the page.
             const l = Math.abs(VY[i]!) * 0.03 + s;
@@ -247,15 +250,11 @@ export function effects(o: FxOptions = {}) {
           case DEBRIS:
             ctx.globalAlpha = Math.min(1, k * 1.6);
             ctx.fillStyle = c;
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(ROT[i]!);
-            ctx.fillRect(-s / 2, -s / 2, s, s);
-            ctx.restore();
+            ctx.fillRect(x - s / 2, y - s / 2, s, s);
             break;
           case DISC:
           case SMOKE: {
-            const smoke = K[kind[i]! * 11] === SMOKE;
+            const smoke = sh === SMOKE;
             ctx.globalAlpha = smoke ? k * (light ? 0.12 : 0.2) : k;
             ctx.fillStyle = smoke ? (light ? "#5d5684" : "#2a2150") : c;
             ctx.beginPath();
@@ -268,34 +267,25 @@ export function effects(o: FxOptions = {}) {
             ctx.globalAlpha = k;
             ctx.strokeStyle = c;
             ctx.lineWidth = 4 * k + 1;
-            const r = s * (0.5 + (1 - k) * (K[kind[i]! * 11] === RING ? 4.2 : 3));
-            if (K[kind[i]! * 11] === RING) {
+            const r = s * (0.5 + (1 - k) * (sh === RING ? 4.2 : 3));
+            if (sh === RING) {
               ctx.beginPath();
               ctx.arc(x, y, r, 0, TAU);
               ctx.stroke();
-            } else {
-              ctx.save();
-              ctx.translate(x, y);
-              ctx.rotate(ROT[i]!);
-              ctx.strokeRect(-r / 2, -r / 2, r, r);
-              ctx.restore();
-            }
+            } else ctx.strokeRect(x - r / 2, y - r / 2, r, r);
             break;
           }
           case WORD:
             ctx.globalAlpha = Math.min(1, k * 2);
             ctx.font = `900 ${Math.round(s * (1 + (1 - k) * 0.3))}px ui-monospace, SFMono-Regular, monospace`;
             ctx.textAlign = "center";
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(ROT[i]!);
             ctx.lineWidth = 5;
             ctx.strokeStyle = light ? "#fff" : "#07060f";
-            ctx.strokeText(words[word[i]!]!, 0, 0);
+            ctx.strokeText(words[word[i]!]!, x, y);
             ctx.fillStyle = c;
-            ctx.fillText(words[word[i]!]!, 0, 0);
-            ctx.restore();
+            ctx.fillText(words[word[i]!]!, x, y);
         }
+        if (a) ctx.restore();
       }
       ctx.globalAlpha = 1;
     },
@@ -335,7 +325,7 @@ export function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>) {
      * stops at capacity and counts the rest in `dropped`. Writes the arrays directly: nothing boxes.
      */
     emit(k: number, x: number, y: number, n: number, c = 0, cn = 1, scale = 1) {
-      if (!(k >= 6 && k < nk && finite(x) && finite(y) && finite(scale) && n >= 0 && n < Infinity)) return void st[3]!++;
+      if (!(k >= 6 && k < nk && finite(x) && finite(y) && finite(scale) && n < Infinity)) return void st[3]!++;
       const r = k * 11 + 1;
       for (let i = 0; i < n; i++) {
         const p = st[0]!;

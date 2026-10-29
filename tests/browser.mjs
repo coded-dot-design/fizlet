@@ -11,7 +11,7 @@ import { chromium } from "playwright";
 import { readFileSync } from "node:fs";
 
 const bundle = (await build({
-  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { hud } from "./src/hud.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts"; export { mount, readouts } from "./src/ui/board-ui.ts"; export { match } from "./src/match.ts"; export { launch } from "./src/ui/board-ui.ts"; export { boardPage } from "./src/board-page.ts"; export { perf } from "./src/perf.ts"; export { setting, PERF_KEY } from "./src/ui/board-ui.ts";', resolveDir: process.cwd(), loader: "ts" },
+  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { hud } from "./src/hud.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites, spriteURL } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts"; export { mount, readouts } from "./src/ui/board-ui.ts"; export { match } from "./src/match.ts"; export { launch } from "./src/ui/board-ui.ts"; export { boardPage } from "./src/board-page.ts"; export { perf } from "./src/perf.ts"; export { setting, PERF_KEY } from "./src/ui/board-ui.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "fizlet", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 
@@ -1062,7 +1062,7 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, observers let go on abort, layout guard, input, embed, slot (idle wait, first tap, settle) passed.");
   where = "sprite";
   const spr = await page.evaluate(async () => {
-    const { sprites, sherman } = fizlet;
+    const { sprites, spriteURL, sherman } = fizlet;
     // Reference: the hull tile exactly as sherman-bytes/src/sprites.ts paints it (copied for the test).
     const original = (color, frame) => {
       const tile = document.createElement("canvas");
@@ -1115,7 +1115,7 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
     out.cap = [small.size, small.baked];
     // An SVG page character: same size, crisp.
     const img = new Image();
-    img.src = sp.url("hull", 1, 1);
+    img.src = spriteURL(sherman.hull, 1, sp.palettes, 1);
     await img.decode();
     out.img = [img.naturalWidth, img.naturalHeight];
     return out;

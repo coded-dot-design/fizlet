@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { minorGCs } from "./gc.mjs";
 
 const { createEngine } = await import("../src/kernel/index.ts");
-const { camera } = await import("../src/camera.ts");
+const { camera, zoomAt, flyTo, fit, toScreen } = await import("../src/camera.ts");
 
 // Just enough of an element for the ledger: inline style properties and attributes.
 function stage(w = 800, h = 400) {
@@ -34,11 +34,11 @@ const run = (e, sec) => {
 test("camera: zoomAt eases in about a fixed point, settles exactly, home gives the page back", () => {
   const e = createEngine({ settle: 0.2 }), el = stage(), cam = camera(e, el), out = new Float64Array(2);
   e.start();
-  cam.zoomAt(200, 100, 2);
+  zoomAt(cam, 200, 100, 2);
   run(e, 0.1);
   assert.ok(cam.moving && cam.zoom > 1 && cam.zoom < 2, `eases (${cam.zoom})`);
   // The zoom point stays put on screen the whole way.
-  cam.toScreen(200, 100, out);
+  toScreen(cam, 200, 100, out);
   assert.ok(Math.abs(out[0] - 200) < 1e-6 && Math.abs(out[1] - 100) < 1e-6, `${out}`);
   run(e, 2);
   assert.equal(cam.moving, false);
@@ -59,7 +59,7 @@ test("camera: zoomAt eases in about a fixed point, settles exactly, home gives t
 test("camera: contain keeps the stage over its own box; limits clamp the zoom", () => {
   const e = createEngine(), el = stage(800, 400), cam = camera(e, el, { max: 3 }), out = [0, 0];
   e.start();
-  cam.flyTo(790, 10, 9); // a corner, past the zoom limit
+  flyTo(cam, 790, 10, 9); // a corner, past the zoom limit
   run(e, 3);
   assert.equal(cam.zoom, 3, "clamped to max");
   // translate stays within [size * (1 - z), 0] on both axes: no edge of the stage shows.
@@ -74,17 +74,17 @@ test("camera: contain keeps the stage over its own box; limits clamp the zoom", 
   // contain: false lets the stage move off its box.
   const e2 = createEngine(), c2 = camera(e2, stage(), { contain: false, motion: false });
   e2.start();
-  c2.flyTo(0, 0, 1);
+  flyTo(c2, 0, 0, 1);
   e2.advance(1 / 60);
   assert.equal(c2.moving, false, "motion: false jumps in one step");
-  c2.toScreen(0, 0, out);
+  toScreen(c2, 0, 0, out);
   assert.deepEqual(out, [400, 200], "world 0,0 at the centre");
 });
 
 test("camera: fit frames a box; bad input is ignored; options are checked", () => {
   const e = createEngine(), cam = camera(e, stage(800, 400), { motion: false });
   e.start();
-  cam.fit(100, 100, 200, 100, 0);
+  fit(cam, 100, 100, 200, 100, 0);
   e.advance(1 / 60);
   assert.equal(cam.zoom, 4, "min(800 / 200, 400 / 100)");
   cam.to(NaN, 0, 2);

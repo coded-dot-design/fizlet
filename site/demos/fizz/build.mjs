@@ -31,9 +31,9 @@ export const sizes = { loader: bytes(`${OUT}/main.js`), chunk: bytes(`${OUT}/sce
 
 // The poster: the same can pixels as an SVG (fizlet/sprite svg()), open, with the drip and the fizz
 // frozen mid-spray. It is the placeholder while the scene loads and the still frame for reduced motion.
-const art = await build({ stdin: { contents: 'export { CAN, C } from "./can.ts"; export { sprites } from "../../../src/sprite.ts";', resolveDir: DIR, loader: "ts" }, bundle: true, format: "esm", write: false, logLevel: "silent" });
-const { CAN, C, sprites } = await import("data:text/javascript;base64," + Buffer.from(art.outputFiles[0].text).toString("base64"));
-const can = sprites({ can: CAN }).svg("can", 1).replace(/^<svg[^>]*>/, '<svg x="-11" y="14" width="22" height="42">');
+const art = await build({ stdin: { contents: 'export { CAN, C } from "./can.ts"; export { spriteSVG } from "../../../src/sprite.ts";', resolveDir: DIR, loader: "ts" }, bundle: true, format: "esm", write: false, logLevel: "silent" });
+const { CAN, C, spriteSVG } = await import("data:text/javascript;base64," + Buffer.from(art.outputFiles[0].text).toString("base64"));
+const can = spriteSVG(CAN, 1).replace(/^<svg[^>]*>/, '<svg x="-11" y="14" width="22" height="42">');
 let seed = 7;
 const rnd = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
 let fizzPx = "";

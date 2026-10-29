@@ -10,7 +10,7 @@
  * Recall: every node it adds goes through the engine's ledger; destroy() gives the stage back.
  */
 import { createEngine } from "../../../src/kernel/index";
-import { sprites } from "../../../src/sprite";
+import { spriteURL, type SpriteDef } from "../../../src/sprite";
 import { effects } from "../../../src/fx";
 import type { SlotMount, SlotScene } from "../../../src/slot";
 import { LAYERS, FAULT, fit, COLS, ROWS, CELL, BW, BH, MAP, TILT, TURN, GAP } from "./data";
@@ -36,26 +36,23 @@ const smooth = (a: number, b: number, t: number) => {
   return k * k * (3 - 2 * k);
 };
 
-const tank = (pal: Record<string, string>[]) => sprites(
-  {
-    tank: {
-      frames: [
-        "...ccc...",
-        "...cbc...",
-        "ttttbtttt",
-        "tbbbbbbbt",
-        "tbbhbhbbt",
-        "tbbbbbbbt",
-        "tbbhbhbbt",
-        "tbbbbbbbt",
-        "ttttttttt",
-      ],
-      colors: { t: "tread", b: "team", h: "hatch", c: "team" },
-      outline: "rim",
-    },
-  },
-  { palettes: pal },
-);
+// The tank, as data. The scene places it as SVG backgrounds (spriteURL), so the canvas half of
+// fizlet/sprite stays out of the live chunk.
+const TANK: SpriteDef = {
+  frames: [
+    "...ccc...",
+    "...cbc...",
+    "ttttbtttt",
+    "tbbbbbbbt",
+    "tbbhbhbbt",
+    "tbbbbbbbt",
+    "tbbhbhbbt",
+    "tbbbbbbbt",
+    "ttttttttt",
+  ],
+  colors: { t: "tread", b: "team", h: "hatch", c: "team" },
+  outline: "rim",
+};
 
 export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
   const loops = opts.loops ?? 3, speed = opts.speed ?? 1;
@@ -65,7 +62,7 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
   // The tanks wear the Board UI kit's tokens (sprites take hex: read them once, here).
   const cs = getComputedStyle(stage), tok = (v: string, d: string) => cs.getPropertyValue(v).trim() || d;
   const rim = tok("--rim", "#07060f");
-  const TANK = tank([{ tread: tok("--raised", "#1d1738"), team: tok("--team-a", "#39ffb0"), hatch: rim, rim }, { team: tok("--team-b", "#ff5c8f") }]);
+  const pals: Record<string, string>[] = [{ tread: tok("--raised", "#1d1738"), team: tok("--team-a", "#39ffb0"), hatch: rim, rim }, { team: tok("--team-b", "#ff5c8f") }];
 
   // ---------- fit: game pose and exploded pose (orthographic estimate, no DOM reads) ----------
   const { sp, se, ex, ey } = fit(W, H);
@@ -132,7 +129,7 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
     const [c0, r0, c1, r1] = LOOP[i]!;
     TX[i] = (c0! + 0.5) * CELL, TY[i] = (r0! + 0.5) * CELL, AT[i] = 1, COOL[i] = 1 + i * 0.4;
     const t = el(charL, "lz-t");
-    t.style.background = `url("${TANK.url("tank", 0, i & 1)}") 0 0/100% 100%`;
+    t.style.background = `url("${spriteURL(TANK, 0, pals, i & 1)}") 0 0/100% 100%`;
     tankEl.push(t), boxEl.push(el(colL, "lz-h"));
     const loop = el(moveL, "lz-o", TX[i]!, TY[i]!);
     loop.style.width = `${(c1! - c0!) * CELL}px`;
