@@ -345,7 +345,7 @@ a.bui-sticker-key {
   font-size: 14px;
   color: var(--muted);
 }
-.site-foot h4 {
+.site-foot h2 {
   margin: 0 0 10px;
   font: 700 11px var(--mono);
   letter-spacing: 0.14em;
@@ -1892,6 +1892,14 @@ html.bui[data-theme="light"] .phases b {
   inset: 0;
   width: 100%;
   height: 100%;
+}
+/* Slot ratios (astro-base-engine ae-slot--WxH): the base ratio a slot keeps before it fills. Zero
+   specificity, so a slot's own rules (and their breakpoints) always win. */
+:where(.ae-slot--16x10) {
+  aspect-ratio: 16 / 10;
+}
+:where(.ae-slot--4x5) {
+  aspect-ratio: 4 / 5;
 }
 /* ---------- The size badge (site/size-badge.mjs): one measured number on a sticker ---------- */
 .size-badge {

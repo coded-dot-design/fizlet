@@ -223,7 +223,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz }) 
       <p class="body">It started with DOM VIRUS: small games with a few characters, running right inside a page, changing the DOM itself and then giving it back. The bar for every brick since is simple: do one thing well, and fit with everything around it.</p>
     </div>
     <!-- The soda-can fizz scene (site/demos/fizz/): its own figure and poster; demos/fizz/main.js mounts it. -->
-    <div class="fizz-slot" data-slot="fizz">
+    <div class="fizz-slot">
       ${fizz.figure}
       <p class="hero-cap bui-label"><b>LIVE</b> · tap the can · live chunk ${fmt(fizz.sizes.chunk)} B gzip · <a href="demos/fizz/">The fizz proof piece</a></p>
     </div>
