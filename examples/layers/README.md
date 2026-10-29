@@ -31,8 +31,8 @@ the explode/assemble timeline. By [Chris Cooley](https://coded.design/).
 <script type="module">…</script>
 ```
 
-Optional data attributes on the figure: `data-loops` (cycles before it settles, default 3),
-`data-settle` (quiet seconds, default 0.5), `data-speed` (story clock, default 1).
+Optional data attributes on the figure: `data-loops` (cycles before it settles, default 3) and
+`data-speed` (story clock, default 1).
 
 ## Behaviour
 
@@ -67,9 +67,9 @@ Optional data attributes on the figure: `data-loops` (cycles before it settles, 
 
 ## Measured
 
-See `site/demos/layers/measured.json`. On Fizlet 0.10.1, Chromium 153: live chunk 9,716 B gzip
+See `site/demos/layers/measured.json`. On Fizlet 0.15.0, Chromium 153: live chunk 9,713 B gzip
 (`fizlet/slot` + scene, loaded only once the slot is near); poster, controls and inline script
-5,253 B gzip (script 848 B); at 4× CPU throttle, script per frame 1.0 ms median, 3.0 ms p95, 5.7 ms
+5,258 B gzip (script 848 B); at 4× CPU throttle, script per frame 0.9 ms median, 3.3 ms p95, 11.4 ms
 max; layout shift 0; 0 frames once settled; 0 B of JS fetched before the slot nears the viewport.
 
 Against the hero budgets in fizlet-engine `docs/LAYERS.md`: live chunk ≥ 5% under 10 KB ✔, poster ≤ 6 KB ✔,

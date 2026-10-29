@@ -345,7 +345,7 @@ a.bui-sticker-key {
   font-size: 14px;
   color: var(--muted);
 }
-.site-foot h4 {
+.site-foot h2 {
   margin: 0 0 10px;
   font: 700 11px var(--mono);
   letter-spacing: 0.14em;
@@ -1893,6 +1893,14 @@ html.bui[data-theme="light"] .phases b {
   width: 100%;
   height: 100%;
 }
+/* Slot ratios (astro-base-engine ae-slot--WxH): the base ratio a slot keeps before it fills. Zero
+   specificity, so a slot's own rules (and their breakpoints) always win. */
+:where(.ae-slot--16x10) {
+  aspect-ratio: 16 / 10;
+}
+:where(.ae-slot--4x5) {
+  aspect-ratio: 4 / 5;
+}
 /* ---------- The size badge (site/size-badge.mjs): one measured number on a sticker ---------- */
 .size-badge {
   display: inline-flex;
@@ -2019,6 +2027,51 @@ html.bui[data-theme="light"] .phases b {
   gap: 6px;
   align-items: center;
   color: var(--k-sys-ink);
+}
+/* A page scene's figure: a small page of real elements the scene reads (the poster too). */
+.gal-mini {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 22px;
+}
+.gal-mini-h1,
+.gal-mini-h2 {
+  display: block;
+  color: var(--ink);
+  font: 700 clamp(18px, 3vw, 26px)/1.15 var(--sans);
+}
+.gal-mini-h2 {
+  font-size: clamp(15px, 2.2vw, 19px);
+}
+.gal-mini-p {
+  color: var(--muted);
+  font: 13px/1.4 var(--mono);
+}
+.gal-mini-row {
+  display: flex;
+  gap: 10px;
+}
+.gal-mini-key {
+  padding: 5px 12px;
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  font: 700 12px/1.4 var(--mono);
+}
+.gal-stage .gal-cap {
+  inset: auto 0 6px;
+  display: block;
+  padding: 0 12px;
+  text-align: left;
+  font: 11px/1.4 var(--mono);
+  color: var(--muted);
+}
+.gal-total {
+  margin-left: 8px;
 }
 /* A spray settles to an empty stage: say it plays again on a tap (motion only: never under reduced motion). */
 @media (prefers-reduced-motion: no-preference) {

@@ -94,6 +94,11 @@ export interface ArcadeContext {
   say(text: string, ms?: number): void;
   /** onEvent for the hub (a plain object: call it from render, not a step). */
   emit(type: string, data?: Record<string, unknown>): void;
+  /** In-page art: a shadow root in an overlay inside `el` (an absolutely positioned host that
+   *  follows the page's layout, scrolling and transforms natively). A static `el` becomes
+   *  relative. Through the ledger: Recall removes it and puts the style back. Call from create
+   *  or reset (it reads computed style), never from a step. Null for replaced elements. */
+  attach(el: Element): ShadowRoot | null;
 }
 export interface ArcadeGame<S> {
   /** A fresh run (the viewport is in ctl[VW], ctl[VH]). */
@@ -127,6 +132,8 @@ export interface ArcadeDef<S> {
   actions?: ArcadeAction[];
   /** Touch move control (default "stick"; "dpad" for grid games). */
   pad?: "stick" | "dpad";
+  /** Keys (or the stick) only: the mouse never steers. */
+  keyboard?: boolean;
   /** Readouts: label, tone, how the value shows, and whether it hides when the board is folded. */
   readouts: [label: string, tone?: "team" | "enemy" | undefined, fmt?: ((v: number) => string) | undefined, fold?: boolean | undefined][];
   meter?: { label: string };
@@ -163,7 +170,7 @@ canvas{position:absolute;inset:0;pointer-events:none}
 .ar .bui-readouts{justify-content:space-between;gap:12px}
 .mt{display:grid;grid-template-columns:1fr auto;gap:4px 8px;font-size:10px;letter-spacing:.08em;color:var(--muted)}.mt b{color:var(--ink)}
 .mt i{grid-column:1/-1;height:6px;border-radius:3px;background:var(--surface);border:1.5px solid var(--line);overflow:hidden}.mt u{display:block;height:100%;width:0;background:var(--team-a)}
-.ar nav{display:flex;flex-wrap:wrap;gap:6px}.ar nav button{flex:1;min-height:0;padding:7px 4px;font:800 10px/1 ui-monospace,monospace;letter-spacing:.08em}
+.ar nav{display:flex;flex-wrap:wrap;gap:6px}.ar nav button{flex:1 1 auto;white-space:nowrap;min-height:0;padding:7px 6px;font:800 10px/1 ui-monospace,monospace;letter-spacing:.08em}
 .ar.compact .mt,.ar.compact nav,.ar.compact [data-fold]{display:none}
 .bui .msg{position:absolute;left:50%;bottom:max(16px,env(safe-area-inset-bottom));translate:-50% 0;max-width:calc(100% - 24px);pointer-events:none}
 .bui .msg[hidden]{display:none}
@@ -178,7 +185,7 @@ export function arcade<S>(def: ArcadeDef<S>, options: ArcadeOptions<S> = {}): Ar
   const motion = typeof matchMedia === "function" ? matchMedia("(prefers-reduced-motion: reduce)") : null;
   const reduced = () => options.reducedMotion ?? !!motion?.matches;
   const emit = (type: string, data: Record<string, unknown> = {}) => options.onEvent?.({ ...data, type, game: def.id });
-  const keyboard = options.controls === "keyboard";
+  const keyboard = def.keyboard || options.controls === "keyboard";
   const actions = def.actions ?? [];
 
   function getSnapshot(): ArcadeSnapshot<S> {
@@ -244,7 +251,8 @@ ${def.meter ? `<div class="mt"><b></b><span></span><i role="progressbar" aria-la
       const input = controls(e, { keys, target: host });
       const coarse = matchMedia("(pointer: coarse)").matches;
       if (coarse) {
-        const pads: PadAction[] = actions.map((a) => ({ intent: a.id, label: a.label.replace(/^[^·]*· /, ""), role: "sys" }));
+        // Without fire, the first action is the big primary key.
+        const pads: PadAction[] = actions.map((a, i) => ({ intent: a.id, label: a.label.replace(/^[^·]*· /, ""), role: !def.fire && !i ? "go" : "sys" }));
         if (def.fire) pads.unshift({ intent: "fire", label: "", name: "Hold to fire (Space)", icon: ICON.fire, hold: true, role: "fire" });
         pad(e, input, { scheme: def.pad ?? "stick", host: ui, actions: pads });
       }
@@ -277,6 +285,16 @@ ${def.meter ? `<div class="mt"><b></b><span></span><i role="progressbar" aria-la
         },
         say: (text, ms) => toast(msg, text, ms),
         emit,
+        attach(el) {
+          if (!(el instanceof HTMLElement) || /^(IMG|INPUT|BR|HR|CANVAS|VIDEO|IFRAME|TEXTAREA|SELECT)$/.test(el.tagName)) return null;
+          if (getComputedStyle(el).position === "static") e.ledger.style(el, "position", "relative", "important");
+          const art = e.ledger.add(doc.createElement("div"));
+          art.setAttribute("data-fizlet-host", `${def.id}-art`);
+          art.setAttribute("aria-hidden", "true");
+          art.style.cssText = "all:initial!important;position:absolute!important;inset:0!important;display:block!important;border-radius:inherit!important;pointer-events:none!important;user-select:none!important";
+          el.append(art);
+          return art.attachShadow({ mode: "open" });
+        },
       };
       const game = def.create(context);
 

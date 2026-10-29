@@ -68,9 +68,10 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
   const rand = engine.random;
   const W = stage.clientWidth, H = stage.clientHeight; // one read, at mount (the slot sizes the stage)
   // The tanks wear the Board UI kit's tokens (sprites take hex: read them once, here).
-  const cs = getComputedStyle(stage), tok = (v: string, d: string) => cs.getPropertyValue(v).trim() || d;
-  const rim = tok("--rim", "#07060f");
-  const pals: Record<string, string>[] = [{ tread: tok("--raised", "#1d1738"), team: tok("--team-a", "#39ffb0"), hatch: rim, rim }, { team: tok("--team-b", "#ff5c8f") }];
+  // The figure is a .bui root on a page with board-ui.css (every colour here is a kit token).
+  const cs = getComputedStyle(stage), tok = (v: string) => cs.getPropertyValue(v).trim();
+  const rim = tok("--rim");
+  const pals: Record<string, string>[] = [{ tread: tok("--raised"), team: tok("--team-a"), hatch: rim, rim }, { team: tok("--team-b") }];
 
   // ---------- DOM: one stack, eight layers ----------
   const root = engine.ledger.add(document.createElement("div"));
@@ -116,7 +117,7 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
     }
   const scan = el(colL, "lz-scan");
   // Rules: spawn pads in the corners.
-  for (const [c, r] of [[0, 0], [8, 12], [8, 0], [0, 12]]) el(rulesL, "lz-p", c! * CELL, r! * CELL);
+  for (let k = 0; k < 4; k++) el(rulesL, "lz-p", (k & 1) * (COLS - 1) * CELL, (k >> 1) * (ROWS - 1) * CELL);
   // Effects: the fx brick draws on its own canvas inside its layer.
   const cv = el(fxL, "canvas") as HTMLCanvasElement;
   cv.className = "lz-cv";
@@ -276,7 +277,7 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
       fx.draw(ctx);
       // The controls follow the story (through the ledger: Recall gives them back).
       const L = engine.ledger, pct = `${Math.round(open * 100)}`;
-      L.style(fig, "--e", `${+open.toFixed(3)}`);
+      L.style(fig, "--e", `${open}`);
       if (slider) L.attr(slider, "aria-valuenow", pct);
       if (key) L.attr(key, "aria-label", play && phase[1]! < loops ? "Pause" : "Play");
     },
@@ -293,8 +294,8 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
   return { destroy: () => engine.destroy() };
 }
 
-/** For fizlet/slot: reads `data-loops` / `data-settle` from the slot figure. */
+/** For fizlet/slot: reads `data-loops` / `data-speed` from the slot figure. */
 export const mountSlot: SlotMount = (stage, slotEl) => {
-  const n = (k: string) => (slotEl.dataset[k] != null ? Number(slotEl.dataset[k]) : undefined);
-  return mount(stage, { loops: n("loops"), settle: n("settle"), speed: n("speed") }, slotEl);
+  const d = slotEl.dataset; // missing or 0 → the defaults (3 cycles, speed 1)
+  return mount(stage, { loops: +d.loops! || 3, speed: +d.speed! || 1 }, slotEl);
 };

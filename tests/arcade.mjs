@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { build, transform } from "esbuild";
 import { readFileSync } from "node:fs";
 import { chromium } from "playwright";
+import { launchOptions } from "./chromium.mjs";
 
 const kit = (await transform(readFileSync("src/ui/board-ui.css", "utf8"), { loader: "css", minify: true })).code;
 const GAME = `
@@ -33,11 +34,16 @@ export function launch(options = {}) {
         if (ctx.input.hit("end")) s[4] = 1;
       } });
       c[TARGET_HP] = 100;
+      // In-page art: a mark that follows the page, moved every frame (its mutations never rescan the board).
+      const art = ctx.attach(document.getElementById("board"));
+      const mark = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      mark.setAttribute("width", "20"); mark.setAttribute("height", "20");
+      art.append(mark);
       return {
         reset() { s.fill(0); },
         over: () => s[4],
         react(ev) { if (ev.type === "bit") ctx.popup(ev.x, ev.y - 40, 2, null, 0), ctx.spark(ev.x, ev.y - 40, 4, 0); },
-        draw(g) { g.fillStyle = "#06c4ff"; g.fillRect(s[0] - 6, s[1] - 6, 12, 12); },
+        draw(g) { g.fillStyle = "#06c4ff"; g.fillRect(s[0] - 6, s[1] - 6, 12, 12); mark.setAttribute("data-x", String(Math.round(s[0]))); mark.innerHTML = s[3] % 2 ? "<rect width='4' height='4'/>" : ""; },
         hud(out) { out[0] = s[2]; out[1] = s[3]; out[2] = s[2]; },
         meter: () => ["BITS", s[2] + " / 40", s[2] / 40],
         stats: () => ({ score: s[2], shots: s[3] }),
@@ -57,7 +63,7 @@ const PAGE = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewp
 <form><input id="field"></form>
 </main><script>${bundle}</script></body></html>`;
 
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await chromium.launch(launchOptions());
 const html = (p) => p.evaluate(() => document.documentElement.outerHTML);
 const snap = (p) => p.evaluate(() => window.g.getSnapshot());
 let where = "desktop";
@@ -71,6 +77,8 @@ try {
   const host = p.locator("[data-fizlet-host=test-game]");
   assert.equal(await host.count(), 1);
   assert.equal((await snap(p)).status, "running");
+  assert.equal(await p.locator("#board > [data-fizlet-host=test-game-art]").count(), 1, "the in-page art is attached to the board");
+  assert.equal(await p.locator("#board").evaluate((b) => b.style.position), "relative", "a static board becomes relative");
   const ui = (sel) => host.evaluate((h, s) => h.shadowRoot.querySelector(s)?.textContent ?? null, sel);
   // Play: hold fire and sweep the pointer; letters become bits, the score readout and meter follow.
   await p.keyboard.down("Space");
@@ -79,6 +87,7 @@ try {
   let s = await snap(p);
   assert.ok(s.score > 0 && s.shots > 0, `scored ${s.score} from ${s.shots} shots`);
   assert.ok(s.board.spent > 0 && s.board.measurements <= 900, JSON.stringify(s.board));
+  assert.ok(Number(await p.locator("#board [data-fizlet-host=test-game-art]").evaluate((h) => h.shadowRoot.querySelector("svg").getAttribute("data-x"))) > 0, "the art follows the game");
   assert.match(await p.locator("#board").innerText(), /[01]/, "letters became bits");
   assert.equal(await ui(".bui-readout b"), String(s.score).padStart(6, "0"), "the score readout");
   assert.match(await ui(".mt span"), /\/ 40/, "the meter");
@@ -129,10 +138,10 @@ try {
   const pp = await phone.newPage();
   await pp.setContent(PAGE);
   await pp.evaluate(() => (window.g = T.launch({ root: "#board", sound: false })).start());
-  const pad = await pp.locator("[data-fizlet-host]").evaluate((h) => ({ stick: !!h.shadowRoot.querySelector(".bui-stick"), keys: h.shadowRoot.querySelectorAll(".bui-pad button").length, compact: h.shadowRoot.querySelector(".ar").classList.contains("compact") }));
+  const pad = await pp.locator("[data-fizlet-host=test-game]").evaluate((h) => ({ stick: !!h.shadowRoot.querySelector(".bui-stick"), keys: h.shadowRoot.querySelectorAll(".bui-pad button").length, compact: h.shadowRoot.querySelector(".ar").classList.contains("compact") }));
   assert.ok(pad.stick && pad.keys >= 2 && pad.compact, JSON.stringify(pad));
   await phone.close();
-  console.log("arcade: play, readouts and meter, action key, target paint, links and fields, pause, game over then Escape, Recall exact, failed start, phone pad passed.");
+  console.log("arcade: play, in-page art, readouts and meter, action key, target paint, links and fields, pause, game over then Escape, Recall exact, failed start, phone pad passed.");
 } catch (err) {
   console.error(`arcade test failed at: ${where}`);
   throw err;

@@ -4,12 +4,20 @@
 // with DOM VIRUS and Battlefield (localStorage "dom-virus:theme").
 
 export const REPO = "https://github.com/coded-dot-design/fizlet";
-export const SITE = "https://coded-dot-design.github.io/fizlet/";
+// The production host: canonical, og:url, sitemap, llms.txt and the hosted script URLs all use it.
+// FIZLET_SITE overrides it for a preview build on another host (e.g. the GitHub Pages address).
+export const SITE = new URL(process.env.FIZLET_SITE || "https://fizlet.com/").href;
+/** The site's root path on its host ("/" on fizlet.com): the 404 page links from it, at any depth. */
+export const ROOT = new URL(SITE).pathname;
 export const HUB = "https://coded-dot-design.github.io/dom-virus/";
 export const BATTLEFIELD = "https://coded-dot-design.github.io/dom-battlefield/";
 export const BLITZ = `${BATTLEFIELD}blitz/`;
 export const AUTHOR = "https://coded.design";
 export const ENGINE_PLAN = "https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md";
+
+export const ORG = { "@type": "Organization", "@id": `${SITE}#org`, name: "coded.design", url: AUTHOR + "/" };
+export const PERSON = { "@type": "Person", "@id": `${SITE}#author`, name: "Chris Cooley", url: AUTHOR + "/" };
+export const WEBSITE = { "@type": "WebSite", "@id": `${SITE}#website`, name: "Fizlet", url: SITE, inLanguage: "en", author: { "@id": PERSON["@id"] }, publisher: { "@id": ORG["@id"] } };
 
 /** Escape text for HTML. */
 export const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -50,22 +58,12 @@ const NAV = [
   ["roadmap", "Roadmap"],
 ];
 
-/**
- * A full page. `base` is the path back to the site root ("./" for top-level pages, "../" one
- * level down, "/fizlet/" for the 404 page, which can be served at any depth).
- */
-export function page({ title, description, base, version, body, scripts = [], path = "" }) {
-  const home = base;
-  const nav = NAV.map(([id, label]) => `<a href="${home}${id.endsWith("/") ? id : "#" + id}"${path.startsWith(id) && id.endsWith("/") ? ' aria-current="page"' : ""}>${label}</a>`).join("");
-  return `<!doctype html>
-<html lang="en" class="bui" data-theme="dark">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${esc(title)}</title>
-<meta name="description" content="${esc(description)}">
-<link rel="canonical" href="${SITE}${path}">
-<meta name="theme-color" content="#07060f">
+/** JSON-LD: one @graph per page, every page carrying the site and its publisher. `<` is escaped. */
+export const jsonLd = (nodes = []) =>
+  `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@graph": [WEBSITE, ORG, PERSON, ...nodes] }).replace(/</g, "\\u003c")}</script>`;
+
+/** Canonical, Open Graph and author tags for a page at `path` (also used by the demos' own host pages). */
+export const social = ({ title, description, path }) => `<link rel="canonical" href="${SITE}${path}">
 <meta property="og:type" content="website">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
@@ -76,7 +74,25 @@ export function page({ title, description, base, version, body, scripts = [], pa
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Fizlet: the page is the board.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="author" content="Chris Cooley">
+<meta name="author" content="Chris Cooley">`;
+
+/**
+ * A full page. `base` is the path back to the site root ("./" for top-level pages, "../" one
+ * level down, "/fizlet/" for the 404 page, which can be served at any depth).
+ */
+export function page({ title, description, base, version, body, scripts = [], path = "", ld = [], noindex = false }) {
+  const home = base;
+  const nav = NAV.map(([id, label]) => `<a href="${home}${id.endsWith("/") ? id : "#" + id}"${path.startsWith(id) && id.endsWith("/") ? ' aria-current="page"' : ""}>${label}</a>`).join("");
+  return `<!doctype html>
+<html lang="en" class="bui" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>${esc(title)}</title>
+<meta name="description" content="${esc(description)}">
+${noindex ? '<meta name="robots" content="noindex">\n' : ""}${social({ title, description, path })}
+<meta name="theme-color" content="#07060f">
+${jsonLd(ld)}
 <link rel="icon" href="${base}icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="${base}board-ui.css">
 <link rel="stylesheet" href="${base}site.css">
@@ -93,7 +109,7 @@ export function page({ title, description, base, version, body, scripts = [], pa
     <nav class="site-nav" aria-label="Site">${nav}</nav>
     <div class="head-keys">
       <a class="bui-key bui-icon-key gh" href="${REPO}" aria-label="Source on GitHub">${icon("github")}</a>
-      <button class="bui-icon-key" type="button" data-theme-toggle aria-label="Switch light or dark"><span class="theme-dark">${icon("moon")}</span><span class="theme-light">${icon("sun")}</span></button>
+      <button class="bui-key bui-icon-key" type="button" data-theme-toggle aria-label="Switch light or dark"><span class="theme-dark">${icon("moon")}</span><span class="theme-light">${icon("sun")}</span></button>
       <a class="bui-key bui-arcade bui-go start-key-sm" href="${home}#start">${icon("play", 16)}Start</a>
     </div>
   </div>
@@ -111,7 +127,7 @@ ${body}
       <p>Tiny physics for your page. A micro game engine for the DOM by <a href="${AUTHOR}">Chris Cooley</a>: the page is the board, and it always comes back.</p>
     </div>
     <div>
-      <h4>ENGINE</h4>
+      <h2>ENGINE</h2>
       <ul>
         <li><a href="${home}#contract">The contract</a></li>
         <li><a href="${home}bricks/">Kernel and bricks</a></li>
@@ -122,7 +138,7 @@ ${body}
       </ul>
     </div>
     <div>
-      <h4>PROJECT</h4>
+      <h2>PROJECT</h2>
       <ul>
         <li><a href="${REPO}">Source on GitHub ↗</a></li>
         <li><a href="${REPO}/blob/main/CHANGELOG.md">Changelog ↗</a></li>
@@ -131,7 +147,7 @@ ${body}
       </ul>
     </div>
     <div>
-      <h4>BUILT ON IT</h4>
+      <h2>BUILT ON IT</h2>
       <ul>
         <li><a href="${BLITZ}">Battlefield Blitz ↗</a></li>
         <li><a href="${BATTLEFIELD}">DOM Battlefield ↗</a></li>

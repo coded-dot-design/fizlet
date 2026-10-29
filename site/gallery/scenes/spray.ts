@@ -1,5 +1,5 @@
-// The spray scene: every v1 animation recipe (burst, rise, fall) is this one scene with different
-// data. Bricks: the kernel (settle + fps cap: it sleeps once still) and fizlet/fx (one fixed pool,
+// The spray scene: the particle recipes (burst, rise, fall) are this one scene with different
+// data; a tap sets where they leave from (a point bursts there, an edge sprays above or below it). Bricks: the kernel (settle + fps cap: it sleeps once still) and fizlet/fx (one fixed pool,
 // one named particle kind). Mounted through fizlet/slot, so it loads near the viewport, never under
 // reduced motion, and destroy() gives the page back (the canvas goes through the ledger).
 import { createEngine } from "../../../src/kernel/index";
@@ -35,8 +35,9 @@ export function spray(stage: HTMLElement, p: Spray, first: SlotTap | null = null
   stage.append(canvas);
   const ctx = canvas.getContext("2d")!;
   // State, one typed array (no boxed doubles in the step): width, height, device pixel ratio,
-  // edge seconds left, edge carry, loop timer, trigger x, trigger y, trigger pending, resized.
-  const s = new Float64Array([0, 0, 1, 0, 0, 0, -1, -1, 1, 1]);
+  // edge seconds left, edge carry, loop timer, trigger x, trigger y, trigger pending, resized, edge x
+  // (where a tap rains from: -1, the whole edge).
+  const s = new Float64Array([0, 0, 1, 0, 0, 0, -1, -1, 1, 1, -1]);
   if (first) (s[6] = first.x), (s[7] = first.y);
   const ro = new ResizeObserver(() => ((s[9] = 1), engine.wake()));
   ro.observe(stage);
@@ -50,8 +51,15 @@ export function spray(stage: HTMLElement, p: Spray, first: SlotTap | null = null
   const trigger = (x: number, y: number) => {
     const w = s[0]!, h = s[1]!;
     if (p.source === "point") emit(K, x >= 0 ? x : w / 2, y >= 0 ? y : h / 2, p.count, 0, nc, p.scale);
-    else s[3] = p.seconds;
+    else (s[3] = p.seconds), (s[10] = x);
   };
+  function paint() {
+    const w = s[0]!, h = s[1]!, d = s[2]!;
+    // A new size resets the context: scale it once then (a per-frame setTransform with a double boxes it).
+    if (canvas.width !== Math.round(w * d) || canvas.height !== Math.round(h * d)) (canvas.width = Math.round(w * d)), (canvas.height = Math.round(h * d)), ctx.setTransform(d, 0, 0, d, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    fx.draw(ctx);
+  }
   engine.add({
     read() {
       if (!s[9]) return;
@@ -66,20 +74,16 @@ export function spray(stage: HTMLElement, p: Spray, first: SlotTap | null = null
       if (s[3]! > 0) {
         s[3] = s[3]! - dt;
         s[4] = s[4]! + p.count * dt;
-        const n = Math.floor(s[4]!), w = s[0]!;
+        const n = Math.floor(s[4]!), w = s[0]!, x = s[10]!;
         s[4] = s[4]! - n;
-        for (let i = 0; i < n; i++) emit(K, e.random() * w, p.source === "top" ? -4 : s[1]! + 4, 1, 0, nc, p.scale);
+        // A tap honours its position: the edge sprays in a band around it (else the whole edge).
+        for (let i = 0; i < n; i++) emit(K, x >= 0 ? x + (e.random() - 0.5) * w * 0.3 : e.random() * w, p.source === "top" ? -4 : s[1]! + 4, 1, 0, nc, p.scale);
       }
       fx.step(dt);
       if (fx.live > 0 || s[3]! > 0 || p.loop > 0) e.busy();
     },
-    render() {
-      const w = s[0]!, h = s[1]!, d = s[2]!;
-      if (canvas.width !== Math.round(w * d) || canvas.height !== Math.round(h * d)) (canvas.width = Math.round(w * d)), (canvas.height = Math.round(h * d));
-      ctx.setTransform(d, 0, 0, d, 0, 0);
-      ctx.clearRect(0, 0, w, h);
-      fx.draw(ctx);
-    },
+    // A tiny hook V8 inlines: the frame's alpha (a double) is never boxed to call it.
+    render: () => paint(),
   });
   engine.start();
   return { engine, play, destroy: () => engine.destroy() };

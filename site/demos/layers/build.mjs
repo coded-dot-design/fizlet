@@ -5,6 +5,7 @@ import { build } from "esbuild";
 import { gzipSync } from "node:zlib";
 import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { esc, social, jsonLd } from "../../layout.mjs";
 
 const OUT = process.argv[2] ?? "site-dist/demos/layers";
 const HERE = "site/demos/layers";
@@ -40,5 +41,9 @@ writeFileSync(join(OUT, "sizes.json"), JSON.stringify(sizes));
 // The size badge (site/size-badge.mjs) and its rules, read from site/site.css (one source).
 const badgeCss = (readFileSync("site/site.css", "utf8").match(/\.size-badge \{[\s\S]*?\n\}\n\.size-badge b \{[\s\S]*?\n\}/) ?? [""])[0];
 if (!badgeCss) throw new Error("site/site.css: the .size-badge rules moved; update build.mjs");
-writeFileSync(join(OUT, "index.html"), page({ figure: poster(), css: POSTER_CSS + badgeCss, loader: loader(), measured, sizes }));
+// The site's search and sharing tags on the example host page (the example itself stays plain).
+const head = { title: "Layers: a game is a stack, each layer one brick · Fizlet", path: "demos/layers/",
+  description: "A game is a stack of layers. Battlefield Blitz fans out into its bricks, one faults, gets patched, and folds back." };
+writeFileSync(join(OUT, "index.html"), page({ figure: poster(), css: POSTER_CSS + badgeCss, loader: loader(), measured, sizes })
+  .replace(/<title>[^<]*<\/title>/, `<title>${esc(head.title)}</title>`).replace(/(<meta name="description"[^>]*>)/, `$1\n${social(head)}\n${jsonLd()}`));
 console.log(`Built ${OUT}: live chunk ${sizes.live} B, inline poster + loader ${sizes.poster} B (loader ${sizes.loader} B) gzip`);

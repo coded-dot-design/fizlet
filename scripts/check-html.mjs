@@ -2,7 +2,7 @@
 // browser needed): run by tests/site.mjs over site-dist/, unit-tested in tests/api.test.mjs.
 // → a list of problems (empty when the page passes).
 
-const SITE = "https://coded-dot-design.github.io/fizlet/";
+import { SITE } from "../site/layout.mjs";
 
 const attr = (tag, name) => tag.match(new RegExp(`\\s${name}\\s*=\\s*"([^"]*)"`, "i"))?.[1] ?? null;
 const tags = (html, name) => html.match(new RegExp(`<${name}\\b[^>]*>`, "gi")) ?? [];

@@ -9,6 +9,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { build } from "esbuild";
 import { chromium } from "playwright";
+import { launchOptions } from "./chromium.mjs";
 import { serve } from "../site/demos/layers/serve.mjs";
 
 const OUT = "site-dist/test-layers";
@@ -23,7 +24,7 @@ const bundle = (await build({
 const PAGE = html
   .replace('import("./layers.js")', "0")
   .replace('<link rel="stylesheet" href="board-ui.css">', `<style>${readFileSync("src/ui/board-ui.css", "utf8")}</style>`)
-  .replace('<figure class=', '<figure data-loops="1" data-speed="4" data-settle="0.3" class=')
+  .replace('<figure class=', '<figure data-loops="1" data-speed="4" class=')
   .replace("</body>", () => `<script>${bundle}
 (() => {
   const raf = window.requestAnimationFrame.bind(window);
@@ -39,7 +40,7 @@ const PAGE = html
 })();
 </script></body>`);
 
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await chromium.launch(launchOptions());
 let failed = 0;
 async function test(name, fn) {
   try {
