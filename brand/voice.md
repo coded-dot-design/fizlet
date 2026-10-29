@@ -127,8 +127,7 @@ Rules for CTA labels:
   Fizlet does **not** use "Get the code & setup instructions", which belongs to embedded-game pages
   (rulebook §6). Fizlet's equivalent is "Source on GitHub" or "Read the API".
 
-## Avoid
-
+## What we never do
 1. **Numbers we didn't measure,** or old ones (see Limits).
 2. **Benchmark claims:**
    - no "faster than Phaser / Kontra / GSAP", no fps promises, no "60 fps on any device";
@@ -153,7 +152,7 @@ Rules for CTA labels:
 9. **Long explanations on keys, stickers or overlays.** Keys are one or two words; explanations go
    in body copy (BOARD-UI.md §6.2).
 
-## Limits: numbers and claims
+## Claims: numbers and claims
 
 **Only measured numbers, each with its source. Re-measure before you publish.** On the site, sizes
 are read at build time from `scripts/sizes.mjs` and are never typed in. Copy outside the site
@@ -309,6 +308,32 @@ Every page shows the credit (rulebook §2, `family.json` `credit`):
 Use exactly that text, with coded.design linked to <https://coded.design>. Today the site footer
 reads "© 2026 coded.design · MIT licence · no runtime dependencies" and "Created by Chris Cooley",
 unlinked (`site/layout.mjs:133`). It should move to the family line when the site is next changed.
+
+## Avoid
+
+<!-- Read by astro-base-engine (voice.avoid): one word or phrase per bullet, flagged wherever it
+appears in page copy. The reasons are in "Words we use / avoid" and "What we never do" above. -->
+
+- revolutionary
+- game-changing
+- cutting-edge
+- best-in-class
+- world-class
+- seamless
+- synergy
+- blazing
+- insanely fast
+- infect
+- hijack
+- dependency-free*
+- scales infinitely
+
+## Limits
+
+<!-- Read by astro-base-engine (voice.maxSentenceWords, voice.maxExclamations). -->
+
+- max sentence words: 30
+- max exclamations: 1
 
 ## Open questions
 

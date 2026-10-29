@@ -1,5 +1,7 @@
 # Fizlet: visual style guide
 
+Preset: cyberpunk-tron · flat colors in the game layer (hard, unblurred shadows; the shadow angle is a brand token). Read by astro-base-engine; the site renders its own look.
+
 > **Status: Proposed: awaiting owner approval.** The family rulebook (`dom-virus/brand/README.md`,
 > §1) says that a brand without a visual guide proposes one from the shared system and asks before
 > using it. This file writes down what the Fizlet site in `site/` already does. It invents no new
