@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **Website: gallery #005, "cyan and purple neon rain falls when you tap".** Made by `fe anim` from
+  the prompt (recipe fall, an engine rain kind, kernel + fx + slot): 6,502 B gzip live chunk on this
+  build, loaded only near the viewport, never under reduced motion; settles to zero frames.
+
 ## 0.12.1
 
 - **`fizlet/arcade`: scoreboard keys keep their labels on one line.** The keys size to their labels
