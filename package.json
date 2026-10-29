@@ -76,6 +76,10 @@
       "types": "./dist/presence-check.d.ts",
       "default": "./dist/presence-check.js"
     },
+    "./hud": {
+      "types": "./dist/hud.d.ts",
+      "default": "./dist/hud.js"
+    },
     "./ui": {
       "types": "./dist/ui/board-ui.d.ts",
       "default": "./dist/ui/board-ui.js"

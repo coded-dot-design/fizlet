@@ -12,6 +12,45 @@
 - `rooms/`: a room server prototype (Cloudflare Worker + Durable Object, hibernating WebSockets)
   that seats players, hands out one seed and relays inputs. Its own package; not deployed.
 
+## 0.3.6
+
+- `fizlet/hud`: change-only, allocation-free HUD bindings fed by the event ring. `hud(engine, root)`
+  → `num` (int, clock, rank, pct or your own format), `meter` (width %, `aria-valuenow`, `low`),
+  `flag` (class), `feed` (last N events of a type, newest first) and `banner` (title + sub on an
+  event). Values compare as numbers and write only when the shown value changes; formatted strings
+  are cached; every write goes through the ledger. Tests: 1M renders with unchanged values cause no
+  young GC and no DOM write; 0 mutations over 120 idle frames in Chromium; destroy restores exactly.
+
+## 0.3.5
+
+### Fixed
+
+- kernel: the root's `IntersectionObserver` is disconnected on `destroy()` and when the parent
+  `signal` aborts, before or after `start()`. Its abort listener was tied to the same signal, so
+  the browser removed it before it could run.
+- kernel: starting, stopping or destroying engines from inside a hook no longer asks for a second
+  `requestAnimationFrame` or skips the next engine's frame, and a restarted engine runs once per
+  frame, not twice.
+- kernel: `engine.remove(system)` inside a hook no longer skips the next system's hooks that frame.
+- kernel: a hook that throws no longer stops the shared clock for every engine on the page. Only
+  that engine stops (`paused: ["stopped"]`, `start()` resumes); the error goes to the new
+  `onError(error, engine)` option, or `console.error`.
+- kernel: `destroy()` is idempotent and leaves the engine inert: `advance`, `add` and `start` do
+  nothing, and a destroy from inside a step runs no more steps that frame.
+
+### Changed
+
+- kernel: options are validated at setup. `step` must be a finite number > 0, `seed` finite,
+  `maxSteps`, `events` and pool caps positive integers (`new EventRing` and `new Pool` too); a bad
+  value throws a `RangeError` that names it. Kernel size 2839 → 3106 bytes gzip (budget 4096).
+
+## 0.3.4
+
+- `fizlet/pad`: a touch tap's `click` (some Chromium builds report it with `detail` 0, like a keyboard
+  press) no longer flips a toggle key back off. Regression test added; this was red on `main` in CI.
+- CI: failing lines from check, browser and site tests are echoed as annotations, so they can be read
+  through the API.
+
 ## 0.3.3
 
 - **`fizlet/pad`**: swappable on-screen controls for touch (and mouse). `pad(engine, controls, {

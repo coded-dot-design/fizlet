@@ -55,13 +55,13 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
    restores it exactly, and a newer edit by the host page always wins. One `AbortSignal` removes
    every listener and observer.
 8. **Embed-safe.** No globals, no global styles, many engines per page.
-9. **Budgets in CI.** Kernel ≤ 4 KB gzip (today: ~2.8 KB), each brick ~1.5 KB.
+9. **Budgets in CI.** Kernel ≤ 4 KB gzip (today: ~3.1 KB), each brick ~1.5 KB.
 
 ## What's in the box
 
 | Import | What | Size (min + gzip) |
 |---|---|---|
-| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | ~2.8 KB |
+| `fizlet` / `fizlet/kernel` | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | ~3.1 KB |
 | `fizlet/debug` | `guardLayout(engine)`: counts layout reads during a step (dev only) | ~0.5 KB |
 | `fizlet/input` | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer` | ~1.0 KB |
 | `fizlet/pad` | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | ~1.8 KB |
@@ -73,6 +73,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 | `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | ~2.0 KB |
 | `fizlet/slot` | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | ~1.5 KB |
 | `fizlet/presence` | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | ~1.8 KB |
+| `fizlet/hud` | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | ~1.3 KB |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
 
 More bricks land through phase E2 (actor, steer, aim, rules, board-page, camera,
@@ -215,10 +216,18 @@ touch.setScheme("dpad"); // fingers on the old control let go; no listener is ad
 
 ### Engine API
 
-- `createEngine({ root, step, maxSteps, seed, events, signal, pause })`
+- `createEngine({ root, step, maxSteps, seed, events, signal, pause, onError })`: numbers are
+  checked at setup (`step` > 0, `seed` finite, `maxSteps`, `events` and pool caps positive
+  integers); a bad one throws a `RangeError` naming the option.
 - `engine.add(system)` / `remove(system)`: systems run in order; hooks `read`, `step`, `render`.
+  `remove` is safe inside a hook (the other systems still run that frame).
 - `engine.start()` / `stop()` / `destroy()`; `engine.running`, `engine.paused` (reasons).
-- `engine.advance(seconds)`: run time by hand (tests, headless, a server).
+  `destroy()` is idempotent and leaves the engine inert. Engines may start, stop or destroy each
+  other from inside a hook: every engine still runs once per frame, on one rAF.
+- A hook that throws in a scheduled frame stops only its own engine (`paused: ["stopped"]`,
+  `start()` resumes) and goes to `onError(error, engine)` (default `console.error`); the shared
+  clock and every other engine keep running.
+- `engine.advance(seconds)`: run time by hand (tests, headless, a server); a hook's error throws.
 - `engine.pool(name, cap, create)`: a named bounded pool (shows in `stats()`).
 - `engine.events`: the event ring (`emit(type, a, b, x, y, v)`, `size`, `at(i)`), cleared each frame.
 - `engine.ledger`: `text`, `style`, `attr`, `cls`, `add(node)`, `restore()`.
@@ -255,6 +264,39 @@ differed (or -1). `setup(e, slot, players)` returns `{ input(), step(e, inputs, 
 `net.frame`, `net.stalls`, `net.desync`, `net.lost`, `net.confirmed(slot, frame)` (the input log
 a rollback layer can replay). A transport is `{ send(bytes), listen(fn), close() }`; the room server
 prototype (Cloudflare Worker + Durable Object) is in [`rooms/`](rooms/README.md).
+
+## Develop
+
+```sh
+npm ci
+npm run check         # typecheck, contract tests (node), build
+npm run size          # size budgets
+npm run test:browser  # contract tests in Chromium (Playwright)
+npm run test:pack     # pack, install the tarball, import + typecheck every subpath
+npm run site          # the website, into site-dist/
+```
+
+### HUD
+
+```ts
+import { hud } from "fizlet/hud";
+
+const s = new Float64Array(2); // clock, armor (0..1): running fractions live in a typed array
+hud(engine, wrap)
+  .num("[data-k]", () => you.kills)            // 12
+  .num("[data-t]", [s, 0], "clock")            // 2:59 (also "int", "rank" #2, "pct" 75%, or (v) => string)
+  .meter("[data-hp]", [s, 1], 0.34)            // width 33%, aria-valuenow on a progressbar, class "low"
+  .flag(fireKey, "hot", () => you.hot > 0)
+  .feed(".feed", 4, "kill", (a, b) => NAMES[a] + " ✕ " + NAMES[b])
+  .banner(".banner", "streak", (a) => [a + " KILL STREAK", REWARD[a]]);
+```
+
+Each value is compared as a number after rounding to what it shows (a clock compares whole
+seconds), so it is formatted and written only when that changes; strings for 0–1023 are made once
+and reused. `feed` and `banner` read `engine.events` in render (emit `kill` / `streak` from the
+step), never per-frame state. Writes go through `engine.ledger`; rows or text nodes it adds are
+removed on `destroy()`. It has no visuals of its own: it binds to your markup. A getter V8 doesn't
+inline boxes a fractional double, so pass running fractions as a `[typedArray, index]` slot.
 
 ## Develop
 

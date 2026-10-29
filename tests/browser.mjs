@@ -11,7 +11,7 @@ import { chromium } from "playwright";
 import { readFileSync } from "node:fs";
 
 const bundle = (await build({
-  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts";', resolveDir: process.cwd(), loader: "ts" },
+  stdin: { contents: 'export * from "./src/index.ts"; export { guardLayout } from "./src/debug.ts"; export { controls } from "./src/input.ts"; export { embed } from "./src/embed.ts"; export { sound } from "./src/sound.ts"; export { hud } from "./src/hud.ts"; export { slot, findSlot } from "./src/slot.ts"; export { sprites } from "./src/sprite.ts"; export { sherman } from "./tests/fixtures/sherman.mjs"; export { pad } from "./src/pad.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "fizlet", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 
@@ -118,6 +118,17 @@ async function padTest() {
     return [...out, k.getAttribute("aria-pressed")];
   });
   assert.deepEqual(tog, [true, "true", "false"], "toggle on by tap, off from game code");
+  // Some Chromium builds deliver a touch tap's click with detail 0: it must not flip the toggle back.
+  const tog2 = await tp.evaluate(() => {
+    const k = p.el.querySelector('[data-i="1"]');
+    k.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerId: 41, pointerType: "touch", isPrimary: true }));
+    k.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, pointerId: 41, pointerType: "touch", isPrimary: true }));
+    k.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 0 }));
+    const on = c.down("auto");
+    k.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 0 })); // a real keyboard press later still taps
+    return [on, c.down("auto")];
+  });
+  assert.deepEqual(tog2, [true, false], "a tap's click is not a second tap; a keyboard click still is");
 
   // Keyboard: Enter on a focused key is one tap.
   await tp.focus('[data-i="2"]');
@@ -265,6 +276,56 @@ try {
   });
   assert.deepEqual(pause, { running: true, hidden: "hidden", back: true, editing: "editable", afterEdit: true, offscreen: "offscreen", onscreen: true, dead: true });
 
+  where = "observers-abort";
+  const obs = await page.evaluate(() => {
+    // Count every observer and listener the kernel makes, and whether each one is let go.
+    const Real = window.IntersectionObserver, made = [];
+    window.IntersectionObserver = class extends Real {
+      constructor(cb, o) { super(cb, o); this.live = true; made.push(this); }
+      disconnect() { this.live = false; super.disconnect(); }
+    };
+    const listening = new Set(), targets = [document, window];
+    const add = EventTarget.prototype.addEventListener;
+    EventTarget.prototype.addEventListener = function (type, fn, o) {
+      if (targets.includes(this) && o?.signal) {
+        const key = [this, type, fn];
+        listening.add(key);
+        o.signal.addEventListener("abort", () => listening.delete(key));
+      }
+      return add.call(this, type, fn, o);
+    };
+    const root = document.getElementById("title");
+    const opts = { root, pause: { reducedMotion: true } };
+    const out = {};
+    try {
+      // 1. The engine's own signal: destroy().
+      const a = fizlet.createEngine(opts);
+      a.start();
+      out.made = made.length;
+      a.destroy();
+      a.destroy();
+      out.destroy = made.filter((o) => o.live).length;
+      // 2. A parent AbortSignal aborted while running.
+      const p = new AbortController();
+      fizlet.createEngine({ ...opts, signal: p.signal }).start();
+      p.abort();
+      out.parent = made.filter((o) => o.live).length;
+      // 3. A parent signal already aborted before the engine starts.
+      const q = new AbortController();
+      q.abort();
+      const c = fizlet.createEngine({ ...opts, signal: q.signal });
+      c.start();
+      out.preAborted = made.filter((o) => o.live).length;
+      out.running = c.running;
+      out.listeners = listening.size;
+    } finally {
+      window.IntersectionObserver = Real;
+      EventTarget.prototype.addEventListener = add;
+    }
+    return out;
+  });
+  assert.deepEqual(obs, { made: 1, destroy: 0, parent: 0, preAborted: 0, running: false, listeners: 0 }, "every observer and listener goes on destroy, on abort, and on abort before start");
+
   where = "layout-guard";
   const guard = await page.evaluate(() => {
     const e = fizlet.createEngine();
@@ -334,6 +395,53 @@ try {
   });
   assert.deepEqual(emb, { dormant: 0, mounted: 1, opened: true, toggle: true, closed: true, cmd: "#8573ee|", waitKey: true, waitClosed: true, left: 0 }, "dormant until the sequence, palette hex only, Escape closes, destroy cleans up");
 
+  where = "hud";
+  const hd = await page.evaluate(() => {
+    const box = document.createElement("div");
+    box.id = "hud-test";
+    box.innerHTML = '<div class="hud"><b data-k>0</b><b data-t>3:00</b><div class="hp"><i><u data-hp role="progressbar"></u></i></div></div><ol class="feed"><li></li><li></li></ol><div class="banner"><b></b><span></span></div>';
+    document.body.append(box);
+    const snap = () => box.outerHTML;
+    const before = snap();
+    const e = fizlet.createEngine({ root: box });
+    const s = new Float64Array([0, 180, 1]), q = [];
+    e.add({ step: (x) => q.splice(0).forEach((t) => x.events.emit(t[0], t[1], t[2])) });
+    fizlet.hud(e, box)
+      .num("[data-k]", () => s[0])
+      .num("[data-t]", [s, 1], "clock")
+      .meter("[data-hp]", [s, 2], 0.34)
+      .flag(".hp", "low", () => s[2] <= 0.34)
+      .feed(".feed", 3, "kill", (a, b) => "T" + a + " ✕ T" + b)
+      .banner(".banner", "streak", (a) => [a + " KILL STREAK", "AIRSTRIKE"]);
+    e.advance(1 / 60);
+    let records = 0;
+    const mo = new MutationObserver((l) => (records += l.length));
+    mo.observe(box, { subtree: true, attributes: true, characterData: true, childList: true });
+    for (let i = 0; i < 120; i++) e.advance(1 / 60);
+    const idle = records + mo.takeRecords().length;
+    s[0] = 3;
+    s[1] = 65.4;
+    s[2] = 2 / 6;
+    q.push(["kill", 1, 2], ["kill", 3, 4], ["kill", 5, 6], ["kill", 7, 8], ["streak", 3, 0]);
+    e.advance(1 / 60);
+    const $ = (sel) => box.querySelector(sel);
+    const shown = {
+      k: $("[data-k]").textContent, t: $("[data-t]").textContent, w: $("[data-hp]").style.width, now: $("[data-hp]").getAttribute("aria-valuenow"),
+      low: $(".hp").classList.contains("low"), feed: [...box.querySelectorAll(".feed li")].map((li) => li.textContent),
+      banner: $(".banner b").textContent + " / " + $(".banner span").textContent,
+    };
+    mo.disconnect();
+    e.destroy();
+    const same = snap() === before;
+    box.remove();
+    return { idle, shown, same };
+  });
+  assert.equal(hd.idle, 0, "HUD: 0 mutations over 120 frames where nothing changed (board rule R2)");
+  assert.deepEqual(hd.shown, { k: "3", t: "1:05", w: "33%", now: "33", low: true, feed: ["T7 ✕ T8", "T5 ✕ T6", "T3 ✕ T4"], banner: "3 KILL STREAK / AIRSTRIKE" });
+  assert.equal(hd.same, true, "HUD: destroy restores the DOM exactly (rows it added go too)");
+
+  assert.deepEqual(errors, []);
+  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, hud passed.");
   where = "slot";
   // The markup and CSS astro-base-engine renders for `[slot animation]` (engine/astro_base_engine/render.py).
   const fig = (target, label) => `<figure class="ae-slot ae-slot--16x9" data-slot="animation" data-slot-target="${target}" role="img" aria-label="${label}"><p class="ae-slot__placeholder">Animation here: ${label}</p><figcaption class="ae-slot__fallback">Still: ${label}</figcaption></figure>`;
@@ -419,7 +527,7 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   await sp.close();
 
   assert.deepEqual(errors, []);
-  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, slot passed.");
+  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, observers let go on abort, layout guard, input, embed, slot passed.");
   where = "sprite";
   const spr = await page.evaluate(async () => {
     const { sprites, sherman } = fizlet;
