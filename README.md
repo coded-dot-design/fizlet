@@ -58,6 +58,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 | `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | ~1.5 KB |
 | `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues (or your own player), unlock on gesture | ~0.9 KB |
 | `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | ~2.0 KB |
+| `fizlet/presence` | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | ~1.8 KB |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
 
 More bricks land through phase E2 (actor, steer, aim, rules, board-page, board-grid, camera,
@@ -74,6 +75,31 @@ view-dom, presence): see the [engine plan](https://github.com/coded-dot-design/d
 - `engine.ledger`: `text`, `style`, `attr`, `cls`, `add(node)`, `restore()`.
 - `engine.random()`: seeded; `engine.random.state` snapshots and restores it.
 - `engine.stats()`: frames, steps, dropped time, frame ms, pools, events, ledger size, pause reasons.
+
+### Multiplayer (`fizlet/presence`)
+
+Every peer runs the same fixed-step sim from the same seed; only inputs cross the wire (12 bytes
+each). Your input is sent `delay` frames ahead, and a frame runs only once every player's input
+for it is here, so peers can't drift. Keep the sim on `engine.random` and typed arrays.
+
+```js
+import { createEngine } from "fizlet";
+import { presence, join, hash32 } from "fizlet/presence";
+
+const { transport, slot, players, seed } = await join("wss://your-rooms.example/room/abc?players=2");
+const e = createEngine({ seed }), state = new Float64Array(64), bytes = new Uint8Array(state.buffer);
+const net = presence(e, {
+  transport, slot, players, delay: 2,
+  input: () => (keys.down("left") ? 1 : 0) | (keys.down("right") ? 2 : 0), // your bits for a future frame
+  step: (e, inputs, frame) => { /* simulate one frame from inputs[0..players-1] */ },
+  hash: () => hash32(bytes), // compared across peers every 30 frames: net.desync
+});
+e.start();
+```
+
+`net.frame`, `net.stalls`, `net.desync`, `net.lost`, `net.confirmed(slot, frame)` (the input log
+a rollback layer can replay). A transport is `{ send(bytes), listen(fn), close() }`; the room server
+prototype (Cloudflare Worker + Durable Object) is in [`rooms/`](rooms/README.md).
 
 ## Develop
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- **presence** brick (`fizlet/presence`, 1.8 KB gzip): lockstep input exchange on the seeded,
+  fixed-step kernel. Inputs are sent `delay` frames ahead into fixed typed-array rings; a frame
+  runs only when every player's input is in (it waits, never guesses); state hashes are exchanged to
+  catch a desync. Transports behind a 3-method adapter: `memory()` (bounded, latency + jitter, for
+  tests) and `websocket()` / `join(url)`.
+- `rooms/`: a room server prototype (Cloudflare Worker + Durable Object, hibernating WebSockets)
+  that seats players, hands out one seed and relays inputs. Its own package; not deployed.
+
 ## 0.2.4
 
 - ui: `.bui-grip` matches DOM Battlefield's card grip exactly: a flat violet tab with a strip of dark

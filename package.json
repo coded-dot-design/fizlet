@@ -51,6 +51,10 @@
       "types": "./dist/embed.d.ts",
       "default": "./dist/embed.js"
     },
+    "./presence": {
+      "types": "./dist/presence.d.ts",
+      "default": "./dist/presence.js"
+    },
     "./ui": {
       "types": "./dist/ui/board-ui.d.ts",
       "default": "./dist/ui/board-ui.js"
