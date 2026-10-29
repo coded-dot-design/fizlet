@@ -13,10 +13,11 @@ and [DOM Battlefield](https://coded-dot-design.github.io/dom-battlefield/) move 
 ## Install
 
 ```sh
-npm install fizlet
+npm install fizlet   # coming soon: not published yet
 ```
 
-One package, one import per piece (`fizlet`, `fizlet/fx`, `fizlet/slot`, ...): you ship only what
+Until the first npm release, use the hosted builds or build from source (`npm ci && npm run build`
+gives you `dist/` with the subpath exports). One package, one import per piece (`fizlet`, `fizlet/fx`, `fizlet/slot`, ...): you ship only what
 you import. ES modules with TypeScript types; no runtime dependencies. No npm? The site hosts the
 same builds (see the [quick start](https://coded-dot-design.github.io/fizlet/)).
 
@@ -526,9 +527,16 @@ npm run site          # the website, into site-dist/
 (`site/layout.mjs`, `site/pages/`), `site/site.css` on top of the Board UI kit, and a live demo
 (`site/demo.ts`) built with Fizlet itself. No framework: `scripts/site.mjs` writes static HTML.
 
+One page per brick (`bricks/<id>.html`) is generated from the source, never typed: the summary is
+the module's leading comment and the API its built declarations (`scripts/api.mjs`), the sizes are
+measured by `scripts/sizes.mjs`. `site/bricks.mjs` only says which modules a page covers and which
+small live demo it runs (`site/demos/`). `tests/api.test.mjs` checks the catalog against
+`package.json` and every page's API against its module's runtime exports.
+
 ```sh
 npm run site        # build dist/ and site-dist/ (gitignored); open site-dist/index.html
-npm run test:site   # every page at desktop and 360px: errors, links, overflow, the demo (Chromium)
+npm run test:site   # every page at desktop and 360px: errors, links, overflow, the demos (Chromium),
+                    # SEO/a11y gates (scripts/check-html.mjs), sizes on the page = sizes measured
 ```
 
 The site also hosts the builds for the quick start: `fizlet.js` (one file, `window.fizlet`) and

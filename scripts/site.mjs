@@ -10,6 +10,10 @@ import { page, mark, SITE } from "../site/layout.mjs";
 import { home } from "../site/pages/index.mjs";
 import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
+import { brickPage, bricksIndex } from "../site/pages/brick.mjs";
+import { BRICKS, brickPath } from "../site/bricks.mjs";
+import { api } from "./api.mjs";
+import { ogImage } from "./og.mjs";
 
 const OUT = "site-dist";
 const { version } = JSON.parse(readFileSync("package.json", "utf8"));
@@ -17,6 +21,7 @@ if (!existsSync("dist/index.js")) throw new Error("dist/ is missing: run `npm ru
 
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(`${OUT}/examples`, { recursive: true });
+mkdirSync(`${OUT}/bricks`, { recursive: true });
 
 // The script-tag build: kernel and every brick except debug (dev only) on window.fizlet.
 const all = 'export * from "./src/index.ts"; export * from "./src/input.ts"; export * from "./src/collide.ts"; export * from "./src/fx.ts"; export * from "./src/sound.ts"; export * from "./src/embed.ts"; export * from "./src/ui/board-ui.ts";';
@@ -34,30 +39,57 @@ await build({
   outdir: OUT, bundle: true, minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning",
 });
 
+// The brick pages' demos: one small loader, and one chunk per demo (a page loads only its own).
+await build({
+  entryPoints: { "brick-demo": "site/brick-demo.ts" },
+  outdir: OUT, bundle: true, splitting: true, chunkNames: "chunks/[name]-[hash]", minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning",
+});
+
 cpSync("dist", `${OUT}/dist`, { recursive: true });
 cpSync("src/ui/board-ui.css", `${OUT}/board-ui.css`);
 cpSync("site/site.css", `${OUT}/site.css`);
 writeFileSync(`${OUT}/icon.svg`, mark(64).replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" style="color:#39ffb0;background:#07060f" '));
+writeFileSync(`${OUT}/og.png`, ogImage());
 writeFileSync(`${OUT}/.nojekyll`, "");
 
 const sizes = await measure();
 const kernel = sizes[0];
+// Every brick's API, from its source comment and its built declarations.
+const bricks = BRICKS.map((b) => {
+  const mods = b.modules.map((m) => ({ ...m, ...api(m) }));
+  return { ...b, mods, summary: mods[0].summary.match(/^.*?\.(?=\s|$)/)?.[0] ?? mods[0].summary };
+});
 const pages = [
   ["index.html", page({
     title: "Fizlet · Tiny physics for your page",
     description: `A micro game engine for the DOM: one shared loop, bounded everything, and the page always comes back. Kernel ${(kernel.gzip / 1024).toFixed(1)} KB gzip, no dependencies.`,
-    base: "./", version, path: "", body: home({ version, sizes, bundle }), scripts: ["site.js", "demo.js"],
+    base: "./", version, path: "", body: home({ version, sizes, bundle, bricks }), scripts: ["site.js", "demo.js"],
   })],
   ["examples/quick-start.html", page({
     title: "Quick start · Fizlet",
     description: "Ten lines to a blast: the Fizlet quick start, running.",
     base: "../", version, path: "examples/quick-start.html", body: quickStartPage({ site: SITE }), scripts: ["site.js"],
   })],
+  ["bricks/index.html", page({
+    title: "Kernel and bricks · Fizlet",
+    description: `Every Fizlet module with its API and its measured size: the kernel is ${(kernel.gzip / 1024).toFixed(1)} KB gzip, each brick its own import.`,
+    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version }), scripts: ["site.js"],
+  })],
+  ...bricks.map((b, i) => [brickPath(b), page({
+    title: `${b.name} · Fizlet`,
+    description: `${b.name}: ${b.summary} API and measured size (${sizes.find((s) => s.name === b.sizes[0]).gzip} B gzip).`.slice(0, 300),
+    base: "../", version, path: brickPath(b),
+    body: brickPage({ brick: b, mods: b.mods, sizes, version, prev: bricks[i - 1], next: bricks[i + 1] }),
+    scripts: b.demo ? ["site.js", "brick-demo.js"] : ["site.js"],
+  })]),
   ["404.html", page({
     title: "Not found · Fizlet",
-    description: "This square is off the board.",
+    description: "This square is off the board: the page you asked for is not on the Fizlet site.",
     base: "/fizlet/", version, path: "404.html", body: notFound("/fizlet/"), scripts: ["site.js"],
   })],
 ];
 for (const [file, html] of pages) writeFileSync(`${OUT}/${file}`, html);
+// Search engines: every page but the 404, at its canonical URL.
+const urls = pages.map(([f]) => f).filter((f) => f !== "404.html").map((f) => SITE + f.replace(/(^|\/)index\.html$/, "$1"));
+writeFileSync(`${OUT}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${u}</loc></url>`).join("\n")}\n</urlset>\n`);
 console.log(`Built ${OUT}/: ${pages.length} pages, fizlet.js ${bundle} B gzip, kernel ${kernel.gzip} B gzip`);

@@ -1,6 +1,6 @@
 // The Fizlet home page. Numbers come from the build (sizes measured like `npm run size`); claims
 // come from the test suites (tests/*.test.mjs, tests/browser.mjs).
-import { esc, icon, REPO, SITE, HUB, BATTLEFIELD, BLITZ, ENGINE_PLAN } from "../layout.mjs";
+import { esc, icon, REPO, SITE, HUB, BATTLEFIELD, BLITZ, ENGINE_PLAN, AUTHOR } from "../layout.mjs";
 import { QUICK_START } from "./quick-start.mjs";
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
@@ -17,42 +17,6 @@ const CONTRACT = [
   ["Budgets in CI", "Kernel at most 4 KB gzip, each brick its own budget of 1.5 to 5 KB. Over budget, the build fails."],
 ];
 
-// One card per module: [import, tag, what, size entry name, snippet, role colour]
-const BRICKS = [
-  ["fizlet", "KERNEL", "createEngine, the shared scheduler, Pool, EventRing, Ledger, seeded random and stats(). Everything else is optional.", "fizlet (kernel)",
-    `const e = createEngine({ root: board, seed: 7 });
-e.add({ step(e, dt) {/* sim */}, render(e) {/* DOM */} });
-e.start(); // e.destroy() gives the page back`, "go"],
-  ["fizlet/input", "INPUT", "Keys to named intents with one-frame edges, pointer, a touch stick and on-screen press(). Keys typed in the host's fields never count.", "fizlet/input",
-    `const pad = controls(e, { keys: { fire: ["Space"] } });
-if (pad.hit("fire")) fire(); // true for one frame
-if (pad.pointer.hit) aim(pad.pointer.x, pad.pointer.y);`, "sys"],
-  ["fizlet/collide", "COLLIDE", "A fixed-capacity spatial hash plus circle, rect and swept segment tests. Pass typed arrays and indices, so nothing boxes.", "fizlet/collide",
-    `const grid = new Grid(32, 64, w, h); // cell, cap, world
-grid.clear(); grid.add(xs, ys, rs, i); // typed arrays
-const n = grid.near(xs, ys, rs, i, out); // ids, once`, "cmd"],
-  ["fizlet/fx", "FX", "Pooled particles (struct of arrays), the hero blast(), pop words, scorch marks and screen shake, drawn on a canvas.", "fizlet/fx",
-    `const fx = effects({ cap: 420 });
-fx.blast(x, y, 1.2);       // flash, rings, debris, scorch
-fx.step(dt); fx.draw(ctx); // pooled: never allocates`, "attack"],
-  ["fizlet/sound", "SOUND", "Reads the event ring after each frame and plays synth cues, or your own player. Silent until a gesture, and while paused.", "fizlet/sound",
-    `const sfx = sound(e, { cues: { boom: "boom" } });
-e.events.emit("boom"); // in a step; plays after render
-sfx.on = false;        // mute`, "advance"],
-  ["fizlet/embed", "EMBED", "Drop a game onto any page: a hex-only palette, easter-egg triggers, lazy load, a toggle key and Escape to give the page back.", "fizlet/embed",
-    `embed(() => import("./game.js").then((m) => m.mount), {
-  name: "blitz", palette: { cmd: "#8573ee" },
-  easterEgg: { sequence: "konami" } });`, "fallin"],
-  ["fizlet/ui", "BOARD UI", "The Battlefield design system as a brick: 3D keys, cards, stickers, overlays and the launch burst. This site is built with it.", "fizlet/ui (js)",
-    `applyPalette(root, { sys: "#06c4ff" }); // hex only
-press(key, () => fire(), signal); // touch-safe
-launch(startKey, start); // press, invert, shatter`, "fire"],
-  ["fizlet/debug", "DEBUG", "Development only: guardLayout() counts every layout read made during a step, the contract's hardest rule, as a number.", "fizlet/debug",
-    `import { guardLayout } from "fizlet/debug";
-guardLayout(e);  // dev builds only
-e.violations;    // layout reads made in a step: 0`, "aim"],
-];
-
 const ROADMAP = [
   ["E0", "Baseline and archives", "part", "PARTLY DONE", "Freeze today's games as the before picture, so every port has numbers to beat.", [
     [1, "Perf harness: every app under a 4× CPU throttle (Playwright)"],
@@ -66,26 +30,26 @@ const ROADMAP = [
     [1, "Zero allocation over 1M steps, exact DOM restore"],
     [1, "Kernel under the 4 KB budget"],
   ]],
-  ["E2", "Bricks", "now", "IN PROGRESS · 0.2", "Small, separately importable bricks lifted from the games, each with tests and a size budget.", [
-    [1, "input · collide · fx · sound · embed · ui"],
-    [0, "actor + steer"],
-    [0, "aim · rules"],
-    [0, "board-page · board-grid"],
-    [0, "view-dom · camera"],
-    [0, "A playground of runnable examples"],
+  ["E2", "Bricks", "now", "IN PROGRESS", "Small, separately importable bricks lifted from the games, each with tests and a size budget.", [
+    [1, "input · pad · collide · fx · sound · embed · ui"],
+    [1, "grid · sprite · hud · match · board-page"],
+    [1, "slot and the page profile: settle, fps cap, idle load"],
+    [0, "steer · rules · coach"],
+    [0, "camera · layout"],
   ]],
   ["E3", "Port the games", "next", "NOT STARTED", "One game at a time, smallest first, each as a 1.0 engine cut with the old build still playable.", [
     [0, "Null Invaders → Byte Runner → Sherman Bytes"],
     [0, "Swarm Protocol → DOM Battlefield"],
     [0, "Perf equal or better than the baseline"],
   ]],
-  ["E4", "Presence and multiplayer", "next", "NOT STARTED", "A few-KB presence client where humans and AI agents are the same kind of player.", [
-    [0, "presence brick + reference room server"],
+  ["E4", "Presence and multiplayer", "now", "STARTED", "A few-KB presence client where humans and AI agents are the same kind of player.", [
+    [1, "presence brick + determinism check"],
     [0, "Battlefield 1v1 and co-op"],
     [0, "An AI agent joins a room"],
   ]],
-  ["E5", "Docs for humans and AI", "next", "NOT STARTED", "Build a game or micro-interaction in an afternoon, from docs a person or an agent can follow.", [
-    [0, "Authoring guide, one page per brick, recipes"],
+  ["E5", "Docs for humans and AI", "now", "STARTED", "Build a game or micro-interaction in an afternoon, from docs a person or an agent can follow.", [
+    [1, "One page per brick, generated from the source"],
+    [0, "Authoring guide and recipes"],
     [0, "AGENTS.md: the strict, AI-readable spec"],
     [0, "Live kernel stats on Under the Hood"],
   ]],
@@ -118,24 +82,25 @@ function demoPage() {
   const letters = [..."Hello, page."].map((c) => (c === " " ? " " : `<span class="dl" data-body data-flip>${esc(c)}</span>`)).join("");
   const words = "Every letter here is a real element on this page. Knock it around, then press Recall.".split(" ").map((w) => `<span class="dw" data-body>${esc(w)}</span>`).join(" ");
   return `<div class="demo-page" data-page>
-      <h3 class="demo-title" aria-label="Hello, page.">${letters}</h3>
+      <h2 class="demo-title" aria-label="Hello, page.">${letters}</h2>
       <p class="demo-copy">${words}</p>
       <div class="demo-row"><span class="demo-btn" data-body>SIGN UP</span><span class="demo-chip" data-body>NEW</span><span class="demo-chip alt" data-body>v0.2</span></div>
     </div>`;
 }
 
-export function home({ version, sizes, bundle }) {
+export function home({ version, sizes, bundle, bricks: catalog }) {
   const size = (name) => sizes.find((s) => s.name === name);
   const kernel = size("fizlet (kernel)");
   const css = size("fizlet/ui (css)");
-  const bricks = BRICKS.map(([imp, tag, what, sizeName, snippet, role], i) => {
-    const s = size(sizeName);
-    const extra = imp === "fizlet/ui" ? ` + ${kb(css.gzip)} KB css` : "";
-    return `<li class="panel brick${i === 0 ? " lit kernel" : ""}" style="--tone: var(--k-${role})">
-        <div class="brick-top"><span class="brick-tag">${tag}</span><span class="brick-size"><b>${kb(s.gzip)} KB</b>${extra}<small> / ${kb(s.budget)} KB gzip</small></span></div>
-        <h3><code>${imp}</code></h3>
-        <p>${esc(what)}</p>
-        ${code(snippet)}
+  const pageBuild = size("page build (kernel+slot+input+fx)");
+  const bricks = catalog.map((b, i) => {
+    const s = size(b.sizes[0]);
+    const extra = b.id === "ui" ? ` + ${kb(css.gzip)} KB css` : "";
+    return `<li class="panel brick${i === 0 ? " lit kernel" : ""}" style="--tone: var(--k-${b.role})">
+        <div class="brick-top"><span class="brick-tag">${b.tag}</span><span class="brick-size"><b>${kb(s.gzip)} KB</b>${extra}<small> / ${kb(s.budget)} KB gzip</small></span></div>
+        <h3><a href="bricks/${b.id}.html"><code>${b.name}</code></a></h3>
+        <p>${esc(b.summary)}</p>
+        ${b.snippet ? code(b.snippet) : ""}
         <span class="meter" aria-hidden="true"><i style="--v:${(s.gzip / s.budget).toFixed(3)}"></i></span>
       </li>`;
   }).join("\n      ");
@@ -173,6 +138,7 @@ export function home({ version, sizes, bundle }) {
     <div class="hero-copy">
       <p class="eyebrow"><span class="dot"></span>MICRO GAME ENGINE <span>/</span> <b>FOR THE DOM</b></p>
       <h1 id="hero-title">The page<br><em>is the board.</em></h1>
+      <p class="byline">by <a href="${AUTHOR}">Chris Cooley</a></p>
       <p class="lead">Fizlet is a tiny game engine that plays on the page you already have: one shared loop, bounded everything, and the page always comes back exactly as it was. The kernel is <b>${kb(kernel.gzip)} KB</b> gzipped. No runtime dependencies, ever.</p>
       <div class="hero-keys">
         <a class="bui-key bui-arcade bui-go" href="#start">${icon("play", 16)}Quick start</a>
@@ -214,11 +180,35 @@ export function home({ version, sizes, bundle }) {
 <section class="stats" aria-label="Fizlet in numbers">
   <div class="wrap stats-row">
     <span><b>${kb(kernel.gzip)} KB</b><small>KERNEL GZIP</small></span>
-    <span><b>${BRICKS.length - 1}</b><small>BRICKS</small></span>
+    <span><b>${catalog.length - 1}</b><small>BRICKS</small></span>
     <span><b>0</b><small>DEPENDENCIES</small></span>
     <span><b>1</b><small>rAF PER PAGE</small></span>
     <span><b>1M</b><small>STEPS · NO GC</small></span>
     <span class="soon"><i></i><b>V${esc(version)}</b><small>MIT · OPEN SOURCE</small></span>
+  </div>
+</section>
+
+<!-- THE PAGE PROFILE -->
+<section id="profile" class="section" aria-labelledby="profile-title">
+  <div class="wrap split">
+    <div>
+      <p class="eyebrow"><span class="index">00</span> HEROES AND DIAGRAMS · THE PAGE PROFILE</p>
+      <h2 id="profile-title">Costs nothing<br><em>while it's still.</em></h2>
+      <p class="lead">Fizlet is not only for games: it is built just as much for landing-page heroes and interactive diagrams, where the page is the product. The page profile is a lighter build of the same bricks for them.</p>
+      <p class="body"><b>Settle.</b> Pass <code>settle: 0.5</code> and systems call <code>engine.busy()</code> in any frame where something moves. Half a second after the last one, the engine sleeps: no requestAnimationFrame at all, zero frames, until <code>wake()</code>, its input or <code>start()</code>. <b>fps.</b> <code>fps: 30</code> caps an ambient loop on the shared clock. <b>slot.</b> Loads the scene only once it nears the viewport and the main thread is idle, and replays the tap that woke it.</p>
+      <div class="split-keys"><a class="bui-key bui-arcade bui-go" href="bricks/kernel.html">${icon("play", 16)}Try settle live</a><a class="bui-key bui-arcade bui-sys" href="bricks/slot.html">${icon("book", 16)}fizlet/slot</a></div>
+    </div>
+    <div class="panel lit profile-card" style="--tone: var(--k-go)">
+      <span class="bui-label"><b>PAGE BUILD</b> · kernel + slot + input + fx</span>
+      <b class="profile-size" data-size="${esc(pageBuild.name)}">${pageBuild.gzip.toLocaleString("en-US")} B</b>
+      <small>gzip, measured on this build, against a ${kb(pageBuild.budget)} KB budget checked in CI</small>
+      <span class="meter" aria-hidden="true"><i style="--v:${(pageBuild.gzip / pageBuild.budget).toFixed(3)}"></i></span>
+      <ul class="ledger-rules">
+        <li><b>0 frames</b> once settled, offscreen, in a hidden tab, and under reduced motion when you opt in.</li>
+        <li><b>Lazy scene.</b> The scene's own code loads only once its slot nears the viewport.</li>
+        <li><b>No game bricks.</b> No sound, pad, hud or match in the page build (a test fails if one gets in).</li>
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -242,11 +232,12 @@ export function home({ version, sizes, bundle }) {
     <div class="section-head">
       <p class="eyebrow"><span class="index">02</span> KERNEL + BRICKS</p>
       <h2 id="bricks-title">Take only<br><em>what you need.</em></h2>
-      <p class="lead">One small kernel and a box of bricks, each its own import with its own budget. Sizes are measured on this build: minified, gzipped, with everything each one pulls in.</p>
+      <p class="lead">One small kernel and a box of bricks, each its own import with its own budget. Sizes are measured on this build: minified, gzipped, with everything each one pulls in. Each brick has a page with its whole API.</p>
     </div>
     <ul class="bricks">
       ${bricks}
     </ul>
+    <div class="split-keys"><a class="bui-key bui-arcade bui-sys" href="bricks/">${icon("grid", 16)}Every brick, every export</a></div>
   </div>
 </section>
 
@@ -347,11 +338,11 @@ export function home({ version, sizes, bundle }) {
       <article class="panel lit game blitz">
         <p class="eyebrow"><span class="dot"></span> FIRST GAME ON FIZLET · <b>FREE FOR ALL</b></p>
         <h3>Battlefield Blitz</h3>
-        <p>Every tank for itself. Parachute in, grab power tiles, call airstrikes, dodge mines. Most kills in three minutes wins. About 17 KB gzipped with the engine and the art, and it drops onto any website with one line: shells knock your headings around, and Escape gives the page back.</p>
+        <p>Every tank for itself. Parachute in, grab power tiles, call airstrikes, dodge mines. Most kills in three minutes wins. It drops onto any website with one line: shells knock your headings around, and Escape gives the page back.</p>
         <span class="bui-label"><b>DROP-IN</b> · ONE LINE ON ANY PAGE</span>
         ${code(`<script src="${BLITZ}blitz.js" defer></script>`, "wrap")}
         <ul class="game-facts">
-          <li><b>~17 KB</b><span>gzip, engine and art</span></li>
+          <li><b>1 line</b><span>on any page</span></li>
           <li><b>3 min</b><span>free-for-all match</span></li>
           <li><b>Esc</b><span>gives the page back</span></li>
         </ul>
@@ -401,7 +392,7 @@ export function home({ version, sizes, bundle }) {
       <ol class="start-steps">
         <li><b>Script tag.</b> <code>fizlet.js</code> (${kb(bundle)} KB gzip), one file, no build step.</li>
         <li><b>Modules.</b> Import only the bricks you use from <code>${SITE}dist/</code>.</li>
-        <li><b>From source.</b> Not on npm yet: <code>git clone</code>, <code>npm ci</code>, <code>npm run build</code> gives you <code>dist/</code> with the subpath exports.</li>
+        <li><b>npm.</b> <span class="soon-tag">COMING SOON</span> <code>npm install fizlet</code> is not published yet. Until then: <code>git clone</code>, <code>npm ci</code>, <code>npm run build</code> gives you <code>dist/</code> with the subpath exports.</li>
       </ol>
       <div class="split-keys">
         <a class="bui-key bui-arcade bui-go" href="examples/quick-start.html">${icon("play", 16)}Run the example</a>

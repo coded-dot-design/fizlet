@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased
+
+- **Website: one page per brick, generated from the source.** `bricks/<id>.html` for the kernel
+  and every brick (input, pad, collide, grid, fx, sprite, sound, embed, slot, hud, match,
+  board-page, presence, ui, debug) plus a bricks index. Each page has the module's summary (its
+  leading comment), every export with its doc comment (read from the built `.d.ts` by
+  `scripts/api.mjs`), the gzip size measured by `scripts/sizes.mjs`, ESM imports from the hosted
+  `dist/`, and npm marked coming soon. Live demos where cheap: kernel settle (the frame count stops
+  once the puck does), fx, grid (A* on a seeded board), sprite and sound; each loads only its own
+  chunk. `tests/api.test.mjs`: the catalog covers every public module in `package.json`, each page
+  lists every runtime export, the page shows the measured bytes.
+- **Home:** the bricks section comes from the same catalog and links to each page; a page profile
+  section explains settle, the fps cap and slot with the measured page-build size; "by Chris
+  Cooley" links to coded.design; `npm install` is marked coming soon (here and in the README);
+  the roadmap reflects the shipped bricks; Blitz's unmeasured "~17 KB" claim is gone.
+- **SEO and accessibility gates** (`scripts/check-html.mjs`, run by `npm run test:site` on every
+  built page): one title and description of sane length, canonical and `og:url` equal to the
+  page's URL, Open Graph tags (a generated `og.png`, PNG-encoded with `node:zlib`), lang, one
+  `h1`, one `main` plus header, nav and footer landmarks, no skipped heading levels, unique ids,
+  alt on every image, every svg and canvas hidden or named, every link and button named. A
+  `sitemap.xml` lists every page. Kernel lead comment rewritten (it is the kernel page's summary);
+  no code or size change.
+
 ## 0.10.0
 
 - **Both heroes 5% under the 10 KB live budget** (fizlet-engine docs/LAYERS.md), by making bricks
