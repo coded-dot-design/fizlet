@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.10.0
 
 - **Both heroes 5% under the 10 KB live budget** (fizlet-engine docs/LAYERS.md), by making bricks
   leave out what a page doesn't call:
