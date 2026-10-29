@@ -118,7 +118,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit && tsc -p site/tsconfig.json && tsc -p site/demos/fizz/tsconfig.json",
-    "test": "node --expose-gc --import tsx --test tests/*.test.mjs",
+    "test": "node --expose-gc --import tsx --test --test-concurrency=1 tests/*.test.mjs",
     "build": "node scripts/build.mjs",
     "check": "npm run typecheck && npm test && npm run build",
     "size": "node scripts/size.mjs",

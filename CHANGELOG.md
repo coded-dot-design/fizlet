@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- **Tests: zero-allocation checks no longer flake.** `match` and `rules` count young GCs with the
+  shared best-of-3 helper (`tests/gc.mjs`) like every other check, and assert at most one over the
+  bare engine (was three). `npm test` runs test files one at a time (`--test-concurrency=1`): with
+  files in parallel, CPU contention delays V8's background compiler, and the HUD events check read
+  14 young GCs instead of 3.
+
 ## 0.14.0
 
 For Swarm Protocol's port onto the kernel (its own engine kept page-level hooks the bricks lacked):
