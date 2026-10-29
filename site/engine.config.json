@@ -3,14 +3,57 @@
   "brand": {
     "name": "Fizlet",
     "siteUrl": "https://coded-dot-design.github.io/fizlet",
-    "defaultImage": "/og/fizlet.png"
+    "defaultImage": "/og/fizlet.png",
+    "author": {
+      "name": "Chris Cooley",
+      "url": "https://coded.design/"
+    }
   },
-  "inputs": { "voice": "../brand/voice.md", "styleGuide": "../brand/style-guide.md" },
+  "inputs": {
+    "voice": "../brand/voice.md",
+    "styleGuide": "../brand/style-guide.md"
+  },
   "pageTypes": {
-    "home":     { "template": "marketing", "path": "/",               "eyebrow": "",          "schemaPageType": "SoftwareSourceCode", "requires": ["hero"] },
-    "guide":    { "template": "article",   "path": "/guides/{slug}",  "eyebrow": "Guide",     "schemaPageType": "TechArticle", "related": true },
-    "brick":    { "template": "marketing", "path": "/bricks/{slug}",  "eyebrow": "Brick",     "schemaPageType": "SoftwareSourceCode", "requires": ["hero"] },
-    "example":  { "template": "marketing", "path": "/examples/{slug}", "eyebrow": "Example",   "schemaPageType": "WebPage", "requires": ["hero"] },
-    "blog":     { "template": "article",   "path": "/blog/{slug}",    "eyebrow": "Blog",      "schemaPageType": "BlogPosting", "related": true }
+    "home": {
+      "template": "marketing",
+      "path": "/",
+      "eyebrow": "",
+      "schemaPageType": "SoftwareSourceCode",
+      "requires": [
+        "hero"
+      ]
+    },
+    "guide": {
+      "template": "article",
+      "path": "/guides/{slug}",
+      "eyebrow": "Guide",
+      "schemaPageType": "TechArticle",
+      "related": true
+    },
+    "brick": {
+      "template": "marketing",
+      "path": "/bricks/{slug}",
+      "eyebrow": "Brick",
+      "schemaPageType": "SoftwareSourceCode",
+      "requires": [
+        "hero"
+      ]
+    },
+    "example": {
+      "template": "marketing",
+      "path": "/examples/{slug}",
+      "eyebrow": "Example",
+      "schemaPageType": "WebPage",
+      "requires": [
+        "hero"
+      ]
+    },
+    "blog": {
+      "template": "article",
+      "path": "/blog/{slug}",
+      "eyebrow": "Blog",
+      "schemaPageType": "BlogPosting",
+      "related": true
+    }
   }
 }

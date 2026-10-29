@@ -130,7 +130,7 @@ ${body}
     </div>
   </div>
   <div class="foot-base">
-    <div class="wrap"><span>© 2026 coded.design · MIT licence · no runtime dependencies</span><span>Created by Chris Cooley</span></div>
+    <div class="wrap"><span>© 2026 coded.design · MIT licence · no runtime dependencies</span><span>Created by <a href="https://coded.design/" rel="author">Chris Cooley</a></span></div>
   </div>
 </footer>
 ${scripts.map((s) => `<script type="module" src="${base}${s}"></script>`).join("\n")}
