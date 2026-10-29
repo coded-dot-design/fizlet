@@ -1,4 +1,4 @@
-// Brick tests (Node): collide, fx, sprite and the pad's maths. Input, pad, sound and embed need a browser: tests/browser.mjs.
+// Brick tests (Node): collide, fx, sprite, the pad's maths and input's step-side API. Input listeners, pad, sound and embed need a browser: tests/browser.mjs.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { PerformanceObserver, constants } from "node:perf_hooks";
@@ -206,4 +206,38 @@ test("sprite: draw allocates nothing once baked", async (t) => {
   obs.disconnect();
   assert.equal(sp.baked, 12, "hull 2 frames + turret 1, x 2 scales x 2 palettes");
   assert.equal(minor, 0, `young-generation GCs over 3.2M draws: ${minor}`);
+});
+
+test("input: hit() and down() in a step allocate nothing", async (t) => {
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  // No DOM in node: listeners go nowhere; the step-side API is what's measured (presses and their
+  // edges are covered in tests/browser.mjs).
+  globalThis.addEventListener ??= () => {};
+  const { createEngine } = await import("../src/index.ts");
+  const { controls } = await import("../src/input.ts");
+  const target = { addEventListener() {}, getBoundingClientRect: () => ({ left: 0, top: 0, width: 100 }) };
+  const e = createEngine();
+  const c = controls(e, { target, keys: { fire: ["Space"], left: ["KeyA", "ArrowLeft"] } });
+  const n = new Int32Array(1);
+  e.add({
+    step: () => {
+      if (c.hit("fire") || c.pointer.hit || c.down("left")) n[0]++;
+      n[0] += c.axis("left", "fire", 0) + 1;
+    },
+  });
+  for (let i = 0; i < 20000; i++) e.advance(1 / 60);
+  gc();
+  let minor = 0;
+  const obs = new PerformanceObserver((list) => {
+    for (const x of list.getEntries()) if (x.detail?.kind === constants.NODE_PERFORMANCE_GC_MINOR) minor++;
+  });
+  obs.observe({ entryTypes: ["gc"] });
+  for (let i = 0; i < 1000000; i++) e.advance(1 / 60);
+  await new Promise((r) => setTimeout(r, 50));
+  obs.disconnect();
+  e.destroy();
+  assert.ok(n[0] > 1000000, "it stepped");
+  // 0.2.4's input reads 0-2 here too (strays from the test above); boxing one number per frame
+  // (reading engine.time in read) showed as 7-9.
+  assert.ok(minor <= 3, `young-generation GCs over 1M frames: ${minor}`);
 });

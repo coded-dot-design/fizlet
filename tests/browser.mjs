@@ -368,6 +368,302 @@ try {
   });
   assert.deepEqual(inp, { first: [true, true, 1], second: [false, true], released: false, typed: false, onScreen: true, after: false });
 
+  // Hardening (engineering review of 0.2.4): every item is checked, then all failures reported.
+  const fails = [];
+  const check = (name, actual, expected) => {
+    try {
+      assert.deepEqual(actual, expected);
+    } catch {
+      fails.push(`${name}: got ${JSON.stringify(actual)}, want ${JSON.stringify(expected)}`);
+    }
+  };
+
+  where = "input-hardening";
+  const hard = await page.evaluate(() => {
+    const out = {};
+    const pad = document.createElement("div");
+    pad.style.cssText = "position:fixed;left:100px;top:100px;width:400px;height:200px";
+    document.body.append(pad);
+    const key = (type, code, extra = {}) => window.dispatchEvent(new KeyboardEvent(type, { code, bubbles: true, cancelable: true, ...extra }));
+    const ptr = (type, at, o) => at.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 1, pointerType: "mouse", ...o }));
+    const fresh = (opts = {}) => {
+      const e = fizlet.createEngine({ pause: { hidden: false, offscreen: false, editable: false } });
+      const c = fizlet.controls(e, { target: pad, stick: "left", keys: { left: ["KeyA", "ArrowLeft"], fire: ["Space"] }, ...opts });
+      e.start();
+      return [e, c];
+    };
+    let [e, c] = fresh();
+
+    // 1. Several physical bindings for one action.
+    key("keydown", "KeyA");
+    key("keydown", "ArrowLeft");
+    key("keyup", "KeyA");
+    e.advance(0);
+    out.bindings = [c.down("left"), c.axis("left", "fire")];
+    key("keyup", "ArrowLeft");
+    e.advance(0);
+    out.bindingsUp = c.down("left");
+    // Auto-repeat keydowns are one press.
+    key("keydown", "KeyA");
+    key("keydown", "KeyA", { repeat: true });
+    key("keyup", "KeyA");
+    e.advance(0);
+    out.repeat = c.down("left");
+
+    // 2. Release outside the target, pointercancel outside, lostpointercapture.
+    ptr("pointerdown", pad, { clientX: 400, clientY: 150 });
+    e.advance(0);
+    const pressed = c.pointer.down;
+    ptr("pointerup", document.body, { clientX: 700, clientY: 500 });
+    e.advance(0);
+    out.upOutside = [pressed, c.pointer.down];
+    ptr("pointerdown", pad, { clientX: 400, clientY: 150 });
+    ptr("pointercancel", document.body);
+    e.advance(0);
+    out.cancelOutside = c.pointer.down;
+    ptr("pointerdown", pad, { clientX: 400, clientY: 150 });
+    ptr("lostpointercapture", pad);
+    e.advance(0);
+    out.lostCapture = c.pointer.down;
+    const touch = { pointerType: "touch", pointerId: 7 };
+    ptr("pointerdown", pad, { ...touch, clientX: 150, clientY: 150 });
+    ptr("pointermove", pad, { ...touch, clientX: 210, clientY: 150 });
+    e.advance(0);
+    const stickOn = [c.stick.active, c.stick.x];
+    ptr("pointerup", document.body, touch);
+    out.stickUpOutside = [...stickOn, c.stick.active, c.stick.x];
+    ptr("pointerdown", pad, { ...touch, clientX: 150, clientY: 150 });
+    ptr("lostpointercapture", pad, touch);
+    out.stickLost = c.stick.active;
+
+    // 3. Multitouch: the stick keeps its finger; a second finger aims without moving the stick,
+    // and the stick finger never moves the pointer.
+    const A = { pointerType: "touch", pointerId: 11 }, B = { pointerType: "touch", pointerId: 12 }, C = { pointerType: "touch", pointerId: 13 };
+    ptr("pointerdown", pad, { ...A, clientX: 150, clientY: 150 });
+    ptr("pointerdown", pad, { ...B, clientX: 450, clientY: 180 });
+    ptr("pointerdown", pad, { ...C, clientX: 160, clientY: 160 }); // a second finger on the stick side
+    ptr("pointermove", pad, { ...C, clientX: 100, clientY: 100 });
+    ptr("pointermove", pad, { ...B, clientX: 460, clientY: 190 });
+    ptr("pointermove", pad, { ...A, clientX: 120, clientY: 150 });
+    e.advance(0);
+    out.multitouch = [c.stick.active, c.stick.x, c.pointer.x];
+    ptr("pointerup", pad, C);
+    ptr("pointerup", pad, B);
+    out.multitouchUp = [c.stick.active, c.stick.x];
+    ptr("pointerup", pad, A);
+
+    // 4. Blur, pause and destroy drop held keys, the pointer and the stick.
+    const holdAll = () => {
+      key("keydown", "Space");
+      ptr("pointerdown", pad, { clientX: 400, clientY: 150 });
+      ptr("pointerdown", pad, { ...A, clientX: 150, clientY: 150 });
+      c.press("left");
+    };
+    const held = () => [c.down("fire"), c.down("left"), c.pointer.down, c.stick.active];
+    holdAll();
+    window.dispatchEvent(new Event("blur"));
+    out.blur = held();
+    key("keyup", "Space");
+    c.press("left", false);
+    holdAll();
+    e.stop();
+    out.pause = held();
+    e.start();
+    key("keyup", "Space");
+    e.advance(0);
+    out.resumedNoGhost = c.hit("fire");
+    holdAll();
+    e.destroy();
+    out.destroy = held();
+
+    // 5. A press is seen by exactly one step, across frames with 0 steps and with several.
+    [e, c] = fresh();
+    let seen = 0;
+    e.add({ step: () => (seen += c.hit("fire") ? 1 : 0) });
+    key("keydown", "Space");
+    e.advance(0); // a frame with no step (first frame, paused catch-up)
+    const outside = c.hit("fire");
+    e.advance(0);
+    e.advance(e.dt * 3 + 1e-9); // three steps
+    e.advance(e.dt);
+    out.zeroThenSteps = [outside, seen];
+    key("keyup", "Space");
+    seen = 0;
+    key("keydown", "Space");
+    e.advance(e.dt * 3 + 1e-9);
+    e.advance(e.dt * 3 + 1e-9);
+    out.severalSteps = seen;
+    key("keyup", "Space");
+    seen = 0;
+    ptr("pointerdown", pad, { clientX: 400, clientY: 150 });
+    ptr("pointerup", pad, {});
+    let pseen = 0;
+    e.add({ step: () => (pseen += c.pointer.hit ? 1 : 0) });
+    e.advance(0);
+    e.advance(e.dt * 3 + 1e-9);
+    out.pointerHit = pseen;
+    e.destroy();
+
+    // 6. Independent disposal: the controls go, the engine keeps running.
+    [e, c] = fresh();
+    let steps = 0;
+    e.add({ step: () => steps++ });
+    holdAll();
+    c.dispose?.();
+    c.dispose?.(); // idempotent
+    key("keyup", "Space");
+    key("keydown", "Space");
+    ptr("pointerdown", pad, { clientX: 400, clientY: 150 });
+    e.advance(e.dt);
+    out.dispose = [typeof c.dispose, e.running, steps, c.down("fire"), c.hit("fire"), c.pointer.down, c.stick.active];
+    e.destroy();
+
+    // 7. Pointer events never measure layout; the read phase does, once per frame.
+    [e, c] = fresh();
+    const real = Element.prototype.getBoundingClientRect;
+    let reads = 0;
+    Element.prototype.getBoundingClientRect = function () {
+      reads++;
+      return real.call(this);
+    };
+    for (let i = 0; i < 20; i++) ptr("pointermove", pad, { clientX: 300 + i, clientY: 150 });
+    const inEvents = reads;
+    e.advance(0);
+    Element.prototype.getBoundingClientRect = real;
+    out.measure = [inEvents, reads, c.pointer.x, c.pointer.y];
+    e.destroy();
+    pad.remove();
+    return out;
+  });
+  check("1 bindings: A + ArrowLeft, release A", hard.bindings, [true, -1]);
+  check("1 bindings: release both", hard.bindingsUp, false);
+  check("1 bindings: auto-repeat", hard.repeat, false);
+  check("2 pointerup outside the target", hard.upOutside, [true, false]);
+  check("2 pointercancel outside the target", hard.cancelOutside, false);
+  check("2 lostpointercapture", hard.lostCapture, false);
+  check("2 stick released outside", hard.stickUpOutside, [true, 1, false, 0]);
+  check("2 stick lostpointercapture", hard.stickLost, false);
+  check("3 multitouch: stick x, pointer x stays on finger B", hard.multitouch, [true, -0.5, 360]);
+  check("3 multitouch: other fingers lifting keep the stick", hard.multitouchUp, [true, -0.5]);
+  check("4 blur clears", hard.blur, [false, false, false, false]);
+  check("4 pause clears", hard.pause, [false, false, false, false]);
+  check("4 no ghost press after resume", hard.resumedNoGhost, false);
+  check("4 destroy clears", hard.destroy, [false, false, false, false]);
+  check("5 hit: 0-step frames then steps → seen once (and true outside steps meanwhile)", hard.zeroThenSteps, [true, 1]);
+  check("5 hit: several steps per frame → seen once", hard.severalSteps, 1);
+  check("5 pointer hit: seen once", hard.pointerHit, 1);
+  check("6 dispose", hard.dispose, ["function", true, 1, false, false, false, false]);
+  check("7 no layout reads in pointer events; one in read", hard.measure, [0, 1, 219, 50]);
+
+  where = "sound-hardening";
+  const snd = await page.evaluate(async () => {
+    const Real = window.AudioContext, made = [];
+    window.AudioContext = class extends Real {
+      constructor() {
+        super();
+        made.push(this);
+      }
+    };
+    window.__made = made;
+    const out = {};
+    // 8. A custom player: no AudioContext, no unlock listeners; dispose is its own.
+    const e = fizlet.createEngine({ pause: { hidden: false, offscreen: false, editable: false } });
+    let played = 0;
+    const s = fizlet.sound(e, { cues: { boom: "boom" }, play: () => played++ });
+    window.__s8 = { e, s, played: () => played };
+    e.start();
+    return out;
+  });
+  await page.mouse.click(5, 5);
+  await page.keyboard.press("Shift");
+  const s8 = await page.evaluate(() => {
+    const { e, s, played } = window.__s8;
+    const made = window.__made.length;
+    e.add({ step: (x) => x.events.emit("boom") });
+    e.advance(e.dt);
+    const before = played();
+    s.dispose?.();
+    e.advance(e.dt);
+    const after = played();
+    const r = [made, before, after, typeof s.dispose, e.running];
+    e.destroy();
+    return r;
+  });
+  check("8 custom player: no AudioContext, plays, dispose stops it, engine runs", s8, [0, 1, 1, "function", true]);
+
+  // 9. The synth: a gesture starts it; muted, gestures leave it suspended; switched back on, a
+  // suspended context (the browser or the OS paused it) resumes on any later gesture.
+  await page.evaluate(() => {
+    const e = fizlet.createEngine({ pause: { hidden: false, offscreen: false, editable: false } });
+    window.__s9 = { e, s: fizlet.sound(e, { cues: {} }) };
+    e.start();
+  });
+  const state = () => page.evaluate(() => window.__made.at(-1)?.state ?? "none");
+  const settle = () => page.waitForTimeout(150);
+  await page.mouse.click(5, 5);
+  await settle();
+  const first = await state();
+  await page.evaluate(() => (window.__s9.s.on = false));
+  await settle();
+  const muted = await state();
+  await page.mouse.click(5, 5);
+  await page.keyboard.press("Shift");
+  await settle();
+  const mutedGesture = await state();
+  await page.evaluate(() => ((window.__s9.s.on = true), window.__made.at(-1).suspend()));
+  await settle();
+  await page.mouse.click(5, 5);
+  await settle();
+  const later = await state();
+  await page.evaluate(() => window.__made.at(-1).suspend());
+  await settle();
+  await page.keyboard.press("Shift");
+  await settle();
+  const later2 = await state();
+  const s9dispose = await page.evaluate(async () => {
+    const { e, s } = window.__s9;
+    s.dispose?.();
+    await new Promise((r) => setTimeout(r, 100));
+    const r = [window.__made.at(-1).state, e.running];
+    e.destroy();
+    window.AudioContext = Object.getPrototypeOf(window.AudioContext);
+    return r;
+  });
+  check("9 synth: first gesture, muted, muted+gesture, later gesture, another later gesture", [first, muted, mutedGesture, later, later2], ["running", "suspended", "suspended", "running", "running"]);
+  check("9 synth dispose closes its context, engine runs", s9dispose, ["closed", true]);
+
+  where = "embed-hardening";
+  const embHard = await page.evaluate(async () => {
+    // 10. Closing while the async load is pending: the load must not mount afterwards.
+    let release, mounted = 0;
+    const gate = new Promise((r) => (release = r));
+    const game = fizlet.embed(() => gate.then(() => () => (mounted++, { destroy() {} })), { name: "slow", open: false });
+    const p = game.open();
+    game.close();
+    release();
+    await p;
+    await new Promise((r) => setTimeout(r, 20));
+    const afterClose = [game.opened, mounted, document.querySelectorAll('[data-fizlet-host="slow"]').length];
+    // Escape while loading also cancels; a fresh open() afterwards still works.
+    let release2;
+    const gate2 = new Promise((r) => (release2 = r));
+    const g2 = fizlet.embed(() => gate2.then(() => () => (mounted++, { destroy() {} })), { name: "slow2", open: false });
+    g2.open();
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    const reopen = g2.open();
+    release2();
+    await reopen;
+    await new Promise((r) => setTimeout(r, 20));
+    const reopened = [g2.opened, mounted, document.querySelectorAll('[data-fizlet-host="slow2"]').length];
+    game.destroy();
+    g2.destroy();
+    return { afterClose, reopened, left: document.querySelectorAll("[data-fizlet-host], [data-slow-ignore], [data-slow2-ignore]").length };
+  });
+  check("10 close during load: never mounts", embHard.afterClose, [false, 0, 0]);
+  check("10 Escape cancels the load; a later open mounts once", embHard.reopened, [true, 1, 1]);
+  check("10 destroy leaves nothing", embHard.left, 0);
+  assert.deepEqual(fails, [], `hardening checks failed:\n  ${fails.join("\n  ")}`);
+
   where = "embed";
   const emb = await page.evaluate(async () => {
     let mounted = 0, destroyed = 0, cmd = "";
@@ -441,7 +737,7 @@ try {
   assert.equal(hd.same, true, "HUD: destroy restores the DOM exactly (rows it added go too)");
 
   assert.deepEqual(errors, []);
-  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, hud passed.");
+  console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, input/sound/embed hardening, embed, hud passed.");
   where = "slot";
   // The markup and CSS astro-base-engine renders for `[slot animation]` (engine/astro_base_engine/render.py).
   const fig = (target, label) => `<figure class="ae-slot ae-slot--16x9" data-slot="animation" data-slot-target="${target}" role="img" aria-label="${label}"><p class="ae-slot__placeholder">Animation here: ${label}</p><figcaption class="ae-slot__fallback">Still: ${label}</figcaption></figure>`;
