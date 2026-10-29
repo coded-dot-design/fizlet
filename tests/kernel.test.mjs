@@ -1,6 +1,6 @@
 // Kernel contract tests (Node, no browser): one clock, fixed step, bounded pools and events,
 // seeded random, pause, destroy, and zero allocation in the steady state.
-// Run with: node --expose-gc --import tsx --test tests/*.test.mjs
+// Run with: npm test (node --expose-gc --import tsx --test --test-concurrency=1 tests/*.test.mjs)
 import test from "node:test";
 import assert from "node:assert/strict";
 import { minorGCs } from "./gc.mjs";

@@ -8,6 +8,7 @@
 import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { chromium } from "playwright";
+import { launchOptions } from "./chromium.mjs";
 import { readFileSync } from "node:fs";
 
 const bundle = (await build({
@@ -352,7 +353,7 @@ async function perfTest() {
   await ctx.close();
 }
 
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await chromium.launch(launchOptions());
 let where = "start";
 try {
   const page = await browser.newPage({ viewport: { width: 800, height: 600 } });
@@ -399,6 +400,28 @@ try {
   assert.equal(result.same, true, "destroy (Recall) restores the exact DOM");
   assert.equal(result.size, 0);
   assert.equal(result.titleStyle, "color: red", "the style attribute text comes back byte for byte");
+
+  where = "ledger unstyle";
+  const un = await page.evaluate(() => {
+    const e = fizlet.createEngine(), L = e.ledger, title = document.getElementById("title");
+    L.style(title, "translate", "2px 1px");
+    L.style(title, "color", "lime");
+    L.unstyle(title, "translate");
+    const mid = [title.style.getPropertyValue("translate"), title.style.getPropertyValue("color")];
+    // Forgotten: a later write records the value then as the original, and Recall puts that back.
+    L.style(title, "translate", "4px 0px");
+    title.style.setProperty("rotate", "3deg");
+    L.style(title, "rotate", "9deg");
+    title.style.setProperty("rotate", "1deg"); // the host edits it: unstyle keeps hands off
+    const host = L.unstyle(title, "rotate");
+    e.destroy();
+    const after = [title.style.getPropertyValue("translate"), title.style.getPropertyValue("color"), title.style.getPropertyValue("rotate")];
+    title.style.removeProperty("rotate");
+    return { mid, host, after, attr: title.getAttribute("style") };
+  });
+  assert.deepEqual(un.mid, ["", "lime"], "unstyle puts one property back now, the others stay");
+  assert.equal(un.host, false, "a host edit wins over unstyle");
+  assert.deepEqual(un.after, ["", "red", "1deg"], "Recall after unstyle: the rest restored, the host's value kept");
 
   where = "host-wins";
   const host = await page.evaluate(() => {
@@ -1345,6 +1368,18 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
     const first = b.hit(-50, mid, 790, mid), t = b.t, last = b.hit(790, mid, -50, mid);
     out.hit = Math.abs(G.x[first] - rh.left) < 0.5 && Math.abs(G.x[last] - rd.left) < 0.5 && t > 0 && t < 0.1;
     out.miss = b.hit(-50, 590, 790, 590);
+    // The letter a glyph was, and the element that holds it (for a game's own read-phase checks).
+    out.char = b.char(first);
+    out.parent = b.parent(first)?.id;
+    // letters: true leaves the digits ("42") out.
+    const eL = fizlet.createEngine({ root: document.getElementById("game") }), bL = fizlet.boardPage(eL, { exclude: ".skip", letters: true });
+    bL.refresh();
+    out.letters = out.count - bL.glyphs.count;
+    eL.destroy();
+    // The hot-path forms read typed arrays (no number boxes) and agree with near / hit.
+    const seg = new Float64Array([0, -50, mid, 790, mid, 0]), cp = new Float64Array([0, rw.left + rw.width / 2, rw.top + rw.height / 2, 1]), idx2 = new Int32Array(64);
+    out.hitAt = b.hitAt(seg, 1) === first && Math.abs(seg[5] - t) < 1e-9;
+    out.nearAt = b.nearAt(cp, 1, idx2) === 1 && idx2[0] === idx[0];
     // Targets: the page's button only (not the host's, not a field).
     out.targets = b.targets.map((t) => [t.el.id, t.w > 0, t.hp]);
     // consume from a step is queued, written in render through the ledger, into the same Text node.
@@ -1408,6 +1443,18 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
     const b3 = fizlet.boardPage(e2, { maxGlyphs: 7, maxTargets: 0 });
     b3.refresh();
     out.maxGlyphs = [b3.glyphs.count, b3.targets.length];
+    // Targets only (no glyphs), re-measured only after a change: still frames read no layout.
+    const e4 = fizlet.createEngine(), b4 = fizlet.boardPage(e4, { text: false, targets: "h1,#go", still: Infinity });
+    const gbcr = Element.prototype.getBoundingClientRect;
+    let rects = 0;
+    Element.prototype.getBoundingClientRect = function () { rects++; return gbcr.call(this); };
+    e4.advance(0);
+    const rects0 = rects;
+    for (let i = 0; i < 120; i++) e4.advance(1 / 60);
+    const still = rects - rects0;
+    Element.prototype.getBoundingClientRect = gbcr;
+    out.targetsOnly = [b4.glyphs.count, b4.targets.map((t) => t.el.id).join(), b4.targets[0].w > 0, rects0 > 0, still];
+    e4.destroy();
     // Scrolling re-measures at the dirty rate: the paragraph far below comes on screen.
     const far = () => { let n = 0; for (let i = 0; i < ref.glyphs.count; i++) if (ref.glyphs.w[i] > 0 && ref.glyphs.y[i] > 300) n++; return n; };
     const farBefore = far();
@@ -1441,6 +1488,11 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   assert.equal(board.near, true, "near finds the glyph under the point");
   assert.equal(board.hit, true, "hit returns the first glyph along the segment");
   assert.equal(board.miss, -1);
+  assert.equal(board.char, "H", "char(i) is the glyph's letter");
+  assert.equal(board.parent, "h", "parent(i) is the element holding it");
+  assert.equal(board.letters, 2, "letters: true indexes letters only (the 2 digits are out)");
+  assert.equal(board.hitAt, true, "hitAt reads the segment from a typed array and agrees with hit (t in p[i + 4])");
+  assert.equal(board.nearAt, true, "nearAt reads the circle from a typed array and agrees with near");
   assert.deepEqual(board.targets, [["go", true, 100]], "targets: the page's button only");
   assert.match(board.consumed[0], /^[01]at $/, "consume writes a literal 0/1 into the same Text node");
   assert.deepEqual(board.consumed.slice(1), [false, 1, true]);
@@ -1457,6 +1509,7 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   assert.equal(board.cap, true, "Range reads per refresh never pass the cap");
   assert.equal(board.capCovers, true, "capped refreshes still cover every on-screen glyph");
   assert.deepEqual(board.maxGlyphs, [7, 0]);
+  assert.deepEqual(board.targetsOnly, [0, "h,go", true, true, 0], "text: false indexes no glyphs; still: Infinity re-measures only after a change");
   assert.deepEqual(board.scroll, [0, 8], "scrolling re-measures: far text comes on screen");
   assert.equal(board.queuedSurvives, true, "a queued write survives a rescan");
   assert.equal(board.restored2, true);

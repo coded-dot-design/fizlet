@@ -19,6 +19,132 @@
     loader 1,959 B, poster 3,457 B; script per frame 1.4 ms avg, 4.7 ms p95, 19.3 ms max; 0 frames
     settled, offscreen and with reduced motion; CLS from the slot 0. `tests/fizz.mjs`: the spray
     leaves the card, and the camera moves the card, never the page.
+- **Tests: the camera's reduced-motion check waits for frames, not 120 ms of wall time**, so slow CI
+  runners no longer fail it.
+- **Tests: zero-allocation checks no longer flake.** `match` and `rules` count young GCs with the
+  shared best-of-3 helper (`tests/gc.mjs`) like every other check, and assert at most one over the
+  bare engine (was three). `npm test` runs test files one at a time (`--test-concurrency=1`): with
+  files in parallel, CPU contention delays V8's background compiler, and the HUD events check read
+  14 young GCs instead of 3.
+
+## 0.15.0
+
+For page scenes in the gallery (`fe anim`'s second scene type: it reads the page's own elements):
+
+- **`fizlet/board-page` `text: false`**: targets only, no glyphs indexed. **`still`**: seconds
+  between re-measures while the page is still (default 0.5); `Infinity` re-measures only after a
+  scroll, resize or change, so a still frame reads no layout.
+- **`fizlet/board-page` reads its refresh clock from `engine.timing`** (a typed array), not the
+  `time` getter: the getter returned a double and boxed a number every frame (12 B a frame in steady
+  state, measured with the sampling heap profiler while time advances).
+- **Kernel: the frame-time maximum is written every frame**, so a new maximum no longer deopts
+  `advance()` (V8 had no feedback for a store that runs only on a new record).
+- **Tests find Chromium by themselves** (`tests/chromium.mjs`): `CHROMIUM_PATH`, else
+  `/opt/pw-browsers/chromium`, else Playwright's own; every browser test and the site test use it.
+- **Website: gallery #006, "a scanline sweep that lights up every heading it passes".** Made by `fe
+  anim` from the prompt (recipe sweep, a page scene that reads the page's own headings and writes
+  only through the ledger; kernel + board-page + slot): live 8,852 B · total 10,752 B gzip (with the
+  1,900 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: the gallery shows one size, both parts named**: the live chunk on the badge and the
+  total with the shared loader beside it; #004 and #005 re-published (no byte numbers in the
+  entries; the spray scene rains around a tap on an edge source).
+- Size: kernel 3,413 B gzip (budget 4,096); `fizlet/board-page` 4,050 B (4,010 in 0.14.0, budget
+  4,096); `fizlet/arcade` 17,246 B (budget 17,408).
+
+## 0.14.1
+
+- **Board UI: page keys press right (`.bui-key`, links and buttons).** On a mouse, a pressed link
+  key stayed lifted: its hover rule outranked the press rule, so the face never dropped onto its
+  base. Press now always beats hover. A click on the base (a box-shadow, which takes no pointer) or
+  just under the top edge (which the dropping face leaves) missed the key; an invisible `::before`
+  now covers face and base and stays put while the face travels. New `pressCue(root)` in
+  `fizlet/ui`: Enter (and Space on a button) shows the pressed face, and iOS Safari applies
+  `:active`. Disabled link keys (`aria-disabled="true"`), and a darker face as the press cue under
+  reduced motion. The site's keys all wear `bui-key`; `tests/keys.mjs` presses every page key at
+  its centre, top edge and base (mouse and keyboard at 1440, taps at 390). ui CSS 4,858 B gz
+  (was 4,737), ui JS 2,887 B gz (was 2,745).
+
+## 0.14.0
+
+For Swarm Protocol's port onto the kernel (its own engine kept page-level hooks the bricks lacked):
+
+- **Kernel `Ledger.unstyle(el, prop)`**: put one style property back now, as Recall would, and
+  forget it (a later `style` records the value then as the new original). Hands off if the host
+  changed it since our last write. Swarm drops a breached button's paint and a hit's wobble mid-round.
+- **`fizlet/board-page` `letters: true`**: letters only (digits stay page text, not glyphs).
+- **`board-page.char(i)`**: the letter glyph i was before the game changed it (a bite reports which
+  letter it ate). **`board-page.parent(i)`**: the element that holds it, for a game's own
+  read-phase checks (what covers it). Neither is for a step.
+- Size: kernel 3,415 B gzip (budget 4,096); `fizlet/board-page` 4,010 B (3,960 in 0.13.0, budget
+  4,096); `fizlet/arcade` 17,206 B (budget 17,408).
+
+## 0.13.0
+
+- **`fizlet/board-page`: hot-path forms `hitAt(p, i)` and `nearAt(p, i, out)`.** They take the
+  segment (x0, y0, x1, y1) or the circle (x, y, r) from a typed array, and `hitAt` writes how far
+  along the segment the glyph is into `p[i + 4]`. The reason: a number passed to a call V8 doesn't
+  inline is boxed (one allocation), and a big game step stops V8 inlining `hit` and `near`. Sherman
+  Bytes' step boxed four numbers per shell per step through `hit`; with `hitAt`, 20,000 busy steps
+  make no minor GC (its test). `near` and `hit` are unchanged; inside, they now go through the
+  grid's typed `near` too. Lesson K4: hot-path forms take typed arrays plus indices.
+- Size: `fizlet/board-page` is 3,960 B gzip (3,841 in 0.12.1, budget 4,096); `fizlet/arcade` is 17,081 B
+  (budget 17,408).
+- **Website: gallery #005, "cyan and purple neon rain falls when you tap".** Made by `fe anim` from
+  the prompt (recipe fall, an engine rain kind, kernel + fx + slot): 6,502 B gzip live chunk on this
+  build, loaded only near the viewport, never under reduced motion; settles to zero frames.
+
+## 0.12.1
+
+- **`fizlet/arcade`: scoreboard keys keep their labels on one line.** The keys size to their labels
+  and wrap as whole keys. Before, four keys shared one row, and "M · Refresh maze" broke onto three lines in
+  Byte Runner. Three short keys (Null Invaders) still share one row.
+
+## 0.12.0
+
+- **`fizlet/arcade`: in-page art and keys-only games**, for Byte Runner and Sherman Bytes:
+  - `ctx.attach(el)` gives a game a shadow root in an overlay inside a page element. The overlay
+    follows the page's layout, scrolling and transforms natively (Byte Runner's maze is SVG in the
+    page). A static element becomes relative. It goes through the ledger, so Recall removes it and
+    restores the style.
+  - `keyboard: true` means the mouse never steers.
+  - Without `fire`, the first action is the big touch key.
+- **`fizlet/board-page`: in-page art never makes the board rescan.** Mutations inside any
+  `[data-fizlet-host]` count as the engine's own, like its root (before, a game redrawing SVG in the
+  page made the board rescan).
+
+## 0.11.0
+
+- **`fizlet/arcade`** (new brick): the shell every page arcade game repeats (DOM VIRUS ENGINE.md E3),
+  so Null Invaders, Byte Runner and Sherman Bytes share one instead of each carrying a copy. One
+  engine per run over the page (`board-page`), an overlay canvas and a Board UI scoreboard (sound,
+  pause, fold, exit, readouts, a meter, action keys, the comms toast), keys and pointer (`input`), the
+  touch pad (`pad`), sound cues (`sound`), sparks and stacking popups, target health painted into the
+  buttons through the ledger, and the controller a hub drives. Extracted from Null Invaders 1.0.0
+  (null-invaders#4) with its review fixes: a failed start leaves nothing behind, Escape and P work
+  after a run ends, the end of a run is read from the game (never from a ring that may drop events),
+  G scrolls in render. 16,731 B gzip with every brick it composes (budget 17,408); its own code,
+  markup and CSS 6,448 B. The Board UI kit CSS stays the game's (it bakes in the sections it uses).
+
+## 0.10.1
+
+- **`fizlet/rules` drops: per-drop age and landing spot.** `drops()` now exposes `age` (seconds since
+  each drop spawned), `landY` (where it lands: `(x[i], landY[i])`, moved by `scroll`) and `life`,
+  and emits `drop:land` once when a drop touches down. Blitz can draw its fall shadow, landing puff
+  and blink from these instead of keeping its own spawn time per crate (dom-battlefield-blitz#4).
+  Still no allocation per step; 1,264 → 1,318 B gzip (budget 1,536).
+- **Website: the gallery (`gallery/`).** Every animation, newest first: the prompt (or, for the
+  hand-built ones, the brief) it was made from, the live demo lazy-mounted through `fizlet/slot`
+  (one shared loader; each entry's live chunk is its own bundle and loads only near the viewport,
+  never under reduced motion, where the poster stays), and a size badge with that chunk's gzip
+  bytes, measured by `scripts/gallery.mjs` on this build. Seeded with the fizz can, the layers
+  story and the blast demo ("How it works"), plus the first animation made by the engine's
+  `fe anim` from one prompt ("pink sparks burst where you tap": the spray scene,
+  `site/gallery/scenes/spray.ts`, kernel + fx, settles to zero frames). Entries are data
+  (`site/gallery/entries/*.json`). New shared `site/size-badge.mjs`; `site/demo.ts` exports
+  `run()` and the home page's blast figure is `playFigure()`, so the gallery can mount it.
+  `tests/site.mjs`: order, a measured badge and the prompt on every entry, each demo mounts
+  only near the screen, a spray draws on a tap, reduced motion loads no scene.
 - **Website: one page per brick, generated from the source.** `bricks/<id>.html` for the kernel
   and every brick (input, pad, collide, grid, fx, sprite, sound, embed, slot, hud, match,
   board-page, presence, ui, perf, rules, camera, debug) plus a bricks index. Each page has the module's summary (its

@@ -2,7 +2,7 @@
 // expire, score combos and levels, every rule reports on the event ring, and none allocates per frame.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PerformanceObserver, constants } from "node:perf_hooks";
+import { minorGCs } from "./gc.mjs";
 
 const { createEngine } = await import("../src/index.ts");
 const { waves, drops, score } = await import("../src/rules.ts");
@@ -113,6 +113,29 @@ test("drops: cap, manual spawns, scroll and a skipped placement", () => {
   assert.equal(d.collect(5, 5, 4), "a", "landed where the page moved it");
 });
 
+test("drops: per-drop age and landing spot, a drop:land event, kept in step on remove and scroll", () => {
+  const e = createEngine();
+  const d = drops(e, { kinds: ["a", "b"], cap: 3, fall: 90, speed: 90, life: 5 });
+  const log = listen(e);
+  during(e, () => d.spawn(10, 100, 0));
+  run(e, 0.5);
+  during(e, () => d.spawn(40, 300, 1));
+  assert.equal(d.life, 5);
+  assert.deepEqual([d.landY[0], d.landY[1]], [100, 300], "landing spots");
+  assert.ok(Math.abs(d.age[0] - 0.5) < 0.02 && d.age[1] === 0, `ages ${d.age[0]}, ${d.age[1]}`);
+  run(e, 0.6);
+  assert.ok(d.landed(0) && !d.landed(1));
+  assert.equal(log.filter((l) => l.startsWith("drop:land")).length, 1, "landing is an event, once");
+  // The first is collected: the second moves into slot 0 with its own age and spot.
+  run(e, 0.5);
+  assert.equal(during(e, () => d.collect(10, 100, 4)), "a");
+  assert.equal(d.landY[0], 300);
+  assert.ok(Math.abs(d.age[0] - 1.1) < 0.02, `${d.age[0]}`);
+  d.scroll(0, 50);
+  assert.equal(d.landY[0], 250, "the landing spot scrolls with the page");
+  assert.deepEqual(log.filter((l) => l.startsWith("drop:land")), ["drop:land:0", "drop:land:1"]);
+});
+
 test("score: combo multiplier, decay, levels and events", () => {
   const e = createEngine();
   const s = score(e, { levels: [8, 24, 50] });
@@ -158,18 +181,13 @@ test("rules: zero allocation while playing (1M frames, against a bare engine)", 
     }
     const frames = (k) => { for (let i = 0; i < k; i++) e.advance(1 / 60); };
     frames(100000);
-    gc();
-    let minor = 0;
-    const obs = new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) if (entry.detail?.kind === constants.NODE_PERFORMANCE_GC_MINOR) minor++;
-    });
-    obs.observe({ entryTypes: ["gc"] });
-    frames(1000000);
-    await new Promise((r) => setTimeout(r, 50));
-    obs.disconnect();
+    // Best of three windows (tests/gc.mjs), each after a full gc(): a stray scavenge from the test
+    // runner or the JIT lands in one window, a real per-frame allocation in every one.
+    const minor = await minorGCs(() => frames(1000000));
     e.destroy();
     return minor;
   };
   const bare = await minors(false), withRules = await minors(true);
-  assert.ok(withRules <= bare + 3, `young-generation GCs over 1M frames: ${withRules} with rules, ${bare} bare`);
+  t.diagnostic(`young GCs over 1M frames (best of 3 windows): bare ${bare}, with ${withRules}`);
+  assert.ok(withRules <= bare + 1, `young-generation GCs over 1M frames: ${withRules} with rules, ${bare} bare`);
 });

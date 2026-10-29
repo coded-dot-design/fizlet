@@ -1,4 +1,4 @@
-// Site test (Playwright + Chromium): serves site-dist/ at /fizlet/ (as GitHub Pages does) and checks
+// Site test (Playwright + Chromium): serves site-dist/ at its root path on the site host (ROOT, "/" on fizlet.com) and checks
 // every page at desktop and phone widths: no console errors, every internal link (and #anchor)
 // resolves, no horizontal overflow at 360px, the live demo runs (blast, ledger, Recall, pause
 // offscreen, reduced motion still frame), the quick start example works, the hosted modules load,
@@ -10,15 +10,20 @@ import { createServer } from "node:http";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { chromium } from "playwright";
+import { launchOptions } from "./chromium.mjs";
 import { checkHtml } from "../scripts/check-html.mjs";
+import { SITE, ROOT as SITE_ROOT } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
+import { entries as galleryEntries } from "../scripts/gallery.mjs";
+import { gzipSync } from "node:zlib";
+import { checkKeys, checkTaps } from "./keys.mjs";
 
-const ROOT = "site-dist", BASE = "/fizlet/";
+const ROOT = "site-dist", BASE = SITE_ROOT;
 if (!existsSync(`${ROOT}/index.html`)) throw new Error("site-dist/ is missing: run `npm run site` first");
 const TYPES = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml", ".ts": "text/plain", ".png": "image/png", ".xml": "application/xml" };
 
-// A tiny static server shaped like Pages: /fizlet/<path>, dir → index.html, else 404.html with 404.
+// A tiny static server shaped like Pages: <BASE><path>, dir → index.html, else 404.html with 404.
 const server = createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   let file = null;
@@ -42,7 +47,7 @@ const status = async (path) => (await fetch(ORIGIN + path)).status;
 // Every built page, at its URL path ("" is the home page, "bricks/" the bricks index).
 const PAGES = readdirSync(ROOT, { recursive: true }).filter((f) => f.endsWith(".html") && !f.startsWith("dist")).map((f) => f.replace(/\\/g, "/").replace(/(^|\/)index\.html$/, "$1")).sort();
 for (const b of BRICKS) assert.ok(PAGES.includes(`bricks/${b.id}.html`), `a page for ${b.name}`);
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await chromium.launch(launchOptions());
 const shots = process.env.SITE_SHOTS;
 let where = "start";
 
@@ -64,19 +69,35 @@ try {
   // standalone host pages; their open gaps are listed exactly, so a new gap or a fix both fail here
   // until this list is updated.
   const SEO = ["og:type", "og:title", "og:description", "og:url", "og:image", "og:site_name"].map((p) => `<meta property="${p}">`);
-  const SOCIAL = (path) => [`canonical is https://coded-dot-design.github.io/fizlet/${path}`, ...SEO, "og:url matches the canonical", "a <header> landmark", "a <nav> landmark", "a <footer> landmark"];
-  const KNOWN = {
-    "demos/fizz/": ["heading levels in <main> skip from h1 to h3"],
-    "demos/layers/": SOCIAL("demos/layers/"),
-    "examples/fizz/": ["meta description 50–300 characters (0)", ...SOCIAL("examples/fizz/")],
-  };
+  const LANDMARKS = ["a <header> landmark", "a <nav> landmark", "a <footer> landmark"];
+  const KNOWN = { "demos/layers/": LANDMARKS, "examples/fizz/": LANDMARKS };
   for (const path of PAGES) {
     const file = path === "" || path.endsWith("/") ? `${path}index.html` : path;
     const want = KNOWN[path] ?? [];
     assert.deepEqual(checkHtml(readFileSync(`${ROOT}/${file}`, "utf8"), path).sort(), [...want].sort(), `${path || "index"}: html gates`);
   }
-  const sitemap = readFileSync(`${ROOT}/sitemap.xml`, "utf8");
-  for (const path of PAGES.filter((p) => p !== "404.html")) assert.ok(sitemap.includes(`<loc>https://coded-dot-design.github.io/fizlet/${path}</loc>`), `sitemap lists ${path || "index"}`);
+  // Search snippets: every indexable page has its own title (30–60) and description (70–155), and
+  // JSON-LD that parses; sitemap.xml and llms.txt list exactly those pages; robots.txt points at both.
+  const sitemap = readFileSync(`${ROOT}/sitemap.xml`, "utf8"), llms = readFileSync(`${ROOT}/llms.txt`, "utf8"), robots = readFileSync(`${ROOT}/robots.txt`, "utf8");
+  const indexable = PAGES.filter((p) => p !== "404.html");
+  const heads = indexable.map((path) => {
+    const html = readFileSync(`${ROOT}/${path === "" || path.endsWith("/") ? `${path}index.html` : path}`, "utf8");
+    for (const [, ld] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(ld);
+    return { path, title: html.match(/<title>([^<]*)<\/title>/)[1], desc: html.match(/<meta name="description" content="([^"]*)"/)[1] };
+  });
+  for (const { path, title, desc } of heads) {
+    assert.ok(title.length >= 30 && title.length <= 60, `${path || "index"}: title 30–60 characters (${title.length})`);
+    assert.ok(desc.length >= 70 && desc.length <= 155, `${path || "index"}: description 70–155 characters (${desc.length})`);
+  }
+  assert.equal(new Set(heads.map((h) => h.title)).size, heads.length, "titles are unique");
+  assert.equal(new Set(heads.map((h) => h.desc)).size, heads.length, "descriptions are unique");
+  assert.equal(sitemap.match(/<loc>/g).length, indexable.length, "the sitemap lists only indexable pages");
+  assert.equal(llms.match(/^- \[/gm).length, indexable.length, "llms.txt lists only indexable pages");
+  for (const path of indexable) {
+    assert.ok(sitemap.includes(`<loc>${SITE}${path}</loc>`), `sitemap lists ${path || "index"}`);
+    assert.ok(llms.includes(`](${SITE}${path}):`), `llms.txt lists ${path || "index"}`);
+  }
+  assert.ok(robots.includes(`Sitemap: ${SITE}sitemap.xml`) && /User-agent: \*\nAllow: \//.test(robots), "robots.txt admits crawlers and names the sitemap");
   assert.equal(await status(`${BASE}og.png`), 200, "the social card");
 
   // ---------- Brick pages: the sizes are the ones measured on this build ----------
@@ -92,6 +113,23 @@ try {
     }
     const pb = sizes.find((x) => x.name.startsWith("page build"));
     assert.ok(readFileSync(`${ROOT}/index.html`, "utf8").includes(`${pb.gzip.toLocaleString("en-US")} B</b>`), "home: the page build size");
+  }
+
+  // ---------- Gallery: newest first, a size badge measured on this build on every entry ----------
+  where = "gallery sizes";
+  const GALLERY = galleryEntries();
+  {
+    const html = readFileSync(`${ROOT}/gallery/index.html`, "utf8");
+    assert.deepEqual([...html.matchAll(/<li class="panel gal-item" id="([^"]+)"/g)].map((m) => m[1]), GALLERY.map((e) => e.id), "entries in order, newest first");
+    for (let i = 1; i < GALLERY.length; i++) assert.ok(GALLERY[i - 1].date >= GALLERY[i].date, "newest first");
+    for (const e of GALLERY) {
+      const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
+      assert.ok(html.includes(`data-size="gallery:${e.id}"><b>${bytes.toLocaleString("en-US")} B</b>`), `${e.id}: its badge shows ${bytes} B`);
+      const loader = gzipSync(readFileSync(`${ROOT}/gallery/gallery.js`)).length;
+      assert.ok(html.includes(`data-total="gallery:${e.id}">live ${bytes.toLocaleString("en-US")} B · total <b>${(bytes + loader).toLocaleString("en-US")} B</b>`), `${e.id}: live and total, one size`);
+      assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
+    }
+    for (const id of ["fizz", "layers", "howitworks"]) assert.ok(GALLERY.some((e) => e.id === id), `seeded with ${id}`);
   }
 
   // ---------- Every page, desktop and phone: errors, links, overflow ----------
@@ -142,6 +180,22 @@ try {
       await page.close();
     }
     await context.close();
+  }
+
+  // ---------- Page keys: every in-page key presses (face drops) and clicks on face and base ----------
+  let keyCount = 0;
+  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/"]) {
+    where = `page keys ${path || "index"}`;
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const { page, errors } = await open(context, path);
+    if (path === "bricks/sound.html") await page.waitForSelector("[data-brick-demo][data-ready]");
+    keyCount += await checkKeys(page, where);
+    assert.deepEqual(errors, [], `${where}: errors`);
+    await context.close();
+    const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+    const tap = await open(phone, path);
+    await checkTaps(tap.page, `${where} (phone)`);
+    await phone.close();
   }
 
   // ---------- 404 at any depth ----------
@@ -202,16 +256,76 @@ try {
     await page.waitForFunction(() => window.fizletDemo.engine.running);
     // The home page also carries the two story demos: the layers hero and the fizz can.
     assert.equal(await page.locator("figure.lyr[data-slot-target]").count(), 1, "the layers hero");
-    assert.equal(await page.locator("[data-slot='fizz'] figure.ae-slot[data-slot-target='fizz#hero']").count(), 1, "the fizz can in the story");
+    assert.equal(await page.locator(".fizz-slot figure.ae-slot[data-slot-target='fizz#hero']").count(), 1, "the fizz can in the story");
     // The theme toggle (shared key with DOM VIRUS and Battlefield).
     await page.click("[data-theme-toggle]");
     assert.equal(await page.evaluate(() => [document.documentElement.dataset.theme, localStorage.getItem("dom-virus:theme")].join()), "light,light");
     // The hosted ES modules from the quick start load.
-    const mods = await page.evaluate(async () => {
-      const k = await import("/fizlet/dist/index.js"), fx = await import("/fizlet/dist/fx.js"), input = await import("/fizlet/dist/input.js");
+    const mods = await page.evaluate(async (base) => {
+      const k = await import(`${base}dist/index.js`), fx = await import(`${base}dist/fx.js`), input = await import(`${base}dist/input.js`);
       return [typeof k.createEngine, typeof fx.effects, typeof input.controls].join();
-    });
+    }, BASE);
     assert.equal(mods, "function,function,function");
+    assert.deepEqual(errors, []);
+    await context.close();
+  }
+
+  // ---------- Gallery: each live demo loads only near the screen, plays, and gives the page back ----------
+  where = "gallery";
+  {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    const { page, errors } = await open(context, "gallery/");
+    const loaded = [];
+    page.on("request", (r) => r.url().includes("/gallery/") && r.url().endsWith(".js") && loaded.push(r.url().split("/gallery/")[1]));
+    await page.waitForTimeout(600);
+    const last = GALLERY[GALLERY.length - 1].id;
+    assert.ok(!loaded.includes(`${last}.js`), `${last} (far below) has not loaded yet`);
+    for (const e of GALLERY) {
+      await page.$eval(`#${e.id}`, (el) => el.scrollIntoView({ block: "center" }));
+      await page.waitForSelector(`figure[data-gallery="${e.id}"][data-live]`, { timeout: 8000 });
+      await page.waitForFunction((id) => document.querySelector(`figure[data-gallery="${id}"] > :not(.ae-slot__placeholder):not(template)`), e.id, { timeout: 8000 });
+    }
+    assert.deepEqual(GALLERY.map((e) => e.id).filter((id) => !loaded.includes(`${id}.js`)), [], "every entry mounted");
+    // A generated spray draws on a tap.
+    const spray = GALLERY.find((e) => e.made === "fe anim" && e.stage !== "page");
+    if (spray) {
+      const fig = page.locator(`figure[data-gallery="${spray.id}"]`);
+      await fig.scrollIntoViewIfNeeded();
+      await fig.click({ position: { x: 120, y: 80 } });
+      await page.waitForTimeout(120);
+      const ink = await page.$eval(`figure[data-gallery="${spray.id}"] canvas`, (c) => {
+        const d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+        let n = 0;
+        for (let i = 3; i < d.length; i += 4) if (d[i]) n++;
+        return n;
+      });
+      assert.ok(ink > 30, `${spray.id}: a tap sprays (${ink} px)`);
+    }
+    // A page scene reads its figure's own elements: a tap starts the sweep there, headings light up
+    // (through the ledger), and they go back to exactly what they were.
+    for (const e of GALLERY.filter((x) => x.stage === "page")) {
+      const fig = page.locator(`figure[data-gallery="${e.id}"]`);
+      await fig.scrollIntoViewIfNeeded();
+      const unlit = () => page.waitForFunction((id) => !document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 8000 });
+      await unlit(); // the sweep on mount has passed
+      const before = await fig.evaluate((f) => f.querySelector(".gal-mini").outerHTML);
+      await fig.click({ position: { x: 40, y: 10 } });
+      await page.waitForFunction((id) => document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 4000 });
+      await unlit();
+      assert.equal(await fig.evaluate((f) => f.querySelector(".gal-mini").outerHTML), before, `${e.id}: the page it lit is back as it was`);
+    }
+    assert.deepEqual(errors, []);
+    await context.close();
+  }
+  where = "gallery, reduced motion";
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+    const { page, errors } = await open(context, "gallery/");
+    const loaded = [];
+    page.on("request", (r) => r.url().includes("/gallery/") && r.url().endsWith(".js") && !r.url().endsWith("gallery.js") && loaded.push(r.url()));
+    for (const e of GALLERY) await page.$eval(`#${e.id}`, (el) => el.scrollIntoView({ block: "center" })), await page.waitForTimeout(250);
+    assert.deepEqual(loaded, [], "reduced motion: no scene loads, the posters stay");
+    assert.equal(await page.locator("figure[data-gallery] .ae-slot__placeholder").count(), GALLERY.length);
     assert.deepEqual(errors, []);
     await context.close();
   }
@@ -318,7 +432,7 @@ try {
     assert.deepEqual(errors, []);
     await context.close();
   }
-  console.log(`site: ${PAGES.length} pages × 2 widths, html gates, ${checked.size} internal links, demo, brick demos, reduced motion and quick start ok`);
+  console.log(`site: ${PAGES.length} pages × 2 widths, html gates, gallery (${GALLERY.length} entries), ${checked.size} internal links, demo, brick demos, ${keyCount} page keys, reduced motion and quick start ok`);
 } catch (err) {
   console.error(`site test failed at: ${where}`);
   throw err;

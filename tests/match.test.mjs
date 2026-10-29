@@ -2,7 +2,7 @@
 // allocation while playing. Overlays, keys, focus and Recall: tests/browser.mjs.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PerformanceObserver, constants } from "node:perf_hooks";
+import { minorGCs } from "./gc.mjs";
 
 const { createEngine } = await import("../src/index.ts");
 const { match } = await import("../src/match.ts");
@@ -124,20 +124,15 @@ test("match: zero allocation while playing (1M frames, against a bare engine)", 
     };
     frames(100000); // warm up: let the JIT settle on the play path
     if (m) assert.equal(m.phase, "play");
-    gc();
-    let minor = 0;
-    const obs = new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) if (entry.detail?.kind === constants.NODE_PERFORMANCE_GC_MINOR) minor++;
-    });
-    obs.observe({ entryTypes: ["gc"] });
-    frames(1000000);
-    await new Promise((r) => setTimeout(r, 50));
-    obs.disconnect();
+    // Best of three windows (tests/gc.mjs), each after a full gc(): a stray scavenge from the test
+    // runner or the JIT lands in one window, a real per-frame allocation in every one.
+    const minor = await minorGCs(() => frames(1000000));
     if (m) assert.ok(m.clock < 1e9 - 16000, "it played");
     e.destroy();
     return minor;
   };
   const bare = await minors(false), withMatch = await minors(true);
+  t.diagnostic(`young GCs over 1M frames (best of 3 windows): bare ${bare}, with ${withMatch}`);
   // A real per-frame allocation (an object, a closure, a boxed number) shows as hundreds here.
-  assert.ok(withMatch <= bare + 3, `young-generation GCs over 1M frames: ${withMatch} with match, ${bare} bare`);
+  assert.ok(withMatch <= bare + 1, `young-generation GCs over 1M frames: ${withMatch} with match, ${bare} bare`);
 });

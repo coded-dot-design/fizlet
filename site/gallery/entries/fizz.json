@@ -1,0 +1,15 @@
+{
+  "no": 1,
+  "id": "fizz",
+  "date": "2026-10-29",
+  "prompt": "an arcade soda can pops, fizzes and drips while the camera pushes in",
+  "title": "Fizz",
+  "by": "Chris Cooley",
+  "recipe": "hand-built",
+  "bricks": ["fizlet/kernel", "fizlet/fx", "fizlet/sprite", "fizlet/camera", "fizlet/slot"],
+  "made": "by hand",
+  "module": "../demos/fizz/scene.ts",
+  "export": "mount",
+  "figure": "fizz",
+  "link": "demos/fizz/"
+}

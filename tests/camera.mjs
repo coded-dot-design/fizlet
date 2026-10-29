@@ -4,6 +4,7 @@
 import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { chromium } from "playwright";
+import { launchOptions } from "./chromium.mjs";
 
 const bundle = (await build({
   stdin: { contents: 'export { createEngine } from "./src/kernel/index.ts"; export { camera, zoomAt, flyTo } from "./src/camera.ts";', resolveDir: process.cwd(), loader: "ts" },
@@ -15,7 +16,7 @@ const PAGE = `<!doctype html><meta charset="utf-8"><body style="margin:0">
 <h1 style="color:#ff2e88">Host page</h1><i id="dot" style="position:absolute;left:300px;top:200px;width:2px;height:2px"></i>
 </main></div><script>${bundle}</script></body>`;
 
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await chromium.launch(launchOptions());
 try {
   {
     const p = await browser.newPage({ viewport: { width: 900, height: 700 } });
@@ -58,8 +59,11 @@ try {
       const e = fz.createEngine(), cam = fz.camera(e, document.getElementById("page"));
       e.start();
       fz.zoomAt(cam, 300, 200, 2);
-      // A few frames: the first advances no time; then one fixed step lands the whole move.
-      await new Promise((ok) => setTimeout(ok, 120));
+      // Wait for frames, not wall time: the first frame advances no time; then one fixed step lands
+      // the whole move. Slow CI runners can draw fewer frames in a fixed delay.
+      const frame = () => new Promise((ok) => requestAnimationFrame(() => ok()));
+      for (let i = 0; i < 60 && (e.steps < 1 || cam.moving); i++) await frame();
+      await frame();
       const out = { zoom: cam.zoom, moving: cam.moving, steps: e.steps < 12 };
       e.destroy();
       return out;

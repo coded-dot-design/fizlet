@@ -345,7 +345,7 @@ a.bui-sticker-key {
   font-size: 14px;
   color: var(--muted);
 }
-.site-foot h4 {
+.site-foot h2 {
   margin: 0 0 10px;
   font: 700 11px var(--mono);
   letter-spacing: 0.14em;
@@ -1892,4 +1892,198 @@ html.bui[data-theme="light"] .phases b {
   inset: 0;
   width: 100%;
   height: 100%;
+}
+/* Slot ratios (astro-base-engine ae-slot--WxH): the base ratio a slot keeps before it fills. Zero
+   specificity, so a slot's own rules (and their breakpoints) always win. */
+:where(.ae-slot--16x10) {
+  aspect-ratio: 16 / 10;
+}
+:where(.ae-slot--4x5) {
+  aspect-ratio: 4 / 5;
+}
+/* ---------- The size badge (site/size-badge.mjs): one measured number on a sticker ---------- */
+.size-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 9px;
+  background: var(--raised);
+  border: 2px solid var(--rim);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--rim);
+  font: 700 12px/1.3 var(--mono);
+  color: var(--muted);
+}
+.size-badge b {
+  color: var(--k-go);
+  font-size: 15px;
+}
+/* ---------- Gallery: newest first; prompt, live demo, size ---------- */
+.gal {
+  display: grid;
+  gap: 28px;
+  margin: 40px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.gal-item {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  align-items: start;
+  padding: 18px;
+  scroll-margin-top: 96px;
+}
+@media (max-width: 860px) {
+  .gal-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.gal-stage {
+  min-width: 0;
+}
+.gal-stage figure.ae-slot {
+  position: relative;
+  margin: 0;
+  width: 100%;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--code-bg);
+}
+.gal-stage figure.gal-fig {
+  aspect-ratio: 16 / 10;
+}
+.gal-stage figure.gal-tall {
+  aspect-ratio: 4 / 5;
+  cursor: auto;
+}
+@media (max-width: 600px) {
+  .gal-stage figure.gal-tall {
+    aspect-ratio: 3 / 5;
+  }
+}
+.gal-stage .fz-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.gal-stage figure.gal-tall .demo {
+  margin: 0;
+  height: 100%;
+  border: 0;
+  box-shadow: none;
+}
+.gal-still {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  text-align: center;
+  font: 700 15px/1.5 var(--mono);
+  color: var(--muted);
+}
+.gal-meta {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+}
+.gal-meta h2 {
+  font-size: clamp(24px, 3vw, 34px);
+}
+.gal-meta p {
+  margin: 0;
+}
+.gal-prompt {
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.gal-prompt .bui-label {
+  margin-right: 6px;
+}
+.gal-cost {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font: 13px/1.6 var(--mono);
+}
+.gal-cost b {
+  color: var(--ink);
+}
+.gal-bricks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.gal-link {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--k-sys-ink);
+}
+/* A page scene's figure: a small page of real elements the scene reads (the poster too). */
+.gal-mini {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 22px;
+}
+.gal-mini-h1,
+.gal-mini-h2 {
+  display: block;
+  color: var(--ink);
+  font: 700 clamp(18px, 3vw, 26px)/1.15 var(--sans);
+}
+.gal-mini-h2 {
+  font-size: clamp(15px, 2.2vw, 19px);
+}
+.gal-mini-p {
+  color: var(--muted);
+  font: 13px/1.4 var(--mono);
+}
+.gal-mini-row {
+  display: flex;
+  gap: 10px;
+}
+.gal-mini-key {
+  padding: 5px 12px;
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  font: 700 12px/1.4 var(--mono);
+}
+.gal-stage .gal-cap {
+  inset: auto 0 6px;
+  display: block;
+  padding: 0 12px;
+  text-align: left;
+  font: 11px/1.4 var(--mono);
+  color: var(--muted);
+}
+.gal-total {
+  margin-left: 8px;
+}
+/* A spray settles to an empty stage: say it plays again on a tap (motion only: never under reduced motion). */
+@media (prefers-reduced-motion: no-preference) {
+  .gal-stage figure.gal-tap[data-live]::after {
+    content: "TAP TO PLAY";
+    position: absolute;
+    right: 10px;
+    bottom: 8px;
+    z-index: 1;
+    pointer-events: none;
+    font: 700 11px/1 var(--mono);
+    letter-spacing: 0.14em;
+    color: var(--muted);
+  }
 }
