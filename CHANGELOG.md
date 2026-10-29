@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+- **Layers story: clean labels at every size** (owner feedback: "at the end the layer labels get
+  a little jumbled"). Four causes, each fixed:
+  - while the fix phase dimmed the other layers, `opacity` on a `preserve-3d` layer flattened it,
+    so its label lost its counter-rotation and smeared into the layer's plane; the scene now dims
+    a layer's children, never the layer;
+  - the scene's state classes (`o`, `f`, `b`, `k`) could match a host page's CSS: the demo page's
+    `.k` kicker stretched every label for the patched phase. Now `lz--o`, `lz--f`, `lz--b`, `lz--k`;
+  - labels faded with the open amount, so they slid together and ran off the edge as the stack
+    folded; they now show only while the stack is fully open (in after it opens, out before the
+    fold starts);
+  - the exploded gap was fixed, so on narrow slots labels sat closer than their height. The gap now
+    widens to keep a 28px label pitch on screen, and the scene measures its widest label at mount
+    (one layout read), so a wide fallback monospace no longer clips. The reduced-motion poster gets
+    the same pitch rule in CSS.
+  New browser test: through one full cycle at 390 and 1440, every visible label faces the screen,
+  stays inside the figure and overlaps no other (fails on 0.10.0). Measured (Chromium 153, 4× CPU
+  throttle): live chunk 9,609 → 9,717 B gzip (still ≥ 5% under 10 KB), poster + loader 2,962 →
+  3,153 B; script per frame 0.8 ms median, 3.1 ms p95; CLS 0; 0 frames settled.
 - **Website: one page per brick, generated from the source.** `bricks/<id>.html` for the kernel
   and every brick (input, pad, collide, grid, fx, sprite, sound, embed, slot, hud, match,
   board-page, presence, ui, perf, rules, camera, debug) plus a bricks index. Each page has the module's summary (its

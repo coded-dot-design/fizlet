@@ -20,8 +20,9 @@ const tmp = await build({ entryPoints: [`${HERE}/poster.ts`], bundle: true, form
 const { poster, loader, POSTER_CSS, bounds, BOUNDS } = await import("data:text/javascript;base64," + Buffer.from(tmp.outputFiles[0].text).toString("base64"));
 // The live chunk uses precomputed bounds; they must match the formula.
 const b = bounds();
-if (Math.abs(b.w - BOUNDS.w) > 0.01 || Math.abs(b.h - BOUNDS.h) > 0.01 || Math.abs(b.cx) > 0.01 || Math.abs(b.cy) > 0.01)
-  throw new Error(`data.ts BOUNDS is stale: bounds() gives ${JSON.stringify(b)}`);
+const hb = bounds(1).h;
+if (Math.abs(b.w - BOUNDS.w) > 0.01 || Math.abs(b.h - BOUNDS.h) > 0.01 || Math.abs(hb - BOUNDS.hb) > 0.01 || Math.abs(b.cx) > 0.01 || Math.abs(b.cy) > 0.01)
+  throw new Error(`data.ts BOUNDS is stale: bounds() gives ${JSON.stringify({ ...b, hb })}`);
 const { page } = await import("../../../examples/layers/page.mjs");
 
 let measured = null;

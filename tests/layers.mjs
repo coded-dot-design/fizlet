@@ -86,6 +86,42 @@ await test("mounts, cycles once, settles, Recall is exact", async () => {
   await page.close();
 });
 
+// Label geometry over one whole cycle: every visible label faces the screen (not smeared into its
+// layer's plane), sits inside the figure and overlaps no other label. The page's own CSS (its `.k`
+// kicker) stays in, so a host class that matches a scene state class shows up here.
+for (const [w, h] of [[390, 844], [1440, 900]])
+  await test(`labels never overlap, clip or smear over a cycle (${w}px)`, async () => {
+    const page = await browser.newPage({ viewport: { width: w, height: h } });
+    await page.setContent(PAGE);
+    await page.waitForSelector("[data-fizlet-slot] .lz", { timeout: 10000 });
+    const bad = new Set();
+    let seen = 0;
+    const t0 = Date.now();
+    while (Date.now() - t0 < 13000 / 4 + 300) {
+      const r = await page.evaluate(() => {
+        const f = document.querySelector("figure.lyr").getBoundingClientRect();
+        const vis = [...document.querySelectorAll(".lz-tag")].filter((t) => +getComputedStyle(t).opacity > 0.05)
+          .map((t) => ({ n: t.parentElement.dataset.layer, r: t.getBoundingClientRect() }));
+        const out = [];
+        for (const { n, r } of vis) {
+          if (r.height < 14) out.push(`${n} smeared (${r.height.toFixed(1)}px tall)`);
+          if (r.left < f.left - 0.5 || r.right > f.right + 0.5 || r.top < f.top - 0.5 || r.bottom > f.bottom + 0.5) out.push(`${n} outside the figure`);
+        }
+        for (let i = 0; i < vis.length; i++) for (let j = i + 1; j < vis.length; j++) {
+          const a = vis[i].r, b = vis[j].r;
+          if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0.5 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 0.5) out.push(`${vis[i].n}/${vis[j].n} overlap`);
+        }
+        return { n: vis.length, out };
+      });
+      seen = Math.max(seen, r.n);
+      for (const o of r.out) bad.add(o);
+      await page.waitForTimeout(80);
+    }
+    assert.equal(seen, 8, "all 8 labels show during the cycle");
+    assert.deepEqual([...bad], []);
+    await page.close();
+  });
+
 await test("reduced motion: the scene never loads; the still exploded view shows every label", async () => {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
   await page.setContent(PAGE);

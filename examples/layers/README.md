@@ -40,6 +40,10 @@ Optional data attributes on the figure: `data-loops` (cycles before it settles, 
 - **Calm:** 30 fps cap; after `data-loops` cycles it rests on the game frame and the kernel settles
   (no `requestAnimationFrame` at all). A pointer on the slot runs one more cycle. Off screen or in a
   hidden tab it pauses.
+- **Labels:** shown only while the stack is fully open, never while it moves. The exploded gap
+  widens on narrow slots to keep a 28px label pitch, and the scene measures its widest label at
+  mount, so labels never overlap, clip or smear at any width (`npm run test:layers` checks a full
+  cycle at 390 and 1440).
 - **Reduced motion:** nothing loads; the poster shows the still exploded view with every
   label (CSS only, sized by container queries).
 - **Accessible:** the figure is `role="img"` with an `aria-label` describing the whole sequence.
@@ -47,9 +51,9 @@ Optional data attributes on the figure: `data-loops` (cycles before it settles, 
 
 ## Measured
 
-See `site/demos/layers/measured.json`. On Fizlet 0.8.1, Chromium 153: live chunk 10,054 B gzip
-(`fizlet/slot` + scene, loaded only once the slot is near); poster and loader inline 2,962 B gzip
-(loader 308 B); at 4× CPU throttle, script per frame 0.8 ms median, 2.6 ms p95, 6.3 ms max; layout
+See `site/demos/layers/measured.json`. On Fizlet 0.10.0, Chromium 153: live chunk 9,717 B gzip
+(`fizlet/slot` + scene, loaded only once the slot is near); poster and loader inline 3,153 B gzip
+(loader 308 B); at 4× CPU throttle, script per frame 0.8 ms median, 3.1 ms p95, 9.9 ms max; layout
 shift 0; 0 frames once settled; 0 B of JS fetched before the slot nears the viewport.
 
 Against the hero budgets in fizlet-engine `docs/LAYERS.md`: live chunk ≤ 10 KB ✔, poster ≤ 6 KB ✔,

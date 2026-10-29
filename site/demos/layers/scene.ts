@@ -13,7 +13,7 @@ import { createEngine } from "../../../src/kernel/index";
 import { spriteURL, type SpriteDef } from "../../../src/sprite";
 import { effects } from "../../../src/fx";
 import type { SlotMount, SlotScene } from "../../../src/slot";
-import { LAYERS, FAULT, fit, COLS, ROWS, CELL, BW, BH, MAP, TILT, TURN, GAP } from "./data";
+import { LAYERS, FAULT, fit, COLS, ROWS, CELL, BW, BH, MAP, TILT, TURN } from "./data";
 
 export interface LayersOptions {
   /** Cycles to run before settling when nobody interacts (default 3). */
@@ -64,13 +64,10 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
   const rim = tok("--rim", "#07060f");
   const pals: Record<string, string>[] = [{ tread: tok("--raised", "#1d1738"), team: tok("--team-a", "#39ffb0"), hatch: rim, rim }, { team: tok("--team-b", "#ff5c8f") }];
 
-  // ---------- fit: game pose and exploded pose (orthographic estimate, no DOM reads) ----------
-  const { sp, se, ex, ey } = fit(W, H);
-
   // ---------- DOM: one stack, eight layers ----------
   const root = engine.ledger.add(document.createElement("div"));
   root.className = "lz";
-  root.style.setProperty("--se", `${se}`);
+  root.style.setProperty("--se", "1");
   root.innerHTML = `<div class="lz-s"></div>`; // styles: SCENE_CSS (css.ts), inline on the host page
   const stack = root.lastElementChild as HTMLElement;
   const el = (parent: HTMLElement, cls: string, x = 0, y = 0) => {
@@ -87,6 +84,14 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
     t.innerHTML = `${LAYERS[i]!.name} <u>· ${bytes(LAYERS[i]!)}</u>`;
     layers.push(l), tags.push(t);
   }
+  // ---------- fit: game pose and exploded pose ----------
+  // One layout read, here at mount: the widest label at its on-screen size (--se 1 = 11px text), so
+  // the stack leaves room for the labels in whatever monospace font this device has.
+  stage.append(root);
+  let lw = 0;
+  for (const t of tags) lw = Math.max(lw, t.offsetWidth);
+  const { sp, se, ex, g } = fit(W, H, lw + 14); // + the 10px margin and 4px slack
+  root.style.setProperty("--se", `${se}`);
   const [gridL, charL, moveL, colL, rulesL, fxL, inL, hudL] = layers as [HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement];
   // Collision: the fixed copy, revealed by the scan, over the broken one.
   const fixed = el(colL, "lz-x");
@@ -208,18 +213,22 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
       const t = phase[0]!;
       const open = t < FOLD_AT ? smooth(PLAY, OPEN, t) : 1 - smooth(FOLD_AT, CLOSED, t);
       const s = sp + (se - sp) * open;
-      stack.style.transform = `translate(${ex * open}px,${ey * open}px) scale(${s}) rotateX(${TILT * open}deg) rotateZ(${TURN * open}deg)`;
+      // Labels only while the stack is fully open: in after it opens, out before the fold starts,
+      // so they never move, scale or crowd while the layers travel.
+      const label = smooth(OPEN, OPEN + 0.3, t) * (1 - smooth(FOLD_AT - 0.3, FOLD_AT, t));
+      stack.style.transform = `translateX(${ex * open}px) scale(${s}) rotateX(${TILT * open}deg) rotateZ(${TURN * open}deg)`;
       for (let i = 0; i < N; i++) {
         const l = layers[i]!;
-        l.style.transform = `translateZ(${(i - (N - 1) / 2) * GAP * open}px)`;
+        l.style.transform = `translateZ(${(i - (N - 1) / 2) * g * open}px)`;
         tags[i]!.style.transform = `rotateZ(${-TURN * open}deg) rotateX(${-TILT * open}deg)`;
-        tags[i]!.style.opacity = `${smooth(0.6, 1, open)}`;
+        tags[i]!.style.opacity = `${label}`;
       }
       // Fault, scan, patch, green.
       const bad = t >= FAULT_AT && t < SCAN_END, ok = t >= SCAN_END && t < OK_END;
       const p = smooth(SCAN_AT, SCAN_END, t);
-      // Classes: o = open (layer plates show), f = fault or fix (others dim), b = broken, k = patched.
-      root.className = `lz${open > 0.02 ? " o" : ""}${bad || ok ? " f" : ""}${bad ? " b" : ok ? " k" : ""}`;
+      // State classes (namespaced: a host page may style .o or .k): lz--o open (layer plates show),
+      // lz--f fault or fix (others dim), lz--b broken, lz--k patched.
+      root.className = `lz${open > 0.02 ? " lz--o" : ""}${bad || ok ? " lz--f" : ""}${bad ? " lz--b" : ok ? " lz--k" : ""}`;
       colL.style.setProperty("--g", `${Math.round(50 * (1 - smooth(SCAN_END, OK_END, t)))}%`);
       const h = `${t >= SCAN_AT && t < OK_END ? p * BH : t >= OK_END || t < FAULT_AT ? BH : 0}px`;
       if (fixed.style.height !== h) fixed.style.height = h;
@@ -265,7 +274,6 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
   };
   stage.addEventListener("pointerdown", again, { signal: engine.signal });
   stage.addEventListener("pointerenter", again, { signal: engine.signal });
-  stage.append(root);
   engine.start();
   return { destroy: () => engine.destroy() };
 }
