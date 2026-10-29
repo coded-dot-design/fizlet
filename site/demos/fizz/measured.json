@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-29",
+  "browser": "153",
+  "throttle4x": {
+    "frames": 331,
+    "avgMs": 1.2,
+    "p95Ms": 4,
+    "maxMs": 25.3
+  },
+  "settled": {
+    "framesPerSecond": 0
+  },
+  "cls": {
+    "page": 0,
+    "posterOnly": 0.0209,
+    "fromSlot": 0
+  },
+  "offscreen": {
+    "frames": 0
+  },
+  "reducedMotion": {
+    "sceneLoaded": false,
+    "frames": 0
+  },
+  "lazy": {
+    "sceneBeforeNear": false,
+    "sceneWhenNear": true
+  },
+  "bytes": {
+    "loader": 2105,
+    "chunk": 8400,
+    "poster": 1989
+  }
+}

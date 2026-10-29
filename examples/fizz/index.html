@@ -1,0 +1,31 @@
+<!doctype html>
+<!-- The fizz, as a hero on any page. By Chris Cooley (https://coded.design/). MIT.
+     Serve site-dist/ after `npm run site` and open /examples/fizz/: dist/ and demos/fizz/ sit there. -->
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fizz · a Fizlet hero</title>
+<style>
+  body { margin: 0; background: #07060f; color: #f6f3ff; font: 16px/1.6 system-ui, sans-serif; overflow-x: clip; }
+  .frame { overflow: clip; }
+  .hero { display: grid; place-items: center; gap: 12px; padding: 40px 16px; }
+  figure.ae-slot { position: relative; width: min(100%, 720px); aspect-ratio: 2 / 1; margin: 0; }
+  .ae-slot__placeholder { position: absolute; inset: 0; width: 100%; height: 100%; }
+  a { color: #19f0ff; }
+</style>
+<div class="frame">
+  <!-- data-fizz-zoom: this element is "the page" that zooms; its parent clips. -->
+  <main data-fizz-zoom class="hero">
+    <h1>Crack a can.</h1>
+    <figure class="ae-slot" data-slot-target="fizz#hero" role="img" aria-label="A pixel soda can pops open and fizzes">
+      <!-- The poster: also the still frame for reduced motion. The site build writes the real one. -->
+      <svg class="ae-slot__placeholder" viewBox="-50 0 100 64" aria-hidden="true"><rect x="-10" y="15" width="20" height="40" fill="#ff2e88"/></svg>
+    </figure>
+    <p>Tap the can. By <a href="https://coded.design/">Chris Cooley</a>.</p>
+  </main>
+</div>
+<script type="module">
+  import { slot } from "../../dist/slot.js";
+  slot("fizz#hero", () => import("../../demos/fizz/scene.js").then((m) => m.mount));
+</script>
+</html>
