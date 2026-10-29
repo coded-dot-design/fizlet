@@ -51,6 +51,10 @@
       "types": "./dist/embed.d.ts",
       "default": "./dist/embed.js"
     },
+    "./hud": {
+      "types": "./dist/hud.d.ts",
+      "default": "./dist/hud.js"
+    },
     "./ui": {
       "types": "./dist/ui/board-ui.d.ts",
       "default": "./dist/ui/board-ui.js"

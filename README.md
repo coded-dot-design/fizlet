@@ -58,6 +58,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 | `fizlet/fx` | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake | ~1.5 KB |
 | `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues (or your own player), unlock on gesture | ~0.9 KB |
 | `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | ~2.0 KB |
+| `fizlet/hud` | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | ~1.3 KB |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
 
 More bricks land through phase E2 (actor, steer, aim, rules, board-page, board-grid, camera,
@@ -74,6 +75,28 @@ view-dom, presence): see the [engine plan](https://github.com/coded-dot-design/d
 - `engine.ledger`: `text`, `style`, `attr`, `cls`, `add(node)`, `restore()`.
 - `engine.random()`: seeded; `engine.random.state` snapshots and restores it.
 - `engine.stats()`: frames, steps, dropped time, frame ms, pools, events, ledger size, pause reasons.
+
+### HUD
+
+```ts
+import { hud } from "fizlet/hud";
+
+const s = new Float64Array(2); // clock, armor (0..1): running fractions live in a typed array
+hud(engine, wrap)
+  .num("[data-k]", () => you.kills)            // 12
+  .num("[data-t]", [s, 0], "clock")            // 2:59 (also "int", "rank" #2, "pct" 75%, or (v) => string)
+  .meter("[data-hp]", [s, 1], 0.34)            // width 33%, aria-valuenow on a progressbar, class "low"
+  .flag(fireKey, "hot", () => you.hot > 0)
+  .feed(".feed", 4, "kill", (a, b) => NAMES[a] + " ✕ " + NAMES[b])
+  .banner(".banner", "streak", (a) => [a + " KILL STREAK", REWARD[a]]);
+```
+
+Each value is compared as a number after rounding to what it shows (a clock compares whole
+seconds), so it is formatted and written only when that changes; strings for 0–1023 are made once
+and reused. `feed` and `banner` read `engine.events` in render (emit `kill` / `streak` from the
+step), never per-frame state. Writes go through `engine.ledger`; rows or text nodes it adds are
+removed on `destroy()`. It has no visuals of its own: it binds to your markup. A getter V8 doesn't
+inline boxes a fractional double, so pass running fractions as a `[typedArray, index]` slot.
 
 ## Develop
 

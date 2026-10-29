@@ -4,7 +4,7 @@ import { build } from "esbuild";
 import { execFileSync } from "node:child_process";
 import { cpSync, rmSync } from "node:fs";
 
-export const ENTRIES = ["src/index.ts", "src/kernel/index.ts", "src/debug.ts", "src/input.ts", "src/collide.ts", "src/fx.ts", "src/sound.ts", "src/embed.ts", "src/ui/board-ui.ts"];
+export const ENTRIES = ["src/index.ts", "src/kernel/index.ts", "src/debug.ts", "src/input.ts", "src/collide.ts", "src/fx.ts", "src/sound.ts", "src/embed.ts", "src/hud.ts", "src/ui/board-ui.ts"];
 rmSync("dist", { recursive: true, force: true });
 await build({ entryPoints: ENTRIES, outdir: "dist", outbase: "src", bundle: true, splitting: true, chunkNames: "chunks/[name]-[hash]", format: "esm", target: "es2022", platform: "browser", legalComments: "none", logLevel: "warning" });
 execFileSync("npx", ["tsc", "-p", "tsconfig.json"], { stdio: "inherit" });

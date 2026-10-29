@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- `fizlet/hud`: change-only, allocation-free HUD bindings fed by the event ring. `hud(engine, root)`
+  → `num` (int, clock, rank, pct or your own format), `meter` (width %, `aria-valuenow`, `low`),
+  `flag` (class), `feed` (last N events of a type, newest first) and `banner` (title + sub on an
+  event). Values compare as numbers and write only when the shown value changes; formatted strings
+  are cached; every write goes through the ledger. Tests: 1M renders with unchanged values cause no
+  young GC and no DOM write; 0 mutations over 120 idle frames in Chromium; destroy restores exactly.
+
 ## 0.2.4
 
 - ui: `.bui-grip` matches DOM Battlefield's card grip exactly: a flat violet tab with a strip of dark
