@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.0
+
+- **`fizlet/rules`** (new brick, 1,264 B gzip, budget 1,536): `waves`, `drops` and `score`, the
+  rules every arcade game repeats, as DOM-free systems that step without allocating and report on
+  the event ring (`wave:start`, `wave:clear`, `drop:spawn`, `drop:collect`, `drop:expire`, `score`,
+  `combo:end`, `level`). Defaults are the DOM VIRUS core's WaveDirector and SupplyDrops numbers and
+  Null Invaders' combo, so a port keeps its feel; a test runs `waves` frame by frame against the
+  core's WaveDirector and they match. Rules is the biggest layer in the games measured so far
+  (42,076 B gzip of game code across eight builds). No version bump.
+
 ## 0.5.1
 
 - **CSS containment on every root Fizlet owns** (contract rule 8): the pad and the match overlay
