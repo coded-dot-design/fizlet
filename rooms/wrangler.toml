@@ -1,0 +1,12 @@
+# Local prototype only: `npm run dev` (wrangler dev --local). Not deployed; no account is configured.
+name = "fizlet-rooms"
+main = "src/worker.js"
+compatibility_date = "2025-09-01"
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]

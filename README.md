@@ -72,6 +72,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 | `fizlet/sound` | `sound(engine, { cues })`: event ring → synth cues (or your own player), unlock on gesture | ~0.9 KB |
 | `fizlet/embed` | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | ~2.0 KB |
 | `fizlet/slot` | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | ~1.5 KB |
+| `fizlet/presence` | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | ~1.8 KB |
 | `fizlet/hud` | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | ~1.3 KB |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst ([spec](src/ui/BOARD-UI.md)) | ~2.4 KB + ~3.8 KB css |
 
@@ -232,6 +233,48 @@ touch.setScheme("dpad"); // fingers on the old control let go; no listener is ad
 - `engine.ledger`: `text`, `style`, `attr`, `cls`, `add(node)`, `restore()`.
 - `engine.random()`: seeded; `engine.random.state` snapshots and restores it.
 - `engine.stats()`: frames, steps, dropped time, frame ms, pools, events, ledger size, pause reasons.
+
+### Multiplayer (`fizlet/presence`)
+
+Every peer runs the same fixed-step sim from the same seed; only inputs cross the wire (12 bytes
+each). Your input is sent `delay` frames ahead, and a frame runs only once every player's input
+for it is here, so peers can't drift. Keep the sim on `engine.random` and typed arrays.
+
+```js
+import { createEngine } from "fizlet";
+import { presence, join, hash32 } from "fizlet/presence";
+
+const { transport, slot, players, seed } = await join("wss://your-rooms.example/room/abc?players=2");
+const e = createEngine({ seed }), state = new Float64Array(64), bytes = new Uint8Array(state.buffer);
+const net = presence(e, {
+  transport, slot, players, delay: 2,
+  input: () => (keys.down("left") ? 1 : 0) | (keys.down("right") ? 2 : 0), // your bits for a future frame
+  step: (e, inputs, frame) => { /* simulate one frame from inputs[0..players-1] */ },
+  hash: () => hash32(bytes), // compared across peers every 30 frames: net.desync
+});
+e.start();
+```
+
+**Check a game is deterministic** (any test, Node or browser): `syncCheck(setup, { players, frames,
+latency, jitter })` from `fizlet/presence/check` runs your sim as lockstep clients over the memory
+link and returns `{ ok, frames, diverged, stalls }`, where `diverged` is the first frame whose state
+differed (or -1). `setup(e, slot, players)` returns `{ input(), step(e, inputs, frame), state }`, where
+`state` is a byte view of the sim's typed arrays.
+
+`net.frame`, `net.stalls`, `net.desync`, `net.lost`, `net.confirmed(slot, frame)` (the input log
+a rollback layer can replay). A transport is `{ send(bytes), listen(fn), close() }`; the room server
+prototype (Cloudflare Worker + Durable Object) is in [`rooms/`](rooms/README.md).
+
+## Develop
+
+```sh
+npm ci
+npm run check         # typecheck, contract tests (node), build
+npm run size          # size budgets
+npm run test:browser  # contract tests in Chromium (Playwright)
+npm run test:pack     # pack, install the tarball, import + typecheck every subpath
+npm run site          # the website, into site-dist/
+```
 
 ### HUD
 
