@@ -1,0 +1,5 @@
+{
+  "_note": "Provisional: set from runs on a 4-core Xeon 2.8 GHz, Chromium 153, 4x CPU throttle, 10 s (demo: p50 16.7, p95 33.4, p99 33.4 ms, 14-20% dropped, FCP 244-520 ms, heap 2.4-2.9 MB, 3-4 minor GC). Replace with the context/03 rule 9 budgets once reconciled. droppedPct = dropped / (frames + dropped).",
+  "demo": { "p50": 20, "p95": 50, "p99": 67, "droppedPct": 30, "fcp": 1500, "heapMB": 8, "minorGC": 10 },
+  "blitz": { "p50": 20, "p95": 50, "p99": 67, "droppedPct": 30, "fcp": 2000, "heapMB": 16, "minorGC": 10 }
+}

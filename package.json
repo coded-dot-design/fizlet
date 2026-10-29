@@ -127,7 +127,9 @@
     "test:pack": "node scripts/pack-smoke.mjs",
     "site": "npm run build && node scripts/site.mjs",
     "test:site": "node tests/site.mjs",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "perf": "node tests/perf/run.mjs",
+    "test:alloc": "node tests/perf/alloc.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

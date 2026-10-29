@@ -41,6 +41,30 @@ jobs:
         run: |
           set -o pipefail
           npm run test:site 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
+  perf:
+    # Measured, not claimed: frame times, dropped frames, first paint, heap and minor GCs under a
+    # 4x CPU throttle, failing over tests/perf/budgets.json; plus the game-level allocation test.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npm run site
+      - run: npm run perf
+        env:
+          PERF_OUT: perf-results.json
+      - run: npm run test:alloc
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-results
+          path: perf-results.json
+          if-no-files-found: ignore
   tag-version:
     needs: check
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
