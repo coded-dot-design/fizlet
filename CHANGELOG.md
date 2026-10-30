@@ -6,6 +6,13 @@
   now a rider in a white moto helmet (peak, vents, pointed chin bar with side slots and a mesh
   vent), red goggles with a chrome lens and a black jersey with red shoulders; no face shown, no
   brand marks. Same 32 × 32 grid and Board UI tokens.
+- **fizlet/steer: `arriveGoal(i, dt)`**, `arrive` toward the goal the game writes in `gx[i]`, `gy[i]`.
+  A goal computed every frame (a wingman's slot behind its leader) passed to `arrive` as two numbers
+  is boxed whenever V8 doesn't inline the call: DOM Battlefield Blitz's platoons made 3 young GCs per
+  20k steps on Chrome 145. Written to the typed arrays, no double crosses a call. Same moves as
+  `arrive`, bit for bit (tested frame by frame); a zero-allocation test runs the platoon pattern
+  (bare 0, `arriveGoal` 0, `arrive(i, gx, gy)` 55 young GCs per 300k frames on Node 24). `arrive` is
+  unchanged. Steer 950 → 958 B gz (budget 1,280): the band moved into the shared `toward` (a pace below 0), so `arrive` has no extra call level either.
 - **Website: the team's AI agent on /people/.** Contributors get a third `kind`, `agent` (an AI
   agent persona: a handle, no url, like a persona), and an optional `pronouns` string shown on the
   profile. Every agent card and page says "AI agent — an AI agent persona on the Fizlet team, not a
