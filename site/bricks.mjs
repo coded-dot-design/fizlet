@@ -143,6 +143,14 @@ A.sweep(); // once per step: dead rows come back` },
   foe: (i, j) => A.alive[j] === 1 && A.side[j] !== A.side[i] });
 const j = s.pick(i, A.list, A.n, 0.6, 460); // nearest foe in the cone, in sight
 if (j >= 0 && s.lead(i, j, 400)) fire(i, s.out[0], s.out[1]); // where it will be` },
+  { id: "view-dom", status: "experimental", since: "0.21.0", tests: ["view-dom.test.mjs", "view-dom.mjs"], used: [],
+    tag: "VIEW DOM", role: "fire", modules: [mod("fizlet/view-dom", "view-dom")],
+    snippet: `/* CSS: the look is the page's */
+.board i { position: absolute; left: 0; top: 0; width: 24px; height: 24px; }
+.board i[data-side="1"] { background: var(--hurt); }
+
+viewDom(e, A, board, { linger: 0.4 }); // one pooled node per row
+// moved rows write one transform; a still board writes nothing and settles` },
   { id: "arcade", status: "complete", since: "0.11.0", tests: ["arcade.mjs", "arcade-game.mjs", "arcade-hud.mjs"], used: ["Null Invaders 1.0", "Byte Runner 1.0", "Sherman Bytes 1.0"],
     tag: "ARCADE", role: "go", modules: [mod("fizlet/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
@@ -167,7 +175,6 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
 export const PLANNED = [
   { name: "fizlet/layout", phase: "E10", purpose: "Force-directed layout on typed arrays with a Barnes-Hut pass: diagrams and graphs that settle.", target: 2048, needs: ["fizlet", "fizlet/camera"] },
   { name: "fizlet/view-canvas", phase: "E10", purpose: "One overlay canvas per root, sized for the screen's pixel density, redrawn only where something changed.", target: 1229, needs: ["fizlet"] },
-  { name: "fizlet/view-dom", phase: "E11", purpose: "Pooled DOM nodes bound to actors, written change-only through the ledger.", target: 1536, needs: ["fizlet/actor"] },
   { name: "fizlet/snapshot", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["fizlet/presence", "fizlet/actor"] },
   { name: "fizlet/agent", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["fizlet/presence", "fizlet/rules"] },
   { name: "fizlet/scene", phase: "E13", purpose: "An animation recipe as data (stage, cast, cue, gag) mounted as a scene.", target: 2048, needs: ["fizlet/sprite", "fizlet/fx", "fizlet/timeline", "fizlet/slot"] },

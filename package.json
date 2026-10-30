@@ -120,6 +120,10 @@
       "types": "./dist/aim.d.ts",
       "default": "./dist/aim.js"
     },
+    "./view-dom": {
+      "types": "./dist/view-dom.d.ts",
+      "default": "./dist/view-dom.js"
+    },
     "./css-clock": {
       "types": "./dist/css-clock.d.ts",
       "default": "./dist/css-clock.js"
@@ -151,7 +155,7 @@
     "check": "npm run typecheck && npm test && npm run build",
     "size": "node scripts/size.mjs",
     "readme:sizes": "node scripts/readme-sizes.mjs",
-    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/drag.mjs && node tests/coach.mjs && node tests/timeline.mjs && node tests/labs.mjs && node tests/virus.mjs && node tests/small-packages.mjs && node tests/touch.mjs && node tests/comic.mjs && node tests/hero-duo.mjs && node tests/pixel-pieces.mjs && node tests/hero-brawl.mjs && node tests/css-clock.mjs",
+    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/drag.mjs && node tests/coach.mjs && node tests/timeline.mjs && node tests/labs.mjs && node tests/virus.mjs && node tests/small-packages.mjs && node tests/touch.mjs && node tests/comic.mjs && node tests/hero-duo.mjs && node tests/pixel-pieces.mjs && node tests/hero-brawl.mjs && node tests/css-clock.mjs && node tests/view-dom.mjs",
     "test:layers": "tsc -p site/demos/layers/tsconfig.json && node tests/layers.mjs",
     "test:pack": "node scripts/pack-smoke.mjs",
     "site": "npm run build && node scripts/site.mjs",
