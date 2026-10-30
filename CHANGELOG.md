@@ -21,6 +21,9 @@
 
 ## 0.19.0
 
+- **Gallery archive: noindex, nofollow** (owner: "archive the rest somewhere… but definitely no-follow
+  those pages"). `gallery/archive/` is `noindex,nofollow`, stays out of the sitemap and llms.txt,
+  and the gallery's one quiet link to it is `rel="nofollow"`.
 - **Gallery: the "how it works" labs, #42–#46.** DOM VIRUS's five Under the hood labs move onto
   Fizlet as scenes in `site/labs/` (one source: the hub vendors them): pool ("One loop. Bounded
   work.", a real `engine.pool` of 32), Recall ("Recall gives the page back.", the real `Ledger`:
