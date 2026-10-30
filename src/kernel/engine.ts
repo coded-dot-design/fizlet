@@ -277,6 +277,7 @@ export function createEngine(o: EngineOptions = {}) {
       if (dead) return;
       dead = true;
       n[ACC] = 0; // destroyed from inside a step: no more steps this frame
+      clearTimeout(napT); // the fps cap's pending wake-up: nothing of ours outlives destroy()
       set(STOPPED, true);
       ctl.abort();
       ledger.restore();
