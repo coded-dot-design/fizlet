@@ -1,0 +1,19 @@
+{
+  "id": "pricing-war-forts-fire-back",
+  "date": "2026-10-30",
+  "prompt": "two pricing plans are forts built from their own page blocks: tap to fire (one tap a fast shell, two a big slow bomb), the other plan fires back, and every hit crumbles real blocks and knocks letters out",
+  "title": "Pricing war",
+  "kind": "micro",
+  "theme": "artillery",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/pricing-war-forts-fire-back.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
