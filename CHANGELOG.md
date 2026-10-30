@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Board UI kit: a hidden `fizlet/coach` card is not drawn.** `card()` lays itself out inline
+  (`display: grid`), and an inline display beats the browser's `[hidden]` rule. So `hide()` (and
+  the card before its first `show`) left an empty card over the board, catching clicks: Battlefield
+  Blitz's HUD lost its double-click. The kit now carries `.bui .fizlet-coach[hidden] { display: none !important }`;
+  `el.hidden` stays the one switch. `tests/coach.mjs` checks the computed display before the first
+  show and after `hide()` (it fails without the rule). `fizlet/ui (css)` 4,988 / 5,120 B gzip.
+
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
