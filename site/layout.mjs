@@ -139,6 +139,8 @@ ${body}
         <li><a href="${home}make/">Make one</a></li>
         <li><a href="${home}heroes/">Heroes</a></li>
         <li><a href="${home}notes/">Notes</a></li>
+        <li><a href="${home}people/">People</a></li>
+        <li><a href="${home}contest/">Daily contest</a></li>
         <li><a href="${home}#recall">Recall</a></li>
         <li><a href="${home}#roadmap">Roadmap</a></li>
         <li><a href="${home}examples/quick-start.html">Quick start example</a></li>

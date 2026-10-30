@@ -2496,6 +2496,164 @@ html.bui[data-theme="light"] .phases b {
   outline-offset: 2px;
 }
 .make-try {
+/* ---------- People (/people/) and the daily contest (/contest/): kit tokens, panels, stickers ---------- */
+.ppl-av {
+  display: block;
+  image-rendering: pixelated;
+}
+.ppl-frame {
+  display: inline-block;
+  padding: 6px;
+  background: var(--rim);
+  border: 2px solid var(--k-sys);
+  border-radius: 8px;
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--k-sys) 45%, var(--rim));
+  line-height: 0;
+}
+.ppl-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+  margin-top: 24px;
+}
+.ppl-who {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.ppl-who h1 {
+  font-size: clamp(36px, 5vw, 60px);
+  overflow-wrap: anywhere;
+}
+.ppl-who p {
+  margin: 0;
+}
+.ppl-role {
+  margin: 0;
+  font: 700 13px/1.5 var(--mono);
+  color: var(--k-sys-ink);
+}
+.ppl-persona,
+.ppl-owner,
+.ct-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 14px;
+  color: var(--ink);
+  border: 2px dashed var(--k-attack);
+  border-radius: 8px;
+}
+.ppl-persona,
+.ppl-owner,
+.ppl-frame {
+  justify-self: start;
+}
+.ppl-persona,
+.ppl-owner {
+  display: block;
+}
+.ppl-owner {
+  border-color: var(--k-go);
+  border-style: solid;
+}
+.ct-note {
+  border-color: var(--k-advance);
+  margin-top: 16px;
+}
+.ppl-url a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 700 13px var(--mono);
+  color: var(--k-sys-ink);
+}
+.ppl-stats {
+  margin-top: 36px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 620px;
+}
+.ppl-stats .rule > b {
+  font-size: 30px;
+}
+.ppl-grid,
+.ct-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 36px;
+}
+.ct-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.ppl-card,
+.ct-card {
+  padding: 22px;
+  min-width: 0;
+}
+.ppl-card h2,
+.ct-card h2,
+.ppl-gallery h2,
+.ct-past h2 {
+  margin: 0 0 12px;
+  font-size: clamp(22px, 2.6vw, 28px);
+}
+.ppl-card h3 {
+  margin: 16px 0 6px;
+  font-size: 16px;
+}
+.ppl-card p,
+.ct-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.ppl-card .gal-prompt {
+  margin-top: 12px;
+  font-size: 16px;
+  color: var(--ink);
+}
+.ppl-list {
+  margin: 0;
+  padding-left: 18px;
+  list-style: square;
+  line-height: 1.7;
+  color: var(--ink);
+}
+.ppl-todo {
+  color: var(--muted);
+  font-style: italic;
+}
+.ppl-gallery,
+.ct-past {
+  margin-top: 48px;
+}
+.ppl-entries,
+.ct-winners,
+.ppl-tiles {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ppl-entries > li {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+}
+.ppl-entries a {
+  font-weight: 800;
+  color: var(--ink);
+}
+.ppl-prompt {
+  color: var(--muted);
+}
+.ppl-size {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -2604,4 +2762,126 @@ html.bui[data-theme="light"] .phases b {
   min-height: 220px;
   resize: vertical;
   white-space: pre;
+  font: 12px var(--mono);
+  color: var(--muted);
+}
+.ppl-tiles {
+  margin-top: 40px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.ppl-tile {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  padding: 20px;
+}
+.ppl-tile > div {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.ppl-tile h2 {
+  font-size: clamp(22px, 2.6vw, 30px);
+}
+.ppl-tile h2 a {
+  color: var(--ink);
+}
+.ppl-tile p {
+  margin: 0;
+}
+.ppl-count {
+  font: 12px var(--mono);
+  color: var(--muted);
+}
+.ppl-count b {
+  color: var(--ink);
+}
+.win-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  font: 800 11px/1.2 var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--rim);
+  background: var(--hurt);
+  border: 2px solid var(--rim);
+  border-radius: 5px;
+  box-shadow: 0 3px 0 var(--rim);
+  rotate: -3deg;
+  vertical-align: middle;
+}
+.ct-today {
+  display: grid;
+  gap: 10px;
+  margin-top: 36px;
+  padding: 24px;
+  border-color: var(--k-attack);
+}
+.ct-today h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  font-size: clamp(30px, 4.4vw, 48px);
+}
+.ct-today p {
+  margin: 0;
+}
+.ct-date,
+.ct-by {
+  font: 12px var(--mono);
+  color: var(--muted);
+}
+.ct-card .split-keys {
+  margin-top: 18px;
+}
+.ct-card code {
+  font: 0.92em var(--mono);
+  overflow-wrap: anywhere;
+}
+.ct-winners > li {
+  display: grid;
+  gap: 8px;
+  padding: 18px 20px;
+}
+.ct-winners h3 a {
+  color: var(--ink);
+}
+.ct-winners p {
+  margin: 0;
+}
+@media (max-width: 860px) {
+  .ppl-grid,
+  .ct-grid,
+  .ppl-tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .ppl-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ppl-head .ppl-av {
+    width: 112px;
+    height: 112px;
+  }
+  .ppl-tile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ppl-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.gal-persona {
+  margin-left: 4px;
+  padding: 1px 5px;
+  font: 700 10px/1.4 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--k-attack);
+  border: 1px dashed var(--k-attack);
+  border-radius: 4px;
 }

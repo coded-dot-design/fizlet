@@ -8,6 +8,7 @@
 import { esc, icon } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { sections } from "../../scripts/gallery.mjs";
+import { winnerBadge } from "./people.mjs";
 
 const fmt = (n) => n.toLocaleString("en-US");
 
@@ -29,11 +30,11 @@ export const pageFigure = (e) =>
 /** The figure for an entry: its own poster (`figures[e.figure]`), a page scene or the prompt. */
 export const entryFigure = (e, figures) => figures[e.figure] ?? (e.stage === "page" ? pageFigure : plainFigure)(e);
 
-/** "by <name>", linked to the contributor's profile. */
+/** "by <name>", linked to the contributor's profile; a house persona is named as one (a character, not a real person). */
 export const byLine = (e, people, base, cls = "gal-by") =>
-  `<p class="${cls}">by <a href="${base}people/${esc(e.author)}/">${esc(people[e.author].name)}</a></p>`;
+  `<p class="${cls}">by <a href="${base}people/${esc(e.author)}/">${esc(people[e.author].name)}</a>${people[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`;
 
-const card = (e, { loader, figures, base, people, themeTitle, snippets }) => {
+const card = (e, { loader, figures, base, people, themeTitle, winners, snippets }) => {
   const fig = entryFigure(e, figures).replace("<figure ", `<figure data-gallery="${esc(e.id)}" `);
   const measured = e.pageCost?.measured;
   const cost = [
@@ -45,7 +46,7 @@ const card = (e, { loader, figures, base, people, themeTitle, snippets }) => {
       <div class="gal-stage">${fig}</div>
       <div class="gal-meta">
         <p class="eyebrow"><span class="index">#${String(e.no).padStart(3, "0")}</span> ${esc(e.date)} · ${e.kind === "hero" ? "HERO · " : ""}${esc(themeTitle.toUpperCase())} · ${e.made === "fe anim" ? `MADE BY FE ANIM · RECIPE ${esc(e.recipe.toUpperCase())}` : "HAND-BUILT"}</p>
-        <h3>${esc(e.title)}</h3>
+        <h3>${esc(e.title)}${winners.has(e.id) ? ` ${winnerBadge()}` : ""}</h3>
         ${byLine(e, people, base)}
         <p class="gal-prompt"><span class="bui-label">${e.made === "fe anim" ? "PROMPT" : "BRIEF"}</span> “${esc(e.prompt)}”</p>
         <ul class="gal-cost" aria-label="What it costs the page">${cost}</ul>
@@ -58,9 +59,10 @@ const card = (e, { loader, figures, base, people, themeTitle, snippets }) => {
 
 /**
  * One gallery page. `page`: this page ({ n, path, entries }); `pages`: every page; `all`: every
- * entry (newest first: the chips' counts and where each theme first appears); `themes` in order.
+ * entry (newest first: the chips' counts and where each theme first appears); `themes` in order;
+ * `winners`: ids of daily-contest winners (site/contest/days), featured with the Winner badge.
  */
-export function galleryPage({ page, pages, all, themes, people, loader, figures, snippets = {}, base }) {
+export function galleryPage({ page, pages, all, themes, people, loader, figures, snippets = {}, base, winners = new Set() }) {
   const firstPage = Object.fromEntries(themes.map((t) => [t.id, pages.find((p) => p.entries.some((e) => e.theme === t.id))]));
   const used = themes.filter((t) => firstPage[t.id]);
   const chips = [`<a class="bui-key gal-chip" href="${base}gallery/" data-theme-chip="all"${page.n === 1 ? ' aria-current="true"' : ""}>All <small>${all.length}</small></a>`,
@@ -69,7 +71,7 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
   const secs = sections(page.entries, themes).map(({ theme: t, entries }) => `<section class="gal-theme" id="theme-${esc(t.id)}" data-theme-section="${esc(t.id)}" aria-labelledby="theme-${esc(t.id)}-h">
     <div class="gal-theme-head"><h2 id="theme-${esc(t.id)}-h">${esc(t.title)}</h2><p>${esc(t.blurb)}</p></div>
     <ol class="gal">
-    ${entries.map((e) => card(e, { loader, figures, base, people, themeTitle: title[e.theme], snippets })).join("\n    ")}
+    ${entries.map((e) => card(e, { loader, figures, base, people, themeTitle: title[e.theme], winners, snippets })).join("\n    ")}
     </ol>
   </section>`).join("\n  ");
   const nav = pages.length > 1 ? `<nav class="gal-pages" aria-label="Gallery pages">${pages.map((p) => p.n === page.n

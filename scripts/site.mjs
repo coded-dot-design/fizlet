@@ -13,13 +13,15 @@ import { notFound } from "../site/pages/not-found.mjs";
 import { brickPage, bricksIndex } from "../site/pages/brick.mjs";
 import { galleryPage } from "../site/pages/gallery.mjs";
 import { heroesPage } from "../site/pages/heroes.mjs";
-import { personPage } from "../site/pages/people.mjs";
 import { notePage, notesIndex, noteLd } from "../site/pages/notes.mjs";
 import { notes as loadNotes, notePath } from "./notes.mjs";
 import { playFigure } from "../site/pages/index.mjs";
 import { buildGallery, personPath } from "./gallery.mjs";
 import { buildMake, snippetFor, TABLE as MAKE_TABLE } from "./make.mjs";
 import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
+import { PERSONA_NOTE, contributors, contestDays, contestToday, statsOf } from "./people.mjs";
+import { peopleIndex, personPage } from "../site/pages/people.mjs";
+import { contestPage } from "../site/pages/contest.mjs";
 import { BRICKS, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
@@ -108,7 +110,16 @@ const urlOf = (id) => gallery.index.find((r) => r.id === id).url;
 const heroes = gallery.entries.filter((e) => e.kind === "hero");
 for (const p of gallery.pages) mkdirSync(`${OUT}/${p.path}`, { recursive: true });
 mkdirSync(`${OUT}/heroes`, { recursive: true });
-for (const id of Object.keys(gallery.people)) mkdirSync(`${OUT}/${personPath(id)}`, { recursive: true });
+// People and the daily contest: each contributor's entries and bytes come from the gallery just
+// built; contest days are checked against it (prompt length, one entry per person per day, winner).
+const PEOPLE = contributors();
+const DAYS = contestDays(gallery.entries, PEOPLE);
+const winners = new Set(DAYS.map((d) => d.winner).filter(Boolean));
+const people = PEOPLE.map((p) => ({ person: p, stats: statsOf(p, gallery.entries) }));
+// "Today" for the contest page: the build's UTC date (FIZLET_TODAY pins it for a preview or a test).
+const today = contestToday(DAYS, process.env.FIZLET_TODAY);
+for (const p of PEOPLE) mkdirSync(`${OUT}/${personPath(p.id)}`, { recursive: true });
+mkdirSync(`${OUT}/contest`, { recursive: true });
 
 const sizes = await measure();
 const kernel = sizes[0];
@@ -170,7 +181,7 @@ const pages = [
       ? `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by theme).`
       : `Fizlet gallery page ${p.n} of ${gallery.pages.length}: older animations by theme, each with its prompt, its live demo and its size measured on this build.`,
     base: GB(p), version, path: p.path,
-    body: `<style>${layers.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p) }),
+    body: `<style>${layers.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners }),
     scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
   })]),
   ["heroes/index.html", page({
@@ -185,14 +196,24 @@ const pages = [
     description: `Type a prompt, get a drop-in Fizlet animation: one file, only the bricks it uses, its size measured in your browser. No server, no tracking.`,
     base: "../", version, path: "make/", body: makePage({ made: defaultSnippet, script: make.script, recipes: Object.keys(MAKE_TABLE.recipes), base: "../" }), scripts: ["site.js", "make/make.js"],
   })],
-  ...Object.values(gallery.people).map((person) => [`${personPath(person.id)}index.html`, page({
-    title: `${person.name}: animations and profile · Fizlet`,
-    description: `${person.name} on Fizlet: ${gallery.entries.filter((e) => e.author === person.id).length} animations in the gallery, each with its prompt, its live demo and its measured size.`,
-    base: "../../", version, path: personPath(person.id),
-    ld: [{ "@type": "ProfilePage", "@id": `${SITE}${personPath(person.id)}#page`, url: SITE + personPath(person.id), mainEntity: person.id === "chris-cooley" ? { "@id": PERSON["@id"] } : { "@type": "Person", name: person.name, ...(person.url && { url: person.url }) } }],
-    body: personPage({ person, entries: gallery.entries, themes: gallery.themes, base: "../../", urlOf }),
-    scripts: ["site.js"],
+  ["people/index.html", page({
+    title: "People: the maker and the house personas · Fizlet",
+    description: `Who makes Fizlet animations: Chris Cooley, and ${PEOPLE.length - 1} house personas (Fizlet characters, not real people), with their entries and bytes.`,
+    base: "../", version, path: "people/", body: peopleIndex({ rows: people, base: "../" }), scripts: ["site.js"],
+  })],
+  ...people.map(({ person: p, stats }) => [`${personPath(p.id)}index.html`, page({
+    title: `${p.name}: ${p.kind === "owner" ? "maker of Fizlet" : "a house persona"} · Fizlet`,
+    description: p.description,
+    base: "../../", version, path: personPath(p.id),
+    ld: [{ "@type": "ProfilePage", "@id": `${SITE}${personPath(p.id)}#page`, url: SITE + personPath(p.id), name: p.name,
+      ...(p.kind === "owner" ? { mainEntity: { "@id": PERSON["@id"] } } : { about: { "@type": "Thing", name: p.name, description: `${PERSONA_NOTE}. ${p.bio}` } }) }],
+    body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners }), scripts: ["site.js"],
   })]),
+  ["contest/index.html", page({
+    title: "Daily contest: 60 characters, one animation · Fizlet",
+    description: "The Fizlet daily contest: a theme a day, a prompt of 60 characters or fewer, one entry each, one winner featured in the gallery.",
+    base: "../", version, path: "contest/", body: contestPage({ today, days: DAYS, people: PEOPLE, base: "../", urlOf }), scripts: ["site.js"],
+  })],
   ["notes/index.html", page({
     title: "Notes: what the games taught the engine · Fizlet",
     description: `Field notes from building games on Fizlet, newest first: ports, lessons and the numbers behind them, each one measured (${NOTES.length} so far, by Chris Cooley).`,
