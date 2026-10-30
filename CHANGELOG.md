@@ -108,7 +108,6 @@
     hard-code an offset shadow. Rings, glows and inset bevels are fine. Still waiting, counted and
     only allowed to go down: `site/site.css` (17), `src/ui/board-ui.css` (12, #136), the layers
     demo (4).
-
 - **Gallery: two pieces from domvirus.com, vendored at a pinned commit** (owner approved,
   2026-10-30; numbers at land time). Both are DOM VIRUS micros and link back to domvirus.com.
   - **your.page / under attack**: the domvirus.com home hero (dom-virus#20's Fizlet scene). The
@@ -131,6 +130,12 @@
   - Tests: `tests/dv-pieces.mjs` (in `test:browser`): plays, settles to 0 frames, a pointer wakes it,
     the hero's tap starts the game and its pause key stops frames, Recall byte for byte, reduced
     motion keeps the poster. `tests/vendor-dom-virus.test.mjs`. Both pass `npm run test:settle`.
+- **Board UI kit: a hidden `fizlet/coach` card is not drawn.** `card()` lays itself out inline
+  (`display: grid`), and an inline display beats the browser's `[hidden]` rule. So `hide()` (and
+  the card before its first `show`) left an empty card over the board, catching clicks: Battlefield
+  Blitz's HUD lost its double-click. The kit now carries `.bui .fizlet-coach[hidden] { display: none !important }`;
+  `el.hidden` stays the one switch. `tests/coach.mjs` checks the computed display before the first
+  show and after `hide()` (it fails without the rule). `fizlet/ui (css)` 4,988 / 5,120 B gzip.
 
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`

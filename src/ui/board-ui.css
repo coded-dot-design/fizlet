@@ -523,6 +523,10 @@
 .bui .bui-overlay[hidden] {
   display: none;
 }
+/* fizlet/coach's card lays itself out inline (display: grid), which beats the browser's [hidden]. */
+.bui .fizlet-coach[hidden] {
+  display: none !important;
+}
 .bui .bui-sticker {
   --tone: var(--k-flag);
   position: absolute;
