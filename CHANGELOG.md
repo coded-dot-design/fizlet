@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+- **Gallery: Stack it, a hero (pending the owner's approval; its number comes at land time).** Fizlet's bricks, by their real
+  names, Board UI colours (the brick catalog's roles) and sizes measured on this build, burst out over
+  the stage; a hand stacks kernel, input, sprite, fx and hud onto the pad (each lands with a slam,
+  dust in its colour and its bytes); the stack stretches into the bands of an app window and becomes
+  a shooter, which plays and gets its stars. Then it is your turn: tap or drag bricks onto the pad,
+  press FINISHED, and the stack becomes its own app (input, pad, steer: a shooter; timeline, camera:
+  a movie; grid, rules, match, board-page, presence: a board game; the kernel alone: hello), rated on
+  what it does and what it weighs (a star each for: it runs, a real app, something shows on it, no
+  dead weight, ≤ 12 KB of bricks; no kernel, no app). The bricks are real Board UI keys (tap, Enter
+  or Space stacks one), the rating is spoken. Built on the kernel alone (its dust, blasts and pop
+  words are one small pool in the scene; fx in your stack turns hits into blasts). Live chunk
+  9,706 B gzip (≤ 9,728), loader 1,932 B; measured in Chromium 153: 0 frames a second once still
+  (it settles after its ~10 s story), 0 off screen, Recall exact, nothing loads under reduced motion
+  (the poster, a still composition; the heroes page's Play key mounts it with every move a jump).
+  `site/demos/stack/`, poster `site/gallery/stages/stack-it.html`; tests `tests/stack.mjs` (Chromium:
+  intro, tap and drag, FINISHED, rating, no kernel, REBUILD, keyboard, 0 frames, Recall, reduced
+  motion) and `tests/stack.test.mjs` (each brick's bytes and colour against the build, the poster,
+  the stars).
+- **`fizlet/slot`: an accessible scene's slot is `role="group"`** (was: the `role` attribute was
+  removed). Putting it back moved the attribute to the end of the tag, so Recall was not byte for
+  byte when `role` was not the figure's last attribute. The heroes page does the same for an
+  accessible scene (its stage is no longer aria-hidden then). Slot 1,855 B gzip (+3).
+- Site test: a live scene's own keys (its pieces) are left to its own test in the page keys check.
 - **Status flags on every brick; Fizlet launches as a 0.x public beta.** One source,
   `site/bricks.mjs`: `STATUS` (COMPLETE "done, and always getting smaller and faster", BETA,
   EXPERIMENTAL, ROADMAP, DEPRECATED, each with written criteria) and per brick `status`, `since`,

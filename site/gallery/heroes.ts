@@ -42,10 +42,12 @@ if (track) {
     for (const c of hid) c.style.display = "none";
     const stage = document.createElement("div");
     stage.setAttribute("data-fizlet-slot", card.dataset.hero!);
-    stage.setAttribute("aria-hidden", "true");
     stage.style.cssText = "position:absolute;inset:0;contain:strict;overflow:hidden";
     f.append(stage);
-    live.set(card, { scene: m.mount(stage, f, null), stage, hid });
+    const scene = m.mount(stage, f, null);
+    // A scene with real accessible content (keys, a live region) is a group, as fizlet/slot makes it.
+    scene.accessible ? f.setAttribute("role", "group") : stage.setAttribute("aria-hidden", "true");
+    live.set(card, { scene, stage, hid });
     mark(card);
   }
   function stop(card: HTMLElement) {
@@ -55,6 +57,7 @@ if (track) {
       live.delete(card);
       l.scene.destroy();
       l.stage.remove();
+      if (l.scene.accessible) fig(card).setAttribute("role", "img");
       for (const c of l.hid) c.style.display = "";
     }
     mark(card);

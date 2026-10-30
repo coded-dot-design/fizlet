@@ -11,7 +11,8 @@
  * - Reduced motion: the slot keeps its placeholder and fallback; the scene never loads. If the
  *   setting turns on while a scene runs, the scene goes and the fallback comes back.
  * - Accessible: role="img" + aria-label stay unless the scene says it renders real accessible
- *   content (`accessible: true`); until then the stage is aria-hidden.
+ *   content (`accessible: true`): then the slot is role="group" (same label; the attribute keeps its
+ *   place, so Recall is byte for byte) and the stage is not aria-hidden.
  * - Contained: the scene gets its own stage inside the slot (contain: strict). Every change the
  *   slot makes goes through a Ledger, so destroy() gives the page back exactly.
  * - Off screen, off the page's frame: the stage is content-visibility: auto, so a scene scrolled
@@ -23,7 +24,7 @@ import { Ledger } from "./kernel/ledger";
 export interface SlotScene {
   /** Remove the scene (its engine's destroy() restores what it changed). */
   destroy(): void;
-  /** True when the scene renders real accessible content: the slot drops role="img". */
+  /** True when the scene renders real accessible content: the slot's role="img" becomes "group". */
   accessible?: boolean;
 }
 /** A tap on the slot before the scene was up: where (px from the slot's top left) and when. */
@@ -93,7 +94,7 @@ export function slot(target: string | HTMLElement, load: () => Promise<SlotMount
     el.append(stage);
     scene = make(stage, el, first);
     first = null;
-    if (scene.accessible) ledger.attr(el, "role", null);
+    if (scene.accessible) ledger.attr(el, "role", "group");
     else stage.setAttribute("aria-hidden", "true");
   }
   function arm() {

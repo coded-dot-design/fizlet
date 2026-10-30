@@ -1049,7 +1049,7 @@ ${fig("home#hero", "Sparks over the logo")}${box("home#box", "Sparks in a box")}
     hero.destroy();
     return { role, label, hidden, back: snap() === before };
   });
-  assert.deepEqual(a11y, { role: null, label: "Sparks over the logo", hidden: false, back: true }, "a scene with real accessible content drops role=img; destroy puts it back");
+  assert.deepEqual(a11y, { role: "group", label: "Sparks over the logo", hidden: false, back: true }, "a scene with real accessible content: role=img becomes group (in place); destroy puts it back");
 
   await sp.emulateMedia({ reducedMotion: "reduce" });
   const calm = await sp.evaluate(async () => {

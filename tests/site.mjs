@@ -368,14 +368,15 @@ try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const { page, errors } = await open(context, path);
     if (path === "bricks/sound.html") await page.waitForSelector("[data-brick-demo][data-ready]");
-    keyCount += await checkKeys(page, where);
+    // A live scene's own keys are its pieces (Stack it's bricks fly onto the stack when pressed): tests/stack.mjs.
+    keyCount += await checkKeys(page, where, { skip: "[data-fizlet-slot]" });
     assert.deepEqual(errors, [], `${where}: errors`);
     await context.close();
     const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const tap = await open(phone, path);
     // Heroes: on a phone the other cards sit off to the side, and a scroll to one of their keys snaps the
     // row to that card (the key moves under the tap); the centre card's keys are tapped.
-    await checkTaps(tap.page, `${where} (phone)`, { skip: path === "heroes/" ? "[data-hero]:not([aria-current])" : "" });
+    await checkTaps(tap.page, `${where} (phone)`, { skip: path === "heroes/" ? "[data-hero]:not([aria-current]), [data-fizlet-slot]" : "[data-fizlet-slot]" });
     await phone.close();
   }
 
