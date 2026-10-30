@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+- **Website: docs, guides and news for launch** (fizlet.com is the engine's tech resource; the games
+  live on DOM VIRUS). New sections, every number filled in from the build, never typed:
+  - `/docs/`: getting started, the contract, the loop, Recall and the ledger, size budgets (every
+    module's gzip and budget, measured by `scripts/sizes.mjs`, the same call CI makes) and
+    determinism. Pages are JSON in `site/docs/` (`scripts/docs.mjs`; `{size:…}`, `{budget:…}`,
+    `{kb:…}` and `{version}` are filled in from the build; an unknown one fails it).
+  - `/guides/`: build a micro game, fill an Astro slot, port a game, multiplayer rooms. Every code
+    listing is a file in `site/docs/code/`, typechecked against the source by `npm run typecheck`.
+  - `/news/`: release notes for every version, rendered from this changelog (`scripts/releases.mjs`;
+    dates in `site/releases.json`), each with its own title, description and TechArticle JSON-LD;
+    launch announcements lead the index.
+  - Notes: four launch posts from the fizlet-engine content model (`fe content notes`): Fizlet 0.19
+    is out, How small is small, Recall: the page always comes back, Lockstep multiplayer in a few KB.
+  - Brick pages without an "In short" snippet (pad, camera, slot, hud, match, board-page, presence,
+    perf, rules) get an example, typechecked from `site/brick-examples/`.
+  - Header nav: Docs · Bricks · Guides · Notes · News · Gallery · Heroes; a DOCS column in the
+    footer; llms.txt groups Docs, Guides and Release notes. Docs pages carry TechArticle and
+    BreadcrumbList JSON-LD.
+  - Game links go to domvirus.com, battlefield.domvirus.com and battlefieldblitz.domvirus.com, with
+    one line saying the games live there. The roadmap marks timeline and the docs done; the contract
+    card no longer says every brick is 1.5 to 5 KB (arcade's budget is 22 KB).
+
 ## 0.19.0
 
 - **The fizz: the original can, without the zoom** (owner: "the og ones were good, just the zoom

@@ -6,7 +6,7 @@ import { QUICK_START } from "./quick-start.mjs";
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
 
-const CONTRACT = [
+export const CONTRACT = [
   ["One clock per page", "Every engine on the page shares one requestAnimationFrame. A fixed 60 Hz step with a catch-up cap: a long frame drops time, it never spirals."],
   ["Bounded everything", "Pools and the event ring have a fixed capacity and refuse work when full. Nothing grows during a session."],
   ["Zero steady-state allocation", "One million kernel steps of a busy system cause no young-generation GC. Each brick alone allocates nothing."],
@@ -15,7 +15,7 @@ const CONTRACT = [
   ["Pause by default", "Hidden tab, page leaving, root off screen, typing in the host's own fields. Zero CPU while paused."],
   ["Own nothing you can't give back", "Every page change goes through the ledger. destroy() restores it exactly, and a newer host edit always wins."],
   ["Embed-safe", "No globals, no global styles, many engines per page. Every root Fizlet owns is CSS-contained. One AbortSignal removes every listener and observer."],
-  ["Budgets in CI", "Kernel at most 4 KB gzip, each brick its own budget of 1.5 to 5 KB. Over budget, the build fails."],
+  ["Budgets in CI", "Kernel at most 4 KB gzip; every brick and the page build have their own budget. Over budget, the build fails."],
 ];
 
 const ROADMAP = [
@@ -37,7 +37,7 @@ const ROADMAP = [
     [1, "slot and the page profile: settle, fps cap, idle load"],
     [1, "rules · steer · coach"],
     [1, "camera · perf · arcade (the shared game shell)"],
-    [0, "timeline (keyframes on the kernel clock)"],
+    [1, "timeline (keyframes on the kernel clock)"],
     [0, "layout"],
   ]],
   ["E3", "Port the games", "now", "NEARLY DONE", "One game at a time, smallest first, each as a 1.0 engine cut with the old build still playable.", [
@@ -56,7 +56,8 @@ const ROADMAP = [
   ["E5", "Docs for humans and AI", "now", "STARTED", "Build a game or micro-interaction in an afternoon, from docs a person or an agent can follow.", [
     [1, "One page per brick, generated from the source"],
     [1, "Gallery and notes, every number measured on the build"],
-    [0, "Authoring guide and recipes"],
+    [1, "Docs and guides: the contract, the loop, Recall, budgets, determinism"],
+    [1, "Release notes for every version, from the changelog"],
     [0, "AGENTS.md: the strict, AI-readable spec"],
     [0, "Live kernel stats on Under the Hood"],
   ]],
@@ -74,7 +75,7 @@ const PIPELINE = [
   ["Pages", "static, no server"],
 ];
 
-const LEDGER_ROWS = [
+export const LEDGER_ROWS = [
   ["ledger.text(node, v)", "a text node's value", "the 0s and 1s a shot leaves in a word"],
   ["ledger.style(el, prop, v)", "one inline style property", "transforms, custom properties"],
   ["ledger.attr(el, name, v)", "an attribute (null removes)", "aria-busy, data-hp"],
@@ -405,15 +406,15 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
         </div>
       </article>
       <article class="panel game">
-        <p class="eyebrow"><b>THE ARCADE</b> · PORTING IN E3</p>
+        <p class="eyebrow"><b>THE ARCADE</b> · DOMVIRUS.COM</p>
         <h3>DOM VIRUS</h3>
-        <p>Tiny games that turn your page into the game board. Fizlet is the engine they proved out: Null Invaders, Byte Runner, Sherman Bytes and Swarm Protocol move onto it one at a time.</p>
-        <div class="game-keys"><a class="bui-key bui-arcade bui-cmd" href="${HUB}">${icon("cart", 16)}Visit DOM VIRUS ↗</a></div>
+        <p>The games built on Fizlet live on DOM VIRUS, the arcade: play them there. This site is about the engine underneath.</p>
+        <div class="game-keys"><a class="bui-key bui-arcade bui-cmd" href="${HUB}">${icon("cart", 16)}Play on DOM VIRUS ↗</a></div>
       </article>
       <article class="panel game">
-        <p class="eyebrow"><b>SQUAD TACTICS</b> · PORTING IN E3</p>
+        <p class="eyebrow"><b>SQUAD TACTICS</b> · ON FIZLET</p>
         <h3>DOM Battlefield</h3>
-        <p>Twelve tanks, one radio. The game whose board UI became this design system, and the next big port: then multiplayer, in E4.</p>
+        <p>Twelve tanks, one radio. The game whose board UI became this design system, now stepped by one Fizlet engine.</p>
         <div class="game-keys"><a class="bui-key bui-arcade bui-go" href="${BATTLEFIELD}">${icon("out", 16)}DOM Battlefield ↗</a></div>
       </article>
     </div>

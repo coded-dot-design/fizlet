@@ -1,0 +1,68 @@
+{
+  "slug": "determinism",
+  "section": "docs",
+  "order": 6,
+  "nav": "Determinism",
+  "eyebrow": "Docs · determinism",
+  "title": "Same seed,",
+  "subtitle": "same game.",
+  "summary": "A fixed step, a seeded random and state in typed arrays: runs replay, peers stay in lockstep, and syncCheck proves it.",
+  "lead": [
+    "A Fizlet sim that steps on a fixed `dt`, draws every random number from `engine.random` and keeps its state in typed arrays replays exactly from a seed. That is what makes a replay test possible, and what lets two players run the same game in lockstep with only their inputs crossing the wire."
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "heading": "The rules for a deterministic step",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**Seeded random only.** `engine.random()` is seeded by `createEngine({ seed })` and allocation-free; `engine.random.state` snapshots and restores it. No `Math.random` in the step.",
+            "**No clock in the step.** Use `dt` and `engine.steps` (an integer count of fixed steps), never `performance.now()` or `Date`.",
+            "**No layout reads.** A sim that reads the page depends on the screen. In net play, fix the arena size and scale the drawing.",
+            "**Inputs as bits.** Pack what a player does into one 32-bit word per frame; the step reads only the words.",
+            "**Nothing else moves on engine steps.** Anything that advances with the step (a drop timer, a random draw in an effect) must advance on the same frames on every peer."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "label": "SYNC CHECK",
+      "file": "sync.test.ts",
+      "src": "determinism.ts"
+    },
+    {
+      "type": "text",
+      "heading": "`syncCheck`: find the first frame that differs",
+      "body": [
+        {
+          "type": "p",
+          "text": "`syncCheck(setup, { players, frames, latency, jitter })` from `fizlet/presence/check` runs your sim as lockstep clients over an in-memory link with the latency and jitter you ask for, hashes each client's state every frame and returns `{ ok, frames, diverged, stalls }`. `diverged` is the first frame whose state differed, or -1. It is test-only code ({size:fizlet/presence/check} gzip) and never ships to players."
+        },
+        {
+          "type": "p",
+          "text": "The presence brick's own tests run two clients byte-identical for 3,000 frames with no latency, stay identical with delayed, jittered and reordered inputs at unequal frame rates, run four players at latency 3, and catch a forced desync at the next hash check."
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "Multiplayer rooms guide",
+          "href": "/guides/multiplayer-rooms/"
+        },
+        {
+          "label": "fizlet/presence",
+          "href": "/bricks/presence.html"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Deterministic games in Fizlet: seeds and lockstep",
+    "description": "Make a Fizlet sim replay from a seed: fixed step, seeded random, typed arrays and input bits. syncCheck finds the first frame where two peers differ."
+  }
+}

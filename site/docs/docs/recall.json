@@ -1,0 +1,96 @@
+{
+  "slug": "recall",
+  "section": "docs",
+  "order": 4,
+  "nav": "Recall and the ledger",
+  "eyebrow": "Docs · Recall",
+  "title": "Recall gives",
+  "subtitle": "the page back.",
+  "summary": "Every page change goes through one ledger: change-only writes, exact restore, and a newer host edit always wins.",
+  "lead": [
+    "Every change Fizlet makes to the page goes through one ledger. It records the original and what the engine wrote. `destroy()` puts back everything the engine still owns, newest first, and the DOM matches the snapshot taken before. That is Recall: the reason a game can knock a page's headings around and leave nothing behind."
+  ],
+  "blocks": [
+    {
+      "type": "code",
+      "label": "THE LEDGER",
+      "file": "scene.ts",
+      "src": "ledger.ts"
+    },
+    {
+      "type": "features",
+      "layout": "rows",
+      "heading": "What it owns",
+      "items": [
+        {
+          "title": "`ledger.text(node, value)`",
+          "body": "A text node's value: the 0s and 1s a shot leaves in a word. `fizlet/board-page` writes into the page's own Text nodes this way, with no wrappers or clones."
+        },
+        {
+          "title": "`ledger.style(el, prop, value)` and `unstyle`",
+          "body": "One inline style property: a transform, a custom property. A style attribute comes back byte for byte. `unstyle` puts one property back now and forgets it."
+        },
+        {
+          "title": "`ledger.attr(el, name, value)`",
+          "body": "An attribute, set or removed (`null`): `aria-busy`, `data-hp`."
+        },
+        {
+          "title": "`ledger.cls(el, name, on)`",
+          "body": "One class, added or removed: `smashed`, `burning`."
+        },
+        {
+          "title": "`ledger.add(node)`",
+          "body": "A node the engine put on the page (a canvas, an overlay, debris). Recall removes it."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "Three rules",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**Change-only.** Writing the value that is already there makes no mutation. A browser test writes the same value twice and counts zero.",
+            "**Host wins.** If the host page changed something after the engine did, the ledger stops writing it and never restores over it. A write returns `false` when the host got there first.",
+            "**Exact.** After `destroy()` the DOM matches a snapshot taken before the engine started, attribute for attribute and style text byte for byte. One `AbortSignal` also removes every listener and observer."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "`engine.ledger.restore()` is Recall without destroying the engine; the **Recall** key on the [home page demo](/) runs exactly that. Bricks that own an element (the touch pad, the perf overlay, the match overlay) add it through the ledger, so `engine.destroy()` takes them too."
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "q": "Why not just reload the page?",
+          "a": "Because the page is someone else's. A reload loses their state, their scroll and their form fields. Recall undoes only what the engine did, and leaves everything else as the visitor left it."
+        },
+        {
+          "q": "What if my code writes the DOM directly?",
+          "a": "Then Recall can't give it back. Write through `engine.ledger` (or a brick that does) in `render`, and the page comes back exactly."
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "Try Recall live",
+          "href": "/#play"
+        },
+        {
+          "label": "The loop",
+          "href": "/docs/loop/"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Recall: how Fizlet gives the page back",
+    "description": "Fizlet's ledger records every DOM change: change-only writes, an exact restore on destroy(), and a newer edit by the host page always wins."
+  }
+}

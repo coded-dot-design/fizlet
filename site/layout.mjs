@@ -9,9 +9,10 @@ export const REPO = "https://github.com/coded-dot-design/fizlet";
 export const SITE = new URL(process.env.FIZLET_SITE || "https://fizlet.com/").href;
 /** The site's root path on its host ("/" on fizlet.com): the 404 page links from it, at any depth. */
 export const ROOT = new URL(SITE).pathname;
-export const HUB = "https://coded-dot-design.github.io/dom-virus/";
-export const BATTLEFIELD = "https://coded-dot-design.github.io/dom-battlefield/";
-export const BLITZ = `${BATTLEFIELD}blitz/`;
+// The games live on DOM VIRUS (domvirus.com, the arcade catalog); Fizlet links there, never copies them.
+export const HUB = "https://domvirus.com/";
+export const BATTLEFIELD = "https://battlefield.domvirus.com/";
+export const BLITZ = "https://battlefieldblitz.domvirus.com/";
 export const AUTHOR = "https://coded.design";
 export const ENGINE_PLAN = "https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md";
 
@@ -53,13 +54,13 @@ export const mark = (size = 40) =>
   `<svg viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true" shape-rendering="crispEdges"><path d="M0 16h64M0 32h64M0 48h64M16 0v64M32 0v64M48 0v64" stroke="#19f0ff" stroke-opacity=".35"/><rect x="1" y="1" width="62" height="62" fill="none" stroke="#19f0ff" stroke-width="2"/><g fill="currentColor"><path fill-rule="evenodd" d="M8 30h26v26H8Zm7 7v12h12V37Z"/><path d="M36 18h14v14H36ZM40 40h8v8h-8Z"/></g><path d="M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z" fill="#ff2e88"/></svg>`;
 
 const NAV = [
-  ["contract", "Contract"],
+  ["docs/", "Docs"],
   ["bricks/", "Bricks"],
+  ["guides/", "Guides"],
+  ["notes/", "Notes"],
+  ["news/", "News"],
   ["gallery/", "Gallery"],
   ["heroes/", "Heroes"],
-  ["recall", "Recall"],
-  ["games", "Games"],
-  ["roadmap", "Roadmap"],
 ];
 
 /** JSON-LD: one @graph per page, every page carrying the site and its publisher. `<` is escaped. */
@@ -131,16 +132,27 @@ ${body}
       <p>Tiny physics for your page. A micro game engine for the DOM by <a href="${AUTHOR}">Chris Cooley</a>: the page is the board, and it always comes back.</p>
     </div>
     <div>
+      <h2>DOCS</h2>
+      <ul>
+        <li><a href="${home}docs/getting-started/">Getting started</a></li>
+        <li><a href="${home}docs/contract/">The contract</a></li>
+        <li><a href="${home}docs/loop/">The loop</a></li>
+        <li><a href="${home}docs/recall/">Recall and the ledger</a></li>
+        <li><a href="${home}docs/budgets/">Size budgets</a></li>
+        <li><a href="${home}docs/determinism/">Determinism</a></li>
+        <li><a href="${home}bricks/">Kernel and bricks</a></li>
+        <li><a href="${home}guides/">Guides</a></li>
+      </ul>
+    </div>
+    <div>
       <h2>ENGINE</h2>
       <ul>
-        <li><a href="${home}#contract">The contract</a></li>
-        <li><a href="${home}bricks/">Kernel and bricks</a></li>
+        <li><a href="${home}news/">News and releases</a></li>
         <li><a href="${home}gallery/">Gallery</a></li>
         <li><a href="${home}heroes/">Heroes</a></li>
         <li><a href="${home}notes/">Notes</a></li>
         <li><a href="${home}people/">People</a></li>
         <li><a href="${home}contest/">Daily contest</a></li>
-        <li><a href="${home}#recall">Recall</a></li>
         <li><a href="${home}#roadmap">Roadmap</a></li>
         <li><a href="${home}examples/quick-start.html">Quick start example</a></li>
       </ul>
@@ -161,6 +173,7 @@ ${body}
         <li><a href="${BATTLEFIELD}">DOM Battlefield ↗</a></li>
         <li><a href="${HUB}">DOM VIRUS arcade ↗</a></li>
       </ul>
+      <p class="foot-note">Fizlet is the engine; the games are on <a href="${HUB}">DOM VIRUS</a>.</p>
     </div>
   </div>
   <div class="foot-base">

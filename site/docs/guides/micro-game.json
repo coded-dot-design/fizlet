@@ -1,0 +1,103 @@
+{
+  "slug": "micro-game",
+  "section": "guides",
+  "order": 1,
+  "nav": "Build a micro game",
+  "eyebrow": "Guide · a micro game",
+  "title": "A micro game",
+  "subtitle": "in one file.",
+  "summary": "A 30-second click game on a canvas: typed-array state, a fixed step, pooled effects, a change-only HUD and Recall on Escape.",
+  "lead": [
+    "This guide builds a whole game in about 80 lines: squares drift around a canvas, a click pops the ones under the pointer, and a score and a 30-second clock count on the page. It uses the kernel and four bricks, keeps every rule of the [contract](/docs/contract/), and gives the page back on Escape."
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "heading": "1. The markup",
+      "body": [
+        {
+          "type": "p",
+          "text": "A root element holds the canvas and the readouts. The engine pauses when this root scrolls off screen, and the HUD looks up its readouts inside it."
+        },
+        {
+          "type": "p",
+          "text": "`<div id=\"game\"><canvas width=\"640\" height=\"360\" style=\"width:100%\"></canvas><p>Score <b data-score>0</b> · <b data-clock>0:30</b></p></div>`"
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "label": "THE GAME",
+      "file": "game.ts",
+      "src": "micro-game.ts"
+    },
+    {
+      "type": "features",
+      "layout": "steps",
+      "heading": "2. What each part does",
+      "items": [
+        {
+          "title": "State in typed arrays",
+          "body": "Positions, velocities, the score and the clock live in `Float64Array`s made once. The step reads and writes numbers only, so nothing is allocated while it plays (contract rule 3)."
+        },
+        {
+          "title": "`read` measures, `step` simulates",
+          "body": "The canvas's CSS width is read in `read`, once a frame. The step moves the squares at a fixed 60 Hz and checks the click with `circles` from `fizlet/collide`: no layout reads (rule 4)."
+        },
+        {
+          "title": "One click, one step",
+          "body": "`input.pointer.hit` is true in exactly one fixed step after a click, even if that step comes frames later, so a click never pops twice or gets lost."
+        },
+        {
+          "title": "Events, not callbacks",
+          "body": "A pop goes on the event ring in the step; `render` reads the ring and plays `fx.blast`. The effects are pooled (`cap: 240`): a full pool refuses particles and counts them, it never grows."
+        },
+        {
+          "title": "A HUD that writes only changes",
+          "body": "`hud(e, board).num(…)` compares each readout after rounding to what it shows and writes the page only when that changed, through the ledger. The clock is a slot in a typed array, so it never boxes a number."
+        },
+        {
+          "title": "Escape is Recall",
+          "body": "`e.destroy()` removes every listener (the keydown listener goes with `e.signal`) and undoes every page change the engine made."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "3. What it costs",
+      "body": [
+        {
+          "type": "p",
+          "text": "Each import is its own module with its own budget. Measured on this build, gzip, each with everything it imports: the kernel {size:fizlet (kernel)}, `fizlet/input` {size:fizlet/input}, `fizlet/fx` {size:fizlet/fx}, `fizlet/hud` {size:fizlet/hud}, `fizlet/collide` {size:fizlet/collide}. The kernel is shared, so a bundle of all five is smaller than their sum; bundle and gzip your build to see your exact number."
+        }
+      ]
+    },
+    {
+      "type": "features",
+      "layout": "rows",
+      "heading": "4. Where to take it",
+      "items": [
+        {
+          "title": "Sound",
+          "body": "`sound(e, { cues: { pop: \"boom\" } })` plays a synth cue for every `pop` on the ring: no audio files, at most 8 voices. [fizlet/sound](/bricks/sound.html)."
+        },
+        {
+          "title": "A start screen and a clock",
+          "body": "`match(e, root, { count: 3, seconds: 30 })` adds PRESS START, a 3-2-1, pause on Escape or P, and a result with REMATCH. [fizlet/match](/bricks/match.html)."
+        },
+        {
+          "title": "Touch controls",
+          "body": "`pad(e, input, { scheme: \"stick\" })` adds an on-screen stick and arcade keys that drive the same intents. [fizlet/pad](/bricks/pad.html)."
+        },
+        {
+          "title": "The page as the board",
+          "body": "`boardPage(e)` turns the page's own letters into terrain and its buttons into targets, and Recall gives every one back. [fizlet/board-page](/bricks/board-page.html)."
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Build a micro game with Fizlet in one file",
+    "description": "A step-by-step Fizlet guide: a canvas click game with typed-array state, a fixed 60 Hz step, pooled effects, a change-only HUD and Recall on Escape."
+  }
+}

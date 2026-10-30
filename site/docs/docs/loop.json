@@ -1,0 +1,119 @@
+{
+  "slug": "loop",
+  "section": "docs",
+  "order": 3,
+  "nav": "The loop",
+  "eyebrow": "Docs · the loop",
+  "title": "Read. Step. Render.",
+  "subtitle": "One clock for the page.",
+  "summary": "One shared requestAnimationFrame, a fixed 60 Hz step with a catch-up cap, three phases, auto-pause, settle and the fps cap.",
+  "lead": [
+    "Every engine on a page shares one `requestAnimationFrame`. Each frame runs three phases, in order, for every system: `read` measures the page, `step` simulates at a fixed rate with no DOM at all, and `render` writes only what changed. That split is why a game can share a page with someone else's layout and never force a reflow in its hot loop."
+  ],
+  "blocks": [
+    {
+      "type": "features",
+      "layout": "steps",
+      "heading": "One frame",
+      "items": [
+        {
+          "title": "read · once a frame",
+          "body": "The only phase that may measure the page: cached geometry, input edges latched. `fizlet/input` measures its target here, at most once a frame, and only when the pointer moved."
+        },
+        {
+          "title": "step · 0 to 4 times, dt = 1/60 s",
+          "body": "The simulation on plain numbers and typed arrays. No DOM reads, no DOM writes, no allocation. Things that happened go on the event ring (`engine.events.emit`)."
+        },
+        {
+          "title": "render · once a frame, with alpha",
+          "body": "Change-only writes through `engine.ledger`. Sound, effects and the HUD read the event ring here. `alpha` is how far the clock is between two steps, for smooth drawing."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "A fixed step",
+      "headingAccent": "that never spirals",
+      "body": [
+        {
+          "type": "p",
+          "text": "The step is fixed (default `1/60` s, the `step` option), so a game runs the same on a 30 Hz phone and a 144 Hz monitor. An accumulator collects real time and runs as many steps as fit. A slow frame runs at most `maxSteps` steps (default 4) and drops the rest of the time: it shows in `engine.stats().dropped`, and the next frame starts fresh instead of trying to catch up forever."
+        },
+        {
+          "type": "p",
+          "text": "`engine.advance(seconds)` runs time by hand, with no clock at all: that is how the tests, a headless run or a server step an engine."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "Pause by default",
+      "body": [
+        {
+          "type": "p",
+          "text": "An engine pauses on its own when the tab is hidden, the page is leaving, its root is scrolled off screen or the visitor is typing in one of the host page's fields. Reduced motion is opt-in (`pause: { reducedMotion: true }`), since most games calm their effects instead. Paused, it asks for no frames: zero CPU. `engine.paused` lists why."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "Settle and the fps cap",
+      "headingAccent": "for heroes and diagrams",
+      "body": [
+        {
+          "type": "p",
+          "text": "A page hero should cost nothing while it is still. With `settle: 0.5`, systems call `engine.busy()` in any frame where something moves; half a second after the last one, the engine sleeps: no `requestAnimationFrame` at all until `wake()`, its input or `start()`. Settling is not a pause: `pause` hooks don't run and held input stays."
+        },
+        {
+          "type": "p",
+          "text": "`fps: 30` caps an ambient loop. Since 0.19.0 it caps `requestAnimationFrame` itself, not just the work: between frames the engine leaves the shared clock and one timer brings it back. Measured in 0.19.0: a capped scene asks for 30 frames a second (the fizz and layers heroes), and an uncapped engine on the same page no longer drags a capped one along."
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "label": "SETTLE",
+      "file": "hero.ts",
+      "src": "settle.ts"
+    },
+    {
+      "type": "stats",
+      "heading": "The limits",
+      "items": [
+        {
+          "value": "1",
+          "label": "`requestAnimationFrame` per page, however many engines run"
+        },
+        {
+          "value": "60 Hz",
+          "label": "the default fixed step (`step: 1/60`)"
+        },
+        {
+          "value": "4",
+          "label": "catch-up steps a frame (`maxSteps`), then time drops"
+        },
+        {
+          "value": "64",
+          "label": "events a frame on the ring (`events`); full means dropped and counted"
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "q": "What happens when a hook throws?",
+          "a": "Only its own engine stops (`paused: [\"stopped\"]`; `start()` resumes) and the error goes to `onError(error, engine)`, by default `console.error`. The shared clock and every other engine keep running."
+        },
+        {
+          "q": "Can engines start or stop each other mid-frame?",
+          "a": "Yes. Engines may start, stop or destroy each other from inside a hook; every engine still runs once per frame on one `requestAnimationFrame`, and `engine.remove(system)` inside a hook never skips the next system."
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "The Fizlet loop: fixed step, one shared rAF",
+    "description": "How Fizlet runs a frame: read, step and render phases, a fixed 60 Hz step with a catch-up cap, auto-pause, settle and an fps cap for page heroes."
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "$comment": "Generated from the content model; do not edit by hand.",
+  "site": "fizlet",
+  "brand": "fizlet",
+  "games": [],
+  "date": "2026-10-31",
+  "status": "scheduled",
+  "publishAt": "2026-10-31",
+  "id": "blog-recall-the-page-always-comes-back",
+  "type": "blog",
+  "slug": "recall-the-page-always-comes-back",
+  "title": "Recall: the page always comes back",
+  "subtitle": "One ledger for every change, and how we test it.",
+  "eyebrow": "Field notes · Recall",
+  "tags": [
+    "fizlet",
+    "engine",
+    "recall",
+    "dom"
+  ],
+  "lead": [
+    "Fizlet runs on someone else's page, so it has to be able to leave. Every change it makes to the page goes through one ledger, and `destroy()` puts back everything the engine still owns, newest first. The DOM then matches a snapshot taken before the engine started. A newer edit by the page always wins."
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "heading": "One ledger",
+      "headingAccent": "five kinds of change",
+      "body": [
+        {
+          "type": "p",
+          "text": "The ledger knows five kinds of change, and the engine makes no others. `text(node, value)` sets a text node's value. `style(el, prop, value)` sets one inline style property. `attr(el, name, value)` sets or removes an attribute. `cls(el, name, on)` adds or removes a class. `add(node)` records a node the engine put on the page."
+        },
+        {
+          "type": "p",
+          "text": "Each records the original the first time it touches something, and what it wrote each time after. `restore()` walks that record backwards. A style attribute comes back byte for byte, not just the same property values."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "Three rules",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**Change-only.** Writing the value that is already there touches nothing. A browser test writes the same values twice and counts zero DOM mutations; the HUD's test counts 0 mutations over 120 frames where nothing changed.",
+            "**Host wins.** If the page changed something after the engine did, the ledger stops writing it and never restores over it. The write returns `false`, so a brick can tell.",
+            "**One signal.** Every listener and observer an engine adds is bound to one `AbortSignal`. `destroy()` aborts it, so nothing is left listening."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "features",
+      "layout": "rows",
+      "heading": "How the bricks use it",
+      "items": [
+        {
+          "title": "The page as the board",
+          "body": "`fizlet/board-page` turns a shot word's letters into 0s and 1s by writing into the page's own Text nodes with `ledger.text`: no wrappers, spans or clones. Recall gives every word back, byte for byte."
+        },
+        {
+          "title": "Timelines",
+          "body": "`fizlet/timeline` writes keyframe values through the ledger. Its browser test destroys a timeline mid-play on an element with its own inline style, and the style comes back byte for byte."
+        },
+        {
+          "title": "Things the engine adds",
+          "body": "The touch pad, the perf overlay and the match overlay each add one element through the ledger, so `engine.destroy()` removes them too. The perf test checks the host is back byte for byte."
+        },
+        {
+          "title": "Slots",
+          "body": "`fizlet/slot` mounts a scene in its own contained stage inside an Astro slot; `destroy()` puts the slot back exactly as the page drew it."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "Why not reload?",
+      "body": [
+        {
+          "type": "p",
+          "text": "A reload throws away the visitor's state: their scroll, their form fields, whatever the page's own code was doing. Recall undoes only what the engine did. That is what lets a game knock a page's headings around, or a hero take over a section, and leave it as the visitor left it."
+        },
+        {
+          "type": "p",
+          "text": "You can try it on the home page: blast the little page, then press **Recall**. That key runs `engine.ledger.restore()`, the same call `destroy()` makes."
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "q": "What if my own code writes the DOM?",
+          "a": "Then the ledger doesn't know about it and can't give it back. Write through `engine.ledger` in `render`, or use a brick that does."
+        },
+        {
+          "q": "Can I restore without destroying the engine?",
+          "a": "Yes: `engine.ledger.restore()`. The engine keeps running and the next write records a fresh original."
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "Recall in the docs",
+          "href": "/docs/recall/"
+        },
+        {
+          "label": "Try it live",
+          "href": "/#play"
+        },
+        {
+          "label": "The contract",
+          "href": "/docs/contract/"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Recall: how Fizlet gives the page back · Fizlet",
+    "description": "Fizlet writes every DOM change through one ledger: change-only, a newer host edit wins, and destroy() restores the page exactly. How, and how it's tested."
+  }
+}

@@ -22,7 +22,7 @@ export function inline(s, base) {
 const href = (h, base) => (h.startsWith("/") ? base + h.slice(1) : h);
 const KEYS = ["bui-sys", "bui-cmd", "bui-go"];
 
-function block(b, base) {
+export function block(b, base) {
   const h2 = (text) => (text ? `<h2>${inline(text, base)}${b.headingAccent ? `<br><em>${inline(b.headingAccent, base)}</em>` : ""}</h2>` : "");
   switch (b.type) {
     case "text":
