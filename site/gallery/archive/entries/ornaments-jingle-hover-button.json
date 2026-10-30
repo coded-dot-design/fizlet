@@ -1,13 +1,13 @@
 {
-  "no": 24,
-  "id": "red-laser-eyes-scan-heading",
+  "no": 17,
+  "id": "ornaments-jingle-hover-button",
   "date": "2026-10-30",
-  "prompt": "red laser eyes scan every heading",
-  "title": "Red laser eyes scan every heading",
+  "prompt": "ornaments jingle when you hover a button",
+  "title": "Ornaments jingle when you hover a button",
   "kind": "micro",
-  "theme": "heroes-comics",
+  "theme": "christmas",
   "author": "chris-cooley",
-  "recipe": "sweep",
+  "recipe": "jingle",
   "bricks": [
     "fizlet/kernel",
     "fizlet/board-page",
@@ -17,19 +17,20 @@
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 36,
+      "framesPlaying": 32,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 12.81,
-      "elementsLit": 3
+      "allocBytesPerFrame": 13.97,
+      "elementsLit": 2
     }
   },
   "fizlet": "0.16.0",
   "made": "fe anim",
-  "module": "anims/red-laser-eyes-scan-heading.ts",
+  "module": "anims/ornaments-jingle-hover-button.ts",
   "export": "mount",
   "aspect": "16 / 9",
-  "stage": "page"
+  "stage": "page",
+  "archived": true
 }
