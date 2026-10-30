@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Website: the team's AI agent on /people/.** Contributors get a third `kind`, `agent` (an AI
+  agent persona: a handle, no url, like a persona), and an optional `pronouns` string shown on the
+  profile. Every agent card and page says "AI agent — an AI agent persona on the Fizlet team, not a
+  real person" (`AGENT_NOTE`), its eyebrow reads AI AGENT and its JSON-LD stays a Thing, never a
+  Person. The index lists the maker, then the agents, then the house personas. First agent: Quill
+  (`site/contributors/quill.json`), the keeper, with an original pixel owl holding a quill. Chris
+  Cooley's role now reads "Chef Unicorn · creator of Fizlet". Tests: `tests/people.test.mjs`.
 - **Website: docs, guides and news for launch** (fizlet.com is the engine's tech resource; the games
   live on DOM VIRUS). New sections, every number filled in from the build, never typed:
   - `/docs/`: getting started, the contract, the loop, Recall and the ledger, size budgets (every

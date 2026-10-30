@@ -19,7 +19,7 @@ import { playFigure } from "../site/pages/index.mjs";
 import { buildGallery, personPath } from "./gallery.mjs";
 import { buildMake, snippetFor, TABLE as MAKE_TABLE } from "./make.mjs";
 import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
-import { CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
+import { AGENT_NOTE, CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
 import { BRICKS, PLANNED, brickPath } from "../site/bricks.mjs";
@@ -276,15 +276,15 @@ const pages = [
   })],
   ["people/index.html", page({
     title: "People: the maker and the house personas · Fizlet",
-    description: `Who makes Fizlet animations: Chris Cooley, and ${PEOPLE.length - 1} house personas (Fizlet characters, not real people), with their entries and bytes.`,
+    description: `Who makes Fizlet animations: Chris Cooley, ${PEOPLE.filter((p) => p.kind === "persona").length} house personas (Fizlet characters, not real people) and the team's AI agents, with their entries and bytes.`,
     base: "../", version, path: "people/", body: peopleIndex({ rows: people, base: "../" }), scripts: ["site.js"],
   })],
   ...people.map(({ person: p, stats }) => [`${personPath(p.id)}index.html`, page({
-    title: `${p.name}: ${p.kind === "owner" ? "maker of Fizlet" : "a house persona"} · Fizlet`,
+    title: `${p.name}: ${{ owner: "maker of Fizlet", persona: "a house persona", agent: "an AI agent on the team" }[p.kind]} · Fizlet`,
     description: p.description,
     base: "../../", version, path: personPath(p.id),
     ld: [{ "@type": "ProfilePage", "@id": `${SITE}${personPath(p.id)}#page`, url: SITE + personPath(p.id), name: p.name,
-      ...(p.kind === "owner" ? { mainEntity: { "@id": PERSON["@id"] } } : { about: { "@type": "Thing", name: p.name, description: `${PERSONA_NOTE}. ${p.bio}` } }) }],
+      ...(p.kind === "owner" ? { mainEntity: { "@id": PERSON["@id"] } } : { about: { "@type": "Thing", name: p.name, description: `${p.kind === "agent" ? AGENT_NOTE : PERSONA_NOTE}. ${p.bio}` } }) }],
     body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners }), scripts: ["site.js"],
   })]),
   ["contest/index.html", page({
