@@ -71,6 +71,11 @@
   scatter, the critter scene: a pumpkin pixel sprite, the scatter motion; kernel + sprite + slot):
   live 6,135 B · total 8,061 B gzip (with the 1,926 B loader) on this build, loaded only near the
   viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #059, "a pale green scanline haunts every heading".** Made by `fe anim` from
+  the prompt (recipe sweep, a page scene that reads the page's own headings and writes only through
+  the ledger; kernel + board-page + slot): live 9,285 B · total 11,211 B gzip (with the 1,926 B
+  loader) on this build, loaded only near the viewport, never under reduced motion; settles to zero
+  frames.
 
 ## 0.17.0
 
