@@ -244,6 +244,21 @@
   (its offset parent's padding box) once on pointerdown and sets only `left`, `top`, `right`,
   `bottom` and `translate`. `tests/drag.mjs` drags a card in a bordered board under a header,
   scrolled. Arcade with `hud` omitted: 17,964 B gzip (+52 B; budget 17,920 → 17,984).
+- **Gallery #051 "Big things, small packages"** (micro game, new theme Dev humor; approved by the
+  owner). A pixel dev drags a package.json crate across a Board UI arena while
+  dependencies keep raining onto it (twelve a round, never past seven high). Tap one to cut it: it
+  shatters into shards that bounce off the floor, the stack, the crate and the dev
+  (`fizlet/collide`), and what was above it drops with a bounce. Cut them all and the crate shrinks
+  to the glowing Fizlet box, which flies to his hands: "Big things come in small packages", with the
+  kernel's gzip size measured by the same build (`scripts/site.mjs` puts it on the figure as
+  `data-kernel-gzip`; without it the scene shows no number at all). Tap again to play again.
+  - One world, two outputs: `site/gallery/pieces/small-packages/world.ts` paints palette indices
+    (Board UI tokens, dark and light; the page's theme picks) for the live canvas and for the two
+    build-time posters (SVG runs). Reduced motion: the poster is the whole joke and a tap shrinks
+    it (a checkbox and `:has()`, no script; the scene never loads).
+  - Bricks: kernel, collide, slot. Live chunk 8,557 B gzip (≤ 9,728 B); settles to 0 frames,
+    pauses off screen, Recall exact (Chromium 153). `tests/small-packages.mjs` (in `test:browser`)
+    plays a round to the end with real clicks.
 - **Brick audit (2026-10-30), Board UI, coach and arcade.** Fixes with tests, no API change:
   - **Fix: the coach card's ring gives a control its own outline back.** `card().show(…, target)`
     set the target's inline `outline` and `outline-offset` and cleared them when the ring moved on,
@@ -276,10 +291,10 @@
     array: 22 young GCs per 400k sends, now 0. `tests/presence.test.mjs` (fake socket, best of 3).
     fizlet/presence 1,792 → 1,818 B gzip (budget 2,048).
   - `tests/camera.mjs` waits on frames until the engine settles instead of a 2 s wall-clock sleep.
-- **Sizes with release train 0.20.0's changes together** (#116, #103, #96, #113, #115, #114,
-  #117–#122, #111, #105; measured on the integrated branch against main before it; the numbers in
-  the bullets above are each change on its own). fizlet/arcade 21,976 → 24,337 B gzip (budget
-  24,377); the card build 17,966 → 18,355 (budget 18,373); fizlet/board-page 4,097 → 4,162 (4,193);
+- **Sizes with release train 0.20.0's changes together** (#103, #96, #113, #115, #114, #117–#122,
+  #111, #105; measured on the integrated branch against main with #116; the numbers in the bullets
+  above are each change on its own). fizlet/arcade 23,999 → 24,337 B gzip (budget 24,064 →
+  24,402); the card build 18,038 → 18,355 (budget 18,048 → 18,365); fizlet/board-page 4,097 → 4,162 (4,193);
   fizlet/pad 1,995 → 2,073 (2,126); the page build 7,129 → 7,169 (budget 7,168 → 7,208: #120's
   input and #122's kernel fit alone, together they pass 7 KB by 1 B); kernel 3,441 → 3,450. Pad's
   and board-page's exact `hypot` share code, so arcade rises 73 B for both, not 135.

@@ -150,6 +150,11 @@ mkdirSync(`${OUT}/contest`, { recursive: true });
 
 const sizes = await measure();
 const kernel = sizes[0];
+// Big things, small packages (gallery): its figure and its punchline carry the kernel's gzip size,
+// measured just above (never typed). The posters are painted here by the scene's own world.
+const spMod = await build({ entryPoints: ["site/gallery/pieces/small-packages/poster.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
+const SP = await import("data:text/javascript;base64," + Buffer.from(spMod.outputFiles[0].text).toString("base64"));
+for (const e of gallery.entries.filter((x) => x.module === "pieces/small-packages/scene.ts")) figures[e.figure] = SP.figure(e, sizes.find((s) => s.name === "fizlet (kernel)").gzip);
 // Every brick's API, from its source comment and its built declarations.
 const bricks = BRICKS.map((b) => {
   const mods = b.modules.map((m) => ({ ...m, ...api(m) }));
