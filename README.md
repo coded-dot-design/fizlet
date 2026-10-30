@@ -94,6 +94,7 @@ in included, 1 KB = 1024 bytes.
 | `fizlet/rules` | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
 | `fizlet/steer` | `steer({ cap, speed, turn, blocked, random })`: movers on typed arrays (`x`, `y`, heading `a`) with `seek`, `flee`, `arrive`, `wander` and `patrol`; a turn-rate-limited heading and per-axis wall slide (Blitz's tank drive); DOM-free, zero allocation | 0.9 KB |
 | `fizlet/coach` | `flag(key)` (a localStorage switch that never throws), `tour(engine, { steps, tips, every })` (tutorial steps, then tips in turn; `coach:step` on the ring; zero allocation) and `card(host, { onEnd })` (the Board UI coach card, rings the control it is about) | 1.2 KB |
+| `fizlet/timeline` | `timeline(engine, { repeat, yoyo, rate, motion })`: DOM choreography on the kernel clock. `to(targets, values, { dur, delay, ease, stagger, at })` keyframe tracks on CSS values (transform, opacity, clip-path, custom properties: the numbers change, the words stay) or typed-array numbers; `label`, `play`, `reverse`, `pause`, `seek`, `finish`, `revert`, `done()`; events on the ring; change-only writes through the ledger (Recall exact), settles when done, jumps to the end with reduced motion, no allocation per step | 2.0 KB |
 | `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 3.7 KB |
 | `fizlet/arcade` | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard chosen per game with `hud` (`arcadeHud()`: the card, the default; `skirmishHud()`: Blitz's bar with clock, rank, armor bar, feed, banner, overlays, aim toggles, counted keys), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 17.2 KB for a card game with every brick it composes; 21.1 KB with `skirmishHud` (in-page art via `ctx.attach`) |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.6 KB + 4.5 KB css |
@@ -525,6 +526,54 @@ if (!tips.on) {
   });
 }
 ```
+
+### Timeline (`fizlet/timeline`)
+
+Scripted DOM moves (a cartridge flies in and boots, a screen grows to full size, doors fold open,
+staggered entrances, a looping patrol) on the same clock as the game, instead of WAAPI or CSS
+keyframes. A track animates one property of one target through keyframes: CSS values whose numbers
+change and whose words stay (`"translate(0px,-8px)"`, `"inset(0 50% 0 0)"`, `"8px"`, `"0.5"`), or a
+slot of a typed array (a number your step reads). Easings: `linear`, `in`, `out` (default), `inOut`,
+`back`, `steps(n)` or your own function (sampled once into a table, so the step never calls it).
+
+```ts
+import { timeline } from "fizlet/timeline";
+
+const e = createEngine({ settle: 0.5 });
+const boot = timeline(e)                                       // paused until play()
+  .to(cart, { translate: ["0px -150px", "0px 0px"], rotate: ["-14deg", "0deg"] }, { dur: 0.7, ease: "back" })
+  .label("seated")                                              // its name goes on the ring as it passes
+  .to(screen, { "clip-path": ["inset(48% 50%)", "inset(0% 0%)"] }, { at: "seated", dur: 0.5 })
+  .to(deck, { "--glow": [0, 1, 0.35] }, { at: "<" })            // "<": with the track before
+  .to(lines, { opacity: [0, 1] }, { delay: -0.1, stagger: 0.15 }) // negative delay overlaps
+  .to(cart, { translate: "0px 12px" });                         // one value: from where it last ended
+e.start();
+boot.play();
+await boot.done();                                              // or "timeline:end" on the ring
+
+const patrol = timeline(e, { repeat: Infinity, yoyo: true })
+  .to(tank, { translate: ["0px 0px", "240px 0px"] }, { dur: 3, ease: "inOut" });
+patrol.play(); // patrol.pause(): no more frames once the engine settles
+```
+
+- **Where a track starts (`at`)**: by default at the end so far (one after another); `"<"` with the
+  track before; a label's name; or seconds. `delay` adds to it (negative overlaps), `stagger` spaces
+  the targets of one call.
+- **One property, several tracks**: the first holds its first keyframe until it starts; a later one
+  takes over once it starts.
+- **Controls**: `play()` (from the start when at the end), `reverse()`, `pause()`, `seek(sec)`,
+  `finish()` (the end in the next step), `revert()` (pause and give every property back now), and
+  `done()` (a promise for the next end). `time`, `duration`, `playing`, `reduced`.
+- **Events** on `engine.events` (`a` = the `id` option): `timeline:start`, `timeline:end`, and each
+  label's name (`b` = its index) as the playhead passes it, forward or back.
+- **Reduced motion**: by default `play()` lands on the end state in one step (a loop that runs
+  forever stops at the end of one play). Pass `motion: true` to animate anyway (a gentler variant you
+  build on `tl.reduced`), or `motion: false` to always jump.
+- **The contract**: time moves in the fixed step with no DOM access and no allocation (state in
+  typed arrays; a node test counts young-generation GCs); render writes only values that changed,
+  rounded to a thousandth, through the ledger, so `engine.destroy()` restores every property byte for
+  byte and a host edit wins. Done or paused, it never calls `busy()`, so the engine settles. An
+  object's property (not a typed array) is written in render, since storing a number there can box it.
 
 ### Arcade: a page game's shell
 

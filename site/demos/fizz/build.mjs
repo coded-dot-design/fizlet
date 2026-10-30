@@ -59,7 +59,7 @@ sizes.poster = gzipSync(poster).length;
 const m = existsSync(`${DIR}/measured.json`) ? JSON.parse(readFileSync(`${DIR}/measured.json`, "utf8")) : null;
 const fmt = (n) => n.toLocaleString("en-GB");
 const caption = [
-  `Live chunk <b>${fmt(sizes.chunk)} B</b> gzip (kernel + fx + sprite + camera + the can, both views)`,
+  `Live chunk <b>${fmt(sizes.chunk)} B</b> gzip (kernel + fx + sprite + the can, both views)`,
   `loader <b>${fmt(sizes.loader)} B</b> (fizlet/slot)`,
   `poster <b>${fmt(sizes.poster)} B</b>`,
   ...(m ? [
@@ -95,7 +95,7 @@ const body = `${CSS}
       <div>
         <p class="eyebrow"><span class="index">FZ</span> THE NAME · A PROOF PIECE</p>
         <h1 id="fz-title" class="fz-title">Crack the can.<br><em>Hear the fizz.</em></h1>
-        <p class="lead">The soda-ad shot. Tap the can: it crunches, the tab pops, and the fizz sprays clean out of the card. The camera pushes in on the opening, then cuts to the view straight down into the can.</p>
+        <p class="lead">The soda-ad shot. Tap the can: it crunches, the tab pops, and the fizz sprays clean out of the card. Two views tell it side by side: the can from the side, and straight down into it as it fizzes.</p>
         <p class="lead">By <a href="https://coded.design/">Chris Cooley</a>.</p>
       </div>
       <div class="panel lit fz-board">
@@ -112,7 +112,6 @@ const body = `${CSS}
       <div class="panel"><h2>Kernel</h2><p><code>settle</code> and <code>fps: 30</code>. It runs while something moves, then sleeps: no frames at all until a tap.</p></div>
       <div class="panel"><h2>fizlet/fx</h2><p>Two fixed pools. The spray flies on a layer above the card, so nothing crops it; the top view fizzes inside. Geyser, burst, bubbles, rings: kinds as data, sprayed with <code>emit()</code>.</p></div>
       <div class="panel"><h2>fizlet/sprite</h2><p>The can is pixel data: 20 × 40 from the side, 22 × 22 from the top, crunched or not. Baked once; the poster is the same pixels as SVG.</p></div>
-      <div class="panel"><h2>fizlet/camera</h2><p>It moves inside the card only: in on the opening, across to the top view, home. One eased transform through the ledger; it settles.</p></div>
       <div class="panel"><h2>fizlet/slot</h2><p>Loads near the viewport, on an idle main thread. Reduced motion keeps the still frame; the scene never loads.</p></div>
     </div>
   </div>

@@ -11,15 +11,88 @@
   writes through the ledger, seeded random; it settles when idle, sleeps off screen, and destroy()
   gives the figure back exactly. Attract mode plays for 12 s after a visit or the last input.
   Reduced motion: nothing plays on its own, the keys still work. `tests/labs.mjs` (Chromium).
-
+- **The fizz: the original can, without the zoom** (owner: "the og ones were good, just the zoom
+  needs to be killed"). The 20 × 40 can and its story are back (the 0.18.0 hi-def redraw stays in
+  history, to try other cans later; it never shipped in a release), and `fizlet/camera` is out: the card holds still, the side and
+  top views tell it. Live chunk 8,752 B gzip (9,455 B for the redraw, 9,710 B with the camera),
+  poster 3,457 B; settled 0 frames a second, measured in Chromium 153.
 - **Gallery: quality over quantity.** Of the 23 recipe entries made by `fe anim`, the owner kept 7
   (pink sparks, neon rain, POW BAM ZAP, speed lines, halftone wave, red cape, hero landing); the
   other 16 move into an archive, `gallery/archive/` (noindex, out of the gallery's index and
   search), kept to revisit and numbered A006–A025. The Christmas and
   Thanksgiving themes live only there. The gallery keeps the fizz, layers and how-it-works.
-
+- **`fizlet/timeline`** (new brick, 2,050 B gzip, budget 2,304; the target was 1,536): scripted DOM
+  choreography on the kernel clock, for the animations still on WAAPI or CSS keyframes (a cartridge
+  flying into a console, a screen growing through `clip-path`, doors folding open, staggered
+  entrances, looping patrols and diagram loops). `timeline(engine, { repeat, yoyo, rate, motion, id })`
+  and `.to(targets, values, { dur, delay, ease, stagger, at })`: keyframe tracks on CSS values (the
+  numbers change, the words stay: transform, translate, scale, rotate, opacity, clip-path, filter,
+  custom properties) or typed-array slots; easings `linear`, `in`, `out`, `inOut`, `back`,
+  `steps(n)` or a function, each sampled once into a shared 256-step table so the step never calls a
+  function (a call through a function value boxed a number per step in a node test once several
+  easings were in use); sequencing by default, `"<"`, labels, negative delays for overlap; `play`,
+  `reverse`, `pause`, `seek`, `finish`, `revert`, `done()`; `timeline:start`, `timeline:end` and
+  label names on the event ring. Writes happen in render through the ledger, change-only (values
+  rounded to a thousandth); done or paused it never calls `busy()`, so the engine settles. Reduced
+  motion: `play()` lands on the end state in one step (`motion: true` plays a variant built on
+  `tl.reduced`).
+  - Tests: `tests/timeline.test.mjs` (easings, interpolation, keyframes, sequencing, seek, reverse,
+    finish, repeat and yoyo labels, events and `done()`, `motion: false`, settle, revert, Recall, host
+    edits win, setup errors; zero allocation: at most 1 young-generation GC over 200k steps with
+    eight tracks and four easings, and over 200k whole frames once done) and `tests/timeline.mjs` in
+    Chromium (values mid-way on real elements, 0 frames requested once settled, done or paused,
+    Recall mid-play byte for byte with a host inline style, reduced motion lands on the end).
+  - Website: a brick page with a live demo (a cartridge seats in a console; the screen opens; the
+    lines stagger in).
+- **Kernel: the fps cap now caps requestAnimationFrame, not just the work** (real-browser audit,
+  `abe browse`). A capped engine used to keep asking for a frame every vsync and skip most of them,
+  so a 30 fps hero still cost 57–120 rAF calls a second (two heroes on the home page: 119.6 rAF/s at
+  1440). Now, after each frame it leaves the shared clock and one timer brings it back at its next
+  slot: 30 rAF/s for `fizz#hero` and `index#layers`, and an uncapped engine on the same page no
+  longer drags a capped one along. Something that puts it back early (a resume, a focus change)
+  gets one frame at once and the timer starts over. Kernel 3,439 B gzip (+17 B); `page build`
+  7,127 B (budget 7,168); layers live chunk 9,727 B (its ≤ 9,728 B budget). The `fizlet/board-page`
+  budget is 4,128 B (was 4,096): it was at 4,095 and esbuild's renamer moves it 2 B with any kernel
+  edit, though it bundles only the kernel's phase constants. Tests: rAF calls per
+  second at 60 and 120 Hz and a capped engine beside an uncapped one (`tests/kernel.test.mjs`, both
+  fail before), and the fizz story's real page-wide rAF count ≤ 33 a second (`tests/site.mjs`).
+- **Home demo settles.** The blast demo ("Blast it. Recall it.") ran its engine every vsync while on
+  screen even when nothing moved (60 rAF/s, blamed on whichever slot was in view: `fizz#hero` on the
+  home page, `gallery#howitworks` at 60.4). It now settles half a second after the last letter,
+  wave, particle and scorch mark stop (input wakes it; the HUD reads PAUSED · SETTLED), and its
+  CLICK THE PAGE blink pauses off screen (the gallery slot kept a CSS animation running offscreen at
+  390). Tests: settles untouched with 0 frames, and no running CSS animation in the gallery slot once
+  scrolled away (`tests/site.mjs`).
+- **Board UI contrast (tokens, both themes).** Every key label passes WCAG AA on its face: the
+  shortcut chip (`kbd`) fades to `--bui-kbd-alpha` 0.88 instead of 0.7 (rim ink on the command face
+  3.72 → 4.84:1, on the attack face 4.04 → 5.24:1); the light `--k-sys-ink` is one shade deeper,
+  `#006e91` (4.06 → 5.77:1 on white, 3.58 → 5.08:1 on the page); new derived `--k-cmd-deep`
+  (command 80% over the rim) under white text: the back tab 3.42 → 4.89:1; the PLAN sticker label is
+  rim ink (4.06 → 5.38:1); a dim aim key's face is aim at 18% (was 28%) so its `kbd` reads 4.69:1
+  (was 3.86), and the light `--k-fire-ink` is `#c01033` (its `kbd` on the light dim face 4.07 →
+  4.67:1, 5.0:1 on raised). Site: the `v0.2` chip sits on `--k-cmd-deep` (3.42 → 4.89:1) and the
+  light `--hl` is `#0b7a54` (4.36 → 5.35:1). Same hues; tokens.json, board-ui.css and BOARD-UI.md
+  agree. Measured with abe browse's own contrast check: 0 failures in dark (3 before) and light
+  (only the roadmap's large phase numbers remain in light).
+- **Tap targets on touch (≥ 44 px, nothing moves).** Text links grow their box with padding (taken
+  back with a negative margin where it would take room): footer, card titles, hero, gallery, notes,
+  brick contents and prev/next. The header icon keys are 44 px. Phone screenshots of every changed
+  page are pixel-identical. 668 → 24 small targets over the 30 pages at 390 px; the 24 left are the
+  copy keys, whose hit area grows instead (the kit's invisible `::before`) because their face can't.
+- **Website: the roadmap tells the truth again.** E2 lists rules, steer, coach, camera, perf and
+  arcade as shipped (timeline and layout to come); E3 is nearly done (Null Invaders, Byte Runner,
+  Sherman Bytes and DOM Battlefield at 1.0, Battlefield Blitz on Fizlet, Swarm Protocol 1.4 in
+  review) and adds "every animation on the sites on Fizlet, heroes first"; E4 adds the room
+  server's invite gate and spend caps; E5 adds the gallery and notes.
+- **`fizlet/arcade`: every HUD preset's panel drags** (owner: "the in-page scoreboard is always
+  draggable"). The arcade card and the skirmish bar move from anywhere that isn't a key, mouse or
+  touch, and stay on screen when the window shrinks (shared in `arcade-parts`). Browser test at 2×
+  for both presets: the canvas at CSS size, the drag, the clamp.
+- **Fix: games with `exactOptionalPropertyTypes` compile again.** `pressCue` (board-ui) and
+  `coach` passed an optional `signal` straight into listener options, which strict consumers (the
+  arcade games) reject; 0.18.0 broke their typecheck. Same runtime, no byte change. `npm run
+  typecheck` now also runs with `exactOptionalPropertyTypes`, so it can't regress.
 ## 0.18.0
-
 - **`fizlet/arcade` canvas fills its root on 2x/zoomed screens** (`width:100%;height:100%`): the backing store is `innerWidth × dpr` with no CSS size, so it drew 1.5–2× too big and game art sat away from the page targets (owner report; from fizlet#60).
 - **Arcade: an array of controls and scoreboards (`hud`)**, the first step of the plan to make
   DOM Battlefield / Blitz the standard game UI. `ArcadeDef` takes `hud`, a preset; each preset is

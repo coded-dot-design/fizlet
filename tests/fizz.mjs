@@ -1,5 +1,5 @@
 // The fizz demo (site/demos/fizz/) in Chromium: it mounts through fizlet/slot, animates (the can
-// crunches, the tab pops, the spray flies up out of the card, the camera moves inside the card and
+// crunches, the tab pops, the spray flies up out of the card, the card holds still (no camera) and
 // never the page), settles (no frames), wakes on a tap, Recall gives the page back byte for byte,
 // and reduced motion keeps the still poster (the scene never mounts).
 import assert from "node:assert/strict";
@@ -43,8 +43,8 @@ try {
     }));
     assert.deepEqual(mounted, { canvas: true, spray: true, host: "relative", poster: "none", hidden: "true" }, "mounts the card canvas in the slot stage and the spray layer over the host; the poster steps aside");
 
-    // Animates: the can crunches and pops by itself, the spray flies up out of the card, and the
-    // camera zooms inside the card (the world in the stage), never the page.
+    // Animates: the can crunches and pops by itself and the spray flies up out of the card. No zoom:
+    // nothing in the card or the page is ever transformed (owner: the camera is out).
     await p.waitForTimeout(1500);
     const world = "[data-fizlet-slot] > div";
     const mid = await p.evaluate((world) => {
@@ -56,8 +56,7 @@ try {
       return { frames: st.frames, live: st.paused.length === 0, transform: w.style.transform, origin: w.style.transformOrigin, page: document.getElementById("page").getAttribute("style"), out };
     }, world);
     assert.ok(mid.frames > 10 && mid.live, `animates (${mid.frames} frames)`);
-    assert.match(mid.transform, /^translate\(-?[0-9.]+px, -?[0-9.]+px\) scale\(1\.[0-9]+\)$/, `the card zooms through fizlet/camera (${mid.transform})`);
-    assert.equal(mid.origin, "0px 0px", "the camera transforms from the stage corner");
+    assert.equal(mid.transform, "", `the card never zooms (${mid.transform})`);
     assert.equal(mid.page, null, "the page itself never zooms");
     assert.ok(mid.out > 200, `the spray flies up out of the card (${mid.out} px above it)`);
     const px = await p.evaluate(() => {
@@ -75,16 +74,16 @@ try {
       await new Promise((r) => setTimeout(r, 600));
       return { more: scene.engine.stats().frames - a, transform: document.querySelector("[data-fizlet-slot] > div").style.transform };
     });
-    assert.deepEqual(still, { more: 0, transform: "" }, "settled: no frames, the camera home");
+    assert.deepEqual(still, { more: 0, transform: "" }, "settled: no frames, nothing transformed");
 
     // A tap on the can wakes it and cracks it again.
     const box = await p.locator("[data-fizlet-slot]").boundingBox();
     await p.mouse.click(box.x + box.width / 2, box.y + box.height * 0.7);
     await p.waitForTimeout(900);
     const again = await p.evaluate(() => ({ running: scene.engine.running, transform: document.querySelector("[data-fizlet-slot] > div").style.transform }));
-    assert.ok(again.running && /scale/.test(again.transform), "a tap crunches it again and the camera moves in");
+    assert.ok(again.running && again.transform === "", "a tap crunches it again, still without a zoom");
 
-    // Recall mid-zoom: the page comes back exactly.
+    // Recall mid-play: the page comes back exactly.
     const after = await p.evaluate(() => (hero.destroy(), { same: document.body.innerHTML === window.before, running: scene.engine.running }));
     assert.deepEqual(after, { same: true, running: false }, "Recall restores the page byte for byte");
     assert.deepEqual(errs, [], "no page errors");
@@ -106,7 +105,7 @@ try {
     assert.deepEqual(rm, { made: 0, mounted: false, same: true, poster: "inline" }, "reduced motion: still poster, no scene");
     await ctx.close();
   }
-  console.log("fizz: mounts, crunches, sprays out of the card, card-only camera, settles, wakes, Recall exact, reduced motion still — ok");
+  console.log("fizz: mounts, crunches, sprays out of the card, no zoom, settles, wakes, Recall exact, reduced motion still — ok");
 } finally {
   await browser.close();
 }

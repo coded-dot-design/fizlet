@@ -1,13 +1,12 @@
 // The fizz: an arcade soda can, side view and top-down view of the same moment. A tap crunches the
-// can, the tab pops, and the fizz sprays up and out of the card. fizlet/camera moves inside the card
-// only: in on the opening, across to the top view while it fizzes, then home.
+// can, the tab pops, and the fizz sprays up and out of the card. No camera: the card holds still and
+// the two views tell it (side and straight down into the can).
 // Bricks: the kernel (settle + fps cap), fizlet/fx (two pools: the spray on a layer above the card,
 // the top view's fizz inside it; kinds as data), fizlet/sprite (spriteURL: each frame of both views
-// becomes an image once, drawn crisp), fizlet/camera.
+// becomes an image once, drawn crisp).
 // Every node and style it adds goes through the engine's ledger, so Recall gives the page back.
 import { createEngine } from "../../../src/kernel/index";
 import { effects, emitter } from "../../../src/fx";
-import { camera } from "../../../src/camera";
 import { spriteURL, type SpriteDef } from "../../../src/sprite";
 import type { SlotScene, SlotTap } from "../../../src/slot";
 import { CAN, TOP, C, H, T, W } from "./can";
@@ -28,7 +27,7 @@ const COLORS = [C.ink, C.sys, C.go, C.aim, C.attack, C.muted];
 /** The scene. The spray flies over the slot's parent box (and up above the card, over the card's
  *  width only; it never takes a pointer). It crunches by itself after 0.8 s, or at once on a tap. */
 export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | null): FizzScene {
-  const Z = 1.8, host = slot.parentElement!;
+  const host = slot.parentElement!;
   const engine = createEngine({ root: stage, fps: 30, settle: 0.6 });
   const L = engine.ledger;
   // Two pools: the spray flies over the card (and out of it); the top view's fizz stays inside.
@@ -40,7 +39,7 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
   });
   const { ids: { pop }, emit: emitT } = emitter(fxT, { pop: { shape: sq, drag: 2, gravity: 0, angle: 0, spread: ROUND, speed: [8, 45], size: [1, 2], life: [0.35, 0.9] } });
 
-  // The card: a world inside the slot stage (the camera moves it; the stage clips it) holding one
+  // The card: a world inside the slot stage (the stage clips it) holding one
   // pixel canvas. The spray: a second pixel canvas over the host box, reaching up above the card.
   const world = L.add(document.createElement("div"));
   world.style.cssText = "position:absolute;inset:0";
@@ -52,7 +51,6 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
   if (getComputedStyle(host).position === "static") L.style(host, "position", "relative");
   host.append(layer);
   const ctx = canvas.getContext("2d")!, lx = layer.getContext("2d")!;
-  const cam = camera(engine, world);
 
   // Layout in art pixels (P CSS px each). Side can at K art px per sprite pixel, top view at KT.
   // x0, y0: the side can's top left; mx, my: its opening; hx, hy: the opening in the top view.
@@ -64,7 +62,6 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
   // The story, in seconds since the crunch (t; -1: not yet; the pop is at 0.3). The drip: its row
   // down the side (dy; -1: none yet; 36: it has reached the floor).
   let st = -1, wait = first ? 0 : 0.8, sn = 0, snt = 0, frame = 0, dy = -1, dirty = true;
-  const v = [0, 0]; // camera scratch, reused (no allocation per frame)
 
   // Each frame of both views, rasterised once into a bitmap at its pixel size (side: sealed, open,
   // crunched, crunched open), then scaled up crisp: no SVG work per frame.
@@ -86,7 +83,7 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
       P = Math.min(4, Math.max(2, Math.round(q.height / 150)));
       canvas.style.width = (w = canvas.width = Math.ceil(q.width / P)) * P + "px";
       canvas.style.height = (h = canvas.height = Math.ceil(q.height / P)) * P + "px";
-      // The spray layer, at full CSS resolution (crisp under the zoom): the card's width, from 70%
+      // The spray layer, at full CSS resolution (crisp): the card's width, from 70%
       // of the card's height above it down to its bottom. Its own edges clip the spray.
       const up = Math.round(q.height * 0.7);
       oy = q.top - r.top + up;
@@ -128,10 +125,7 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
           fx.spawn(RING, mx, my, 0, 0, 3 * K, 0.5, INK);
           fx.word(mx - 6 * K, my - 8 * K, 1, SYS, 5 * K);
           emitT(pop, hx, hy, 40, INK, 2, KT);
-          cam.to(mx * P, my * P, Z); // in on the opening
         }
-        if (at(1.4)) cam.to(hx * P, hy * P, Z); // across to the top view: a zoom about its opening
-        if (at(3)) cam.home();
         if (at(0.9)) emit(burst, mx, my, 70, 0, 4, K); // a glug
         // The fizz: a geyser and bubbles off the side, pops and rings in the top view, easing off.
         if (p > 0 && p < 2.8) {
@@ -175,13 +169,10 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
         else ctx.fillRect(x, by, K * 3, K); // the puddle
       }
       fxT.draw(ctx);
-      // The spray layer, under the camera's own transform, so the spray leaves the can where the
-      // card shows it, and only ever flies up and out of the top.
-      const z = cam.zoom;
-      cam.toWorld(0, 0, v);
+      // The spray layer: art pixels scaled to CSS px, shifted down by the headroom above the card.
       lx.resetTransform();
       lx.clearRect(0, 0, layer.width, layer.height);
-      lx.setTransform(z * P, 0, 0, z * P, -v[0]! * z, oy - v[1]! * z);
+      lx.setTransform(P, 0, 0, P, 0, oy);
       fx.draw(lx);
     },
   });
