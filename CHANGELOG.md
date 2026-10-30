@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.19.0
 
 - **The fizz: the original can, without the zoom** (owner: "the og ones were good, just the zoom
   needs to be killed"). The 20 × 40 can and its story are back (the 0.18.0 hi-def redraw stays in
