@@ -41,6 +41,9 @@ export const BUDGETS = [
   // Pinch and iOS gesture lock on the animation and game surfaces, one delegated listener set:
   // 310 B gz when added.
   ["fizlet/touch", "src/touch.ts", 512],
+  // Units, bots and shots as one fixed table of typed arrays (E11): spawn, kill, sweep, handles,
+  // side counts, tags, nearest. Measured when added (see the CHANGELOG); planned target 1,229.
+  ["fizlet/actor", "src/actor.ts", 1229],
   // A page's own CSS @keyframes on the kernel clock: 5,363 B gz with the kernel and timeline it
   // composes when added; its own code is 477 B (on a page the kernel and timeline are shared).
   ["fizlet/css-clock", "src/css-clock.ts", 5632],

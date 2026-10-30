@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+- **`fizlet/actor`** (new brick, E11, EXPERIMENTAL; 908 B gz, budget 1,229 = its planned target):
+  units, bots, turrets and shots as one fixed-capacity table of typed arrays, the part every board
+  game still writes itself (DOM Battlefield's `Unit` objects and its arena's hand-written
+  swap-remove, Blitz's `Tank` roster, Swarm's 37 parallel arrays). `actors({ cap, sides, x, y, a,
+  events })`: rows with `alive`, `side`, `kind`, `tags`, `hp` / `max` and a body (`x`, `y`, `a`,
+  `vx`, `vy`, `r`); a game's own fields are its own arrays of length `cap`, indexed by row.
+  - `spawn(side, hp, kind, tags)` takes a free row (-1 when full); `kill` marks it dead at once
+    (out of `count(side)` and `live`) and `sweep()`, once per step after the loops that kill, gives
+    the rows back. The list keeps spawn order through sweeps, so killing mid-loop never skips or
+    repeats an actor and a seeded run replays row for row.
+  - `hurt(i, damage)` is true on the kill; `heal` never goes over max; tag bits with `has` / `tag`;
+    `nearest(i, range, sides, tags)` (side bits, inclusive range, squared distances: exact, no
+    `hypot` needed; ties to the earlier spawn).
+  - Handles outlive rows: `ref(i)` / `get(handle)` is -1 once that actor is gone, even when its row
+    lives again (always a small integer, never a boxed double).
+  - Shares a body with `fizlet/steer`: `actors({ cap, x: m.x, y: m.y, a: m.a })`.
+  - With `events: engine.events` it rings `actor:spawn`, `actor:hurt`, `actor:kill` (row, side,
+    where in whole pixels, damage). Whole pixels because a double handed to the ring from a step too
+    big to inline costs a heap number; a small integer never does.
+  - Tests: `tests/actor.test.mjs` (spawn and refuse, kill and sweep order, killing mid-loop, hurt and
+    heal with events, stale handles at any capacity, tags, nearest, a shared steer body, a seeded
+    replay, 0 young GCs over 1M steps of 48 actors spawning, fighting and dying, best of 3 windows).
+  - Status: EXPERIMENTAL in `site/bricks.mjs` (since 0.21.0) with a generated brick page and a
+    README row; BETA once a board game runs on it. Out of PLANNED; E11 lists it as shipped, with
+    `fizlet/aim` and `fizlet/view-dom` still planned.
+
 - Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`

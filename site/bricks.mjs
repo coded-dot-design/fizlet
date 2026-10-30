@@ -130,6 +130,13 @@ lockTouch(document, null); // a full-screen board: the whole page` },
 
 const c = cssClock(diagram, { span: 6, loops: 3 }); // rests on frame one, settles
 pauseButton.onclick = () => c.hold(!held); // c.destroy() gives the page back` },
+  { id: "actor", status: "experimental", since: "0.21.0", tests: ["actor.test.mjs"], used: [],
+    tag: "ACTOR", role: "cmd", modules: [mod("fizlet/actor", "actor")],
+    snippet: `const A = actors({ cap: 64, sides: 2, events: e.events });
+const i = A.spawn(0, 5); A.x[i] = 120; A.y[i] = 80; // side 0, 5 hp
+const foe = A.nearest(i, 300, 1 << 1);  // closest side-1 actor in range
+if (foe >= 0 && A.hurt(foe, 1)) score++; // true: that killed it
+A.sweep(); // once per step: dead rows come back` },
   { id: "arcade", status: "complete", since: "0.11.0", tests: ["arcade.mjs", "arcade-game.mjs", "arcade-hud.mjs"], used: ["Null Invaders 1.0", "Byte Runner 1.0", "Sherman Bytes 1.0"],
     tag: "ARCADE", role: "go", modules: [mod("fizlet/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
@@ -154,7 +161,6 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
 export const PLANNED = [
   { name: "fizlet/layout", phase: "E10", purpose: "Force-directed layout on typed arrays with a Barnes-Hut pass: diagrams and graphs that settle.", target: 2048, needs: ["fizlet", "fizlet/camera"] },
   { name: "fizlet/view-canvas", phase: "E10", purpose: "One overlay canvas per root, sized for the screen's pixel density, redrawn only where something changed.", target: 1229, needs: ["fizlet"] },
-  { name: "fizlet/actor", phase: "E11", purpose: "Entities on typed arrays: spawn, kill, side, health and tags, with fixed capacity.", target: 1229, needs: ["fizlet"] },
   { name: "fizlet/aim", phase: "E11", purpose: "Lead targeting, firing cones and line of sight for bots and turrets.", target: 1024, needs: ["fizlet/steer", "fizlet/grid"] },
   { name: "fizlet/view-dom", phase: "E11", purpose: "Pooled DOM nodes bound to actors, written change-only through the ledger.", target: 1536, needs: ["fizlet/actor"] },
   { name: "fizlet/snapshot", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["fizlet/presence", "fizlet/actor"] },
