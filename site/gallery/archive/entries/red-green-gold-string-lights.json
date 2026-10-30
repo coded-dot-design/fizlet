@@ -1,33 +1,36 @@
 {
-  "no": 18,
-  "id": "gold-stars-pop-twinkle-tap",
+  "no": 14,
+  "id": "red-green-gold-string-lights",
   "date": "2026-10-30",
-  "prompt": "gold stars pop and twinkle where you tap",
-  "title": "Gold stars pop and twinkle where you tap",
+  "prompt": "red green and gold string lights twinkle on the nav",
+  "title": "Red green and gold string lights twinkle on the nav",
   "kind": "micro",
   "theme": "christmas",
   "author": "chris-cooley",
-  "recipe": "burst",
+  "recipe": "lights",
   "bricks": [
     "fizlet/kernel",
-    "fizlet/fx",
+    "fizlet/board-page",
     "fizlet/slot"
   ],
   "pageCost": {
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 31,
+      "framesPlaying": 35,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 1.2
+      "allocBytesPerFrame": 12.66,
+      "elementsLit": 2
     }
   },
   "fizlet": "0.16.0",
   "made": "fe anim",
-  "module": "anims/gold-stars-pop-twinkle-tap.ts",
+  "module": "anims/red-green-gold-string-lights.ts",
   "export": "mount",
-  "aspect": "16 / 9"
+  "aspect": "16 / 9",
+  "stage": "page",
+  "archived": true
 }

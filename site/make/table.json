@@ -198,6 +198,26 @@
       "scale": 1,
       "verbs": "\\b(pool|pools|pooling|puddle|puddles|collect|collects|collecting|gather|gathers|gathering)\\b",
       "nouns": "\\b(puddle|puddles)\\b"
+    },
+    "fight": {
+      "scene": "fight",
+      "colors": [
+        "hurt",
+        "attack",
+        "flag"
+      ],
+      "loop": 4,
+      "scale": 1,
+      "verbs": "\\b(fights?|fighting|vs|versus|battles?|punch|punches|punching|jabs?|duels?|spars?|ko|knocks? out)\\b",
+      "nouns": "\\b(transformers?|diffusers?|tokeni[sz]ers?|hallucinators?|context windows?|overfitters?|robots?)\\b"
+    },
+    "meme": {
+      "scene": "meme",
+      "colors": [],
+      "loop": 3,
+      "scale": 1,
+      "verbs": "\\b(to the moon|launch|launches|launching|diamond hands|hodl|pumps?|dumps?|mascot)\\b",
+      "nouns": "\\b(rocket|rockets|moon|candles?|chart|meme|memes)\\b"
     }
   },
   "select": [
@@ -474,6 +494,106 @@
       }
     }
   },
+  "fighters": {
+    "transformer": {
+      "re": "\\btransformers?\\b",
+      "role": "sys"
+    },
+    "diffuser": {
+      "re": "\\bdiffusers?\\b",
+      "role": "cmd"
+    },
+    "tokenizer": {
+      "re": "\\btokeni[sz]ers?\\b",
+      "role": "advance"
+    },
+    "hallucinator": {
+      "re": "\\bhallucinators?\\b",
+      "role": "attack"
+    },
+    "context": {
+      "re": "\\bcontext windows?\\b",
+      "role": "go"
+    },
+    "overfitter": {
+      "re": "\\boverfitters?\\b",
+      "role": "fallin"
+    }
+  },
+  "gags": {
+    "combo": {
+      "re": "\\b(combo|combos|counts?|counting)\\b",
+      "star": "tokenizer",
+      "foe": "overfitter"
+    },
+    "overflow": {
+      "re": "\\b(overflows?|overflowing)\\b",
+      "star": "context",
+      "foe": "transformer"
+    },
+    "hallucinate": {
+      "re": "\\b(mirages?|ghosts?|hallucinates?|imaginary)\\b",
+      "star": "hallucinator",
+      "foe": "tokenizer"
+    },
+    "overfit": {
+      "re": "\\b(blocks?|blocking|trained)\\b",
+      "star": "overfitter",
+      "foe": "diffuser"
+    },
+    "diffuse": {
+      "re": "\\b(denoises?|denoising|static|noise)\\b",
+      "star": "diffuser",
+      "foe": "transformer"
+    },
+    "ko": {
+      "re": "\\b(ko|knocks? out|knockout)\\b",
+      "star": "transformer",
+      "foe": "diffuser"
+    }
+  },
+  "bits": {
+    "rocket": {
+      "re": "\\b(rocket|rockets|moon|launch|launches|launching)\\b",
+      "colors": [
+        "attack",
+        "sys",
+        "hurt",
+        "hurt",
+        "flag"
+      ]
+    },
+    "diamond": {
+      "re": "\\b(diamond|diamonds|hands|hodl|gem)\\b",
+      "colors": [
+        "sys",
+        "aim",
+        "hurt",
+        "attack",
+        "flag"
+      ]
+    },
+    "candles": {
+      "re": "\\b(candles?|chart|pumps?|dumps?)\\b",
+      "colors": [
+        "go",
+        "fire",
+        "hurt",
+        "flag",
+        "flag"
+      ]
+    },
+    "laser": {
+      "re": "\\b(laser eyes|lasers?|eyes|mascot)\\b",
+      "colors": [
+        "advance",
+        "fire",
+        "hurt",
+        "attack",
+        "flag"
+      ]
+    }
+  },
   "fxBuiltins": {
     "bubble": "BUBBLE",
     "spark": "SPARK",
@@ -647,6 +767,18 @@
     "decor": [
       "fizlet/kernel",
       "fizlet/board-page",
+      "fizlet/slot"
+    ],
+    "fight": [
+      "fizlet/kernel",
+      "fizlet/sprite",
+      "fizlet/fx",
+      "fizlet/slot"
+    ],
+    "meme": [
+      "fizlet/kernel",
+      "fizlet/sprite",
+      "fizlet/fx",
       "fizlet/slot"
     ]
   },

@@ -21,7 +21,7 @@ const env = { ...process.env, WRANGLER_SEND_METRICS: "false", CI: "1" };
 
 // Seed the local KV with the test invite (its hash, as the owner's invite tool does).
 execFileSync("npx", ["wrangler", "kv", "key", "put", "--binding", "INVITES", await inviteKey(CODE), "e2e", "--local", "--persist-to", state], { cwd, env, stdio: "pipe" });
-const dev = spawn("npx", ["wrangler", "dev", "--local", "--port", String(PORT), "--ip", "127.0.0.1", "--persist-to", state, "--var", "IDLE_SECONDS:3", "--var", "MAX_ROOMS:4"], { cwd, env, detached: true });
+const dev = spawn("npx", ["wrangler", "dev", "--local", "--port", String(PORT), "--ip", "127.0.0.1", "--persist-to", state, "--var", "IDLE_SECONDS:3", "--var", "MAX_ROOMS:4", "--var", "ALLOWED_ORIGINS:"], { cwd, env, detached: true });
 let log = "";
 dev.stdout.on("data", (d) => (log += d));
 dev.stderr.on("data", (d) => (log += d));

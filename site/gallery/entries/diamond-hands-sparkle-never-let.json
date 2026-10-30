@@ -1,15 +1,16 @@
 {
-  "no": 9,
-  "id": "white-steam-rises-gently-off",
+  "no": 39,
+  "id": "diamond-hands-sparkle-never-let",
   "date": "2026-10-30",
-  "prompt": "white steam rises gently off a warm pie",
-  "title": "White steam rises gently off a warm pie",
+  "prompt": "diamond hands sparkle and never let go",
+  "title": "Diamond hands sparkle and never let go",
   "kind": "micro",
-  "theme": "thanksgiving",
+  "theme": "crypto-memes",
   "author": "chris-cooley",
-  "recipe": "rise",
+  "recipe": "meme",
   "bricks": [
     "fizlet/kernel",
+    "fizlet/sprite",
     "fizlet/fx",
     "fizlet/slot"
   ],
@@ -17,17 +18,17 @@
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 34,
+      "framesPlaying": 32,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 9
+      "allocBytesPerFrame": 16.88
     }
   },
-  "fizlet": "0.16.0",
+  "fizlet": "0.17.0",
   "made": "fe anim",
-  "module": "anims/white-steam-rises-gently-off.ts",
+  "module": "anims/diamond-hands-sparkle-never-let.ts",
   "export": "mount",
   "aspect": "16 / 9"
 }

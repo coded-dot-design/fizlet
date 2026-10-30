@@ -54,19 +54,34 @@ export function matchPrompt(table, prompt) {
   const loop = re(T.loop).test(text);
   const page = (T.pageScenes ?? ["page"]).includes(R.scene);
   const sel = page ? first(text, T.select.map(([src, css]) => [css, src])) : null;
+  // A bout: its gag, then its cast in the order the prompt names them (else the gag's own); a bit.
+  const fight = R.scene === "fight", meme = R.scene === "meme";
+  const gag = fight ? first(text, Object.entries(T.gags).map(([n, v]) => [n, v.re])) : null;
+  const cast = fight ? Object.entries(T.fighters).map(([n, v]) => ({ name: n, m: re(v.re).exec(text) })).filter((c) => c.m).sort((a, b) => a.m.index - b.m.index) : [];
+  const bit = meme ? first(text, Object.entries(T.bits).map(([n, v]) => [n, v.re])) : null;
   const matched = {
     recipe: r ? [...hits(R.verbs, text), ...hits(R.nouns, text)] : [],
-    kind: k ? hits(T.kinds[k.name].re, text) : [],
+    kind: gag ? hits(T.gags[gag.name].re, text) : bit ? hits(T.bits[bit.name].re, text) : fight || meme ? [] : k ? hits(T.kinds[k.name].re, text) : [],
     colors: colorHits.flatMap(([src]) => hits(src, text)),
     amount: [...amountHits, ...scaleHits].flatMap(([src]) => hits(src, text)),
     loop: hits(T.loop, text),
     select: sel ? [sel.word] : [],
     tap: hits(T.tap, text),
+    ...(fight && { cast: cast.map((c) => c.m[0]) }),
   };
   if (comic.length) matched.words = comic;
   matched.miss = missesOf(T, p, matched);
   let params;
-  if (page) {
+  if (fight) {
+    const g = gag?.name ?? "ko", G = T.gags[g];
+    const a = cast[0]?.name ?? G.star, b = cast[1]?.name ?? (G.foe !== a ? G.foe : G.star !== a ? G.star : "diffuser");
+    // A colour word recolours the star; the opponent, sparks, KO and white come from the recipe.
+    params = { gag: g, a, b, colors: [colorHits.length ? colorHits[0][1][0] : T.fighters[a].role, T.fighters[b].role, ...R.colors], loop: loop ? R.loop : 0, scale: Math.round(scale * 100) / 100 };
+  } else if (meme) {
+    const b = bit?.name ?? "rocket", C = [...T.bits[b].colors];
+    if (colorHits.length) C[0] = colorHits[0][1][0];
+    params = { bit: b, colors: C, loop: loop ? R.loop : 0, scale: Math.round(scale * 100) / 100 };
+  } else if (page) {
     params = {
       effect: R.effect,
       select: sel?.name ?? R.select,

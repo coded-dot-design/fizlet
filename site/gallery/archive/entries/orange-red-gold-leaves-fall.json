@@ -1,13 +1,13 @@
 {
-  "no": 12,
-  "id": "orange-embers-rise-harvest-fire",
+  "no": 7,
+  "id": "orange-red-gold-leaves-fall",
   "date": "2026-10-30",
-  "prompt": "orange embers rise from the harvest fire",
-  "title": "Orange embers rise from the harvest fire",
+  "prompt": "orange red and gold leaves fall gently",
+  "title": "Orange red and gold leaves fall gently",
   "kind": "micro",
   "theme": "thanksgiving",
   "author": "chris-cooley",
-  "recipe": "rise",
+  "recipe": "fall",
   "bricks": [
     "fizlet/kernel",
     "fizlet/fx",
@@ -17,17 +17,18 @@
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 34,
+      "framesPlaying": 33,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 16.94
+      "allocBytesPerFrame": 10.55
     }
   },
   "fizlet": "0.16.0",
   "made": "fe anim",
-  "module": "anims/orange-embers-rise-harvest-fire.ts",
+  "module": "anims/orange-red-gold-leaves-fall.ts",
   "export": "mount",
-  "aspect": "16 / 9"
+  "aspect": "16 / 9",
+  "archived": true
 }

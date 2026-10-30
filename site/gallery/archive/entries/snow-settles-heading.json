@@ -1,13 +1,13 @@
 {
-  "no": 24,
-  "id": "red-laser-eyes-scan-heading",
+  "no": 13,
+  "id": "snow-settles-heading",
   "date": "2026-10-30",
-  "prompt": "red laser eyes scan every heading",
-  "title": "Red laser eyes scan every heading",
+  "prompt": "snow settles on every heading",
+  "title": "Snow settles on every heading",
   "kind": "micro",
-  "theme": "heroes-comics",
+  "theme": "christmas",
   "author": "chris-cooley",
-  "recipe": "sweep",
+  "recipe": "settle",
   "bricks": [
     "fizlet/kernel",
     "fizlet/board-page",
@@ -17,19 +17,20 @@
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 36,
+      "framesPlaying": 35,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 12.81,
-      "elementsLit": 3
+      "allocBytesPerFrame": 12.44,
+      "elementsLit": 1
     }
   },
   "fizlet": "0.16.0",
   "made": "fe anim",
-  "module": "anims/red-laser-eyes-scan-heading.ts",
+  "module": "anims/snow-settles-heading.ts",
   "export": "mount",
   "aspect": "16 / 9",
-  "stage": "page"
+  "stage": "page",
+  "archived": true
 }

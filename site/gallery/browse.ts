@@ -26,8 +26,13 @@ for (const c of chips)
       history.replaceState(null, "", next === "all" ? location.pathname : `#theme-${next}`);
     }
   });
-const fromHash = location.hash.match(/^#theme-([a-z0-9-]+)$/)?.[1];
-if (fromHash) filter(fromHash);
+// A #theme- address filters on arrival, and when the address changes on the same page (a link, back).
+const fromHash = () => {
+  const id = location.hash.match(/^#theme-([a-z0-9-]+)$/)?.[1];
+  if (id) filter(id);
+};
+fromHash();
+addEventListener("hashchange", fromHash);
 
 // ---------- Search: the generated index, matched on the page ----------
 const form = document.querySelector<HTMLFormElement>("form[data-gal-search]");

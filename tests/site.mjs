@@ -96,7 +96,10 @@ try {
   // Search snippets: every indexable page has its own title (30–60) and description (70–155), and
   // JSON-LD that parses; sitemap.xml and llms.txt list exactly those pages; robots.txt points at both.
   const sitemap = readFileSync(`${ROOT}/sitemap.xml`, "utf8"), llms = readFileSync(`${ROOT}/llms.txt`, "utf8"), robots = readFileSync(`${ROOT}/robots.txt`, "utf8");
-  const indexable = PAGES.filter((p) => p !== "404.html");
+  const fileOf = (path) => `${ROOT}/${path === "" || path.endsWith("/") ? `${path}index.html` : path}`;
+  // Indexable: not the 404, not a noindex page (the gallery archive).
+  const indexable = PAGES.filter((p) => p !== "404.html" && !/<meta name="robots" content="[^"]*noindex/i.test(readFileSync(fileOf(p), "utf8")));
+  assert.ok(PAGES.includes("gallery/archive/") && !indexable.includes("gallery/archive/"), "the gallery archive is built and kept out of search");
   const heads = indexable.map((path) => {
     const html = readFileSync(`${ROOT}/${path === "" || path.endsWith("/") ? `${path}index.html` : path}`, "utf8");
     for (const [, ld] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(ld);
@@ -452,7 +455,8 @@ try {
   where = "gallery, offscreen";
   {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
-    const { page, errors } = await open(context, "gallery/");
+    // howitworks is the oldest entry: once the gallery is paginated it lives on a later page.
+    const { page, errors } = await open(context, GPAGES.find((p) => p.entries.some((e) => e.id === "howitworks")).path);
     const fig = "figure[data-slot-target='gallery#howitworks']";
     await page.$eval(fig, (el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
     await page.waitForSelector(`${fig} [data-demo]`, { timeout: 8000 });

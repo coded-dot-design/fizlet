@@ -1,15 +1,16 @@
 {
-  "no": 16,
-  "id": "sleigh-streaks-top-gold-sparkles",
+  "no": 36,
+  "id": "overfitter-blocks-jab-trained",
   "date": "2026-10-30",
-  "prompt": "a sleigh streaks across the top with gold sparkles",
-  "title": "A sleigh streaks across the top with gold sparkles",
+  "prompt": "the overfitter blocks every jab it trained on",
+  "title": "The overfitter blocks every jab it trained on",
   "kind": "micro",
-  "theme": "christmas",
+  "theme": "model-battles",
   "author": "chris-cooley",
-  "recipe": "trail",
+  "recipe": "fight",
   "bricks": [
     "fizlet/kernel",
+    "fizlet/sprite",
     "fizlet/fx",
     "fizlet/slot"
   ],
@@ -17,17 +18,17 @@
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 31,
+      "framesPlaying": 33,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 71.18
+      "allocBytesPerFrame": 49.07
     }
   },
-  "fizlet": "0.16.0",
+  "fizlet": "0.17.0",
   "made": "fe anim",
-  "module": "anims/sleigh-streaks-top-gold-sparkles.ts",
+  "module": "anims/overfitter-blocks-jab-trained.ts",
   "export": "mount",
   "aspect": "16 / 9"
 }

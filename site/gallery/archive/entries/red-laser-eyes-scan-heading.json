@@ -1,13 +1,13 @@
 {
-  "no": 14,
-  "id": "red-green-gold-string-lights",
+  "no": 24,
+  "id": "red-laser-eyes-scan-heading",
   "date": "2026-10-30",
-  "prompt": "red green and gold string lights twinkle on the nav",
-  "title": "Red green and gold string lights twinkle on the nav",
+  "prompt": "red laser eyes scan every heading",
+  "title": "Red laser eyes scan every heading",
   "kind": "micro",
-  "theme": "christmas",
+  "theme": "heroes-comics",
   "author": "chris-cooley",
-  "recipe": "lights",
+  "recipe": "sweep",
   "bricks": [
     "fizlet/kernel",
     "fizlet/board-page",
@@ -17,19 +17,20 @@
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 35,
+      "framesPlaying": 36,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 12.66,
-      "elementsLit": 2
+      "allocBytesPerFrame": 12.81,
+      "elementsLit": 3
     }
   },
   "fizlet": "0.16.0",
   "made": "fe anim",
-  "module": "anims/red-green-gold-string-lights.ts",
+  "module": "anims/red-laser-eyes-scan-heading.ts",
   "export": "mount",
   "aspect": "16 / 9",
-  "stage": "page"
+  "stage": "page",
+  "archived": true
 }

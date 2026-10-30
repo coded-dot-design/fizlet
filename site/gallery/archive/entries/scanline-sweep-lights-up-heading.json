@@ -31,5 +31,6 @@
   "module": "anims/scanline-sweep-lights-up-heading.ts",
   "export": "mount",
   "aspect": "16 / 9",
-  "stage": "page"
+  "stage": "page",
+  "archived": true
 }

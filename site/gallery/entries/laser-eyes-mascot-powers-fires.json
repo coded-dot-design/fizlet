@@ -1,15 +1,16 @@
 {
-  "no": 8,
-  "id": "red-orange-gold-turkey-feathers",
+  "no": 41,
+  "id": "laser-eyes-mascot-powers-fires",
   "date": "2026-10-30",
-  "prompt": "red orange and gold turkey feathers fan out on hover",
-  "title": "Red orange and gold turkey feathers fan out on hover",
+  "prompt": "laser eyes mascot powers on and fires",
+  "title": "Laser eyes mascot powers on and fires",
   "kind": "micro",
-  "theme": "thanksgiving",
+  "theme": "crypto-memes",
   "author": "chris-cooley",
-  "recipe": "burst",
+  "recipe": "meme",
   "bricks": [
     "fizlet/kernel",
+    "fizlet/sprite",
     "fizlet/fx",
     "fizlet/slot"
   ],
@@ -17,17 +18,17 @@
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 33,
+      "framesPlaying": 31,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 1.37
+      "allocBytesPerFrame": 24.87
     }
   },
-  "fizlet": "0.16.0",
+  "fizlet": "0.17.0",
   "made": "fe anim",
-  "module": "anims/red-orange-gold-turkey-feathers.ts",
+  "module": "anims/laser-eyes-mascot-powers-fires.ts",
   "export": "mount",
   "aspect": "16 / 9"
 }

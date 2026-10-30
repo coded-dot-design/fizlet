@@ -1,13 +1,13 @@
 {
-  "no": 19,
-  "id": "candy-cane-red-white-sweeps",
+  "no": 17,
+  "id": "ornaments-jingle-hover-button",
   "date": "2026-10-30",
-  "prompt": "candy cane red and white sweeps every heading",
-  "title": "Candy cane red and white sweeps every heading",
+  "prompt": "ornaments jingle when you hover a button",
+  "title": "Ornaments jingle when you hover a button",
   "kind": "micro",
   "theme": "christmas",
   "author": "chris-cooley",
-  "recipe": "sweep",
+  "recipe": "jingle",
   "bricks": [
     "fizlet/kernel",
     "fizlet/board-page",
@@ -17,19 +17,20 @@
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 33,
+      "framesPlaying": 32,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 12.52,
+      "allocBytesPerFrame": 13.97,
       "elementsLit": 2
     }
   },
   "fizlet": "0.16.0",
   "made": "fe anim",
-  "module": "anims/candy-cane-red-white-sweeps.ts",
+  "module": "anims/ornaments-jingle-hover-button.ts",
   "export": "mount",
   "aspect": "16 / 9",
-  "stage": "page"
+  "stage": "page",
+  "archived": true
 }
