@@ -87,19 +87,6 @@ test("settle: no frames once nothing is busy; wake() and start() bring it back; 
   e.destroy();
 });
 
-test("fps cap: frames closer than 1/fps do no work; time still adds up", () => {
-  const e = createEngine({ fps: 30 });
-  let frames = 0;
-  e.add({ render: () => frames++ });
-  e.start();
-  let t = 1000;
-  for (let i = 0; i < 61; i++) flush((t += 1000 / 60));
-  assert.ok(frames >= 29 && frames <= 31, `30 fps cap on a 60 Hz clock: ${frames} frames a second`);
-  assert.ok(Math.abs(e.time - 1) < 0.05, `simulated time still follows the clock: ${e.time}`);
-  assert.throws(() => createEngine({ fps: -1 }), RangeError);
-  e.destroy();
-});
-
 test("pause stops all work; resume does not replay the gap", () => {
   const e = createEngine();
   let steps = 0;
@@ -316,4 +303,74 @@ test("zero allocation in the steady state (10k+ steps)", async (t) => {
   const minor = await minorGCs(() => run(1000000));
   assert.ok(minor <= 1, `young-generation GCs during 1M steps (best of 3 windows): ${minor}`);
   e.destroy();
+});
+
+// A display with fake timers: each vsync fires the timers due by then, then the pending frame.
+// Returns how many rAF callbacks ran (what a browser audit counts as frames). Pending timers carry
+// over to the next call (the clock only moves forward). The kernel reads the global setTimeout at
+// call time, so swapping it inside a synchronous test is safe.
+let timers = [];
+function display(t0, ms, hz = 60) {
+  const real = globalThis.setTimeout;
+  let now = t0, rafs = 0;
+  globalThis.setTimeout = (cb, d) => timers.push({ at: now + d, cb });
+  try {
+    for (let k = 1; k * (1000 / hz) <= ms; k++) {
+      now = t0 + k * (1000 / hz);
+      for (const t of timers.filter((t) => t.at <= now)) (timers = timers.filter((x) => x !== t)), t.cb();
+      if (queue.length) (rafs++, flush(now));
+    }
+  } finally {
+    globalThis.setTimeout = real;
+  }
+  return { rafs };
+}
+
+test("fps cap: frames closer than 1/fps do no work; time still adds up", () => {
+  const e = createEngine({ fps: 30 });
+  let frames = 0;
+  e.add({ render: () => frames++ });
+  e.start();
+  display(1e6, 1000);
+  assert.ok(frames >= 29 && frames <= 31, `30 fps cap on a 60 Hz clock: ${frames} frames a second`);
+  assert.ok(Math.abs(e.time - 1) < 0.05, `simulated time still follows the clock: ${e.time}`);
+  assert.throws(() => createEngine({ fps: -1 }), RangeError);
+  e.destroy();
+});
+
+test("fps cap: the page asks for ~fps frames a second, not one per vsync (60 and 120 Hz)", () => {
+  for (const hz of [60, 120]) {
+    const e = createEngine({ fps: 30 });
+    let frames = 0;
+    e.add({ render: () => frames++ });
+    e.start();
+    const { rafs } = display(2e6 + hz * 1e4, 1000, hz);
+    assert.ok(frames >= 29 && frames <= 31, `${hz} Hz: ${frames} frames of work`);
+    assert.ok(rafs <= 31, `${hz} Hz: ${rafs} requestAnimationFrame callbacks a second for a 30 fps engine (cap 30)`);
+    e.destroy();
+    assert.equal(queue.length, 0, "destroyed: no frame pending");
+  }
+});
+
+test("fps cap: an uncapped engine joining gets every frame; the capped one keeps its own pace", () => {
+  const capped = createEngine({ fps: 10 }), free = createEngine();
+  let a = 0, b = 0;
+  capped.add({ render: () => a++ });
+  free.add({ render: () => b++ });
+  capped.start();
+  display(3e6, 50); // one frame, then off the clock for ~100 ms (a timer)
+  assert.equal(queue.length, 0, "waiting on a timer, not on rAF");
+  assert.equal(scheduler.engines, 0, "a capped engine leaves the shared clock between its frames");
+  free.start();
+  assert.equal(queue.length, 1, "the newcomer asks for a frame now");
+  const { rafs } = display(3e6 + 100, 1000);
+  assert.ok(b >= 59, `uncapped engine runs every vsync: ${b}`);
+  assert.ok(a >= 9 && a <= 12, `capped engine still does ~10 frames of work: ${a}`);
+  assert.ok(rafs >= 59);
+  free.destroy();
+  const left = display(3e6 + 1200, 300);
+  assert.ok(left.rafs <= 4, `back to the cap alone: ${left.rafs} rAF in 300 ms`);
+  capped.destroy();
+  assert.equal(queue.length, 0);
+  assert.equal(scheduler.engines, 0);
 });
