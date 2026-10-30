@@ -92,6 +92,15 @@
     and the Chromium perf block in `tests/browser.mjs` are green.
   - Size (gzip): perf 1,958 → 2,042 B (budget 2,048). The host test reads `getContext` /
     `ownerSVGElement`; a tag-name list (img, video, iframe too) measured 2,057 B, over budget.
+- **`fizlet/grid`: the board's size is checked (audit P8, G18's missing tests).** `board(cols, rows,
+  { cell })` checked nothing: `cell: 0` made `at()` return NaN, a fractional or NaN `cols`/`rows`
+  sized the typed arrays wrong (or to nothing), and a string passed by coercion. Now `cols` and
+  `rows` must be positive integers and `cell` a finite number > 0, or the constructor throws a
+  `RangeError` (`fizlet/grid: cols …, rows …, cell …`). Test: "grid: options are checked at setup"
+  (fails on main: no exception; passes now). The zero-allocation search test still passes (3 of 3
+  runs). Size (gzip): grid 1,533 → 1,634 B; budget 1,536 → 1,637, raised by that delta
+  (`scripts/sizes.mjs` says why; an inline check, since the kernel's `need` would cost +181 B on a
+  brick that runs without the kernel). grid stays BETA: no released game runs on it yet.
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
