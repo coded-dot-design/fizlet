@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Website: the roadmap tells the truth again.** E2 lists rules, steer, coach, camera, perf and
+  arcade as shipped (timeline and layout to come); E3 is nearly done (Null Invaders, Byte Runner,
+  Sherman Bytes and DOM Battlefield at 1.0, Battlefield Blitz on Fizlet, Swarm Protocol 1.4 in
+  review) and adds "every animation on the sites on Fizlet, heroes first"; E4 adds the room
+  server's invite gate and spend caps; E5 adds the gallery and notes.
 - **`fizlet/arcade`: every HUD preset's panel drags** (owner: "the in-page scoreboard is always
   draggable"). The arcade card and the skirmish bar move from anywhere that isn't a key, mouse or
   touch, and stay on screen when the window shrinks (shared in `arcade-parts`). Browser test at 2×
@@ -10,9 +15,7 @@
   `coach` passed an optional `signal` straight into listener options, which strict consumers (the
   arcade games) reject; 0.18.0 broke their typecheck. Same runtime, no byte change. `npm run
   typecheck` now also runs with `exactOptionalPropertyTypes`, so it can't regress.
-
 ## 0.18.0
-
 - **`fizlet/arcade` canvas fills its root on 2x/zoomed screens** (`width:100%;height:100%`): the backing store is `innerWidth × dpr` with no CSS size, so it drew 1.5–2× too big and game art sat away from the page targets (owner report; from fizlet#60).
 - **Arcade: an array of controls and scoreboards (`hud`)**, the first step of the plan to make
   DOM Battlefield / Blitz the standard game UI. `ArcadeDef` takes `hud`, a preset; each preset is
