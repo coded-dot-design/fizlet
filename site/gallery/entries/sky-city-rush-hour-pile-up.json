@@ -1,0 +1,20 @@
+{
+  "id": "sky-city-rush-hour-pile-up",
+  "date": "2026-10-30",
+  "prompt": "sky-city rush hour: flying bubble cars weave between floating platforms; tap to drop a traffic beacon and cause a comic pile-up",
+  "title": "rush hour",
+  "kind": "micro",
+  "theme": "cartoon-classics",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/sky-city-rush-hour-pile-up.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
