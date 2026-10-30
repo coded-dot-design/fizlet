@@ -47,7 +47,9 @@ export const BUDGETS = [
   // 0.11.0), of which arcade's own code, markup and CSS was 6,694 B in 0.12.0.
   ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 17920],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
-  ["fizlet/board-page", "src/board-page.ts", 4096],
+  // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
+  // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B).
+  ["fizlet/board-page", "src/board-page.ts", 4128],
   // A hero's live chunk is ≤ 10 KB gz (fizlet-engine docs/LAYERS.md); the bricks take ≤ 7 KB, the scene ≥ 3 KB.
   ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7168],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
