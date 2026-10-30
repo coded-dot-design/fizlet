@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- **`fizlet/timeline`: `revert()` gives plain numbers back, and `done()` never hangs (audit P7).**
+  - `revert()` said "every property" but gave back only styles. A typed array slot or an object's
+    property kept the timeline's last value. Now each plain-number property keeps its value from
+    when its first track was added, and `revert()` writes it back in render (styles still go back
+    through the ledger, where a newer host edit wins).
+  - `done()` resolved only when the timeline ended. If the engine was destroyed first, the promise
+    never settled, and an `await tl.done()` hung for good. Now every wait resolves when the engine's
+    signal aborts, and a `done()` asked after that resolves at once.
+  - Tests (`tests/timeline.test.mjs`): "revert() gives plain numbers back too" and "done() settles
+    when the engine is destroyed first". Both fail on main (8.75 ≠ 5; "hung"), both pass now. The
+    zero-allocation test still passes; Chromium `tests/timeline.mjs` and `tests/css-clock.mjs` green.
+  - Size (gzip): timeline 2,060 → 2,114 B (budget 2,304); css-clock 5,375 → 5,393 B (budget 5,632).
+
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
