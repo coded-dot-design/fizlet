@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+- **`fizlet/view-dom`** (new brick, E11, EXPERIMENTAL; 866 B gz, budget 1,536 = its planned
+  target): a `fizlet/actor` table drawn as DOM nodes, the part of DOM Battlefield's `view.ts` every
+  DOM board game rewrites. `viewDom(engine, actors, host, { make, turn, center, linger, motion, paint })`:
+  - One node per row, pooled: made the first time the row shows (`make(i)`, default an empty
+    `<i>`), put in `host` through the ledger, hidden (`hidden`) when the actor dies, and the same
+    node again when the row lives again, with fresh `data-side` / `data-kind`. At most `cap` nodes.
+  - Change-only through the ledger each render: `transform` (to 0.01 px, centred, turned by the
+    heading to 0.01 rad), `--hp` (hp / max, to 0.01). The look is the page's CSS; `paint(i, el)` is
+    the game's hook for its own change-only writes.
+  - Settle when still: a board that holds still writes nothing and calls no `busy()`, so an engine
+    with `settle` sleeps at 0 frames. A death can `linger` (seconds, `data-dead` set for a CSS fade)
+    and holds the engine awake that long; with reduced motion it hides at once.
+  - Recall exact: every node goes through `ledger.add`, so `engine.destroy()` leaves the host byte
+    for byte as it was. The step only counts lingering deaths down: no DOM, no allocation; a moved
+    row costs one transform string in render, a still one nothing.
+  - Tests: `tests/view-dom.test.mjs` on a fake DOM (nodes per row, `make` / `turn` / `center`,
+    change-only counts, settle, death and rebirth, linger and reduced motion, `remove()`, Recall,
+    0 young GCs over 1M frames of a still board of 64 with 16 lingering deaths against the same
+    engine and table without a view, best of 3 windows) and `tests/view-dom.mjs` in Chromium (nodes
+    centred on the bodies, a still board makes 0 mutations and settles at 0 frames, linger then
+    hide, a reborn row takes its node back, reduced motion, Recall mid-fight byte for byte).
+  - Status: EXPERIMENTAL in `site/bricks.mjs` (since 0.21.0), a generated brick page, a README row.
+    E11's three bricks are out of PLANNED; the phase stays planned until a board game runs on them.
 - **`fizlet/aim`** (new brick, E11, EXPERIMENTAL; 692 B gz, budget 1,024 = its planned target):
   where bots and turrets point and when they may fire, on body arrays (a `fizlet/actor` table's or a
   steer's) and, for sight, a `fizlet/grid` board. `aim({ x, y, a, vx, vy, board, mask, clear, foe })`:

@@ -47,6 +47,9 @@ export const BUDGETS = [
   // Lead, cones, line of sight and target picking on body arrays (E11), with steer's exact hypot;
   // grid comes in as a type only (the board is the game's). Planned target 1,024.
   ["fizlet/aim", "src/aim.ts", 1024],
+  // An actor table as pooled DOM nodes, change-only through the ledger (E11). Measured alone: on a
+  // page the kernel's ledger and the actor table are the game's already. Planned target 1,536.
+  ["fizlet/view-dom", "src/view-dom.ts", 1536],
   // A page's own CSS @keyframes on the kernel clock: 5,363 B gz with the kernel and timeline it
   // composes when added; its own code is 477 B (on a page the kernel and timeline are shared).
   ["fizlet/css-clock", "src/css-clock.ts", 5632],
