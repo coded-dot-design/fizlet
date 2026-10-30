@@ -76,6 +76,24 @@
   throttle): live chunk 9,609 → 9,717 B gzip (still ≥ 5% under 10 KB), poster + loader 2,962 →
   3,153 B; script per frame 0.8 ms median, 3.1 ms p95; CLS 0; 0 frames settled.
 - **Website: notes (`/notes/`)**, posts written for fizlet.com from `site/notes/<slug>.json` (generated, never hand-edited), on the site's own parts: section head, panels, stat cards, kit keys, and the kernel's size badge measured on the build. BlogPosting + FAQPage JSON-LD; listed in the sitemap and under Notes in llms.txt. First note: "Moving the games onto a 4 KB kernel" (every number from the size ledger and this changelog).
+- **`fizlet/steer`** (new brick, 950 B gzip, budget 1,280): `seek`, `flee`, `arrive`, `wander` and
+  `patrol` for movers on typed arrays (position, heading, wander goal, patrol leg), DOM-free. The
+  heading turns at most `turn` rad/s and walls are checked per axis, like DOM Battlefield Blitz's tank
+  `drive`; its defaults are Blitz's numbers. A test runs `wander`, `seek` and `arrive` frame by frame
+  against Blitz's practice movers, bots and wingmen (same seed, same walls: identical positions and
+  headings). `flee` and `patrol` are the same drive pointed away from a point, or along a route. No
+  allocation per frame across 1M frames with 16 movers: it ships its own `hypot` (the same bits as
+  `Math.hypot`, tested), because V8 boxes `Math.hypot`'s arguments, and `blocked(i, at)` gets the
+  spot in a typed array for the same reason.
+- **`fizlet/coach`** (new brick, 1,192 B gzip, budget 1,536): the hints and tutorial layer of DOM
+  Battlefield and Blitz. `flag(key, value)` is a once-only localStorage switch whose reads and
+  writes are each wrapped in try/catch (blocked storage reads "not set"). `tour(engine)` runs the
+  tutorial steps, then cycles tips, says `coach:step` on the ring, and allocates nothing per frame.
+  `card(host)` is the Board UI coach card (DOM Battlefield's dashed card, on the kit tokens): it
+  writes only what changed and rings the control it is about. Tests: `tour` frame by frame against
+  Blitz's practice coach (steps, time on the step, the card shown, the power-up events), `flag`
+  against Battlefield's tips switch (each reads what the other wrote; blocked and missing storage),
+  and the card in Chromium.
 
 ## 0.16.0
 

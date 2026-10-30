@@ -57,6 +57,15 @@ press(key, () => fire(), signal); // touch-safe
 launch(startKey, start); // press, invert, shatter` },
   { id: "perf", tag: "PERF", role: "sys", modules: [mod("fizlet/perf", "perf")] },
   { id: "rules", tag: "RULES", role: "advance", modules: [mod("fizlet/rules", "rules")] },
+  { id: "steer", tag: "STEER", role: "advance", modules: [mod("fizlet/steer", "steer")],
+    snippet: `const m = steer({ cap: 16, random: e.random, blocked: (i, at) => wall(at[0], at[1]) });
+m.place(0, 100, 200);
+m.seek(0, player.x, player.y, dt); // in a step: also flee, arrive, wander, patrol` },
+  { id: "coach", tag: "COACH", role: "sys", modules: [mod("fizlet/coach", "coach")],
+    snippet: `const tips = flag("my-game:tips", "off"); // localStorage, never throws
+const t = tour(e), c = card(root, { onEnd: quit });
+t.tick(dt); if (moved > 220) t.pass(); // in a step
+const k = t.show(); if (k >= 0) c.show(\`\${k + 1}/10\`, STEPS[k], TEXT[k]);` },
   { id: "arcade", tag: "ARCADE", role: "go", modules: [mod("fizlet/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
   hint: "Mouse / WASD · Space fires", css: KIT_CSS, fire: true,
