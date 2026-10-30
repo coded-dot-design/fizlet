@@ -12,6 +12,7 @@
   tighten: demo p50 25 → 20 ms, p95 67 → 34, p99 117 → 34, dropped 45 → 5%, layerize 4 → 3 ms,
   FCP 2,000 → 700 ms, heap 8 → 7 MB, minor GC 10 → 8. Each run, and the rule from median to ceiling,
   is in the file.
+- Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
