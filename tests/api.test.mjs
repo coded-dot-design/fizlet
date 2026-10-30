@@ -1,14 +1,16 @@
-// The website's brick pages are generated from the source: this checks the generator. The catalog
-// covers every public module in package.json, each page's API lists every runtime export of its
-// module, the sizes on a page are the measured ones, and the HTML gates catch what they should.
+// The website's brick pages and llms-full.txt are generated from the source: this checks the
+// generator. The catalog covers every public module in package.json, each page's API lists every
+// runtime export of its module and every export has a doc comment, signatures come from the compiler,
+// the sizes on a page are the measured ones, and the HTML gates catch what they should.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { api, declarations, leadComment } from "../scripts/api.mjs";
+import { api, declarations, leadComment, undocumented } from "../scripts/api.mjs";
+import { llmsFull } from "../scripts/llms-full.mjs";
 import { checkHtml } from "../scripts/check-html.mjs";
 import { measure } from "../scripts/sizes.mjs";
-import { BRICKS } from "../site/bricks.mjs";
+import { BRICKS, STATUS } from "../site/bricks.mjs";
 import { brickPage } from "../site/pages/brick.mjs";
 import { page } from "../site/layout.mjs";
 
@@ -41,6 +43,31 @@ test("each brick's API lists every runtime export of its module, with a summary"
     }
 });
 
+test("every public export has a doc comment", () => {
+  const mods = BRICKS.flatMap((b) => b.modules.map((m) => ({ ...m, ...api(m) })));
+  assert.deepEqual(undocumented(mods), [], "add a /** doc comment */ to each of these in src/ (it reaches the brick page and llms-full.txt)");
+  // The gate itself: a declaration file with undocumented exports fails it, and a module's leading
+  // comment does not count as the doc of the export right below it.
+  const decls = declarations("tests/fixtures/api/mixed.d.ts", { lead: "A module's leading comment: its summary, not the doc of the first export below it." });
+  assert.deepEqual(undocumented([{ name: "mixed", decls }]), ["mixed: FirstOptions", "mixed: bare"]);
+});
+
+test("declarations: signatures, parameters and return types from the compiler", () => {
+  const fx = declarations("tests/fixtures/api/mixed.d.ts");
+  const one = fx.find((d) => d.name === "one");
+  assert.equal(one.sigs[0].text, "one(n: number, o?: FirstOptions): number");
+  assert.deepEqual(one.sigs[0].params.map((p) => [p.name, p.type, p.optional, p.doc]), [["n", "number", false, "how many"], ["o", "FirstOptions", true, ""]]);
+  assert.deepEqual(one.tags, [{ name: "deprecated", text: "Use `two()`." }]);
+  assert.equal(fx.find((d) => d.name === "bare").sigs[0].text, "bare(...xs: string[]): void");
+  assert.deepEqual(fx.find((d) => d.name === "A").names, ["A", "B"]);
+  const kernel = declarations("dist/index.d.ts");
+  // An inline object return type reads as its exported alias (type Engine = ReturnType<typeof createEngine>).
+  assert.equal(kernel.find((d) => d.name === "createEngine").sigs[0].text, "createEngine(o?: EngineOptions): Engine");
+  assert.equal(kernel.find((d) => d.name === "Pool").sigs[0].text, "new Pool<T>(cap: number, create: () => T): Pool<T>");
+  // A const holding a function gets its signature.
+  assert.equal(declarations("dist/grid.d.ts").find((d) => d.name === "board").sigs[0].text, "board(cols: number, rows: number, opts?: BoardOptions): Board");
+});
+
 test("declarations: re-exports, multi-name consts, doc comments", () => {
   const kernel = declarations("dist/index.d.ts");
   const names = kernel.flatMap((d) => d.names);
@@ -58,9 +85,25 @@ test("a brick page shows the measured size and every export", async () => {
   const s = sizes.find((x) => x.name === "fizlet/grid");
   assert.ok(html.includes(`data-size="fizlet/grid">${s.gzip.toLocaleString("en-US")} B</b>`), "the measured gzip bytes");
   for (const d of mods[0].decls) assert.ok(html.includes(`id="api-fizlet-grid-${d.name}"`), d.name);
+  // Each export: its status flag, and a function's signature, parameters and return type.
+  assert.equal(html.match(/<article class="bp-decl"[\s\S]*?<\/article>/g).filter((a) => a.includes('class="status-pill" data-flag="beta"')).length, mods[0].decls.length);
+  assert.ok(html.includes("<code>board(cols: number, rows: number, opts?: BoardOptions): Board</code>"), "the signature");
+  assert.match(html, /<dt>Returns<\/dt><dd><code><a href="#api-fizlet-grid-Board">Board<\/a><\/code><\/dd>/);
   assert.match(html, /npm install fizlet {3}# not published yet/);
   const full = page({ title: "fizlet/grid · Fizlet", description: "The game board: typed-array tiles, A* paths and line of sight, measured.", base: "../", version: pkg.version, path: "bricks/grid.html", body: html });
   assert.deepEqual(checkHtml(full, "bricks/grid.html"), []);
+});
+
+test("llms-full.txt: every export of every brick, with its status", async () => {
+  const sizes = await measure();
+  const bricks = BRICKS.map((b) => ({ ...b, mods: b.modules.map((m) => ({ ...m, ...api(m) })) }));
+  const txt = llmsFull({ bricks, sizes, version: pkg.version, site: "https://fizlet.com/", description: pkg.description });
+  for (const b of bricks) {
+    assert.ok(txt.includes(`## ${b.name}\n\nStatus: ${STATUS[b.status].label}.`), b.name);
+    for (const m of b.mods) for (const d of m.decls) assert.ok(txt.includes(`### ${d.names.join(", ")} (${d.kind}, `), `${m.name}.${d.name}`);
+  }
+  assert.ok(txt.includes("Signature: `createEngine(o?: EngineOptions): Engine`"));
+  assert.doesNotMatch(txt, /&(lt|gt|amp|quot|#\d+);/, "plain text: nothing HTML-escaped");
 });
 
 test("checkHtml catches the basics", () => {
