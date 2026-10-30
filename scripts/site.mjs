@@ -19,6 +19,7 @@ import { buildGallery } from "./gallery.mjs";
 import { BRICKS, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
+import { liveBytes } from "./live-bytes.mjs";
 
 const OUT = "site-dist";
 const { version } = JSON.parse(readFileSync("package.json", "utf8"));
@@ -48,10 +49,20 @@ await build({
 });
 
 // The brick pages' demos: one small loader, and one chunk per demo (a page loads only its own).
-await build({
-  entryPoints: { "brick-demo": "site/brick-demo.ts" },
+const demos = await build({
+  entryPoints: { "brick-demo": "site/brick-demo.ts" }, metafile: true,
   outdir: OUT, bundle: true, splitting: true, chunkNames: "chunks/[name]-[hash]", minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning",
 });
+// Each demo's own chunk (what its page loads for it), for its size badge: { settle: { live, bytes } }.
+const demoSizes = {};
+for (const [file, o] of Object.entries(demos.metafile.outputs)) {
+  const id = o.entryPoint?.match(/^site\/demos\/(\w+)\.ts$/)?.[1];
+  if (id) demoSizes[id] = { live: file.slice(OUT.length + 1), bytes: liveBytes(file) };
+}
+for (const b of BRICKS) if (b.demo && !demoSizes[b.demo]) throw new Error(`brick ${b.id}: no built chunk for demo "${b.demo}"`);
+// The home page's blast demo and the quick start (the one-file build).
+const blast = { live: "demo.js", bytes: liveBytes(`${OUT}/demo.js`) };
+const quick = { live: "fizlet.js", bytes: liveBytes(`${OUT}/fizlet.js`) };
 
 cpSync("dist", `${OUT}/dist`, { recursive: true });
 cpSync("src/ui/board-ui.css", `${OUT}/board-ui.css`);
@@ -65,11 +76,11 @@ writeFileSync(`${OUT}/.nojekyll`, "");
 await import("../site/demos/layers/build.mjs");
 const posterMod = await build({ entryPoints: ["site/demos/layers/poster.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
 const L = await import("data:text/javascript;base64," + Buffer.from(posterMod.outputFiles[0].text).toString("base64"));
-const layers = { figure: L.poster(), css: L.POSTER_CSS, loader: L.loader("./demos/layers/layers.js"), sizes: JSON.parse(readFileSync(`${OUT}/demos/layers/sizes.json`, "utf8")) };
+const layers = { figure: L.poster(), css: L.POSTER_CSS, loader: L.loader("./demos/layers/layers.js"), sizes: JSON.parse(readFileSync(`${OUT}/demos/layers/sizes.json`, "utf8")), live: "demos/layers/layers.js" };
 const { sizes: fizzSizes } = await import("../site/demos/fizz/build.mjs");
 const fizzFigure = readFileSync(`${OUT}/demos/fizz/index.html`, "utf8").match(/<figure class="ae-slot ae-slot--16x10" data-slot-target="fizz#hero"[\s\S]*?<\/figure>/)?.[0];
 if (!fizzFigure) throw new Error("demos/fizz/index.html: no fizz figure to embed");
-const fizz = { figure: fizzFigure, sizes: fizzSizes };
+const fizz = { figure: fizzFigure, sizes: fizzSizes, live: "demos/fizz/scene.js" };
 
 // The gallery: one bundle per entry, each measured here (its size badge). The story demos keep
 // their own posters as their figures; the blast demo waits in a <template> until its slot mounts.
@@ -121,12 +132,12 @@ const pages = [
   ["index.html", page({
     title: "Fizlet · Tiny physics for your page",
     description: homeDescription,
-    base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz }), scripts: ["site.js", "demo.js", "demos/fizz/main.js"],
+    base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast }), scripts: ["site.js", "demo.js", "demos/fizz/main.js"],
   })],
   ["examples/quick-start.html", page({
     title: "Quick start: ten lines to a blast · Fizlet",
     description: "Ten lines to a blast: the Fizlet quick start, running as is. Click the board; scroll it away and the engine pauses, switch tabs and it stops.",
-    base: "../", version, path: "examples/quick-start.html", body: quickStartPage({ site: SITE }), scripts: ["site.js"],
+    base: "../", version, path: "examples/quick-start.html", body: quickStartPage({ site: SITE, quick }), scripts: ["site.js"],
   })],
   ["bricks/index.html", page({
     title: "Kernel and bricks: every module and its size · Fizlet",
@@ -154,7 +165,7 @@ const pages = [
     base: "../", version, path: brickPath(b),
     ld: [{ "@type": "SoftwareSourceCode", "@id": `${SITE}${brickPath(b)}#code`, name: b.name, description: b.summary, url: SITE + brickPath(b),
       codeRepository: REPO, isPartOf: { "@id": CODE }, author: { "@id": PERSON["@id"] } }],
-    body: brickPage({ brick: b, mods: b.mods, sizes, version, prev: bricks[i - 1], next: bricks[i + 1] }),
+    body: brickPage({ brick: b, mods: b.mods, sizes, version, prev: bricks[i - 1], next: bricks[i + 1], demoSize: b.demo && demoSizes[b.demo] }),
     scripts: b.demo ? ["site.js", "brick-demo.js"] : ["site.js"],
   })]),
   ["404.html", page({
