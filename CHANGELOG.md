@@ -210,6 +210,9 @@
   the figure or the box; the caption outside the box stays visible while the scene runs.
   `tests/browser.mjs` mounts a scene in both shapes. fizlet/slot 1,852 B gzip (−4 B); page build
   7,122 B (−5 B).
+- **Docs: no private pointers.** The README no longer links a private repo (astro-base-engine), and
+  `rooms/DEPLOY.md` makes invite keys with the public `inviteKey()` (a one-line command) instead of
+  a helper outside this repo. No code change.
 - **Website: Make one (`/make/`), v0.** Type a prompt, get one drop-in file: a `data-fizlet`
   mount and one module script with only the bricks the scene uses, its gzip size measured into its
   own header, by Chris Cooley, MIT. It all runs in the browser: the prompt is matched against the

@@ -1,7 +1,7 @@
 # Deploying fizlet-rooms (owner steps)
 
-Nothing here runs from CI. Every step is the account owner's, or an agent acting on the owner's
-explicit go with a token the owner made. No token, account id or invite code goes in any file.
+Nothing here runs from CI. Every step is the account owner's, with a token the owner made. No
+token, account id or invite code goes in any file.
 
 ## 0. Before anything is deployed
 
@@ -31,7 +31,8 @@ explicit go with a token the owner made. No token, account id or invite code goe
 
 ```sh
 npx wrangler kv namespace create INVITES        # prints an id: put it in wrangler.toml (not a secret)
-# Make codes and their keys with the invite helper (in the private engine brain), then:
+# Pick codes (10–64 characters) and turn them into keys with inviteKey() from src/limits.js:
+node --input-type=module -e 'import { inviteKey } from "./src/limits.js"; console.log(JSON.stringify(await Promise.all(process.argv.slice(1).map(async (c) => ({ key: await inviteKey(c), value: "invite" })))))' CODE-ONE CODE-TWO > invites.json
 npx wrangler kv bulk put --binding INVITES invites.json --remote   # [{ "key": "invite:<sha256>", "value": "<label>" }]
 rm invites.json                                  # the hashes are safe; don't keep the codes next to them
 ```
