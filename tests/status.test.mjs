@@ -3,7 +3,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
-import { BUDGETS } from "../scripts/sizes.mjs";
+import { BUDGETS, measure } from "../scripts/sizes.mjs";
+import { readmeSizes } from "../scripts/readme-sizes.mjs";
 import { BRICKS, PLANNED, STATUS, BETA_LINE } from "../site/bricks.mjs";
 
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
@@ -52,4 +53,8 @@ test("the README table shows each brick's flag, and the beta line", () => {
       assert.equal(row.split(" | ")[1], STATUS[b.status].label, `README: ${m.name} is ${STATUS[b.status].label} in site/bricks.mjs`);
     }
   assert.ok(readme.replace(/\n> /g, " ").includes(BETA_LINE), "README: the beta line, word for word");
+});
+
+test("the README's sizes are this build's (npm run readme:sizes writes them)", async () => {
+  assert.equal(readme, readmeSizes(readme, await measure()), "README sizes are stale: run npm run readme:sizes");
 });
