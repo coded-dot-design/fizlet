@@ -272,6 +272,21 @@ test("sprite: the cache bakes once per key and is capped", () => {
   assert.equal(sp.size, 0);
 });
 
+test("sprite: an id that names no sprite throws, never another sprite's tile", () => {
+  // Before the fix the cache key of an unknown id came out as 0, so once sprite 0 was baked a typo
+  // (or an id past the end) silently returned sprite 0's tile, and draw() painted nothing.
+  const sp = sprites({ a: { frames: ["1"], colors: { 1: "#f00" } }, b: { frames: ["11"], colors: { 1: "#0f0" } } }, { canvas: fakeCanvas });
+  const a = sp.tile("a");
+  assert.equal(sp.tile(0), a);
+  assert.notEqual(sp.tile("b"), a);
+  const ctx = { imageSmoothingEnabled: true, drawImage() {}, save() {}, restore() {}, translate() {}, rotate() {} };
+  for (const bad of ["nope", "toString", 2, -1, 0.5, NaN]) {
+    assert.throws(() => sp.tile(bad), RangeError, `tile(${String(bad)})`);
+    assert.throws(() => sp.draw(ctx, bad, 0, 0, 0), RangeError, `draw(${String(bad)})`);
+  }
+  assert.equal(sp.baked, 2, "nothing baked for a bad id");
+});
+
 test("sprite: the Sherman tank fixture is the original tile size and pivot", () => {
   const sp = sprites(sherman, { palettes: [{ team: "#39ffb0" }, { team: "#fff8d4" }], canvas: fakeCanvas });
   const hull = sp.tile("hull");
@@ -331,6 +346,38 @@ test("input: hit() and down() in a step allocate nothing", async (t) => {
   // 0.2.4's input reads 0-2 here too (strays from the test above); boxing one number per frame
   // (reading engine.time in read) showed as 7-9.
   assert.ok(minor <= 3, `young-generation GCs over 1M frames: ${minor}`);
+});
+
+test("input: press() and steer() wake a settled engine (on-screen keys, fizlet/pad)", async () => {
+  // A pad key is [data-fizlet-ignore], so its pointerdown never reaches input's own wake: before
+  // the fix a tap on a settled engine was latched but never stepped until something else woke it.
+  globalThis.addEventListener ??= () => {};
+  const { createEngine } = await import("../src/index.ts");
+  const { controls } = await import("../src/input.ts");
+  const target = { addEventListener() {}, getBoundingClientRect: () => ({ left: 0, top: 0, width: 100 }) };
+  const e = createEngine({ settle: 0.1 });
+  const c = controls(e, { target, keys: { fire: ["Space"] } });
+  let fired = 0;
+  e.add({ step: () => c.hit("fire") && fired++ });
+  e.start();
+  const sleep = () => {
+    for (let i = 0; i < 12 && e.running; i++) e.advance(1 / 60);
+    assert.deepEqual(e.paused, ["settled"], "nothing busy: it settles");
+  };
+  sleep();
+  c.press("fire");
+  assert.equal(e.running, true, "press() wakes it");
+  e.advance(1 / 60);
+  assert.equal(fired, 1, "and the press is stepped");
+  c.press("fire", false);
+  sleep();
+  c.steer(1, 0);
+  assert.equal(e.running, true, "steer() wakes it");
+  assert.equal(c.axis("left", "right", 0), 1);
+  sleep();
+  c.press("nope");
+  assert.deepEqual(e.paused, ["settled"], "an unknown intent does nothing");
+  e.destroy();
 });
 
 // Gravity and named kinds (phase 2: page interactions).

@@ -1,0 +1,19 @@
+{
+  "no": 44,
+  "id": "lab-duel",
+  "date": "2026-10-30",
+  "prompt": "two beige Macs on one network: fire from either side and a packet crosses the cable into the other tank's screen",
+  "title": "Two Macs, one network.",
+  "kind": "micro",
+  "theme": "everyday",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel"
+  ],
+  "made": "by hand",
+  "module": "seeds/labs.ts",
+  "export": "duelLab",
+  "figure": "lab-duel",
+  "approved": "2026-10-30"
+}

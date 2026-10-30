@@ -18,5 +18,6 @@
   "module": "../demos/fizz/scene.ts",
   "export": "mount",
   "figure": "fizz",
-  "link": "demos/fizz/"
+  "link": "demos/fizz/",
+  "approved": "2026-10-29"
 }

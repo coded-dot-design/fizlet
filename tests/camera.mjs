@@ -33,7 +33,8 @@ try {
       fz.zoomAt(cam, 300, 200, 2.5);
       await frame(6);
       const mid = { zoom: cam.zoom, moving: cam.moving, d: dot() };
-      await new Promise((ok) => setTimeout(ok, 2000));
+      // Wait on frames, not milliseconds: until the engine settles (at most 600 frames, 10 s at 60 Hz).
+      for (let i = 0; i < 600 && !e.paused.includes("settled"); i++) await frame(1);
       const end = { zoom: cam.zoom, settled: e.paused.includes("settled"), d: dot(), clip: document.getElementById("frame").style.overflow,
         scrollW: document.scrollingElement.scrollWidth, innerW: innerWidth };
       fz.flyTo(cam, 850, 50, 3);
