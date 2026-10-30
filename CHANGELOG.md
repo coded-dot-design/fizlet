@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- **`fizlet/camera`: no DOM call in a step, and no layout read per frame while panning (audit P5, P6).**
+  - Reduced motion was read (`matchMedia(...).matches`) in every step while a move eased: a DOM
+    call in the step, up to 4 per frame. It is now read once per frame in the read phase, only
+    while moving, and kept in the camera's typed array for the step. A Node test counts where it is
+    read: 31 times in a step on main, 0 now.
+  - Every `pan()` / `to()` asked for a re-measure, so a drag pan did a `getBoundingClientRect()`
+    every frame, after the previous frame's transform write: a forced style and layout pass per
+    frame. The stage is now measured at setup, then again only when a `ResizeObserver` says it
+    resized (a transform never changes a layout size), or while its size is still unknown (hidden
+    at setup). Tests: Node "a pan or a move doesn't re-measure the stage" (62 extra reads on main,
+    0 now) and Chromium `tests/camera.mjs` (30 frames of drag pan: 30 layout reads on main, 0 now;
+    a stage resized to 450 px is measured again).
+  - Size (gzip): camera 1,385 → 1,475 B (budget 1,536).
+
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
