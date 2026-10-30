@@ -60,8 +60,8 @@
   (`fps: 30`, ~13–28 ms a frame on a 390 × 844 phone) ran at 21.6–21.9 rAF/s instead of 30. The nap
   is now shortened by the frame's own work time (`timing[1]`), never below 0. Test:
   `tests/kernel.test.mjs` ("a slow frame still meets its next slot": 20 ms frames, 20 → 30 fps;
-  the fake display's timers now count each frame's work). Kernel 3,441 → 3,450 B gzip; page build
-  7,125 → 7,131 (budget 7,168).
+  the fake display's timers now count each frame's work). Kernel 3,441 → 3,443 B gzip (a negative
+  nap is left to `setTimeout`, which clamps it to 0); page build unchanged (budget 7,168).
 - **Fix: `destroy()` clears the fps cap's pending wake-up.** An engine with `fps` waits off the
   shared clock on a timer between frames; `destroy()` left that timer to fire once more (harmless,
   but it held the engine until then). It now clears it, so nothing of the engine outlives
@@ -293,11 +293,11 @@
   - `tests/camera.mjs` waits on frames until the engine settles instead of a 2 s wall-clock sleep.
 - **Sizes with release train 0.20.0's changes together** (#103, #96, #113, #115, #114, #117–#122,
   #111, #105; measured on the integrated branch against main with #116; the numbers in the bullets
-  above are each change on its own). fizlet/arcade 23,999 → 24,337 B gzip (budget 24,064 →
-  24,402); the card build 18,038 → 18,355 (budget 18,048 → 18,365); fizlet/board-page 4,097 → 4,162 (4,193);
-  fizlet/pad 1,995 → 2,073 (2,126); the page build 7,129 → 7,169 (budget 7,168 → 7,208: #120's
-  input and #122's kernel fit alone, together they pass 7 KB by 1 B); kernel 3,441 → 3,450. Pad's
-  and board-page's exact `hypot` share code, so arcade rises 73 B for both, not 135.
+  above are each change on its own). fizlet/arcade 23,999 → 24,334 B gzip (budget 24,064 →
+  24,399); the card build 18,038 → 18,351 (budget 18,048 → 18,361); fizlet/board-page 4,097 →
+  4,162 (budget 4,193); fizlet/pad 1,995 → 2,073 (budget 2,126); kernel 3,441 → 3,443; the page
+  build 7,129 → 7,164 (budget 7,168, unchanged: the hero's bricks stay ≤ 7 KB). Pad's and
+  board-page's exact `hypot` share code, so arcade rises 73 B for both, not 135.
 
 ## 0.19.0
 
