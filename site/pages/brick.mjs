@@ -1,6 +1,7 @@
 // One page per brick, generated from the source: the summary is the module's leading comment, the
 // API is its declarations (scripts/api.mjs), the sizes are measured on this build (scripts/sizes.mjs).
 import { esc, icon, REPO, SITE } from "../layout.mjs";
+import { sizeBadge } from "../size-badge.mjs";
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
 const num = (n) => n.toLocaleString("en-US");
@@ -43,7 +44,7 @@ function apiList(mods) {
 }
 
 /** The page body for one brick. `mods`: [{ name, src, summary, decls }] from scripts/api.mjs. */
-export function brickPage({ brick, mods, sizes, version, prev, next }) {
+export function brickPage({ brick, mods, sizes, version, prev, next, demoSize }) {
   const lead = mods[0];
   const { toc, body } = apiList(mods);
   const imports = mods.map((m) => {
@@ -53,7 +54,8 @@ export function brickPage({ brick, mods, sizes, version, prev, next }) {
   const esm = imports.filter((x) => x.names.length).map(({ m, names }) => `import { ${names.slice(0, 4).join(", ")}${names.length > 4 ? ", …" : ""} } from "${SITE}dist/${m.src.replace(/^src\//, "").replace(/\.ts$/, ".js")}";`).join("\n");
   const npm = imports.filter((x) => x.names.length).map(({ m, names }) => `import { ${names.slice(0, 4).join(", ")}${names.length > 4 ? ", …" : ""} } from "${m.name}";`).join("\n");
   const demo = brick.demo ? `
-    <figure class="panel lit bp-demo" data-brick-demo="${brick.demo}">
+    <figure class="panel lit bp-demo" data-brick-demo="${brick.demo}" data-demo-host>
+      ${demoSize ? sizeBadge(demoSize.bytes, demoSize.live, `this demo, with ${brick.name}`) : ""}
       <div class="bp-stage" data-stage></div>
       <figcaption><span class="bui-label"><b>LIVE</b> · <span data-status>${brick.demo === "grid" || brick.demo === "sprite" ? "NO LOOP" : "LOADING"}</span></span><span>${esc(DEMO_NOTES[brick.demo])}</span></figcaption>
     </figure>` : "";
