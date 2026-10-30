@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **The fizz, reworked** (owner feedback; `site/demos/fizz/`). No zoom: two cameras hold still,
+  side and straight down into the can, and the eye cuts between them (`fizlet/camera` is out of
+  the chunk). The can is drawn by code at twice the detail (40 × 80 side, 44 × 44 top), glossy,
+  lit from the upper left, still pixel art: the whole card and the spray sit on one pixel grid.
+  The opening is its own beat: the crunch, the tab lifts (a hiss), the lid pops (a seal-break fan,
+  a shock ring, the can kicks up), foam swells in the opening, then the fizz erupts: droplets,
+  pixel bubbles that swell and pop, foam, rings and flecks, every size. Live chunk 9,455 B gzip
+  (was 9,710), poster 5,858 B (one path per colour; the hero budget is 6,144). The settle
+  measurement starts at 9 s (the story is about a second longer).
 - **Website: the roadmap tells the truth again.** E2 lists rules, steer, coach, camera, perf and
   arcade as shipped (timeline and layout to come); E3 is nearly done (Null Invaders, Byte Runner,
   Sherman Bytes and DOM Battlefield at 1.0, Battlefield Blitz on Fizlet, Swarm Protocol 1.4 in
