@@ -13,6 +13,7 @@
  */
 import type { Engine } from "./kernel/engine";
 
+/** Options for `viewCanvas`: the `draw` callback, the density cap and an accessible name. */
 export interface ViewCanvasOptions {
   /** Paint. The canvas is already cleared and clipped to `box` ([x, y, w, h], CSS px): draw the
    *  scene (anything outside the box is clipped away, so drawing it all is fine). */
@@ -23,6 +24,9 @@ export interface ViewCanvasOptions {
   label?: string;
 }
 
+/** One overlay canvas on `root`, sized for the pixel density (capped by `maxDpr`) and redrawn only
+ *  inside the dirty box: `dirty([x, y, w, h])` (CSS px), or `dirty()` for all of it. Never keeps the
+ *  engine awake; Recall removes the canvas and gives the root's style back. */
 export function viewCanvas(engine: Engine, root: HTMLElement, o: ViewCanvasOptions) {
   const L = engine.ledger, doc = root.ownerDocument, win = doc.defaultView!, cap = o.maxDpr ?? 2;
   const c = L.add(doc.createElement("canvas")), ctx = c.getContext("2d")!;
@@ -109,4 +113,5 @@ export function viewCanvas(engine: Engine, root: HTMLElement, o: ViewCanvasOptio
   engine.add(view);
   return view;
 }
+/** What `viewCanvas` returns: `canvas`, `ctx`, `width`, `height`, `dpr` and `dirty(box?)`. */
 export type ViewCanvas = ReturnType<typeof viewCanvas>;

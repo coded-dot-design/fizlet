@@ -1,0 +1,152 @@
+{
+  "slug": "authoring",
+  "section": "docs",
+  "order": 2,
+  "nav": "Authoring and recipes",
+  "brick": "kernel",
+  "eyebrow": "Docs · authoring",
+  "title": "One shape,",
+  "subtitle": "three recipes.",
+  "summary": "How every Fizlet piece is written, the bricks to pick for each use, and three recipes that run on the page: an action, a shooter and two players.",
+  "lead": [
+    "Everything built on Fizlet has the same shape: one root, one engine, state in typed arrays, and systems that measure in `read`, simulate in `step` and write in `render`. Learn the shape once and every brick fits it. The three recipes below are complete: each one runs on this page as written, and each shows the size it ships, measured on this build."
+  ],
+  "blocks": [
+    {
+      "type": "features",
+      "layout": "steps",
+      "heading": "The shape",
+      "headingAccent": "of every Fizlet piece",
+      "items": [
+        {
+          "title": "A root",
+          "body": "One element the piece lives in. The engine pauses when it scrolls away, the HUD finds its readouts inside it, and nothing is drawn outside it."
+        },
+        {
+          "title": "An engine",
+          "body": "`createEngine({ root, seed })`. Add `settle: 0.5` for anything that should cost nothing while it's still, `fps: 30` for an ambient loop."
+        },
+        {
+          "title": "State in typed arrays",
+          "body": "Positions, timers and scores in `Float64Array`s made once. The step reads and writes numbers only, so nothing is allocated while it runs."
+        },
+        {
+          "title": "read, step, render",
+          "body": "Measure the page in `read`. Simulate in `step` at a fixed 60 Hz, with no DOM at all. Draw and write the page in `render`, through `engine.ledger`."
+        },
+        {
+          "title": "Events for effects",
+          "body": "The step emits what happened (`e.events.emit(\"hit\", …)`); render, sound and the HUD react to the ring. The sim never knows about pixels or audio."
+        },
+        {
+          "title": "A way out",
+          "body": "Bind your own listeners to `e.signal`. `e.destroy()` then removes them all and gives back every page change: [Recall](/docs/recall/)."
+        }
+      ]
+    },
+    {
+      "type": "features",
+      "layout": "rows",
+      "heading": "Pick bricks by use",
+      "subhead": "Start from the kernel and add only what the job needs; each brick is its own import and its own budget.",
+      "items": [
+        {
+          "title": "A reaction on the page",
+          "body": "A click, a hover, a scroll that should feel alive: `fizlet/fx` for particles, `fizlet/timeline` for choreographed DOM moves, `fizlet/hud` for counts. Settle on.",
+          "link": {
+            "label": "Recipe 1",
+            "href": "#recipe-action"
+          }
+        },
+        {
+          "title": "An arcade game",
+          "body": "`fizlet/input` (and `fizlet/pad` on touch), `fizlet/collide`, `fizlet/fx`, `fizlet/hud`; `fizlet/rules` for waves, drops and score; `fizlet/match` for start, pause and results; `fizlet/arcade` when the page itself is the board.",
+          "link": {
+            "label": "Recipe 2",
+            "href": "#recipe-shooter"
+          }
+        },
+        {
+          "title": "Two or more players",
+          "body": "A deterministic step and `fizlet/presence`: inputs in lockstep, a state hash every 30 frames. `syncCheck` proves it in a test; the rooms server joins two devices.",
+          "link": {
+            "label": "Recipe 3",
+            "href": "#recipe-duel"
+          }
+        },
+        {
+          "title": "A hero in an Astro slot",
+          "body": "`fizlet/slot` loads the scene near the viewport and keeps the slot's text alternative; `fizlet/camera` pans and zooms a DOM stage.",
+          "link": {
+            "label": "The slot guide",
+            "href": "/guides/astro-slot/"
+          }
+        }
+      ]
+    },
+    {
+      "type": "recipe",
+      "id": "action",
+      "heading": "Recipe 1: an action",
+      "headingAccent": "on the page",
+      "body": [
+        "A real button on the page, a burst of sparks out of it on every click, and a count. The canvas is added through the ledger, the class through `ledger.cls`, the count through `fizlet/hud`, so `destroy()` leaves the button as it was. Half a second after the last spark, the engine settles: no frames at all until the next click. With reduced motion it counts without the burst."
+      ],
+      "caption": "Click **Like**. The sparks are pooled (cap 160); a full pool refuses new ones instead of growing."
+    },
+    {
+      "type": "recipe",
+      "id": "shooter",
+      "heading": "Recipe 2: a shooter",
+      "body": [
+        "Bugs fall; you move and fire. Every bug and shot is a slot in a typed array, spawns come from the seeded `e.random` (the same seed plays the same wave), hits are `circles` tests in the step, and the blast and the shake happen in render from the event ring. The engine runs only between **Start** and the last life, so the page's own keys stay the page's."
+      ],
+      "caption": "**Start**, then A/D or ←/→ and Space. On a phone, drag to move and tap to fire."
+    },
+    {
+      "type": "recipe",
+      "id": "duel",
+      "heading": "Recipe 3: two players",
+      "body": [
+        "Two peers on one page, each with its own engine, controls and screen, joined by `memory()`: an in-memory link with three ticks of latency and jitter. Only inputs cross it, 12 bytes a message. Each sim runs a frame only when both inputs for it are in, so both screens show the same game, and the hash check every 30 frames says so. Swap `memory()` for `join(url)` and the same code plays across two devices through a [room server](/guides/multiplayer-rooms/)."
+      ],
+      "caption": "Player 1: A/D. Player 2: J/L. On touch, hold the left or right half of a screen. The frame count only moves when both inputs are in."
+    },
+    {
+      "type": "text",
+      "heading": "Before you ship",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**Measure it.** Bundle, minify and gzip your piece; that is what a visitor downloads. The badges above are measured that way on every build.",
+            "**Check the step.** No `Math.random`, no clock, no layout reads, nothing allocated. [Determinism](/docs/determinism/) and the [contract](/docs/contract/) list the rules; `fizlet/debug` counts layout reads in a step.",
+            "**Check Recall.** Snapshot the page, run the piece, `destroy()` it, and compare: the DOM should match.",
+            "**Check stillness.** With `settle`, a piece that is not moving should ask for no frames. The [perf overlay](/bricks/perf.html) shows it."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "Build a micro game",
+          "href": "/guides/micro-game/"
+        },
+        {
+          "label": "Every brick",
+          "href": "/bricks/"
+        },
+        {
+          "label": "Size budgets",
+          "href": "/docs/budgets/"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Authoring with Fizlet: the shape and three recipes",
+    "description": "How to write any Fizlet piece, which bricks to pick by use, and three recipes that run as is: an action on the page, a shooter and two players, measured."
+  }
+}

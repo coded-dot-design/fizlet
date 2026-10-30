@@ -14,6 +14,7 @@
 import type { Engine } from "./kernel/engine";
 import { hypot } from "./steer";
 
+/** Options for `layout`: capacity, forces, cooling and motion. */
 export interface LayoutOptions {
   /** Nodes (fixed: the arrays never grow). */
   cap: number;
@@ -25,7 +26,9 @@ export interface LayoutOptions {
   distance?: number;
   /** Pull toward the centre, per tick (default 0.04). */
   gravity?: number;
+  /** The centre gravity pulls toward, x (default 0). */
   cx?: number;
+  /** The centre gravity pulls toward, y (default 0). */
   cy?: number;
   /** Barnes-Hut accuracy: a cell of size s at distance d counts as one mass when s / d < theta (default 0.9). */
   theta?: number;
@@ -39,6 +42,8 @@ export interface LayoutOptions {
   motion?: boolean;
 }
 
+/** A force-directed layout on typed arrays (`x`, `y`): Barnes-Hut repulsion, links, centre gravity.
+ *  It cools over `ticks` steps, then rests and stops calling `busy()` so the engine settles. DOM-free. */
 export function layout(engine: Engine, o: LayoutOptions) {
   const n = Math.max(1, o.cap | 0), m = Math.max(1, (o.links ?? 2 * n) | 0), M = 8 * n + 64;
   const charge = o.charge ?? 30, dist = o.distance ?? 40, grav = o.gravity ?? 0.04, theta2 = (o.theta ?? 0.9) ** 2;
@@ -257,4 +262,5 @@ export function layout(engine: Engine, o: LayoutOptions) {
   engine.add(lay);
   return lay;
 }
+/** What `layout` returns: `x`, `y`, `add`, `link`, `pin`, `free`, `heat`, `nearest`, `bounds`. */
 export type Layout = ReturnType<typeof layout>;
