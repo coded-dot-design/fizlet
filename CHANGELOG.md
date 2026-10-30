@@ -34,6 +34,19 @@
   hud 7,869 B, match 8,849, sound 6,984, presence 7,432; thirteen cards on the bricks page 38,696 B
   in all, each loaded near the viewport. Allocation (best of 3, 6,000 frames): step 0 to 0.8 B a frame,
   whole moving frame 35 to 270 B.
+- **Four more brick cards: pad, slot, board-page, ui.** pad: the Board UI kit's real on-screen pad
+  (stick, SHOVE, SWAP) drives a brick that pushes three crates onto docks; a crate shoved mid-dash
+  slides on its own, and SWAP turns the stick into a d-pad with the step reading the same intents.
+  slot: six real slot figures on a strip behind a small window; each loads only when the window shows
+  it, and at the end of the strip every slot is destroyed and each figure checked against its first
+  markup (the readout says EXACT 6). board-page: a tiny page of real text and buttons is the board;
+  each bite eats the letters it touches (they turn to 0s and 1s in the page's own Text nodes) and
+  bounces off the buttons. ui: a brick hops along four real kit arcade keys, pressing each one it lands
+  on; four in one run slams the kit's sticker. The frame gains `kit()`, a `.bui` layer whose `--u`
+  follows the card's height, so the kit's controls keep their proportions at 390 px. Card chunks
+  (gzip, with the kernel, slot and frame): pad 10,681 B, slot 8,117, board-page 11,250, ui 6,836.
+  Allocation (best of 3, 6,000 frames): step 0.0 B a frame for all four, whole moving frame 57 to
+  350 B. The alloc test and the site build accept card ids with a hyphen.
 - **fizlet/arcade's skirmish preset runs its flow on `fizlet/match` (G15).** One owner of the phase:
   the countdown, pause / surrender and result are match's, on a small engine of its own that lives
   as long as the overlay (Recall destroys it, and its ledger takes the overlay back). The shell keeps
