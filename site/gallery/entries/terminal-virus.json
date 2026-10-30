@@ -1,0 +1,24 @@
+{
+  "no": 47,
+  "id": "terminal-virus",
+  "date": "2026-10-30",
+  "prompt": "a worm types itself into the terminal, crawls onto the README and eats its real letters, forking as it goes; tap a worm to kill -9 it and every letter it chewed flies home, exactly",
+  "title": "Terminal virus",
+  "kind": "micro",
+  "theme": "dom-virus",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/steer",
+    "fizlet/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/terminal-virus.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 9",
+  "pageCost": {
+    "settles": true
+  }
+}
