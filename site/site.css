@@ -1474,6 +1474,16 @@ html.bui[data-theme="light"] .phases b {
   font: 900 30px/1 var(--mono);
   color: var(--tone);
 }
+/* Light: the neon faces are too pale for text on white, so the ids take the ink twins. */
+html.bui[data-theme="light"] .phase[data-phase="done"] .phase-id {
+  color: var(--hl);
+}
+html.bui[data-theme="light"] .phase[data-phase="now"] .phase-id {
+  color: var(--k-sys-ink);
+}
+html.bui[data-theme="light"] .phase[data-phase="part"] .phase-id {
+  color: var(--ink);
+}
 .phase[data-phase="next"] .phase-id {
   color: transparent;
   -webkit-text-stroke: 1.5px var(--muted);
@@ -2326,7 +2336,7 @@ html.bui[data-theme="light"] .phases b {
   opacity: 0.75;
 }
 .gal-chip[aria-current] {
-  color: var(--k-sys-ink);
+  color: var(--rim);
   background: var(--k-sys);
 }
 .gal-search {
@@ -3167,8 +3177,22 @@ html.bui[data-theme="light"] .phases b {
   .site-foot p a,
   .foot-base a,
   .brick h3 a,
-  .brick h2 a {
+  .brick h2 a,
+  .bp-crumbs a,
+  .bp-status a,
+  .gal-by a,
+  .hero-by a,
+  .ct-by a,
+  .final-links a,
+  .gal-keys a:not(.bui-key) {
     padding-block: 15px;
+  }
+  .bp-status .bui-label a {
+    padding-block: 17px;
+  }
+  .page-toc a {
+    min-height: 44px;
+    align-items: center;
   }
   .hero-link,
   .gal-link,

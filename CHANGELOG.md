@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Site: launch QA fixes.**
+  - Gallery: the selected theme chip ("All 31") was cyan text on its cyan face in dark mode
+    (1.0:1, unreadable) and 4.1:1 in light; it now takes rim ink on the face (both themes).
+  - Home roadmap, light mode: the phase ids (E0 to E8) were neon on white (1.3:1); they now take
+    the ink twins (`--hl` done, `--k-sys-ink` now, `--ink` partly done). Dark is unchanged.
+  - Touch (`pointer: coarse`): breadcrumbs, the brick status links, gallery and contest bylines,
+    the closing links, "change the prompt", the home "On this page" chips and the lab keys reach
+    44 px (were 11 to 38 px). The text links grow with padding, so nothing moves.
 - Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`

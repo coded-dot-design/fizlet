@@ -24,6 +24,7 @@ html[data-theme="light"] .fzl-violet { --accent-text: #5f48ba; --accent-ink: #21
 .fzl .lab-key[aria-pressed="true"],.fzl .primary-key{background:var(--accent);color:var(--accent-ink)}
 .fzl .lab-key[aria-pressed="true"],.fzl .lab-key[aria-pressed="true"]:hover{transform:translate(3px,3px)!important;box-shadow:0 0 0 var(--ink)!important}
 .fzl .lab-key:disabled{opacity:.45;cursor:default}
+@media (pointer:coarse){.fzl .lab-key{min-height:44px}}
 .fzl .lab-readout{font:600 10px/1.4 var(--mono);letter-spacing:.06em;color:var(--muted)}
 
 /* duel */
