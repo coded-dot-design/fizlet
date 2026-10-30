@@ -9,6 +9,8 @@
 /** A colour for a character: a hex, or a role name (`team`, `enemy`, `hazard`…) a palette fills. */
 export type Paint = string;
 
+/** One sprite as data: its frames as rows of characters, the colour or role of each character, its
+ *  pivot and an optional outline. */
 export interface SpriteDef {
   /** Rows of characters, one per pixel (one frame), or a list of those (an animation). */
   frames?: string[] | string[][];
@@ -26,6 +28,7 @@ export interface SpriteDef {
   paint?: (c: CanvasRenderingContext2D, frame: number, color: (p: Paint) => string) => void;
 }
 
+/** Options for `sprites()`: the palettes and the size of the baked-tile cache. */
 export interface SpriteOptions {
   /**
    * Palettes: role → hex. Index 0 is the default and fills roles the others leave out. The key `*`
@@ -113,6 +116,8 @@ export function sprites<K extends string>(defs: Record<K, SpriteDef>, o: SpriteO
 
   function tile(id: number | K, frame = 0, scale = 1, palette = 0): Tile {
     const i = typeof id == "string" ? ids[id] : id;
+    // Every real sprite has N >= 1; a name or number that isn't one would read another sprite's tile.
+    if (!N[i]) throw new RangeError("fizlet/sprite: no sprite " + id);
     const f = ((frame | 0) % N[i]! + N[i]!) % N[i]!;
     const k = Math.min(8, Math.max(1, Math.ceil(scale))) | 0;
     const p = palette & 31;
@@ -144,6 +149,7 @@ export function sprites<K extends string>(defs: Record<K, SpriteDef>, o: SpriteO
     /**
      * Draw sprite `id` (number from `ids`, or its name) with its pivot at (x, y), turned by `angle`
      * radians, `scale` pixels per sprite pixel. Bakes on the first call; after that, no allocation.
+     * An id that names no sprite throws a RangeError (as `tile` does).
      */
     draw(ctx: CanvasRenderingContext2D, id: number | K, frame: number, x: number, y: number, angle = 0, scale = 1, palette = 0) {
       const i = typeof id == "string" ? ids[id] : id;
@@ -172,4 +178,5 @@ export function sprites<K extends string>(defs: Record<K, SpriteDef>, o: SpriteO
     },
   };
 }
+/** The sprite set `sprites()` returns: `draw()` blits a baked frame. */
 export type Sprites = ReturnType<typeof sprites>;

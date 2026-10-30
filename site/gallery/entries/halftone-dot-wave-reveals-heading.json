@@ -1,0 +1,22 @@
+{
+  "no": 22,
+  "id": "halftone-dot-wave-reveals-heading",
+  "date": "2026-10-30",
+  "prompt": "a halftone dot wave reveals every heading",
+  "title": "Attack of the Halftone",
+  "kind": "micro",
+  "theme": "heroes-comics",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.18.0",
+  "made": "by hand",
+  "module": "pieces/halftone-press.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 9",
+  "approved": "2026-10-30"
+}

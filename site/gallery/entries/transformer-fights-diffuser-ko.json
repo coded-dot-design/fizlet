@@ -1,0 +1,35 @@
+{
+  "no": 32,
+  "id": "transformer-fights-diffuser-ko",
+  "date": "2026-10-30",
+  "prompt": "the transformer fights the diffuser to a KO",
+  "title": "The transformer fights the diffuser to a KO",
+  "kind": "micro",
+  "theme": "model-battles",
+  "author": "chris-cooley",
+  "recipe": "fight",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 35.9
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/transformer-fights-diffuser-ko.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "approved": "2026-10-30"
+}

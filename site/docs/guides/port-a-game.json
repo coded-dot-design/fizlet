@@ -1,0 +1,97 @@
+{
+  "slug": "port-a-game",
+  "section": "guides",
+  "order": 3,
+  "nav": "Port a game",
+  "eyebrow": "Guide · porting",
+  "title": "Move a game",
+  "subtitle": "onto the kernel.",
+  "summary": "Hand an existing game loop to the kernel, one step at a time, with the size measured before and after.",
+  "lead": [
+    "Five games have moved onto Fizlet's kernel so far. A port keeps gameplay: same numbers, same controls, and the page comes back byte for byte. What changes is underneath. This guide is the order that worked, smallest change first, each step tested before the next."
+  ],
+  "blocks": [
+    {
+      "type": "features",
+      "layout": "steps",
+      "heading": "The order",
+      "items": [
+        {
+          "title": "Measure first",
+          "body": "Bundle the game as it ships today, minified and gzipped, and write the number down. Every port so far got bigger in bytes; you want to know by how much, and what each byte bought."
+        },
+        {
+          "title": "Hand the loop to the kernel",
+          "body": "Replace the game's own `requestAnimationFrame` with one engine. Its update becomes `step` (fixed `dt`), its drawing `render`, and every layout read moves to `read`."
+        },
+        {
+          "title": "Write through the ledger",
+          "body": "Every style, class, attribute, text node or element the game puts on the page goes through `engine.ledger`. Then `destroy()` gives the page back, and a browser test can compare the DOM with a snapshot."
+        },
+        {
+          "title": "Seed it",
+          "body": "Swap `Math.random` in the step for `engine.random`. Now a run replays from its seed, and a replay test can pin the gameplay before you touch the rules."
+        },
+        {
+          "title": "State into typed arrays",
+          "body": "Move positions, health and timers into typed arrays made once. An allocation test (young-generation GCs over many busy steps) tells you when the step stops allocating."
+        },
+        {
+          "title": "Swap in bricks",
+          "body": "Only where one does the same job: `fizlet/collide` for a spatial hash, `fizlet/steer` for movers, `fizlet/rules` for waves, drops and score, `fizlet/board-page` for the page as terrain, `fizlet/arcade` for the whole shell of a page arcade game."
+        },
+        {
+          "title": "Measure again",
+          "body": "Bundle and gzip the port. Say the delta, and say what it bought."
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "label": "STEP 2",
+      "file": "game.ts",
+      "src": "port.ts"
+    },
+    {
+      "type": "text",
+      "heading": "What the ports cost",
+      "body": [
+        {
+          "type": "p",
+          "text": "Every game got bigger in gzip bytes. Most of the growth is the shared Board UI kit the arcade games now bake in; the rest buys steps that never allocate, runs that replay from a seed and one shell for three games. [Moving the games onto a 4 KB kernel](/notes/moving-the-games-onto-a-4-kb-kernel/) has every number."
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "q": "Do I have to port everything at once?",
+          "a": "No. Each step above ships on its own and keeps the game playable. The kernel runs fine with one system that calls the old update and draw."
+        },
+        {
+          "q": "Will the port change how the game plays?",
+          "a": "It shouldn't. Write a replay test from a seed before you start (inputs in, final state out) and keep it green through every step."
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "Read the field notes",
+          "href": "/notes/moving-the-games-onto-a-4-kb-kernel/"
+        },
+        {
+          "label": "Determinism",
+          "href": "/docs/determinism/"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Port an existing game onto the Fizlet kernel",
+    "description": "Move a DOM or canvas game onto Fizlet step by step: one shared loop, writes through the ledger, a seeded step and typed arrays, measured before and after."
+  },
+  "brick": "arcade"
+}

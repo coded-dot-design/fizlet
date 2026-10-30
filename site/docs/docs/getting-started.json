@@ -1,0 +1,95 @@
+{
+  "slug": "getting-started",
+  "section": "docs",
+  "order": 1,
+  "nav": "Getting started",
+  "eyebrow": "Docs · getting started",
+  "title": "Five minutes",
+  "subtitle": "to a running engine.",
+  "summary": "Load Fizlet with one script tag or only the modules you need, start an engine, and give the page back with `destroy()`.",
+  "lead": [
+    "Fizlet is a micro game and animation engine for the DOM: one shared loop, bounded everything, and the page always comes back exactly as it was. The kernel is {size:fizlet (kernel)} gzip ({kb:fizlet (kernel)}), with no runtime dependencies. This page gets an engine running and shows the four calls everything else builds on."
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "heading": "Load it",
+      "body": [
+        {
+          "type": "p",
+          "text": "Pick one. All three ship the same code, built from the same source on every release (v{version} today)."
+        },
+        {
+          "type": "ol",
+          "items": [
+            "**One script tag.** `https://fizlet.com/fizlet.js` puts the kernel and every brick but `fizlet/debug` on `window.fizlet`. No build step. The [quick start](/examples/quick-start.html) runs it as is.",
+            "**ES modules, only what you use.** Import each brick from `https://fizlet.com/dist/`: `index.js` is the kernel, `fx.js` is `fizlet/fx`, and so on. A page that imports the kernel and `fizlet/fx` ships only those.",
+            "**npm (coming soon).** `npm install fizlet` is not published yet. Until it is: `git clone`, `npm ci`, `npm run build` gives you `dist/` with every subpath export (`fizlet`, `fizlet/fx`, `fizlet/slot` …) and its TypeScript types."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "label": "MODULES",
+      "file": "game.ts",
+      "src": "first-engine.ts"
+    },
+    {
+      "type": "text",
+      "heading": "What each call does",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "`createEngine({ root, seed })` makes an engine. `root` is the element it lives in: off screen, it pauses. `seed` feeds `engine.random`, so a run replays.",
+            "`engine.pool(name, cap, create)` makes every item up front. It never grows: when it is full, `acquire()` says no. That is [contract](/docs/contract/) rule 2.",
+            "`engine.add(system)` adds a system with up to four hooks: `read` (measure the page), `step` (simulate, at a fixed 60 Hz), `render` (write the page) and `pause`. [The loop](/docs/loop/) explains the order.",
+            "`engine.start()` joins the page's one shared `requestAnimationFrame`. `engine.destroy()` is [Recall](/docs/recall/): every listener goes and every page change is undone."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "features",
+      "layout": "rows",
+      "heading": "Where next",
+      "items": [
+        {
+          "title": "The ideas",
+          "body": "Read the [contract](/docs/contract/), then [the loop](/docs/loop/), [Recall](/docs/recall/), [budgets](/docs/budgets/) and [determinism](/docs/determinism/). Each page is short and says which test proves it."
+        },
+        {
+          "title": "The bricks",
+          "body": "Input, collision, effects, sprites, sound, timelines, multiplayer and more, each its own import with its own size budget. Every [brick page](/bricks/) lists its whole API from the type declarations."
+        },
+        {
+          "title": "A first build",
+          "body": "[Build a micro game](/guides/micro-game/) end to end, or [fill an Astro slot](/guides/astro-slot/) with a hero scene that costs nothing while it is still."
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "Run the quick start",
+          "href": "/examples/quick-start.html"
+        },
+        {
+          "label": "The contract",
+          "href": "/docs/contract/"
+        },
+        {
+          "label": "Every brick",
+          "href": "/bricks/"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Getting started with Fizlet: a DOM game engine",
+    "description": "Install Fizlet with one script tag or ES modules, start an engine, and give the page back with destroy(). The kernel is under 4 KB gzip, no dependencies."
+  },
+  "brick": "kernel"
+}

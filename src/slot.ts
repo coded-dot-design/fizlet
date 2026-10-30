@@ -1,6 +1,9 @@
 /**
- * fizlet/slot: mount a Fizlet scene into an astro-base-engine slot,
- *   <figure class="ae-slot" data-slot-target="<page>#<slot>" role="img" aria-label="…">.
+ * fizlet/slot: mount a Fizlet scene into an astro-base-engine slot: the element carrying
+ *   class="ae-slot" data-slot-target="<page>#<slot>" role="img" aria-label="…". Both shapes the engine
+ *   has rendered are found: the figure itself (`<figure class="ae-slot">`), or a box inside one
+ *   (`<figure class="ae-slot-figure"><div class="ae-slot">…</div><figcaption class="ae-slot__fallback">`,
+ *   where the caption sits outside the role="img" box and stays: it is not over the scene).
  * - Lazy: nothing loads or runs until the slot comes near the viewport, and then only once the
  *   main thread is idle (or `idle` ms have passed), so the page's own work goes first.
  * - Safe first tap: a tap on the slot before the scene is up loads it at once and is handed to the
@@ -17,6 +20,7 @@
  */
 import { Ledger } from "./kernel/ledger";
 
+/** What a slot's mount function returns: the scene, with `destroy()` to remove it. */
 export interface SlotScene {
   /** Remove the scene (its engine's destroy() restores what it changed). */
   destroy(): void;
@@ -33,6 +37,7 @@ export interface SlotTap {
 /** Build the scene inside `stage` (sized to the slot). `slot` is the figure, read-only. `first` is
  *  the tap that started the load, if one did: act on it as an intent (aim, fire), not as an event. */
 export type SlotMount = (stage: HTMLElement, slot: HTMLElement, first: SlotTap | null) => SlotScene;
+/** Options for `slot()`: how near the viewport the slot must come before loading, and the idle wait. */
 export interface SlotOptions {
   /** How close to the viewport the slot must come before the scene loads (default "200px"). */
   margin?: string;
@@ -42,10 +47,13 @@ export interface SlotOptions {
 
 const REDUCE = "(prefers-reduced-motion: reduce)";
 
-/** The slot figure for "<page>#<slot>" (or null). */
+/** The slot for "<page>#<slot>" (or null): any `.ae-slot` carrying the target, figure or box. */
 export const findSlot = (target: string, doc: Document = document) =>
-  [...doc.querySelectorAll<HTMLElement>("figure.ae-slot[data-slot-target]")].find((f) => f.dataset.slotTarget === target) ?? null;
+  [...doc.querySelectorAll<HTMLElement>(".ae-slot[data-slot-target]")].find((f) => f.dataset.slotTarget === target) ?? null;
 
+/** Mount a scene into an astro-base-engine slot (`target`: its `data-slot-target` or the element).
+ *  `load` runs once the slot nears the viewport and the main thread is idle (or on the first tap);
+ *  with reduced motion it never loads. Returns `el`, `mounted` and `destroy()`. */
 export function slot(target: string | HTMLElement, load: () => Promise<SlotMount> | SlotMount, opts: SlotOptions = {}) {
   const el = typeof target === "string" ? findSlot(target) : target;
   const ctl = new AbortController(), ledger = new Ledger();

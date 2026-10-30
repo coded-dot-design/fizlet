@@ -37,6 +37,7 @@ export function flag(key: string, value = "1") {
   };
 }
 
+/** Options for `tour()`: how many tutorial steps, then how many tips and how often. */
 export interface TourOptions {
   /** Tutorial steps (default 10). */
   steps?: number;
@@ -45,6 +46,8 @@ export interface TourOptions {
   every?: number;
 }
 
+/** DOM-free tutorial steps on engine `e`: it counts time on the current step, moves on when the game
+ *  says the step is done (`coach:step` on the event ring), then cycles tips every `every` seconds. */
 export function tour(e: Engine, o: TourOptions = {}) {
   const steps = Math.max(0, (o.steps ?? 10) | 0), tips = Math.max(1, (o.tips ?? 7) | 0), every = o.every ?? 6;
   // step, card shown (-1: none yet); seconds on this step. Ints in an Int32Array so reading them never boxes.
@@ -82,8 +85,10 @@ export function tour(e: Engine, o: TourOptions = {}) {
     },
   };
 }
+/** The tutorial `tour()` returns. */
 export type Tour = ReturnType<typeof tour>;
 
+/** Options for `card()`: the End button's label and action, and an abort signal. */
 export interface CardOptions {
   /** The End button's label (default "END PRACTICE") and what it does (hidden if none). */
   end?: string;
@@ -114,13 +119,14 @@ export function card(host: HTMLElement, o: CardOptions = {}) {
   const end = el.children[3] as HTMLElement | undefined;
   if (end) {
     end.textContent = o.end ?? "END PRACTICE";
-    end.addEventListener("click", () => o.onEnd!(), { signal: o.signal });
+    end.addEventListener("click", () => o.onEnd!(), { signal: o.signal } as AddEventListenerOptions);
   }
   host.append(el);
-  let ringed: HTMLElement | null = null;
+  // The ringed control's own inline outline, put back exactly when the ring moves on (Recall).
+  let ringed: HTMLElement | null = null, was = ["", ""];
   const set = (n: HTMLElement, v: string) => { if (n.textContent !== v) n.textContent = v; };
   const unring = () => {
-    if (ringed) (ringed.style.outline = ""), (ringed.style.outlineOffset = "");
+    if (ringed) (ringed.style.outline = was[0]!), (ringed.style.outlineOffset = was[1]!);
     ringed = null;
   };
   const api = {
@@ -130,7 +136,7 @@ export function card(host: HTMLElement, o: CardOptions = {}) {
       set(count, c); set(title, t); set(text, body);
       if (target !== ringed) {
         unring();
-        if (target) (target.style.outline = RING), (target.style.outlineOffset = "6px"), (ringed = target);
+        if (target) (was = [target.style.outline, target.style.outlineOffset]), (target.style.outline = RING), (target.style.outlineOffset = "6px"), (ringed = target);
       }
       el.hidden = false;
     },
@@ -143,6 +149,7 @@ export function card(host: HTMLElement, o: CardOptions = {}) {
       el.remove();
     },
   };
-  o.signal?.addEventListener("abort", api.remove, { once: true });
+  // An already-aborted signal never fires: remove at once, like the End button's listener (never added).
+  o.signal?.aborted ? api.remove() : o.signal?.addEventListener("abort", api.remove, { once: true });
   return api;
 }

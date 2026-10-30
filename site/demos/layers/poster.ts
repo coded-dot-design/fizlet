@@ -22,8 +22,8 @@ const B = bounds(), R = RESERVE, r3 = (v: number) => Math.max(0.05, Math.round(v
 // left (slider above the play key), in every orientation; the stack centres in the rest.
 let steps = "";
 for (let v = 250; v <= 1500; v += 50)
-  steps += `@container (min-width:${v}px){.lyr__s{--wp:${r3((v - 24 - R) / (BW + 16))};--we:${r3((v - 44 - LABEL_W - R) / B.w)}}}` +
-    `@container (min-height:${v}px){.lyr__s{--hp:${r3((v - 24) / (BH + 20))};--he:${r3((v - 24) / B.h)};--hg:${r3((v - 24 - 7 * PITCH) / BOUNDS.hb)}}}`;
+  steps += `@container lyr (min-width:${v}px){.lyr__s{--wp:${r3((v - 24 - R) / (BW + 16))};--we:${r3((v - 44 - LABEL_W - R) / B.w)}}}` +
+    `@container lyr (min-height:${v}px){.lyr__s{--hp:${r3((v - 24) / (BH + 20))};--he:${r3((v - 24) / B.h)};--hg:${r3((v - 24 - 7 * PITCH) / BOUNDS.hb)}}}`;
 
 const N = LAYERS.length;
 const e = "var(--e)";
@@ -38,7 +38,7 @@ export { bounds, BOUNDS, LAYERS } from "./data";
 //   groove with the stack's eight plates threaded on it (same tilt as the layers); the plates light
 //   up from the bottom as it rises, and the thumb is the kit's arcade key, moving up and down.
 export const POSTER_CSS = SCENE_CSS + `
-.lyr{--e:0;position:relative;margin:0;width:100%;aspect-ratio:4/5;max-height:640px;container-type:size;background:var(--rim);border:2px solid var(--line);border-radius:14px;overflow:clip;contain:layout paint;content-visibility:auto}
+.lyr{--e:0;position:relative;margin:0;width:100%;aspect-ratio:4/5;max-height:640px;container-type:size;background:var(--rim);border:2px solid var(--line);border-radius:14px;overflow:clip;contain:layout paint;content-visibility:auto;container-name:lyr}
 .lyr__d{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .lyr__p{position:absolute;inset:0;overflow:clip;perspective:4000px;perspective-origin:calc(50% + ${R / 2}px) 50%;font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink)}
 .lyr__s{position:absolute;left:50%;top:50%;width:${BW}px;height:${BH}px;margin:-${BH / 2}px 0 0 -${BW / 2}px;transform-style:preserve-3d;--wp:.6;--hp:.6;--we:.2;--he:.2;--hg:.2;--sp:min(var(--wp),var(--hp));--se:min(var(--we),var(--he),var(--hg));` +
@@ -57,15 +57,15 @@ ${LAYERS.map((_, i) => `.lyr__l:nth-child(${i + 1}){transform:translateZ(calc(${
 .lyr__ui>*{position:absolute;left:0;width:44px;pointer-events:auto}
 .lyr .lyr__play{bottom:0;padding:0;justify-content:center}
 .lyr__play svg{fill:currentColor;stroke:none}.lyr__play[aria-label=Play] .p,.lyr__play[aria-label=Pause] .q{display:none}
-.lyr__sl{top:0;bottom:60px;touch-action:none;outline:none;cursor:ns-resize}
+.lyr__sl{top:0;bottom:60px;touch-action:none;outline:none;cursor:ns-resize;container-type:size}
 .lyr__sl::before,.lyr__sl::after{content:"";position:absolute;left:15px;right:15px;border-radius:7px}
 .lyr__sl::before{top:0;bottom:0;background:var(--surface);border:2px solid var(--line);box-shadow:inset 0 4px 0 var(--rim)}
-.lyr__sl::after{left:19px;right:19px;bottom:4px;height:calc(${e} * (100% - 30px) + 11px);background:var(--k-cmd)}
+.lyr__sl::after{left:19px;right:19px;top:15px;bottom:4px;background:var(--k-cmd);clip-path:inset(calc((1 - ${e}) * (100% - 11px)) 0 0)}
 .lyr__r{position:absolute;z-index:1;inset:13px 0 17px;display:flex;flex-direction:column-reverse;justify-content:space-between;align-items:center}
 .lyr__r i{width:30px;height:30px;margin:-12px 0;border:2px solid var(--line);border-radius:4px;transform:perspective(160px) rotateX(${TILT}deg) rotateZ(${TURN}deg)}
 ${LAYERS.map((_, i) => `.lyr__r i:nth-child(${i + 1}){background:color-mix(in srgb,var(--k-sys) calc(clamp(0,(${e} * ${N} - ${i}) * 2,1) * 100%),var(--card))}`).join("")}
 .lyr__r i:nth-child(${FAULT + 1}){border-color:var(--k-go)}
-.lyr .lyr__k{position:absolute;left:2px;width:40px;min-height:0;height:26px;padding:0;bottom:calc(${e} * (100% - 30px));flex-direction:column;justify-content:center;gap:3px;pointer-events:none;z-index:2}
+.lyr .lyr__k{position:absolute;left:2px;width:40px;min-height:0;height:26px;padding:0;bottom:0;translate:0 calc(${e} * (30px - 100cqh));flex-direction:column;justify-content:center;gap:3px;pointer-events:none;z-index:2}
 .lyr__k b{width:16px;height:3px;background:var(--rim);border-radius:1px}
 .lyr__sl:focus-visible .lyr__k{box-shadow:0 var(--py) 0 var(--edge),0 0 0 3px var(--bg),0 0 0 6px var(--k-sys-ink)}
 @media (prefers-reduced-motion:reduce){.lyr{--e:1}.lyr .lyr__play{display:none}.lyr__sl{bottom:0}}`;
@@ -107,6 +107,9 @@ export const loader = (src = "./layers.js") =>
   `else if(v<0)b.ariaLabel=b.ariaLabel=="Play"?"Pause":"Play";else f.style.setProperty("--e",v/100),s.ariaValueNow=v},` +
   `K={ArrowUp:5,ArrowRight:5,ArrowDown:-5,ArrowLeft:-5,PageUp:25,PageDown:-25,Home:-100,End:100},` +
   `at=e=>{const r=s.getBoundingClientRect();put(Math.max(0,(r.bottom-15-e.clientY)/(r.height-30)*100))};` +
+  // Phones (the site's rule: coarse pointer or ≤ 600px) start on the poster pose with the Play key
+  // showing: the story plays on a tap, never on its own (its frames cost a phone's main thread).
+  `if(matchMedia("(pointer:coarse),(max-width:600px)").matches)b.ariaLabel="Play";` +
   `if(m.matches)s.ariaValueNow=100;` +
   `s.addEventListener("keydown",e=>{const k=K[e.key];if(k)e.preventDefault(),put(Math.max(0,(performance.now()-t<200?c:+s.ariaValueNow)+k))});` +
   `s.addEventListener("pointerdown",e=>{s.setPointerCapture(e.pointerId);at(e)});` +

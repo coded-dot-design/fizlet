@@ -5,7 +5,10 @@
  * page back exactly. It keeps the contract it shows off:
  *   - read measures (only when the layout changed), step simulates on typed arrays and a pooled
  *     wave list (no DOM, no allocation), render writes change-only through engine.ledger;
- *   - the engine pauses off screen and in a hidden tab;
+ *   - the engine pauses off screen and in a hidden tab, and settles (no frames at all) half a
+ *     second after the last thing stops moving; input wakes it. The hint's blink and the roadmap's
+ *     current-phase pulse are the stylesheet's @keyframes on the kernel clock (fizlet/css-clock):
+ *     a few plays, then they rest and settle;
  *   - reduced motion: the engine stays paused, and a click jumps straight to the settled result
  *     (engine.advance by hand), a still frame instead of an animation.
  */
@@ -15,9 +18,12 @@ import { effects } from "../src/fx";
 import { sound } from "../src/sound";
 import { guardLayout } from "../src/debug";
 import { press, slam } from "../src/ui/board-ui";
+import { cssClock } from "../src/css-clock";
 
 const root = document.querySelector<HTMLElement>("[data-demo]");
 if (root) run(root);
+// The roadmap's current phase: its pill pulses (the kit's bui-locked keyframes) three times, then rests.
+for (const li of document.querySelectorAll<HTMLElement>('.phase[data-phase="now"]')) cssClock(li, { span: 1.8, fps: 30 });
 
 /** Run the demo on its figure (`[data-demo]`); the gallery mounts it in a slot. Returns its engine. */
 export function run(root: HTMLElement) {
@@ -44,7 +50,9 @@ export function run(root: HTMLElement) {
   st[MEASURE] = 1;
   const MAXQ = 8, Q = new Float32Array(MAXQ * 3); // pending blasts: x, y, power
 
-  const engine = createEngine({ root, seed: 7, pause: { reducedMotion: true } });
+  const engine = createEngine({ root, seed: 7, settle: 0.5, pause: { reducedMotion: true } });
+  // The hint blinks four times on its own clock, then rests (gone after the first click).
+  cssClock(hint, { span: 1.1, loops: 4, fps: 30, signal: engine.signal });
   guardLayout(engine);
   const pad = controls(engine, { target: board, keys: { blast: ["KeyB"], recall: ["KeyR"] } });
   const fx = effects({ cap: 420, words: ["BOOM", "KAPOW", "FIZZ", "POP", "BLAM"] });
@@ -150,6 +158,11 @@ export function run(root: HTMLElement) {
       }
       fx.step(dt);
       if (st[SCORCH]! > 0) st[SCORCH]! -= dt;
+      // Anything still moving (or fading) keeps the engine awake; otherwise it settles.
+      let moving = st[PENDING]! > 0 || items.length > 0 || fx.live > 0 || fx.shake > 0.05 || st[SCORCH]! > 0 || st[SHAKING]! > 0 || st[MEASURE]! > 0;
+      for (let b = 0; b < N && !moving; b++) moving = awake[b] === 1 || dirty[b] === 1;
+      if (moving) e.busy();
+      calm[0] = moving ? 0 : 1;
     },
 
     // RENDER: change-only writes, every page change through the ledger (so Recall can undo it).
@@ -194,10 +207,14 @@ export function run(root: HTMLElement) {
         st[DRAWN] = active ? 1 : 0;
       }
       if (st[TICK]!++ % 6 === 0) hud();
+      // Nothing moving: once the engine has settled (0.5 s), the HUD says so.
+      if (calm[0] && !quietHud) quietHud = window.setTimeout(() => ((quietHud = 0), hud()), 700);
     },
   });
 
-  // ---------- HUD: engine.stats(), about 10 times a second ----------
+  // ---------- HUD: engine.stats(), about 10 times a second (and once more after it settles) ----------
+  let quietHud = 0;
+  const calm = new Uint8Array(1); // step found nothing moving: the engine is about to settle
   const cells = new Map<string, HTMLElement>();
   for (const el of root.querySelectorAll<HTMLElement>("[data-stat]")) cells.set(el.dataset.stat!, el);
   const put = (key: string, v: string) => {
@@ -249,6 +266,7 @@ export function run(root: HTMLElement) {
   const on = { signal: engine.signal };
   board.addEventListener("pointerdown", () => !engine.running && settle(), on);
   press(root.querySelector<HTMLElement>("[data-blast]")!, () => {
+    engine.wake();
     pad.press("blast");
     pad.press("blast", false);
     if (!engine.running) settle();
@@ -260,7 +278,11 @@ export function run(root: HTMLElement) {
     soundKey.setAttribute("aria-pressed", String(sfx.on));
   }, engine.signal);
 
-  new ResizeObserver(() => (st[MEASURE] = 1)).observe(board);
+  new ResizeObserver(() => ((st[MEASURE] = 1), engine.wake())).observe(board);
+  // Off screen the figure says so (data-offscreen); the engine pauses itself.
+  const io = new IntersectionObserver((l) => root.toggleAttribute("data-offscreen", !l[l.length - 1]!.isIntersecting));
+  io.observe(root);
+  engine.signal.addEventListener("abort", () => io.disconnect(), { once: true });
   engine.start();
   hud();
   // For the site test (and the curious): the engine behind the demo.

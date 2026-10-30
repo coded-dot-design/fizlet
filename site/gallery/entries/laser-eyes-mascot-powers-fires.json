@@ -1,0 +1,35 @@
+{
+  "no": 41,
+  "id": "laser-eyes-mascot-powers-fires",
+  "date": "2026-10-30",
+  "prompt": "laser eyes mascot powers on and fires",
+  "title": "Laser eyes mascot powers on and fires",
+  "kind": "micro",
+  "theme": "crypto-memes",
+  "author": "chris-cooley",
+  "recipe": "meme",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 24.87
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/laser-eyes-mascot-powers-fires.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "approved": "2026-10-30"
+}

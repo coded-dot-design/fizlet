@@ -1,0 +1,23 @@
+{
+  "no": 20,
+  "id": "pow-bam-zap-comic-bursts",
+  "date": "2026-10-30",
+  "prompt": "POW BAM ZAP comic bursts where you click",
+  "title": "POW! BAM! ZAP!",
+  "kind": "micro",
+  "theme": "heroes-comics",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.18.0",
+  "made": "by hand",
+  "module": "pieces/pow-bam-zap.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 9",
+  "approved": "2026-10-30"
+}

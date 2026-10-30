@@ -1,0 +1,24 @@
+{
+  "no": 26,
+  "id": "hero-lands-cyan-shockwave-tap",
+  "date": "2026-10-30",
+  "prompt": "a hero lands with a cyan shockwave where you tap",
+  "title": "A hero lands with a cyan shockwave where you tap",
+  "kind": "micro",
+  "theme": "heroes-comics",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.16.0",
+  "made": "by hand",
+  "module": "pieces/hero-lands-cyan-shockwave-tap.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "approved": "2026-10-30"
+}

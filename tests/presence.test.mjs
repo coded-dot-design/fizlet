@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { minorGCs } from "./gc.mjs";
 
 const { createEngine, seeded } = await import("../src/index.ts");
-const { presence, memory, hash32, INPUT, LEAVE } = await import("../src/presence.ts");
+const { presence, memory, websocket, hash32, INPUT, HASH, LEAVE } = await import("../src/presence.ts");
 const { syncCheck } = await import("../src/presence-check.ts");
 
 const UP = 1, DOWN = 2, LEFT = 4, RIGHT = 8, FIRE = 16, SHOTS = 32;
@@ -109,6 +109,69 @@ test("presence: a desync is caught at the next hash check", () => {
   a.e.destroy(), b.e.destroy();
 });
 
+// A cheating seat 0 sends two different inputs for frame F: b steps F between them, c only after
+// the second. Last write wins would split the sims; first write wins keeps them identical.
+test("presence: first input wins: a second, different input for a frame can't split the peers", () => {
+  const hub = memory({ peers: 3 }), F = 40, N = 200;
+  const b = client(1, 3, hub.ends[1], { log: true }), c = client(2, 3, hub.ends[2], { log: true });
+  const cheat = (f, v) => {
+    const m = new Uint8Array(12), dv = new DataView(m.buffer);
+    m[0] = INPUT, m[1] = 0, m[2] = 3;
+    dv.setUint32(4, f, true), dv.setUint32(8, v, true);
+    hub.ends[0].send(m);
+    hub.tick();
+  };
+  const to = (x, frame) => {
+    for (let i = 0; x.net.frame < frame && i < 1000; i++) (x.e.advance(1 / 60), hub.tick());
+    assert.equal(x.net.frame, frame);
+  };
+  cheat(1, 99); // frames before `delay` are pre-filled with 0 on every peer: not rewritable either
+  assert.equal(b.net.confirmed(0, 1), 0);
+  assert.equal(c.net.dropped, 1);
+  for (let f = 2; f < F; f++) cheat(f, f & 7);
+  cheat(F, RIGHT | FIRE);
+  for (let f = 0; f < F; f++) to(b, f + 1), to(c, f + 1); // both at frame F, F not run yet
+  to(b, F + 1); // b runs F with the first input
+  cheat(F, LEFT | UP); // the second, different input for F reaches both
+  to(c, F + 1); // c runs F after it
+  assert.equal(b.net.confirmed(0, F), RIGHT | FIRE);
+  assert.equal(c.net.confirmed(0, F), RIGHT | FIRE, "c kept the first input, like b");
+  assert.equal(c.net.dropped, 2, "the second input is refused and counted");
+  for (let f = F + 1; f < N; f++) cheat(f, f & 7), to(b, f), to(c, f);
+  to(b, N), to(c, N);
+  assert.deepEqual(c.hashes.slice(0, N), b.hashes.slice(0, N), "same state every frame");
+  assert.equal(b.net.desync, -1);
+  assert.equal(c.net.desync, -1);
+  // A second hash for one frame is refused too (the first one is what the check compares).
+  const d0 = b.net.dropped;
+  hub.ends[0].send(Object.assign(new Uint8Array(12), { 0: HASH, 4: 210 }));
+  hub.ends[0].send(Object.assign(new Uint8Array(12), { 0: HASH, 4: 210, 8: 1 }));
+  hub.tick();
+  assert.equal(b.net.dropped - d0, 1, "the second hash for frame 210 is dropped");
+  b.e.destroy(), c.e.destroy();
+});
+
+test("presence: join() passes its protocols to the WebSocket (the room's invite, out of the URL)", async () => {
+  const real = globalThis.WebSocket, made = [];
+  globalThis.WebSocket = class extends EventTarget {
+    constructor(url, protocols) {
+      super();
+      made.push([url, protocols]);
+      this.readyState = 1;
+      this.send = () => {};
+      this.close = () => {};
+    }
+  };
+  try {
+    const { join } = await import("../src/presence.ts");
+    const p = join("wss://rooms.example/room/1?players=2", undefined, ["fizlet-rooms", "invite.ABCD-EFGH-JK"]);
+    assert.deepEqual(made[0], ["wss://rooms.example/room/1?players=2", ["fizlet-rooms", "invite.ABCD-EFGH-JK"]]);
+    p.catch(() => {});
+  } finally {
+    globalThis.WebSocket = real;
+  }
+});
+
 test("presence: bounded window, lost seats, destroy", () => {
   const hub = memory({ peers: 2 });
   const a = client(0, 2, hub.ends[0]), b = client(1, 2, hub.ends[1]);
@@ -130,6 +193,34 @@ test("presence: bounded window, lost seats, destroy", () => {
   assert.ok(a.net.stalls >= 18);
   a.e.destroy();
   assert.throws(() => presence(createEngine(), { transport: hub.ends[0], slot: 0, players: 2, delay: 40, input: () => 0, step() {} }));
+  // A seat outside 0..players-1 (or a fraction) never stores its own input: refused, not a silent stall.
+  for (const [slot, players] of [[-1, 2], [0.5, 2], [2, 2], [NaN, 2], [0, 33]])
+    assert.throws(() => presence(createEngine(), { transport: hub.ends[0], slot, players, input: () => 0, step() {} }), RangeError, `slot ${slot} of ${players}`);
+});
+
+// A WebSocket stand-in: send copies the bytes before it returns (as browsers and Workers do).
+function fakeSocket() {
+  const got = new Uint8Array(12), n = new Int32Array(1);
+  return { got, n, ws: { readyState: 1, binaryType: "", addEventListener() {}, close() {}, send(d) { got.set(d); n[0]++; } } };
+}
+
+test("presence: the WebSocket transport sends the 12 bytes as given and allocates nothing per message", async (t) => {
+  const f = fakeSocket(), tr = websocket(f.ws), out = new Uint8Array(12);
+  out.set([1, 0, 0, 0, 7, 1, 0, 0, 9, 0, 0, 0]);
+  tr.send(out);
+  assert.deepEqual([...f.got], [...out]);
+  assert.equal(f.n[0], 1);
+  f.ws.readyState = 3;
+  tr.send(out);
+  assert.equal(f.n[0], 1, "nothing goes out on a closed socket");
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  f.ws.readyState = 1;
+  for (let i = 0; i < 20000; i++) (out[4] = i), tr.send(out);
+  const minor = await minorGCs(() => {
+    for (let i = 0; i < 400000; i++) (out[4] = i), tr.send(out);
+  });
+  console.log(`# young-generation GCs over 400k WebSocket sends: ${minor}`);
+  assert.ok(minor <= 1, `the transport allocated per message: ${minor} scavenges`);
 });
 
 test("presence: adds no allocation to the steady state (exchange + memory link)", async (t) => {

@@ -1,0 +1,24 @@
+{
+  "no": 23,
+  "id": "red-cape-whooshes-top",
+  "date": "2026-10-30",
+  "prompt": "a red cape whooshes across the top",
+  "title": "A red cape whooshes across the top",
+  "kind": "micro",
+  "theme": "heroes-comics",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.16.0",
+  "made": "by hand",
+  "module": "pieces/red-cape-whooshes-top.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "approved": "2026-10-30"
+}

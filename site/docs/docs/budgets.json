@@ -1,0 +1,67 @@
+{
+  "slug": "budgets",
+  "section": "docs",
+  "order": 6,
+  "nav": "Size budgets",
+  "eyebrow": "Docs · budgets",
+  "title": "Every kilobyte",
+  "subtitle": "is a choice.",
+  "summary": "Every module has a gzip budget checked in CI. The table is measured on the build you are reading.",
+  "lead": [
+    "Each module has a size budget, and CI fails when one is over. The kernel is {size:fizlet (kernel)} gzip against a budget of {budget:fizlet (kernel)}. The table below is not typed: this page is built by the same code that checks the budgets, so the numbers are the ones measured on v{version}."
+  ],
+  "blocks": [
+    {
+      "type": "sizes",
+      "heading": "Measured on this build",
+      "note": "Minified and gzipped with everything each entry pulls in (1 KB = 1024 bytes), the way `npm run size` checks it in CI. Over a budget, the build fails."
+    },
+    {
+      "type": "text",
+      "heading": "How we measure",
+      "body": [
+        {
+          "type": "ol",
+          "items": [
+            "**One measurement.** `scripts/sizes.mjs` bundles each entry with esbuild (ESM, ES2022, minified), gzips the output and compares it with the budget. `npm run size` (CI) and the website both call it, so a page can't show a number CI didn't check.",
+            "**Everything it imports.** A brick's size includes the kernel parts it pulls in. That is what a page pays for it alone.",
+            "**Live bytes for demos.** Every live demo on this site wears a size badge: the gzip of the chunk it loads plus its static imports, measured at build. The site test measures it again and fails if they disagree.",
+            "**Budgets move only with a reason.** When one goes up, the changelog says how much and why, and the [release notes](/news/) keep it."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "The hero budget",
+      "body": [
+        {
+          "type": "p",
+          "text": "A page hero's live chunk (kernel, bricks and the scene's own code) has a budget of 10 KB gzip. The page build (kernel, `fizlet/slot`, `fizlet/input` and `fizlet/fx`) is {size:page build (kernel+slot+input+fx)} against {budget:page build (kernel+slot+input+fx)}, which leaves about 3 KB for the scene. A test fails if sound, debug, the pad, the HUD, match or the Board UI get into it."
+        },
+        {
+          "type": "p",
+          "text": "The two story heroes on the home page are inside it. Measured in 0.19.0: the layers scene's live chunk is 9,727 B and the fizz scene's 8,752 B, each loaded only once its slot nears the viewport."
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "q": "Why gzip and not minified bytes?",
+          "a": "Because gzip is what crosses the wire for a script on almost every host. The changelog gives minified bytes too where a change is about them."
+        },
+        {
+          "q": "Why is fizlet/arcade so much bigger?",
+          "a": "It is a shell, not a brick: it composes the kernel, board-page, input, the pad, sound, the HUD and the Board UI keys, so a page game is only its rules and art. Its budget counts all of them."
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Fizlet size budgets: every module, measured",
+    "description": "Every Fizlet module's gzip size and budget, measured on this build the way CI checks it: a kernel under 4 KB, a page build under 7 KB, heroes under 10."
+  },
+  "brick": "perf"
+}

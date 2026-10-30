@@ -1,0 +1,40 @@
+{
+  "no": 31,
+  "id": "candy-cauldron",
+  "date": "2026-10-30",
+  "prompt": "candy cauldron: tap to drop candy into a bubbling cauldron and watch it fizz",
+  "title": "Candy Cauldron",
+  "kind": "hero",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "cauldron",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/fx",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 36,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 22.41,
+      "throttle4x": {
+        "frames": 275,
+        "p95Ms": 3.8,
+        "maxMs": 52.1
+      }
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/candy-cauldron.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "approved": "2026-10-30"
+}

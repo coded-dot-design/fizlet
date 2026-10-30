@@ -1,0 +1,35 @@
+{
+  "no": 34,
+  "id": "context-window-takes-punches-until",
+  "date": "2026-10-30",
+  "prompt": "the context window takes punches until it overflows",
+  "title": "The context window takes punches until it overflows",
+  "kind": "micro",
+  "theme": "model-battles",
+  "author": "chris-cooley",
+  "recipe": "fight",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 32,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 37.92
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/context-window-takes-punches-until.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "approved": "2026-10-30"
+}

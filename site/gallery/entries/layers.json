@@ -4,12 +4,19 @@
   "date": "2026-10-29",
   "prompt": "Battlefield Blitz comes apart into the stack of bricks it is built from, then folds back into the game",
   "title": "Layers",
-  "by": "Chris Cooley",
+  "kind": "hero",
+  "theme": "everyday",
+  "author": "chris-cooley",
   "recipe": "hand-built",
-  "bricks": ["fizlet/kernel", "fizlet/sprite", "fizlet/slot"],
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
   "made": "by hand",
   "module": "../demos/layers/scene.ts",
   "export": "mountSlot",
   "figure": "layers",
-  "link": "demos/layers/"
+  "link": "demos/layers/",
+  "approved": "2026-10-29"
 }

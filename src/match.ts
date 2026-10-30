@@ -7,12 +7,14 @@
  * the phase machine headless (tests, a server).
  */
 import { READ, STEP, type Engine, type System } from "./kernel/engine";
-import { slam } from "./ui/board-ui";
 
+/** Where a match is: the intro, the countdown, play, paused or the end. */
 export type Phase = "intro" | "count" | "play" | "paused" | "end";
 /** A sticker: kicker (small, blinking) and word (big). */
 export type Sticker = [kicker: string, word: string];
+/** The overlay's sticker keys, by what they do. */
 export type MatchKey = "start" | "resume" | "surrender" | "again" | "next";
+/** Every word on the match overlay: the stickers per phase, the countdown kicker and the key labels. */
 export interface MatchLabels extends Record<MatchKey, string> {
   intro: Sticker;
   /** The kicker over the 3-2-1. */
@@ -23,6 +25,7 @@ export interface MatchLabels extends Record<MatchKey, string> {
   /** Lost by surrender (the white flag). */
   flag: Sticker;
 }
+/** How a match ended: won or lost, why, and the clock. */
 export interface MatchResult {
   won: boolean;
   /** "time" (the clock ran out), "flag" (surrender) or what the game passed to finish(). */
@@ -30,6 +33,7 @@ export interface MatchResult {
   /** The clock when it ended. */
   clock: number;
 }
+/** Options for `match()`: the countdown, the match length, labels and key icons, the pause keys. */
 export interface MatchOptions {
   /** Countdown beats of one second before play (default 3; 0 skips it). */
   count?: number;
@@ -48,6 +52,12 @@ export interface MatchOptions {
   timeUp?(): boolean;
   /** The kit's launch burst (`launch` from fizlet/ui) for PRESS START and SURRENDER. */
   launch?(key: HTMLElement, action: () => void, o: { reduced?: boolean }): void;
+  /** Each phase change, once it is painted (in the call that made it, or in the render of the frame
+   *  a step made it in): a host that owns more than the overlay (fizlet/arcade's skirmish preset)
+   *  follows the phase here. Not called for the first intro. */
+  on?(phase: Phase): void;
+  /** Phases that show no overlay (the phase machine and its events still run), e.g. ["paused"]. */
+  hide?: Phase[];
 }
 
 const PH: Phase[] = ["intro", "count", "play", "paused", "end"];
@@ -64,6 +74,9 @@ const WORDS: MatchLabels = {
 };
 const svg = (d: string) => `<svg viewBox="0 0 64 64" aria-hidden="true" shape-rendering="crispEdges">${d}</svg>`;
 
+/** The shared match flow on engine `e`, intro → count → play → paused → end, on the Board UI overlay
+ *  in `root`. Every transition is an event on the ring (`match:play`, …). Drive it with `start()`,
+ *  `pause()`, `finish()`, `restart()`; read `phase` and `clock`. */
 export function match(e: Engine, root: HTMLElement | null, o: MatchOptions = {}) {
   const lab = { ...WORDS, ...o.labels }, L = e.ledger, total = o.seconds ?? 0, beats = o.count ?? 3;
   const codes = o.keys ?? ["Escape", "KeyP"];
@@ -73,7 +86,7 @@ export function match(e: Engine, root: HTMLElement | null, o: MatchOptions = {})
   // Events raised outside a frame wait here and go out in the next read (the ring is per frame).
   const q = new Uint8Array(8), qa = new Float64Array(8);
   let phase = INTRO, painted = -1, qn = 0, dirty = 0, won = false, going = false, why = "";
-  let prev: HTMLElement | null = null;
+  let prev: HTMLElement | null = null, flagT: ReturnType<typeof setTimeout> | undefined;
   const inert: HTMLElement[] = [];
   const inFrame = () => e.phase === READ || e.phase === STEP;
   const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -109,12 +122,14 @@ export function match(e: Engine, root: HTMLElement | null, o: MatchOptions = {})
         e.start();
         emit(6);
         const r = reduced();
-        setTimeout(() => boom(k, () => !e.signal.aborted && going && m.finish(false, "flag"), r), r ? 0 : 480);
+        flagT = setTimeout(() => boom(k, () => !e.signal.aborted && going && m.finish(false, "flag"), r), r ? 0 : 480);
       },
       () => m.restart(),
       () => m.intro(),
     ];
     keys.forEach((k, i) => k.addEventListener("click", () => act[i]!(k), on));
+    // The white flag's wait dies with the engine (a listener on `on` would be gone before abort fires).
+    e.signal.addEventListener("abort", () => clearTimeout(flagT), { once: true });
     addEventListener("keydown", (ev) => {
       if (!codes.includes(ev.code) || ev.metaKey || ev.ctrlKey || ev.altKey || (ev.composedPath()[0] as Element).closest?.(EDIT)) return;
       if ((phase === PLAY || phase === PAUSED) && !going) {
@@ -124,15 +139,22 @@ export function match(e: Engine, root: HTMLElement | null, o: MatchOptions = {})
     }, on);
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") phase === PLAY && hold(true, 1);
-      else if (!ov!.hidden) slam(sticker);
+      else if (!ov!.hidden) slam();
     }, on);
   }
 
+  // The sticker slams again: re-inserted, its CSS animation restarts with no layout read (the kit's
+  // slam() reads offsetWidth, a forced reflow on every phase change and countdown beat).
+  function slam() {
+    ov!.insertBefore(sticker, ov!.firstChild);
+  }
   function emit(code: number, a = 0) {
     if (inFrame()) e.events.emit(EV[code]!, a);
     else if (qn < 8) (q[qn] = code), (qa[qn++] = a);
   }
   function go(p: number, a = 0) {
+    // A destroyed engine's match is inert: a late call can't write past Recall.
+    if (e.signal.aborted) return;
     phase = p;
     emit(p === END ? (won ? 4 : 5) : p, a);
     // DOM writes never happen in a step: a transition there is painted in this frame's render.
@@ -146,35 +168,37 @@ export function match(e: Engine, root: HTMLElement | null, o: MatchOptions = {})
 
   function paint() {
     dirty = 0;
-    const p = phase, fresh = p !== painted;
+    const p = phase, was = painted, fresh = p !== was;
     let w: Sticker = p === COUNT ? [lab.count, "" + n[2]] : p === END ? (won ? lab.won : why === "flag" ? lab.flag : lab.lost) : p === PLAY ? lab.paused : (lab[PH[p] as "intro"]);
     painted = p;
     if (fresh && p === END) w = o.end?.({ won, why, clock: n[0]! }) || w;
-    if (!ov) return;
-    const show = p !== PLAY, doc = ov.getRootNode() as Document, act = doc.activeElement as HTMLElement | null;
-    L.attr(ov, "hidden", show ? null : "");
-    L.attr(ov, "data-phase", PH[p]!);
-    keys.forEach((k, i) => (L.style(k, "display", (MASK[p]! >> i) & 1 ? "" : "none"), L.cls(k, "go", false)));
-    if (show) {
-      L.text(kick, w[0]);
-      L.text(word, w[1]);
-      L.attr(ov, "aria-label", `${w[0]} ${w[1]}`);
-      slam(sticker);
-      // Modal: everything else in the root is inert while the overlay is up.
-      for (const c of root!.children as HTMLCollectionOf<HTMLElement>) if (c !== ov && !c.hasAttribute("inert")) (inert.push(c), L.attr(c, "inert", ""));
-      const k = keys[Math.log2(MASK[p]! & -MASK[p]!)];
-      // Focus moves to the primary key (the dialog itself when it has none), unless the player is
-      // busy elsewhere on the host page.
-      if (fresh && (!act || act === doc.body || root!.contains(act))) {
-        if (!ov.contains(act)) prev = act;
-        (k ?? ov).focus({ preventScroll: true });
+    if (ov) {
+      const show = p !== PLAY && !o.hide?.includes(PH[p]!), doc = ov.getRootNode() as Document, act = doc.activeElement as HTMLElement | null;
+      L.attr(ov, "hidden", show ? null : "");
+      L.attr(ov, "data-phase", PH[p]!);
+      keys.forEach((k, i) => (L.style(k, "display", (MASK[p]! >> i) & 1 ? "" : "none"), L.cls(k, "go", false)));
+      if (show) {
+        L.text(kick, w[0]);
+        L.text(word, w[1]);
+        L.attr(ov, "aria-label", `${w[0]} ${w[1]}`);
+        slam();
+        // Modal: everything else in the root is inert while the overlay is up.
+        for (const c of root!.children as HTMLCollectionOf<HTMLElement>) if (c !== ov && !c.hasAttribute("inert")) (inert.push(c), L.attr(c, "inert", ""));
+        const k = keys[Math.log2(MASK[p]! & -MASK[p]!)];
+        // Focus moves to the primary key (the dialog itself when it has none), unless the player is
+        // busy elsewhere on the host page.
+        if (fresh && (!act || act === doc.body || root!.contains(act))) {
+          if (!ov.contains(act)) prev = act;
+          (k ?? ov).focus({ preventScroll: true });
+        }
+      } else {
+        for (const c of inert) L.attr(c, "inert", null);
+        inert.length = 0;
+        if (prev?.isConnected && (!act || act === doc.body || ov.contains(act))) prev.focus({ preventScroll: true });
+        prev = null;
       }
-    } else {
-      for (const c of inert) L.attr(c, "inert", null);
-      inert.length = 0;
-      if (prev?.isConnected && (!act || act === doc.body || ov.contains(act))) prev.focus({ preventScroll: true });
-      prev = null;
     }
+    if (fresh && was >= 0) o.on?.(PH[p]!);
   }
 
   const system: System = {
@@ -183,6 +207,8 @@ export function match(e: Engine, root: HTMLElement | null, o: MatchOptions = {})
       qn = 0;
     },
     step(_, dt) {
+      // The countdown and the clock are motion: a settling engine stays awake for them.
+      if (phase === COUNT || phase === PLAY) e.busy();
       if (phase === COUNT) {
         const c = Math.ceil((n[1]! -= dt) - 1e-9);
         if (c <= 0) go(PLAY);
@@ -245,4 +271,5 @@ export function match(e: Engine, root: HTMLElement | null, o: MatchOptions = {})
   paint();
   return m;
 }
+/** The match flow `match()` returns. */
 export type Match = ReturnType<typeof match>;

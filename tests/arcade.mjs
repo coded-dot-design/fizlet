@@ -2,7 +2,8 @@
 // letters into bits and scores; an action key from the definition works from the keyboard and the
 // scoreboard; a link on the page doesn't navigate while a run is live; P pauses; the game reporting
 // over() gives the page back at once and keeps the scoreboard with the result until Escape; Recall
-// restores the page byte for byte; a run that fails to start leaves nothing; phones get the pad.
+// restores the page byte for byte; a run that fails to start leaves nothing; phones get the pad; a
+// live run locks pinch and double-tap zoom on the page, and stopping gives them back.
 import assert from "node:assert/strict";
 import { build, transform } from "esbuild";
 import { readFileSync } from "node:fs";
@@ -11,13 +12,14 @@ import { launchOptions } from "./chromium.mjs";
 
 const kit = (await transform(readFileSync("src/ui/board-ui.css", "utf8"), { loader: "css", minify: true })).code;
 const GAME = `
-import { arcade, MODE, PX, PON, KX, KY, FIRE, VW, VH, TARGET_HP } from "./src/arcade.ts";
+import { arcade, skirmishHud, MODE, PX, PON, KX, KY, FIRE, VW, VH, TARGET_HP } from "./src/arcade.ts";
 export function launch(options = {}) {
   return arcade({
     id: "test-game", title: "Test Game", color: "#06c4ff", css: ${JSON.stringify(kit)}, fire: true,
     hint: "Fire up the page", actions: [{ id: "end", key: "KeyK", label: "K · End" }],
     readouts: [["Score", "team", (v) => String(v).padStart(6, "0")], ["Shots"]],
     meter: { label: "Progress" }, colors: ["#06c4ff"], cues: { fire: "fire" },
+    ...(options.skirmish ? { hud: skirmishHud({ readouts: [{ label: "Score" }, { label: "Shots" }], overlays: [] }) } : {}),
     create(ctx) {
       const e = ctx.engine, c = ctx.ctl, s = new Float64Array(6); // x, y, score, shots, over, cooldown
       e.add({ step(_, dt) {
@@ -133,6 +135,37 @@ try {
   assert.deepEqual(errs, []);
   await p.close();
 
+  where = "hidpi and drag";
+  // A 2x screen: the canvas covers the viewport at its CSS size (its backing store is denser), so what
+  // it draws lines up with the page. Every preset's panel drags (not by its keys) and stays on screen.
+  for (const skirmish of [false, true]) {
+    const hd = await browser.newContext({ viewport: { width: 1000, height: 700 }, deviceScaleFactor: 2 });
+    const hp = await hd.newPage();
+    await hp.setContent(PAGE);
+    await hp.evaluate((skirmish) => (window.g = T.launch({ root: "#board", sound: false, skirmish })).start(), skirmish);
+    await hp.waitForTimeout(100);
+    const at = () => hp.locator("[data-fizlet-host=test-game]").evaluate((h) => {
+      const c = h.shadowRoot.querySelector("canvas"), p = h.shadowRoot.querySelector(".bui>section"), t = p.querySelector("b").getBoundingClientRect();
+      return { w: c.getBoundingClientRect().width, h: c.getBoundingClientRect().height, cw: c.width, x: t.left + 4, y: t.top + t.height / 2, box: p.getBoundingClientRect().toJSON() };
+    });
+    const a = await at();
+    assert.deepEqual([a.w, a.h, a.cw], [1000, 700, 1500], "the canvas is the viewport's CSS size at 2x (backing 1.5x)");
+    await hp.mouse.move(a.x, a.y);
+    await hp.mouse.down();
+    const dy = a.box.top > 350 ? -250 : 250; // toward open space
+    await hp.mouse.move(a.x - 200, a.y + dy, { steps: 5 });
+    await hp.mouse.up();
+    const b = await at();
+    assert.ok(Math.abs(b.box.left - (a.box.left - 200)) < 2 && Math.abs(b.box.top - (a.box.top + dy)) < 2, `${skirmish ? "skirmish" : "arcade"} panel dragged: ${JSON.stringify([a.box.left, a.box.top, b.box.left, b.box.top])}`);
+    await hp.mouse.move(b.x, b.y);
+    await hp.mouse.down();
+    await hp.mouse.move(-900, -900, { steps: 3 });
+    await hp.mouse.up();
+    const c = await at();
+    assert.ok(c.box.left >= 0 && c.box.top >= 0, "and stays on screen");
+    await hd.close();
+  }
+
   where = "phone";
   const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const pp = await phone.newPage();
@@ -140,8 +173,25 @@ try {
   await pp.evaluate(() => (window.g = T.launch({ root: "#board", sound: false })).start());
   const pad = await pp.locator("[data-fizlet-host=test-game]").evaluate((h) => ({ stick: !!h.shadowRoot.querySelector(".bui-stick"), keys: h.shadowRoot.querySelectorAll(".bui-pad button").length, compact: h.shadowRoot.querySelector(".ar").classList.contains("compact") }));
   assert.ok(pad.stick && pad.keys >= 2 && pad.compact, JSON.stringify(pad));
+  // Touch lock (fizlet/touch): while a run is live a pinch anywhere on the page (the board) never
+  // zooms it and the page is touch-action: manipulation (no double-tap zoom); stop() gives both back.
+  // Raw touch points: Chromium's synthesized touch pinch never zooms headless.
+  where = "phone touch lock";
+  const cdp = await phone.newCDPSession(pp);
+  const pinch = async () => {
+    const pts = (type, l) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: l.map(([x, y], id) => ({ x, y, id })) });
+    await pts("touchStart", [[180, 120], [210, 120]]);
+    for (let i = 1; i <= 10; i++) await pts("touchMove", [[180 - i * 12, 120], [210 + i * 12, 120]]);
+    await pts("touchEnd", []);
+    await pp.waitForTimeout(300);
+    return pp.evaluate(() => [visualViewport.scale, getComputedStyle(document.documentElement).touchAction]);
+  };
+  assert.deepEqual(await pinch(), [1, "manipulation"], "a live run: a pinch on the page does not zoom; no double-tap zoom");
+  await pp.evaluate(() => window.g.stop());
+  const [scale, ta] = await pinch();
+  assert.ok(scale > 1.2 && ta === "auto", `stopped: the page pinch-zooms again (${scale}, ${ta})`);
   await phone.close();
-  console.log("arcade: play, in-page art, readouts and meter, action key, target paint, links and fields, pause, game over then Escape, Recall exact, failed start, phone pad passed.");
+  console.log("arcade: play, in-page art, readouts and meter, action key, target paint, links and fields, pause, game over then Escape, Recall exact, failed start, 2x canvas at CSS size, every preset's panel drags, phone pad, phone touch lock and its release passed.");
 } catch (err) {
   console.error(`arcade test failed at: ${where}`);
   throw err;

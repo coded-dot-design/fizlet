@@ -1,0 +1,40 @@
+{
+  "no": 29,
+  "id": "pumpkin-slice",
+  "date": "2026-10-30",
+  "prompt": "pumpkin slice: swipe through the pumpkins as they arc up, halves and seeds fall",
+  "title": "Pumpkin Slice",
+  "kind": "hero",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "slice",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/fx",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 35,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 25.16,
+      "throttle4x": {
+        "frames": 396,
+        "p95Ms": 8.1,
+        "maxMs": 193.2
+      }
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/pumpkin-slice.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "approved": "2026-10-30"
+}

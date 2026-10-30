@@ -4,12 +4,22 @@
   "date": "2026-10-29",
   "prompt": "every letter on a little page is a real element: blast it, then Recall puts the page back exactly",
   "title": "How it works: blast it, Recall it",
-  "by": "Chris Cooley",
+  "kind": "micro",
+  "theme": "everyday",
+  "author": "chris-cooley",
   "recipe": "hand-built",
-  "bricks": ["fizlet/kernel", "fizlet/input", "fizlet/fx", "fizlet/sound", "fizlet/debug", "fizlet/ui"],
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/input",
+    "fizlet/fx",
+    "fizlet/sound",
+    "fizlet/debug",
+    "fizlet/ui"
+  ],
   "made": "by hand",
   "module": "seeds/howitworks.ts",
   "export": "mount",
   "figure": "howitworks",
-  "link": "#play"
+  "link": "#play",
+  "approved": "2026-10-29"
 }

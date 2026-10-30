@@ -1,18 +1,18 @@
 {
-  "date": "2026-10-29",
+  "date": "2026-10-30",
   "browser": "153",
   "throttle4x": {
-    "frames": 347,
-    "avgMs": 1.3,
+    "frames": 168,
+    "avgMs": 1.1,
     "p95Ms": 4,
-    "maxMs": 18.2
+    "maxMs": 13.6
   },
   "settled": {
     "framesPerSecond": 0
   },
   "cls": {
-    "page": 0.0215,
-    "posterOnly": 0.0215,
+    "page": 0.0209,
+    "posterOnly": 0.0209,
     "fromSlot": 0
   },
   "offscreen": {
@@ -27,8 +27,8 @@
     "sceneWhenNear": true
   },
   "bytes": {
-    "loader": 2023,
-    "chunk": 9701,
+    "loader": 2047,
+    "chunk": 8752,
     "poster": 3457
   }
 }

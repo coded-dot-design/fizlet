@@ -6,6 +6,7 @@
  */
 import type { Engine } from "./kernel/engine";
 
+/** A built-in sound cue the synth can play. */
 export type Cue = "fire" | "hit" | "boom" | "hurt" | "power" | "ready" | "win" | "end" | "click";
 type Note = [from: number, to: number, sec: number, delay: number, wave: OscillatorType, vol: number];
 const NOTES: Record<Cue, Note[]> = {
@@ -20,6 +21,7 @@ const NOTES: Record<Cue, Note[]> = {
   click: [[600, 360, 0.045, 0, "triangle", 0.12]],
 };
 
+/** Options for `sound()`: which event types play which cue, on or off, volume, or your own player. */
 export interface SoundOptions {
   /** event type → cue, e.g. { shot: "fire", wreck: "boom" }. */
   cues: Record<string, Cue>;
@@ -31,6 +33,9 @@ export interface SoundOptions {
   play?: (cue: Cue, intensity: number) => void;
 }
 
+/** The sound adapter for engine `e`: after each frame it plays the cue mapped to each event in the
+ *  ring. Silent until the first trusted gesture and while paused; set `on` to mute, `dispose()` to
+ *  remove it. */
 export function sound(e: Engine, o: SoundOptions) {
   const ctl = new AbortController(), sig = { signal: ctl.signal };
   let ctx: AudioContext | undefined, master: GainNode | undefined, on = o.on ?? true, voices = 0;
@@ -53,7 +58,9 @@ export function sound(e: Engine, o: SoundOptions) {
   if (!o.play) for (const t of ["pointerdown", "pointerup", "keydown"]) addEventListener(t, unlock, { signal: ctl.signal, capture: true });
 
   function play(cue: Cue, intensity = 1) {
-    if (!on || !e.running || ctl.signal.aborted) return;
+    // Known cues only, by own key: an event type or cue such as "constructor" would otherwise
+    // find Object.prototype's (a function, not notes) and throw in render, stopping the game.
+    if (!on || !e.running || ctl.signal.aborted || !Object.hasOwn(NOTES, cue)) return;
     if (o.play) return o.play(cue, intensity);
     if (!ctx || !master || ctx.state !== "running") return;
     const now = ctx.currentTime;
@@ -105,4 +112,5 @@ export function sound(e: Engine, o: SoundOptions) {
     },
   };
 }
+/** The sound adapter `sound()` returns. */
 export type Sound = ReturnType<typeof sound>;

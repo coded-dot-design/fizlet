@@ -1,0 +1,23 @@
+{
+  "no": 21,
+  "id": "speed-lines-rush-past-heading",
+  "date": "2026-10-30",
+  "prompt": "speed lines rush past every heading",
+  "title": "Here comes the rush",
+  "kind": "micro",
+  "theme": "heroes-comics",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.18.0",
+  "made": "by hand",
+  "module": "pieces/speed-lines.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 9",
+  "approved": "2026-10-30"
+}

@@ -111,6 +111,8 @@ deeper on light.
 
 - A key's base is its own colour, deep: `color-mix(in srgb, var(--c) 45%, var(--rim))`.
 - Card / orbit base: `--k-cmd-base = color-mix(in srgb, var(--k-cmd) 50%, var(--rim))`.
+- White text on command (back tab, status pills): `--k-cmd-deep = color-mix(in srgb, var(--k-cmd) 80%, var(--rim))`
+  (#f6f3ff on it is 4.9:1; on `--k-cmd` itself it would be 3.4:1).
 - Glow (dark only): rest 14u at 40%, hover 18u at 55%, press 22u at 70% of `--c`.
 - Your team colour: `--team` = `--team-a`, or `--team-b` when the root has `data-side="1"`.
 
@@ -212,7 +214,7 @@ calm: `animation: none` on locked footer keys.
 - **Platoon key** (`.bui-unit`): number over size pips; health colours; `.active` = white outline
   2u at 2u offset; lost = disabled, pressed flat, number struck through.
 - **Pager** (`.bui-pager`): ‹ ★ › as one sys bar; ★ = your own unit, pressed when you are selected.
-- **Shortcut chip** (`kbd`): 9u mono, 1u currentColor border, 70% opacity, always right-aligned.
+- **Shortcut chip** (`kbd`): 9u mono, 1u currentColor border, 88% opacity (`--bui-kbd-alpha`: rim ink stays AA on every face), always right-aligned.
 
 ### 5.5 Touch pad (`fizlet/pad`, CSS section 11)
 
@@ -287,7 +289,7 @@ Rename per game (e.g. SQUAD, CREW, SHIPS) but keep the grammar.
 - **Fold key**: the card's icon/number is a real button. Click/tap/Enter/Space shrinks the card to
   that key; a hover/focus tip says "Click to shrink" / "Click to expand". A hint strip (CLICK THE
   NUMBER TO SHRINK) shows on first open.
-- **Back tab** (`.bui-back-tab`): "‹ PREVIOUS STEP" on the top edge, left side, cmd, 22u tall. A
+- **Back tab** (`.bui-back-tab`): "‹ PREVIOUS STEP" on the top edge, left side, `--k-cmd-deep`, 22u tall. A
   card with a back tab keeps 22u of top padding so its title never meets the tab.
 - **Height**: a card fits its content, up to a cap (the map height minus room for the launch key);
   its body scrolls past the cap. A resize handle can shorten a card, never stretch it past its
@@ -599,3 +601,32 @@ pressed, never focusable.
   - Bind `values` with `fizlet/hud` (`num(values[0], [state, SCORE])`): change-only and allocation-free.
   - Add the group through the engine's ledger, or mount it inside a kit root the game owns, so Recall removes it.
 - **Placement is the game's layout:** where the group sits (corner, rail, header) may vary per game. The look may not.
+
+## 19. Game HUD presets (`fizlet/arcade` `hud`)
+
+The standard game UI is DOM Battlefield / Blitz's, scoped per game: a game keeps its own rules and
+picks its controls and scoreboard from one set. `arcade(def)` takes `hud`, a preset; every piece is
+opt-in, and a preset is its own export, so a game only ships (and only bakes the CSS of) the one it
+names. Leaving `hud` out keeps the card byte for byte.
+
+| Preset | Layout | Pieces |
+|---|---|---|
+| `arcadeHud()` (default) | card, bottom right; folded at the top on phones | sound / pause / fold / exit; readouts; one meter; nav: actions, Next gate, Restart, Auto fire; toast; pad (stick + Fire) |
+| `skirmishHud({...})` (Blitz) | bar across the top; wraps to two rows on phones | fullscreen / sound / pause / fold / exit; nav when asked: Auto fire, Next gate, Restart; readouts (`num`, `clock`, `rank`, `pct`, `bar`); aim toggles; action keys with count badges; feed; banner; pause / surrender / countdown / result overlays; pad with aim toggles and counted keys |
+| `widget` (later) | card | Swarm Protocol's widget, behind a side-by-side screenshot check |
+| `cockpit` (later) | rails on phones | DOM Battlefield's minimap, command card, orders |
+
+- **Readouts** are section 18's: label, value, tone. A `bar` readout is a track with the fill as
+  the `progressbar`, `low` turning it to `--hurt`.
+- **Overlays** are section 9's, run by `fizlet/match` (one owner of the phase): one dim layer, one
+  sticker, at most two sticker keys, the toast for the explanation. Pause: BATTLE PAUSED / GIVE UP?
+  (KEEP FIGHTING · SURRENDER). Result: INSERT COIN / GAME OVER, WHITE FLAG / GAME OVER or
+  STAGE CLEAR / MISSION COMPLETE (REMATCH · EXIT), with the chosen stats and the best on this
+  device; it stays up after the run until dismissed. Countdown: GET READY 3, 2, 1 on the flow's
+  clock, then the game's engine starts.
+- **Counts** are the kit's badge (`.bui-badge`, section 7) on the action's bar key and pad key.
+- **Values** go through `fizlet/hud` from typed-array slots: change-only, no layout reads, nothing
+  allocated in the steady state. The game fills `hud(out)` in readout order, then the count slots.
+- **Recall** is exact with any preset: the page comes back at once when a run ends, and the
+  overlay host goes on Escape or the exit key (full screen too).
+
