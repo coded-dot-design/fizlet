@@ -166,6 +166,13 @@
   as the domain tokens, so the site chrome ported in the Board UI change leaves the pending list
   (site.css 17 to 0, board-ui.css 12 to 1). The brick cards' and Outbreak stages' hard shadows go
   through `tokenShadows()`; same look on fizlet.com (0 1).
+- **Website: the team's AI agent on /people/.** Contributors get a third `kind`, `agent` (an AI
+  agent persona: a handle, no url, like a persona), and an optional `pronouns` string shown on the
+  profile. Every agent card and page says "AI agent — an AI agent persona on the Fizlet team, not a
+  real person" (`AGENT_NOTE`), its eyebrow reads AI AGENT and its JSON-LD stays a Thing, never a
+  Person. The index lists the maker, then the agents, then the house personas. First agent: Quill
+  (`site/contributors/quill.json`), the keeper, with an original pixel owl holding a quill. Chris
+  Cooley's role now reads "Chef Unicorn · creator of Fizlet". Tests: `tests/people.test.mjs`.
 - **Tests: `fizlet/css-clock` has its zero-allocation proof** (`tests/css-clock.test.mjs`): 200k steps while it plays and 200k whole frames at rest (held) each take ≤ 1 young-generation GC (best of 3 windows). Its tests never counted allocations (touch has no loop; arcade is covered by #144) (2026-10-30 code audit, `fe audit fizlet`). Tests only; no size change.
 - **Kernel fix: `start()` on a settled engine runs again.** It cleared the settled bit but not the
   quiet time, so the first frame after it (0 s, no steps) found the engine still quiet and put it
