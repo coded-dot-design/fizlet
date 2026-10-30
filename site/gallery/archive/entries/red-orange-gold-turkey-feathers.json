@@ -1,35 +1,34 @@
 {
-  "no": 25,
-  "id": "comic-panel-wipes-heading",
+  "no": 8,
+  "id": "red-orange-gold-turkey-feathers",
   "date": "2026-10-30",
-  "prompt": "a comic panel wipes across every heading",
-  "title": "A comic panel wipes across every heading",
+  "prompt": "red orange and gold turkey feathers fan out on hover",
+  "title": "Red orange and gold turkey feathers fan out on hover",
   "kind": "micro",
-  "theme": "heroes-comics",
+  "theme": "thanksgiving",
   "author": "chris-cooley",
-  "recipe": "wipe",
+  "recipe": "burst",
   "bricks": [
     "fizlet/kernel",
-    "fizlet/board-page",
+    "fizlet/fx",
     "fizlet/slot"
   ],
   "pageCost": {
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 36,
+      "framesPlaying": 33,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 13.32,
-      "elementsLit": 3
+      "allocBytesPerFrame": 1.37
     }
   },
   "fizlet": "0.16.0",
   "made": "fe anim",
-  "module": "anims/comic-panel-wipes-heading.ts",
+  "module": "anims/red-orange-gold-turkey-feathers.ts",
   "export": "mount",
   "aspect": "16 / 9",
-  "stage": "page"
+  "archived": true
 }

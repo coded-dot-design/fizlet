@@ -88,7 +88,10 @@ try {
   // Search snippets: every indexable page has its own title (30–60) and description (70–155), and
   // JSON-LD that parses; sitemap.xml and llms.txt list exactly those pages; robots.txt points at both.
   const sitemap = readFileSync(`${ROOT}/sitemap.xml`, "utf8"), llms = readFileSync(`${ROOT}/llms.txt`, "utf8"), robots = readFileSync(`${ROOT}/robots.txt`, "utf8");
-  const indexable = PAGES.filter((p) => p !== "404.html");
+  const fileOf = (path) => `${ROOT}/${path === "" || path.endsWith("/") ? `${path}index.html` : path}`;
+  // Indexable: not the 404, not a noindex page (the gallery archive).
+  const indexable = PAGES.filter((p) => p !== "404.html" && !/<meta name="robots" content="[^"]*noindex/i.test(readFileSync(fileOf(p), "utf8")));
+  assert.ok(PAGES.includes("gallery/archive/") && !indexable.includes("gallery/archive/"), "the gallery archive is built and kept out of search");
   const heads = indexable.map((path) => {
     const html = readFileSync(`${ROOT}/${path === "" || path.endsWith("/") ? `${path}index.html` : path}`, "utf8");
     for (const [, ld] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(ld);

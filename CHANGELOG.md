@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Gallery: quality over quantity.** Of the 23 recipe entries made by `fe anim`, the owner kept 7
+  (pink sparks, neon rain, POW BAM ZAP, speed lines, halftone wave, red cape, hero landing); the
+  other 16 move into an archive, `gallery/archive/` (noindex, out of the gallery's index and
+  search), kept to revisit and numbered A006–A025. The Christmas and
+  Thanksgiving themes live only there. The gallery keeps the fizz, layers and how-it-works.
 - **`fizlet/timeline`** (new brick, 2,050 B gzip, budget 2,304; the target was 1,536): scripted DOM
   choreography on the kernel clock, for the animations still on WAAPI or CSS keyframes (a cartridge
   flying into a console, a screen growing through `clip-path`, doors folding open, staggered
