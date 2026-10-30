@@ -130,6 +130,14 @@ lockTouch(document, null); // a full-screen board: the whole page` },
 
 const c = cssClock(diagram, { span: 6, loops: 3 }); // rests on frame one, settles
 pauseButton.onclick = () => c.hold(!held); // c.destroy() gives the page back` },
+  { id: "layout", status: "experimental", since: "0.21.0", tests: ["layout.test.mjs", "layout.mjs"], used: [], why: "New in E10 (diagrams): the first diagram on fizlet.com is next to ship on it; its API may still change.",
+    tag: "LAYOUT", role: "advance", modules: [mod("fizlet/layout", "layout")],
+    snippet: `const g = layout(e, { cap: 64, cx: 320, cy: 200 }); // DOM-free, typed arrays
+const a = g.add(), b = g.add();
+g.link(a, b, 60); // settles in ≤ 300 steps, then stops calling busy()
+g.pin(a, px, py); // a drag: the rest flows round it; g.free(a) lets go
+const [l, t, r, b] = g.bounds(box); // left, top, right, bottom
+fit(cam, l, t, r - l, b - t); // frame it with fizlet/camera` },
   { id: "view-canvas", status: "experimental", since: "0.21.0", tests: ["view-canvas.test.mjs", "view-canvas.mjs"], used: [], why: "New in E10 (diagrams): the first diagram on fizlet.com is next to ship on it; its API may still change.",
     tag: "VIEW CANVAS", role: "aim", modules: [mod("fizlet/view-canvas", "view-canvas")],
     snippet: `const v = viewCanvas(e, diagram, { label: "Brick graph", draw(ctx, box) { paint(ctx); } });
@@ -157,7 +165,6 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
  * builds on. Each phase is a planned phase of site/roadmap.mjs (E9–E16), which lists these under it.
  */
 export const PLANNED = [
-  { name: "fizlet/layout", phase: "E10", purpose: "Force-directed layout on typed arrays with a Barnes-Hut pass: diagrams and graphs that settle.", target: 2048, needs: ["fizlet", "fizlet/camera"] },
   { name: "fizlet/actor", phase: "E11", purpose: "Entities on typed arrays: spawn, kill, side, health and tags, with fixed capacity.", target: 1229, needs: ["fizlet"] },
   { name: "fizlet/aim", phase: "E11", purpose: "Lead targeting, firing cones and line of sight for bots and turrets.", target: 1024, needs: ["fizlet/steer", "fizlet/grid"] },
   { name: "fizlet/view-dom", phase: "E11", purpose: "Pooled DOM nodes bound to actors, written change-only through the ledger.", target: 1536, needs: ["fizlet/actor"] },
