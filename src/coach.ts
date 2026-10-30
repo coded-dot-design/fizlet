@@ -114,7 +114,7 @@ export function card(host: HTMLElement, o: CardOptions = {}) {
   const end = el.children[3] as HTMLElement | undefined;
   if (end) {
     end.textContent = o.end ?? "END PRACTICE";
-    end.addEventListener("click", () => o.onEnd!(), { signal: o.signal });
+    end.addEventListener("click", () => o.onEnd!(), { signal: o.signal } as AddEventListenerOptions);
   }
   host.append(el);
   let ringed: HTMLElement | null = null;
