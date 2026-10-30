@@ -14,6 +14,26 @@
   2,048); layers live chunk 9,725 B (≤ 9,728). The harness now reports `layerizeMs`, and
   `tests/perf/budgets.json` fails the demo on this regression: p50 ≤ 25 ms, p95 ≤ 67, ≤ 45%
   dropped, `layerizeMs` ≤ 4.
+- **board-page runs in its root's own document and window.** `boardPage(e, { root })` now measures,
+  observes and writes in `root.ownerDocument` (its viewport, `getComputedStyle`, observers, scroll
+  and resize, highlights), so a board inside an iframe's page works. Before, it always used the
+  global `document` and window. Swarm Protocol needs this: its API runs in the document it is given.
+- **The ledger's Recall normalises style text in the element's own document**, not the global one,
+  so restoring an element in another document (or with no global `document`) works.
+- **`fizlet/perf`: the card pins `box-sizing: content-box`.** Its inline width (120px plus
+  padding) assumed content-box, so on a page with a global `* { box-sizing: border-box }` (the
+  DOM VIRUS hub and DOM Battlefield both) its right column clipped. Node test asserts it.
+- **Website: a size badge on every live demo** ("9.4 KB GZ"): the layers hero, the blast board,
+  the fizz can, the quick start, each brick page's demo and every gallery entry. The number is what that demo ships,
+  gzipped, with every chunk it imports statically (`scripts/live-bytes.mjs`), measured on the built
+  file at build time and never typed; kit tokens only; screen readers get the whole description
+  as one (`role="img"` + `aria-label`, no extra CSS needed) and the tooltip has the byte count. One component for all of them: `sizeBadge(bytes, live, what)` in `site/size-badge.mjs`
+  (it replaces the gallery's `{ name, note }` form; one `.size-badge` style). A module's own size
+  names its `scripts/sizes.mjs` entry instead of a file (`"size:fizlet (kernel)"`, the notes' kernel badge).
+  `tests/site.mjs` fails if a live demo has no badge, if a badge's bytes differ from a fresh
+  measurement of the file it names, or if it is hidden. The demos' own standalone pages
+  (`demos/fizz/`, `examples/fizz/`) have none on their demo yet; they are listed in the test. The
+  layers story page shows its badge in the caption, through the same component.
 - **The fizz, dialled in** (the brand animation, `site/demos/fizz/`). A tap **crunches** the can
   (it squashes and dents, and stays dented), then the tab pops. The fizz **sprays out of the
   card**: a geyser, a burst and a glug fly on a pixel layer the card's width, reaching from 70% of
@@ -68,6 +88,24 @@
   throttle): live chunk 9,609 → 9,717 B gzip (still ≥ 5% under 10 KB), poster + loader 2,962 →
   3,153 B; script per frame 0.8 ms median, 3.1 ms p95; CLS 0; 0 frames settled.
 - **Website: notes (`/notes/`)**, posts written for fizlet.com from `site/notes/<slug>.json` (generated, never hand-edited), on the site's own parts: section head, panels, stat cards, kit keys, and the kernel's size badge measured on the build. BlogPosting + FAQPage JSON-LD; listed in the sitemap and under Notes in llms.txt. First note: "Moving the games onto a 4 KB kernel" (every number from the size ledger and this changelog).
+- **`fizlet/steer`** (new brick, 950 B gzip, budget 1,280): `seek`, `flee`, `arrive`, `wander` and
+  `patrol` for movers on typed arrays (position, heading, wander goal, patrol leg), DOM-free. The
+  heading turns at most `turn` rad/s and walls are checked per axis, like DOM Battlefield Blitz's tank
+  `drive`; its defaults are Blitz's numbers. A test runs `wander`, `seek` and `arrive` frame by frame
+  against Blitz's practice movers, bots and wingmen (same seed, same walls: identical positions and
+  headings). `flee` and `patrol` are the same drive pointed away from a point, or along a route. No
+  allocation per frame across 1M frames with 16 movers: it ships its own `hypot` (the same bits as
+  `Math.hypot`, tested), because V8 boxes `Math.hypot`'s arguments, and `blocked(i, at)` gets the
+  spot in a typed array for the same reason.
+- **`fizlet/coach`** (new brick, 1,192 B gzip, budget 1,536): the hints and tutorial layer of DOM
+  Battlefield and Blitz. `flag(key, value)` is a once-only localStorage switch whose reads and
+  writes are each wrapped in try/catch (blocked storage reads "not set"). `tour(engine)` runs the
+  tutorial steps, then cycles tips, says `coach:step` on the ring, and allocates nothing per frame.
+  `card(host)` is the Board UI coach card (DOM Battlefield's dashed card, on the kit tokens): it
+  writes only what changed and rings the control it is about. Tests: `tour` frame by frame against
+  Blitz's practice coach (steps, time on the step, the card shown, the power-up events), `flag`
+  against Battlefield's tips switch (each reads what the other wrote; blocked and missing storage),
+  and the card in Chromium.
 
 ## 0.16.0
 
