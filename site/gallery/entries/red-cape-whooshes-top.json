@@ -7,28 +7,18 @@
   "kind": "micro",
   "theme": "heroes-comics",
   "author": "chris-cooley",
-  "recipe": "trail",
+  "recipe": "hand-built",
   "bricks": [
     "fizlet/kernel",
+    "fizlet/sprite",
     "fizlet/fx",
     "fizlet/slot"
   ],
-  "pageCost": {
-    "settles": true,
-    "measured": {
-      "chromium": "153.0.8010.12",
-      "framesPlaying": 32,
-      "framesSettled": 0,
-      "framesOffscreen": 0,
-      "recallExact": true,
-      "reducedMotionStill": true,
-      "allocBytesPerFrame": 72.19
-    }
-  },
   "fizlet": "0.16.0",
-  "made": "fe anim",
-  "module": "anims/red-cape-whooshes-top.ts",
+  "made": "by hand",
+  "module": "pieces/red-cape-whooshes-top.ts",
   "export": "mount",
   "aspect": "16 / 9",
+  "stage": "own",
   "approved": "2026-10-30"
 }
