@@ -12,14 +12,23 @@ import { extname, join, normalize } from "node:path";
 import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
 import { checkHtml } from "../scripts/check-html.mjs";
+import { checkNav } from "../scripts/check-nav.mjs";
 import { SITE, ROOT as SITE_ROOT } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
-import { entries as galleryEntries, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
+import { entries as galleryEntries, isLive, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
 import { notes as siteNotes, notePath } from "../scripts/notes.mjs";
 import { PERSONA_NOTE, authorOf, contributors as profiles } from "../scripts/people.mjs";
 import { gzipSync } from "node:zlib";
 import { checkKeys, checkTaps } from "./keys.mjs";
+import { snippetable, snippetFor, TABLE as MAKE_TABLE } from "../scripts/make.mjs";
+import { slug as makeSlug } from "../site/make/make.mjs";
+
+const slug = (prompt) => makeSlug(MAKE_TABLE, prompt);
+
+const VERSION = JSON.parse(readFileSync("package.json", "utf8")).version;
+/** The size a snippet's header says it is. */
+const snippetSize = (text) => Number(/^ {5}([\d,]+) B gzip, this whole file/m.exec(text)?.[1].replace(/,/g, "") ?? NaN);
 import { liveBytes } from "../scripts/live-bytes.mjs";
 import { docs as siteDocs, docPath } from "../scripts/docs.mjs";
 import { releases as siteReleases, releasePath } from "../scripts/releases.mjs";
@@ -62,6 +71,30 @@ const browser = await chromium.launch(launchOptions());
 const shots = process.env.SITE_SHOTS;
 let where = "start";
 
+// The home page's sections reveal as they come on screen (site/home-motion.ts). The key checks
+// press a key right after scrolling to it, so let every reveal play out first (a key mid-reveal moves).
+// On state, never wall time: each section is brought on screen and waited on until none of its parts
+// is still part-way (a fast scroll past can leave a section waiting, and it would play under a key press).
+async function revealAll(page) {
+  if (!(await page.$("section[data-reveal]"))) return;
+  const left = await page.evaluate(async () => {
+    const frame = () => new Promise((r) => requestAnimationFrame(r));
+    const moving = (s) => [...s.querySelectorAll(":scope > .wrap *")].some((e) => (e.style.opacity !== "" && e.style.opacity !== "1") || (e.style.translate !== "" && e.style.translate !== "0px 0px" && e.style.translate !== "0px"));
+    const stuck = [];
+    for (const s of document.querySelectorAll("section[data-reveal]")) {
+      s.scrollIntoView({ block: "center", behavior: "instant" });
+      await frame(); await frame();
+      let i = 0;
+      for (; i < 600 && moving(s); i++) await frame();
+      if (moving(s)) stuck.push(s.id || s.className);
+    }
+    scrollTo(0, 0);
+    await frame(); await frame();
+    return stuck;
+  });
+  assert.deepEqual(left, [], "every section's reveal plays out once it is on screen");
+}
+
 async function open(context, path) {
   const page = await context.newPage();
   const errors = [];
@@ -94,6 +127,12 @@ try {
   // Indexable: not the 404, not a noindex page (the gallery archive).
   const indexable = PAGES.filter((p) => p !== "404.html" && !/<meta name="robots" content="[^"]*noindex/i.test(readFileSync(fileOf(p), "utf8")));
   assert.ok(PAGES.includes("gallery/archive/") && !indexable.includes("gallery/archive/"), "the gallery archive is built and kept out of search");
+  // Owner: archive the rest, "but definitely no-follow those pages": noindex,nofollow, out of the
+  // sitemap and llms.txt, and the gallery's one quiet link to it is rel="nofollow".
+  assert.match(readFileSync(fileOf("gallery/archive/"), "utf8"), /<meta name="robots" content="noindex,nofollow">/, "the archive is noindex,nofollow");
+  assert.ok(!sitemap.includes("gallery/archive/") && !llms.includes("gallery/archive/"), "the archive is not in the sitemap or llms.txt");
+  const archiveLinks = [...readFileSync(fileOf("gallery/"), "utf8").matchAll(/<a [^>]*href="[^"]*gallery\/archive\/"[^>]*>/g)].map((m) => m[0]);
+  assert.ok(archiveLinks.length === 1 && archiveLinks[0].includes('rel="nofollow"'), `the gallery links the archive once, rel="nofollow" (${archiveLinks.join(" ")})`);
   const heads = indexable.map((path) => {
     const html = readFileSync(`${ROOT}/${path === "" || path.endsWith("/") ? `${path}index.html` : path}`, "utf8");
     for (const [, ld] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(ld);
@@ -113,6 +152,11 @@ try {
   }
   assert.ok(robots.includes(`Sitemap: ${SITE}sitemap.xml`) && /User-agent: \*\nAllow: \//.test(robots), "robots.txt admits crawlers and names the sitemap");
   assert.equal(await status(`${BASE}og.png`), 200, "the social card");
+  // Site nav rules (scripts/check-nav.mjs): one header, an active state, breadcrumbs on deep pages,
+  // external links marked ↗, descriptive link text, no orphan pages. The two standalone example
+  // pages keep their own plain shell (the same ones the landmark gate lists).
+  where = "site nav";
+  assert.deepEqual(checkNav(PAGES.map((path) => ({ path, html: readFileSync(fileOf(path), "utf8") })), { site: SITE, standalone: Object.keys(KNOWN) }), [], "site nav rules");
 
   // ---------- Brick pages: the sizes are the ones measured on this build ----------
   where = "brick sizes";
@@ -131,8 +175,13 @@ try {
 
   // ---------- Gallery: data, pages, theme sections, a size badge measured on this build on every entry ----------
   where = "gallery sizes";
-  const GALLERY = galleryEntries(), THEMES = galleryThemes(), PEOPLE = contributors(), GPAGES = paginate(GALLERY);
+  // The owner's gate: only approved entries are built; a pending one has no card, row or bundle.
+  const GALLERY = galleryEntries().filter(isLive), PENDING = galleryEntries().filter((e) => !isLive(e)), THEMES = galleryThemes(), PEOPLE = contributors(), GPAGES = paginate(GALLERY);
   const INDEX = JSON.parse(readFileSync(`${ROOT}/gallery/index.json`, "utf8"));
+  for (const e of PENDING) {
+    assert.ok(!INDEX.some((r) => r.id === e.id), `${e.id}: pending, not in gallery/index.json`);
+    assert.ok(!existsSync(`${ROOT}/gallery/${e.id}.js`), `${e.id}: pending, no bundle`);
+  }
   const pageFile = (path) => `${ROOT}/${path}index.html`;
   {
     const loader = gzipSync(readFileSync(`${ROOT}/gallery/gallery.js`)).length;
@@ -157,7 +206,7 @@ try {
         assert.ok(html.includes(`data-total="gallery:${e.id}">live ${bytes.toLocaleString("en-US")} B · total <b>${(bytes + loader).toLocaleString("en-US")} B</b>`), `${e.id}: live and total, one size`);
         assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
         // Attribution: "by <name>", linked to the contributor's profile.
-        const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</li>")[0];
+        const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</div>\n    </li>")[0]; // a card ends at its own </li> (a poster may hold lists)
         assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
       }
     }
@@ -173,6 +222,17 @@ try {
       assert.ok(hash === r.id && readFileSync(pageFile(path), "utf8").includes(`<li class="panel gal-item" id="${r.id}"`), `${r.id}: its index url ${r.url} is its card`);
     }
     for (const id of ["fizz", "layers", "howitworks"]) assert.ok(GALLERY.some((e) => e.id === id), `seeded with ${id}`);
+    // Every entry Make one can make again (made by fe anim from a recipe in its table): a "Get the snippet" key, the same file.
+    for (const e of GALLERY) {
+      const gp = GPAGES.find((x) => x.entries.some((y) => y.id === e.id)), html = readFileSync(pageFile(gp.path), "utf8"), up = "../".repeat(gp.path.split("/").length - 1);
+      const key = html.match(new RegExp(`<a class="bui-key[^"]*" href="${up.replace(/\./g, "\\.")}gallery/${e.id}\\.snippet\\.txt" download="fizlet-${e.id}\\.html" data-snippet="${e.id}">`));
+      assert.equal(!!key, snippetable(e), `${e.id}: a snippet key on every entry Make one can make again`);
+      if (!key) continue;
+      const text = readFileSync(`${ROOT}/gallery/${e.id}.snippet.txt`, "utf8");
+      assert.equal(snippetSize(text), gzipSync(text).length, `${e.id}: the snippet's header says its own gzip size`);
+      assert.equal(text, (await snippetFor(e.prompt, { version: VERSION, id: e.id })).text, `${e.id}: the same file Make one makes`);
+      assert.ok(html.includes(`<b>${gzipSync(text).length.toLocaleString("en-US")} B</b> gzip`), `${e.id}: its size by the key`);
+    }
   }
 
   // ---------- Heroes and people: every hero has a large card; every contributor a profile ----------
@@ -230,7 +290,7 @@ try {
       assert.ok(PAGES.includes(notePath(n)), `${n.slug}: built at ${notePath(n)}`);
       const html = readFileSync(`${ROOT}/${notePath(n)}index.html`, "utf8");
       assert.ok(html.includes(`data-bytes="${kernel.gzip}" data-live="size:${kernel.name}"`), `${n.slug}: the kernel badge shows ${kernel.gzip} B, measured on this build`);
-      assert.match(html, /<p class="note-by">By <a href="https:\/\/coded\.design\/">Chris Cooley<\/a>/, `${n.slug}: by Chris Cooley`);
+      assert.match(html, /<p class="note-by">By <a href="https:\/\/coded\.design\/">Chris Cooley ↗<\/a>/, `${n.slug}: by Chris Cooley`);
       const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
       const post = graph.find((x) => x["@type"] === "BlogPosting");
       assert.equal(post.headline, n.title);
@@ -242,7 +302,7 @@ try {
     }
   }
 
-  // ---------- People and the daily contest: stats measured on this build, personas say so ----------
+  // ---------- People and the weekly contest: stats measured on this build, personas say so ----------
   where = "people";
   {
     const people = profiles(), index = readFileSync(`${ROOT}/people/index.html`, "utf8");
@@ -259,7 +319,10 @@ try {
       assert.ok(p.kind === "owner" ? profile.mainEntity["@id"].endsWith("#author") : !profile.mainEntity && profile.about["@type"] !== "Person", `${p.id}: only the maker is a Person`);
     }
     const contest = readFileSync(`${ROOT}/contest/index.html`, "utf8");
-    assert.match(contest, /60 characters or fewer/);
+    assert.match(contest, /10 KB gzip or less/);
+    assert.match(contest, /Too big to win/);
+    assert.doesNotMatch(contest, /characters or fewer/, "the prompt length is not a rule");
+    assert.match(contest, /One winner a week/);
     assert.match(contest, /Not live yet/, "open prompts are planned, not live");
   }
 
@@ -288,6 +351,19 @@ try {
       });
       assert.ok(over.scroll <= over.w, `${where}: horizontal overflow ${over.scroll} > ${over.w}: ${over.wide.join(", ")}`);
       assert.deepEqual(over.wide, [], `${where}: content wider than the screen`);
+      if (label === "phone") {
+        // Touch: no double-tap zoom anywhere, and no demo surface pans sideways or zooms the page.
+        const touch = await page.evaluate(() => ({
+          html: getComputedStyle(document.documentElement).touchAction,
+          loose: [...document.querySelectorAll(".ae-slot,[data-fizlet-slot],.demo-board,.bd-canvas,.bd-tl,.lab-stage")].filter((el) => {
+            // touch-action narrows down the tree: a surface is locked when it or a parent is.
+            for (let p = el; p; p = p.parentElement) if (/^(none|pan-y)$/.test(getComputedStyle(p).touchAction)) return false;
+            return true;
+          }).map((el) => el.className),
+        }));
+        assert.equal(touch.html, "manipulation", `${where}: the page is touch-action: manipulation`);
+        assert.deepEqual(touch.loose, [], `${where}: demo surfaces are touch-action none or pan-y`);
+      }
       if (label === "desktop") {
         // Size badges: every live demo on the page sits in a host that shows what it ships, and the
         // number is the gzip size of the built file it names (measured again here).
@@ -316,6 +392,7 @@ try {
         const links = await page.evaluate(() => [...document.querySelectorAll("a[href]")].map((a) => a.href));
         for (const href of links) {
           const u = new URL(href);
+          if (u.protocol === "blob:") continue; // a file made in the page (Make one's download)
           if (u.origin !== new URL(ORIGIN).origin) {
             assert.match(u.protocol, /^https:$/, `${where}: external link should be https: ${href}`);
             continue;
@@ -339,16 +416,20 @@ try {
 
   // ---------- Page keys: every in-page key presses (face drops) and clicks on face and base ----------
   let keyCount = 0;
-  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", "heroes/", "contest/", ...siteNotes().map(notePath)]) {
+  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", "heroes/", "contest/", "make/", ...siteNotes().map(notePath)]) {
     where = `page keys ${path || "index"}`;
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const { page, errors } = await open(context, path);
     if (path === "bricks/sound.html") await page.waitForSelector("[data-brick-demo][data-ready]");
+    await revealAll(page);
     keyCount += await checkKeys(page, where);
     assert.deepEqual(errors, [], `${where}: errors`);
     await context.close();
     const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const tap = await open(phone, path);
+    await revealAll(tap.page);
+    // Heroes: the skip below needs the centre card (aria-current), which an IntersectionObserver sets.
+    if (path === "heroes/") await tap.page.waitForSelector("[data-hero][aria-current]");
     // Heroes: on a phone the other cards sit off to the side, and a scroll to one of their keys snaps the
     // row to that card (the key moves under the tap); the centre card's keys are tapped.
     await checkTaps(tap.page, `${where} (phone)`, { skip: path === "heroes/" ? "[data-hero]:not([aria-current])" : "" });
@@ -474,9 +555,10 @@ try {
   where = "gallery";
   {
     const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
-    const { page, errors } = await open(context, "gallery/");
+    // Listen before the page opens: an entry near the top can load before "load" returns.
     const loaded = [];
-    page.on("request", (r) => r.url().includes("/gallery/") && r.url().endsWith(".js") && loaded.push(r.url().split("/gallery/")[1]));
+    context.on("request", (r) => r.url().includes("/gallery/") && r.url().endsWith(".js") && loaded.push(r.url().split("/gallery/")[1]));
+    const { page, errors } = await open(context, "gallery/");
     await page.waitForTimeout(600);
     const G1 = GPAGES[0].entries;
     const last = sections(G1, THEMES).flatMap((x) => x.entries).at(-1).id;
@@ -647,6 +729,59 @@ try {
     await context.close();
   }
 
+  // ---------- Make one: a prompt in, the same snippet the build (and fe anim --snippet) makes, nothing sent ----------
+  where = "make";
+  {
+    const html = readFileSync(`${ROOT}/make/index.html`, "utf8");
+    const script = gzipSync(readFileSync(`${ROOT}/make/make.js`)).length;
+    assert.ok(html.includes(`data-bytes="${script}" data-live="make/make.js"`), `make: the page's script badge shows ${script} B`);
+    assert.match(html, /logged nowhere: no server, no analytics, no tracking/, "make: says unknown words are logged nowhere");
+    const def = readFileSync(`${ROOT}/make/default.snippet.txt`, "utf8");
+    assert.equal(snippetSize(def), gzipSync(def).length, "make: the prebuilt default snippet says its own size");
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    const requests = [];
+    context.on("request", (r) => requests.push(r.url()));
+    const { page, errors } = await open(context, "make/");
+    const made = (id) => page.waitForFunction((id) => document.querySelector("[data-out]").dataset.id === id && document.querySelector("[data-stage] iframe") && /^Made /.test(document.querySelector("[data-status]").textContent), id, { timeout: 8000 });
+    await made("pink-sparks-burst-tap");
+    assert.equal(await page.$eval("[data-code]", (t) => t.value), def, "make: on load it makes the default prompt, the same file as the build");
+    for (const prompt of ["gentle cyan bubbles rise from the bottom", "neon rain that pools on the buttons you hover", "lots of huge green snow falls forever"]) {
+      const node = await snippetFor(prompt, { version: VERSION });
+      await page.fill("#make-prompt", prompt);
+      await page.click("[data-make] button[type=submit]");
+      await made(node.spec.id);
+      const text = await page.$eval("[data-code]", (t) => t.value);
+      assert.equal(text, node.text, `make "${prompt}": the browser makes the same file as Node`);
+      assert.equal(snippetSize(text), gzipSync(text).length, `make "${prompt}": the size in its header is its gzip size`);
+      assert.match(await page.locator("[data-snippet-size]").textContent(), new RegExp(`^${gzipSync(text).length.toLocaleString("en-US")} B`));
+      const matched = await page.locator("[data-matched]").textContent(), miss = await page.locator("[data-miss]").textContent();
+      for (const w of node.spec.matched.recipe) assert.ok(matched.includes(w), `make "${prompt}": shows the matched word ${w}`);
+      for (const w of node.spec.matched.miss) assert.ok(miss.includes(w), `make "${prompt}": shows the miss ${w}`);
+      if (node.spec.matched.miss.length) assert.match(miss, /logged nowhere/);
+      const dl = await page.$eval("[data-download]", (a) => ({ href: a.href, name: a.download }));
+      assert.equal(dl.name, `fizlet-${node.spec.id}.html`);
+      assert.equal(await page.evaluate((href) => fetch(href).then((r) => r.text()), dl.href), text, `make "${prompt}": Download is the same file`);
+      // The preview is the snippet itself, running in a sandboxed frame.
+      const frame = page.frames().find((f) => f !== page.mainFrame());
+      await frame.waitForFunction(() => document.querySelector("[data-fizlet]")?.fizlet?.scene, null, { timeout: 8000 });
+    }
+    // A "Try" key makes its prompt.
+    await page.click("[data-try]");
+    await made(slug(await page.$eval("[data-try]", (b) => b.dataset.try)));
+    // Nothing leaves the page: every request is this site's own files, and the only ones made after
+    // load are the scene templates.
+    assert.deepEqual(requests.filter((u) => !u.startsWith(ORIGIN) && !u.startsWith("blob:") && !u.startsWith("about:") && !u.startsWith("data:")), [], "make: no request leaves the site");
+    const after = requests.filter((u) => u.startsWith(ORIGIN) && !/\.(css|svg|js)$/.test(u) && !u.endsWith("/make/"));
+    assert.ok(after.every((u) => /\/make\/templates\/[\w-]+\.json$/.test(u)), `make: only templates are fetched (${after.join(", ")})`);
+    assert.deepEqual(errors, []);
+    // ?p= fills the box and makes it.
+    const asked = await open(context, `make/?p=${encodeURIComponent("pink snow falls")}`);
+    await asked.page.waitForFunction(() => document.querySelector("[data-out]").dataset.id === "pink-snow-falls" && document.querySelector("[data-stage] iframe"), null, { timeout: 8000 });
+    assert.equal(await asked.page.inputValue("#make-prompt"), "pink snow falls");
+    assert.deepEqual(asked.errors, []);
+    await context.close();
+  }
+
   // ---------- Reduced motion: a still frame, never an animation ----------
   where = "reduced motion";
   {
@@ -662,6 +797,47 @@ try {
     assert.equal(r.running, false);
     assert.deepEqual(errors, []);
     await context.close();
+  }
+
+  // ---------- Home rhythm (site/home-motion.ts): reveals and parallax on fizlet/timeline ----------
+  // Off-screen sections wait hidden and play in on screen; once the scroll stops, everything is
+  // shown and still. With reduced motion nothing is ever hidden or moved. No layout shift either way.
+  where = "home rhythm";
+  {
+    // What is hidden or moved on the page right now: sections' parts below full opacity, layers moved.
+    const moved = (page) => page.evaluate(() => [...document.querySelectorAll("section[data-reveal] *, .hero-field")]
+      .filter((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1")).map((el) => el.className || el.tagName));
+    const cls = () => { window.__cls = 0; new PerformanceObserver((l) => { for (const x of l.getEntries()) if (!x.hadRecentInput) window.__cls += x.value; }).observe({ type: "layout-shift", buffered: true }); };
+    for (const reducedMotion of ["no-preference", "reduce"]) {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 860 }, reducedMotion });
+      await context.addInitScript(cls);
+      const { page, errors } = await open(context, "");
+      await page.waitForTimeout(300);
+      const hidden = await page.evaluate(() => [...document.querySelectorAll("section[data-reveal]")].filter((s) => [...s.querySelectorAll("*")].some((el) => el.style.opacity === "0")).map((s) => [s.id, s.getBoundingClientRect().top >= innerHeight]));
+      if (reducedMotion === "reduce") assert.deepEqual(hidden, [], "reduced motion: no section waits hidden");
+      else assert.ok(hidden.some(([id]) => id === "roadmap") && hidden.every(([, below]) => below), `below the fold waits, in view never hides (${hidden})`);
+      const h = await page.evaluate(() => document.documentElement.scrollHeight);
+      for (let y = 0; y <= h; y += 400) await page.evaluate((y) => scrollTo(0, y), y), await page.waitForTimeout(40);
+      // On state, not time: a loaded runner draws fewer frames, and the kernel caps each frame's dt, so
+      // the last reveals can take longer than any fixed wait. A part that never shows still fails.
+      await page.waitForFunction(() => ![...document.querySelectorAll("section[data-reveal] *")]
+        .some((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1")), null, { polling: "raf", timeout: 15000 }).catch(() => {});
+      assert.deepEqual(await moved(page), [], `${reducedMotion}: every part shown once the reveals end`);
+      if (reducedMotion === "reduce") {
+        assert.equal(await page.evaluate(() => document.querySelector(".sec-num").style.translate), "", "reduced motion: no parallax");
+      } else {
+        assert.notEqual(await page.evaluate(() => document.querySelector(".sec-num").style.translate), "", "parallax moves the ghost numbers");
+        // Still once settled: no frames asked for after the scroll stops. The engine settles a little
+        // after the last reveal ends, so look at up to five 1.2 s windows; one that never settles fails all.
+        let frames = Infinity;
+        for (let i = 0; i < 5 && frames > 2; i++)
+          frames = await page.evaluate(() => new Promise((r) => { let n = 0; const raf = window.requestAnimationFrame; window.requestAnimationFrame = (f) => (n++, raf(f)); setTimeout(() => ((window.requestAnimationFrame = raf), r(n)), 1200); }));
+        assert.ok(frames <= 2, `settled: ${frames} frames asked for in 1.2 s of stillness`);
+      }
+      assert.ok(await page.evaluate(() => window.__cls) < 0.01, "no layout shift from the reveals");
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
   }
 
   // ---------- The quick start example runs ----------

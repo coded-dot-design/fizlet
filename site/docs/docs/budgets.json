@@ -41,7 +41,7 @@
         },
         {
           "type": "p",
-          "text": "The two story heroes on the home page are inside it. Measured in 0.19.0: the layers scene's live chunk is 9,727 B and the fizz scene's 8,752 B, each loaded only once its slot nears the viewport. [How small is small](/notes/how-small-is-small/) walks through the numbers."
+          "text": "The two story heroes on the home page are inside it. Measured in 0.19.0: the layers scene's live chunk is 9,727 B and the fizz scene's 8,752 B, each loaded only once its slot nears the viewport."
         }
       ]
     },

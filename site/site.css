@@ -334,7 +334,7 @@ a.bui-sticker-key {
 }
 .site-foot .wrap {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) repeat(4, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.4fr) repeat(6, minmax(0, 1fr));
   gap: 28px;
   padding-top: 40px;
   padding-bottom: 40px;
@@ -364,6 +364,24 @@ a.bui-sticker-key {
 }
 .site-foot ul a:hover {
   color: var(--k-sys-ink);
+}
+/* Where you are: the page itself, or the section it belongs to (layout.mjs current()). */
+.site-nav a[aria-current] {
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: inset 0 -2px 0 var(--k-sys);
+}
+.site-foot ul a[aria-current] {
+  color: var(--ink);
+  font-weight: 700;
+}
+@media (max-width: 1180px) {
+  .site-foot .wrap {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .site-foot .foot-brand {
+    grid-column: 1 / -1;
+  }
 }
 .foot-base {
   border-top: 1px solid var(--line);
@@ -444,6 +462,9 @@ a.bui-sticker-key {
 .hero {
   position: relative;
   overflow: hidden;
+  /* clip, not a scroll container: the parallaxed field's overflow must never scroll the hero (a
+     focus or scrollIntoView would, and the copy would jump back on the next frame) */
+  overflow: clip;
   isolation: isolate;
   border-bottom: 2px solid var(--line);
   background: radial-gradient(ellipse 70% 70% at 80% 30%, color-mix(in srgb, var(--k-cmd) 16%, transparent), transparent 70%), var(--bg);
@@ -576,7 +597,8 @@ html.bui[data-theme="light"] .hero h1 em {
   cursor: crosshair;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: manipulation;
+  touch-action: pan-y;
+  overscroll-behavior: none;
 }
 .demo-page {
   position: absolute;
@@ -665,10 +687,9 @@ html.bui[data-theme="light"] .dl.hot {
   width: 9px;
   height: 9px;
   border: 2px solid currentColor;
-  animation: blink 1.1s steps(2) infinite;
-}
-[data-offscreen] .blink {
-  animation-play-state: paused;
+  /* On the kernel clock (fizlet/css-clock in demo.ts): paused here, its time is --fz-t. */
+  animation: blink 1.1s steps(2) infinite paused;
+  animation-delay: var(--fz-t, 0s);
 }
 @keyframes blink {
   50% {
@@ -807,6 +828,106 @@ html.bui[data-theme="light"] .dl.hot {
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 26px;
+}
+
+/* Home rhythm (site/home-motion.ts): a divider that draws in and a big ghost number per numbered
+   section, both aria-hidden. fizlet/timeline writes their scale, opacity and translate inline;
+   without JS (or with reduced motion) these resting values are what shows. Only opacity, scale
+   and translate move, on composited layers: nothing shifts the layout or repaints the page. */
+.section[data-reveal] {
+  position: relative;
+  isolation: isolate;
+}
+/* Positioned, each section paints over the one before it, and its box would cover the base of a
+   key that sits on that section's bottom edge (the kit's hit area reaches below the face). The box
+   lets the pointer through; its content takes it back. */
+.section[data-reveal] {
+  pointer-events: none;
+}
+.section[data-reveal] > :not(.sec-rule, .sec-num) {
+  pointer-events: auto;
+}
+.sec-rule {
+  position: absolute;
+  top: 0;
+  left: max(var(--gutter), (100% - var(--page)) / 2 + var(--gutter));
+  right: max(var(--gutter), (100% - var(--page)) / 2 + var(--gutter));
+  height: 2px;
+  background: linear-gradient(90deg, var(--k-sys), var(--k-cmd) 60%, transparent);
+  transform-origin: left;
+  opacity: 0.7;
+}
+.sec-num {
+  position: absolute;
+  z-index: -1;
+  top: clamp(40px, 7vw, 80px);
+  right: max(var(--gutter), (100% - var(--page)) / 2 + var(--gutter));
+  font: 900 clamp(96px, 17vw, 230px) / 1 var(--mono);
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 2px color-mix(in srgb, var(--k-cmd) 40%, transparent);
+  opacity: 0.55;
+  pointer-events: none;
+  user-select: none;
+  will-change: translate;
+}
+.hero-field {
+  will-change: translate;
+}
+@media print {
+  .section[data-reveal] * {
+    opacity: 1 !important;
+    translate: none !important;
+  }
+}
+
+/* On this page: the home page's table of contents, under the stats band */
+.page-toc {
+  border-bottom: 2px solid var(--line);
+}
+.page-toc .wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px 18px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+.page-toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.page-toc a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 5px 10px;
+  font: 700 11px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--muted);
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+}
+.page-toc a b {
+  color: var(--k-sys-ink);
+}
+.page-toc a:hover {
+  color: var(--ink);
+  background: var(--surface);
+}
+@media (max-width: 600px) {
+  .page-toc .wrap {
+    display: block;
+  }
+  .page-toc .bui-label {
+    display: block;
+    margin-bottom: 8px;
+  }
 }
 
 /* 01 contract */
@@ -1373,7 +1494,8 @@ html.bui[data-theme="light"] .phases b {
   border-color: var(--line);
 }
 .phase[data-phase="now"] .phase-pill {
-  animation: bui-locked 1.8s ease-in-out infinite;
+  animation: bui-locked 1.8s ease-in-out infinite paused;
+  animation-delay: var(--fz-t, 0s);
   --lock: var(--k-sys);
 }
 .phase p {
@@ -1552,6 +1674,50 @@ html.bui[data-theme="light"] .phases b {
 }
 
 /* ---------- Responsive ---------- */
+.bricks.compact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.bricks.compact .brick {
+  gap: 8px;
+  padding: 16px;
+}
+.bricks.compact .brick h3 code {
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+.bricks.compact .brick p {
+  font-size: 13.5px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+@media (max-width: 1080px) {
+  .bricks.compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px) {
+  .bricks.compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .bricks.compact {
+    gap: 10px;
+  }
+  .bricks.compact .brick {
+    padding: 12px;
+  }
+  .bricks.compact .brick p {
+    -webkit-line-clamp: 2;
+  }
+  .bricks.compact .brick-size small {
+    display: none;
+  }
+}
 @media (max-width: 1080px) {
   .hero-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -1766,10 +1932,17 @@ html.bui[data-theme="light"] .phases b {
   border-radius: 10px;
   background: var(--code-bg);
   cursor: crosshair;
-  touch-action: manipulation;
+  touch-action: pan-y;
+  overscroll-behavior: none;
 }
 .bd-img {
   image-rendering: pixelated;
+}
+/* Demo surfaces, like the kit's slots (board-ui.css): the page scrolls through them, never pans
+   sideways or zooms; site.ts hands the same list to fizlet/touch for pinch. */
+:is(.bd-tl, .lab-stage) {
+  touch-action: pan-y;
+  overscroll-behavior: none;
 }
 /* The timeline demo: a console and a cartridge, every move written by fizlet/timeline. */
 .bd-tl {
@@ -1996,6 +2169,26 @@ html.bui[data-theme="light"] .phases b {
   .gal-stage figure.gal-tall {
     aspect-ratio: 3 / 5;
   }
+}
+/* A "how it works" lab (site/labs/): the lab's own card is the figure, at its own height, with
+   room for its hard shadow; the caption is the placeholder (hidden once the lab runs). */
+.gal-stage figure.gal-lab {
+  /* The caption's room is kept after the lab mounts (it overlays this padding), so the card below
+     never moves up: no layout shift when the poster becomes the live lab. */
+  padding: 0 6px calc(18px + 11px * 1.4) 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+  cursor: auto;
+}
+.gal-stage .gal-lab-cap {
+  display: block;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  font: 11px/1.4 var(--mono);
+  color: var(--muted);
 }
 .gal-stage .fz-poster {
   position: absolute;
@@ -2296,6 +2489,12 @@ html.bui[data-theme="light"] .phases b {
   place-items: center;
   padding: 16px;
   background: var(--bg);
+  overscroll-behavior: none;
+}
+/* Full screen the hero is the whole screen: no gesture pans or zooms it. */
+:is(.hero-stage:fullscreen, .hero-stage.hero-full),
+:is(.hero-stage:fullscreen, .hero-stage.hero-full) figure.ae-slot {
+  touch-action: none;
 }
 .hero-stage.hero-full {
   position: fixed;
@@ -2713,6 +2912,23 @@ html.bui[data-theme="light"] .phases b {
   rotate: -3deg;
   vertical-align: middle;
 }
+.ct-small {
+  background: var(--k-go);
+}
+.ct-big {
+  color: var(--ink);
+  background: var(--raised);
+  border: 2px dashed var(--k-fire-ink);
+  box-shadow: none;
+  rotate: none;
+}
+.ct-entries {
+  margin-top: 36px;
+}
+.ct-entries h2 {
+  margin: 0 0 12px;
+  font-size: clamp(22px, 2.6vw, 28px);
+}
 .ct-today {
   display: grid;
   gap: 10px;
@@ -2784,6 +3000,161 @@ html.bui[data-theme="light"] .phases b {
   color: var(--k-attack);
   border: 1px dashed var(--k-attack);
   border-radius: 4px;
+}
+/* ---------- Gallery: "Get the snippet" ---------- */
+.gal-keys {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  color: var(--muted);
+  font: 13px/1.6 var(--mono);
+}
+.gal-keys b {
+  color: var(--ink);
+}
+.gal-keys a:not(.bui-key) {
+  color: var(--k-sys-ink);
+}
+/* ---------- Make one (/make/): a prompt in, a snippet out, in the browser ---------- */
+.make-badge {
+  margin-top: 14px;
+}
+.make-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 32px;
+  padding: 18px;
+}
+.make-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.make-row input {
+  flex: 1 1 260px;
+  min-width: 0;
+  padding: 10px 14px;
+  font: 600 17px/1.4 var(--sans);
+  color: var(--ink);
+  background: var(--code-bg);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+}
+.make-row input:focus-visible {
+  outline: 2px solid var(--k-sys);
+  outline-offset: 2px;
+}
+.make-try {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+.bui .make-try .copy {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+  color: var(--ink);
+  white-space: normal;
+  text-align: left;
+}
+.make-private {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0;
+  color: var(--muted);
+  font: 13px/1.6 var(--mono);
+}
+.make-private svg {
+  flex: none;
+  margin-top: 3px;
+  color: var(--k-go);
+}
+.make-out {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  align-items: start;
+  margin-top: 28px;
+}
+@media (max-width: 860px) {
+  .make-out {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.make-stage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+}
+.make-stage iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.make-still {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: var(--muted);
+  font: 700 15px/1.5 var(--mono);
+}
+.make-meta {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px;
+}
+.make-meta p,
+.make-meta h2 {
+  margin: 0;
+}
+.make-meta h2 {
+  font-size: clamp(20px, 2.4vw, 26px);
+}
+.make-matched {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: 13px/1.6 var(--mono);
+}
+.make-matched .bui-label {
+  margin-right: 6px;
+}
+.make-miss,
+.make-status {
+  color: var(--muted);
+  font: 13px/1.6 var(--mono);
+}
+.make-miss b,
+.make-matched b {
+  color: var(--ink);
+}
+.bui .make-keys {
+  margin-top: 4px;
+}
+.make-code {
+  grid-column: 1 / -1;
+}
+.make-code textarea {
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  white-space: pre;
 }
 
 /* ---------- Touch: every tap target at least 44 px, nothing moves ----------
@@ -2962,4 +3333,55 @@ html.bui[data-theme="light"] .phases b {
 .recipe-head .bui-label {
   white-space: normal;
   overflow-wrap: anywhere;
+}
+/* Status flags (site/bricks.mjs STATUS): the Board UI status pill, flat because it is a readout. */
+.status-pill {
+  --tone: var(--k-go);
+  display: inline-block;
+  padding: 3px 8px;
+  font: 800 10px/1.4 var(--mono);
+  letter-spacing: 0.12em;
+  color: var(--rim);
+  background: var(--tone);
+  border: 1.5px solid var(--rim);
+  border-radius: 5px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.status-pill[data-flag="beta"] { --tone: var(--k-sys); }
+.status-pill[data-flag="experimental"] { --tone: var(--k-aim); }
+.status-pill[data-flag="deprecated"] { --tone: var(--hurt); }
+.status-pill[data-flag="roadmap"] {
+  color: var(--muted);
+  background: transparent;
+  border-color: var(--line);
+}
+.brick-top .status-pill { margin-right: auto; }
+.status-cards {
+  list-style: none;
+  margin: 0 0 48px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 16px;
+}
+.status-card { display: grid; align-content: start; gap: 10px; padding: 18px; min-width: 0; }
+.status-card p { margin: 0; }
+.status-card ul,
+.bp-status ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+.status-card small { font: 12px var(--mono); color: var(--muted); }
+.bricks.planned .brick { border-style: dashed; }
+.bricks.planned .needs { margin: 0; font-size: 13px; color: var(--muted); }
+.bp-status { display: grid; gap: 10px; padding: 18px 20px; margin: 0 0 28px; min-width: 0; }
+.bp-status p { margin: 0; }
+.bp-status dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; margin: 0; }
+.bp-status dt { font: 800 10px var(--mono); letter-spacing: 0.12em; color: var(--muted); }
+.bp-status dd { margin: 4px 0 0; overflow-wrap: anywhere; }
+.beta-line { margin: 0 0 16px; line-height: 1.8; font-size: 14px; color: var(--muted); }
+/* Touch: the kit grows a copy key's hit area 9px up and down (above), so the Try keys keep more
+   than that between rows and a tap on one key's base never lands on the next one's area. */
+@media (pointer: coarse) {
+  .make-try {
+    row-gap: 22px;
+  }
 }

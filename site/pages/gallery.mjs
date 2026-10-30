@@ -5,10 +5,11 @@
 // site/contributors); `fe anim --publish` in the engine adds entries. Each page holds PAGE_SIZE
 // entries (scripts/gallery.mjs paginate) in theme sections; a theme filter and a search over the
 // generated index (gallery/index.json) sit on top (site/gallery/browse.ts).
-import { esc, icon } from "../layout.mjs";
+import { crumbs, esc, icon } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { sections } from "../../scripts/gallery.mjs";
 import { winnerBadge } from "./people.mjs";
+import { tooBigBadge } from "./contest.mjs";
 
 const fmt = (n) => n.toLocaleString("en-US");
 
@@ -42,7 +43,7 @@ export const entryFigure = (e, figures) => figures[e.figure] ?? (e.stage === "ow
 export const byLine = (e, people, base, cls = "gal-by") =>
   `<p class="${cls}">by <a href="${base}people/${esc(e.author)}/">${esc(people[e.author].name)}</a>${people[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`;
 
-const card = (e, { loader, figures, base, people, themeTitle, winners }) => {
+const card = (e, { loader, figures, base, people, themeTitle, winners, tooBig = new Set(), snippets = {} }) => {
   const fig = entryFigure(e, figures).replace("<figure ", `<figure data-gallery="${esc(e.id)}" `);
   const measured = e.pageCost?.measured;
   const cost = [
@@ -54,11 +55,12 @@ const card = (e, { loader, figures, base, people, themeTitle, winners }) => {
       <div class="gal-stage">${fig}</div>
       <div class="gal-meta">
         <p class="eyebrow"><span class="index">#${e.archived ? "A" : ""}${String(e.no).padStart(3, "0")}</span> ${esc(e.date)} · ${e.kind === "hero" ? "HERO · " : ""}${esc(themeTitle.toUpperCase())} · ${e.made === "fe anim" ? `MADE BY FE ANIM · RECIPE ${esc(e.recipe.toUpperCase())}` : "HAND-BUILT"}</p>
-        <h3>${esc(e.title)}${winners.has(e.id) ? ` ${winnerBadge()}` : ""}</h3>
+        <h3>${esc(e.title)}${winners.has(e.id) ? ` ${winnerBadge()}` : ""}${tooBig.has(e.id) ? ` ${tooBigBadge()}` : ""}</h3>
         ${byLine(e, people, base)}
         <p class="gal-prompt"><span class="bui-label">${e.made === "fe anim" ? "PROMPT" : "BRIEF"}</span> “${esc(e.prompt)}”</p>
         <ul class="gal-cost" aria-label="What it costs the page">${cost}</ul>
         <p class="gal-bricks">${e.bricks.map((b) => `<code>${esc(b)}</code>`).join(" ")}</p>
+        ${snippets[e.id] ? `<p class="gal-keys"><a class="bui-key bui-arcade bui-go" href="${base}gallery/${esc(snippets[e.id].file)}" download="fizlet-${esc(e.id)}.html" data-snippet="${esc(e.id)}">${icon("down", 16)}Get the snippet</a><span>one drop-in file, <b>${fmt(snippets[e.id].size)} B</b> gzip · <a href="${base}make/?p=${encodeURIComponent(e.prompt)}">change the prompt</a></span></p>` : ""}
         ${e.link ? `<p><a class="gal-link" href="${base}${esc(e.link)}">${icon("out", 16)}See it on its own page</a></p>` : ""}
       </div>
     </li>`;
@@ -67,9 +69,10 @@ const card = (e, { loader, figures, base, people, themeTitle, winners }) => {
 /**
  * One gallery page. `page`: this page ({ n, path, entries }); `pages`: every page; `all`: every
  * entry (newest first: the chips' counts and where each theme first appears); `themes` in order;
- * `winners`: ids of daily-contest winners (site/contest/days), featured with the Winner badge.
+ * `winners`: ids of weekly-contest winners (site/contest/weeks), featured with the Winner badge;
+ * `tooBig`: ids of contest entries over the size cap, which wear the Too big to win sticker.
  */
-export function galleryPage({ page, pages, all, themes, people, loader, figures, base, winners = new Set(), archived = 0 }) {
+export function galleryPage({ page, pages, all, themes, people, loader, figures, snippets = {}, base, winners = new Set(), tooBig = new Set(), archived = 0 }) {
   const firstPage = Object.fromEntries(themes.map((t) => [t.id, pages.find((p) => p.entries.some((e) => e.theme === t.id))]));
   const used = themes.filter((t) => firstPage[t.id]);
   const chips = [`<a class="bui-key gal-chip" href="${base}gallery/" data-theme-chip="all"${page.n === 1 ? ' aria-current="true"' : ""}>All <small>${all.length}</small></a>`,
@@ -78,7 +81,7 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
   const secs = sections(page.entries, themes).map(({ theme: t, entries }) => `<section class="gal-theme" id="theme-${esc(t.id)}" data-theme-section="${esc(t.id)}" aria-labelledby="theme-${esc(t.id)}-h">
     <div class="gal-theme-head"><h2 id="theme-${esc(t.id)}-h">${esc(t.title)}</h2><p>${esc(t.blurb)}</p></div>
     <ol class="gal">
-    ${entries.map((e) => card(e, { loader, figures, base, people, themeTitle: title[e.theme], winners })).join("\n    ")}
+    ${entries.map((e) => card(e, { loader, figures, base, people, themeTitle: title[e.theme], winners, tooBig, snippets })).join("\n    ")}
     </ol>
   </section>`).join("\n  ");
   const nav = pages.length > 1 ? `<nav class="gal-pages" aria-label="Gallery pages">${pages.map((p) => p.n === page.n
@@ -88,10 +91,11 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
   return `
 <section class="section" aria-labelledby="gal-title">
   <div class="wrap">
+    ${page.n > 1 ? crumbs(base, [["gallery/", "Gallery"]], `Page ${page.n}`) : ""}
     <div class="section-head">
       <p class="eyebrow"><span class="index">${all.length}</span> ANIMATIONS · NEWEST FIRST${pages.length > 1 ? ` · PAGE ${page.n} OF ${pages.length}` : ""}</p>
       <h1 id="gal-title">One prompt.<br><em>One animation.</em></h1>
-      <p class="lead">A new animation from a simple prompt, made from Fizlet bricks. Each one shows the prompt it was made from, runs live once it nears the screen, and wears its size, measured on this build. Still once it settles, asleep off screen, and the page always comes back. By <a href="https://coded.design/">Chris Cooley</a>${heroes ? ` · <a href="${base}heroes/">the ${heroes} heroes, big</a>` : ""}.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/">the archive</a>.` : ""}</p>
+      <p class="lead">A new animation from a simple prompt, made from Fizlet bricks. Each one shows the prompt it was made from, runs live once it nears the screen, and wears its size, measured on this build. Still once it settles, asleep off screen, and the page always comes back. Take any made from a prompt home as one file, or <a href="${base}make/">make your own</a>. By <a href="https://coded.design/">Chris Cooley ↗</a>${heroes ? ` · <a href="${base}heroes/">the ${heroes} heroes, big</a>` : ""}.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/" rel="nofollow">the archive</a>.` : ""}</p>
     </div>
     <nav class="gal-themes" aria-label="Themes">${chips}</nav>
     <form class="gal-search" role="search" data-gal-search data-base="${base}" hidden>
@@ -110,7 +114,7 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
 
 /**
  * The archive: earlier entries taken off the gallery (most were recipe palette swaps), kept to
- * revisit. One page, by theme, no search; the page is noindex and out of the gallery's index.
+ * revisit. One page, by theme, no search; the page is noindex,nofollow (and linked with rel="nofollow") and out of the gallery's index.
  */
 export function archivePage({ entries, themes, people, loader, figures, base }) {
   const title = Object.fromEntries(themes.map((t) => [t.id, t.title]));
@@ -123,6 +127,7 @@ export function archivePage({ entries, themes, people, loader, figures, base }) 
   return `
 <section class="section" aria-labelledby="gal-title">
   <div class="wrap">
+    ${crumbs(base, [["gallery/", "Gallery"]], "Archive")}
     <div class="section-head">
       <p class="eyebrow"><span class="index">${entries.length}</span> ARCHIVED · NOT IN THE GALLERY</p>
       <h1 id="gal-title">The archive.</h1>

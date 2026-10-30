@@ -136,3 +136,71 @@ test("match: zero allocation while playing (1M frames, against a bare engine)", 
   // A real per-frame allocation (an object, a closure, a boxed number) shows as hundreds here.
   assert.ok(withMatch <= bare + 1, `young-generation GCs over 1M frames: ${withMatch} with match, ${bare} bare`);
 });
+
+test("match: a settling engine stays awake through the countdown and play, and may settle after", () => {
+  const e = createEngine({ settle: 0.5 });
+  const m = match(e, null, { count: 3 });
+  m.start();
+  run(e, 2);
+  assert.equal(m.phase, "count");
+  assert.deepEqual(e.paused, [], "the countdown keeps it awake (it froze at 0.5 s before)");
+  run(e, 2);
+  assert.equal(m.phase, "play");
+  assert.deepEqual(e.paused, [], "the clock keeps it awake");
+  m.finish(true);
+  run(e, 1);
+  assert.deepEqual(e.paused, ["settled"], "the result is still: it may settle");
+  e.destroy();
+});
+
+test("match: `on` follows every phase change once (not the first intro); a destroyed engine's match is inert", () => {
+  const e = createEngine();
+  const seen = [];
+  const m = match(e, null, { count: 1, on: (p) => seen.push(p) });
+  assert.deepEqual(seen, [], "the first intro is not a change");
+  m.start();
+  run(e, 1.1);
+  m.pause();
+  m.pause();
+  m.finish(false);
+  m.intro();
+  assert.deepEqual(seen, ["count", "play", "paused", "play", "end", "intro"]);
+  m.start();
+  e.destroy();
+  m.pause(true);
+  m.finish(true);
+  m.restart();
+  assert.equal(m.phase, "count", "no transition after destroy");
+  assert.deepEqual(seen.slice(6), ["count"]);
+});
+
+test("match: the arcade flow (match on its own engine, the game's engine following it) allocates nothing per frame", async (t) => {
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  // As fizlet/arcade's skirmish preset wires it: the flow engine runs match; each phase change starts
+  // or stops the game's engine. Best of three windows (tests/gc.mjs), run with --test-concurrency=1.
+  const minors = async (withFlow) => {
+    const g = createEngine({ events: 32 }), f = withFlow ? createEngine({ events: 32 }) : null;
+    let steps = 0;
+    g.add({ step: () => void steps++ });
+    const m = f ? match(f, null, { count: 3, on: (p) => (p === "play" ? g.start() : p === "paused" ? g.stop() : 0) }) : null;
+    m ? m.start() : g.start();
+    const frames = (k) => {
+      for (let i = 1; i <= k; i++) {
+        f?.advance(1 / 60);
+        g.advance(1 / 60);
+        // A pause and a resume every 50k frames: the transitions are on the path too.
+        if (m && i % 50000 === 0) m.pause();
+      }
+    };
+    frames(100000);
+    if (m) assert.equal(m.phase, "play");
+    const minor = await minorGCs(() => frames(1000000));
+    assert.ok(steps > 1000000, "the game stepped");
+    f?.destroy();
+    g.destroy();
+    return minor;
+  };
+  const bare = await minors(false), withFlow = await minors(true);
+  t.diagnostic(`young GCs over 1M frames (best of 3 windows): game engine alone ${bare}, with the match flow ${withFlow}`);
+  assert.ok(withFlow <= bare + 1, `young-generation GCs over 1M frames: ${withFlow} with the flow, ${bare} without`);
+});

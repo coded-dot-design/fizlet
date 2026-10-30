@@ -5,7 +5,7 @@
 import { build } from "esbuild";
 import { gzipSync } from "node:zlib";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { page, esc, icon, social, jsonLd } from "../../layout.mjs";
+import { page, crumbs, esc, icon, social, jsonLd } from "../../layout.mjs";
 
 const OUT = "site-dist/demos/fizz", DIR = "site/demos/fizz";
 const { version } = JSON.parse(readFileSync("package.json", "utf8"));
@@ -86,17 +86,24 @@ const CSS = `<style>
 .fz-how .panel { padding: 20px; }
 .fz-how h2 { margin: 0 0 6px; font-size: 18px; letter-spacing: -0.02em; line-height: 1.2; }
 .fz-how p { margin: 0; color: var(--muted); }
+#fz-story p { margin: 0 0 12px; color: var(--muted); }
 </style>`;
 
 const body = `${CSS}
 <section class="fz" aria-labelledby="fz-title">
   <div class="wrap">
+    ${crumbs("../../", [["#story", "The name"]], "The fizz proof piece")}
     <div class="fz-top">
       <div>
         <p class="eyebrow"><span class="index">FZ</span> THE NAME · A PROOF PIECE</p>
         <h1 id="fz-title" class="fz-title">Crack the can.<br><em>Hear the fizz.</em></h1>
         <p class="lead">The soda-ad shot. Tap the can: it crunches, the tab pops, and the fizz sprays clean out of the card. Two views tell it side by side: the can from the side, and straight down into it as it fizzes.</p>
-        <p class="lead">By <a href="https://coded.design/">Chris Cooley</a>.</p>
+        <p class="lead">By <a href="https://coded.design/">Chris Cooley ↗</a>.</p>
+        <div id="fz-story">
+          <p><b>-let</b>, as in applet: a very small app with one job. <b>Fiz-</b>, from the old soda commercial: a can cracks, the shot zooms in on the bubbles and the drip running down the side.</p>
+          <p>That shot looks expensive. Up close the fizz is full of detail, the kind of thing you'd reach for a heavy animation library to make. You don't need much to make it, though. That's the whole point: motion that looks complex, a tiny footprint, and the page as the stage.</p>
+          <p>It started with DOM VIRUS: small games with a few characters, running right inside a page, changing the DOM itself and then giving it back. The bar for every brick since is simple: do one thing well, and fit with everything around it.</p>
+        </div>
       </div>
       <div class="panel lit fz-board">
         <figure class="ae-slot ae-slot--16x10" data-slot-target="fizz#hero" role="img" aria-label="An arcade soda can, side and top views: it crunches, the tab pops, fizz sprays up out of the card and a drip runs down the side">${poster}<span class="bui-label" aria-hidden="true" style="position:absolute;bottom:8px;left:10px;z-index:2;pointer-events:none">CAM 1 · SIDE</span><span class="bui-label" aria-hidden="true" style="position:absolute;bottom:8px;right:10px;z-index:2;pointer-events:none">CAM 2 · TOP</span></figure>

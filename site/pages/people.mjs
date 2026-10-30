@@ -4,7 +4,7 @@
 // live bytes). The attribution line on every gallery card ("by <name>") links here. Personas are
 // characters, and every card and page says so (PERSONA_NOTE). Data: site/contributors/*.json
 // (scripts/people.mjs).
-import { esc, icon } from "../layout.mjs";
+import { crumbs, esc, icon } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { PERSONA_NOTE, avatarSvg } from "../../scripts/people.mjs";
 import { personPath } from "../../scripts/gallery.mjs";
@@ -33,11 +33,11 @@ export function personPage({ person: p, stats: s, base, urlOf, wins = new Set() 
     ? `<li class="ppl-todo">Not picked yet: Chris fills this in.</li>` : `<li>${esc(x)}</li>`).join("")}</ul>`;
   const entries = s.entries.length
     ? `<ol class="ppl-entries">${s.entries.map((e) => `<li class="panel"><a href="${base}${esc(urlOf(e.id))}">${esc(e.title)}</a>${wins.has(e.id) ? ` ${winnerBadge()}` : ""}<span class="ppl-prompt">“${esc(e.prompt)}”</span><span class="ppl-size">${sizeBadge(e.size, `gallery/${e.id}.js`, `${e.title}, its live chunk`)}<small>${esc(e.date)}</small></span></li>`).join("")}</ol>`
-    : `<p class="body">No gallery entries yet. ${p.kind === "persona" ? `${esc(p.name)} enters the <a href="${base}contest/">daily contest</a> once it opens.` : ""}</p>`;
+    : `<p class="body">No gallery entries yet. ${p.kind === "persona" ? `${esc(p.name)} makes pieces for the <a href="${base}contest/">weekly contest</a>.` : ""}</p>`;
   return `
 <article class="section ppl" aria-labelledby="person-name">
   <div class="wrap">
-    <nav class="bp-crumbs" aria-label="Breadcrumb"><a href="${base}">Fizlet</a> / <a href="${base}people/">People</a> / <span aria-current="page">${esc(p.name)}</span></nav>
+    ${crumbs(base, [["people/", "People"]], p.name)}
     <header class="ppl-head">
       <div class="ppl-frame">${avatarSvg(p.avatar, { size: 160, label: `${p.name}: pixel-art avatar${p.kind === "owner" ? " (a stylized character, not a likeness)" : ""}` })}</div>
       <div class="ppl-who">
@@ -78,7 +78,7 @@ export function peopleIndex({ rows, base }) {
     <div class="section-head">
       <p class="eyebrow"><span class="index">${rows.length}</span> PEOPLE · ${rows.filter((r) => r.person.kind === "persona").length} HOUSE PERSONAS</p>
       <h1 id="ppl-index">Who makes<br><em>the animations.</em></h1>
-      <p class="lead">Fizlet is made by <a href="${base}${personPath(rows[0].person.id)}">Chris Cooley</a>. The house personas are Fizlet characters, not real people: each one has a style, a way of writing prompts and a seat at the <a href="${base}contest/">daily contest</a>. Entries and bytes are measured on this build.</p>
+      <p class="lead">Fizlet is made by <a href="${base}${personPath(rows[0].person.id)}">Chris Cooley</a>. The house personas are Fizlet characters, not real people: each one has a style, a way of writing prompts and a seat at the <a href="${base}contest/">weekly contest</a>. Entries and bytes are measured on this build.</p>
     </div>
     <ul class="ppl-tiles">
     ${cards}

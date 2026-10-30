@@ -1,0 +1,27 @@
+{
+  "_note": "The perf win log: one entry per measured win, newest first. PERF-LOG.md is generated from this file (`node scripts/perf-log.mjs --write`); tests/perf-log.test.mjs fails when it is stale or an entry is missing a measured before and after, a unit, how it was measured, a test or a PR.",
+  "wins": [
+    {
+      "version": "0.19.0",
+      "pr": 67,
+      "win": "The fps cap caps requestAnimationFrame, not just the work",
+      "metric": "page-wide rAF calls a second while fizz#hero is in view, home page at 1440 (two 30 fps heroes)",
+      "before": 119.6,
+      "after": 28.5,
+      "unit": "rAF/s",
+      "how": "real-browser audit (Chromium, abe browse, page-wide rAF count)",
+      "test": "tests/kernel.test.mjs (rAF calls a second at 60 and 120 Hz), tests/site.mjs (fizz story page-wide rAF ≤ 33/s)"
+    },
+    {
+      "version": "0.19.0",
+      "pr": 67,
+      "win": "The home demo settles when nothing moves",
+      "metric": "page-wide rAF calls a second while the demo is in view and untouched, /gallery/ at 1440 (60.3 → 0 at 390)",
+      "before": 60.4,
+      "after": 0,
+      "unit": "rAF/s",
+      "how": "real-browser audit (Chromium, abe browse); it settles half a second after the last letter, wave, particle and scorch mark stop",
+      "test": "tests/site.mjs (settled: no frames while nothing moves)"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "no": 43,
+  "id": "lab-recall",
+  "date": "2026-10-30",
+  "prompt": "fire turns letters of a real sentence into 0s and 1s through the ledger; your app edits one; Recall gives back only what is still the game's",
+  "title": "Recall gives the page back.",
+  "kind": "micro",
+  "theme": "everyday",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel"
+  ],
+  "made": "by hand",
+  "module": "seeds/labs.ts",
+  "export": "recallLab",
+  "figure": "lab-recall",
+  "approved": "2026-10-30"
+}

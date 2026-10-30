@@ -2,7 +2,7 @@
 // the template modules in site/, the Board UI kit CSS, the live demo bundled from src/ with
 // esbuild, a one-file script-tag build (fizlet.js) and the ESM dist/ for the quick start.
 // No framework, no dependencies beyond the repo's dev tools. Run `npm run build` first (npm run site).
-import { build } from "esbuild";
+import { build, transform } from "esbuild";
 import { gzipSync } from "node:zlib";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "./sizes.mjs";
@@ -17,10 +17,12 @@ import { notePage, notesIndex, noteLd } from "../site/pages/notes.mjs";
 import { notes as loadNotes, notePath } from "./notes.mjs";
 import { playFigure } from "../site/pages/index.mjs";
 import { buildGallery, personPath } from "./gallery.mjs";
-import { PERSONA_NOTE, contributors, contestDays, contestToday, statsOf } from "./people.mjs";
+import { buildMake, snippetFor, TABLE as MAKE_TABLE } from "./make.mjs";
+import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
+import { CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
-import { BRICKS, brickPath } from "../site/bricks.mjs";
+import { BRICKS, PLANNED, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
 import { liveBytes } from "./live-bytes.mjs";
@@ -37,6 +39,7 @@ rmSync(OUT, { recursive: true, force: true });
 mkdirSync(`${OUT}/examples`, { recursive: true });
 mkdirSync(`${OUT}/bricks`, { recursive: true });
 mkdirSync(`${OUT}/gallery`, { recursive: true });
+mkdirSync(`${OUT}/make`, { recursive: true });
 const NOTES = loadNotes();
 for (const n of NOTES) mkdirSync(`${OUT}/${notePath(n)}`, { recursive: true });
 const RELEASES = loadReleases();
@@ -54,7 +57,7 @@ const bundle = gzipSync(iife.outputFiles[0].contents).length;
 
 // Page scripts: the demo (bundled from src/, as a game would) and the shared site script.
 await build({
-  entryPoints: { demo: "site/demo.ts", site: "site/site.ts" },
+  entryPoints: { demo: "site/demo.ts", site: "site/site.ts", "home-motion": "site/home-motion.ts" },
   outdir: OUT, bundle: true, minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning",
 });
 
@@ -75,8 +78,11 @@ const blast = { live: "demo.js", bytes: liveBytes(`${OUT}/demo.js`) };
 const quick = { live: "fizlet.js", bytes: liveBytes(`${OUT}/fizlet.js`) };
 
 cpSync("dist", `${OUT}/dist`, { recursive: true });
-cpSync("src/ui/board-ui.css", `${OUT}/board-ui.css`);
-cpSync("site/site.css", `${OUT}/site.css`);
+// The two stylesheets every page loads, minified (the sources stay readable; esbuild is already the
+// build's tool): board-ui.css 8,301 → 4,884 B gzip, site.css 11,530 → 9,091 B (2026-10-30 sources).
+const minCss = async (from, to) => writeFileSync(to, (await transform(readFileSync(from, "utf8"), { loader: "css", minify: true })).code);
+await minCss("src/ui/board-ui.css", `${OUT}/board-ui.css`);
+await minCss("site/site.css", `${OUT}/site.css`);
 writeFileSync(`${OUT}/icon.svg`, mark(64).replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" style="color:#39ffb0;background:#07060f" '));
 writeFileSync(`${OUT}/og.png`, ogImage());
 writeFileSync(`${OUT}/.nojekyll`, "");
@@ -92,13 +98,36 @@ const fizzFigure = readFileSync(`${OUT}/demos/fizz/index.html`, "utf8").match(/<
 if (!fizzFigure) throw new Error("demos/fizz/index.html: no fizz figure to embed");
 const fizz = { figure: fizzFigure, sizes: fizzSizes, live: "demos/fizz/scene.js" };
 
+// The "how it works" labs (site/labs/, the scenes DOM VIRUS's Under the hood vendors): their
+// still posters are the gallery figures (each in its own accent), their sheet goes on the page.
+const labsMod = await build({ entryPoints: ["site/labs/index.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
+const LABS = await import("data:text/javascript;base64," + Buffer.from(labsMod.outputFiles[0].text).toString("base64"));
+const labFigure = (id, accent, html) =>
+  `<figure class="ae-slot gal-lab fzl-host fzl-${accent}" data-slot-target="gallery#lab-${id}" role="img" aria-label="${html.match(/aria-label="([^"]*)"/)[1]}">${html}<span class="ae-slot__placeholder gal-lab-cap" aria-hidden="true">A still poster: the lab runs once it nears the screen.</span></figure>`;
+const labs = {
+  css: readFileSync("site/labs/labs.css", "utf8"),
+  figures: {
+    "lab-pool": labFigure("pool", "lime", LABS.poolFigure(true)),
+    "lab-recall": labFigure("recall", "violet", LABS.recallFigure(true)),
+    "lab-duel": labFigure("duel", "amber", LABS.duelFigure(true)),
+    "lab-board": labFigure("board", "cyan", LABS.boardFigure(true)),
+    "lab-pipeline": labFigure("pipeline", "amber", LABS.pipelineFigure(true)),
+  },
+};
+
 // The gallery: one bundle per entry, each measured here (its size badge). The story demos keep
 // their own posters as their figures; the blast demo waits in a <template> until its slot mounts.
 const gallery = await buildGallery(OUT);
+// Make one (/make/): the templates, its script, the default prompt's snippet (the page works before
+// any script runs) and a snippet for every gallery entry made from a prompt ("Get the snippet").
+const make = await buildMake(OUT, { version, entries: gallery.entries });
+const defaultSnippet = await snippetFor(DEFAULT_PROMPT, { version, templates: make.templates });
+writeFileSync(`${OUT}/make/default.snippet.txt`, defaultSnippet.text);
 const figures = {
   layers: L.poster("gallery#layers"),
   fizz: fizzFigure.replace('data-slot-target="fizz#hero"', 'data-slot-target="gallery#fizz"').replace('<figure class="ae-slot ae-slot--16x10"', '<figure class="ae-slot ae-slot--16x10 gal-fig"'),
   howitworks: `<figure class="ae-slot ae-slot--4x5 gal-fig gal-tall" data-slot-target="gallery#howitworks" role="img" aria-label="The blast demo: a small page you can knock around; Recall puts it back."><span class="ae-slot__placeholder gal-still" aria-hidden="true">“Hello, page.” Every letter is a real element.</span><template>${playFigure()}</template></figure>`,
+  ...labs.figures,
 };
 
 // The gallery's pages sit at gallery/ and gallery/page/<n>/ (base: the path back to the root);
@@ -106,17 +135,22 @@ const figures = {
 const GB = (p) => "../".repeat(p.path.split("/").length - 1);
 const urlOf = (id) => gallery.index.find((r) => r.id === id).url;
 const heroes = gallery.entries.filter((e) => e.kind === "hero");
+if (gallery.pending.length) console.log(`Gallery: ${gallery.pending.length} pending (not approved, not built): ${gallery.pending.join(", ")}`);
 for (const p of gallery.pages) mkdirSync(`${OUT}/${p.path}`, { recursive: true });
 mkdirSync(`${OUT}/gallery/archive`, { recursive: true });
 mkdirSync(`${OUT}/heroes`, { recursive: true });
-// People and the daily contest: each contributor's entries and bytes come from the gallery just
-// built; contest days are checked against it (prompt length, one entry per person per day, winner).
+// People and the weekly contest: each contributor's entries and bytes come from the gallery just
+// built; contest weeks are checked against it (a week's entries are its dailies, never archived
+// ones; a winner within the size cap). The archive goes in so an old "contest" stamp there fails too.
 const PEOPLE = contributors();
-const DAYS = contestDays(gallery.entries, PEOPLE);
-const winners = new Set(DAYS.map((d) => d.winner).filter(Boolean));
+// The archive goes in too, so an archived entry stamped for a day fails the build (it can't enter).
+const WEEKS = contestWeeks([...gallery.entries, ...gallery.archive.entries], PEOPLE);
+const winners = new Set(WEEKS.map((w) => w.winner).filter(Boolean));
+// Contest entries over the size cap: their gallery cards say "too big to win" too.
+const tooBig = new Set(WEEKS.flatMap((w) => w.entries.filter((e) => !canWin(e)).map((e) => e.id)));
 const people = PEOPLE.map((p) => ({ person: p, stats: statsOf(p, gallery.entries) }));
 // "Today" for the contest page: the build's UTC date (FIZLET_TODAY pins it for a preview or a test).
-const today = contestToday(DAYS, process.env.FIZLET_TODAY);
+const now = contestNow(WEEKS, process.env.FIZLET_TODAY);
 for (const p of PEOPLE) mkdirSync(`${OUT}/${personPath(p.id)}`, { recursive: true });
 mkdirSync(`${OUT}/contest`, { recursive: true });
 
@@ -140,6 +174,11 @@ for (const f of readdirSync("site/recipes").filter((x) => x.endsWith(".js"))) {
 const DOCS = loadDocs().map((d) => fill(d, { sizes, version }));
 for (const d of DOCS) mkdirSync(`${OUT}/${docPath(d)}`, { recursive: true });
 for (const s of ["docs", "guides"]) mkdirSync(`${OUT}/${s}`, { recursive: true });
+// Big things, small packages (gallery): its figure and its punchline carry the kernel's gzip size,
+// measured just above (never typed). The posters are painted here by the scene's own world.
+const spMod = await build({ entryPoints: ["site/gallery/pieces/small-packages/poster.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
+const SP = await import("data:text/javascript;base64," + Buffer.from(spMod.outputFiles[0].text).toString("base64"));
+for (const e of gallery.entries.filter((x) => x.module === "pieces/small-packages/scene.ts")) figures[e.figure] = SP.figure(e, sizes.find((s) => s.name === "fizlet (kernel)").gzip);
 // Every brick's API, from its source comment and its built declarations.
 // A brick with no "In short" snippet gets its typechecked example (site/brick-examples/<id>.ts).
 const exampleOf = (id) => existsSync(`site/brick-examples/${id}.ts`) ? readFileSync(`site/brick-examples/${id}.ts`, "utf8").split("// ---\n")[1]?.trim() : undefined;
@@ -181,7 +220,7 @@ const pages = [
   ["index.html", page({
     title: "Fizlet · Tiny physics for your page",
     description: homeDescription,
-    base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast }), scripts: ["site.js", "demo.js", "demos/fizz/main.js"],
+    base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast }), scripts: ["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js"],
   })],
   ["examples/quick-start.html", page({
     title: "Quick start: ten lines to a blast · Fizlet",
@@ -191,7 +230,7 @@ const pages = [
   ["bricks/index.html", page({
     title: "Kernel and bricks: every module and its size · Fizlet",
     description: `Every Fizlet module with its API and its measured size: the kernel is ${(kernel.gzip / 1024).toFixed(1)} KB gzip, each brick its own import.`,
-    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version }), scripts: ["site.js"],
+    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version, planned: PLANNED }), scripts: ["site.js"],
   })],
   // The gallery: PAGE_SIZE entries a page (gallery/, gallery/page/2/, …), in theme sections.
   ...gallery.pages.map((p) => [`${p.path}index.html`, page({
@@ -200,13 +239,13 @@ const pages = [
       ? `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by theme).`
       : `Fizlet gallery page ${p.n} of ${gallery.pages.length}: older animations by theme, each with its prompt, its live demo and its size measured on this build.`,
     base: GB(p), version, path: p.path,
-    body: `<style>${layers.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: GB(p), winners, archived: gallery.archive.entries.length }),
+    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length }),
     scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
   })]),
   ["gallery/archive/index.html", page({
     title: "Gallery archive: earlier runs, kept to revisit · Fizlet",
     description: `Earlier Fizlet factory animations taken off the gallery (${gallery.archive.entries.length}), kept to revisit, each with its size measured on this build.`,
-    base: "../../", version, path: "gallery/archive/", noindex: true,
+    base: "../../", version, path: "gallery/archive/", noindex: true, nofollow: true,
     body: `<style>${layers.css}</style>` + archivePage({ entries: gallery.archive.entries, themes: gallery.archive.themes, people: gallery.people, loader: gallery.loader, figures, base: "../../" }),
     scripts: ["site.js", "gallery/gallery.js"],
   })],
@@ -216,6 +255,11 @@ const pages = [
     base: "../", version, path: "heroes/",
     body: `<style>${layers.css}</style>` + heroesPage({ heroes, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: "../", urlOf }),
     scripts: ["site.js", "gallery/heroes.js"],
+  })],
+  ["make/index.html", page({
+    title: "Make one: a prompt in, a snippet out · Fizlet",
+    description: `Type a prompt, get a drop-in Fizlet animation: one file, only the bricks it uses, its size measured in your browser. No server, no tracking.`,
+    base: "../", version, path: "make/", body: makePage({ made: defaultSnippet, script: make.script, recipes: Object.keys(MAKE_TABLE.recipes), base: "../" }), scripts: ["site.js", "make/make.js"],
   })],
   ["people/index.html", page({
     title: "People: the maker and the house personas · Fizlet",
@@ -231,9 +275,9 @@ const pages = [
     body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners }), scripts: ["site.js"],
   })]),
   ["contest/index.html", page({
-    title: "Daily contest: 60 characters, one animation · Fizlet",
-    description: "The Fizlet daily contest: a theme a day, a prompt of 60 characters or fewer, one entry each, one winner featured in the gallery.",
-    base: "../", version, path: "contest/", body: contestPage({ today, days: DAYS, people: PEOPLE, base: "../", urlOf }), scripts: ["site.js"],
+    title: "Weekly contest: small wins, one winner · Fizlet",
+    description: `The Fizlet weekly contest: a theme a week, one or two pieces a day, one winner a week; ${CONTEST.maxLive / 1024} KB gzip or less can win, bigger is too big to win.`,
+    base: "../", version, path: "contest/", body: contestPage({ now, weeks: WEEKS, people: PEOPLE, base: "../", urlOf }), scripts: ["site.js"],
   })],
   ["notes/index.html", page({
     title: "Notes: what the games taught the engine · Fizlet",
