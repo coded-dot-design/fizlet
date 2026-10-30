@@ -1,0 +1,32 @@
+{
+  "no": 51,
+  "id": "big-things-small-packages",
+  "date": "2026-10-30",
+  "prompt": "a pixel dev drags a huge package.json that keeps growing; tap the dependencies to cut them until it shrinks to the Fizlet kernel",
+  "title": "Big things, small packages",
+  "kind": "micro",
+  "theme": "dev-humor",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/collide",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true
+    }
+  },
+  "made": "by hand",
+  "module": "pieces/small-packages/scene.ts",
+  "export": "mount",
+  "figure": "big-things-small-packages",
+  "aspect": "16 / 9",
+  "approved": "2026-10-30"
+}
