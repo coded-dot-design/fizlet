@@ -63,6 +63,10 @@
   prompt (recipe rise, the spray scene; kernel + fx + slot): live 6,641 B · total 8,567 B gzip (with
   the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
   settles to zero frames.
+- **Website: gallery #057, "orange embers float up from a cauldron".** Made by `fe anim` from the
+  prompt (recipe rise, the spray scene; kernel + fx + slot): live 6,627 B · total 8,553 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
 
 ## 0.17.0
 
