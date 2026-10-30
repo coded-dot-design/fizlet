@@ -99,5 +99,6 @@
   "seo": {
     "title": "Build a micro game with Fizlet in one file",
     "description": "A step-by-step Fizlet guide: a canvas click game with typed-array state, a fixed 60 Hz step, pooled effects, a change-only HUD and Recall on Escape."
-  }
+  },
+  "brick": "fx"
 }

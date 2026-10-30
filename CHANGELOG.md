@@ -13,8 +13,10 @@
   - `/news/`: release notes for every version, rendered from this changelog (`scripts/releases.mjs`;
     dates in `site/releases.json`), each with its own title, description and TechArticle JSON-LD;
     launch announcements lead the index.
-  - Notes: four launch posts from the fizlet-engine content model (`fe content notes`): Fizlet 0.19
-    is out, How small is small, Recall: the page always comes back, Lockstep multiplayer in a few KB.
+  - Notes: three posts from the fizlet-engine content model (`fe content notes`): How small is
+    small, Recall: the page always comes back, Lockstep multiplayer in a few KB.
+  - List cards (notes, news, docs, guides) carry an empty `data-anim-slot` mount point (a brick id,
+    `note:<slug>` or `release:<version>`) where a brick animation can mount; it takes no room until filled.
   - Brick pages without an "In short" snippet (pad, camera, slot, hud, match, board-page, presence,
     perf, rules) get an example, typechecked from `site/brick-examples/`.
   - Header nav: Docs · Bricks · Guides · Notes · News · Gallery · Heroes; a DOCS column in the

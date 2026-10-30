@@ -80,6 +80,7 @@ export function notePage({ note: n, base, kernel }) {
 /** The notes index: newest first. */
 export function notesIndex({ notes, base }) {
   const cards = notes.map((n) => `<li class="panel note-card">
+      <div class="card-anim" data-anim-slot="${esc("note:" + n.slug)}" aria-hidden="true"></div>
       <p class="eyebrow"><span class="index">${esc(n.date)}</span> ${esc((n.eyebrow ?? n.type ?? "note").toUpperCase())}</p>
       <h2><a href="${base}notes/${esc(n.slug)}/">${esc(n.title)}</a></h2>
       ${n.subtitle ? `<p class="note-sub">${esc(n.subtitle)}</p>` : ""}

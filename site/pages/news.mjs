@@ -46,6 +46,7 @@ export function releasePage({ release: r, prev, next, base, latest }) {
 /** /news/: announcements, then every release, newest first. */
 export function newsIndex({ releases, announcements, base }) {
   const posts = announcements.map((n) => `<li class="panel note-card">
+      <div class="card-anim" data-anim-slot="${esc("note:" + n.slug)}" aria-hidden="true"></div>
       <p class="eyebrow"><span class="index">${esc(n.date)}</span> ${esc((n.eyebrow ?? "news").toUpperCase())}</p>
       <h3><a href="${base}notes/${esc(n.slug)}/">${esc(n.title)}</a></h3>
       <p class="body">${inline(n.lead[0] ?? "", base)}</p>
@@ -53,6 +54,7 @@ export function newsIndex({ releases, announcements, base }) {
   const rows = releases.map((r) => {
     const hl = highlights(parse(r.md)).slice(0, 4);
     return `<li class="panel note-card rel-card">
+      <div class="card-anim" data-anim-slot="${esc("release:" + r.version)}" aria-hidden="true"></div>
       <p class="eyebrow"><span class="index">${esc(r.version)}</span> ${r.date ? esc(longDate(r.date).toUpperCase()) : "RELEASE"}</p>
       <h3><a href="${base}${releasePath(r)}">Fizlet ${esc(r.version)}</a></h3>
       ${hl.length ? `<ul class="ledger-rules note-list">${hl.map((h) => `<li>${esc(plain(h))}</li>`).join("")}</ul>` : ""}

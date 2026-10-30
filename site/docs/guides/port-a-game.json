@@ -92,5 +92,6 @@
   "seo": {
     "title": "Port an existing game onto the Fizlet kernel",
     "description": "Move a DOM or canvas game onto Fizlet step by step: one shared loop, writes through the ledger, a seeded step and typed arrays, measured before and after."
-  }
+  },
+  "brick": "arcade"
 }

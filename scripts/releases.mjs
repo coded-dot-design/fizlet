@@ -61,7 +61,7 @@ export function parse(md) {
 }
 
 /** Plain text of changelog Markdown (descriptions, JSON-LD). */
-export const plain = (s) => s.replace(/\*\*|`/g, "").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/\s+/g, " ").trim();
+export const plain = (s) => s.replace(/\*\*|`/g, "").replace(/"/g, "'").replace(/[<>&]/g, "").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/\s+/g, " ").trim();
 
 /**
  * A release's headline items: each top-level item's bold lead ("**The fizz: …**" → "The fizz: …"),

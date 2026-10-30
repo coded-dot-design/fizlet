@@ -90,5 +90,6 @@
   "seo": {
     "title": "Getting started with Fizlet: a DOM game engine",
     "description": "Install Fizlet with one script tag or ES modules, start an engine, and give the page back with destroy(). The kernel is under 4 KB gzip, no dependencies."
-  }
+  },
+  "brick": "kernel"
 }

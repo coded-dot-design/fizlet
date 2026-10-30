@@ -92,5 +92,6 @@
   "seo": {
     "title": "Recall: how Fizlet gives the page back",
     "description": "Fizlet's ledger records every DOM change: change-only writes, an exact restore on destroy(), and a newer edit by the host page always wins."
-  }
+  },
+  "brick": "kernel"
 }

@@ -55,5 +55,6 @@
   "seo": {
     "title": "The Fizlet contract: nine tested rules",
     "description": "One clock, bounded pools, zero steady-state allocation, change-only writes, pause by default, Recall: the nine rules every Fizlet brick keeps, each tested."
-  }
+  },
+  "brick": "debug"
 }

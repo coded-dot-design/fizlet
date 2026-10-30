@@ -2932,3 +2932,7 @@ html.bui[data-theme="light"] .phases b {
     margin-block: -12px;
   }
 }
+/* List cards: an empty mount point a brick animation can fill (data-anim-slot names it); no box until it does. */
+.card-anim:empty {
+  display: none;
+}

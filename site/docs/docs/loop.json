@@ -115,5 +115,6 @@
   "seo": {
     "title": "The Fizlet loop: fixed step, one shared rAF",
     "description": "How Fizlet runs a frame: read, step and render phases, a fixed 60 Hz step with a catch-up cap, auto-pause, settle and an fps cap for page heroes."
-  }
+  },
+  "brick": "kernel"
 }

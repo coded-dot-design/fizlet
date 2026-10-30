@@ -71,6 +71,7 @@ export function docPage({ doc: d, all, base, sizes, bricks }) {
 /** /docs/ or /guides/: the section's pages in reading order. */
 export function sectionIndex({ section, all, base, head }) {
   const cards = all.filter((d) => d.section === section).map((d) => `<li class="panel note-card">
+      <div class="card-anim" data-anim-slot="${esc(d.brick)}" aria-hidden="true"></div>
       <p class="eyebrow"><span class="index">${String(d.order).padStart(2, "0")}</span> ${esc(d.eyebrow.toUpperCase())}</p>
       <h2><a href="${base}${docPath(d)}">${esc(d.nav)}</a></h2>
       <p class="body">${inline(d.summary ?? d.lead[0], base)}</p>

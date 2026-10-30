@@ -119,5 +119,6 @@
   "seo": {
     "title": "Lockstep multiplayer rooms with Fizlet",
     "description": "Run two-player lockstep games with fizlet/presence and a Cloudflare Worker room server: 12-byte inputs, a hash check every 30 frames and hard caps in code."
-  }
+  },
+  "brick": "presence"
 }

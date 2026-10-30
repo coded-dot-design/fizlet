@@ -62,5 +62,6 @@
   "seo": {
     "title": "Fizlet size budgets: every module, measured",
     "description": "Every Fizlet module's gzip size and budget, measured on this build the way CI checks it: a kernel under 4 KB, a page build under 7 KB, heroes under 10."
-  }
+  },
+  "brick": "perf"
 }

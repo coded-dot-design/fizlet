@@ -64,5 +64,6 @@
   "seo": {
     "title": "Deterministic games in Fizlet: seeds and lockstep",
     "description": "Make a Fizlet sim replay from a seed: fixed step, seeded random, typed arrays and input bits. syncCheck finds the first frame where two peers differ."
-  }
+  },
+  "brick": "presence"
 }

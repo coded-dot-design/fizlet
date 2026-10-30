@@ -91,5 +91,6 @@
   "seo": {
     "title": "Fill an Astro animation slot with a Fizlet scene",
     "description": "Fill an astro-base-engine slot with fizlet/slot: loads near the viewport, skips reduced motion, settles to zero frames, keeps the slot's text alternative."
-  }
+  },
+  "brick": "slot"
 }
