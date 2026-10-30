@@ -118,6 +118,10 @@
   `stop()` → `start()`, your pause held, Recall and destroy, zero allocation (Node), and off screen
   and back with a real IntersectionObserver (Chromium). fizlet/timeline 2,060 → 2,067 B gz
   (budget 2,304); fizlet/css-clock 5,375 → 5,383 B gz.
+- **Roadmap: E5 (docs for humans and AI) is done.** Docs, guides, release notes, the authoring
+  guide with three recipes, the generated API reference with llms-full.txt, and live kernel stats on
+  DOM VIRUS's Under the Hood (dom-virus#21). `site/roadmap.mjs` and the engine's ROADMAP.md agree
+  (`fe roadmap check`).
 - **Website: a generated API reference for every brick, and `llms-full.txt` (E5).** Each brick page's
   API section now lists every export with its signature, parameters, return type, doc comment and
   status flag, generated at site build time from the published declarations (`dist/*.d.ts`) by the
