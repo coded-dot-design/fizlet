@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **fizlet/steer: `arriveGoal(i, dt)`**, `arrive` toward the goal the game writes in `gx[i]`, `gy[i]`.
+  A goal computed every frame (a wingman's slot behind its leader) passed to `arrive` as two numbers
+  is boxed whenever V8 doesn't inline the call: DOM Battlefield Blitz's platoons made 3 young GCs per
+  20k steps on Chrome 145. Written to the typed arrays, no double crosses a call. Same moves as
+  `arrive`, bit for bit (tested frame by frame); a zero-allocation test runs the platoon pattern
+  (bare 0, `arriveGoal` 0, `arrive(i, gx, gy)` 55 young GCs per 300k frames on Node 24). `arrive` is
+  unchanged. Steer 950 → 962 B gz (budget 1,280).
+
 - **Website: a generated API reference for every brick, and `llms-full.txt` (E5).** Each brick page's
   API section now lists every export with its signature, parameters, return type, doc comment and
   status flag, generated at site build time from the published declarations (`dist/*.d.ts`) by the

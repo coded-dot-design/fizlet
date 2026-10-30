@@ -105,6 +105,23 @@ test("arrive: frame by frame the same as a Blitz wingman closing on its slot", (
   }
 });
 
+test("arriveGoal: the goal from gx/gy, frame by frame the same as arrive and a Blitz wingman", () => {
+  const dt = 1 / 60, s = mk(), u = mk();
+  const t = { x: 80, y: 80, a: 0 };
+  s.place(0, 80, 80, 0);
+  u.place(0, 80, 80, 0);
+  for (let f = 0; f < 60 * 60; f++) {
+    const gx = 480 + Math.cos(f / 200) * 380 * (f % 1200 < 600 ? 1 : 0.1), gy = 320 + Math.sin(f / 200) * 260;
+    slot(t, gx, gy, dt);
+    s.gx[0] = gx;
+    s.gy[0] = gy;
+    s.arriveGoal(0, dt);
+    u.arrive(0, gx, gy, dt);
+    same(s, 0, t, f, "arriveGoal");
+    assert.deepEqual([s.x[0], s.y[0], s.a[0], s.moved[0]], [u.x[0], u.y[0], u.a[0], u.moved[0]], `arriveGoal vs arrive: frame ${f}`);
+  }
+});
+
 test("flee: Blitz's drive pointed away, until `far`", () => {
   const dt = 1 / 60, s = mk();
   const t = { x: 300, y: 300, a: 0 }, fx = 280, fy = 310;
@@ -162,4 +179,39 @@ test("steer: zero allocation across 1M frames (16 movers, every behaviour)", asy
   const bare = await minors(false), withSteer = await minors(true);
   t.diagnostic(`young GCs over 1M frames (best of 3 windows): bare ${bare}, with ${withSteer}`);
   assert.ok(withSteer <= bare + 1, `young-generation GCs over 1M frames: ${withSteer} with steer, ${bare} bare`);
+});
+
+test("arriveGoal: zero allocation for a platoon (each wingman's slot computed every frame)", async (t) => {
+  // DOM Battlefield Blitz's platoons: a wingman's goal is a slot behind its leader, two fresh doubles
+  // every frame. Passed to arrive(), V8 boxes them whenever the call isn't inlined (3 young GCs per
+  // 20k steps on Chrome 145; on Node about 27 per 300k frames here). Written to gx/gy, nothing crosses a call.
+  const minors = async (mode) => {
+    const e = createEngine({ maxSteps: 1 });
+    const s = steer({ cap: 16, area: [60, 90, 840, 480], blocked: (_, at) => at[0] < 0 || at[1] < 0, random: e.random });
+    for (let i = 0; i < 16; i++) s.place(i, 100 + i * 50, 300, 0);
+    e.add({
+      step(_, dt) {
+        if (!mode) return;
+        for (let i = 0; i < 16; i++) {
+          const k = i & 3, l = i - k; // four platoons: a leader that wanders, three wingmen
+          if (k === 0) {
+            s.wander(i, dt);
+            continue;
+          }
+          const back = s.a[l] + Math.PI + (k === 1 ? 0.85 : k === 2 ? -0.85 : 0), r = k === 3 ? 78 : 58;
+          const gx = Math.max(30, Math.min(930, s.x[l] + Math.cos(back) * r)), gy = Math.max(60, Math.min(610, s.y[l] + Math.sin(back) * r));
+          if (mode === "goal") (s.gx[i] = gx), (s.gy[i] = gy), s.arriveGoal(i, dt);
+          else s.arrive(i, gx, gy, dt);
+        }
+      },
+    });
+    const frames = (n) => { for (let f = 0; f < n; f++) e.advance(1 / 60); };
+    frames(2000);
+    const minor = await minorGCs(() => frames(300000));
+    e.destroy();
+    return minor;
+  };
+  const bare = await minors(null), args = await minors("args"), goal = await minors("goal");
+  t.diagnostic(`young GCs over 300k frames (best of 3 windows): bare ${bare}, arriveGoal ${goal}, arrive(i, gx, gy) ${args}`);
+  assert.ok(goal <= bare + 1, `young-generation GCs over 300k frames: ${goal} with arriveGoal, ${bare} bare`);
 });
