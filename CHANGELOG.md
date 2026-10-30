@@ -26,9 +26,119 @@
     preset contract and the header / nav choice (budget 17,408 → 17,920, its own line
     "fizlet/arcade (hud omitted)"). The whole module with skirmish: 21,634 B (budget 22,016):
     skirmish adds 4,012 B to a game that uses it, `fizlet/hud` (1,320 B) included.
+- **Website: gallery #007, "orange red and gold leaves fall gently".** Made by `fe anim` from the
+  prompt (recipe fall, the spray scene; kernel + fx + slot): live 6,784 B · total 8,710 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
+- **Website: gallery #008, "red orange and gold turkey feathers fan out on hover".** Made by `fe
+  anim` from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,791 B · total
+  8,717 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under
+  reduced motion; settles to zero frames.
+- **Website: gallery #009, "white steam rises gently off a warm pie".** Made by `fe anim` from the
+  prompt (recipe rise, the spray scene; kernel + fx + slot): live 6,786 B · total 8,712 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
+- **Website: gallery #010, "a cornucopia spills red orange and lime fruit on tap".** Made by `fe
+  anim` from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,785 B · total
+  8,711 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under
+  reduced motion; settles to zero frames.
+- **Website: gallery #011, "orange and gold leaves settle on every heading".** Made by `fe anim`
+  from the prompt (recipe settle, a decor scene (settle) that reads the page's own headings and
+  writes only through the ledger; kernel + board-page + slot): live 8,903 B · total 10,829 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #012, "orange embers rise from the harvest fire".** Made by `fe anim` from the
+  prompt (recipe rise, the spray scene; kernel + fx + slot): live 6,788 B · total 8,714 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
+- **Website: gallery #013, "snow settles on every heading".** Made by `fe anim` from the prompt
+  (recipe settle, a decor scene (settle) that reads the page's own headings and writes only through
+  the ledger; kernel + board-page + slot): live 8,906 B · total 10,832 B gzip (with the 1,926 B
+  loader) on this build, loaded only near the viewport, never under reduced motion; settles to zero
+  frames.
+- **Website: gallery #014, "red green and gold string lights twinkle on the nav".** Made by `fe
+  anim` from the prompt (recipe lights, a decor scene (lights) that reads the page's own buttons and
+  writes only through the ledger; kernel + board-page + slot): live 8,674 B · total 10,600 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #015, "a gift box pops open into red and green confetti".** Made by `fe anim`
+  from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,785 B · total 8,711 B
+  gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #016, "a sleigh streaks across the top with gold sparkles".** Made by `fe anim`
+  from the prompt (recipe trail, the spray scene; kernel + fx + slot): live 6,806 B · total 8,732 B
+  gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #017, "ornaments jingle when you hover a button".** Made by `fe anim` from the
+  prompt (recipe jingle, a decor scene (jingle) that reads the page's own buttons and writes only
+  through the ledger; kernel + board-page + slot): live 8,702 B · total 10,628 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #018, "gold stars pop and twinkle where you tap".** Made by `fe anim` from the
+  prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,779 B · total 8,705 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #019, "candy cane red and white sweeps every heading".** Made by `fe anim` from
+  the prompt (recipe sweep, a page scene that reads the page's own headings and writes only through
+  the ledger; kernel + board-page + slot): live 8,923 B · total 10,849 B gzip (with the 1,926 B
+  loader) on this build, loaded only near the viewport, never under reduced motion; settles to zero
+  frames.
+- **Website: gallery #020, "POW BAM ZAP comic bursts where you click".** Made by `fe anim` from the
+  prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,813 B · total 8,739 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #021, "speed lines rush past every heading".** Made by `fe anim` from the
+  prompt (recipe dash, a decor scene (dash) that reads the page's own headings and writes only
+  through the ledger; kernel + board-page + slot): live 8,883 B · total 10,809 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #022, "a halftone dot wave reveals every heading".** Made by `fe anim` from the
+  prompt (recipe halftone, a decor scene (halftone) that reads the page's own headings and writes
+  only through the ledger; kernel + board-page + slot): live 8,765 B · total 10,691 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #023, "a red cape whooshes across the top".** Made by `fe anim` from the prompt
+  (recipe trail, the spray scene; kernel + fx + slot): live 6,784 B · total 8,710 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #024, "red laser eyes scan every heading".** Made by `fe anim` from the prompt
+  (recipe sweep, a page scene that reads the page's own headings and writes only through the ledger;
+  kernel + board-page + slot): live 8,923 B · total 10,849 B gzip (with the 1,926 B loader) on this
+  build, loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #025, "a comic panel wipes across every heading".** Made by `fe anim` from the
+  prompt (recipe wipe, a decor scene (wipe) that reads the page's own headings and writes only
+  through the ledger; kernel + board-page + slot): live 8,667 B · total 10,593 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #026, "a hero lands with a cyan shockwave where you tap".** Made by `fe anim`
+  from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,766 B · total 8,692 B
+  gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
 
 ## 0.17.0
 
+- **Website: people and the daily contest.** `/people/` lists who makes the animations: Chris
+  Cooley (the maker) and three **house personas**, Frame Zero, Hex Hazel and DJ Mempool, Fizlet
+  characters that every card, page and JSON-LD node marks "House persona — a Fizlet character, not
+  a real person" (no photos, no links). `/people/<id>/` shows the avatar, role, what they make, prompt
+  style, favorite games, hobbies, their gallery entries and two stats measured on this build (entries,
+  total live gzip bytes). The maker's favorite games stay a `KIT:` placeholder ("Not picked yet")
+  until he fills them. Data: `site/contributors/<id>.json` (adds `kind`, `description`, `style`,
+  `hobbies`, `favoriteGames`, persona `handle`/`promptStyle`/`samplePrompt`, and `avatar`).
+  - **Avatars**: original 32 × 32 pixel art as letter grids, drawn as inline SVG from Board UI
+    tokens only (`AVATAR_PALETTE`, one path per color, `crispEdges` + `image-rendering: pixelated`);
+    each 0.7–0.9 KB gzip, budget 2 KB in `tests/people.test.mjs`. The maker's is a stylized rider
+    in a dirt-bike helmet, not a likeness.
+  - **`/contest/`**: the rules (prompt ≤ 60 characters, one entry per person per day, judged by the
+    team, at least 12 entries and one winner a day, winners featured on `/gallery/` with a
+    **Winner** badge), today's theme, how to enter (a GitHub issue or a PR; no backend), past winners
+    from data, and open visitor prompts marked planned, not live. A day is
+    `site/contest/days/<date>.json` (generated by the engine's `fe content contest`); its entries are
+    the gallery entries stamped `"contest": "<date>"`. The build fails on a contest prompt over 60
+    characters, two entries by one person on a day, an unknown author, or a winner that is not one of
+    the day's entries or has fewer than 12 (`scripts/people.mjs`). Launch day 2026-10-31: Halloween.
+  - Footer links to People and Daily contest; `tests/site.mjs` checks the measured stats, the
+    persona line, that only the maker is a schema.org Person, and the contest page's keys.
 - **Website: a themed gallery, a heroes row and contributor profiles** (launch infrastructure).
   - **Data, one file each:** every gallery entry (`site/gallery/entries/<id>.json`) now has `kind`
     (`"hero"` or `"micro"`), `theme` and `author` (a contributor id; it replaces `by`). Themes are

@@ -17,6 +17,7 @@ import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
 import { entries as galleryEntries, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
 import { notes as siteNotes, notePath } from "../scripts/notes.mjs";
+import { PERSONA_NOTE, authorOf, contributors as profiles } from "../scripts/people.mjs";
 import { gzipSync } from "node:zlib";
 import { checkKeys, checkTaps } from "./keys.mjs";
 import { liveBytes } from "../scripts/live-bytes.mjs";
@@ -152,7 +153,7 @@ try {
         assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
         // Attribution: "by <name>", linked to the contributor's profile.
         const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</li>")[0];
-        assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a></p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
+        assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
       }
     }
     // The generated index: every entry once, newest first, on the page that holds it, its sizes measured on this build.
@@ -180,7 +181,7 @@ try {
       const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
       const card = html.slice(html.indexOf(`id="hero-${e.id}"`)).split("</li>")[0];
       assert.ok(card.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `hero ${e.id}: its badge shows ${bytes} B`);
-      assert.ok(card.includes(`<p class="hero-by">by <a href="../${personPath(e.author)}">${PEOPLE[e.author].name}</a></p>`), `hero ${e.id}: by ${PEOPLE[e.author].name}, linked`);
+      assert.ok(card.includes(`<p class="hero-by">by <a href="../${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `hero ${e.id}: by ${PEOPLE[e.author].name}, linked`);
       assert.ok(!/data-slot-target/.test(card), `hero ${e.id}: no gallery slot wiring on its poster`);
     }
     assert.ok(PEOPLE["chris-cooley"], "the owner's profile");
@@ -213,6 +214,27 @@ try {
       assert.equal(graph.find((x) => x["@type"] === "FAQPage")?.mainEntity.length ?? 0, faq, `${n.slug}: its questions in JSON-LD`);
       assert.ok(llms.includes(`](${SITE}${notePath(n)}):`) && /## Notes\n/.test(llms), `${n.slug}: llms.txt lists it under Notes`);
     }
+  }
+
+  // ---------- People and the daily contest: stats measured on this build, personas say so ----------
+  where = "people";
+  {
+    const people = profiles(), index = readFileSync(`${ROOT}/people/index.html`, "utf8");
+    assert.deepEqual([...index.matchAll(/data-person="([^"]+)"/g)].map((m) => m[1]), people.map((p) => p.id), "the index lists everyone, the maker first");
+    for (const p of people) {
+      assert.ok(PAGES.includes(`people/${p.id}/`), `${p.id}: built`);
+      const html = readFileSync(`${ROOT}/people/${p.id}/index.html`, "utf8");
+      const mine = GALLERY.filter((e) => authorOf(e) === p.id);
+      const bytes = mine.reduce((n, e) => n + gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length, 0);
+      assert.ok(html.includes(`data-stat="entries">${mine.length}</b>`) && html.includes(`data-stat="bytes">${bytes.toLocaleString("en-US")} B</b>`), `${p.id}: ${mine.length} entries, ${bytes} B, measured`);
+      assert.equal(html.includes(PERSONA_NOTE.replace(/ — /, "</b> — ")), p.kind === "persona", `${p.id}: the persona line`);
+      const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
+      const profile = graph.find((x) => x["@type"] === "ProfilePage");
+      assert.ok(p.kind === "owner" ? profile.mainEntity["@id"].endsWith("#author") : !profile.mainEntity && profile.about["@type"] !== "Person", `${p.id}: only the maker is a Person`);
+    }
+    const contest = readFileSync(`${ROOT}/contest/index.html`, "utf8");
+    assert.match(contest, /60 characters or fewer/);
+    assert.match(contest, /Not live yet/, "open prompts are planned, not live");
   }
 
   // ---------- Every page, desktop and phone: errors, links, overflow ----------
@@ -291,7 +313,7 @@ try {
 
   // ---------- Page keys: every in-page key presses (face drops) and clicks on face and base ----------
   let keyCount = 0;
-  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", "heroes/", ...siteNotes().map(notePath)]) {
+  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", "heroes/", "contest/", ...siteNotes().map(notePath)]) {
     where = `page keys ${path || "index"}`;
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const { page, errors } = await open(context, path);
@@ -417,7 +439,11 @@ try {
       const fig = page.locator(`figure[data-gallery="${e.id}"]`);
       await fig.scrollIntoViewIfNeeded();
       const unlit = () => page.waitForFunction((id) => !document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 8000 });
-      await unlit(); // the sweep on mount has passed
+      // The play on mount has passed: unlit twice, longer apart than any gap between lit elements
+      // (a scene paused off screen resumes mid-play when it is scrolled back in).
+      await unlit();
+      await page.waitForTimeout(1800);
+      await unlit();
       const before = await fig.evaluate((f) => f.querySelector(".gal-mini").outerHTML);
       await fig.click({ position: { x: 40, y: 10 } });
       await page.waitForFunction((id) => document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 4000 });
@@ -455,10 +481,13 @@ try {
     }
     await page.click('a[data-theme-chip="all"]');
     assert.deepEqual(await shown(), secs, "All: every section again");
-    // A theme in the address filters on arrival.
-    await page.goto(`${ORIGIN}${BASE}gallery/#theme-${secs[0]}`);
-    assert.deepEqual(await shown(), [secs[0]], "a #theme- address filters");
-    await page.goto(`${ORIGIN}${BASE}gallery/`);
+    // A theme in the address filters on arrival (a fresh page: from this one it is only a hash change).
+    {
+      const fresh = await open(context, `gallery/#theme-${secs[0]}`);
+      const there = await fresh.page.$$eval("section[data-theme-section]", (l) => l.filter((x) => !x.hidden).map((x) => x.dataset.themeSection));
+      assert.deepEqual(there, [secs[0]], "a #theme- address filters");
+      await fresh.page.close();
+    }
     // Search: shown with script, every word must match title, prompt, theme or author.
     assert.equal(await page.isVisible("form[data-gal-search]"), true, "the search box");
     const q = (text) => page.fill("#gal-q", text).then(() => page.waitForFunction((t) => document.querySelector("#gal-q").value === t && document.querySelector("[data-gal-found]").textContent !== "", text));

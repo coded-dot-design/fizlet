@@ -1,0 +1,33 @@
+{
+  "no": 10,
+  "id": "cornucopia-spills-red-orange-lime",
+  "date": "2026-10-30",
+  "prompt": "a cornucopia spills red orange and lime fruit on tap",
+  "title": "A cornucopia spills red orange and lime fruit on tap",
+  "kind": "micro",
+  "theme": "thanksgiving",
+  "author": "chris-cooley",
+  "recipe": "burst",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 36,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 1.3
+    }
+  },
+  "fizlet": "0.16.0",
+  "made": "fe anim",
+  "module": "anims/cornucopia-spills-red-orange-lime.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}
