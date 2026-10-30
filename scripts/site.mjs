@@ -6,12 +6,14 @@ import { build } from "esbuild";
 import { gzipSync } from "node:zlib";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "./sizes.mjs";
-import { page, mark, SITE, ROOT, REPO, PERSON, ORG } from "../site/layout.mjs";
+import { page, mark, SITE, ROOT, REPO, PERSON, ORG, WEBSITE } from "../site/layout.mjs";
 import { home } from "../site/pages/index.mjs";
 import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
 import { brickPage, bricksIndex } from "../site/pages/brick.mjs";
 import { galleryPage } from "../site/pages/gallery.mjs";
+import { notePage, notesIndex, noteLd } from "../site/pages/notes.mjs";
+import { notes as loadNotes, notePath } from "./notes.mjs";
 import { playFigure } from "../site/pages/index.mjs";
 import { buildGallery } from "./gallery.mjs";
 import { BRICKS, brickPath } from "../site/bricks.mjs";
@@ -27,6 +29,8 @@ rmSync(OUT, { recursive: true, force: true });
 mkdirSync(`${OUT}/examples`, { recursive: true });
 mkdirSync(`${OUT}/bricks`, { recursive: true });
 mkdirSync(`${OUT}/gallery`, { recursive: true });
+const NOTES = loadNotes();
+for (const n of NOTES) mkdirSync(`${OUT}/${notePath(n)}`, { recursive: true });
 
 // The script-tag build: kernel and every brick except debug (dev only) on window.fizlet.
 const all = 'export * from "./src/index.ts"; export * from "./src/input.ts"; export * from "./src/collide.ts"; export * from "./src/fx.ts"; export * from "./src/sound.ts"; export * from "./src/embed.ts"; export * from "./src/ui/board-ui.ts";';
@@ -145,6 +149,16 @@ const pages = [
     description: `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by Chris Cooley).`,
     base: "../", version, path: "gallery/", body: `<style>${layers.css}</style>` + galleryPage({ entries: gallery.entries, loader: gallery.loader, figures, base: "../" }), scripts: ["site.js", "gallery/gallery.js"],
   })],
+  ["notes/index.html", page({
+    title: "Notes: what the games taught the engine · Fizlet",
+    description: `Field notes from building games on Fizlet, newest first: ports, lessons and the numbers behind them, each one measured (${NOTES.length} so far, by Chris Cooley).`,
+    base: "../", version, path: "notes/", body: notesIndex({ notes: NOTES, base: "../" }), scripts: ["site.js"],
+  })],
+  ...NOTES.map((n) => [`${notePath(n)}index.html`, page({
+    title: n.seo.title, description: n.seo.description,
+    base: "../../", version, path: notePath(n), ld: noteLd(n, { site: SITE, person: PERSON["@id"], website: WEBSITE["@id"] }),
+    body: notePage({ note: n, base: "../../", kernel: kernel.gzip }), scripts: ["site.js"],
+  })]),
   ...bricks.map((b, i) => [brickPath(b), page({
     title: `${b.name}: API and measured size · Fizlet`,
     description: brickDescription(b),
@@ -177,9 +191,9 @@ const AI_CRAWLERS = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Cl
 const origin = SITE.replace(/\/$/, "");
 writeFileSync(`${OUT}/robots.txt`, `# Fizlet — crawl policy: open to reputable crawlers, AI crawlers named explicitly.\n# LLM content map: ${origin}/llms.txt\n\n` +
   [...AI_CRAWLERS, "*"].map((a) => `User-agent: ${a}\nAllow: /`).join("\n\n") + `\n\nSitemap: ${origin}/sitemap.xml\n`);
-const group = (p) => (p.f.startsWith("bricks/") && p.f !== "bricks/index.html" ? "Bricks" : /^(demos\/|examples\/fizz\/)/.test(p.f) ? "Demos and examples" : "Pages");
+const group = (p) => (p.f.startsWith("bricks/") && p.f !== "bricks/index.html" ? "Bricks" : p.f.startsWith("notes/") && p.f !== "notes/index.html" ? "Notes" : /^(demos\/|examples\/fizz\/)/.test(p.f) ? "Demos and examples" : "Pages");
 const llms = ["# Fizlet", "", `> ${JSON.parse(readFileSync("package.json", "utf8")).description}`, ""];
-for (const g of ["Pages", "Bricks", "Demos and examples"]) {
+for (const g of ["Pages", "Notes", "Bricks", "Demos and examples"]) {
   llms.push(`## ${g}`, "");
   for (const p of indexable.filter((x) => group(x) === g))
     llms.push(`- [${meta(p.html, /<title>([^<]*)<\/title>/)}](${p.url}): ${meta(p.html, /<meta name="description" content="([^"]*)"/)}`);

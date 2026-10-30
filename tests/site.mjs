@@ -16,6 +16,7 @@ import { SITE, ROOT as SITE_ROOT } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
 import { entries as galleryEntries } from "../scripts/gallery.mjs";
+import { notes as siteNotes, notePath } from "../scripts/notes.mjs";
 import { gzipSync } from "node:zlib";
 import { checkKeys, checkTaps } from "./keys.mjs";
 import { liveBytes } from "../scripts/live-bytes.mjs";
@@ -138,6 +139,29 @@ try {
     for (const id of ["fizz", "layers", "howitworks"]) assert.ok(GALLERY.some((e) => e.id === id), `seeded with ${id}`);
   }
 
+  // ---------- Notes: every note built, newest first on the index, by Chris Cooley, kernel badge measured on this build ----------
+  where = "notes";
+  {
+    const NOTES = siteNotes(), kernel = (await measure())[0];
+    assert.ok(NOTES.length > 0, "at least one note");
+    const index = readFileSync(`${ROOT}/notes/index.html`, "utf8");
+    assert.deepEqual([...index.matchAll(/<h2><a href="\.\.\/notes\/([^/]+)\/">/g)].map((m) => m[1]), NOTES.map((n) => n.slug), "the index lists every note, newest first");
+    for (const n of NOTES) {
+      assert.ok(PAGES.includes(notePath(n)), `${n.slug}: built at ${notePath(n)}`);
+      const html = readFileSync(`${ROOT}/${notePath(n)}index.html`, "utf8");
+      assert.ok(html.includes(`data-size="kernel"><b>${kernel.gzip.toLocaleString("en-US")} B</b>`), `${n.slug}: the kernel badge shows ${kernel.gzip} B, measured on this build`);
+      assert.match(html, /<p class="note-by">By <a href="https:\/\/coded\.design\/">Chris Cooley<\/a>/, `${n.slug}: by Chris Cooley`);
+      const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
+      const post = graph.find((x) => x["@type"] === "BlogPosting");
+      assert.equal(post.headline, n.title);
+      assert.equal(post.datePublished, n.date);
+      assert.equal(graph.find((x) => x["@id"] === post.author["@id"]).name, "Chris Cooley");
+      const faq = n.blocks.filter((b) => b.type === "faq").flatMap((b) => b.items).length;
+      assert.equal(graph.find((x) => x["@type"] === "FAQPage")?.mainEntity.length ?? 0, faq, `${n.slug}: its questions in JSON-LD`);
+      assert.ok(llms.includes(`](${SITE}${notePath(n)}):`) && /## Notes\n/.test(llms), `${n.slug}: llms.txt lists it under Notes`);
+    }
+  }
+
   // ---------- Every page, desktop and phone: errors, links, overflow ----------
   const checked = new Set();
   for (const [label, viewport] of [["desktop", { width: 1280, height: 860 }], ["phone", { width: 360, height: 740 }]]) {
@@ -213,7 +237,7 @@ try {
 
   // ---------- Page keys: every in-page key presses (face drops) and clicks on face and base ----------
   let keyCount = 0;
-  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/"]) {
+  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", ...siteNotes().map(notePath)]) {
     where = `page keys ${path || "index"}`;
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const { page, errors } = await open(context, path);
