@@ -40,7 +40,7 @@ export const BUDGETS = [
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, fizlet/hud included). The Board UI kit CSS is the game's (it bakes
   // in the sections it uses). 21,975 B before the skirmish flow moved onto fizlet/match (Unreleased,
-  // G15): 23,980 B, +2,005 B. That is match itself in the bundle (the phase machine, its overlay and
+  // G15): 23,990 B, +2,015 B. That is match itself in the bundle (the phase machine, its overlay and
   // its five keys, the white flag; the kernel was already there), less the preset's own countdown,
   // pause / result overlays it replaced, plus the Auto fire / Next gate / Restart / fold keys a
   // skirmish game can now ask for. Only skirmish games pay it; the card build is below.

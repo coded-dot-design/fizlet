@@ -12,11 +12,12 @@
   back) until REMATCH, EXIT or Recall; a hidden tab pauses with BATTLE PAUSED; surrender waves the
   white flag (WHITE FLAG / GAME OVER). The preset's own overlay code is gone. Card games (`hud` left
   out or `arcadeHud()`) behave as before: tests/arcade-hud.mjs still checks the card byte for byte.
-  Sizes: arcade 23,980 B gzip (+2,005 B: match in the bundle, less the overlays it replaced; budget
+  Sizes: arcade 23,990 B gzip (+2,015 B: match in the bundle, less the overlays it replaced; budget
   22,016 → 24,064); the card build 18,033 B (+62 B: the flow contract; budget 17,984 → 18,048).
 - **skirmishHud: the keys a game asks for.** `nav: ["auto", "next", "restart"]` adds Auto fire
   (with `fire`), Next gate and Restart to the bar, as on the card; `header` takes `fold` (hides the
-  title and the text keys). Default: none, so existing bars are unchanged.
+  title and the text keys). Default: none, so existing bars are unchanged. On phones the bar's keys
+  wrap to another row instead of pushing the exit key off screen.
 - **fizlet/match: `on(phase)` and `hide`, and three contract fixes** (brick audit P-items), each
   tested and each test failing on the old code:
   - a settling engine stays awake through the countdown and play (`busy()` in step); before, the

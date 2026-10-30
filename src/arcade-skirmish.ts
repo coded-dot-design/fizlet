@@ -66,7 +66,7 @@ const CSS = `
 @keyframes ska{0%{opacity:0;scale:1.4}12%,75%{opacity:1;scale:1}100%{opacity:0}}@keyframes skb{0%{opacity:0;scale:1.4}12%,75%{opacity:1;scale:1}100%{opacity:0}}
 .bui .bui-overlay{pointer-events:auto}.bui .msg{z-index:31;bottom:auto;top:max(84px,calc(env(safe-area-inset-top) + 74px))}.sk.compact>b,.sk.compact nav>:not([aria-label]){display:none}
 .sk-res{position:absolute;left:50%;top:58%;translate:-50% 0;display:grid;grid-template-columns:auto auto;gap:6px 18px;margin:0;font:800 12px/1 ui-monospace,monospace;letter-spacing:.12em;color:#f6f3ff}.sk-res dd{margin:0;text-align:right}
-@media (pointer:coarse),(max-width:600px){.sk{width:calc(100% - 20px);flex-wrap:wrap;justify-content:space-between;gap:6px 8px;padding:6px 8px}.sk>b,.sk [data-act],.sk [data-aim]{display:none}.sk .bui-readouts{gap:12px}.sk .bui-readout i{width:48px}.sk-feed{top:max(112px,calc(env(safe-area-inset-top) + 102px))}.bui .msg{top:max(160px,calc(env(safe-area-inset-top) + 150px))}}
+@media (pointer:coarse),(max-width:600px){.sk{width:calc(100% - 20px);flex-wrap:wrap;justify-content:space-between;gap:6px 8px;padding:6px 8px}.sk>b,.sk [data-act],.sk [data-aim]{display:none}.sk nav{flex-wrap:wrap;justify-content:flex-end}.sk .bui-readouts{gap:12px}.sk .bui-readout i{width:48px}.sk-feed{top:max(112px,calc(env(safe-area-inset-top) + 102px))}.bui .msg{top:max(160px,calc(env(safe-area-inset-top) + 150px))}}
 @media (prefers-reduced-motion:reduce){.sk-ban.a,.sk-ban.b{opacity:1}}`;
 // EXIT on the result card (match's second END key): a filled cross, the kit's sticker-key icon rule.
 const CROSS = '<svg viewBox="0 0 64 64" aria-hidden="true" shape-rendering="crispEdges"><path d="m10 16 6-6 16 16 16-16 6 6-16 16 16 16-6 6-16-16-16 16-6-6 16-16Z"/></svg>';
