@@ -198,7 +198,7 @@ const pages = [
   ["gallery/archive/index.html", page({
     title: "Gallery archive: earlier runs, kept to revisit · Fizlet",
     description: `Earlier Fizlet factory animations taken off the gallery (${gallery.archive.entries.length}), kept to revisit, each with its size measured on this build.`,
-    base: "../../", version, path: "gallery/archive/", noindex: true,
+    base: "../../", version, path: "gallery/archive/", noindex: true, nofollow: true,
     body: `<style>${layers.css}</style>` + archivePage({ entries: gallery.archive.entries, themes: gallery.archive.themes, people: gallery.people, loader: gallery.loader, figures, base: "../../" }),
     scripts: ["site.js", "gallery/gallery.js"],
   })],
