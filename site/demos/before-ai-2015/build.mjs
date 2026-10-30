@@ -121,7 +121,7 @@ const reels = STRIPS.map((t) => {
   return `<figure class="bt-sheet">
           <figcaption><b>${t.name}</b> · <code>${t.file.replace(/^\w+\./, "")}</code> · ${t.n} frames × ${t.fw} px = ${fmt(t.w)} px wide · ${fmt(sizes.sheets[t.file])} B</figcaption>
           <div class="bt-film" tabindex="0" role="img" aria-label="The ${t.name.toLowerCase()} sheet: ${t.n} frames, ${t.fw} px each, side by side"><div class="bt-reel" style="width:${(t.n * fw).toFixed(1)}px;height:${box.toFixed(1)}px;--fw:${fw.toFixed(1)}px;background-image:url(${SHEETS}${t.file});background-size:${(t.w * t.k).toFixed(1)}px ${(t.h * t.k).toFixed(1)}px">${marks}</div></div>
-          <pre><code>${esc(t.rules.join("\n"))}</code></pre>
+          <pre tabindex="0"><code>${esc(t.rules.join("\n"))}</code></pre>
           <p class="bt-swap">The click: the toggle flips <code>.${t.swap}</code>, which swaps the <code>animation</code> and restarts it.</p>
         </figure>`;
 }).join("\n        ");
@@ -134,13 +134,13 @@ const dissection = `<div class="bt-dis-row">
         ${head(1, "2015", "2015 · CSS sprites", "Bricks: none. CSS and 4 lines.")}
         <p>The process: draw every frame by hand, lay the frames side by side on one long sheet, then show the sheet through a box one frame wide. <code>@keyframes</code> slide <code>background-position</code> from the first frame to the last, and <code>steps(n)</code> makes it jump frame to frame instead of gliding. A click toggles one class, which swaps the animation.</p>
         ${reels}
-        <details class="bt-code"><summary>The 2015 toggle, all 4 lines</summary><pre><code>${esc(TOGGLE)}</code></pre></details>
+        <details class="bt-code"><summary>The 2015 toggle, all 4 lines</summary><pre tabindex="0"><code>${esc(TOGGLE)}</code></pre></details>
       </article>
       <article class="bt-dis panel" data-reveal>
         ${head(2, "REMAKE", "Fizlet · remake", "Bricks: the kernel. Nothing else.")}
         ${chips([chip("@fzlt/core", B["@fzlt/core (kernel)"])], "Bricks")}
         <p>The <code>@keyframes</code> become data: each segment is a first frame, a last frame, the jumps and the seconds, read by one engine per sprite. <code>beatsPlug 1.4s steps(13)</code> is <code>{ a: 0, b: 13, n: 13, d: 1.4 }</code>. The kernel owns the clock, writes <code>background-position</code> through the ledger only when the frame changes, and sleeps when nothing plays.</p>
-        <pre class="bt-pre"><code>// strip.ts: the frame at time t, exactly steps(n), jump-end
+        <pre tabindex="0" class="bt-pre"><code>// strip.ts: the frame at time t, exactly steps(n), jump-end
 a + floor((t - w) / d * n) / n * (b - a)</code></pre>
         <p>Like 2015, the laptop's code scrolls forever once it is open, so the remake keeps asking for frames while it does. That is the fair copy.</p>
       </article>

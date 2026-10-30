@@ -145,7 +145,7 @@ const html = `<!doctype html>
   <h1>${headline(" ")}</h1>
   <p class="fz-lead"><b>Fizlet™ (fzlt™)</b> is the bricks for DOM animation and games, by <a href="${AUTHOR}/">Chris Cooley ↗</a>. Each brick solves a task written again and again over two decades of animation and game work, so a game or an animation boils down to its logic and its style.</p>
   <div class="hero-install code-card">
-    <pre class="code"><code><span class="fz-prompt" aria-hidden="true">$ </span>npm i @fzlt/core</code></pre>
+    <pre tabindex="0" class="code"><code><span class="fz-prompt" aria-hidden="true">$ </span>npm i @fzlt/core</code></pre>
   </div>
   <p class="fz-facts">kernel <b>${n(kernel)} B</b> gzip · ${sizes.length} size budgets in CI · 0 runtime dependencies · MIT</p>
   <nav aria-label="Fizlet links">

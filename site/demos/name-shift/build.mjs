@@ -37,7 +37,7 @@ export function buildNameShift({ out, version, gallery, art }) {
     <p class="lead">Fizlet is the name; fzlt is the short mark. Two keys, FIZ and LET, go into the press. The E and the I drop out, and fzlt comes out. The press stacks it on a wall of bricks, and it ends on the lockup. It plays once when it comes into view, then the page is still (no frames); the Replay key plays it again. With reduced motion you see the last frame, still. By <a href="https://coded.design/">Chris Cooley ↗</a>.</p>
     <p class="ns-cap">${sizeBadge(sizes.live, `gallery/${ID}.js`, "the name shift, its live chunk")} Live chunk <b>${fmt(sizes.live)} B</b> gzip (kernel + @fzlt/core/timeline + the scene) · loader <b>${fmt(sizes.loader)} B</b> (@fzlt/core/slot) · total <b>${fmt(sizes.total)} B</b>. Measured on this build.</p>
     <p class="ns-cap">Embed it in any slot: its figure (<code>figure()</code> in <code>site/gallery/pieces/name-shift/art.ts</code>) and one line:</p>
-    <pre class="ns-embed"><code>${esc(embed)}</code></pre>
+    <pre tabindex="0" class="ns-embed"><code>${esc(embed)}</code></pre>
   </div>
 </section>`;
   mkdirSync(`${out}/demos/name-shift`, { recursive: true });

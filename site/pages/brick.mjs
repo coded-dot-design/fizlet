@@ -61,10 +61,10 @@ function declEntry(brick, m, d, h) {
   const types = (t) => esc(t).replace(/\b[A-Z]\w*\b/g, (w) => (own.has(w) ? `<a href="#${apiId(m.name, w)}">${w}</a>` : w));
   const status = exportStatus(brick, d);
   const tags = d.tags.filter((t) => t.name !== "returns").map((t) => `<p class="bp-tag"><b>@${esc(t.name)}</b> ${prose(t.text)}</p>`).join("");
-  const sigs = d.sigs.map((s) => `<pre class="code bp-sig"><code>${esc(s.text)}</code></pre>
+  const sigs = d.sigs.map((s) => `<pre tabindex="0" class="code bp-sig"><code>${esc(s.text)}</code></pre>
         <dl class="bp-params">${s.params.map((p) => `<div><dt><code>${p.rest ? "..." : ""}${esc(p.name)}${p.optional ? "?" : ""}</code></dt><dd><code>${types(p.type)}</code>${p.optional ? " <small>optional</small>" : ""}${p.doc ? ` ${prose(p.doc)}` : ""}</dd></div>`).join("")}<div><dt>Returns</dt><dd><code>${types(s.returns)}</code></dd></div></dl>`).join("\n        ");
   const type = d.type ? `<dl class="bp-params"><div><dt>Type</dt><dd><code>${types(d.type)}</code></dd></div></dl>` : "";
-  const code = `<pre class="code"><code>${esc(d.code)}</code></pre>`;
+  const code = `<pre tabindex="0" class="code"><code>${esc(d.code)}</code></pre>`;
   return `<article class="bp-decl" id="${apiId(m.name, d.name)}">
         <${h}><code>${esc(d.names.join(", "))}</code> <small>${d.kind}</small> ${statusPill(status)}</${h}>
         <p>${prose(d.doc)}</p>${tags}
@@ -119,11 +119,11 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
     ${brick.card ? `<div class="bp-card">${brick.card(`bricks/${brick.id}`)}</div>` : ""}
     ${statusPanel(brick)}
     <div class="bp-use">
-      <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>MODULES</b> · hosted on this site</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(esm)}</code></pre></div>
-      <div class="panel code-card bp-npm"><div class="code-head"><span class="bui-label"><b>NPM</b> · @fzlt/core</span></div><pre class="code"><code>${esc(`npm install @fzlt/core\n${npm}`)}</code></pre></div>
+      <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>MODULES</b> · hosted on this site</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre tabindex="0" class="code"><code>${esc(esm)}</code></pre></div>
+      <div class="panel code-card bp-npm"><div class="code-head"><span class="bui-label"><b>NPM</b> · @fzlt/core</span></div><pre tabindex="0" class="code"><code>${esc(`npm install @fzlt/core\n${npm}`)}</code></pre></div>
     </div>
-    ${brick.example ? `<div class="panel code-card bp-snippet"><div class="code-head"><span class="bui-label"><b>EXAMPLE</b> · typechecked against v${esc(version)}</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(brick.example)}</code></pre></div>` : ""}
-    ${brick.snippet ? `<div class="panel code-card bp-snippet"><div class="code-head"><span class="bui-label"><b>IN SHORT</b></span></div><pre class="code"><code>${esc(brick.snippet)}</code></pre></div>` : ""}
+    ${brick.example ? `<div class="panel code-card bp-snippet"><div class="code-head"><span class="bui-label"><b>EXAMPLE</b> · typechecked against v${esc(version)}</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre tabindex="0" class="code"><code>${esc(brick.example)}</code></pre></div>` : ""}
+    ${brick.snippet ? `<div class="panel code-card bp-snippet"><div class="code-head"><span class="bui-label"><b>IN SHORT</b></span></div><pre tabindex="0" class="code"><code>${esc(brick.snippet)}</code></pre></div>` : ""}
     <div class="bp-api" id="api">
       <h2>API</h2>
       <p class="bp-note">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v${esc(version)} by the TypeScript compiler. For AI agents: <a href="../llms-full.txt">the whole API as plain text</a>.</p>
