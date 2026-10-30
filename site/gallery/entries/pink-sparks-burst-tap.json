@@ -29,5 +29,6 @@
   "made": "fe anim",
   "module": "anims/pink-sparks-burst-tap.ts",
   "export": "mount",
-  "aspect": "16 / 9"
+  "aspect": "16 / 9",
+  "approved": "2026-10-29"
 }

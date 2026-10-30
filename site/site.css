@@ -2733,6 +2733,23 @@ html.bui[data-theme="light"] .phases b {
   rotate: -3deg;
   vertical-align: middle;
 }
+.ct-small {
+  background: var(--k-go);
+}
+.ct-big {
+  color: var(--ink);
+  background: var(--raised);
+  border: 2px dashed var(--k-fire-ink);
+  box-shadow: none;
+  rotate: none;
+}
+.ct-entries {
+  margin-top: 36px;
+}
+.ct-entries h2 {
+  margin: 0 0 12px;
+  font-size: clamp(22px, 2.6vw, 28px);
+}
 .ct-today {
   display: grid;
   gap: 10px;
@@ -2804,6 +2821,161 @@ html.bui[data-theme="light"] .phases b {
   color: var(--k-attack);
   border: 1px dashed var(--k-attack);
   border-radius: 4px;
+}
+/* ---------- Gallery: "Get the snippet" ---------- */
+.gal-keys {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  color: var(--muted);
+  font: 13px/1.6 var(--mono);
+}
+.gal-keys b {
+  color: var(--ink);
+}
+.gal-keys a:not(.bui-key) {
+  color: var(--k-sys-ink);
+}
+/* ---------- Make one (/make/): a prompt in, a snippet out, in the browser ---------- */
+.make-badge {
+  margin-top: 14px;
+}
+.make-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 32px;
+  padding: 18px;
+}
+.make-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.make-row input {
+  flex: 1 1 260px;
+  min-width: 0;
+  padding: 10px 14px;
+  font: 600 17px/1.4 var(--sans);
+  color: var(--ink);
+  background: var(--code-bg);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+}
+.make-row input:focus-visible {
+  outline: 2px solid var(--k-sys);
+  outline-offset: 2px;
+}
+.make-try {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+.bui .make-try .copy {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+  color: var(--ink);
+  white-space: normal;
+  text-align: left;
+}
+.make-private {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0;
+  color: var(--muted);
+  font: 13px/1.6 var(--mono);
+}
+.make-private svg {
+  flex: none;
+  margin-top: 3px;
+  color: var(--k-go);
+}
+.make-out {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  align-items: start;
+  margin-top: 28px;
+}
+@media (max-width: 860px) {
+  .make-out {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.make-stage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+}
+.make-stage iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.make-still {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: var(--muted);
+  font: 700 15px/1.5 var(--mono);
+}
+.make-meta {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px;
+}
+.make-meta p,
+.make-meta h2 {
+  margin: 0;
+}
+.make-meta h2 {
+  font-size: clamp(20px, 2.4vw, 26px);
+}
+.make-matched {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: 13px/1.6 var(--mono);
+}
+.make-matched .bui-label {
+  margin-right: 6px;
+}
+.make-miss,
+.make-status {
+  color: var(--muted);
+  font: 13px/1.6 var(--mono);
+}
+.make-miss b,
+.make-matched b {
+  color: var(--ink);
+}
+.bui .make-keys {
+  margin-top: 4px;
+}
+.make-code {
+  grid-column: 1 / -1;
+}
+.make-code textarea {
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  white-space: pre;
 }
 
 /* ---------- Touch: every tap target at least 44 px, nothing moves ----------
@@ -2919,4 +3091,10 @@ html.bui[data-theme="light"] .phases b {
 .bp-card {
   max-width: 560px;
   margin: 0 0 28px;
+/* Touch: the kit grows a copy key's hit area 9px up and down (above), so the Try keys keep more
+   than that between rows and a tap on one key's base never lands on the next one's area. */
+@media (pointer: coarse) {
+  .make-try {
+    row-gap: 22px;
+  }
 }

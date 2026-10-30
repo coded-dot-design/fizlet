@@ -3,7 +3,8 @@
 // limits in code (src/limits.js): at most MAX_ROOMS rooms, MAX_PLAYERS seats, MSG_RATE messages a
 // second per socket, 12-byte messages only, idle rooms closed, every room closed after MAX_ROOM_SECONDS.
 //
-//   GET /invite?code=XXXX                           → 200 {ok:true} | 403 (the page's "sign in" check)
+//   GET /invite?code=XXXX                           → 200 {ok:true, players} | 403 (the page's "sign in" check;
+//                                                     players = MAX_PLAYERS, so a page offers only room sizes that join)
 //   GET /room/<n>?players=2&invite=XXXX  (WebSocket) → the room, n < MAX_ROOMS
 import { DurableObject } from "cloudflare:workers";
 import { Relay } from "./relay.js";
@@ -22,7 +23,7 @@ export default {
   async fetch(req, env) {
     const url = new URL(req.url), cap = limits(env), origin = req.headers.get("origin");
     if (!originOk(origin, cap.ORIGINS)) return json({ error: "origin not allowed" }, 403);
-    if (url.pathname === "/invite") return (await invited(env, url.searchParams.get("code"))) ? json({ ok: true }, 200, origin) : json({ ok: false }, 403, origin);
+    if (url.pathname === "/invite") return (await invited(env, url.searchParams.get("code"))) ? json({ ok: true, players: cap.MAX_PLAYERS }, 200, origin) : json({ ok: false }, 403, origin);
     const n = roomNumber(url.pathname, cap.MAX_ROOMS);
     if (n < 0) return json({ error: `rooms are /room/0 to /room/${cap.MAX_ROOMS - 1}` }, 404);
     if (req.headers.get("upgrade") !== "websocket") return json({ error: "expected a WebSocket upgrade" }, 426);
