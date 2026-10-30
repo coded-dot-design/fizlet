@@ -46,6 +46,11 @@ export function entries({ dir = `${DIR}/entries`, what = "gallery/entries", them
     if (!themeIds.includes(e.theme)) throw new Error(`${at}: theme ${e.theme} has no site/gallery/themes/${e.theme}.json`);
     if (!people[e.author]) throw new Error(`${at}: author ${e.author} has no site/contributors/${e.author}.json`);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(e.date)) throw new Error(`${at}: date ${e.date}`);
+    if (e.stage === "own") {
+      const f = `${DIR}/stages/${e.id}.html`;
+      if (!existsSync(f)) throw new Error(`${at}: stage "own" needs ${f}`);
+      e.stageHtml = readFileSync(f, "utf8").trim();
+    }
     return e;
   });
   const nos = new Set(list.map((e) => e.no));

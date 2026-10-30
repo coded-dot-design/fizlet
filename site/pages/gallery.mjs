@@ -27,8 +27,16 @@ export const pageFigure = (e) =>
   `<b class="gal-mini-h2" data-fizlet-heading>Recall gives it back</b></span>` +
   `<span class="ae-slot__placeholder gal-cap" aria-hidden="true">“${esc(e.prompt)}”</span></figure>`;
 
-/** The figure for an entry: its own poster (`figures[e.figure]`), a page scene or the prompt. */
-export const entryFigure = (e, figures) => figures[e.figure] ?? (e.stage === "page" ? pageFigure : plainFigure)(e);
+/**
+ * A figure for an entry with a stage of its own (`stage: "own"`): its markup, from
+ * site/gallery/stages/<id>.html (read by scripts/gallery.mjs into `e.stageHtml`), is the poster and
+ * the real elements its scene plays on. Every piece looks like itself; no shared page.
+ */
+export const ownFigure = (e) =>
+  `<figure class="ae-slot gal-fig gal-tap gal-own" data-slot-target="gallery#${esc(e.id)}" role="img" aria-label="${esc(e.title)}: ${esc(e.prompt)}" style="aspect-ratio: ${esc(e.aspect ?? "16 / 9")}">${e.stageHtml}</figure>`;
+
+/** The figure for an entry: its own poster (`figures[e.figure]`), its own stage, a page scene or the prompt. */
+export const entryFigure = (e, figures) => figures[e.figure] ?? (e.stage === "own" ? ownFigure : e.stage === "page" ? pageFigure : plainFigure)(e);
 
 /** "by <name>", linked to the contributor's profile; a house persona is named as one (a character, not a real person). */
 export const byLine = (e, people, base, cls = "gal-by") =>
