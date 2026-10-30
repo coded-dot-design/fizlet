@@ -30,7 +30,7 @@ import type { PadAction } from "./pad";
 import { sound } from "./sound";
 import type { Cue } from "./sound";
 import { mount, readouts, toast } from "./ui/board-ui";
-import { BASE, ICON, esc } from "./arcade-parts";
+import { BASE, ICON, drag, esc } from "./arcade-parts";
 export { skirmishHud } from "./arcade-skirmish";
 export type { SkirmishOptions, SkirmishReadout } from "./arcade-skirmish";
 
@@ -377,6 +377,7 @@ export function arcade<S>(def: ArcadeDef<S>, options: ArcadeOptions<S> = {}): Ar
       const sfx = sound(e, { on: options.sound !== false, cues: def.cues });
       const r: HudRun = { ui, def, engine: e, input, coarse: matchMedia("(pointer: coarse)").matches, game: null!, sfx, signal: life.signal, status: () => status };
       const hud = preset.mount(r);
+      drag(ui.querySelector<HTMLElement>(":scope>section")!, life.signal); // every preset's panel drags
       const ctl = new Float64Array(11);
 
       // Sparks (3 px squares, a pool of 100) and popups (24, stacked when they land close together).
