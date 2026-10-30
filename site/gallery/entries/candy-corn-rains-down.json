@@ -1,0 +1,33 @@
+{
+  "no": 44,
+  "id": "candy-corn-rains-down",
+  "date": "2026-10-30",
+  "prompt": "candy corn rains down",
+  "title": "Candy corn rains down",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "shower",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 0.6
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/candy-corn-rains-down.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}

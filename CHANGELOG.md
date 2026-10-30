@@ -10,6 +10,10 @@
   (recipe dangle, the critter scene: a spider pixel sprite, the dangle motion; kernel + sprite +
   slot): live 6,212 B · total 8,138 B gzip (with the 1,926 B loader) on this build, loaded only near
   the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #044, "candy corn rains down".** Made by `fe anim` from the prompt (recipe
+  shower, the critter scene: a candy pixel sprite, the shower motion; kernel + sprite + slot): live
+  6,079 B · total 8,005 B gzip (with the 1,926 B loader) on this build, loaded only near the
+  viewport, never under reduced motion; settles to zero frames.
 
 ## 0.17.0
 
