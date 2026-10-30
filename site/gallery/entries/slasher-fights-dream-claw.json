@@ -1,0 +1,22 @@
+{
+  "id": "slasher-fights-dream-claw",
+  "date": "2026-10-30",
+  "prompt": "a masked camp slasher fights a dream stalker with blades for fingers: lunges, fake-outs, a dream-warp, the lights cut out, and the board's real letters get slashed where they're hit",
+  "title": "HUSH vs SNOOZE",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/slasher-fights-dream-claw.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "approved": "2026-10-30"
+}

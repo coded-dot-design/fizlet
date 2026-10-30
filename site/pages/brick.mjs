@@ -2,7 +2,7 @@
 // API is its declarations (scripts/api.mjs), the sizes are measured on this build (scripts/sizes.mjs).
 import { crumbs, esc, icon, REPO, SITE } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
-import { STATUS, BETA_LINE } from "../bricks.mjs";
+import { STATUS, BETA_LINE, exportStatus } from "../bricks.mjs";
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
 const num = (n) => n.toLocaleString("en-US");
@@ -46,18 +46,39 @@ function sizeCards(brick, sizes) {
   }).join("");
 }
 
-function apiList(mods) {
+/** An export's anchor on its brick page. */
+export const apiId = (mod, name) => `api-${mod.replace(/\W+/g, "-")}-${name}`;
+
+/**
+ * One export: its name, kind and status flag, its doc comment, then (for a function or class) each
+ * signature with its parameters and return type, or (for a const) its type; the declaration as
+ * published closes it (folded for a function or class, whose signature already says the most).
+ * Type names the same module exports link to their entries.
+ */
+function declEntry(brick, m, d, h) {
+  const own = new Set(m.decls.flatMap((x) => x.names));
+  const types = (t) => esc(t).replace(/\b[A-Z]\w*\b/g, (w) => (own.has(w) ? `<a href="#${apiId(m.name, w)}">${w}</a>` : w));
+  const status = exportStatus(brick, d);
+  const tags = d.tags.filter((t) => t.name !== "returns").map((t) => `<p class="bp-tag"><b>@${esc(t.name)}</b> ${prose(t.text)}</p>`).join("");
+  const sigs = d.sigs.map((s) => `<pre class="code bp-sig"><code>${esc(s.text)}</code></pre>
+        <dl class="bp-params">${s.params.map((p) => `<div><dt><code>${p.rest ? "..." : ""}${esc(p.name)}${p.optional ? "?" : ""}</code></dt><dd><code>${types(p.type)}</code>${p.optional ? " <small>optional</small>" : ""}${p.doc ? ` ${prose(p.doc)}` : ""}</dd></div>`).join("")}<div><dt>Returns</dt><dd><code>${types(s.returns)}</code></dd></div></dl>`).join("\n        ");
+  const type = d.type ? `<dl class="bp-params"><div><dt>Type</dt><dd><code>${types(d.type)}</code></dd></div></dl>` : "";
+  const code = `<pre class="code"><code>${esc(d.code)}</code></pre>`;
+  return `<article class="bp-decl" id="${apiId(m.name, d.name)}">
+        <${h}><code>${esc(d.names.join(", "))}</code> <small>${d.kind}</small> ${statusPill(status)}</${h}>
+        <p>${prose(d.doc)}</p>${tags}
+        ${sigs}${type}
+        ${d.sigs.length ? `<details class="bp-full"><summary>Declaration</summary>${code}</details>` : code}
+      </article>`;
+}
+
+function apiList(brick, mods) {
   const toc = [], body = [], h = mods.length > 1 ? "h4" : "h3";
   for (const m of mods) {
     if (mods.length > 1) body.push(`<h3 class="bp-mod" id="mod-${m.name.replace(/\W+/g, "-")}"><code>${esc(m.name)}</code></h3>${m.summary ? `<p>${prose(m.summary)}</p>` : ""}`);
     for (const d of m.decls) {
-      const id = `api-${m.name.replace(/\W+/g, "-")}-${d.name}`;
-      toc.push(`<li><a href="#${id}"><code>${esc(d.names.join(", "))}</code></a><small>${d.kind}</small></li>`);
-      body.push(`<article class="bp-decl" id="${id}">
-        <${h}><code>${esc(d.names.join(", "))}</code> <small>${d.kind}</small></${h}>
-        ${d.doc ? `<p>${prose(d.doc)}</p>` : ""}
-        <pre class="code"><code>${esc(d.code)}</code></pre>
-      </article>`);
+      toc.push(`<li><a href="#${apiId(m.name, d.name)}"><code>${esc(d.names.join(", "))}</code></a><small>${d.kind}</small></li>`);
+      body.push(declEntry(brick, m, d, h));
     }
   }
   return { toc: toc.join(""), body: body.join("\n      ") };
@@ -66,7 +87,7 @@ function apiList(mods) {
 /** The page body for one brick. `mods`: [{ name, src, summary, decls }] from scripts/api.mjs. */
 export function brickPage({ brick, mods, sizes, version, prev, next, demoSize }) {
   const lead = mods[0];
-  const { toc, body } = apiList(mods);
+  const { toc, body } = apiList(brick, mods);
   const imports = mods.map((m) => {
     const names = m.decls.filter((d) => !["type", "interface"].includes(d.kind)).flatMap((d) => d.names);
     return { m, names };
@@ -100,10 +121,11 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
       <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>MODULES</b> · hosted on this site</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(esm)}</code></pre></div>
       <div class="panel code-card bp-npm"><div class="code-head"><span class="bui-label"><b>NPM</b> · <span class="soon-tag">COMING SOON</span></span></div><pre class="code"><code>${esc(`npm install fizlet   # not published yet\n${npm}`)}</code></pre></div>
     </div>
+    ${brick.example ? `<div class="panel code-card bp-snippet"><div class="code-head"><span class="bui-label"><b>EXAMPLE</b> · typechecked against v${esc(version)}</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(brick.example)}</code></pre></div>` : ""}
     ${brick.snippet ? `<div class="panel code-card bp-snippet"><div class="code-head"><span class="bui-label"><b>IN SHORT</b></span></div><pre class="code"><code>${esc(brick.snippet)}</code></pre></div>` : ""}
     <div class="bp-api" id="api">
       <h2>API</h2>
-      <p class="bp-note">Every export, with its doc comment, read from the published type declarations of v${esc(version)}.</p>
+      <p class="bp-note">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v${esc(version)} by the TypeScript compiler. For AI agents: <a href="../llms-full.txt">the whole API as plain text</a>.</p>
       <nav class="panel bp-toc" aria-label="Exports"><ul>${toc}</ul></nav>
       ${body}
     </div>

@@ -137,13 +137,13 @@
     "provenance": true
   },
   "scripts": {
-    "typecheck": "tsc --noEmit && tsc --noEmit -p . --exactOptionalPropertyTypes && tsc -p site/tsconfig.json && tsc -p site/demos/fizz/tsconfig.json",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p . --exactOptionalPropertyTypes && tsc -p site/tsconfig.json && tsc -p site/demos/fizz/tsconfig.json && tsc -p site/brick-examples/tsconfig.json && tsc -p site/docs/code/tsconfig.json && tsc -p site/recipes/tsconfig.json",
     "test": "node --expose-gc --import tsx --test --test-concurrency=1 tests/*.test.mjs",
     "build": "node scripts/build.mjs",
     "check": "npm run typecheck && npm test && npm run build",
     "size": "node scripts/size.mjs",
     "readme:sizes": "node scripts/readme-sizes.mjs",
-    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/drag.mjs && node tests/coach.mjs && node tests/timeline.mjs && node tests/labs.mjs && node tests/virus.mjs && node tests/small-packages.mjs && node tests/touch.mjs && node tests/comic.mjs && node tests/hero-duo.mjs && node tests/pixel-pieces.mjs && node tests/hero-brawl.mjs && node tests/css-clock.mjs && node tests/shadow.mjs && node tests/dv-pieces.mjs && node tests/outbreak.mjs",
+    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/drag.mjs && node tests/coach.mjs && node tests/timeline.mjs && node tests/labs.mjs && node tests/virus.mjs && node tests/small-packages.mjs && node tests/touch.mjs && node tests/comic.mjs && node tests/hero-duo.mjs && node tests/pixel-pieces.mjs && node tests/halloween-ghosts.mjs && node tests/hero-brawl.mjs && node tests/halloween-fights.mjs && node tests/css-clock.mjs && node tests/shadow.mjs && node tests/dv-pieces.mjs && node tests/outbreak.mjs",
     "test:layers": "tsc -p site/demos/layers/tsconfig.json && node tests/layers.mjs",
     "test:pack": "node scripts/pack-smoke.mjs",
     "site": "npm run build && node scripts/site.mjs",

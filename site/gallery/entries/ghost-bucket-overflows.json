@@ -1,0 +1,25 @@
+{
+  "id": "ghost-bucket-overflows",
+  "date": "2026-10-30",
+  "prompt": "the rookie keeps stuffing ghosts into one bucket trap: one more, or haul it off? push your luck and the lid blows, and every ghost escapes across the page, ricocheting off the letters",
+  "title": "Overflow",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/ghosts/overflow.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 9",
+  "pageCost": {
+    "settles": true
+  },
+  "approved": "2026-10-30"
+}

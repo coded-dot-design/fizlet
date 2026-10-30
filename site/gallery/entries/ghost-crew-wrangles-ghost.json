@@ -1,0 +1,25 @@
+{
+  "id": "ghost-crew-wrangles-ghost",
+  "date": "2026-10-30",
+  "prompt": "a ghost-catching crew fires wobbling scrub streams: tap the ghost to latch on, drag it struggling through the library, and pull it into the bucket trap that snaps shut with a burst",
+  "title": "Wrangle",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/ghosts/wrangle.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 9",
+  "pageCost": {
+    "settles": true
+  },
+  "approved": "2026-10-30"
+}
