@@ -76,6 +76,10 @@
   the ledger; kernel + board-page + slot): live 9,285 B · total 11,211 B gzip (with the 1,926 B
   loader) on this build, loaded only near the viewport, never under reduced motion; settles to zero
   frames.
+- **Website: gallery #060, "red skulls rain down forever".** Made by `fe anim` from the prompt
+  (recipe shower, the critter scene: a skull pixel sprite, the shower motion; kernel + sprite +
+  slot): live 6,061 B · total 7,987 B gzip (with the 1,926 B loader) on this build, loaded only near
+  the viewport, never under reduced motion; loops while visible, asleep off screen.
 
 ## 0.17.0
 

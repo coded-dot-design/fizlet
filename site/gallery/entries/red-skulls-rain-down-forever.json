@@ -1,0 +1,33 @@
+{
+  "no": 60,
+  "id": "red-skulls-rain-down-forever",
+  "date": "2026-10-30",
+  "prompt": "red skulls rain down forever",
+  "title": "Red skulls rain down forever",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "shower",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": false,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 30,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 1.49
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/red-skulls-rain-down-forever.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}
