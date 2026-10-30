@@ -5,13 +5,14 @@
 - **Website: a size badge on every live demo** ("9.4 KB GZ"): the layers hero, the blast board,
   the fizz can, the quick start, each brick page's demo and every gallery entry. The number is what that demo ships,
   gzipped, with every chunk it imports statically (`scripts/live-bytes.mjs`), measured on the built
-  file at build time and never typed; kit tokens only; the full byte count is in screen-reader
-  text and the tooltip. One component for all of them: `sizeBadge(bytes, live, what)` in `site/size-badge.mjs`
+  file at build time and never typed; kit tokens only; screen readers get the whole description
+  as one (`role="img"` + `aria-label`, no extra CSS needed) and the tooltip has the byte count. One component for all of them: `sizeBadge(bytes, live, what)` in `site/size-badge.mjs`
   (it replaces the gallery's `{ name, note }` form; one `.size-badge` style). A module's own size
   names its `scripts/sizes.mjs` entry instead of a file (`"size:fizlet (kernel)"`, the notes' kernel badge).
   `tests/site.mjs` fails if a live demo has no badge, if a badge's bytes differ from a fresh
   measurement of the file it names, or if it is hidden. The demos' own standalone pages
-  (`demos/fizz/`, `demos/layers/`, `examples/fizz/`) have none yet; they are listed in the test.
+  (`demos/fizz/`, `examples/fizz/`) have none on their demo yet; they are listed in the test. The
+  layers story page shows its badge in the caption, through the same component.
 - **The fizz, dialled in** (the brand animation, `site/demos/fizz/`). A tap **crunches** the can
   (it squashes and dents, and stays dented), then the tab pops. The fizz **sprays out of the
   card**: a geyser, a burst and a glug fly on a pixel layer the card's width, reaching from 70% of

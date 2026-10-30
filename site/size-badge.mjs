@@ -7,5 +7,9 @@
 import { esc } from "./layout.mjs";
 
 /** `bytes`: gzip bytes; `live`: the built file (or "size:<entry>") they were measured from; `what`: what it is (screen readers, tooltip). */
-export const sizeBadge = (bytes, live, what = "live code") =>
-  `<span class="size-badge" data-size-badge data-bytes="${bytes}" data-live="${esc(live)}" title="${bytes.toLocaleString("en-US")} B gzip, measured at build"><b>${(bytes / 1024).toFixed(1)} KB</b> gz<span class="sr">: ${esc(what)}, ${bytes.toLocaleString("en-US")} bytes gzipped, measured at build</span></span>`;
+export const sizeBadge = (bytes, live, what = "live code") => {
+  const n = bytes.toLocaleString("en-US"), kb = (bytes / 1024).toFixed(1);
+  // role="img" + aria-label: the whole description is read as one, and the badge needs no
+  // screen-reader-only CSS, so it works on any page that copies the .size-badge rules.
+  return `<span class="size-badge" role="img" aria-label="${kb} KB gzipped: ${esc(what)}, ${n} bytes, measured at build" data-size-badge data-bytes="${bytes}" data-live="${esc(live)}" title="${n} B gzip, measured at build"><b>${kb} KB</b> gz</span>`;
+};
