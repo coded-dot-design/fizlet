@@ -2,8 +2,8 @@
  * fizlet/input: one controller for keys, pointer and a touch stick, mapped to named intents.
  * Listeners only record; the engine's read phase latches edges and measures the target, so a step
  * sees a stable snapshot. Keys typed into the host page's fields (or inside [data-fizlet-ignore])
- * never count. Held state is dropped on window blur, when the engine pauses, on dispose() and on
- * destroy: nothing stays stuck.
+ * never count. Keys, the pointer, `press()` and `steer()` wake a settled engine. Held state is
+ * dropped on window blur, when the engine pauses, on dispose() and on destroy: nothing stays stuck.
  *
  * `hit` (an intent or the pointer): a press is seen by exactly one fixed step, the first step after
  * it, even when that comes frames later (0-step frames while catching up) and never again in the
@@ -172,11 +172,13 @@ export function controls(e: Engine, o: ControlsOptions = {}) {
     press(intent: string, down = true) {
       const i = index(intent);
       if (i < 0) return;
+      e.wake(); // like a real key: a settled engine (page interactions) wakes for an on-screen one
       if (down && !isDown(i)) pend[i] = 1;
       btn[i] = +down;
     },
     /** Drive the stick from code (an on-screen stick, fizlet/pad): x, y in -1..1; `on = false` lets go. */
     steer(x: number, y: number, on = true) {
+      e.wake();
       s[0] = on ? x : 0;
       s[1] = on ? y : 0;
       s[2] = on ? 1 : 0;
