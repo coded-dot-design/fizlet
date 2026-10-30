@@ -22,7 +22,7 @@ export function inline(s, base) {
 const href = (h, base) => (h.startsWith("/") ? base + h.slice(1) : h);
 const KEYS = ["bui-sys", "bui-cmd", "bui-go"];
 
-function block(b, base) {
+export function block(b, base) {
   const h2 = (text) => (text ? `<h2>${inline(text, base)}${b.headingAccent ? `<br><em>${inline(b.headingAccent, base)}</em>` : ""}</h2>` : "");
   switch (b.type) {
     case "text":
@@ -80,6 +80,7 @@ export function notePage({ note: n, base, kernel }) {
 /** The notes index: newest first. */
 export function notesIndex({ notes, base }) {
   const cards = notes.map((n) => `<li class="panel note-card">
+      <div class="card-anim" data-anim-slot="${esc("note:" + n.slug)}" aria-hidden="true"></div>
       <p class="eyebrow"><span class="index">${esc(n.date)}</span> ${esc((n.eyebrow ?? n.type ?? "note").toUpperCase())}</p>
       <h2><a href="${base}notes/${esc(n.slug)}/">${esc(n.title)}</a></h2>
       ${n.subtitle ? `<p class="note-sub">${esc(n.subtitle)}</p>` : ""}
