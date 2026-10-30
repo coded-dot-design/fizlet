@@ -1,0 +1,42 @@
+/* Vendored from https://github.com/coded-dot-design/dom-virus @ 248d1e9 by scripts/vendor-dom-virus.mjs: SQUAD TACTICS · DOM / GRID BATTLE (the DOM Battlefield display, domvirus.com/games/battlefield/). Do not edit; change it in dom-virus and vendor again. */
+[data-dv="squad-tactics"]{--accent:#06c4ff;--ink:#fff4ff;--line:#49345e;--faint:#b39acd;--surface:#1a112b;--muted:#cec0e0;--mono:ui-monospace, SFMono-Regular, Consolas, monospace;--accent-ink:#102528}
+@scope ([data-dv="squad-tactics"]) {
+.field[data-astro-cid-jphmmjo6]{aspect-ratio:420/240;width:calc(100% - 36px);height:auto;margin:6px 18px;display:block}
+.road[data-astro-cid-jphmmjo6]{fill:#06c4ff0d}
+.wall[data-astro-cid-jphmmjo6]{fill:#0f1d2b;stroke:#22465a;stroke-width:1.5px}
+.tower[data-astro-cid-jphmmjo6]{fill:#1a1430;stroke:#3c2b55;stroke-width:1.5px}
+.window[data-astro-cid-jphmmjo6]{fill:#3c2b55}
+.crystal[data-astro-cid-jphmmjo6]{fill:#231c40}
+.fence[data-astro-cid-jphmmjo6]{stroke:#6b5f2a;stroke-width:3px;stroke-dasharray:6 5}
+.hq[data-astro-cid-jphmmjo6] rect[data-astro-cid-jphmmjo6]{fill:none;stroke-width:2px;stroke-dasharray:5 4}
+.hq[data-astro-cid-jphmmjo6].a rect[data-astro-cid-jphmmjo6]{stroke:#39ffb0}
+.hq[data-astro-cid-jphmmjo6].b rect[data-astro-cid-jphmmjo6]{stroke:#ff5c8f}
+.field[data-astro-cid-jphmmjo6] *{animation-play-state:paused;animation-delay:calc(var(--fz-t,0s) + var(--d,0s))}
+.tank[data-astro-cid-jphmmjo6]{transform-box:fill-box;transform-origin:50%}
+.patrol-x[data-astro-cid-jphmmjo6]{animation:6s ease-in-out infinite dv-patrol-x}
+.patrol-y[data-astro-cid-jphmmjo6]{animation:6s ease-in-out infinite dv-patrol-y}
+.b1[data-astro-cid-jphmmjo6],.b2[data-astro-cid-jphmmjo6]{--d:-3s}
+.field[data-astro-cid-jphmmjo6] .aim{transform:rotate(var(--a0));transform-box:fill-box;transform-origin:50%;animation:6s ease-in-out infinite dv-sweep}
+.shell[data-astro-cid-jphmmjo6]{stroke-width:4px;stroke-linecap:square;opacity:0;animation:6s linear infinite dv-shell}
+.blast[data-astro-cid-jphmmjo6]{opacity:0;transform-box:fill-box;transform-origin:50%;animation:6s ease-out infinite dv-blast}
+@media (prefers-reduced-motion:reduce){.field[data-astro-cid-jphmmjo6] *{animation:none!important}}
+@media (prefers-reduced-motion:reduce){.shell[data-astro-cid-jphmmjo6],.blast[data-astro-cid-jphmmjo6]{opacity:0}}
+*{box-sizing:border-box}
+::selection{background:var(--accent);color:var(--accent-ink)}
+.led{background:var(--accent);border-radius:50%;flex-shrink:0;width:6px;height:6px;display:inline-block}
+.game-display{border:1px solid var(--line);background:var(--surface);background-image:radial-gradient(var(--line) .7px, transparent .7px);background-size:15px 15px;border-radius:4px;min-height:280px;position:relative;overflow:hidden}
+.display-top,.display-bottom{font:8px/1.4 var(--mono);color:var(--muted);background:var(--surface);justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;display:flex}
+.display-top{border-bottom:1px solid var(--line);justify-content:flex-start}
+.display-note{color:var(--faint);margin-left:auto;font-size:7px}
+.display-bottom{border-top:1px solid var(--line);gap:10px;font-size:7px}
+@media (width<=760px){.game-display{min-height:265px}}
+@media (prefers-reduced-motion:reduce){*,:before,:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+.hero-art,.game-display{border-color:var(--ink)}
+.game-display{box-shadow:7px 7px 0 var(--accent);border-radius:7px}
+@media (pointer:coarse){body,body *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}}
+}
+@keyframes dv-patrol-x{50%{transform:translate(26px)}}
+@keyframes dv-patrol-y{50%{transform:translateY(-22px)}}
+@keyframes dv-sweep{0%,to{transform:rotate(var(--a0))}40%{transform:rotate(calc(var(--a0) + 24deg))}70%{transform:rotate(calc(var(--a0) - 18deg))}}
+@keyframes dv-shell{0%{opacity:1;transform:translate(0)}5.3%{opacity:1;transform:translate(var(--tx),var(--ty))}5.4%,to{opacity:0}}
+@keyframes dv-blast{0%{opacity:1;transform:scale(.3)}5%{opacity:1;transform:scale(1.6)}10%,to{opacity:0;transform:scale(2.2)}}
