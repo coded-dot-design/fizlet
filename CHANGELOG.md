@@ -104,10 +104,11 @@
   esbuild keeps property names, so the private fields that ship in every page and game are short
   now (each named in a comment): the ledger's (`t`, `m`, `a`, `e`), grid's search buffers and
   helpers, and collide `Grid`'s. The ledger's three copies of its "host changed this style" check
-  and two of its put-back share one helper each, and slot's placeholder selector drops its spaces.
-  gzip: page build 7,166 → 7,131 B (budget 7,168, fixed), grid 1,634 → 1,603 (1,637),
-  board-page 4,162 → 4,136 (4,193), arcade card 18,350 → 18,302 (18,361), arcade 24,331 →
-  24,286, kernel 3,438 → 3,417, collide 1,293 → 1,265.
+  and two of its put-back share one helper each, restore's attribute put-back is one expression,
+  and slot's placeholder selector drops its spaces. gzip, measured with #174's start fix (+5 B):
+  page build 7,166 → 7,128 B (budget 7,168, fixed), grid 1,634 → 1,603 (1,637), board-page
+  4,162 → 4,136 (4,193), arcade card 18,350 → 18,296 (18,361), arcade 24,331 → 24,280, kernel
+  3,438 → 3,413, collide 1,293 → 1,265.
 - **timeline: an engine auto-pause no longer stops it for good** (found in dom-virus#33).
   `pause()` is also the timeline's `System.pause` hook, so when the engine paused itself (off
   screen, a hidden tab, `engine.stop()`) the timeline marked itself paused by you and never played

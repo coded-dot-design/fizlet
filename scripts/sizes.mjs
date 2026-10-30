@@ -91,8 +91,9 @@ export const BUDGETS = [
   // ≥ 3 KB (tests/page.test.mjs holds the budget there, so it never rises). 7,129 B before release
   // train 0.20.0, 7,164 B after: +35 B #120 (input's intents resolved once), +0 B #122 (its fps-cap
   // nap leaves the clamp to setTimeout; with Math.max the two together were 7,169, 1 B over).
-  // 7,131 B in train 0.21.0 (7,166 on main; no behaviour change): slot's selector without spaces −3 B,
-  // the ledger's short private names −20 B, one shared style check and put-back −12 B.
+  // 7,128 B in train 0.21.0 (7,166 on main, 7,171 with #174's start fix; no behaviour change): slot's
+  // selector without spaces −3 B, the ledger's short private names −20 B, one shared style check and
+  // put-back −12 B, restore's attribute put-back as one expression −8 B.
   ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7168],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
   ["fizlet/ui (css)", "src/ui/board-ui.css", 5120],

@@ -130,11 +130,7 @@ export class Ledger {
     for (const [node, r] of this.t) if (!r.x && node.nodeValue === r.l) node.nodeValue = r.o;
     for (const [el, e] of this.m) {
       e.cls?.forEach((r, name) => !r.x && el.classList.contains(name) === r.l && el.classList.toggle(name, r.o));
-      e.attr?.forEach((r, name) => {
-        if (r.x || el.getAttribute(name) !== r.l) return;
-        if (r.o === null) el.removeAttribute(name);
-        else el.setAttribute(name, r.o);
-      });
+      e.attr?.forEach((r, name) => !r.x && el.getAttribute(name) === r.l && (r.o === null ? el.removeAttribute(name) : el.setAttribute(name, r.o)));
       let all = true;
       e.style?.forEach((r, prop) => {
         const s = el.style;
