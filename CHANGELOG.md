@@ -17,8 +17,9 @@
   checks the evidence (test files exist, `since` is a release, COMPLETE names a shipped user, BETA a
   why, planned bricks aren't exported) and that the README agrees.
 - **README sizes come from the build.** `npm run readme:sizes` rewrites the "What's in the box"
-  size column and the kernel's measured bytes from `scripts/sizes.mjs` (the CI budget's measure);
-  `tests/status.test.mjs` fails when the README is stale. Corrected at 0.19.0: kernel 3.4 KB
+  size column and the kernel's measured bytes from `scripts/sizes.mjs` (the CI budget's measure).
+  It is a release step, not a PR gate: `land.py bump` runs it, the release workflow fails on a stale
+  README (`--check`), and `tests/status.test.mjs` proves the generator on a fixture. Corrected at 0.19.0: kernel 3.4 KB
   (3,439 B), slot 1.8, board-page 4.0, fx 2.7 (the whole module), camera 1.4, presence/check 4.8,
   arcade 17.5 / 21.5, ui 2.8 + 4.8 KB css.
 - **Website: the roadmap runs E0 to E16, ticked only with evidence.** E1, E2 (re-scoped: the 22
