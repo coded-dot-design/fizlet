@@ -9,6 +9,7 @@
   to four of them. It now waits (up to 10 s) for six frames and the story moving past where it was
   paused: 10 of 10 under the same load. A real stall still fails it (checked with a scene whose key
   reads Pause but whose story never steps). Test only; no engine or size change.
+- **Tests: `fizlet/css-clock` has its zero-allocation proof** (`tests/css-clock.test.mjs`): 200k steps while it plays and 200k whole frames at rest (held) each take ≤ 1 young-generation GC (best of 3 windows). Its tests never counted allocations (touch has no loop; arcade is covered by #144) (2026-10-30 code audit, `fe audit fizlet`). Tests only; no size change.
 - **Kernel fix: `start()` on a settled engine runs again.** It cleared the settled bit but not the
   quiet time, so the first frame after it (0 s, no steps) found the engine still quiet and put it
   back to sleep: `start()` woke a settled engine for one empty frame. It now does what `wake()` does
