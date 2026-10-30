@@ -150,8 +150,8 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
           emitT(tring, hx, hy, 10, SYS, 1, ST);
         }
         if (at(1.8)) emit(bubble, mx, my, 40, INK, 2, S), emit(drop, mx, my, 30, INK, 2, S); // a glug
-        if (t > 1 && t < 3.8) {
-          const k = (1 - (t - 1) / 2.8) ** 1.3;
+        if (t > 1 && t < 3.4) {
+          const k = (1 - (t - 1) / 2.4) ** 1.3;
           sn += dt * 200 * k;
           snt += dt * 90 * k;
           const n = Math.floor(sn), m = Math.floor(snt), third = Math.ceil(n / 3);
@@ -165,7 +165,7 @@ export function fizz(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
         // The drip: stop-and-go down the shaded edge (column 35), then a splash on the floor.
         if (t > 1.4 && dy < 72 && (dy = Math.min(72, Math.max(22, dy) + dt * (8 + 28 * Math.abs(Math.sin(t * 3.1))))) === 72)
           emit(fleck, x0 + 36 * K, by - 1, 8, INK, 2, S * 0.3);
-        if (t > 5.2) st = -2; // the story is over: the last frame stays, the engine settles
+        if (t > 4.6) st = -2; // the story is over: the last frame stays, the engine settles
       }
       if (wait >= 0 || st >= 0 || fx.live || fxT.live) (e.busy(), (dirty = true));
     },
