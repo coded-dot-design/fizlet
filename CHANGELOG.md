@@ -13,7 +13,6 @@
   settles in ~6 s, then **0 frames a second** still and **0 off screen**; a drag wakes it and it
   settles again to 0; with reduced motion it settles in ~1 s; Recall is exact.
   `tests/brick-graph.mjs` runs with `npm run test:site`.
-
 - **`fizlet/layout`** (new brick, EXPERIMENTAL, 1,751 B gz, budget 2,048; roadmap E10):
   force-directed layout on typed arrays with a Barnes-Hut pass, for diagrams and graphs that settle.
   `layout(engine, { cap, links, charge, distance, gravity, cx, cy, theta, keep, ticks, still, motion })`
@@ -33,7 +32,6 @@
   - Tests: `tests/layout.test.mjs` and `tests/layout.mjs` (Chromium, both motion settings, Recall).
   - Status: EXPERIMENTAL in `site/bricks.mjs` (since 0.21.0), a README row and a generated brick
     page; off the ROADMAP list.
-
 - **`fizlet/view-canvas`** (new brick, EXPERIMENTAL, 936 B gz, budget 1,229; roadmap E10): one
   overlay canvas per root, sized for the screen's pixel density and redrawn only where something
   changed. `viewCanvas(engine, root, { draw, maxDpr, label })` → `{ canvas, ctx, width, height, dpr,
@@ -51,7 +49,7 @@
     resize, settled at 0 frames, Recall byte for byte).
   - Status: EXPERIMENTAL in `site/bricks.mjs` (since 0.21.0), a README row and a generated brick
     page; off the ROADMAP list.
-
+- **Tests: `fizlet/css-clock` has its zero-allocation proof** (`tests/css-clock.test.mjs`): 200k steps while it plays and 200k whole frames at rest (held) each take ≤ 1 young-generation GC (best of 3 windows). Its tests never counted allocations (touch has no loop; arcade is covered by #144) (2026-10-30 code audit, `fe audit fizlet`). Tests only; no size change.
 - **Kernel fix: `start()` on a settled engine runs again.** It cleared the settled bit but not the
   quiet time, so the first frame after it (0 s, no steps) found the engine still quiet and put it
   back to sleep: `start()` woke a settled engine for one empty frame. It now does what `wake()` does
