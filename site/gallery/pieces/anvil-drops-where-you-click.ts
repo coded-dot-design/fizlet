@@ -30,7 +30,7 @@ const WORDS = ["BONK!", "PLONK!", "THUD", "CRUNCH", "BOING"];
 // Values for the page, made once (art px → cqw: the stage is a size container).
 const YS = Array.from({ length: 61 }, (_, i) => `${(i - 30) * 0.625}cqw`);
 const RS = Array.from({ length: 81 }, (_, i) => `${i - 40}deg`);
-const QS = Array.from({ length: 21 }, (_, i) => `${(i * 0.05).toFixed(2)}`);
+const QS = Array.from({ length: 21 }, (_, i) => `${i / 20}`);
 const DIG = Array.from({ length: 100 }, (_, i) => String(i));
 const f32 = (k: number) => new Float32Array(k);
 /** One step of a damped spring pulling X[i] to T[i]; how far it still is from rest there. */
