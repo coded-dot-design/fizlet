@@ -32,19 +32,22 @@ export function drag(card: HTMLElement, signal: AbortSignal) {
   // the rest of its own inline style.
   const g = new Float64Array(2);
   const on = (ev: PointerEvent) => {
-    const k = ev.type[7], r = card.getBoundingClientRect(), s = card.style;
+    // Layout is read only on a press and while dragging: a hover or a release over the card reads none.
+    const k = ev.type[7], s = card.style;
     if (k === "d") {
       if (ev.button || (ev.target as Element).closest("button,input,select")) return;
-      const o = (card.offsetParent ?? card.parentElement)!, q = o.getBoundingClientRect();
-      (g[0] = ev.clientX - r.left + q.left + o.clientLeft), (g[1] = ev.clientY - r.top + q.top + o.clientTop);
+      const o = (card.offsetParent ?? card.parentElement)!, q = o.getBoundingClientRect(), b = card.getBoundingClientRect();
+      (g[0] = ev.clientX - b.left + q.left + o.clientLeft), (g[1] = ev.clientY - b.top + q.top + o.clientTop);
       card.setPointerCapture(ev.pointerId);
       card.classList.add("drag");
     } else if (k !== "m") card.classList.remove("drag");
-    else if (card.classList.contains("drag"))
-      (s.left = `max(0px,min(${ev.clientX - g[0]!}px,calc(100% - ${r.width}px)))`),
-        (s.top = `max(0px,min(${ev.clientY - g[1]!}px,calc(100% - ${r.height}px)))`),
+    else if (card.classList.contains("drag")) {
+      const b = card.getBoundingClientRect();
+      (s.left = `max(0px,min(${ev.clientX - g[0]!}px,calc(100% - ${b.width}px)))`),
+        (s.top = `max(0px,min(${ev.clientY - g[1]!}px,calc(100% - ${b.height}px)))`),
         (s.right = s.bottom = "auto"),
         (s.translate = "none");
+    }
   };
   for (const t of ["pointerdown", "pointermove", "pointerup", "pointercancel"]) card.addEventListener(t, on as EventListener, { signal });
 }
