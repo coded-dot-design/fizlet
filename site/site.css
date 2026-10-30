@@ -3091,6 +3091,7 @@ html.bui[data-theme="light"] .phases b {
 .bp-card {
   max-width: 560px;
   margin: 0 0 28px;
+}
 /* Touch: the kit grows a copy key's hit area 9px up and down (above), so the Try keys keep more
    than that between rows and a tap on one key's base never lands on the next one's area. */
 @media (pointer: coarse) {
