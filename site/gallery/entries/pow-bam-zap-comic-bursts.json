@@ -3,31 +3,20 @@
   "id": "pow-bam-zap-comic-bursts",
   "date": "2026-10-30",
   "prompt": "POW BAM ZAP comic bursts where you click",
-  "title": "POW BAM ZAP comic bursts where you click",
+  "title": "POW! BAM! ZAP!",
   "kind": "micro",
   "theme": "heroes-comics",
   "author": "chris-cooley",
-  "recipe": "burst",
+  "recipe": "hand-built",
   "bricks": [
     "fizlet/kernel",
-    "fizlet/fx",
+    "fizlet/sprite",
     "fizlet/slot"
   ],
-  "pageCost": {
-    "settles": true,
-    "measured": {
-      "chromium": "153.0.8010.12",
-      "framesPlaying": 32,
-      "framesSettled": 0,
-      "framesOffscreen": 0,
-      "recallExact": true,
-      "reducedMotionStill": true,
-      "allocBytesPerFrame": 39.4
-    }
-  },
-  "fizlet": "0.16.0",
-  "made": "fe anim",
-  "module": "anims/pow-bam-zap-comic-bursts.ts",
+  "fizlet": "0.18.0",
+  "made": "by hand",
+  "module": "pieces/pow-bam-zap.ts",
   "export": "mount",
+  "stage": "own",
   "aspect": "16 / 9"
 }
