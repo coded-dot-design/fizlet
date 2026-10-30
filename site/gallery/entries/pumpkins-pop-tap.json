@@ -1,0 +1,33 @@
+{
+  "no": 58,
+  "id": "pumpkins-pop-tap",
+  "date": "2026-10-30",
+  "prompt": "pumpkins pop where you tap",
+  "title": "Pumpkins pop where you tap",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "scatter",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 0.79
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/pumpkins-pop-tap.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}

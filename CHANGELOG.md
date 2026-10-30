@@ -67,6 +67,10 @@
   prompt (recipe rise, the spray scene; kernel + fx + slot): live 6,627 B · total 8,553 B gzip (with
   the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
   settles to zero frames.
+- **Website: gallery #058, "pumpkins pop where you tap".** Made by `fe anim` from the prompt (recipe
+  scatter, the critter scene: a pumpkin pixel sprite, the scatter motion; kernel + sprite + slot):
+  live 6,135 B · total 8,061 B gzip (with the 1,926 B loader) on this build, loaded only near the
+  viewport, never under reduced motion; settles to zero frames.
 
 ## 0.17.0
 
