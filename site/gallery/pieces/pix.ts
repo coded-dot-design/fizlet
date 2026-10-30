@@ -50,6 +50,7 @@ export function offscreen(w: number, h: number) {
 }
 
 // ---------- Fonts: glyph rows as bits, looked up by char code (no allocation when printing) ----------
+// Each table is built by a pure call: a piece that never uses one of the fonts doesn't ship its table.
 const font = (w: number, h: number, src: Record<string, string>) => {
   const t: number[][] = [];
   for (const ch in src) {

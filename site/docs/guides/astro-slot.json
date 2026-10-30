@@ -1,0 +1,96 @@
+{
+  "slug": "astro-slot",
+  "section": "guides",
+  "order": 2,
+  "nav": "Fill an Astro slot",
+  "eyebrow": "Guide · a page hero",
+  "title": "A hero that costs",
+  "subtitle": "nothing while it's still.",
+  "summary": "Fill an astro-base-engine animation slot with a Fizlet scene: lazy, settles to zero frames, keeps the slot's text alternative.",
+  "lead": [
+    "An Astro page engine (astro-base-engine) renders each animation slot on a page as a sized, described placeholder. `fizlet/slot` fills it with a scene that loads only near the viewport, never under reduced motion, and settles to zero frames once nothing moves. The heroes on this site's [home page](/) are built this way."
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "heading": "1. The slot",
+      "body": [
+        {
+          "type": "p",
+          "text": "The page already has the figure, from the engine's `[slot animation]` block: `<figure class=\"ae-slot\" data-slot-target=\"home#hero\" role=\"img\" aria-label=\"…\">`. Its size, its placeholder and its text alternative are the page's. The scene only adds motion."
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "label": "PAGE SCRIPT",
+      "file": "page.ts",
+      "src": "slot-page.ts"
+    },
+    {
+      "type": "code",
+      "label": "THE SCENE",
+      "file": "hero-scene.ts",
+      "src": "hero-scene.ts"
+    },
+    {
+      "type": "features",
+      "layout": "rows",
+      "heading": "2. What the slot does for you",
+      "items": [
+        {
+          "title": "Lazy",
+          "body": "Nothing loads until the slot comes within `margin` (default `\"200px\"`) of the viewport, and then not before the main thread is idle (`requestIdleCallback`, at most `idle` ms, default 1000)."
+        },
+        {
+          "title": "The first tap counts",
+          "body": "A tap on the slot before the scene is up loads it at once and reaches `mount` as `first = { x, y, at }`: an intent, not the original pointer event, whose pointer is gone by then."
+        },
+        {
+          "title": "Reduced motion",
+          "body": "With `prefers-reduced-motion: reduce` the scene never loads and the placeholder stays. If the setting turns on mid-scene, the scene goes and the placeholder comes back."
+        },
+        {
+          "title": "Accessible and contained",
+          "body": "`role=\"img\"` and `aria-label` stay. The scene gets its own stage (`contain: strict`), hidden from assistive tech until the scene returns `accessible: true`. Every change goes through a ledger, so `destroy()` puts the slot back exactly."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "3. Stay in budget",
+      "body": [
+        {
+          "type": "p",
+          "text": "A hero's live chunk has a budget of 10 KB gzip. The page build (kernel, `fizlet/slot`, `fizlet/input`, `fizlet/fx`) is {size:page build (kernel+slot+input+fx)}, so the scene's own code gets about 3 KB. Sound, debug, the pad, the HUD, match and the Board UI never get pulled into it (a test checks)."
+        },
+        {
+          "type": "p",
+          "text": "`settle: 0.5` and `fps: 30` are the two lines that make it cheap: half a second after the last `busy()` the engine asks for no frames at all, and while it plays it asks for 30 a second, not one per vsync."
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "fizlet/slot API",
+          "href": "/bricks/slot.html"
+        },
+        {
+          "label": "The loop: settle",
+          "href": "/docs/loop/"
+        },
+        {
+          "label": "See the heroes",
+          "href": "/heroes/"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Fill an Astro animation slot with a Fizlet scene",
+    "description": "Fill an astro-base-engine slot with fizlet/slot: loads near the viewport, skips reduced motion, settles to zero frames, keeps the slot's text alternative."
+  },
+  "brick": "slot"
+}
