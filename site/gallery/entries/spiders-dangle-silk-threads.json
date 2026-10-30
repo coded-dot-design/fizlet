@@ -1,0 +1,33 @@
+{
+  "no": 43,
+  "id": "spiders-dangle-silk-threads",
+  "date": "2026-10-30",
+  "prompt": "spiders dangle on silk threads",
+  "title": "Spiders dangle on silk threads",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "dangle",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 2.04
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/spiders-dangle-silk-threads.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}

@@ -6,6 +6,10 @@
   prompt (recipe scatter, the critter scene: a bat pixel sprite, the scatter motion; kernel + sprite
   + slot): live 6,148 B · total 8,074 B gzip (with the 1,926 B loader) on this build, loaded only
   near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #043, "spiders dangle on silk threads".** Made by `fe anim` from the prompt
+  (recipe dangle, the critter scene: a spider pixel sprite, the dangle motion; kernel + sprite +
+  slot): live 6,212 B · total 8,138 B gzip (with the 1,926 B loader) on this build, loaded only near
+  the viewport, never under reduced motion; settles to zero frames.
 
 ## 0.17.0
 
