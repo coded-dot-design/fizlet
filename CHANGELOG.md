@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+- **Gallery: DOM Virus, two hand-built micro games (pending the owner's approval).** A new theme,
+  `dom-virus`, with #047 **Terminal virus**: a worm types itself into a terminal, crawls onto the
+  README beside it and eats its real letters (each bite rewrites a character of the page's own
+  text through the ledger), forking a new pid every four letters. Tap a worm to `kill -9` it: it
+  bursts, the blast knocks its neighbours tumbling, and every letter it chewed flies home as a
+  packet and is written back exactly. Let it eat half the page and the kernel panics, then Recall
+  rolls the whole page back. And #048 **Petri dish**: virus cells drift, collide (circle
+  collisions, mass by size) and split under a microscope; a zap bursts a cell, and its shockwave
+  bursts any cell caught mid-split, so a well-timed zap sets off a chain. Gold mutants split
+  faster and take two zaps; at 40 cells a UV sweep sterilises the dish. Dark is a fluorescence
+  scope, light a brightfield one. Bricks: kernel, `fizlet/steer`'s exact `hypot`, slot; both
+  settle to no frames, no allocation in step, a still poster under reduced motion. Live sizes
+  (gzip, measured): terminal virus 8,076 B, petri dish 7,608 B (kernel 3,353 B of each).
+  `tests/virus.mjs` (in `test:browser`) plays both: kills and zaps have their consequences, the
+  README reads exactly as before once every worm is dead, both settle, a tap plays again,
+  `destroy()` mid-play gives the page back byte for byte, and reduced motion loads nothing.
 - **Fix: `slot("page#slot", …)` finds astro-engine's current slot markup.** The engine now renders
   `<figure class="ae-slot-figure"><div class="ae-slot" data-slot-target role="img">…</div><figcaption
   class="ae-slot__fallback">` (the caption outside the role="img" box), and `findSlot()` looked only
