@@ -41,7 +41,7 @@ ${css}
 ${figure}
 <p class="cap">${sizeBadge(sizes.live, "demos/layers/layers.js", "the layers scene, its live chunk")}</p>
 <p class="cap">${caption}</p>
-<p class="cap">Layer bytes: Battlefield Blitz c8c8ca4, layer manifest (game code per layer, min + gzip; Effects is all brick, min). Built on fizlet, fizlet/slot, fizlet/sprite and fizlet/fx. By <a href="https://coded.design/">Chris Cooley</a>.</p>
+<p class="cap">Layer bytes: Battlefield Blitz c8c8ca4, layer manifest (game code per layer, min + gzip; Effects is all brick, min). Built on fizlet, fizlet/slot, fizlet/sprite and fizlet/fx. By <a href="https://coded.design/">Chris Cooley ↗</a>.</p>
 </main>
 ${loader}
 </body>

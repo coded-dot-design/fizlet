@@ -51,7 +51,7 @@ const bundle = gzipSync(iife.outputFiles[0].contents).length;
 
 // Page scripts: the demo (bundled from src/, as a game would) and the shared site script.
 await build({
-  entryPoints: { demo: "site/demo.ts", site: "site/site.ts" },
+  entryPoints: { demo: "site/demo.ts", site: "site/site.ts", "home-motion": "site/home-motion.ts" },
   outdir: OUT, bundle: true, minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning",
 });
 
@@ -194,7 +194,7 @@ const pages = [
   ["index.html", page({
     title: "Fizlet · Tiny physics for your page",
     description: homeDescription,
-    base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast }), scripts: ["site.js", "demo.js", "demos/fizz/main.js"],
+    base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast }), scripts: ["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js"],
   })],
   ["examples/quick-start.html", page({
     title: "Quick start: ten lines to a blast · Fizlet",
