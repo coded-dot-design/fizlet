@@ -92,6 +92,12 @@ try {
   // Indexable: not the 404, not a noindex page (the gallery archive).
   const indexable = PAGES.filter((p) => p !== "404.html" && !/<meta name="robots" content="[^"]*noindex/i.test(readFileSync(fileOf(p), "utf8")));
   assert.ok(PAGES.includes("gallery/archive/") && !indexable.includes("gallery/archive/"), "the gallery archive is built and kept out of search");
+  // Owner: archive the rest, "but definitely no-follow those pages": noindex,nofollow, out of the
+  // sitemap and llms.txt, and the gallery's one quiet link to it is rel="nofollow".
+  assert.match(readFileSync(fileOf("gallery/archive/"), "utf8"), /<meta name="robots" content="noindex,nofollow">/, "the archive is noindex,nofollow");
+  assert.ok(!sitemap.includes("gallery/archive/") && !llms.includes("gallery/archive/"), "the archive is not in the sitemap or llms.txt");
+  const archiveLinks = [...readFileSync(fileOf("gallery/"), "utf8").matchAll(/<a [^>]*href="[^"]*gallery\/archive\/"[^>]*>/g)].map((m) => m[0]);
+  assert.ok(archiveLinks.length === 1 && archiveLinks[0].includes('rel="nofollow"'), `the gallery links the archive once, rel="nofollow" (${archiveLinks.join(" ")})`);
   const heads = indexable.map((path) => {
     const html = readFileSync(`${ROOT}/${path === "" || path.endsWith("/") ? `${path}index.html` : path}`, "utf8");
     for (const [, ld] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(ld);

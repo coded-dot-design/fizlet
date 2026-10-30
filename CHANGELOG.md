@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **Gallery archive: noindex, nofollow** (owner: "archive the rest somewhere… but definitely no-follow
+  those pages"). `gallery/archive/` is `noindex,nofollow`, stays out of the sitemap and llms.txt,
+  and the gallery's one quiet link to it is `rel="nofollow"`.
 - **The fizz: the original can, without the zoom** (owner: "the og ones were good, just the zoom
   needs to be killed"). The 20 × 40 can and its story are back (the 0.18.0 hi-def redraw stays in
   history, to try other cans later; it never shipped in a release), and `fizlet/camera` is out: the card holds still, the side and
