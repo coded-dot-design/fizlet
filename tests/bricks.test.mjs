@@ -191,14 +191,19 @@ test("collide: inputs are validated (finite numbers, integer capacities, ids in 
 });
 
 test("fx: a full pool stops the blast's work and counts the drops", () => {
-  const fx = effects({ cap: 8 });
+  // Two pools on one visual seed: every particle's work takes six draws from it, so the next draw
+  // tells how much work was done (counted, not timed).
+  const random = Math.random;
+  Math.random = () => 0.5;
+  const fx = effects({ cap: 8 }), ref = effects({ cap: 8 });
+  Math.random = random;
   fx.blast(0, 0, 1); // 5 + 15 + 4 = 24 wanted, 8 fit
+  ref.blast(0, 0, 1);
   assert.equal(fx.live, 8);
   assert.equal(fx.dropped, 16, "every refused particle is counted");
-  const t0 = performance.now();
   for (let i = 0; i < 10; i++) fx.blast(0, 0, 1e6); // 5,000,010 debris wanted each: none can fit
-  const ms = performance.now() - t0;
-  assert.ok(ms < 20, `a full pool does no per-particle work (10 huge blasts took ${ms.toFixed(1)} ms)`);
+  for (let i = 0; i < 10; i++) ref.blast(0, 0, 0); // 19 wanted each
+  assert.equal(fx.raw.rnd(0, 1), ref.raw.rnd(0, 1), "a full pool does no per-particle work: a huge blast draws what a tiny one does");
   fx.blast(0, 0, 200); // 1,010 debris wanted
   assert.equal(fx.dropped, 16 + 10 * (5 + 5000010 + 4) + 5 + 1010 + 4);
   assert.equal(fx.live, 8);
