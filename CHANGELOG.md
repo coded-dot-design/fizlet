@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- **`fizlet/css-clock`** (new brick, 477 B gz of its own; 5,363 B with the kernel and timeline it
+- **`fizlet/css-clock`** (new brick, 477 B gz of its own; 5,377 B on 0.20.0 with the kernel and timeline it
   composes, budget 5,632): a page's own CSS `@keyframes` on the kernel clock, so a site's ambient
   loops (blinks, pulses, diagram loops, patrols) eat the dog food without being rewritten. The look
   stays in the stylesheet: each animation is `paused` and reads its time from one custom property,
