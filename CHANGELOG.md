@@ -2,14 +2,10 @@
 
 ## Unreleased
 
-- **Gallery: quality over quantity.** The 23 recipe entries (#4–#26, made by `fe anim`) are
-  removed: they were palette swaps of the same two scenes (a particle spray and a "Hello, page."
-  page scene). The gallery keeps the fizz, layers and how-it-works, and gets a small set of
-  hand-built pieces, each with its own mechanic.
-- **Fix: games with `exactOptionalPropertyTypes` compile again.** `pressCue` (board-ui) and
-  `coach` passed an optional `signal` straight into listener options, which strict consumers (the
-  arcade games) reject; 0.18.0 broke their typecheck. Same runtime, no byte change. `npm run
-  typecheck` now also runs with `exactOptionalPropertyTypes`, so it can't regress.
+- **Gallery: quality over quantity.** The 23 recipe entries (made by `fe anim`, mostly palette
+  swaps of the same two scenes) move off the gallery into an archive, `gallery/archive/` (noindex,
+  out of the gallery's index and search), kept to revisit; numbered A004–A026. The Christmas and
+  Thanksgiving themes live only there. The gallery keeps the fizz, layers and how-it-works.
 
 ## 0.18.0
 

@@ -23,8 +23,8 @@ const readDir = (dir, what) => (existsSync(dir) ? readdirSync(dir).filter((f) =>
 });
 
 /** The themes, in their order. Each: { id, title, blurb, order }. */
-export function themes(dir = `${DIR}/themes`) {
-  const list = readDir(dir, "gallery/themes");
+export function themes(dir = `${DIR}/themes`, what = "gallery/themes") {
+  const list = readDir(dir, what);
   for (const t of list) for (const k of ["title", "blurb", "order"]) if (t[k] === undefined) throw new Error(`gallery/themes/${t.id}.json: missing ${k}`);
   return list.sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
 }
@@ -38,9 +38,9 @@ export function contributors(dir = "site/contributors") {
 }
 
 /** The entries, checked, newest first (then the highest number first). */
-export function entries({ dir = `${DIR}/entries`, themeIds = themes().map((t) => t.id), people = contributors() } = {}) {
-  const list = readDir(dir, "gallery/entries").map((e) => {
-    const at = `gallery/entries/${e.id}.json`;
+export function entries({ dir = `${DIR}/entries`, what = "gallery/entries", themeIds = themes().map((t) => t.id), people = contributors() } = {}) {
+  const list = readDir(dir, what).map((e) => {
+    const at = `${what}/${e.id}.json`;
     for (const k of NEED) if (e[k] === undefined) throw new Error(`${at}: missing ${k}`);
     if (!KINDS.includes(e.kind)) throw new Error(`${at}: kind is "hero" or "micro", not ${e.kind}`);
     if (!themeIds.includes(e.theme)) throw new Error(`${at}: theme ${e.theme} has no site/gallery/themes/${e.theme}.json`);
@@ -49,7 +49,7 @@ export function entries({ dir = `${DIR}/entries`, themeIds = themes().map((t) =>
     return e;
   });
   const nos = new Set(list.map((e) => e.no));
-  if (nos.size !== list.length) throw new Error("gallery: two entries share a number");
+  if (nos.size !== list.length) throw new Error(`${what}: two entries share a number`);
   return list.sort((a, b) => b.date.localeCompare(a.date) || b.no - a.no);
 }
 
@@ -79,10 +79,29 @@ export function galleryIndex(list, { pages, people, themeList, loader }) {
   }));
 }
 
+/**
+ * The archive (site/gallery/archive/): earlier entries taken off the gallery, kept to revisit.
+ * Its own entries and themes (the holiday themes live only here); every entry is `archived: true`,
+ * its number is its own (shown as A004), and no id is shared with the gallery.
+ */
+export function archive({ themeList, people, live }) {
+  const archiveThemes = themes(`${DIR}/archive/themes`, "gallery/archive/themes");
+  const all = [...themeList, ...archiveThemes];
+  const list = entries({ dir: `${DIR}/archive/entries`, what: "gallery/archive/entries", themeIds: all.map((t) => t.id), people });
+  const ids = new Set(live.map((e) => e.id));
+  for (const e of list) {
+    if (e.archived !== true) throw new Error(`gallery/archive/entries/${e.id}.json: archived is true`);
+    if (ids.has(e.id)) throw new Error(`gallery/archive/entries/${e.id}.json: the gallery has an entry with this id`);
+  }
+  return { entries: list, themes: all.sort((a, b) => a.order - b.order) };
+}
+
 export async function buildGallery(out) {
   mkdirSync(`${out}/gallery`, { recursive: true });
   const themeList = themes(), people = contributors();
-  const list = entries({ themeIds: themeList.map((t) => t.id), people });
+  const live = entries({ themeIds: themeList.map((t) => t.id), people });
+  const arch = archive({ themeList, people, live });
+  const list = [...live, ...arch.entries];
   const common = { bundle: true, minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning", write: false };
   const gz = (r) => gzipSync(r.outputFiles[0].contents).length;
   const write = (r, file) => writeFileSync(file, r.outputFiles[0].contents);
@@ -95,8 +114,9 @@ export async function buildGallery(out) {
   write(loader, join(out, "gallery", "gallery.js"));
   write(await build({ ...common, entryPoints: [`${DIR}/browse.ts`] }), join(out, "gallery", "browse.js"));
   write(await build({ ...common, entryPoints: [`${DIR}/heroes.ts`] }), join(out, "gallery", "heroes.js"));
-  const pages = paginate(list);
-  const index = galleryIndex(list, { pages, people, themeList, loader: gz(loader) });
+  const pages = paginate(live);
+  const index = galleryIndex(live, { pages, people, themeList, loader: gz(loader) });
   writeFileSync(join(out, "gallery", "index.json"), JSON.stringify(index) + "\n");
-  return { entries: list, loader: gz(loader), themes: themeList, people, pages, index };
+  const archivePage = { n: 1, path: "gallery/archive/", entries: arch.entries };
+  return { entries: live, loader: gz(loader), themes: themeList, people, pages, index, archive: { ...arch, page: archivePage } };
 }

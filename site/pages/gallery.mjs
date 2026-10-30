@@ -45,7 +45,7 @@ const card = (e, { loader, figures, base, people, themeTitle, winners }) => {
   return `<li class="panel gal-item" id="${esc(e.id)}" data-demo-host data-kind="${esc(e.kind)}">
       <div class="gal-stage">${fig}</div>
       <div class="gal-meta">
-        <p class="eyebrow"><span class="index">#${String(e.no).padStart(3, "0")}</span> ${esc(e.date)} · ${e.kind === "hero" ? "HERO · " : ""}${esc(themeTitle.toUpperCase())} · ${e.made === "fe anim" ? `MADE BY FE ANIM · RECIPE ${esc(e.recipe.toUpperCase())}` : "HAND-BUILT"}</p>
+        <p class="eyebrow"><span class="index">#${e.archived ? "A" : ""}${String(e.no).padStart(3, "0")}</span> ${esc(e.date)} · ${e.kind === "hero" ? "HERO · " : ""}${esc(themeTitle.toUpperCase())} · ${e.made === "fe anim" ? `MADE BY FE ANIM · RECIPE ${esc(e.recipe.toUpperCase())}` : "HAND-BUILT"}</p>
         <h3>${esc(e.title)}${winners.has(e.id) ? ` ${winnerBadge()}` : ""}</h3>
         ${byLine(e, people, base)}
         <p class="gal-prompt"><span class="bui-label">${e.made === "fe anim" ? "PROMPT" : "BRIEF"}</span> “${esc(e.prompt)}”</p>
@@ -61,7 +61,7 @@ const card = (e, { loader, figures, base, people, themeTitle, winners }) => {
  * entry (newest first: the chips' counts and where each theme first appears); `themes` in order;
  * `winners`: ids of daily-contest winners (site/contest/days), featured with the Winner badge.
  */
-export function galleryPage({ page, pages, all, themes, people, loader, figures, base, winners = new Set() }) {
+export function galleryPage({ page, pages, all, themes, people, loader, figures, base, winners = new Set(), archived = 0 }) {
   const firstPage = Object.fromEntries(themes.map((t) => [t.id, pages.find((p) => p.entries.some((e) => e.theme === t.id))]));
   const used = themes.filter((t) => firstPage[t.id]);
   const chips = [`<a class="bui-key gal-chip" href="${base}gallery/" data-theme-chip="all"${page.n === 1 ? ' aria-current="true"' : ""}>All <small>${all.length}</small></a>`,
@@ -83,7 +83,7 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
     <div class="section-head">
       <p class="eyebrow"><span class="index">${all.length}</span> ANIMATIONS · NEWEST FIRST${pages.length > 1 ? ` · PAGE ${page.n} OF ${pages.length}` : ""}</p>
       <h1 id="gal-title">One prompt.<br><em>One animation.</em></h1>
-      <p class="lead">A new animation from a simple prompt, made from Fizlet bricks. Each one shows the prompt it was made from, runs live once it nears the screen, and wears its size, measured on this build. Still once it settles, asleep off screen, and the page always comes back. By <a href="https://coded.design/">Chris Cooley</a>${heroes ? ` · <a href="${base}heroes/">the ${heroes} heroes, big</a>` : ""}.</p>
+      <p class="lead">A new animation from a simple prompt, made from Fizlet bricks. Each one shows the prompt it was made from, runs live once it nears the screen, and wears its size, measured on this build. Still once it settles, asleep off screen, and the page always comes back. By <a href="https://coded.design/">Chris Cooley</a>${heroes ? ` · <a href="${base}heroes/">the ${heroes} heroes, big</a>` : ""}.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/">the archive</a>.` : ""}</p>
     </div>
     <nav class="gal-themes" aria-label="Themes">${chips}</nav>
     <form class="gal-search" role="search" data-gal-search data-base="${base}" hidden>
@@ -96,6 +96,33 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
   <div class="wrap gal-sections">
   ${secs}
     ${nav}
+  </div>
+</section>`;
+}
+
+/**
+ * The archive: earlier entries taken off the gallery (most were recipe palette swaps), kept to
+ * revisit. One page, by theme, no search; the page is noindex and out of the gallery's index.
+ */
+export function archivePage({ entries, themes, people, loader, figures, base }) {
+  const title = Object.fromEntries(themes.map((t) => [t.id, t.title]));
+  const secs = sections(entries, themes).map(({ theme: t, entries: list }) => `<section class="gal-theme" id="theme-${esc(t.id)}" aria-labelledby="theme-${esc(t.id)}-h">
+    <div class="gal-theme-head"><h2 id="theme-${esc(t.id)}-h">${esc(t.title)}</h2><p>${esc(t.blurb)}</p></div>
+    <ol class="gal">
+    ${list.map((e) => card(e, { loader, figures, base, people, themeTitle: title[e.theme], winners: new Set() })).join("\n    ")}
+    </ol>
+  </section>`).join("\n  ");
+  return `
+<section class="section" aria-labelledby="gal-title">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow"><span class="index">${entries.length}</span> ARCHIVED · NOT IN THE GALLERY</p>
+      <h1 id="gal-title">The archive.</h1>
+      <p class="lead">Earlier factory runs, taken off <a href="${base}gallery/">the gallery</a> to keep it to the good ones. Kept here to revisit: each still runs live and wears its size, measured on this build.</p>
+    </div>
+  </div>
+  <div class="wrap gal-sections">
+  ${secs}
   </div>
 </section>`;
 }

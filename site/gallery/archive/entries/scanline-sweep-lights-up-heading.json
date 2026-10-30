@@ -1,0 +1,36 @@
+{
+  "no": 6,
+  "id": "scanline-sweep-lights-up-heading",
+  "date": "2026-10-29",
+  "prompt": "a scanline sweep that lights up every heading it passes",
+  "title": "A scanline sweep that lights up every heading it passes",
+  "kind": "micro",
+  "theme": "everyday",
+  "author": "chris-cooley",
+  "recipe": "sweep",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/board-page",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 12.12,
+      "elementsLit": 2
+    }
+  },
+  "fizlet": "0.14.0",
+  "made": "fe anim",
+  "module": "anims/scanline-sweep-lights-up-heading.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "page",
+  "archived": true
+}

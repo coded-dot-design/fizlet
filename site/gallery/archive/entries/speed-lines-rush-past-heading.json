@@ -1,0 +1,36 @@
+{
+  "no": 21,
+  "id": "speed-lines-rush-past-heading",
+  "date": "2026-10-30",
+  "prompt": "speed lines rush past every heading",
+  "title": "Speed lines rush past every heading",
+  "kind": "micro",
+  "theme": "heroes-comics",
+  "author": "chris-cooley",
+  "recipe": "dash",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/board-page",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 33,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 12.4,
+      "elementsLit": 3
+    }
+  },
+  "fizlet": "0.16.0",
+  "made": "fe anim",
+  "module": "anims/speed-lines-rush-past-heading.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "page",
+  "archived": true
+}
