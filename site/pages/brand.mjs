@@ -156,9 +156,9 @@ ${section("voices", `${head("03", "voices", "TWO VOICES", "Fizlet tells it.", "f
         <h3><code>fzlt</code></h3>
         <p class="brand-cap">The developer and npm mark. Short, dev-first, lowercase, code-shaped. npm, badges, CLI output, code comments, stickers. It says the what: the command, the brick, the number.</p>
         <ul class="brand-ex">
-          <li><span class="bui-label"><b>NPM DESCRIPTION</b></span><pre class="brand-code"><code>fzlt™: Fizlet's micro animation and game engine for the DOM, by Chris Cooley. One loop, bounded everything, the page always comes back.</code></pre></li>
-          <li><span class="bui-label"><b>README BADGE LINE</b></span><pre class="brand-code"><code>npm i @fzlt/core · kernel ${kernel.toLocaleString("en-US")} B gzip · 0 runtime deps · MIT</code></pre></li>
-          <li><span class="bui-label"><b>SNIPPET COMMENT</b></span><pre class="brand-code"><code>// fzlt/fx: sparks from the event ring. destroy() gives the page back.</code></pre></li>
+          <li><span class="bui-label"><b>NPM DESCRIPTION</b></span><pre tabindex="0" class="brand-code"><code>fzlt™: Fizlet's micro animation and game engine for the DOM, by Chris Cooley. One loop, bounded everything, the page always comes back.</code></pre></li>
+          <li><span class="bui-label"><b>README BADGE LINE</b></span><pre tabindex="0" class="brand-code"><code>npm i @fzlt/core · kernel ${kernel.toLocaleString("en-US")} B gzip · 0 runtime deps · MIT</code></pre></li>
+          <li><span class="bui-label"><b>SNIPPET COMMENT</b></span><pre tabindex="0" class="brand-code"><code>// fzlt/fx: sparks from the event ring. destroy() gives the page back.</code></pre></li>
           <li><span class="bui-label"><b>STICKERS</b></span><div class="brand-still">${sticker("fzlt", "RESTORED")}${sticker("@fzlt/core", "READY")}</div></li>
         </ul>
         <p class="brand-cap">fzlt stays lowercase, even on a sticker; keep it out of kit labels that force capitals. The kernel size is measured on this build.</p>
