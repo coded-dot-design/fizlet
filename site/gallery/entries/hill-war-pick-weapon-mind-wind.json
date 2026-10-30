@@ -1,0 +1,19 @@
+{
+  "id": "hill-war-pick-weapon-mind-wind",
+  "date": "2026-10-30",
+  "prompt": "two critters on two hills take turns: pick a weapon chip (ball, cluster, bouncy, mega bomb), tap where it should land, mind the wind; every blast chunks the hill and knocks the sign's words off",
+  "title": "Hill war",
+  "kind": "micro",
+  "theme": "artillery",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/hill-war-pick-weapon-mind-wind.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
