@@ -1,7 +1,7 @@
 # Deploying fizlet-rooms (owner steps)
 
-Nothing here runs from CI. Every step is the account owner's, or an agent acting on the owner's
-explicit go with a token the owner made. No token, account id or invite code goes in any file.
+Nothing here runs from CI. Every step is the account owner's, with a token the owner made. No
+token, account id or invite code goes in any file.
 
 ## 0. Before anything is deployed
 
@@ -31,7 +31,8 @@ explicit go with a token the owner made. No token, account id or invite code goe
 
 ```sh
 npx wrangler kv namespace create INVITES        # prints an id: put it in wrangler.toml (not a secret)
-# Make codes and their keys with the invite helper (in the private engine brain), then:
+# Pick codes (10–64 characters) and turn them into keys with inviteKey() from src/limits.js:
+node --input-type=module -e 'import { inviteKey } from "./src/limits.js"; console.log(JSON.stringify(await Promise.all(process.argv.slice(1).map(async (c) => ({ key: await inviteKey(c), value: "invite" })))))' CODE-ONE CODE-TWO > invites.json
 npx wrangler kv bulk put --binding INVITES invites.json --remote   # [{ "key": "invite:<sha256>", "value": "<label>" }]
 rm invites.json                                  # the hashes are safe; don't keep the codes next to them
 ```
@@ -43,7 +44,10 @@ Hand the codes out by message. To revoke one, delete its key:
 
 In `wrangler.toml` `[vars]`:
 - set `ALLOWED_ORIGINS` to the page origins that host the game, e.g. `https://battlefield.example`;
-- keep or lower the caps (they can't go past the ceilings in `src/limits.js`).
+- keep or lower the caps (they can't go past the ceilings in `src/limits.js`), including the
+  lobby timeout and the per-IP rates (`LOBBY_SECONDS`, `GATE_RATE`, `JOIN_RATE`).
+
+What the gate and the caps do and don't protect: [THREAT-MODEL.md](THREAT-MODEL.md).
 
 ## 3. Deploy
 
@@ -52,11 +56,19 @@ npx wrangler deploy --dry-run    # check the bundle and bindings first
 npx wrangler deploy              # → https://fizlet-rooms.<account>.workers.dev
 ```
 
-Smoke check:
+Smoke check (the code goes in the body, never the URL):
 
 ```sh
-curl -s https://fizlet-rooms.<account>.workers.dev/invite?code=NOPE   # → {"ok":false} (403)
+curl -s -X POST --data 'NOT-A-REAL-CODE' -H 'origin: <an ALLOWED_ORIGINS entry>' \
+  https://fizlet-rooms.<account>.workers.dev/invite        # → {"ok":false} (403)
 ```
+
+**Rotate codes that travelled in URLs.** Before invocation logs were turned off, `?code=` and
+`?invite=` URLs were kept in Workers Logs. After deploying a release with
+`invocation_logs = false`, add new codes as in step 1, hand them out, then delete each old key:
+`npx wrangler kv key delete --binding INVITES invite:<sha256> --remote`. Pages
+must send codes by `POST /invite` and the WebSocket subprotocol; the URL forms are accepted for one
+more release only.
 
 Then open `examples/two-player.html` from Blitz with
 `?rooms=wss://fizlet-rooms.<account>.workers.dev` on two devices and play.
