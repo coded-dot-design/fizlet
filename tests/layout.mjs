@@ -36,12 +36,15 @@ try {
         ctx.fillStyle = "#000";
         for (let i = 0; i < lay.size; i++) ctx.fillRect(lay.x[i] - 3, lay.y[i] - 3, 6, 6);
       } });
-      e.add({ render() { if (!lay.resting) v.dirty(); } });
+      // Steps the layout took to rest, counted by a system that runs after it in each step (not
+      // e.steps: a slow first frame can run a second, idle step in the same frame).
+      let restSteps = 0, rested = false;
+      e.add({ step() { if (!rested) restSteps++, (rested = lay.resting); }, render() { if (!lay.resting) v.dirty(); } });
       e.start();
       const t0 = performance.now();
       let layoutFrames = 0;
       for (let i = 0; i < 900 && !lay.resting; i++) await frame(), layoutFrames++;
-      const restMs = performance.now() - t0, restSteps = e.steps;
+      const restMs = performance.now() - t0;
       for (let i = 0; i < 60 && !e.paused.includes("settled"); i++) await frame();
       const f0 = e.stats().frames;
       for (let i = 0; i < 60; i++) await frame();
