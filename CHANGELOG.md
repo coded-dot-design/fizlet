@@ -18,6 +18,14 @@
   the live site; Battlefield matches and AI players move to E12) are done; E0, E3, E5–E8 list what's
   left; E7 (page interactions) and E8 (the game kit) are new; E9–E16 are planned with their bricks.
   The games section and README say what's true now: every DOM VIRUS game runs on Fizlet.
+- **Website: the roadmap has one source, `site/roadmap.mjs`.** The home page's section 09 renders
+  it (phase range, launch scope, pills and boxes all from the data; no phase written in
+  `pages/index.mjs`), and a planned phase lists its ROADMAP bricks from `site/bricks.mjs` `PLANNED`
+  with their size targets. Statuses use the engine ROADMAP's words (done, partly, nearly, in
+  progress, started, planned), so the engine side can check that both say the same thing.
+  `tests/roadmap.test.mjs` checks phases in order, the launch scope (E0–E8) vs planned (E9–E16),
+  ticks that agree with each status, every planned brick under its phase, and that the page shows
+  exactly the source.
 
 ## 0.19.0
 

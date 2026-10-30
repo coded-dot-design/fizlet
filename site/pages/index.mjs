@@ -5,6 +5,7 @@ import { sizeBadge } from "../size-badge.mjs";
 import { QUICK_START } from "./quick-start.mjs";
 import { BETA_LINE } from "../bricks.mjs";
 import { statusPill } from "./brick.mjs";
+import { LAUNCH_LAST, phases } from "../roadmap.mjs";
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
 
@@ -18,98 +19,6 @@ const CONTRACT = [
   ["Own nothing you can't give back", "Every page change goes through the ledger. destroy() restores it exactly, and a newer host edit always wins."],
   ["Embed-safe", "No globals, no global styles, many engines per page. Every root Fizlet owns is CSS-contained. One AbortSignal removes every listener and observer."],
   ["Budgets in CI", "Kernel at most 4 KB gzip, each brick its own budget of 1.5 to 5 KB. Over budget, the build fails."],
-];
-
-// The roadmap: E0–E8 are the launch scope, E9–E16 the next eight. Each item is checked only with
-// evidence (a release, a merged PR, a test); the ROADMAP bricks of E10–E15 are site/bricks.mjs PLANNED.
-const ROADMAP = [
-  ["E0", "Baseline and archives", "part", "PARTLY DONE", "Freeze the pre-engine games as the before picture, so every port has numbers to beat.", [
-    [1, "Perf harness: every app under a 4× CPU throttle (Playwright)"],
-    [1, "Baseline numbers and commits recorded for all six apps"],
-    [0, "Tag engine-baseline in every repo"],
-    [0, "Battlefield archive selector (versioned paths)"],
-    [0, "Hub TEST A RELEASE selector for every game version, the 1.0 engine cuts included"],
-  ]],
-  ["E1", "Kernel", "done", "DONE · 0.1.0", "The scheduler, fixed step, auto-pause, pools, event ring, seeded random, the Recall ledger and stats.", [
-    [1, "One rAF for N engines, fixed step with a catch-up cap"],
-    [1, "Zero allocation over 1M steps, exact DOM restore"],
-    [1, "Kernel under the 4 KB budget"],
-  ]],
-  ["E2", "The first box of bricks", "done", "DONE · 0.19.0", "Small, separately importable bricks lifted from the games, each with tests, a CI size budget and a generated page. layout, view and actor bricks moved to E10 and E11.", [
-    [1, "input · pad · collide · fx · sound · embed · ui"],
-    [1, "grid · sprite · hud · match · board-page"],
-    [1, "slot and the page profile: settle, fps cap, idle load"],
-    [1, "rules · steer · coach · camera · perf · arcade · timeline"],
-    [1, "A status flag on every brick, with its evidence"],
-  ]],
-  ["E3", "Port the games", "now", "NEARLY DONE", "Every game on the engine, each as a 1.0 engine cut.", [
-    [1, "Null Invaders → Byte Runner → Sherman Bytes (1.0 each)"],
-    [1, "DOM Battlefield 1.0 · Battlefield Blitz · Swarm Protocol 1.4"],
-    [0, "No copied shared/ code left in the games"],
-    [0, "Frame time equal or better than the E0 baseline, measured per game"],
-  ]],
-  ["E4", "Presence and multiplayer", "done", "DONE · TWO PLAYERS", "A few-KB presence client and a room server: two people play Battlefield Blitz on the live site. Battlefield matches and AI players moved to E12.", [
-    [1, "presence brick + determinism check"],
-    [1, "Room server: invite gate and hard spend caps"],
-    [1, "Battlefield Blitz two players against the deployed room server"],
-  ]],
-  ["E5", "Docs for humans and AI", "now", "IN PROGRESS", "Build a game or micro-interaction in an afternoon, from docs a person or an agent can follow.", [
-    [1, "One page per brick, generated from the source, with its status"],
-    [1, "Gallery and notes, every number measured on the build"],
-    [1, "llms.txt and a sitemap from the same build"],
-    [0, "Authoring guide and recipes by use case: an action on the page, a shooter, two players"],
-    [0, "Live kernel stats on Under the Hood"],
-  ]],
-  ["E6", "Performance wins", "now", "STARTED", "Smaller and faster every week: the perf harness in CI, the top cost fixed, the win logged.", [
-    [1, "Perf harness and allocation test in CI on every push"],
-    [0, "A weekly run against the baseline"],
-    [0, "A public log of every win"],
-  ]],
-  ["E7", "Page interactions", "now", "NEARLY DONE", "Heroes, diagrams and micro animations on ordinary pages: lazy, contained, settled when still.", [
-    [1, "slot, the page profile, camera and timeline"],
-    [1, "Gallery: one prompt, one animation, its size on show"],
-    [1, "fizlet.com and the DOM VIRUS home hero on Fizlet"],
-    [0, "The DOM Battlefield landing hero on Fizlet"],
-    [0, "The DOM VIRUS Under the Hood labs on Fizlet"],
-    [0, "Page cost (CLS, tap delay, idle CPU) gated in CI"],
-  ]],
-  ["E8", "The game kit", "now", "IN PROGRESS", "The shell every page game repeats, so a game is its rules and its art: HUD and control presets, match flow, coach.", [
-    [1, "arcade: the shell under Null Invaders, Byte Runner and Sherman Bytes"],
-    [1, "HUD presets (card, skirmish bar) and swappable touch pads"],
-    [1, "match, coach and steer bricks"],
-    [0, "Battlefield Blitz on the skirmish preset, steer and coach"],
-    [0, "A released game on fizlet/match"],
-  ]],
-  ["E9", "On npm", "next", "PLANNED", "npm install fizlet: one package, a subpath per brick, published from CI with provenance.", [
-    [0, "fizlet@0.x on npm from the release workflow"],
-    [0, "An API snapshot test for every COMPLETE brick"],
-  ]],
-  ["E10", "Diagrams", "next", "PLANNED", "Interactive diagrams that settle: graphs laid out on the kernel clock.", [
-    [0, "fizlet/layout (force layout, Barnes-Hut)"],
-    [0, "fizlet/view-canvas (one canvas, dirty redraw)"],
-  ]],
-  ["E11", "Actors", "next", "PLANNED", "Units, bots and turrets as data: the parts every board game still writes itself.", [
-    [0, "fizlet/actor · fizlet/aim · fizlet/view-dom"],
-  ]],
-  ["E12", "Multiplayer everywhere", "next", "PLANNED", "Authoritative rooms, interpolation, and AI agents that join a room like any player.", [
-    [0, "fizlet/snapshot · fizlet/agent"],
-    [0, "A DOM Battlefield match between two networks"],
-    [0, "An AI agent joins a room"],
-  ]],
-  ["E13", "Animation library", "next", "PLANNED", "A recipe used twice becomes data; a recipe used across games becomes a brick.", [
-    [0, "fizlet/scene (a recipe as data)"],
-  ]],
-  ["E14", "Accessible play", "next", "PLANNED", "Every game playable by keyboard and gamepad, and heard by screen readers.", [
-    [0, "fizlet/announce (events to a live region)"],
-    [0, "Gamepad in fizlet/input"],
-  ]],
-  ["E15", "Music", "next", "PLANNED", "Background loops from the same tiny synth, on the kernel clock.", [
-    [0, "fizlet/music (a step sequencer)"],
-  ]],
-  ["E16", "1.0", "next", "PLANNED", "Every shipped brick COMPLETE or DEPRECATED, the API frozen, the games on 1.0, and smaller and faster than 0.x by a measured margin.", [
-    [0, "Every brick COMPLETE or DEPRECATED"],
-    [0, "fizlet@1.0.0"],
-  ]],
 ];
 
 const PIPELINE = [
@@ -173,6 +82,31 @@ export function playFigure(badge = "") {
     </figure>`;
 }
 
+/** Section 09, from site/roadmap.mjs only (tests/roadmap.test.mjs renders it against the source). */
+export function roadmapSection(all = phases()) {
+  const [first, last] = [all[0].id, all.at(-1).id];
+  const next = all[all.findIndex((p) => p.id === LAUNCH_LAST) + 1]?.id;
+  const roadmap = all.map(({ id, name, tone, label, goal, items }) => `<li class="panel phase" data-phase="${tone}">
+        <div class="phase-top"><span class="phase-id">${id}</span><span class="phase-pill">${esc(label)}</span></div>
+        <h3>${esc(name)}</h3>
+        <p>${esc(goal)}</p>
+        <ul class="checks">${items.map(([done, t]) => `<li${done ? ' class="done"' : ""}><i aria-hidden="true">${done ? icon("check", 14) : ""}</i><span>${esc(t)}</span><span class="sr">${done ? "(done)" : "(to do)"}</span></li>`).join("")}</ul>
+      </li>`).join("\n      ");
+  return `<!-- 09 ROADMAP -->
+<section id="roadmap" class="section" aria-labelledby="roadmap-title">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow"><span class="index">09</span> ROADMAP · ${first} TO ${last}</p>
+      <h2 id="roadmap-title">What's done.<br><em>What's left.</em></h2>
+      <p class="lead">${esc(BETA_LINE)} ${first} to ${LAUNCH_LAST} are the launch scope; a box is ticked only with a release, a merged change or a test behind it. ${next} to ${last} are next, with the bricks each adds (<a href="bricks/#planned">ROADMAP</a> on the bricks page). The first plan, E0 to E6, is <a href="${ENGINE_PLAN}">ENGINE.md</a> in the DOM VIRUS repo.</p>
+    </div>
+    <ol class="roadmap">
+      ${roadmap}
+    </ol>
+  </div>
+</section>`;
+}
+
 export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, blast }) {
   const size = (name) => sizes.find((s) => s.name === name);
   const kernel = size("fizlet (kernel)");
@@ -191,13 +125,6 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
   }).join("\n      ");
 
   const contract = CONTRACT.map(([t, b], i) => `<li class="panel rule"><b>${String(i + 1).padStart(2, "0")}</b><h3>${esc(t)}</h3><p>${esc(b)}</p></li>`).join("\n      ");
-
-  const roadmap = ROADMAP.map(([id, name, state, label, text, items]) => `<li class="panel phase" data-phase="${state}">
-        <div class="phase-top"><span class="phase-id">${id}</span><span class="phase-pill">${label}</span></div>
-        <h3>${esc(name)}</h3>
-        <p>${esc(text)}</p>
-        <ul class="checks">${items.map(([done, t]) => `<li${done ? ' class="done"' : ""}><i aria-hidden="true">${done ? icon("check", 14) : ""}</i><span>${esc(t)}</span><span class="sr">${done ? "(done)" : "(to do)"}</span></li>`).join("")}</ul>
-      </li>`).join("\n      ");
 
   const specs = [
     ["1", "rAF per page", "However many engines run, one requestAnimationFrame drives them."],
@@ -467,19 +394,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
   </div>
 </section>
 
-<!-- 09 ROADMAP -->
-<section id="roadmap" class="section" aria-labelledby="roadmap-title">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow"><span class="index">09</span> ROADMAP · E0 TO E16</p>
-      <h2 id="roadmap-title">What's done.<br><em>What's left.</em></h2>
-      <p class="lead">${esc(BETA_LINE)} E0 to E8 are the launch scope; a box is ticked only with a release, a merged change or a test behind it. E9 to E16 are next, with the bricks each adds (<a href="bricks/#planned">ROADMAP</a> on the bricks page). The first plan, E0 to E6, is <a href="${ENGINE_PLAN}">ENGINE.md</a> in the DOM VIRUS repo.</p>
-    </div>
-    <ol class="roadmap">
-      ${roadmap}
-    </ol>
-  </div>
-</section>
+${roadmapSection()}
 
 <!-- 10 QUICK START -->
 <section id="start" class="section" aria-labelledby="start-title">
