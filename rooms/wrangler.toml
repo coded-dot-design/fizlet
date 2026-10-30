@@ -28,5 +28,6 @@ MSG_RATE = "90"
 MSG_BURST = "180"
 IDLE_SECONDS = "120"
 MAX_ROOM_SECONDS = "1800"
-# Comma-separated page origins allowed to connect. Empty = any (local dev only). Set before deploying.
+# Comma-separated page origins allowed to connect (the deployed demo: the Blitz site). Empty = any;
+# `npm run dev` and test:wrangler clear it locally.
 ALLOWED_ORIGINS = "https://battlefieldblitz.domvirus.com"
