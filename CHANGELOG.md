@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+- **Gallery: the 7 kept pieces, rebuilt by hand as micro games** (owner approved, 2026-10-30). Each
+  has its own stage (`stage: "own"`, `site/gallery/stages/<id>.html`) and story; page text moves
+  only where the game hits it.
+  - #004 Sparky's workshop (pink sparks): a welding robot strikes an arc where you tap; sparks
+    bounce, scorch and fade, and one landing on the firework's fuse may set it off.
+  - #005 The rainy neon street (neon rain): taps raise the storm; drops short the real FIZLET sign
+    only where they hit it, and the third short blows it.
+  - #020 POW! BAM! ZAP!: click the Glitch to land hits with knockback; miss and it hits back; KO it
+    and the next one comes back tougher.
+  - #021 Here comes the rush (speed lines): a rocket bowls over the real heading's letters, the
+    wind leans the ones it passes, STRIKE for a whole line, and the "!" is a heavy pin.
+  - #022 Attack of the Halftone: each click prints a plate as a halftone dot wave; the cover is a
+    surprise until the black plate lands; about one sheet in four is a MISPRINT.
+  - #023 The night patrol (red cape): the gust swings each real pennant only as he passes it; a tap
+    dashes him into the city (bonks, waking windows, a leaking water tower, a cross moon).
+  - #026 The landing (hero lands): a three-point landing on its own landing page, a crater that
+    fades, a shockwave that knocks only the letters and buttons it reaches, and a cat that may end
+    up on his head.
+  - Posters are drawn from the scenes themselves (`scripts/gallery-posters.mjs`,
+    `scripts/pixel-posters.mjs`). Their frames-per-second and allocation lines are not re-measured
+    yet, so the cards leave them out.
+
 ## 0.19.0
 
 - **The fizz: the original can, without the zoom** (owner: "the og ones were good, just the zoom

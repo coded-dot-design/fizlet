@@ -19,5 +19,6 @@
   "module": "pieces/red-cape-whooshes-top.ts",
   "export": "mount",
   "aspect": "16 / 9",
-  "stage": "own"
+  "stage": "own",
+  "approved": "2026-10-30"
 }

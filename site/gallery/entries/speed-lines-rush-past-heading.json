@@ -18,5 +18,6 @@
   "module": "pieces/speed-lines.ts",
   "export": "mount",
   "stage": "own",
-  "aspect": "16 / 9"
+  "aspect": "16 / 9",
+  "approved": "2026-10-30"
 }
