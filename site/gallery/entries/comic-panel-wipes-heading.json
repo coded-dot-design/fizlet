@@ -1,0 +1,35 @@
+{
+  "no": 25,
+  "id": "comic-panel-wipes-heading",
+  "date": "2026-10-30",
+  "prompt": "a comic panel wipes across every heading",
+  "title": "A comic panel wipes across every heading",
+  "kind": "micro",
+  "theme": "heroes-comics",
+  "author": "chris-cooley",
+  "recipe": "wipe",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/board-page",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 36,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 13.32,
+      "elementsLit": 3
+    }
+  },
+  "fizlet": "0.16.0",
+  "made": "fe anim",
+  "module": "anims/comic-panel-wipes-heading.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "page"
+}

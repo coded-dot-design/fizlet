@@ -25,6 +25,142 @@
     Recall mid-play byte for byte with a host inline style, reduced motion lands on the end).
   - Website: a brick page with a live demo (a cartridge seats in a console; the screen opens; the
     lines stagger in).
+- **The fizz, reworked** (owner feedback; `site/demos/fizz/`). No zoom: two cameras hold still,
+  side and straight down into the can, and the eye cuts between them (`fizlet/camera` is out of
+  the chunk). The can is drawn by code at twice the detail (40 × 80 side, 44 × 44 top), glossy,
+  lit from the upper left, still pixel art: the whole card and the spray sit on one pixel grid.
+  The opening is its own beat: the crunch, the tab lifts (a hiss), the lid pops (a seal-break fan,
+  a shock ring, the can kicks up), foam swells in the opening, then the fizz erupts: droplets,
+  pixel bubbles that swell and pop, foam, rings and flecks, every size. Live chunk 9,455 B gzip
+  (was 9,710), poster 5,858 B (one path per colour; the hero budget is 6,144). The settle
+  measurement starts at 9 s (the story is about a second longer).
+- **Website: the roadmap tells the truth again.** E2 lists rules, steer, coach, camera, perf and
+  arcade as shipped (timeline and layout to come); E3 is nearly done (Null Invaders, Byte Runner,
+  Sherman Bytes and DOM Battlefield at 1.0, Battlefield Blitz on Fizlet, Swarm Protocol 1.4 in
+  review) and adds "every animation on the sites on Fizlet, heroes first"; E4 adds the room
+  server's invite gate and spend caps; E5 adds the gallery and notes.
+- **`fizlet/arcade`: every HUD preset's panel drags** (owner: "the in-page scoreboard is always
+  draggable"). The arcade card and the skirmish bar move from anywhere that isn't a key, mouse or
+  touch, and stay on screen when the window shrinks (shared in `arcade-parts`). Browser test at 2×
+  for both presets: the canvas at CSS size, the drag, the clamp.
+- **Fix: games with `exactOptionalPropertyTypes` compile again.** `pressCue` (board-ui) and
+  `coach` passed an optional `signal` straight into listener options, which strict consumers (the
+  arcade games) reject; 0.18.0 broke their typecheck. Same runtime, no byte change. `npm run
+  typecheck` now also runs with `exactOptionalPropertyTypes`, so it can't regress.
+## 0.18.0
+- **`fizlet/arcade` canvas fills its root on 2x/zoomed screens** (`width:100%;height:100%`): the backing store is `innerWidth × dpr` with no CSS size, so it drew 1.5–2× too big and game art sat away from the page targets (owner report; from fizlet#60).
+- **Arcade: an array of controls and scoreboards (`hud`)**, the first step of the plan to make
+  DOM Battlefield / Blitz the standard game UI. `ArcadeDef` takes `hud`, a preset; each preset is
+  its own export, so a game ships only the one it names (BOARD-UI.md §19).
+  - **`arcadeHud({ header?, nav? })`, the default:** the card as it was. Leaving `hud` out (or
+    passing `arcadeHud()`) renders it byte for byte: a browser test compares the scoreboard's
+    markup at start, at game over and on a phone with a fixture captured from 0.17.0. `header`
+    and `nav` keep only the keys named.
+  - **`skirmishHud({ readouts, … })`:** Battlefield Blitz's HUD on the shell: a top bar with
+    readouts in their formats (`num`, `clock`, `rank`, `pct`, an armor `bar` with a `low` state),
+    aim toggles (intents `aim-auto` / `aim-lock`), action keys with count badges, fullscreen /
+    sound / pause / exit; a feed and a banner from the event ring; pause / surrender / countdown /
+    result overlays (the result lists `stats()` keys and keeps a best on the device); on phones
+    the pad with the aim toggles and counted keys. Values go through `fizlet/hud`.
+  - **The preset contract** (`ArcadeHud`, `HudRun`, `HudView`) is exported, so a game can bring its
+    own. `readouts` is optional in `ArcadeDef` (the card's; skirmish has its own).
+  - `tests/arcade-hud.mjs` (Chromium): the card byte for byte, picked keys, every skirmish piece,
+    change-only (0 mutations on unchanged frames), Recall exact (after a surrender, mid-run, during
+    the countdown), the phone pad, and zero allocation in the steady state: 0 minor GCs over 200k
+    HUD writes for the card and for skirmish, unchanged and with every value changing (best of 3;
+    the card's own path, which allocates when values change, shows 8, so the check can see it).
+  - **Size:** a card game (`hud` left out) 17,622 B gzip, +311 B over 0.17.0's 17,311 for the
+    preset contract and the header / nav choice (budget 17,408 → 17,920, its own line
+    "fizlet/arcade (hud omitted)"). The whole module with skirmish: 21,634 B (budget 22,016):
+    skirmish adds 4,012 B to a game that uses it, `fizlet/hud` (1,320 B) included.
+- **Website: gallery #007, "orange red and gold leaves fall gently".** Made by `fe anim` from the
+  prompt (recipe fall, the spray scene; kernel + fx + slot): live 6,784 B · total 8,710 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
+- **Website: gallery #008, "red orange and gold turkey feathers fan out on hover".** Made by `fe
+  anim` from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,791 B · total
+  8,717 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under
+  reduced motion; settles to zero frames.
+- **Website: gallery #009, "white steam rises gently off a warm pie".** Made by `fe anim` from the
+  prompt (recipe rise, the spray scene; kernel + fx + slot): live 6,786 B · total 8,712 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
+- **Website: gallery #010, "a cornucopia spills red orange and lime fruit on tap".** Made by `fe
+  anim` from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,785 B · total
+  8,711 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under
+  reduced motion; settles to zero frames.
+- **Website: gallery #011, "orange and gold leaves settle on every heading".** Made by `fe anim`
+  from the prompt (recipe settle, a decor scene (settle) that reads the page's own headings and
+  writes only through the ledger; kernel + board-page + slot): live 8,903 B · total 10,829 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #012, "orange embers rise from the harvest fire".** Made by `fe anim` from the
+  prompt (recipe rise, the spray scene; kernel + fx + slot): live 6,788 B · total 8,714 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
+- **Website: gallery #013, "snow settles on every heading".** Made by `fe anim` from the prompt
+  (recipe settle, a decor scene (settle) that reads the page's own headings and writes only through
+  the ledger; kernel + board-page + slot): live 8,906 B · total 10,832 B gzip (with the 1,926 B
+  loader) on this build, loaded only near the viewport, never under reduced motion; settles to zero
+  frames.
+- **Website: gallery #014, "red green and gold string lights twinkle on the nav".** Made by `fe
+  anim` from the prompt (recipe lights, a decor scene (lights) that reads the page's own buttons and
+  writes only through the ledger; kernel + board-page + slot): live 8,674 B · total 10,600 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #015, "a gift box pops open into red and green confetti".** Made by `fe anim`
+  from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,785 B · total 8,711 B
+  gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #016, "a sleigh streaks across the top with gold sparkles".** Made by `fe anim`
+  from the prompt (recipe trail, the spray scene; kernel + fx + slot): live 6,806 B · total 8,732 B
+  gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #017, "ornaments jingle when you hover a button".** Made by `fe anim` from the
+  prompt (recipe jingle, a decor scene (jingle) that reads the page's own buttons and writes only
+  through the ledger; kernel + board-page + slot): live 8,702 B · total 10,628 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #018, "gold stars pop and twinkle where you tap".** Made by `fe anim` from the
+  prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,779 B · total 8,705 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #019, "candy cane red and white sweeps every heading".** Made by `fe anim` from
+  the prompt (recipe sweep, a page scene that reads the page's own headings and writes only through
+  the ledger; kernel + board-page + slot): live 8,923 B · total 10,849 B gzip (with the 1,926 B
+  loader) on this build, loaded only near the viewport, never under reduced motion; settles to zero
+  frames.
+- **Website: gallery #020, "POW BAM ZAP comic bursts where you click".** Made by `fe anim` from the
+  prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,813 B · total 8,739 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #021, "speed lines rush past every heading".** Made by `fe anim` from the
+  prompt (recipe dash, a decor scene (dash) that reads the page's own headings and writes only
+  through the ledger; kernel + board-page + slot): live 8,883 B · total 10,809 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #022, "a halftone dot wave reveals every heading".** Made by `fe anim` from the
+  prompt (recipe halftone, a decor scene (halftone) that reads the page's own headings and writes
+  only through the ledger; kernel + board-page + slot): live 8,765 B · total 10,691 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #023, "a red cape whooshes across the top".** Made by `fe anim` from the prompt
+  (recipe trail, the spray scene; kernel + fx + slot): live 6,784 B · total 8,710 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #024, "red laser eyes scan every heading".** Made by `fe anim` from the prompt
+  (recipe sweep, a page scene that reads the page's own headings and writes only through the ledger;
+  kernel + board-page + slot): live 8,923 B · total 10,849 B gzip (with the 1,926 B loader) on this
+  build, loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #025, "a comic panel wipes across every heading".** Made by `fe anim` from the
+  prompt (recipe wipe, a decor scene (wipe) that reads the page's own headings and writes only
+  through the ledger; kernel + board-page + slot): live 8,667 B · total 10,593 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #026, "a hero lands with a cyan shockwave where you tap".** Made by `fe anim`
+  from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,766 B · total 8,692 B
+  gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
 
 ## 0.17.0
 

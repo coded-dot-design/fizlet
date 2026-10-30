@@ -1,0 +1,33 @@
+{
+  "no": 16,
+  "id": "sleigh-streaks-top-gold-sparkles",
+  "date": "2026-10-30",
+  "prompt": "a sleigh streaks across the top with gold sparkles",
+  "title": "A sleigh streaks across the top with gold sparkles",
+  "kind": "micro",
+  "theme": "christmas",
+  "author": "chris-cooley",
+  "recipe": "trail",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 71.18
+    }
+  },
+  "fizlet": "0.16.0",
+  "made": "fe anim",
+  "module": "anims/sleigh-streaks-top-gold-sparkles.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}

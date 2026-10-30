@@ -96,7 +96,7 @@ in included, 1 KB = 1024 bytes.
 | `fizlet/coach` | `flag(key)` (a localStorage switch that never throws), `tour(engine, { steps, tips, every })` (tutorial steps, then tips in turn; `coach:step` on the ring; zero allocation) and `card(host, { onEnd })` (the Board UI coach card, rings the control it is about) | 1.2 KB |
 | `fizlet/timeline` | `timeline(engine, { repeat, yoyo, rate, motion })`: DOM choreography on the kernel clock. `to(targets, values, { dur, delay, ease, stagger, at })` keyframe tracks on CSS values (transform, opacity, clip-path, custom properties: the numbers change, the words stay) or typed-array numbers; `label`, `play`, `reverse`, `pause`, `seek`, `finish`, `revert`, `done()`; events on the ring; change-only writes through the ledger (Recall exact), settles when done, jumps to the end with reduced motion, no allocation per step | 2.0 KB |
 | `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 3.7 KB |
-| `fizlet/arcade` | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard (sound, pause, fold, exit, readouts, meter, action keys, comms toast), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 16.5 KB with every brick it composes (6.5 KB its own; in-page art via `ctx.attach`) |
+| `fizlet/arcade` | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard chosen per game with `hud` (`arcadeHud()`: the card, the default; `skirmishHud()`: Blitz's bar with clock, rank, armor bar, feed, banner, overlays, aim toggles, counted keys), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 17.2 KB for a card game with every brick it composes; 21.1 KB with `skirmishHud` (in-page art via `ctx.attach`) |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.6 KB + 4.5 KB css |
 | `fizlet/ui/tokens.json` | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
 
@@ -595,6 +595,29 @@ const game = arcade({
 game.start(); // Escape, the exit key or game.stop(): Recall gives the page back exactly
 ```
 
+- **Controls and scoreboards (`hud`):** one option, a preset per game; each preset is its own export,
+  so a game ships only the one it names (BOARD-UI.md §19).
+  - `arcadeHud({ header?, nav? })`, the default: today's card. Leaving `hud` out renders it byte for
+    byte; `header` (`sound` · `pause` · `fold` · `exit`) and `nav` (`next` · `restart` · `auto`)
+    keep only the keys named.
+  - `skirmishHud({ readouts, header?, feed?, banner?, overlays?, result?, aim?, counts? })`:
+    Battlefield Blitz's HUD. A bar across the top with readouts in their formats (`num`, `clock`,
+    `rank`, `pct`, `bar` with a `low` state), aim toggles (`aim-auto`, `aim-lock` intents),
+    the action keys with counts and fullscreen / sound / pause / exit; a feed and a banner from the
+    event ring; pause / surrender / countdown / result overlays (the result lists `stats()` keys and
+    keeps a best on the device); on phones the pad with the aim toggles and counted keys. Values
+    go through `fizlet/hud` from the `hud(out)` slots: change-only, nothing allocated in the steady state.
+
+  ```ts
+  import { arcade, skirmishHud } from "fizlet/arcade";
+  arcade({ ...def, hud: skirmishHud({
+    readouts: [{ label: "Kills", tone: "team" }, { label: "Time", kind: "clock" }, { label: "Rank", kind: "rank" },
+               { label: "Armor", kind: "bar", low: 0.3 }, { label: "Streak", tone: "enemy" }],
+    feed: { on: "kill", line: (a, b) => NAMES[a] + " ✕ " + NAMES[b] },
+    banner: { on: "streak", text: (n) => [n + " KILL STREAK", "AIRSTRIKE READY"] },
+    aim: ["auto", "lock"], counts: { strike: 5 }, result: { stats: ["kills", "time"], best: "kills" },
+  }) }); // hud(out): kills, time, rank, armor, streak, then out[5] = strikes left
+  ```
 - **In-page art:** `ctx.attach(el)` returns a shadow root in an overlay inside `el` that follows the page's layout and scrolling natively (Recall removes it). `keyboard: true` makes a keys-only game; without `fire` the first action is the big touch key.
 - **One run, one engine.** `start()` builds the engine, the board and the overlay; `stop()` destroys
   the engine (the page comes back through its ledger) and removes the overlay. When the game reports
