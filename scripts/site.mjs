@@ -11,7 +11,7 @@ import { home } from "../site/pages/index.mjs";
 import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
 import { brickPage, bricksIndex } from "../site/pages/brick.mjs";
-import { galleryPage } from "../site/pages/gallery.mjs";
+import { archivePage, galleryPage } from "../site/pages/gallery.mjs";
 import { heroesPage } from "../site/pages/heroes.mjs";
 import { notePage, notesIndex, noteLd } from "../site/pages/notes.mjs";
 import { notes as loadNotes, notePath } from "./notes.mjs";
@@ -101,6 +101,7 @@ const GB = (p) => "../".repeat(p.path.split("/").length - 1);
 const urlOf = (id) => gallery.index.find((r) => r.id === id).url;
 const heroes = gallery.entries.filter((e) => e.kind === "hero");
 for (const p of gallery.pages) mkdirSync(`${OUT}/${p.path}`, { recursive: true });
+mkdirSync(`${OUT}/gallery/archive`, { recursive: true });
 mkdirSync(`${OUT}/heroes`, { recursive: true });
 // People and the daily contest: each contributor's entries and bytes come from the gallery just
 // built; contest days are checked against it (prompt length, one entry per person per day, winner).
@@ -173,9 +174,16 @@ const pages = [
       ? `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by theme).`
       : `Fizlet gallery page ${p.n} of ${gallery.pages.length}: older animations by theme, each with its prompt, its live demo and its size measured on this build.`,
     base: GB(p), version, path: p.path,
-    body: `<style>${layers.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: GB(p), winners }),
+    body: `<style>${layers.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: GB(p), winners, archived: gallery.archive.entries.length }),
     scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
   })]),
+  ["gallery/archive/index.html", page({
+    title: "Gallery archive: earlier runs, kept to revisit · Fizlet",
+    description: `Earlier Fizlet factory animations taken off the gallery (${gallery.archive.entries.length}), kept to revisit, each with its size measured on this build.`,
+    base: "../../", version, path: "gallery/archive/", noindex: true,
+    body: `<style>${layers.css}</style>` + archivePage({ entries: gallery.archive.entries, themes: gallery.archive.themes, people: gallery.people, loader: gallery.loader, figures, base: "../../" }),
+    scripts: ["site.js", "gallery/gallery.js"],
+  })],
   ["heroes/index.html", page({
     title: "Heroes: the big animations, one at a time · Fizlet",
     description: `The Fizlet hero animations, large: the one in the centre plays, the rest wait as posters. ${heroes.length} so far, each with its size measured on this build.`,

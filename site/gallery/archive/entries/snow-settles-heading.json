@@ -1,33 +1,36 @@
 {
-  "no": 9,
-  "id": "white-steam-rises-gently-off",
+  "no": 13,
+  "id": "snow-settles-heading",
   "date": "2026-10-30",
-  "prompt": "white steam rises gently off a warm pie",
-  "title": "White steam rises gently off a warm pie",
+  "prompt": "snow settles on every heading",
+  "title": "Snow settles on every heading",
   "kind": "micro",
-  "theme": "thanksgiving",
+  "theme": "christmas",
   "author": "chris-cooley",
-  "recipe": "rise",
+  "recipe": "settle",
   "bricks": [
     "fizlet/kernel",
-    "fizlet/fx",
+    "fizlet/board-page",
     "fizlet/slot"
   ],
   "pageCost": {
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 34,
+      "framesPlaying": 35,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 9
+      "allocBytesPerFrame": 12.44,
+      "elementsLit": 1
     }
   },
   "fizlet": "0.16.0",
   "made": "fe anim",
-  "module": "anims/white-steam-rises-gently-off.ts",
+  "module": "anims/snow-settles-heading.ts",
   "export": "mount",
-  "aspect": "16 / 9"
+  "aspect": "16 / 9",
+  "stage": "page",
+  "archived": true
 }

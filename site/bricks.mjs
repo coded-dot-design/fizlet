@@ -66,6 +66,13 @@ m.seek(0, player.x, player.y, dt); // in a step: also flee, arrive, wander, patr
 const t = tour(e), c = card(root, { onEnd: quit });
 t.tick(dt); if (moved > 220) t.pass(); // in a step
 const k = t.show(); if (k >= 0) c.show(\`\${k + 1}/10\`, STEPS[k], TEXT[k]);` },
+  { id: "timeline", tag: "TIMELINE", role: "fire", modules: [mod("fizlet/timeline", "timeline")], demo: "timeline",
+    snippet: `timeline(e)
+  .to(cart, { translate: ["0px -150px", "0px 0px"] }, { dur: 0.7, ease: "back" })
+  .label("seated")
+  .to(screen, { "clip-path": ["inset(50%)", "inset(0%)"] }, { at: "seated" })
+  .to(lines, { opacity: [0, 1] }, { stagger: 0.15 })
+  .play(); // e.destroy() gives every property back` },
   { id: "arcade", tag: "ARCADE", role: "go", modules: [mod("fizlet/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
   hint: "Mouse / WASD · Space fires", css: KIT_CSS, fire: true,

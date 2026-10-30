@@ -1,13 +1,13 @@
 {
-  "no": 15,
-  "id": "gift-box-pops-open-red",
+  "no": 7,
+  "id": "orange-red-gold-leaves-fall",
   "date": "2026-10-30",
-  "prompt": "a gift box pops open into red and green confetti",
-  "title": "A gift box pops open into red and green confetti",
+  "prompt": "orange red and gold leaves fall gently",
+  "title": "Orange red and gold leaves fall gently",
   "kind": "micro",
-  "theme": "christmas",
+  "theme": "thanksgiving",
   "author": "chris-cooley",
-  "recipe": "burst",
+  "recipe": "fall",
   "bricks": [
     "fizlet/kernel",
     "fizlet/fx",
@@ -22,12 +22,13 @@
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 1.18
+      "allocBytesPerFrame": 10.55
     }
   },
   "fizlet": "0.16.0",
   "made": "fe anim",
-  "module": "anims/gift-box-pops-open-red.ts",
+  "module": "anims/orange-red-gold-leaves-fall.ts",
   "export": "mount",
-  "aspect": "16 / 9"
+  "aspect": "16 / 9",
+  "archived": true
 }

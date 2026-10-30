@@ -7,6 +7,34 @@
   history, to try other cans later; it never shipped in a release), and `fizlet/camera` is out: the card holds still, the side and
   top views tell it. Live chunk 8,752 B gzip (9,455 B for the redraw, 9,710 B with the camera),
   poster 3,457 B; settled 0 frames a second, measured in Chromium 153.
+- **Gallery: quality over quantity.** Of the 23 recipe entries made by `fe anim`, the owner kept 7
+  (pink sparks, neon rain, POW BAM ZAP, speed lines, halftone wave, red cape, hero landing); the
+  other 16 move into an archive, `gallery/archive/` (noindex, out of the gallery's index and
+  search), kept to revisit and numbered A006–A025. The Christmas and
+  Thanksgiving themes live only there. The gallery keeps the fizz, layers and how-it-works.
+- **`fizlet/timeline`** (new brick, 2,050 B gzip, budget 2,304; the target was 1,536): scripted DOM
+  choreography on the kernel clock, for the animations still on WAAPI or CSS keyframes (a cartridge
+  flying into a console, a screen growing through `clip-path`, doors folding open, staggered
+  entrances, looping patrols and diagram loops). `timeline(engine, { repeat, yoyo, rate, motion, id })`
+  and `.to(targets, values, { dur, delay, ease, stagger, at })`: keyframe tracks on CSS values (the
+  numbers change, the words stay: transform, translate, scale, rotate, opacity, clip-path, filter,
+  custom properties) or typed-array slots; easings `linear`, `in`, `out`, `inOut`, `back`,
+  `steps(n)` or a function, each sampled once into a shared 256-step table so the step never calls a
+  function (a call through a function value boxed a number per step in a node test once several
+  easings were in use); sequencing by default, `"<"`, labels, negative delays for overlap; `play`,
+  `reverse`, `pause`, `seek`, `finish`, `revert`, `done()`; `timeline:start`, `timeline:end` and
+  label names on the event ring. Writes happen in render through the ledger, change-only (values
+  rounded to a thousandth); done or paused it never calls `busy()`, so the engine settles. Reduced
+  motion: `play()` lands on the end state in one step (`motion: true` plays a variant built on
+  `tl.reduced`).
+  - Tests: `tests/timeline.test.mjs` (easings, interpolation, keyframes, sequencing, seek, reverse,
+    finish, repeat and yoyo labels, events and `done()`, `motion: false`, settle, revert, Recall, host
+    edits win, setup errors; zero allocation: at most 1 young-generation GC over 200k steps with
+    eight tracks and four easings, and over 200k whole frames once done) and `tests/timeline.mjs` in
+    Chromium (values mid-way on real elements, 0 frames requested once settled, done or paused,
+    Recall mid-play byte for byte with a host inline style, reduced motion lands on the end).
+  - Website: a brick page with a live demo (a cartridge seats in a console; the screen opens; the
+    lines stagger in).
 - **Kernel: the fps cap now caps requestAnimationFrame, not just the work** (real-browser audit,
   `abe browse`). A capped engine used to keep asking for a frame every vsync and skip most of them,
   so a 30 fps hero still cost 57–120 rAF calls a second (two heroes on the home page: 119.6 rAF/s at
