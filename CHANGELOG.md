@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Website: gallery numbers are given at land time, never in a PR.** Parallel PRs each took "the
+  next number" and kept claiming the same one (three PRs on #047). `scripts/gallery-number.mjs`
+  holds the rule, pure and shared with the engine's land step (`fe anim number --write`). Existing
+  numbers stay; a live entry without one takes the next free number by approval date, then merge
+  order, then id; a pending entry has none. When two entries share a number, the first to land keeps
+  it. The build shows a live entry's coming number (so a PR builds) and fails on a shared number,
+  naming the entries and the fix. Tests: `tests/gallery-number.test.mjs`.
 - **Website: Make one (`/make/`), v0.** Type a prompt, get one drop-in file: a `data-fizlet`
   mount and one module script with only the bricks the scene uses, its gzip size measured into its
   own header, by Chris Cooley, MIT. It all runs in the browser: the prompt is matched against the
