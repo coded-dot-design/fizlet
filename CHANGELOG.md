@@ -8,8 +8,10 @@
   1440). Now, after each frame it leaves the shared clock and one timer brings it back at its next
   slot: 30 rAF/s for `fizz#hero` and `index#layers`, and an uncapped engine on the same page no
   longer drags a capped one along. Something that puts it back early (a resume, a focus change)
-  gets one frame at once and the timer starts over. Kernel 3,436 B gzip (+23 B); `page build`
-  7,111 B (budget 7,168); layers live chunk 9,728 B (its ≤ 9,728 B budget). Tests: rAF calls per
+  gets one frame at once and the timer starts over. Kernel 3,439 B gzip (+17 B); `page build`
+  7,127 B (budget 7,168); layers live chunk 9,727 B (its ≤ 9,728 B budget). The `fizlet/board-page`
+  budget is 4,128 B (was 4,096): it was at 4,095 and esbuild's renamer moves it 2 B with any kernel
+  edit, though it bundles only the kernel's phase constants. Tests: rAF calls per
   second at 60 and 120 Hz and a capped engine beside an uncapped one (`tests/kernel.test.mjs`, both
   fail before), and the fizz story's real page-wide rAF count ≤ 33 a second (`tests/site.mjs`).
 - **Home demo settles.** The blast demo ("Blast it. Recall it.") ran its engine every vsync while on
@@ -36,6 +38,204 @@
   page are pixel-identical. 668 → 24 small targets over the 30 pages at 390 px; the 24 left are the
   copy keys, whose hit area grows instead (the kit's invisible `::before`) because their face can't.
 
+- **Arcade: an array of controls and scoreboards (`hud`)**, the first step of the plan to make
+  DOM Battlefield / Blitz the standard game UI. `ArcadeDef` takes `hud`, a preset; each preset is
+  its own export, so a game ships only the one it names (BOARD-UI.md §19).
+  - **`arcadeHud({ header?, nav? })`, the default:** the card as it was. Leaving `hud` out (or
+    passing `arcadeHud()`) renders it byte for byte: a browser test compares the scoreboard's
+    markup at start, at game over and on a phone with a fixture captured from 0.17.0. `header`
+    and `nav` keep only the keys named.
+  - **`skirmishHud({ readouts, … })`:** Battlefield Blitz's HUD on the shell: a top bar with
+    readouts in their formats (`num`, `clock`, `rank`, `pct`, an armor `bar` with a `low` state),
+    aim toggles (intents `aim-auto` / `aim-lock`), action keys with count badges, fullscreen /
+    sound / pause / exit; a feed and a banner from the event ring; pause / surrender / countdown /
+    result overlays (the result lists `stats()` keys and keeps a best on the device); on phones
+    the pad with the aim toggles and counted keys. Values go through `fizlet/hud`.
+  - **The preset contract** (`ArcadeHud`, `HudRun`, `HudView`) is exported, so a game can bring its
+    own. `readouts` is optional in `ArcadeDef` (the card's; skirmish has its own).
+  - `tests/arcade-hud.mjs` (Chromium): the card byte for byte, picked keys, every skirmish piece,
+    change-only (0 mutations on unchanged frames), Recall exact (after a surrender, mid-run, during
+    the countdown), the phone pad, and zero allocation in the steady state: 0 minor GCs over 200k
+    HUD writes for the card and for skirmish, unchanged and with every value changing (best of 3;
+    the card's own path, which allocates when values change, shows 8, so the check can see it).
+  - **Size:** a card game (`hud` left out) 17,622 B gzip, +311 B over 0.17.0's 17,311 for the
+    preset contract and the header / nav choice (budget 17,408 → 17,920, its own line
+    "fizlet/arcade (hud omitted)"). The whole module with skirmish: 21,634 B (budget 22,016):
+    skirmish adds 4,012 B to a game that uses it, `fizlet/hud` (1,320 B) included.
+- **Website: gallery #007, "orange red and gold leaves fall gently".** Made by `fe anim` from the
+  prompt (recipe fall, the spray scene; kernel + fx + slot): live 6,784 B · total 8,710 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
+- **Website: gallery #008, "red orange and gold turkey feathers fan out on hover".** Made by `fe
+  anim` from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,791 B · total
+  8,717 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under
+  reduced motion; settles to zero frames.
+- **Website: gallery #009, "white steam rises gently off a warm pie".** Made by `fe anim` from the
+  prompt (recipe rise, the spray scene; kernel + fx + slot): live 6,786 B · total 8,712 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
+- **Website: gallery #010, "a cornucopia spills red orange and lime fruit on tap".** Made by `fe
+  anim` from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,785 B · total
+  8,711 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under
+  reduced motion; settles to zero frames.
+- **Website: gallery #011, "orange and gold leaves settle on every heading".** Made by `fe anim`
+  from the prompt (recipe settle, a decor scene (settle) that reads the page's own headings and
+  writes only through the ledger; kernel + board-page + slot): live 8,903 B · total 10,829 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #012, "orange embers rise from the harvest fire".** Made by `fe anim` from the
+  prompt (recipe rise, the spray scene; kernel + fx + slot): live 6,788 B · total 8,714 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
+- **Website: gallery #013, "snow settles on every heading".** Made by `fe anim` from the prompt
+  (recipe settle, a decor scene (settle) that reads the page's own headings and writes only through
+  the ledger; kernel + board-page + slot): live 8,906 B · total 10,832 B gzip (with the 1,926 B
+  loader) on this build, loaded only near the viewport, never under reduced motion; settles to zero
+  frames.
+- **Website: gallery #014, "red green and gold string lights twinkle on the nav".** Made by `fe
+  anim` from the prompt (recipe lights, a decor scene (lights) that reads the page's own buttons and
+  writes only through the ledger; kernel + board-page + slot): live 8,674 B · total 10,600 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #015, "a gift box pops open into red and green confetti".** Made by `fe anim`
+  from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,785 B · total 8,711 B
+  gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #016, "a sleigh streaks across the top with gold sparkles".** Made by `fe anim`
+  from the prompt (recipe trail, the spray scene; kernel + fx + slot): live 6,806 B · total 8,732 B
+  gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #017, "ornaments jingle when you hover a button".** Made by `fe anim` from the
+  prompt (recipe jingle, a decor scene (jingle) that reads the page's own buttons and writes only
+  through the ledger; kernel + board-page + slot): live 8,702 B · total 10,628 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #018, "gold stars pop and twinkle where you tap".** Made by `fe anim` from the
+  prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,779 B · total 8,705 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #019, "candy cane red and white sweeps every heading".** Made by `fe anim` from
+  the prompt (recipe sweep, a page scene that reads the page's own headings and writes only through
+  the ledger; kernel + board-page + slot): live 8,923 B · total 10,849 B gzip (with the 1,926 B
+  loader) on this build, loaded only near the viewport, never under reduced motion; settles to zero
+  frames.
+- **Website: gallery #020, "POW BAM ZAP comic bursts where you click".** Made by `fe anim` from the
+  prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,813 B · total 8,739 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #021, "speed lines rush past every heading".** Made by `fe anim` from the
+  prompt (recipe dash, a decor scene (dash) that reads the page's own headings and writes only
+  through the ledger; kernel + board-page + slot): live 8,883 B · total 10,809 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #022, "a halftone dot wave reveals every heading".** Made by `fe anim` from the
+  prompt (recipe halftone, a decor scene (halftone) that reads the page's own headings and writes
+  only through the ledger; kernel + board-page + slot): live 8,765 B · total 10,691 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #023, "a red cape whooshes across the top".** Made by `fe anim` from the prompt
+  (recipe trail, the spray scene; kernel + fx + slot): live 6,784 B · total 8,710 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #024, "red laser eyes scan every heading".** Made by `fe anim` from the prompt
+  (recipe sweep, a page scene that reads the page's own headings and writes only through the ledger;
+  kernel + board-page + slot): live 8,923 B · total 10,849 B gzip (with the 1,926 B loader) on this
+  build, loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #025, "a comic panel wipes across every heading".** Made by `fe anim` from the
+  prompt (recipe wipe, a decor scene (wipe) that reads the page's own headings and writes only
+  through the ledger; kernel + board-page + slot): live 8,667 B · total 10,593 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #026, "a hero lands with a cyan shockwave where you tap".** Made by `fe anim`
+  from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,766 B · total 8,692 B
+  gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+
+## 0.17.0
+
+- **Website: people and the daily contest.** `/people/` lists who makes the animations: Chris
+  Cooley (the maker) and three **house personas**, Frame Zero, Hex Hazel and DJ Mempool, Fizlet
+  characters that every card, page and JSON-LD node marks "House persona — a Fizlet character, not
+  a real person" (no photos, no links). `/people/<id>/` shows the avatar, role, what they make, prompt
+  style, favorite games, hobbies, their gallery entries and two stats measured on this build (entries,
+  total live gzip bytes). The maker's favorite games stay a `KIT:` placeholder ("Not picked yet")
+  until he fills them. Data: `site/contributors/<id>.json` (adds `kind`, `description`, `style`,
+  `hobbies`, `favoriteGames`, persona `handle`/`promptStyle`/`samplePrompt`, and `avatar`).
+  - **Avatars**: original 32 × 32 pixel art as letter grids, drawn as inline SVG from Board UI
+    tokens only (`AVATAR_PALETTE`, one path per color, `crispEdges` + `image-rendering: pixelated`);
+    each 0.7–0.9 KB gzip, budget 2 KB in `tests/people.test.mjs`. The maker's is a stylized rider
+    in a dirt-bike helmet, not a likeness.
+  - **`/contest/`**: the rules (prompt ≤ 60 characters, one entry per person per day, judged by the
+    team, at least 12 entries and one winner a day, winners featured on `/gallery/` with a
+    **Winner** badge), today's theme, how to enter (a GitHub issue or a PR; no backend), past winners
+    from data, and open visitor prompts marked planned, not live. A day is
+    `site/contest/days/<date>.json` (generated by the engine's `fe content contest`); its entries are
+    the gallery entries stamped `"contest": "<date>"`. The build fails on a contest prompt over 60
+    characters, two entries by one person on a day, an unknown author, or a winner that is not one of
+    the day's entries or has fewer than 12 (`scripts/people.mjs`). Launch day 2026-10-31: Halloween.
+  - Footer links to People and Daily contest; `tests/site.mjs` checks the measured stats, the
+    persona line, that only the maker is a schema.org Person, and the contest page's keys.
+- **Website: a themed gallery, a heroes row and contributor profiles** (launch infrastructure).
+  - **Data, one file each:** every gallery entry (`site/gallery/entries/<id>.json`) now has `kind`
+    (`"hero"` or `"micro"`), `theme` and `author` (a contributor id; it replaces `by`). Themes are
+    data (`site/gallery/themes/<id>.json`: title, blurb, order; Halloween, Thanksgiving, Christmas,
+    Heroes and comics, Crypto memes, Battle of the Models, Everyday): a new theme is a file, not
+    code. Contributors are `site/contributors/<id>.json` (the owner's, `chris-cooley`, to start).
+    The build checks every entry against them and writes the index, `gallery/index.json` (each
+    entry's page, author name and sizes measured on that build); nothing shared is hand-edited.
+  - **/gallery/:** theme sections (an `h2` and a `#theme-<id>` anchor each), newest first inside
+    each, still lazy-mounted through `fizlet/slot`. A row of theme chips (`bui-key` links: each
+    jumps to its theme without script, filters the page with it) and a search box over title,
+    prompt, theme and author (`site/gallery/browse.ts` + `search.ts`, no dependencies; the index is
+    fetched on the first keystroke). Pages of 24 (`/gallery/page/2/` …, built only once there are
+    more than 24). Every card says "by <name>", linked to the profile.
+  - **/heroes/ (new):** the hero animations as large cards (at least 300 × 300 px, bigger on
+    desktop) in a scroll-snap row; prev / next keys and the arrow keys move a card. The card in
+    the centre plays (an IntersectionObserver band); the rest are posters. A Play key per card
+    pauses or plays it (the only way to play under reduced motion). Full screen through the
+    Fullscreen API, or an overlay where it is missing; Esc closes and focus returns to the key that
+    opened it. A size badge on each card (its gallery bundle). Fizz and Layers are the first heroes.
+  - **/people/<id>/ (new):** a contributor's profile and every animation of theirs.
+  - Fixed: the gallery's "TAP TO PLAY" rule left its `@media` block open, so the size badge
+    styles applied only without reduced motion.
+  - `tests/site.mjs`: pages, sections and chips in order, index rows against the built files,
+    attribution links, the filter and the search in a browser, the heroes row (centre plays alone,
+    next / arrow keys, pause, full screen and the overlay with focus return, reduced motion
+    posters and play on request) and the profiles; `tests/gallery.test.mjs` for the data model.
+- **Perf: the demo's blasts are back to 60 fps at 4× CPU throttle** (30 fps since 0.10.1). Bisected
+  to 1337112 (the layers story in the home page hero): scrolled off screen, its scene kept about 50
+  composited 3D layers, and Chromium layerizes the whole document on every frame that repaints, so
+  each blast frame paid 8.4–11.7 ms of `Layerize` for a scene nobody could see. `fizlet/slot`'s
+  stage is now `content-visibility: auto` (a scene off screen is skipped for style, layout, paint and
+  layers), and so is the layers figure (its slider's eight 3D plates sit outside the stage).
+  Measured (`npm run perf`, Chromium 153, 4× throttle, 10 s, a busy 4-core Xeon): before p50
+  33.3–33.4 ms, 47–61% dropped, `Layerize` 10.6–11.4 ms per frame; after p50 16.7 ms, 24–32%
+  dropped, `Layerize` 1.6–1.7 ms (0.4.4: 1.5–1.8). Size: `fizlet/slot` 1,845 B gzip (budget
+  2,048); layers live chunk 9,720 B (≤ 9,728; the
+  13 B the slot adds are paid for in the scene, which now makes its fx canvas directly instead of
+  through a `canvas` branch in its element helper). The harness now reports `layerizeMs`, and
+  `tests/perf/budgets.json` fails the demo on this regression: p50 ≤ 25 ms, p95 ≤ 67, ≤ 45%
+  dropped, `layerizeMs` ≤ 4.
+- **board-page runs in its root's own document and window.** `boardPage(e, { root })` now measures,
+  observes and writes in `root.ownerDocument` (its viewport, `getComputedStyle`, observers, scroll
+  and resize, highlights), so a board inside an iframe's page works. Before, it always used the
+  global `document` and window. Swarm Protocol needs this: its API runs in the document it is given.
+- **The ledger's Recall normalises style text in the element's own document**, not the global one,
+  so restoring an element in another document (or with no global `document`) works.
+- **`fizlet/perf`: the card pins `box-sizing: content-box`.** Its inline width (120px plus
+  padding) assumed content-box, so on a page with a global `* { box-sizing: border-box }` (the
+  DOM VIRUS hub and DOM Battlefield both) its right column clipped. Node test asserts it.
+- **Website: a size badge on every live demo** ("9.4 KB GZ"): the layers hero, the blast board,
+  the fizz can, the quick start, each brick page's demo and every gallery entry. The number is what that demo ships,
+  gzipped, with every chunk it imports statically (`scripts/live-bytes.mjs`), measured on the built
+  file at build time and never typed; kit tokens only; screen readers get the whole description
+  as one (`role="img"` + `aria-label`, no extra CSS needed) and the tooltip has the byte count. One component for all of them: `sizeBadge(bytes, live, what)` in `site/size-badge.mjs`
+  (it replaces the gallery's `{ name, note }` form; one `.size-badge` style). A module's own size
+  names its `scripts/sizes.mjs` entry instead of a file (`"size:fizlet (kernel)"`, the notes' kernel badge).
+  `tests/site.mjs` fails if a live demo has no badge, if a badge's bytes differ from a fresh
+  measurement of the file it names, or if it is hidden. The demos' own standalone pages
+  (`demos/fizz/`, `examples/fizz/`) have none on their demo yet; they are listed in the test. The
+  layers story page shows its badge in the caption, through the same component.
 - **The fizz, dialled in** (the brand animation, `site/demos/fizz/`). A tap **crunches** the can
   (it squashes and dents, and stays dented), then the tab pops. The fizz **sprays out of the
   card**: a geyser, a burst and a glug fly on a pixel layer the card's width, reaching from 70% of
@@ -90,6 +290,24 @@
   throttle): live chunk 9,609 → 9,717 B gzip (still ≥ 5% under 10 KB), poster + loader 2,962 →
   3,153 B; script per frame 0.8 ms median, 3.1 ms p95; CLS 0; 0 frames settled.
 - **Website: notes (`/notes/`)**, posts written for fizlet.com from `site/notes/<slug>.json` (generated, never hand-edited), on the site's own parts: section head, panels, stat cards, kit keys, and the kernel's size badge measured on the build. BlogPosting + FAQPage JSON-LD; listed in the sitemap and under Notes in llms.txt. First note: "Moving the games onto a 4 KB kernel" (every number from the size ledger and this changelog).
+- **`fizlet/steer`** (new brick, 950 B gzip, budget 1,280): `seek`, `flee`, `arrive`, `wander` and
+  `patrol` for movers on typed arrays (position, heading, wander goal, patrol leg), DOM-free. The
+  heading turns at most `turn` rad/s and walls are checked per axis, like DOM Battlefield Blitz's tank
+  `drive`; its defaults are Blitz's numbers. A test runs `wander`, `seek` and `arrive` frame by frame
+  against Blitz's practice movers, bots and wingmen (same seed, same walls: identical positions and
+  headings). `flee` and `patrol` are the same drive pointed away from a point, or along a route. No
+  allocation per frame across 1M frames with 16 movers: it ships its own `hypot` (the same bits as
+  `Math.hypot`, tested), because V8 boxes `Math.hypot`'s arguments, and `blocked(i, at)` gets the
+  spot in a typed array for the same reason.
+- **`fizlet/coach`** (new brick, 1,192 B gzip, budget 1,536): the hints and tutorial layer of DOM
+  Battlefield and Blitz. `flag(key, value)` is a once-only localStorage switch whose reads and
+  writes are each wrapped in try/catch (blocked storage reads "not set"). `tour(engine)` runs the
+  tutorial steps, then cycles tips, says `coach:step` on the ring, and allocates nothing per frame.
+  `card(host)` is the Board UI coach card (DOM Battlefield's dashed card, on the kit tokens): it
+  writes only what changed and rings the control it is about. Tests: `tour` frame by frame against
+  Blitz's practice coach (steps, time on the step, the card shown, the power-up events), `flag`
+  against Battlefield's tips switch (each reads what the other wrote; blocked and missing storage),
+  and the card in Chromium.
 
 ## 0.16.0
 

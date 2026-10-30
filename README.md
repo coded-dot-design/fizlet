@@ -92,12 +92,14 @@ in included, 1 KB = 1024 bytes.
 | `fizlet/hud` | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | 1.3 KB |
 | `fizlet/match` | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.5 KB |
 | `fizlet/rules` | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
+| `fizlet/steer` | `steer({ cap, speed, turn, blocked, random })`: movers on typed arrays (`x`, `y`, heading `a`) with `seek`, `flee`, `arrive`, `wander` and `patrol`; a turn-rate-limited heading and per-axis wall slide (Blitz's tank drive); DOM-free, zero allocation | 0.9 KB |
+| `fizlet/coach` | `flag(key)` (a localStorage switch that never throws), `tour(engine, { steps, tips, every })` (tutorial steps, then tips in turn; `coach:step` on the ring; zero allocation) and `card(host, { onEnd })` (the Board UI coach card, rings the control it is about) | 1.2 KB |
 | `fizlet/board-page` | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 3.7 KB |
-| `fizlet/arcade` | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard (sound, pause, fold, exit, readouts, meter, action keys, comms toast), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 16.5 KB with every brick it composes (6.5 KB its own; in-page art via `ctx.attach`) |
+| `fizlet/arcade` | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard chosen per game with `hud` (`arcadeHud()`: the card, the default; `skirmishHud()`: Blitz's bar with clock, rank, armor bar, feed, banner, overlays, aim toggles, counted keys), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 17.2 KB for a card game with every brick it composes; 21.1 KB with `skirmishHud` (in-page art via `ctx.attach`) |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.6 KB + 4.5 KB css |
 | `fizlet/ui/tokens.json` | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
 
-More bricks land through phase E2 (actor, steer, aim, rules, camera, view-dom): see the
+More bricks land through phase E2 (actor, aim, view-dom): see the
 [engine plan](https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md).
 
 ### Input, sound and embed semantics
@@ -476,6 +478,54 @@ engine.add({ step() {
 // (blink when d.life - d.age[i] < 2). Event "drop:land" once it touches down (a landing puff).
 ```
 
+### Steer (`fizlet/steer`)
+
+How things move toward, away from and around a point. Every mover has a position, a heading that
+turns at most `turn` rad/s, and a speed; walls are checked per axis, so movers slide along them. The
+defaults are DOM Battlefield Blitz's tank numbers (150 px/s, 7 rad/s), and a test runs `seek`,
+`wander` and `arrive` frame by frame against Blitz's own bots and wingmen.
+
+```ts
+import { steer } from "fizlet/steer";
+
+const m = steer({ cap: 16, random: engine.random,                 // seeded: runs replay
+  blocked: (i, at) => wall(at[0], at[1]),                         // the spot comes in a typed array
+  area: [60, 90, 840, 480] });                                    // wander picks goals in here
+m.place(0, 100, 200);
+
+engine.add({ step(_, dt) {
+  m.seek(0, player.x, player.y, dt);    // stops inside `stop` (16 px)
+  m.flee(1, bomb.x, bomb.y, dt);        // until `far` (240 px)
+  m.arrive(2, slot.x, slot.y, dt);      // slows inside `slow` (140), stops inside `near` (14)
+  m.wander(3, dt, 0.55);                // a pace scales dt, so the turn slows too
+  m.patrol(4, ROUTE, dt);               // ROUTE = new Float64Array([x0, y0, x1, y1, …])
+} });
+// Draw from m.x[i], m.y[i], m.a[i]; m.moved[i] is how far it went (tread marks, dust).
+```
+
+### Coach (`fizlet/coach`)
+
+The hints and tutorial layer. `flag` remembers once-only things (tips turned off, tour seen) in
+localStorage and answers "not set" when storage is blocked. `tour` walks the player through steps,
+then cycles tips; `show()` names the card only when it changes, so `card` writes the DOM once per
+card. The card is DOM Battlefield's coach card on the Board UI tokens (put it inside `.bui`).
+
+```ts
+import { flag, tour, card } from "fizlet/coach";
+
+const tips = flag("my-game:tips", "off");
+if (!tips.on) {
+  const t = tour(engine, { steps: STEPS.length }), c = card(root, { onEnd: quit, signal });
+  engine.add({
+    step(_, dt) { t.tick(dt); if (didIt(t.step) || t.time[0] > 9) t.pass(); }, // "coach:step" on the ring
+    render() {
+      const k = t.show();
+      if (k >= 0) k < t.steps ? c.show(`${k + 1}/${t.steps}`, STEPS[k][0], STEPS[k][1], keyFor(k)) : c.show("✓", "TIP", TIPS[k - t.steps]);
+    },
+  });
+}
+```
+
 ### Arcade: a page game's shell
 
 `fizlet/arcade` is what Null Invaders, Byte Runner and Sherman Bytes share: everything but the rules
@@ -496,6 +546,29 @@ const game = arcade({
 game.start(); // Escape, the exit key or game.stop(): Recall gives the page back exactly
 ```
 
+- **Controls and scoreboards (`hud`):** one option, a preset per game; each preset is its own export,
+  so a game ships only the one it names (BOARD-UI.md §19).
+  - `arcadeHud({ header?, nav? })`, the default: today's card. Leaving `hud` out renders it byte for
+    byte; `header` (`sound` · `pause` · `fold` · `exit`) and `nav` (`next` · `restart` · `auto`)
+    keep only the keys named.
+  - `skirmishHud({ readouts, header?, feed?, banner?, overlays?, result?, aim?, counts? })`:
+    Battlefield Blitz's HUD. A bar across the top with readouts in their formats (`num`, `clock`,
+    `rank`, `pct`, `bar` with a `low` state), aim toggles (`aim-auto`, `aim-lock` intents),
+    the action keys with counts and fullscreen / sound / pause / exit; a feed and a banner from the
+    event ring; pause / surrender / countdown / result overlays (the result lists `stats()` keys and
+    keeps a best on the device); on phones the pad with the aim toggles and counted keys. Values
+    go through `fizlet/hud` from the `hud(out)` slots: change-only, nothing allocated in the steady state.
+
+  ```ts
+  import { arcade, skirmishHud } from "fizlet/arcade";
+  arcade({ ...def, hud: skirmishHud({
+    readouts: [{ label: "Kills", tone: "team" }, { label: "Time", kind: "clock" }, { label: "Rank", kind: "rank" },
+               { label: "Armor", kind: "bar", low: 0.3 }, { label: "Streak", tone: "enemy" }],
+    feed: { on: "kill", line: (a, b) => NAMES[a] + " ✕ " + NAMES[b] },
+    banner: { on: "streak", text: (n) => [n + " KILL STREAK", "AIRSTRIKE READY"] },
+    aim: ["auto", "lock"], counts: { strike: 5 }, result: { stats: ["kills", "time"], best: "kills" },
+  }) }); // hud(out): kills, time, rank, armor, streak, then out[5] = strikes left
+  ```
 - **In-page art:** `ctx.attach(el)` returns a shadow root in an overlay inside `el` that follows the page's layout and scrolling natively (Recall removes it). `keyboard: true` makes a keys-only game; without `fire` the first action is the big touch key.
 - **One run, one engine.** `start()` builds the engine, the board and the overlay; `stop()` destroys
   the engine (the page comes back through its ledger) and removes the overlay. When the game reports

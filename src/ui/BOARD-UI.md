@@ -601,3 +601,30 @@ pressed, never focusable.
   - Bind `values` with `fizlet/hud` (`num(values[0], [state, SCORE])`): change-only and allocation-free.
   - Add the group through the engine's ledger, or mount it inside a kit root the game owns, so Recall removes it.
 - **Placement is the game's layout:** where the group sits (corner, rail, header) may vary per game. The look may not.
+
+## 19. Game HUD presets (`fizlet/arcade` `hud`)
+
+The standard game UI is DOM Battlefield / Blitz's, scoped per game: a game keeps its own rules and
+picks its controls and scoreboard from one set. `arcade(def)` takes `hud`, a preset; every piece is
+opt-in, and a preset is its own export, so a game only ships (and only bakes the CSS of) the one it
+names. Leaving `hud` out keeps the card byte for byte.
+
+| Preset | Layout | Pieces |
+|---|---|---|
+| `arcadeHud()` (default) | card, bottom right; folded at the top on phones | sound / pause / fold / exit; readouts; one meter; nav: actions, Next gate, Restart, Auto fire; toast; pad (stick + Fire) |
+| `skirmishHud({...})` (Blitz) | bar across the top; wraps to two rows on phones | fullscreen / sound / pause / exit; readouts (`num`, `clock`, `rank`, `pct`, `bar`); aim toggles; action keys with count badges; feed; banner; pause / surrender / countdown / result overlays; pad with aim toggles and counted keys |
+| `widget` (later) | card | Swarm Protocol's widget, behind a side-by-side screenshot check |
+| `cockpit` (later) | rails on phones | DOM Battlefield's minimap, command card, orders |
+
+- **Readouts** are section 18's: label, value, tone. A `bar` readout is a track with the fill as
+  the `progressbar`, `low` turning it to `--hurt`.
+- **Overlays** are section 9's: one dim layer, one sticker, at most two sticker keys, the toast
+  for the explanation. Pause: BATTLE PAUSED / GIVE UP? (KEEP FIGHTING · SURRENDER). Result:
+  INSERT COIN / GAME OVER or STAGE CLEAR / MISSION COMPLETE (REMATCH · EXIT), with the chosen
+  stats and the best on this device. Countdown: GET READY 3, 2, 1, then the engine starts.
+- **Counts** are the kit's badge (`.bui-badge`, section 7) on the action's bar key and pad key.
+- **Values** go through `fizlet/hud` from typed-array slots: change-only, no layout reads, nothing
+  allocated in the steady state. The game fills `hud(out)` in readout order, then the count slots.
+- **Recall** is exact with any preset: the page comes back at once when a run ends, and the
+  overlay host goes on Escape or the exit key (full screen too).
+

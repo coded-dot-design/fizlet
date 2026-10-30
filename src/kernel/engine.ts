@@ -111,15 +111,14 @@ export function createEngine(o: EngineOptions = {}) {
   const ctl = new AbortController(), signal = ctl.signal;
   const systems: System[] = [], pools: [string, Pool<unknown>][] = [];
   const events = new EventRing(o.events ?? 64), ledger = new Ledger(), random: Random = seeded(need(o.seed ?? 1, "seed"));
-  let held = STOPPED, phase = IDLE, dead = false, gone = false, moved = false, napT: ReturnType<typeof setTimeout> | undefined;
+  let held = STOPPED, phase = IDLE, dead = false, gone = false, moved = false;
+  let napT: ReturnType<typeof setTimeout> | undefined; // the fps cap's timer
   // Running numbers live in one typed array: updating it never allocates (a captured `let` holding
   // a double would box a new number on every write).
   const n = new Float64Array(11);
   const ACC = 0, LAST = 1, TIME = 2, FRAMES = 3, STEPS = 4, DROPPED = 5, MS = 6, MAX = 7, QUIET = 8, DELTA = 9, WORK = 10;
   n[LAST] = -1;
 
-  // The fps cap's timer: back on the shared clock (unless paused or destroyed meanwhile).
-  const nap = () => schedule(engine, !held && !dead);
   const set = (bit: number, on: boolean) => {
     const was = !held && !dead;
     held = on ? held | bit : held & ~bit;
@@ -213,7 +212,8 @@ export function createEngine(o: EngineOptions = {}) {
       }
       // fps cap: off the shared clock until its next slot (one timer, not a frame every vsync). Put
       // back early (a resume, a focus change), it frames at once and the timer starts over.
-      if (gap) clearTimeout(napT), schedule(engine, false), (napT = setTimeout(nap, gap));
+      // set(0) changes no bit: it puts the engine back on the clock unless it was paused or destroyed.
+      if (gap) clearTimeout(napT), schedule(engine, false), (napT = setTimeout(set, gap, 0, false));
     },
     /** Run one frame's worth of time by hand (tests, headless, a server). A hook's error throws here. */
     advance(sec: number) {

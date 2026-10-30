@@ -1,6 +1,7 @@
 // The quick start: shown on the home page, and run for real on examples/quick-start.html (the
 // site test clicks it), so the snippet people copy is a snippet we know works.
 import { esc, icon, REPO } from "../layout.mjs";
+import { sizeBadge } from "../size-badge.mjs";
 
 export const QUICK_START = (src) => `<canvas id="board" width="640" height="320"></canvas>
 <script src="${src}"></script>
@@ -16,7 +17,7 @@ export const QUICK_START = (src) => `<canvas id="board" width="640" height="320"
   engine.start();
 </script>`;
 
-export function quickStartPage({ site }) {
+export function quickStartPage({ site, quick }) {
   const shown = QUICK_START(`${site}fizlet.js`);
   // The live copy loads the bundle from this build (so it also works before a deploy).
   const live = QUICK_START("../fizlet.js").replace('<canvas id="board"', '<canvas id="board" class="qs-canvas" aria-label="Click to blast"');
@@ -29,7 +30,7 @@ export function quickStartPage({ site }) {
         <h1 id="qs-title" class="qs-title">Ten lines<br><em>to a blast.</em></h1>
         <p class="lead">This page runs the snippet below, as is. Click the board. Scroll it away and the engine pauses; switch tabs and it stops.</p>
       </div>
-      <div class="panel lit qs-stage">${live}<span class="bui-label"><b>LIVE</b> · CLICK THE BOARD TO BLAST</span></div>
+      <div class="panel lit qs-stage" data-demo-host>${quick ? sizeBadge(quick.bytes, quick.live, "fizlet.js, the kernel and every brick but debug") : ""}${live}<span class="bui-label"><b>LIVE</b> · CLICK THE BOARD TO BLAST</span></div>
     </div>
     <div class="qs-grid">
       <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>SOURCE</b> · the whole thing</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(shown)}</code></pre></div>

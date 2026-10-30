@@ -240,7 +240,8 @@ async function perfTest() {
   const errs = [];
   pp.on("pageerror", (e) => errs.push(e.message));
   // A real origin (about:blank denies localStorage outright, which the switch survives too).
-  const html = `<!doctype html><meta charset="utf-8"><body style="margin:0"><style>${CSS}</style>
+  // A host with a global border-box reset (the DOM VIRUS hub, Battlefield): the card keeps its size.
+  const html = `<!doctype html><meta charset="utf-8"><body style="margin:0"><style>${CSS}</style><style>*,*::before,*::after{box-sizing:border-box}</style>
 <div class="bui" id="board" style="position:relative;width:844px;height:390px;background:#07060f"><p id="keep" style="margin:0">field</p></div>
 <div class="bui" id="settings"><button id="perf-set" type="button" class="bui-key">Performance overlay</button></div><script>${bundle}</script></body>`;
   await pp.route("http://fizlet.test/", (r) => r.fulfill({ body: html, contentType: "text/html" }));
@@ -266,6 +267,7 @@ async function perfTest() {
       contain: cs.contain, events: cs.pointerEvents, parent: p.el.parentElement.id, ignore: p.el.hasAttribute("data-fizlet-ignore"),
       // Board UI tokens: the card is the kit's surface on the rim.
       look: [cs.backgroundColor, cs.borderTopColor, cs.position, cs.top, cs.right].join(),
+      size: [p.el.offsetWidth, p.el.scrollWidth <= p.el.clientWidth, [...p.el.children].every((c) => c.getBoundingClientRect().right <= p.el.getBoundingClientRect().right - 2)],
     };
   });
   assert.deepEqual(setup.off, { on: false, hidden: true, aria: "true", pressed: "false", stored: null }, "off by default, hidden from assistive tech");
@@ -273,6 +275,7 @@ async function perfTest() {
   assert.ok(["layout paint style", "content"].includes(setup.contain), `contained root (${setup.contain})`);
   assert.deepEqual([setup.events, setup.parent, setup.ignore], ["none", "board", true]);
   assert.equal(setup.look, "rgb(17, 13, 34),rgb(7, 6, 15),absolute,8px,8px", "kit tokens, top right of the board");
+  assert.deepEqual(setup.size, [136, true, true], "120px content + padding + border, nothing clipped under a global border-box");
 
   await pp.evaluate(() => e.start());
   await wait(700);
@@ -1492,6 +1495,24 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
     out.queuedSurvives = /^[01]ello world$/.test(H.data);
     e2.destroy();
     out.restored2 = snap() === before;
+    // A board in another document (an iframe's page): its letters, its viewport, its Recall.
+    const frame = document.createElement("iframe");
+    frame.style.cssText = "position:fixed;left:0;top:0;width:300px;height:200px;border:0";
+    document.body.append(frame);
+    const fd = frame.contentDocument;
+    fd.body.innerHTML = '<p style="color: red">Inside frame</p>';
+    const fBefore = fd.documentElement.outerHTML;
+    const e5 = fizlet.createEngine(), b5 = fizlet.boardPage(e5, { root: fd.body });
+    b5.refresh();
+    let fOn = 0;
+    const fCount = b5.glyphs.count;
+    for (let i = 0; i < fCount; i++) if (b5.glyphs.w[i] > 0) fOn++;
+    b5.consume(0, "1");
+    e5.ledger.style(fd.querySelector("p"), "opacity", "0.5");
+    const fText = fd.querySelector("p").textContent;
+    e5.destroy();
+    out.frame = [fCount, fOn, fText, fd.documentElement.outerHTML === fBefore];
+    frame.remove();
     return out;
   });
   // Eligible: "Hello world" 10, "Eat these 42 words" 15, "far below" 8 (off screen) and "hidden text"
@@ -1528,6 +1549,7 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   assert.deepEqual(board.scroll, [0, 8], "scrolling re-measures: far text comes on screen");
   assert.equal(board.queuedSurvives, true, "a queued write survives a rescan");
   assert.equal(board.restored2, true);
+  assert.deepEqual(board.frame, [11, 11, "1nside frame", true], "a board in an iframe's document: its own letters, viewport and Recall");
 
   where = "board-page allocation";
   // Steady state: frames between refreshes (no time passes) plus near / hit / step. The sampling heap
