@@ -12,7 +12,8 @@
     "fizlet/kernel",
     "fizlet/sprite",
     "fizlet/fx",
-    "fizlet/slot"
+    "fizlet/slot",
+    "fizlet/scene"
   ],
   "pageCost": {
     "settles": true,
@@ -28,7 +29,7 @@
   },
   "fizlet": "0.17.0",
   "made": "fe anim",
-  "module": "anims/candle-chart-pumps-dumps.ts",
+  "module": "anims/candle-chart-pumps-dumps.scene.json",
   "export": "mount",
   "aspect": "16 / 9",
   "approved": "2026-10-30"

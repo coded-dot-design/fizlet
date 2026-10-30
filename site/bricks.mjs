@@ -130,6 +130,12 @@ lockTouch(document, null); // a full-screen board: the whole page` },
 
 const c = cssClock(diagram, { span: 6, loops: 3 }); // rests on frame one, settles
 pauseButton.onclick = () => c.hold(!held); // c.destroy() gives the page back` },
+  { id: "scene", status: "experimental", since: "0.21.0", tests: ["scene.test.mjs", "scene.mjs"], used: ["fizlet.com: three gallery micros (#38, #40 and #41 are scene data)"], why: "New in E13: the format may still change, and the factory does not emit it yet.",
+    tag: "SCENE", role: "aim", modules: [mod("fizlet/scene", "scene")],
+    snippet: `// The recipe is data: stage, cast (values on the clock), cues, gags
+const d = { v: 1, stage: { w: 160, h: 90, bg: "#07060f", end: 2 },
+  fx: { words: ["GO!"] }, cue: [[0.5, "word", 0, 80, 45, 0, 14]] };
+slot(fig, () => scene(d)); // rests on the last frame, settles; a tap replays` },
   { id: "arcade", status: "complete", since: "0.11.0", tests: ["arcade.mjs", "arcade-game.mjs", "arcade-hud.mjs"], used: ["Null Invaders 1.0", "Byte Runner 1.0", "Sherman Bytes 1.0"],
     tag: "ARCADE", role: "go", modules: [mod("fizlet/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
@@ -159,7 +165,6 @@ export const PLANNED = [
   { name: "fizlet/view-dom", phase: "E11", purpose: "Pooled DOM nodes bound to actors, written change-only through the ledger.", target: 1536, needs: ["fizlet/actor"] },
   { name: "fizlet/snapshot", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["fizlet/presence", "fizlet/actor"] },
   { name: "fizlet/agent", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["fizlet/presence", "fizlet/rules"] },
-  { name: "fizlet/scene", phase: "E13", purpose: "An animation recipe as data (stage, cast, cue, gag) mounted as a scene.", target: 2048, needs: ["fizlet/sprite", "fizlet/fx", "fizlet/timeline", "fizlet/slot"] },
   { name: "fizlet/announce", phase: "E14", purpose: "Game events read out to screen readers through one polite live region, rate-limited.", target: 614, needs: ["fizlet"] },
   { name: "fizlet/music", phase: "E15", purpose: "A tiny step sequencer on the kernel clock: patterns and tempo on the sound brick's synth.", target: 1229, needs: ["fizlet/sound"] },
 ];
