@@ -12,6 +12,7 @@
   no tracking). Every gallery entry made from a prompt gets a **Get the snippet** key (the same
   file). Snippets settle to zero frames once still, never run under reduced motion, and
   `el.fizlet.slot.destroy()` gives the page back (tested in `tests/site.mjs`).
+- Gallery: the five how-it-works labs (#042–#046) approved by the owner and live.
 - **Fix: a dragged scoreboard no longer jumps when its board is not the viewport.** `drag()`
   (fizlet/arcade's panel drag, also used by Battlefield Blitz) set `left`/`top` from viewport
   coordinates and replaced the card's whole inline style, so a board under a page header, mid-page
