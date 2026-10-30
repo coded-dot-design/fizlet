@@ -34,5 +34,6 @@
   "module": "../demos/stack/scene.ts",
   "export": "mount",
   "stage": "own",
-  "aspect": "16 / 10"
+  "aspect": "16 / 10",
+  "approved": "2026-10-30"
 }
