@@ -238,7 +238,7 @@ export function rushHour(stage: HTMLElement, slot: HTMLElement, first: SlotTap |
             lt.kick(j, ROT, (C[o + X]! < lt.x[j]! ? 1 : -1) * 320);
             C[o + VY] = abs(C[o + VY]!) * 0.4;
           }
-        if (st !== DRIVE || abs(C[o + VX]!) < C[o + SP]! * 0.95 || abs(C[o + SQ]!) > 0.02) busy = true;
+        busy = true; // a car on screen is moving
       }
       for (let j = 0; j < lt.n; j++) if (LC[j]! > 0) LC[j] = LC[j]! - dt;
       // Car on car: an exchange of momentum; hard enough, both go spinning. Car on beacon: it's knocked.
