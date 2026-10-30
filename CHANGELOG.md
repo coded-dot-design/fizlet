@@ -7,6 +7,9 @@
   and resize, highlights), so a board inside an iframe's page works. Before, it always used the
   global `document` and window. Swarm Protocol needs this: its API runs in the document it is given.
   board-page is 4,095 B gzip (budget 4,096).
+- **The ledger's Recall normalises style text in the element's own document**, not the global one,
+  so restoring an element in another document (or with no global `document`) works. Kernel
+  3,422 B gzip.
 
 ## 0.16.0
 

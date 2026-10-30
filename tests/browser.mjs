@@ -1497,7 +1497,7 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
     frame.style.cssText = "position:fixed;left:0;top:0;width:300px;height:200px;border:0";
     document.body.append(frame);
     const fd = frame.contentDocument;
-    fd.body.innerHTML = "<p>Inside frame</p>";
+    fd.body.innerHTML = '<p style="color: red">Inside frame</p>';
     const fBefore = fd.documentElement.outerHTML;
     const e5 = fizlet.createEngine(), b5 = fizlet.boardPage(e5, { root: fd.body });
     b5.refresh();
@@ -1505,6 +1505,7 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
     const fCount = b5.glyphs.count;
     for (let i = 0; i < fCount; i++) if (b5.glyphs.w[i] > 0) fOn++;
     b5.consume(0, "1");
+    e5.ledger.style(fd.querySelector("p"), "opacity", "0.5");
     const fText = fd.querySelector("p").textContent;
     e5.destroy();
     out.frame = [fCount, fOn, fText, fd.documentElement.outerHTML === fBefore];
