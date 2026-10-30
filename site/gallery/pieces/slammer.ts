@@ -170,6 +170,7 @@ export function slammer(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
           const h = hostAt(X[i]!, Y[i]!, 0);
           if (h >= 0 && h !== TO[i]) {
             ON[i] = 0;
+            hot += 1 - HOT[h]!; // counted for the end check below: a server hit this step is hot now
             infect(h);
           } else if ((X[i]! > w0 - 2 && VX[i]! > 0) || (X[i]! < P[6]! - 8 * s && VX[i]! < 0)) VX[i] = -VX[i]!;
         }

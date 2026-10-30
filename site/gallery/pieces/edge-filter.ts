@@ -212,12 +212,13 @@ export function edgeFilter(stage: HTMLElement, slot: HTMLElement, first: SlotTap
       // The end: every segment clean (no host infected or mid-patch, every host patched or cut off from
       // the internet, nothing on its way in); or ten minutes on the clock.
       if (play) {
+        // `hot` was counted before the packets moved; a host they hit this step is checked below.
         let clean = hot === 0;
         if (clean) {
           const m = reach();
           let safe = 0xf; // segments whose hosts are all patched
           for (let h = 0; h < nH; h++) if (HST[h] !== SAFE) safe &= ~(1 << HS[h]!);
-          for (let h = 0; h < nH && clean; h++) if (HST[h] === FIX || (HST[h] !== SAFE && m & (1 << HS[h]!))) clean = false;
+          for (let h = 0; h < nH && clean; h++) if (HST[h] === FIX || HST[h] === HOT || (HST[h] !== SAFE && m & (1 << HS[h]!))) clean = false;
           // Nothing on its way to a host it could still infect.
           for (let i = 0; i < PK && clean; i++) {
             if (!ON[i]) continue;
