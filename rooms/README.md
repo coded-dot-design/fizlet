@@ -14,7 +14,8 @@ step: [DEPLOY.md](DEPLOY.md).
 
 No real login yet (planned later). A page asks for an **invite code** and the Worker checks it:
 
-- `GET /invite?code=XXXX` → `200 {"ok":true}` or `403`: the page's "sign in" check.
+- `GET /invite?code=XXXX` → `200 {"ok":true,"players":4}` or `403`: the page's "sign in" check.
+  `players` is `MAX_PLAYERS`, so a page offers only room sizes that can join.
 - `GET /room/<n>?players=2&invite=XXXX` (WebSocket) → the room, or `403` without a listed code.
 
 Codes live in Workers KV (`INVITES`) as `invite:` + SHA-256 of the code (trimmed, upper-cased),
