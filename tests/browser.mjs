@@ -217,7 +217,8 @@ async function containTest() {
       launch: { reads, copies: burst.querySelectorAll(":scope > button").length, same: [...burst.querySelectorAll(":scope > button")].every((c) => face(c).join() === face(burst.firstChild).join() && face(c)[0] !== "") },
     };
     // Recall: the engine gives back the board, the burst ends, the kit mount is the host's to remove.
-    await new Promise((r) => setTimeout(r, 1000));
+    // Wait on the burst itself, frame by frame (capped at 600 frames), not on wall time.
+    for (let f = 0; f < 600 && document.querySelector(".bui-burst"); f++) await new Promise(requestAnimationFrame);
     e.destroy();
     document.getElementById("ui").shadowRoot.replaceChildren();
     res.burstGone = !document.querySelector(".bui-burst");
@@ -461,7 +462,8 @@ try {
     const engines = [1, 2, 3, 4].map(() => fizlet.createEngine());
     let steps = 0;
     engines.forEach((e) => (e.add({ step: () => steps++ }), e.start()));
-    await new Promise((r) => setTimeout(r, 500));
+    // 30 engine frames, counted on the uncounted rAF (capped at 600), not wall time.
+    for (let f = 0; f < 600 && engines[0].stats().frames < 30; f++) await new Promise(real);
     const frames = engines[0].stats().frames;
     engines.forEach((e) => e.destroy());
     window.requestAnimationFrame = real;
@@ -491,11 +493,15 @@ try {
     document.getElementById("field").blur();
     out.afterEdit = e.running;
     // Root scrolled off screen.
+    // The IntersectionObserver answers in a frame or two: wait on its state (capped at 600 frames).
+    const until = async (ok) => {
+      for (let f = 0; f < 600 && !ok(); f++) await new Promise(requestAnimationFrame);
+    };
     document.getElementById("far").scrollIntoView();
-    await new Promise((r) => setTimeout(r, 300));
+    await until(() => e.paused.includes("offscreen"));
     out.offscreen = e.paused.join();
     scrollTo(0, 0);
-    await new Promise((r) => setTimeout(r, 300));
+    await until(() => e.running);
     out.onscreen = e.running;
     e.destroy();
     // After destroy, page events no longer reach it.

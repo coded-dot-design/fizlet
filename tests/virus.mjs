@@ -89,7 +89,8 @@ try {
     await p.waitForFunction(() => scene.engine.paused.includes("settled"), null, { timeout: 12000 });
     const still = await p.evaluate(async () => {
       const a = scene.engine.stats().frames;
-      await new Promise((r) => setTimeout(r, 500));
+      // 30 page frames (not wall time): a settled engine takes none of them.
+      for (let f = 0; f < 30; f++) await new Promise(requestAnimationFrame);
       return scene.engine.stats().frames - a;
     });
     assert.equal(still, 0, `${piece.id}: settled, no frames`);

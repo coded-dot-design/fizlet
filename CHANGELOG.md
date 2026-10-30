@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Tests: no wall-time waits of 300, 500 or 1000 ms; the fx "full pool" check counts work, not
+  milliseconds.** `tests/browser.mjs` waits on the launch burst being gone (was 1 s), on 30 engine
+  frames for "one rAF for many engines" (was 500 ms) and on the offscreen / onscreen pause state
+  (was 300 ms twice); `tests/arcade-hud.mjs` holds fire until a shot is out (was 500 ms);
+  `tests/labs.mjs`, `tests/virus.mjs` and `tests/layers.mjs` count page frames (was 300, 500 and
+  300 ms). Every wait is capped. `tests/bricks.test.mjs` "a full pool stops the blast's work" no
+  longer asserts `ms < 20`: two pools on one visual seed show that ten 1e6-power blasts on a full
+  pool draw exactly what ten tiny ones do (it fails if the work scales with power). No source change.
 - **Gallery: DOM Virus, two hand-built micro games (pending the owner's approval).** A new theme,
   `dom-virus`, with #047 **Terminal virus**: a worm types itself into a terminal, crawls onto the
   README beside it and eats its real letters (each bite rewrites a character of the page's own
