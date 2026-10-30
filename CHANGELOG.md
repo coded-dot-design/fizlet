@@ -51,6 +51,10 @@
   (recipe ooze, the critter scene: a slime pixel sprite, the ooze motion; kernel + sprite + slot):
   live 6,153 B · total 8,079 B gzip (with the 1,926 B loader) on this build, loaded only near the
   viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #054, "purple cat paw prints walk across".** Made by `fe anim` from the prompt
+  (recipe march, the critter scene: a paw pixel sprite, the march motion; kernel + sprite + slot):
+  live 6,134 B · total 8,060 B gzip (with the 1,926 B loader) on this build, loaded only near the
+  viewport, never under reduced motion; settles to zero frames.
 
 ## 0.17.0
 

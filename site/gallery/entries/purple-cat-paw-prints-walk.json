@@ -1,0 +1,33 @@
+{
+  "no": 54,
+  "id": "purple-cat-paw-prints-walk",
+  "date": "2026-10-30",
+  "prompt": "purple cat paw prints walk across",
+  "title": "Purple cat paw prints walk across",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "march",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 32,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 0.79
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/purple-cat-paw-prints-walk.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}
