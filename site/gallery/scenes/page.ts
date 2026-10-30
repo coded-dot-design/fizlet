@@ -3,22 +3,24 @@
 // change, so a running frame reads no layout. It draws on a canvas in the slot's stage, and it
 // writes to page elements only through the engine's ledger: one data attribute per element, styled
 // by one sheet the ledger adds, so Recall gives the page back byte for byte. Mounted through
-// fizlet/slot: it loads near the viewport, never under reduced motion. Two effects, chosen by data:
-//   sweep  a scanline sweeps down and lights up every element it passes (tap: it starts there)
-//   pool   rain falls on the element you hover (or tap) and pools along its top edge
+// fizlet/slot: it loads near the viewport, never under reduced motion. Four effects, chosen by data:
+//   sweep    a scanline sweeps down and lights up every element it passes (tap: it starts there)
+//   pool     rain falls on the element you hover (or tap) and pools along its top edge
+//   flicker  the elements flicker like a candle (the one you hover; a tap elsewhere: all of them)
+//   type     the elements type themselves out, one character at a time, one after another
 import { createEngine } from "../../../src/kernel/index";
 import { boardPage } from "../../../src/board-page";
 import type { SlotScene, SlotTap } from "../../../src/slot";
 
 export interface PageFx {
-  effect: "sweep" | "pool";
+  effect: "sweep" | "pool" | "flicker" | "type";
   /** The page elements it reads (CSS selector, inside the slot). */
   select: string;
   /** Hex colours, from the Board UI tokens. */
   colors: string[];
-  /** pool: drops a second while it rains. sweep: the line's thickness in px. */
+  /** pool: drops a second while it rains. sweep: the line's thickness in px. type: characters a second. flicker: flickers a second. */
   count: number;
-  /** sweep: seconds the line takes to cross. pool: seconds it rains after a hover or tap. */
+  /** sweep: seconds the line takes to cross. pool: seconds it rains after a hover or tap. flicker: seconds it flickers. type: ignored. */
   seconds: number;
   /** Seconds a lit element (or a pool) takes to fade. */
   glow: number;
@@ -29,11 +31,11 @@ export interface PageFx {
 }
 export type PageScene = SlotScene & { engine: ReturnType<typeof createEngine>; play(x?: number, y?: number): void };
 
-const CAP = 240, LEVELS = 6, ATTR = "data-fizlet-lit";
+const CAP = 240, LEVELS = 6, ATTR = "data-fizlet-lit", CH = 64;
 
 export function page(stage: HTMLElement, root: HTMLElement, p: PageFx, first: SlotTap | null = null): PageScene {
   const engine = createEngine({ root: stage, fps: 30, settle: 0.5 });
-  const L = engine.ledger, nc = p.colors.length, sweep = p.effect === "sweep";
+  const L = engine.ledger, nc = p.colors.length, sweep = p.effect === "sweep", flicker = p.effect === "flicker", type = p.effect === "type", pool = p.effect === "pool";
   const board = boardPage(engine, { root, text: false, targets: p.select, still: Infinity });
   const T = board.targets;
   // The stage lets the pointer through to the page it reads; the canvas is ours (the ledger's).
@@ -51,6 +53,10 @@ export function page(stage: HTMLElement, root: HTMLElement, p: PageFx, first: Sl
       LIT[c * LEVELS + l] = v;
       css += `[${ATTR}="${v}"]{color:${col}!important;text-shadow:0 0 ${l * 2}px ${col}${a},0 0 ${l * 5}px ${col}${a}!important}`;
     }
+  // type: one value per characters shown (a clip in ch, so it reveals as it types), glowing.
+  const TY: string[] = [];
+  if (type)
+    for (let n = 0; n <= CH; n++) (TY[n] = `t${n}`), (css += `[${ATTR}="t${n}"]{clip-path:inset(0 calc(100% - ${n}ch) 0 0);color:${p.colors[0]}!important;text-shadow:0 0 6px ${p.colors[0]}!important}`);
   const sheet = L.add(document.createElement("style"));
   sheet.textContent = css;
   document.head.append(sheet);
@@ -61,6 +67,8 @@ export function page(stage: HTMLElement, root: HTMLElement, p: PageFx, first: Sl
   const s = new Float64Array([0, 0, 1, 0, 0, 1, -1, 1, -1, -1, 0, 0, 0, -1, 0, 0]);
   if (first) (s[8] = first.x), (s[9] = first.y);
   const lit = new Float32Array(32);
+  // flicker: seconds left per element. type: characters per element (read once), typing element, characters shown.
+  const fl = new Float32Array(32), len = new Float32Array(32), ty = new Float64Array([-1, 0]);
   // Drops: x, y, vy, life (s), state (0 free, 1 falling, 2 pooled), colour, edge y.
   const dx = new Float32Array(CAP), dy = new Float32Array(CAP), dv = new Float32Array(CAP), dl = new Float32Array(CAP), de = new Float32Array(CAP);
   const ds = new Uint8Array(CAP), dc = new Uint8Array(CAP);
@@ -75,7 +83,7 @@ export function page(stage: HTMLElement, root: HTMLElement, p: PageFx, first: Sl
     play(ev.clientX - r.left, ev.clientY - r.top);
   };
   root.addEventListener("pointerdown", at, { signal: engine.signal });
-  if (!sweep) root.addEventListener("pointerover", (ev) => (ev.target as Element).closest?.(p.select) && at(ev), { signal: engine.signal });
+  if (pool || flicker) root.addEventListener("pointerover", (ev) => (ev.target as Element).closest?.(p.select) && at(ev), { signal: engine.signal });
 
   /** The target under a stage point, or -1. */
   const under = (x: number, y: number) => {
@@ -87,6 +95,16 @@ export function page(stage: HTMLElement, root: HTMLElement, p: PageFx, first: Sl
   };
   const trigger = (x: number, y: number) => {
     if (sweep) return void (s[6] = y >= 0 ? y : 0);
+    if (flicker) {
+      // The one under the pointer; a tap off the elements (or a replay): all of them.
+      const u = x >= 0 ? under(x, y) : -1;
+      for (let i = 0; i < 32; i++) if (u < 0 || i === u) fl[i] = p.seconds;
+      return;
+    }
+    if (type) {
+      for (let i = 0; i < T.length && i < 32; i++) if (!len[i]) len[i] = Math.min(CH, (T[i]!.el.textContent ?? "").length);
+      return void ((ty[0] = 0), (ty[1] = 0));
+    }
     const i = x >= 0 ? under(x, y) : 0, t = T[i];
     s[13] = t && t.w > 0 ? i : -1;
     // Over a target: rain across it. Elsewhere (a tap off the targets): a band around the tap.
@@ -97,8 +115,8 @@ export function page(stage: HTMLElement, root: HTMLElement, p: PageFx, first: Sl
   function paint() {
     const w = s[0]!, h = s[1]!, d = s[2]!, sc = p.scale;
     for (let i = 0; i < T.length && i < 32; i++) {
-      const l = lit[i]! > 0 ? Math.ceil(lit[i]! * LEVELS) : 0;
-      L.attr(T[i]!.el as HTMLElement, ATTR, l ? LIT[(i % nc) * LEVELS + l]! : null);
+      const l = lit[i]! > 0 ? Math.ceil(lit[i]! * LEVELS) : 0, k = ty[0]!;
+      L.attr(T[i]!.el as HTMLElement, ATTR, type ? (k < 0 || i < k ? null : TY[i === k ? Math.floor(ty[1]!) : 0]!) : l ? LIT[(i % nc) * LEVELS + l]! : null);
     }
     // A new size resets the context: scale it once then (a per-frame setTransform with a double boxes it).
     if (canvas.width !== Math.round(w * d) || canvas.height !== Math.round(h * d)) (canvas.width = Math.round(w * d)), (canvas.height = Math.round(h * d)), ctx.setTransform(d, 0, 0, d, 0, 0);
@@ -138,6 +156,21 @@ export function page(stage: HTMLElement, root: HTMLElement, p: PageFx, first: Sl
       if (s[7]) (s[7] = 0), trigger(s[8]!, s[9]!);
       if (p.loop > 0 && (s[12] = s[12]! + dt) >= p.loop) (s[12] = 0), trigger(-1, -1);
       for (let i = 0; i < 32; i++) if (lit[i]! > 0) (lit[i] = lit[i]! - dt / p.glow), live++;
+      if (flicker)
+        for (let i = 0; i < 32; i++)
+          if (fl[i]! > 0) {
+            fl[i] = fl[i]! - dt;
+            // A candle: mostly bright, now and then it gutters (p.count flickers a second).
+            if (e.random() < p.count * dt) lit[i] = e.random() < 0.25 ? 0.15 : 0.45 + e.random() * 0.55;
+            live++;
+          }
+      if (type && ty[0]! >= 0) {
+        const k = ty[0]!, n = Math.min(T.length, 32);
+        ty[1] = ty[1]! + p.count * dt;
+        if (k < n && ty[1]! >= len[k]!) (ty[0] = k + 1), (ty[1] = 0);
+        if (ty[0]! >= n) ty[0] = -1;
+        live++;
+      }
       if (sweep && s[6]! >= 0) {
         const y0 = s[6]!, y1 = y0 + (h / p.seconds) * dt;
         for (let i = 0; i < T.length && i < 32; i++) {
@@ -147,7 +180,7 @@ export function page(stage: HTMLElement, root: HTMLElement, p: PageFx, first: Sl
         s[6] = y1 > h + 40 ? -1 : y1;
         live++;
       }
-      if (!sweep) {
+      if (pool) {
         const g = 900 * p.scale, a = s[13]!, t = a >= 0 ? T[a] : undefined, edge = t && t.w > 0 ? t.y - s[4]! : h + 8;
         if (s[10]! > 0) {
           s[10] = s[10]! - dt;
