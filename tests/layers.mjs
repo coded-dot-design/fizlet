@@ -204,8 +204,9 @@ await test("controls: pause settles, slider scrubs (keys, pointer), play resumes
   await b.click();
   await page.waitForFunction(() => document.querySelector(".lyr__play").ariaLabel === "Pause");
   f0 = await frames();
-  await page.waitForTimeout(400);
-  assert.ok((await frames()) > f0 + 5, "playing: frames run");
+  // Wait on the frames themselves (capped), not a fixed 400 ms: a loaded machine draws fewer in that time.
+  const ran = await page.waitForFunction((f) => window.frames_ > f + 5, f0, { timeout: 5000 }).then(() => true, () => false);
+  assert.ok(ran, "playing: frames run");
   // Recall: the controls come back exactly as the page had them.
   const same = await page.evaluate(() => (window.handle.destroy(), document.body.innerHTML.trimEnd() === window.before.trimEnd()));
   assert.ok(same, "destroy() gives the page back exactly, controls included");
