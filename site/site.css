@@ -476,10 +476,79 @@ a.bui-sticker-key {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-@media (max-width: 560px) {
+/* Columns are <details>: above phone width their content always shows and the heading is just a
+   heading; at phone width each one folds (layout.mjs siteMap opens the current page's column). */
+.map-col > summary {
+  display: block;
+  list-style: none;
+}
+.map-col > summary::-webkit-details-marker {
+  display: none;
+}
+@media (min-width: 601px) {
+  .map-col::details-content {
+    content-visibility: visible;
+  }
+  .map-col > summary {
+    pointer-events: none;
+  }
+}
+@media (max-width: 600px) {
+  .site-foot > .wrap {
+    gap: 16px;
+    padding-top: 24px;
+    padding-bottom: 28px;
+  }
+  .foot-brand {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
   .foot-map {
     grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--line);
   }
+  .foot-map > .map-col > ul {
+    gap: 14px;
+  }
+  .map-sec > ul:not(.map-chips) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+  }
+  .map-col {
+    border-bottom: 1px solid var(--line);
+  }
+  .map-col > summary {
+    cursor: pointer;
+  }
+  .map-col > summary h2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .map-col > summary h2::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+  }
+  .map-col[open] > summary h2::after {
+    transform: translateY(2px) rotate(-135deg);
+  }
+  .map-col > summary:hover h2 {
+    color: var(--k-sys-ink);
+  }
+  .map-col > ul {
+    padding: 2px 0 16px;
+  }
+}
+@media (max-width: 600px) {
   .foot-brand {
     grid-template-columns: minmax(0, 1fr);
     row-gap: 14px;

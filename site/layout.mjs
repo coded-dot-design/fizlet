@@ -139,7 +139,12 @@ export function siteMap(routes, base, path) {
     if (s.fold && kids.length) list = `<details class="map-fold"${kids.some((r) => r.path === path) ? " open" : ""}><summary>All ${kids.length} ${s.fold}</summary>${list}</details>`;
     return `<li class="map-sec">${head ? a(head, ' class="map-head"') : `<span class="map-label">${esc(s.label)}</span>`}${list}</li>`;
   };
-  const cols = SITE_MAP.map(([name, sections]) => `<div class="map-col"><h2>${esc(name)}</h2><ul>${sections.map(section).join("")}</ul></div>`);
+  // Each column is a disclosure: always open above phone width (site.css shows its content), closed
+  // at phone width except the column holding the page you are on. No JS.
+  const cols = SITE_MAP.map(([name, sections]) => {
+    const list = sections.map(section).join("");
+    return `<details class="map-col"${/aria-current=/.test(list) ? " open" : ""}><summary><h2>${esc(name)}</h2></summary><ul>${list}</ul></details>`;
+  });
   return `<nav class="foot-map" aria-label="Site map">${cols.join("")}</nav>`;
 }
 const MARKER = /<!--site-map (\S*) (\S*)-->/;
