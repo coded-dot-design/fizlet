@@ -37,6 +37,9 @@ const lost = (r: StyleRec, s: CSSStyleDeclaration, prop: string) => r.x || s.get
 /** Put a property's original value back (removed if it had none). */
 const back = (r: StyleRec, s: CSSStyleDeclaration, prop: string) => (r.o ? s.setProperty(prop, r.o, r.op) : s.removeProperty(prop));
 
+/** Records every change the engine makes to the page (styles, attributes, classes, text, added
+ *  nodes) so `restore()` puts it back exactly. Writes that change nothing touch nothing, and an
+ *  edit the host page made after ours always wins. Each engine has one: `engine.ledger`. */
 export class Ledger {
   // Private names are short on purpose: esbuild keeps property names, and every byte here ships in
   // every page build. t: text nodes, m: elements, a: nodes we added, e(): an element's entry.

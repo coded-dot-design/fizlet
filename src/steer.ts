@@ -15,6 +15,8 @@
  */
 import { need } from "./kernel/need";
 
+/** Options for `steer()`: how many movers, their pace, turn rate and arrival bands, the wander area
+ *  and timing, the wall check and the random source. */
 export interface SteerOptions {
   /** Movers, a positive integer (fixed: the arrays never grow). */
   cap: number;
@@ -60,6 +62,9 @@ export const hypot = (dx: number, dy: number) => {
   return ax === Infinity || ay === Infinity ? Infinity : Math.sqrt(p * p + q * q) * max;
 };
 
+/** Steering for `o.cap` movers on typed arrays: `seek`, `flee`, `arrive`, `wander` and `patrol`, each
+ *  with a turn-limited heading and a per-axis wall check. DOM-free and allocation-free: call them
+ *  from a step, one mover at a time. */
 export function steer(o: SteerOptions) {
   // Each number option, checked by name (one helper: the names are the only cost).
   const num = (k: keyof SteerOptions, d: number) => need(o[k] ?? d, k);
@@ -148,4 +153,5 @@ export function steer(o: SteerOptions) {
     },
   };
 }
+/** The movers `steer()` returns. */
 export type Steer = ReturnType<typeof steer>;

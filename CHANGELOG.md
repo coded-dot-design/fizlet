@@ -108,6 +108,37 @@
   gzip: page build 7,166 → 7,131 B (budget 7,168, fixed), grid 1,634 → 1,603 (1,637),
   board-page 4,162 → 4,136 (4,193), arcade card 18,350 → 18,302 (18,361), arcade 24,331 →
   24,286, kernel 3,438 → 3,417, collide 1,293 → 1,265.
+- **timeline: an engine auto-pause no longer stops it for good** (found in dom-virus#33).
+  `pause()` is also the timeline's `System.pause` hook, so when the engine paused itself (off
+  screen, a hidden tab, `engine.stop()`) the timeline marked itself paused by you and never played
+  on when the engine resumed. Called by its engine, `pause()` now only suspends (no steps while the
+  engine is paused, as before); the timeline plays on from where it was on resume, unless you
+  paused it yourself (your pause holds through any engine pause and resume). Recall, `destroy()`
+  and zero allocation in the step are unchanged. Tests: off screen → back, hidden → visible,
+  `stop()` → `start()`, your pause held, Recall and destroy, zero allocation (Node), and off screen
+  and back with a real IntersectionObserver (Chromium). fizlet/timeline 2,060 → 2,067 B gz
+  (budget 2,304); fizlet/css-clock 5,375 → 5,383 B gz.
+- **Website: a generated API reference for every brick, and `llms-full.txt` (E5).** Each brick page's
+  API section now lists every export with its signature, parameters, return type, doc comment and
+  status flag, generated at site build time from the published declarations (`dist/*.d.ts`) by the
+  TypeScript compiler API (`typescript/unstable/sync`, the dev dependency the repo already type-checks
+  with: no new dependency). It can't drift from the code: the page and the file are rebuilt from the
+  declarations on every `npm run site`.
+  - `scripts/api.mjs` reads exports through the compiler (re-exports followed, overloads and
+    `const A = 1, B = 2` kept as one entry each) instead of scanning lines. A function's inline object
+    return type reads as its exported alias (`createEngine(o?: EngineOptions): Engine`). A const that
+    holds a function gets its signature. Type names the module exports link to their entries.
+  - Status per export: the brick's flag, unless its doc comment says `@deprecated`, `@experimental`
+    or `@beta`.
+  - `llms-full.txt`: the whole API in plain text for AI agents (every brick: import, status, measured
+    size, summary; every export: kind, status, doc, signatures, declaration). llms.txt links to it
+    in its opening text.
+  - Every public export now has a doc comment: 96 were missing one (options interfaces, `ReturnType`
+    aliases, factories such as `createEngine`, `controls`, `pad`, `sound`, `match`, `arcade`). A test
+    fails on any export without one (`tests/api.test.mjs`), so new exports must be documented.
+    Comments only: no JS changes, so every size is unchanged (kernel 3,438 B gzip).
+  - The site's own JS is byte-identical; `site.css` grows 102 B gzip (9,788 → 9,890 B) for the
+    signature and parameter rows.
 - **Website: docs, guides and news for launch** (fizlet.com is the engine's tech resource; the games
   live on DOM VIRUS). New sections, every number filled in from the build, never typed:
   - `/docs/`: getting started, the contract, the loop, Recall and the ledger, size budgets (every
@@ -247,17 +278,6 @@
   bottom edge (its box lets the pointer through, its content takes it back), and `.hero` is
   `overflow: clip`, so the parallaxed field never gives a focus or `scrollIntoView` a hidden
   scroll to move. The site test's `revealAll` and the home rhythm check wait on the reveals' state, not on time.
-
-- **timeline: an engine auto-pause no longer stops it for good** (found in dom-virus#33).
-  `pause()` is also the timeline's `System.pause` hook, so when the engine paused itself (off
-  screen, a hidden tab, `engine.stop()`) the timeline marked itself paused by you and never played
-  on when the engine resumed. Called by its engine, `pause()` now only suspends (no steps while the
-  engine is paused, as before); the timeline plays on from where it was on resume, unless you
-  paused it yourself (your pause holds through any engine pause and resume). Recall, `destroy()`
-  and zero allocation in the step are unchanged. Tests: off screen → back, hidden → visible,
-  `stop()` → `start()`, your pause held, Recall and destroy, zero allocation (Node), and off screen
-  and back with a real IntersectionObserver (Chromium). fizlet/timeline 2,060 → 2,067 B gz
-  (budget 2,304); fizlet/css-clock 5,375 → 5,383 B gz.
 
 ## 0.20.0
 

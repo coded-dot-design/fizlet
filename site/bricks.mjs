@@ -28,6 +28,9 @@ export const STATUS = {
 /** The one line for the whole engine: every page and the README say the same. */
 export const BETA_LINE = "Fizlet 0.x is a public beta: every brick carries a status flag, and a 0.x minor release may change a BETA brick's API (the CHANGELOG says how). COMPLETE bricks keep theirs.";
 
+/** One export's flag: its brick's, unless its doc comment carries `@deprecated`, `@experimental` or `@beta`. */
+export const exportStatus = (brick, decl) => decl.tags.find((t) => ["deprecated", "experimental", "beta"].includes(t.name))?.name ?? brick.status;
+
 /**
  * [{ id, tag, role, modules, sizes, demo, snippet, status, since, tests, used, why }]. `sizes` are
  * the size entries shown (the first is the headline); `demo` names a live demo in site/demos/ (only
