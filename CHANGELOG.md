@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- **Fix: a dragged scoreboard no longer jumps when its board is not the viewport.** `drag()`
+  (fizlet/arcade's panel drag, also used by Battlefield Blitz) set `left`/`top` from viewport
+  coordinates and replaced the card's whole inline style, so a board under a page header, mid-page
+  or scrolled made the card jump on the first move. It now measures the card's containing block
+  (its offset parent's padding box) once on pointerdown and sets only `left`, `top`, `right`,
+  `bottom` and `translate`. `tests/drag.mjs` drags a card in a bordered board under a header,
+  scrolled. Arcade with `hud` omitted: 17,964 B gzip (+52 B; budget 17,920 → 17,984).
+
 ## 0.19.0
 
 - **The fizz: the original can, without the zoom** (owner: "the og ones were good, just the zoom
