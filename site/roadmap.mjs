@@ -69,7 +69,7 @@ export const ROADMAP = [
   { id: "E6", name: "Performance wins", status: "started", goal: "Smaller and faster every week: the perf harness in CI, the top cost fixed, the win logged.", items: [
     [1, "Perf harness and allocation test in CI on every push"],
     [0, "A weekly run against the baseline"],
-    [0, "A public log of every win"],
+    [1, "A public log of every win: PERF-LOG.md, generated from the measured wins"],
   ] },
   { id: "E7", name: "Page interactions", status: "nearly", goal: "Heroes, diagrams and micro animations on ordinary pages: lazy, contained, settled when still.", items: [
     [1, "slot, the page profile, camera and timeline"],

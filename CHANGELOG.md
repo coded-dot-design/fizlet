@@ -7,12 +7,20 @@
   EXPERIMENTAL, ROADMAP, DEPRECATED, each with written criteria) and per brick `status`, `since`,
   `tests`, `used` (released games and pages that ship it) and `why` (what keeps a BETA brick from
   COMPLETE); `PLANNED` lists the ROADMAP bricks with phase, purpose, size target and dependencies.
-  At 0.19.0: 15 COMPLETE, 8 BETA (grid, camera, hud, match, presence, steer, coach, timeline). The
+  At 0.19.0: 14 COMPLETE, 9 BETA (grid, camera, hud, match, presence, steer, coach, timeline,
+  board-page: tested only in the browser, no allocation test yet). A COMPLETE brick's `used` names
+  the releases that ship it (rules: DOM Battlefield 1.0.0, Blitz 0.8.0+, Null Invaders and Sherman
+  Bytes 1.0). The
   README table gains a Status column and a Status flags section; brick pages show the flag as a
   Board UI status pill with its evidence; the bricks index adds the pills, the criteria and the
   planned bricks; the home page says "public beta" under the byline. `tests/status.test.mjs`
   checks the evidence (test files exist, `since` is a release, COMPLETE names a shipped user, BETA a
   why, planned bricks aren't exported) and that the README agrees.
+- **README sizes come from the build.** `npm run readme:sizes` rewrites the "What's in the box"
+  size column and the kernel's measured bytes from `scripts/sizes.mjs` (the CI budget's measure);
+  `tests/status.test.mjs` fails when the README is stale. Corrected at 0.19.0: kernel 3.4 KB
+  (3,439 B), slot 1.8, board-page 4.0, fx 2.7 (the whole module), camera 1.4, presence/check 4.8,
+  arcade 17.5 / 21.5, ui 2.8 + 4.8 KB css.
 - **Website: the roadmap runs E0 to E16, ticked only with evidence.** E1, E2 (re-scoped: the 22
   bricks shipped; layout, view and actor bricks move to E10/E11) and E4 (re-scoped: two players on
   the live site; Battlefield matches and AI players move to E12) are done; E0, E3, E5–E8 list what's
@@ -26,6 +34,15 @@
   `tests/roadmap.test.mjs` checks phases in order, the launch scope (E0–E8) vs planned (E9–E16),
   ticks that agree with each status, every planned brick under its phase, and that the page shows
   exactly the source.
+- **CI: one run per change, not two.** `Fizlet checks` ran on `push` and `pull_request`, so every
+  push to a branch with an open PR ran the whole workflow twice. Push now runs on `main` only
+  (`tag-version` and `release` are unchanged); branches are checked by their PR run. On
+  2026-10-30, 35 of the 90 runs were these duplicates: 159 of 401 wall minutes (40 %).
+- **`PERF-LOG.md`: every perf win, one measured line each.** Generated from `tests/perf/wins.json`
+  by `node scripts/perf-log.mjs --write` (never by hand); each row has before → after, how it was
+  measured, the test that holds it and the PR. First entries (0.19.0, #67): the fps cap caps rAF
+  (home at 1440, 119.6 → 28.5 rAF/s) and the demo settles (60.4 → 0 rAF/s). `tests/perf-log.test.mjs`
+  fails when the log is stale or an entry has no measured number, PR or test.
 - **Gallery: DOM Virus, two hand-built micro games (pending the owner's approval).** A new theme,
   `dom-virus`, with #047 **Terminal virus**: a worm types itself into a terminal, crawls onto the
   README beside it and eats its real letters (each bite rewrites a character of the page's own
