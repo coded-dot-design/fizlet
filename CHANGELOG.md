@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- **Website: the bricks index has a live diagram** (roadmap E10's acceptance: an interactive diagram
+  on a marketing page that settles to 0 frames). Every module and what it imports: 36 nodes and 49
+  links, read from `src/` at build time (`site/brick-graph.mjs`). There are 25 runtime imports, 10
+  type-only ones (a brick that takes an engine but bundles none of it) and 14 planned `needs`; a new
+  import is a new edge on the next build. It is laid out by `fizlet/layout` and drawn by
+  `fizlet/view-canvas`; drag a brick and the rest flows round it, hover one for its links.
+  `brick-graph.js` is 7,104 B gzip with the kernel, loaded on bricks/index.html only. Measured in
+  Chromium on the built page (every requestAnimationFrame counted from before its scripts run): it
+  settles in ~6 s, then **0 frames a second** still and **0 off screen**; a drag wakes it and it
+  settles again to 0; with reduced motion it settles in ~1 s; Recall is exact.
+  `tests/brick-graph.mjs` runs with `npm run test:site`.
+
 - **`fizlet/layout`** (new brick, EXPERIMENTAL, 1,751 B gz, budget 2,048; roadmap E10):
   force-directed layout on typed arrays with a Barnes-Hut pass, for diagrams and graphs that settle.
   `layout(engine, { cap, links, charge, distance, gravity, cx, cy, theta, keep, ticks, still, motion })`

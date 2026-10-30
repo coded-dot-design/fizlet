@@ -3246,3 +3246,11 @@ html.bui[data-theme="light"] .phases b {
     row-gap: 22px;
   }
 }
+
+/* The bricks index's live diagram (site/brick-graph.ts): the canvas sits in the stage. */
+.bgraph { margin: 0 0 24px; padding: 0; overflow: hidden; }
+.bgraph-stage { aspect-ratio: 16 / 9; touch-action: pan-y; user-select: none; }
+.bgraph figcaption { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 10px 14px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.bgraph-key i { display: inline-block; width: 18px; height: 0; margin: 0 6px 3px 0; border-top: 2px solid var(--muted); vertical-align: middle; }
+.bgraph-key i.k1 { border-top-style: dotted; }
+.bgraph-key i.k2 { border-top-style: dashed; border-color: var(--line); }
