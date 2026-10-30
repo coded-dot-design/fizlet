@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+- **Page-cost gate (`npm run perf:page`, CI `perf` job).** Each page in `tests/perf/page-budgets.json`
+  is loaded live and poster-only (module scripts removed but the site chrome), at desktop and mobile
+  (4× CPU), best of 3; it fails when the live page adds more than CLS 0, a tap on page text +8 / +24 ms
+  or idle CPU +3 / +10 points. Waits count frames, never wall time; the tap is timed in the page at
+  sub-ms resolution. Writes `page-cost-results.json`; on GitHub Actions every result, each run's idle
+  CPU, rAF calls a second by script and layout-shift sources are annotations. Unit tests:
+  `tests/page-cost.test.mjs`.
+  - Measured in CI (six runs, best of 3 each): home desktop idle is +7.0 to +10.7 points against +3,
+    all of it the layers story's 30 fps autoplay (`layers.js` 30 rAF/s; poster page 0). Every CLS
+    and tap measure and home mobile pass in the last four runs (the first two runs showed mobile at
+    30 rAF/s and desktop CLS 0.0008, before the per-script annotations; not seen since).
+  - **One named exception** (`exceptions` in `page-budgets.json`): home desktop idle, tracked as G20
+    (#139, the story on compositor animations). It is reported as a warning on every run and fails
+    past its ceiling, +12 (the highest run, +10.7, plus about a point of runner spread). The budget stays +3. An exception
+    must name a roadmap task, link its tracking issue, say why and record its measured runs; CLS
+    can't be excepted (tested).
 - Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
