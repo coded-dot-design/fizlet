@@ -2057,6 +2057,42 @@ html.bui[data-theme="light"] .phases b {
   max-width: 78ch;
   line-height: 1.6;
 }
+.bp-decl .status-pill {
+  vertical-align: 2px;
+}
+.bp-sig {
+  margin: 0 0 8px;
+}
+.bp-params {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+.bp-params div {
+  display: grid;
+  grid-template-columns: minmax(80px, max-content) 1fr;
+  gap: 12px;
+  min-width: 0;
+}
+.bp-params dt {
+  font: 11px/1.9 var(--mono);
+  color: var(--muted);
+}
+.bp-params dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.bp-params dd small {
+  color: var(--muted);
+}
+.bp-full summary {
+  cursor: pointer;
+  font: 12px var(--mono);
+  color: var(--muted);
+  margin-bottom: 8px;
+}
 .bp-steps {
   display: flex;
   justify-content: space-between;

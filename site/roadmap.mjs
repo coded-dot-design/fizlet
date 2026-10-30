@@ -64,6 +64,7 @@ export const ROADMAP = [
     [1, "Gallery and notes, every number measured on the build"],
     [1, "llms.txt and a sitemap from the same build"],
     [1, "Docs and guides: the contract, the loop, Recall, budgets, determinism; release notes for every version"],
+    [1, "An API reference for every brick, generated at build time by the TypeScript compiler, and llms-full.txt"],
     [1, "Authoring guide and recipes by use case: an action on the page, a shooter, two players"],
     [0, "Live kernel stats on Under the Hood"],
   ] },
