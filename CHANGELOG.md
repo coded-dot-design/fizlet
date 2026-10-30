@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased
+
+- **Phones: taps and swipes never zoom or pan the page** (owner: "for mobile all of our pages right
+  now need to lock down double tap and pinch to zoom… the pages get all out of shape").
+  - **`fizlet/touch`** (new brick, 310 B gzip, budget 512): `lockTouch(doc, sel)`, one delegated,
+    non-passive listener set that cancels iOS Safari's `gesturestart` / `gesturechange` (its pinch
+    ignores `user-scalable=no`) and any multi-touch start or move on the surfaces matching `sel`
+    (default `SURFACES`: slot stages, game hosts, the pad, draggable grips, `[data-touch-lock]`).
+    One finger is never touched, so taps, drags and scrolling stay. `null` locks the whole page (a
+    full-screen board). Returns `release()`.
+  - **Board UI kit (CSS):** `.bui` is `touch-action: manipulation` (no double-tap zoom) with
+    `text-size-adjust: 100%`; game hosts and `[data-touch-lock]` are `touch-action: none`, slots
+    (`.ae-slot`, `[data-fizlet-slot]`, `[data-touch-lock="y"]`) `pan-y`, all
+    `overscroll-behavior: none`. Slots stay `pan-y`, not `none`, so a hero that fills a phone never
+    traps the page's scroll; a swipe game sets `none` on its stage.
+  - **fizlet.com:** every page runs `lockTouch` on the demo surfaces (home demo, brick demos,
+    timeline, labs, slots); they are `pan-y` and the full-screen hero `none`. Content pages keep
+    pinch-zoom on the copy (WCAG 1.4.4); only the double-tap zoom and the surfaces are locked. The
+    fizz example does the same.
+  - `tests/touch.mjs` (Chromium, 390 × 844, touch, mobile; in `test:browser`): pinch, double-tap
+    and swipe on a slot and a game host leave `visualViewport.scale` at 1 and the page 390 wide; a
+    game host never scrolls, the page still scrolls through a slot, the copy still zooms, and the
+    unlocked control page does zoom and scroll. `test:site` checks every page on a phone:
+    `touch-action: manipulation` on the page, every demo surface `none` or `pan-y`.
+
 ## 0.19.0
 
 - **Gallery archive: noindex, nofollow** (owner: "archive the rest somewhere… but definitely no-follow

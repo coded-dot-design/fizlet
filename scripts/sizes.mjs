@@ -36,6 +36,9 @@ export const BUDGETS = [
   // Keyframe tracks, easings (tables), stagger, labels, repeat/yoyo, controls, events, revert:
   // 2,050 B gz when added (target was 1,536; ~110 B of it is the kernel's `need`, shared on a page).
   ["fizlet/timeline", "src/timeline.ts", 2304],
+  // Pinch and iOS gesture lock on the animation and game surfaces, one delegated listener set:
+  // 310 B gz when added.
+  ["fizlet/touch", "src/touch.ts", 512],
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, fizlet/hud included). The Board UI kit CSS is the game's (it bakes
