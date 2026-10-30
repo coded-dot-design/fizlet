@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Website: a `#theme-<id>` address filters the gallery when it changes on the same page too**
+  (`hashchange`), not only on arrival.
 - **Website: gallery #042, "purple bats burst out when you hover".** Made by `fe anim` from the
   prompt (recipe scatter, the critter scene: a bat pixel sprite, the scatter motion; kernel + sprite
   + slot): live 6,148 B · total 8,074 B gzip (with the 1,926 B loader) on this build, loaded only
