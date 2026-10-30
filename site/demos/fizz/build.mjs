@@ -13,11 +13,12 @@ mkdirSync(OUT, { recursive: true });
 mkdirSync("site-dist/examples/fizz", { recursive: true });
 
 // The loader (slot) and the live chunk (the scene), split so the scene loads only when the slot asks.
-const res = await build({
-  entryPoints: { main: `${DIR}/main.ts`, scene: `${DIR}/scene.ts` },
-  outdir: OUT, bundle: true, splitting: true, minify: true, format: "esm", target: "es2022",
-  chunkNames: "chunk-[hash]", legalComments: "none", metafile: true, logLevel: "warning",
-});
+// Two files, no shared chunk: a split costs the scene ~260 B gzip in chunk overhead for the ledger
+// both share; each file carries its own copy instead.
+const opts = { bundle: true, minify: true, format: "esm", target: "es2022", legalComments: "none", metafile: true, logLevel: "warning" };
+const a = await build({ ...opts, entryPoints: { main: `${DIR}/main.ts` }, outdir: OUT, external: ["./scene.js"] });
+const b = await build({ ...opts, entryPoints: { scene: `${DIR}/scene.ts` }, outdir: OUT });
+const res = { metafile: { outputs: { ...a.metafile.outputs, ...b.metafile.outputs } } };
 /** Gzip bytes of an output file plus every chunk it imports statically. */
 const outputs = res.metafile.outputs;
 function bytes(file, seen = new Set()) {
@@ -29,28 +30,36 @@ function bytes(file, seen = new Set()) {
 }
 export const sizes = { loader: bytes(`${OUT}/main.js`), chunk: bytes(`${OUT}/scene.js`) };
 
-// The poster: the same can pixels as an SVG (fizlet/sprite svg()), open, with the drip and the fizz
-// frozen mid-spray. It is the placeholder while the scene loads and the still frame for reduced motion.
-const art = await build({ stdin: { contents: 'export { CAN, C } from "./can.ts"; export { spriteSVG } from "../../../src/sprite.ts";', resolveDir: DIR, loader: "ts" }, bundle: true, format: "esm", write: false, logLevel: "silent" });
-const { CAN, C, spriteSVG } = await import("data:text/javascript;base64," + Buffer.from(art.outputFiles[0].text).toString("base64"));
-const can = spriteSVG(CAN, 1).replace(/^<svg[^>]*>/, '<svg x="-11" y="14" width="22" height="42">');
+// The poster: the same can pixels as SVGs (fizlet/sprite spriteSVG), both views, crunched and open,
+// with the drip and the fizz frozen mid-spray, laid out as the scene lays out a 160 × 100 card. It is
+// the placeholder while the scene loads and the still frame for reduced motion.
+const art = await build({ stdin: { contents: 'export { CAN, TOP, C } from "./can.ts"; export { spriteSVG } from "../../../src/sprite.ts";', resolveDir: DIR, loader: "ts" }, bundle: true, format: "esm", write: false, logLevel: "silent" });
+const { CAN, TOP, C, spriteSVG } = await import("data:text/javascript;base64," + Buffer.from(art.outputFiles[0].text).toString("base64"));
+const nest = (svg, x, y, k) => svg.replace(/^<svg[^>]*width="(\d+)" height="(\d+)"[^>]*>/, (_, w, h) => `<svg x="${x}" y="${y}" width="${w * k}" height="${h * k}" viewBox="0 0 ${w} ${h}">`);
 let seed = 7;
 const rnd = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
+const px = (x, y, n, c) => `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${n}" height="${n}" fill="${c}"/>`;
 let fizzPx = "";
-for (let i = 0; i < 26; i++) {
-  const y = 20 - rnd() * 19, spread = (21 - y) * 0.55, x = 1.5 + (rnd() - 0.5) * spread * 2;
-  fizzPx += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${i % 5 ? 1 : 2}" height="${i % 5 ? 1 : 2}" fill="${i % 3 ? C.ink : C.sys}"/>`;
+for (let i = 0; i < 30; i++) {
+  const y = 17 - rnd() * 17, x = 51 + (rnd() - 0.5) * (19 - y) * 1.3;
+  fizzPx += px(x, y, i % 4 ? 1.5 : 3, i % 3 ? C.ink : C.sys);
 }
-const poster = `<svg class="ae-slot__placeholder fz-poster" viewBox="-50 0 100 64" aria-hidden="true" shape-rendering="crispEdges">` +
-  `<rect x="-11" y="55" width="22" height="2" fill="${C.base}"/>${can}` +
-  `<rect x="6" y="25" width="1" height="26" fill="${C.aim}"/><rect x="6" y="55" width="3" height="1" fill="${C.ink}"/><rect x="7" y="55" width="1" height="1" fill="${C.sys}"/>` +
-  `<rect x="-7" y="25" width="1" height="13" fill="${C.aim}"/><rect x="-7" y="37" width="1" height="2" fill="${C.ink}"/>${fizzPx}</svg>`;
+for (let i = 0; i < 18; i++) {
+  const a = rnd() * Math.PI * 2, r = 4 + rnd() * 14;
+  fizzPx += px(115.5 + Math.cos(a) * r, 29 + Math.sin(a) * r, i % 3 ? 1.5 : 2.5, i % 4 ? C.ink : C.sys);
+}
+const poster = `<svg class="ae-slot__placeholder fz-poster" viewBox="0 0 160 100" aria-hidden="true" shape-rendering="crispEdges">` +
+  `<rect x="26" y="86" width="44" height="4" fill="${C.base}"/>` +
+  nest(spriteSVG(CAN, 3), 26, 4, 2) + nest(spriteSVG(TOP, 1), 81, 11, 3) +
+  `<rect x="62" y="26" width="2" height="52" fill="${C.aim}"/><rect x="62" y="86" width="6" height="2" fill="${C.ink}"/><rect x="64" y="86" width="2" height="2" fill="${C.sys}"/>` +
+  `${fizzPx}` +
+  `</svg>`;
 sizes.poster = gzipSync(poster).length;
 
 const m = existsSync(`${DIR}/measured.json`) ? JSON.parse(readFileSync(`${DIR}/measured.json`, "utf8")) : null;
 const fmt = (n) => n.toLocaleString("en-GB");
 const caption = [
-  `Live chunk <b>${fmt(sizes.chunk)} B</b> gzip (kernel + fx + sprite + camera + the can)`,
+  `Live chunk <b>${fmt(sizes.chunk)} B</b> gzip (kernel + fx + sprite + camera + the can, both views)`,
   `loader <b>${fmt(sizes.loader)} B</b> (fizlet/slot)`,
   `poster <b>${fmt(sizes.poster)} B</b>`,
   ...(m ? [
@@ -60,7 +69,6 @@ const caption = [
 ].join(" · ");
 
 const CSS = `<style>
-.fz-frame { overflow: clip; }
 .fz { padding: 56px 0 72px; }
 .fz-top { display: grid; gap: 28px; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center; }
 @media (max-width: 860px) { .fz-top { grid-template-columns: minmax(0, 1fr); } }
@@ -81,18 +89,17 @@ const CSS = `<style>
 </style>`;
 
 const body = `${CSS}
-<div class="fz-frame"><div data-fizz-zoom>
 <section class="fz" aria-labelledby="fz-title">
   <div class="wrap">
     <div class="fz-top">
       <div>
         <p class="eyebrow"><span class="index">FZ</span> THE NAME · A PROOF PIECE</p>
-        <h1 id="fz-title" class="fz-title">Crack a can.<br><em>The page leans in.</em></h1>
-        <p class="lead">The soda-ad shot: the tab pops, it fizzes, and the camera pushes in on the bubbles and the drip. The camera is the page: fizlet/camera zooms the page itself, and Recall gives it back.</p>
+        <h1 id="fz-title" class="fz-title">Crack the can.<br><em>Hear the fizz.</em></h1>
+        <p class="lead">The soda-ad shot. Tap the can: it crunches, the tab pops, and the fizz sprays clean out of the card. The camera pushes in on the opening, then cuts to the view straight down into the can.</p>
         <p class="lead">By <a href="https://coded.design/">Chris Cooley</a>.</p>
       </div>
       <div class="panel lit fz-board">
-        <figure class="ae-slot ae-slot--16x10" data-slot-target="fizz#hero" role="img" aria-label="An arcade soda can pops open, fizz sprays from the top and a drip runs down the side">${poster}</figure>
+        <figure class="ae-slot ae-slot--16x10" data-slot-target="fizz#hero" role="img" aria-label="An arcade soda can, side and top views: it crunches, the tab pops, fizz sprays up out of the card and a drip runs down the side">${poster}<span class="bui-label" aria-hidden="true" style="position:absolute;bottom:8px;left:10px;z-index:2;pointer-events:none">CAM 1 · SIDE</span><span class="bui-label" aria-hidden="true" style="position:absolute;bottom:8px;right:10px;z-index:2;pointer-events:none">CAM 2 · TOP</span></figure>
         <div class="fz-keys">
           <button class="bui-key bui-arcade bui-attack" type="button" data-fizz-pop>${icon("bolt", 16)}Pop</button>
           <button class="bui-key bui-arcade bui-cmd" type="button" data-fizz-recall>${icon("recall", 16)}Recall</button>
@@ -103,23 +110,22 @@ const body = `${CSS}
     </div>
     <div class="fz-how">
       <div class="panel"><h2>Kernel</h2><p><code>settle</code> and <code>fps: 30</code>. It runs while something moves, then sleeps: no frames at all until a tap.</p></div>
-      <div class="panel"><h2>fizlet/fx</h2><p>Gravity and named kinds as data: spray, bubbles and splash are <code>emit()</code> calls. One fixed pool; a full pool refuses more.</p></div>
-      <div class="panel"><h2>fizlet/sprite</h2><p>The can is 20 × 40 pixels of data, baked once. The poster is the same pixels as an SVG.</p></div>
-      <div class="panel"><h2>fizlet/camera</h2><p>One eased transform on the page, through the ledger. It settles, stays contained, and jumps with reduced motion.</p></div>
+      <div class="panel"><h2>fizlet/fx</h2><p>Two fixed pools. The spray flies on a layer above the card, so nothing crops it; the top view fizzes inside. Geyser, burst, bubbles, rings: kinds as data, sprayed with <code>emit()</code>.</p></div>
+      <div class="panel"><h2>fizlet/sprite</h2><p>The can is pixel data: 20 × 40 from the side, 22 × 22 from the top, crunched or not. Baked once; the poster is the same pixels as SVG.</p></div>
+      <div class="panel"><h2>fizlet/camera</h2><p>It moves inside the card only: in on the opening, across to the top view, home. One eased transform through the ledger; it settles.</p></div>
       <div class="panel"><h2>fizlet/slot</h2><p>Loads near the viewport, on an idle main thread. Reduced motion keeps the still frame; the scene never loads.</p></div>
     </div>
   </div>
-</section>
-</div></div>`;
+</section>`;
 
 writeFileSync(`${OUT}/index.html`, page({
-  title: "Fizz: crack a can, the page leans in · Fizlet",
-  description: `An arcade soda can pops, fizzes and drips while the page zooms in. ${sizes.chunk} B gzip live chunk, by Chris Cooley.`,
+  title: "Fizz: crack the can, hear the fizz · Fizlet",
+  description: `An arcade soda can crunches, pops and sprays fizz out of its card, seen from the side and from the top. ${sizes.chunk} B gzip live chunk, by Chris Cooley.`,
   base: "../../", version, path: "demos/fizz/", body, scripts: ["site.js", "demos/fizz/main.js"],
 }));
 // The example host page, with the real poster and the site's search and sharing tags.
-const example = { title: "Crack a can: the fizz as a Fizlet hero", path: "examples/fizz/",
-  description: "The fizz as a hero on any page: a pixel soda can pops open and fizzes. Tap the can. A Fizlet example by Chris Cooley." };
+const example = { title: "Crack the can: the fizz as a Fizlet hero", path: "examples/fizz/",
+  description: "The fizz as a hero on any page: tap the pixel soda can, it crunches, pops and sprays out of its card. A Fizlet example by Chris Cooley." };
 writeFileSync("site-dist/examples/fizz/index.html", readFileSync("examples/fizz/index.html", "utf8")
   .replace(/<title>[^<]*<\/title>/, `<title>${esc(example.title)}</title>\n<meta name="description" content="${esc(example.description)}">\n${social(example)}\n${jsonLd()}`)
   .replace(/<svg class="ae-slot__placeholder"[^\n]*<\/svg>/, poster));

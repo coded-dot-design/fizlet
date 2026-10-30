@@ -5,15 +5,18 @@
  * fizlet/fx; mounted by fizlet/slot (see entry.ts). The tanks patrol fixed loops, so the hero needs
  * no path search (the grid brick stays out of its 10 KB live budget).
  *
- * Calm: 30 fps cap, and after `loops` cycles with nobody interacting it stops asking for frames and
- * the kernel settles (no requestAnimationFrame at all) on the game frame. A pointer wakes it.
+ * Calm: 30 fps cap, and after `loops` cycles it stops asking for frames and the kernel settles (no
+ * requestAnimationFrame at all) on the game frame. Paused, it settles too.
+ * Controls (poster.ts): the figure's play key and slider send a `lyr` event (0–100 scrubs the
+ * explode/assemble timeline and pauses, -1 toggles play); the scene writes their state back through
+ * its ledger (`--e` on the figure, aria-valuenow, the key's label).
  * Recall: every node it adds goes through the engine's ledger; destroy() gives the stage back.
  */
 import { createEngine } from "../../../src/kernel/index";
 import { spriteURL, type SpriteDef } from "../../../src/sprite";
 import { effects } from "../../../src/fx";
 import type { SlotMount, SlotScene } from "../../../src/slot";
-import { LAYERS, FAULT, fit, COLS, ROWS, CELL, BW, BH, MAP, TILT, TURN, GAP } from "./data";
+import { FAULT, RESERVE, fit, COLS, ROWS, CELL, BW, BH, MAP, TILT, TURN } from "./data";
 
 export interface LayersOptions {
   /** Cycles to run before settling when nobody interacts (default 3). */
@@ -26,10 +29,11 @@ export interface LayersOptions {
 
 // Timeline (seconds into a cycle).
 const PLAY = 4.2, OPEN = 5.6, FAULT_AT = 6.2, SCAN_AT = 6.9, SCAN_END = 8.7, OK_END = 9.4, FOLD_AT = 10, CLOSED = 11.4, CYCLE = 13;
-const N = LAYERS.length, TANKS = 4, SHELLS = 8;
+/** Layer ids, bottom to top (data.ts LAYERS; the labels' text comes from the poster's own). */
+const IDS = "grid characters movement collision rules fx input hud".split(" ");
+const N = IDS.length, TANKS = 4, SHELLS = 8;
 /** Patrol loops (cells: left, top, right, bottom), one per tank; even tanks are green. */
 const LOOP = [[0, 3, 4, 5], [5, 9, 8, 12], [4, 3, 8, 5], [0, 9, 3, 12]];
-const bytes = (l: (typeof LAYERS)[number]) => `${l.bytes.toLocaleString("en-GB")} ${l.unit}`;
 const wall = (x: number, y: number) => MAP[(y / CELL) | 0]?.[(x / CELL) | 0] === "#";
 const smooth = (a: number, b: number, t: number) => {
   const k = t <= a ? 0 : t >= b ? 1 : (t - a) / (b - a);
@@ -54,23 +58,25 @@ const TANK: SpriteDef = {
   outline: "rim",
 };
 
-export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
+/** The cycle time that shows explode amount `v` (0–1): on the opening ramp (inverse smoothstep), or
+ *  just after it opens (labels in, before the fault) for fully open. */
+const timeAt = (v: number) => (v > 0.995 ? OPEN + 0.4 : PLAY + (OPEN - PLAY) * (0.5 - Math.sin(Math.asin(1 - 2 * v) / 3)));
+
+export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLElement = stage): SlotScene {
   const loops = opts.loops ?? 3, speed = opts.speed ?? 1;
   const engine = createEngine({ root: stage, fps: 30, settle: opts.settle ?? 0.5 });
   const rand = engine.random;
-  const W = stage.clientWidth || 360, H = stage.clientHeight || 420; // one read, at mount
+  const W = stage.clientWidth, H = stage.clientHeight; // one read, at mount (the slot sizes the stage)
   // The tanks wear the Board UI kit's tokens (sprites take hex: read them once, here).
-  const cs = getComputedStyle(stage), tok = (v: string, d: string) => cs.getPropertyValue(v).trim() || d;
-  const rim = tok("--rim", "#07060f");
-  const pals: Record<string, string>[] = [{ tread: tok("--raised", "#1d1738"), team: tok("--team-a", "#39ffb0"), hatch: rim, rim }, { team: tok("--team-b", "#ff5c8f") }];
-
-  // ---------- fit: game pose and exploded pose (orthographic estimate, no DOM reads) ----------
-  const { sp, se, ex, ey } = fit(W, H);
+  // The figure is a .bui root on a page with board-ui.css (every colour here is a kit token).
+  const cs = getComputedStyle(stage), tok = (v: string) => cs.getPropertyValue(v).trim();
+  const rim = tok("--rim");
+  const pals: Record<string, string>[] = [{ tread: tok("--raised"), team: tok("--team-a"), hatch: rim, rim }, { team: tok("--team-b") }];
 
   // ---------- DOM: one stack, eight layers ----------
   const root = engine.ledger.add(document.createElement("div"));
   root.className = "lz";
-  root.style.setProperty("--se", `${se}`);
+  root.style.setProperty("--se", "1");
   root.innerHTML = `<div class="lz-s"></div>`; // styles: SCENE_CSS (css.ts), inline on the host page
   const stack = root.lastElementChild as HTMLElement;
   const el = (parent: HTMLElement, cls: string, x = 0, y = 0) => {
@@ -80,13 +86,26 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
     return parent.appendChild(e) as HTMLElement;
   };
   const layers: HTMLElement[] = [], tags: HTMLElement[] = [];
+  const names = fig.querySelectorAll(".lyr__t"), slider = fig.querySelector<HTMLElement>("[role=slider]"), key = fig.querySelector<HTMLElement>(".lyr__play");
+  const bytesText = names[FAULT]?.lastElementChild?.textContent ?? "";
   for (let i = 0; i < N; i++) {
     const l = el(stack, i ? "lz-l" : "lz-l lz-g");
-    l.dataset.layer = LAYERS[i]!.id;
+    l.dataset.layer = IDS[i]!;
     const t = el(l, "lz-tag");
-    t.innerHTML = `${LAYERS[i]!.name} <u>· ${bytes(LAYERS[i]!)}</u>`;
+    t.innerHTML = names[i]?.innerHTML ?? ""; // the poster's own label (name · measured bytes)
     layers.push(l), tags.push(t);
   }
+  // ---------- fit: game pose and exploded pose ----------
+  // One layout read, here at mount: the widest label at its on-screen size (--se 1 = 11px text), so
+  // the stack leaves room for the labels in whatever monospace font this device has.
+  stage.append(root);
+  let lw = 0;
+  for (const t of tags) lw = Math.max(lw, t.offsetWidth);
+  // Controls keep a column on each side (landscape) or a row at the bottom (portrait).
+  const land = W > H, R = RESERVE;
+  const { sp, se, ex, g } = fit(land ? W - 2 * R : W, land ? H : H - R, lw + 14); // + 10px margin, 4px slack
+  const oy = land ? 0 : -R / 2;
+  root.style.setProperty("--se", `${se}`);
   const [gridL, charL, moveL, colL, rulesL, fxL, inL, hudL] = layers as [HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement];
   // Collision: the fixed copy, revealed by the scan, over the broken one.
   const fixed = el(colL, "lz-x");
@@ -98,14 +117,14 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
     }
   const scan = el(colL, "lz-scan");
   // Rules: spawn pads in the corners.
-  for (const [c, r] of [[0, 0], [8, 12], [8, 0], [0, 12]]) el(rulesL, "lz-p", c! * CELL, r! * CELL);
+  for (let k = 0; k < 4; k++) el(rulesL, "lz-p", (k & 1) * (COLS - 1) * CELL, (k >> 1) * (ROWS - 1) * CELL);
   // Effects: the fx brick draws on its own canvas inside its layer.
   const cv = el(fxL, "canvas") as HTMLCanvasElement;
   cv.className = "lz-cv";
-  const dpr = Math.min(2, devicePixelRatio || 1);
+  const dpr = Math.min(2, devicePixelRatio);
   cv.width = BW * dpr, cv.height = BH * dpr;
-  const ctx = cv.getContext("2d");
-  ctx?.scale(dpr, dpr);
+  const ctx = cv.getContext("2d")!; // a fresh canvas always has a 2D context
+  ctx.scale(dpr, dpr);
   const fx = effects({ cap: 160, scorch: 12 });
   // Input: the aim line (the intent the lead tank follows).
   const aim = el(inL, "lz-a");
@@ -113,11 +132,11 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
   el(inL, "bui-key bui-arcade bui-fire lz-fire").textContent = "FIRE";
   // HUD.
   const hud = el(hudL, "lz-hud");
-  hud.innerHTML = "<b>GREEN 0</b><span>0:00</span><i>PINK 0</i>";
-  const [hudA, hudT, hudB] = hud.children as unknown as [HTMLElement, HTMLElement, HTMLElement];
+  hud.innerHTML = "<b>GREEN 0</b><span>VS</span><i>PINK 0</i>";
+  const [hudA, , hudB] = hud.children as unknown as [HTMLElement, HTMLElement, HTMLElement];
 
   // Characters, their hitboxes and their patrol loops (the movement layer).
-  const TX = new Float64Array(TANKS), TY = new Float64Array(TANKS), TA = new Float64Array(TANKS), COOL = new Float64Array(TANKS), HIT = new Float64Array(TANKS);
+  const TX = new Float64Array(TANKS), TY = new Float64Array(TANKS), TA = new Float64Array(TANKS), COOL = new Float64Array(TANKS);
   const AT = new Int32Array(TANKS); // the loop corner each tank drives to next
   const tankEl: HTMLElement[] = [], boxEl: HTMLElement[] = [];
   // Loop corners clockwise from the top left: k & 3 = 0 TL, 1 TR, 2 BR, 3 BL (cell centres, px).
@@ -142,7 +161,11 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
   const score = new Int32Array(2);
 
   // ---------- the game (fixed step, no DOM) ----------
-  const phase = new Float64Array(3); // time in cycle, cycles done, game clock
+  const phase = new Float64Array(2); // time in cycle, cycles done
+  // Start where the controls are (the visitor may have scrubbed or paused before the chunk loaded).
+  const v0 = +(slider?.getAttribute("aria-valuenow") ?? 0);
+  let play = key?.getAttribute("aria-label") !== "Play";
+  if (v0 > 0) phase[0] = timeAt(v0 / 100);
   function fire(i: number) {
     let best = 0, d2 = 1e9;
     for (let j = 1 - (i & 1); j < TANKS; j += 2) {
@@ -161,17 +184,15 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
   const faulted = () => phase[0]! >= FAULT_AT && phase[0]! < SCAN_END;
   engine.add({
     step(e, dt) {
-      // Done: the last cycle ended in game mode; stop asking for frames and the kernel settles.
-      if (phase[1]! >= loops) return;
+      // Paused, or done (the last cycle ended in game mode): no busy(), so the kernel settles.
+      if (!play || phase[1]! >= loops) return;
       e.busy();
       phase[0]! += dt * speed;
-      phase[2]! += dt;
       if (phase[0]! >= CYCLE) {
         phase[0]! -= CYCLE;
         if (++phase[1]! >= loops) phase[0] = 0; // rest exactly on the game frame
       }
       for (let i = 0; i < TANKS; i++) {
-        HIT[i] = Math.max(0, HIT[i]! - dt);
         const gx = corner(i, AT[i]!, 0), gy = corner(i, AT[i]!, 1);
         const dx = gx - TX[i]!, dy = gy - TY[i]!, d = Math.hypot(dx, dy), v = 38 * dt;
         if (d <= v) (TX[i] = gx), (TY[i] = gy), AT[i]!++;
@@ -197,7 +218,6 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
           if ((j & 1) === (SO[s]! & 1) || (SX[s]! - TX[j]!) ** 2 + (SY[s]! - TY[j]!) ** 2 > 110) continue;
           fx.blast(TX[j]!, TY[j]!, 0.7, j & 1 ? 3 : 5);
           score[SO[s]! & 1]!++;
-          HIT[j] = 0.3;
           SL[s] = 0;
           break;
         }
@@ -208,18 +228,22 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
       const t = phase[0]!;
       const open = t < FOLD_AT ? smooth(PLAY, OPEN, t) : 1 - smooth(FOLD_AT, CLOSED, t);
       const s = sp + (se - sp) * open;
-      stack.style.transform = `translate(${ex * open}px,${ey * open}px) scale(${s}) rotateX(${TILT * open}deg) rotateZ(${TURN * open}deg)`;
+      // Labels only while the stack is fully open: in after it opens, out before the fold starts,
+      // so they never move, scale or crowd while the layers travel.
+      const label = smooth(OPEN, OPEN + 0.3, t) * (1 - smooth(FOLD_AT - 0.3, FOLD_AT, t));
+      stack.style.transform = `translate(${ex * open}px,${oy}px) scale(${s}) rotateX(${TILT * open}deg) rotateZ(${TURN * open}deg)`;
       for (let i = 0; i < N; i++) {
         const l = layers[i]!;
-        l.style.transform = `translateZ(${(i - (N - 1) / 2) * GAP * open}px)`;
+        l.style.transform = `translateZ(${(i - (N - 1) / 2) * g * open}px)`;
         tags[i]!.style.transform = `rotateZ(${-TURN * open}deg) rotateX(${-TILT * open}deg)`;
-        tags[i]!.style.opacity = `${smooth(0.6, 1, open)}`;
+        tags[i]!.style.opacity = `${label}`;
       }
       // Fault, scan, patch, green.
       const bad = t >= FAULT_AT && t < SCAN_END, ok = t >= SCAN_END && t < OK_END;
       const p = smooth(SCAN_AT, SCAN_END, t);
-      // Classes: o = open (layer plates show), f = fault or fix (others dim), b = broken, k = patched.
-      root.className = `lz${open > 0.02 ? " o" : ""}${bad || ok ? " f" : ""}${bad ? " b" : ok ? " k" : ""}`;
+      // State classes (namespaced: a host page may style .o or .k): lz--o open (layer plates show),
+      // lz--f fault or fix (others dim), lz--b broken, lz--k patched.
+      root.className = `lz${open > 0.02 ? " lz--o" : ""}${bad || ok ? " lz--f" : ""}${bad ? " lz--b" : ok ? " lz--k" : ""}`;
       colL.style.setProperty("--g", `${Math.round(50 * (1 - smooth(SCAN_END, OK_END, t)))}%`);
       const h = `${t >= SCAN_AT && t < OK_END ? p * BH : t >= OK_END || t < FAULT_AT ? BH : 0}px`;
       if (fixed.style.height !== h) fixed.style.height = h;
@@ -229,14 +253,13 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
       const word = bad ? (t < SCAN_AT ? "FAULT" : "SCANNING") : ok ? "PATCHED" : "";
       if (tag.dataset.state !== word) {
         tag.dataset.state = word;
-        tag.lastElementChild!.textContent = `· ${word || bytes(LAYERS[FAULT]!)}`;
+        tag.lastElementChild!.textContent = word ? `· ${word}` : bytesText;
       }
       // Game-mode helpers (paths, hitboxes, rules) show only when the stack is open.
       moveL.style.opacity = rulesL.style.opacity = `${open}`;
       // Characters and hitboxes.
       for (let i = 0; i < TANKS; i++) {
         tankEl[i]!.style.transform = `translate(${TX[i]! - 13.5}px,${TY[i]! - 13.5}px) rotate(${TA[i]}rad)`;
-        tankEl[i]!.style.filter = HIT[i]! > 0 ? "brightness(2.2)" : "";
         boxEl[i]!.style.transform = `translate(${TX[i]}px,${TY[i]}px)`;
       }
       for (let s = 0; s < SHELLS; s++) {
@@ -246,32 +269,33 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}): SlotScene {
       // Input: the line points along the lead tank's aim.
       aim.style.transform = `translate(${TX[0]}px,${TY[0]}px) rotate(${TA[0]! - Math.PI / 2}rad)`;
       // HUD: change-only text.
-      const sec = Math.floor(phase[2]!), clock = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
-      if (hudT.textContent !== clock) hudT.textContent = clock;
-      if (hudA.dataset.n !== `${score[0]}`) (hudA.dataset.n = `${score[0]}`), (hudA.textContent = `GREEN ${score[0]}`);
-      if (hudB.dataset.n !== `${score[1]}`) (hudB.dataset.n = `${score[1]}`), (hudB.textContent = `PINK ${score[1]}`);
-      if (ctx) {
-        ctx.clearRect(0, 0, BW, BH);
-        fx.drawGround(ctx);
-        fx.draw(ctx);
-      }
+      const a = `GREEN ${score[0]}`, b = `PINK ${score[1]}`;
+      if (hudA.textContent !== a) hudA.textContent = a;
+      if (hudB.textContent !== b) hudB.textContent = b;
+      ctx.clearRect(0, 0, BW, BH);
+      fx.drawGround(ctx);
+      fx.draw(ctx);
+      // The controls follow the story (through the ledger: Recall gives them back).
+      const L = engine.ledger, pct = `${Math.round(open * 100)}`;
+      L.style(fig, "--e", `${open}`);
+      if (slider) L.attr(slider, "aria-valuenow", pct);
+      if (key) L.attr(key, "aria-label", play && phase[1]! < loops ? "Pause" : "Play");
     },
   });
-  // Interaction wakes it for another round of cycles.
-  const again = () => {
-    if (phase[1]! < loops) return;
-    phase[1] = Math.max(0, loops - 1);
+  // The controls: -1 toggles play (a finished run starts its cycles again), 0–100 scrubs and pauses.
+  fig.addEventListener("lyr", (ev) => {
+    const d = (ev as CustomEvent<number>).detail;
+    if (d >= 0) (play = false), (phase[0] = timeAt(d / 100));
+    else if (play && phase[1]! < loops) play = false;
+    else (play = true), phase[1]! >= loops && (phase[1] = 0);
     engine.wake();
-  };
-  stage.addEventListener("pointerdown", again, { signal: engine.signal });
-  stage.addEventListener("pointerenter", again, { signal: engine.signal });
-  stage.append(root);
+  }, { signal: engine.signal });
   engine.start();
   return { destroy: () => engine.destroy() };
 }
 
-/** For fizlet/slot: reads `data-loops` / `data-settle` from the slot figure. */
+/** For fizlet/slot: reads `data-loops` / `data-speed` from the slot figure. */
 export const mountSlot: SlotMount = (stage, slotEl) => {
-  const n = (k: string) => (slotEl.dataset[k] != null ? Number(slotEl.dataset[k]) : undefined);
-  return mount(stage, { loops: n("loops"), settle: n("settle"), speed: n("speed") });
+  const d = slotEl.dataset; // missing or 0 → the defaults (3 cycles, speed 1)
+  return mount(stage, { loops: +d.loops! || 3, speed: +d.speed! || 1 }, slotEl);
 };

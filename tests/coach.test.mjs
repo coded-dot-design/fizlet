@@ -1,11 +1,9 @@
 // fizlet/coach: tour steps and tips frame by frame like DOM Battlefield Blitz's practice coach, flag
-// reads and writes like DOM Battlefield's tips switch (and survives blocked storage), the card shows
-// and rings in a real browser, and tour allocates nothing per frame.
+// reads and writes like DOM Battlefield's tips switch (and survives blocked storage), and tour
+// allocates nothing per frame. The card, in a real browser, is tests/coach.mjs (npm run test:browser).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { build } from "esbuild";
 import { minorGCs } from "./gc.mjs";
-import { launchOptions } from "./chromium.mjs";
 
 const { createEngine } = await import("../src/index.ts");
 const { tour, flag } = await import("../src/coach.ts");
@@ -104,49 +102,6 @@ test("flag: the same answers as Battlefield's tips switch, and never throws", ()
   delete globalThis.localStorage;
   assert.equal(tips.on, false);
   tips.mark();
-});
-
-test("card: shows the step, writes only changes, rings its control, ends (Chromium)", async (t) => {
-  let chromium;
-  try {
-    ({ chromium } = await import("playwright"));
-  } catch {
-    return t.skip("needs playwright");
-  }
-  const js = (await build({ entryPoints: ["src/coach.ts"], bundle: true, format: "iife", globalName: "coach", write: false, logLevel: "silent" })).outputFiles[0].text;
-  const browser = await chromium.launch(launchOptions());
-  try {
-    const page = await browser.newPage();
-    await page.setContent('<div id=host class=bui style="position:relative;width:600px;height:400px"><button id=fire data-k=fire>FIRE</button></div>');
-    await page.addStyleTag({ path: "src/ui/board-ui.css" });
-    await page.addScriptTag({ content: js });
-    const r = await page.evaluate(async () => {
-      const host = document.getElementById("host"), fire = document.getElementById("fire");
-      let ended = 0, muts = 0;
-      const c = coach.card(host, { onEnd: () => ended++ });
-      const hidden0 = c.el.hidden;
-      c.show("2/10", "FIRE", "Click, Space, or hold FIRE.", fire);
-      const shown = [c.el.hidden, c.el.textContent, fire.style.outline, getComputedStyle(c.el).borderStyle];
-      const obs = new MutationObserver((l) => (muts += l.length));
-      obs.observe(host, { subtree: true, childList: true, characterData: true, attributes: true });
-      c.show("2/10", "FIRE", "Click, Space, or hold FIRE.", fire);
-      await new Promise((r) => setTimeout(r));
-      const same = muts;
-      c.el.querySelector("button").click();
-      c.hide();
-      await new Promise((r) => setTimeout(r));
-      return { hidden0, shown, same, ended, after: [c.el.hidden, fire.style.outline] };
-    });
-    assert.equal(r.hidden0, true, "hidden until shown");
-    assert.deepEqual(r.shown.slice(0, 2), [false, "2/10FIRETEXT".replace("TEXT", "Click, Space, or hold FIRE.") + "END PRACTICE"]);
-    assert.match(r.shown[2], /dashed/, "the control it is about gets the dashed ring");
-    assert.equal(r.shown[3], "dashed", "Battlefield's dashed card border");
-    assert.equal(r.same, 0, "showing the same card again writes nothing");
-    assert.equal(r.ended, 1);
-    assert.deepEqual(r.after, [true, ""], "hide clears the ring");
-  } finally {
-    await browser.close();
-  }
 });
 
 test("tour: zero allocation across 1M frames (against a bare engine)", async (t) => {

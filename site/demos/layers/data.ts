@@ -62,15 +62,25 @@ export const ARIA =
   "The collision layer turns red with a fault, a scan passes over it and patches it, it flashes green, " +
   "and the stack folds back into the game. It loops.";
 
-/** Width the labels take beside the exploded stack (screen px). */
-export const LABEL_W = 176;
+/** Width the labels take beside the exploded stack (screen px): the longest label, "Input intents ·
+ *  2,627 B gz" (26 mono characters at 11px ≈ 172px), plus padding, border and the 10px margin. */
+export const LABEL_W = 204;
+/** Label pitch (screen px): one label is 21px tall (11px text, 3px padding, 2px border, each side);
+ *  the exploded gap between layers widens so labels never sit closer than this. 28, not 22: the
+ *  perspective draws the far (lower) layers a few % smaller, so their pitch shrinks a little too. */
+export const PITCH = 28;
+/** Room the controls keep (screen px): a column on each side in landscape (play key, slider), a row
+ *  at the bottom in portrait. */
+export const RESERVE = 56;
+/** sin(TILT): how much of the layer gap shows as vertical spacing on screen. */
+export const SIN_TILT = Math.sin((TILT * Math.PI) / 180);
 
 /**
- * Fit a W × H stage: `sp` the game-pose scale; `se`, `ex`, `ey` the exploded pose's scale and
- * offset (screen px). An orthographic estimate of the stack's corners: pure maths, no DOM reads.
+ * Fit a W × H stage: `sp` the game-pose scale; `se`, `ex` the exploded pose's scale and
+ * x offset (screen px; the stack is centred vertically). An orthographic estimate of the stack's corners: pure maths, no DOM reads.
  */
-export function bounds() {
-  const D = Math.PI / 180, n = 8;
+export function bounds(n = 8) {
+  const D = Math.PI / 180;
   const st = Math.sin(TURN * D), ct = Math.cos(TURN * D), sa = Math.sin(TILT * D), ca = Math.cos(TILT * D);
   let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
   for (let i = 0; i < n; i++) {
@@ -83,11 +93,17 @@ export function bounds() {
   }
   return { w: x1 - x0, h: y1 - y0, cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 };
 }
-/** bounds(), precomputed for the live chunk: the stack is symmetric (centre 0, 0). build.mjs fails
- *  if these drift from bounds(). */
-export const BOUNDS = { w: 358.14, h: 479.09 };
-export function fit(W: number, H: number) {
+/** bounds() and bounds(1) (one board, no gap), precomputed for the live chunk: the stack is
+ *  symmetric (centre 0, 0). build.mjs fails if these drift from the formula. */
+export const BOUNDS = { w: 358.14, h: 479.09, hb: 212.14 };
+/**
+ * The exploded gap (layer px) at scale `se`: GAP, or wider so the labels keep PITCH on screen.
+ */
+export const gap = (se: number) => Math.max(GAP, PITCH / (SIN_TILT * se));
+/** `lw`: the labels' width beside the stack (screen px), measured by the scene; LABEL_W by default. */
+export function fit(W: number, H: number, lw = LABEL_W) {
   const sp = Math.min((W - 24) / (BW + 16), (H - 24) / (BH + 20));
-  const se = Math.min((W - 28 - LABEL_W) / BOUNDS.w, (H - 24) / BOUNDS.h);
-  return { sp, se, ex: -LABEL_W / 2, ey: 0 };
+  // Height: the stack at GAP, and the board plus 7 label pitches when the gap has to widen.
+  const se = Math.min((W - 28 - lw) / BOUNDS.w, (H - 24) / BOUNDS.h, (H - 24 - 7 * PITCH) / BOUNDS.hb);
+  return { sp, se, ex: -lw / 2, g: gap(se) };
 }
