@@ -142,7 +142,7 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
 /**
  * ROADMAP bricks: planned, not in the package. [{ name, phase, purpose, target, needs }]: `target`
  * is the size budget it is planned under (bytes gzip, a goal until measured); `needs` the bricks it
- * builds on. The phases are the roadmap on the home page (E9–E16).
+ * builds on. Each phase is a planned phase of site/roadmap.mjs (E9–E16), which lists these under it.
  */
 export const PLANNED = [
   { name: "fizlet/layout", phase: "E10", purpose: "Force-directed layout on typed arrays with a Barnes-Hut pass: diagrams and graphs that settle.", target: 2048, needs: ["fizlet", "fizlet/camera"] },
