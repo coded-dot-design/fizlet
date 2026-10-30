@@ -50,6 +50,7 @@ export function offscreen(w: number, h: number) {
 }
 
 // ---------- Fonts: glyph rows as bits, looked up by char code (no allocation when printing) ----------
+// Each table is built by a pure call: a piece that never uses one of the fonts doesn't ship its table.
 const font = (w: number, h: number, src: Record<string, string>) => {
   const t: number[][] = [];
   for (const ch in src) {
@@ -65,7 +66,7 @@ const font = (w: number, h: number, src: Record<string, string>) => {
 };
 
 /** 3 × 5 caption font: A–Z, 0–9 and a little punctuation. */
-const F3 = font(3, 5, {
+const F3 = /* @__PURE__ */ font(3, 5, {
   A: ".#. #.# ### #.# #.#", B: "##. #.# ##. #.# ##.", C: ".## #.. #.. #.. .##", D: "##. #.# #.# #.# ##.",
   E: "### #.. ##. #.. ###", F: "### #.. ##. #.. #..", G: ".## #.. #.# #.# .##", H: "#.# #.# ### #.# #.#",
   I: "### .#. .#. .#. ###", J: "..# ..# ..# #.# .#.", K: "#.# #.# ##. #.# #.#", L: "#.. #.. #.. #.. ###",
@@ -81,7 +82,7 @@ const F3 = font(3, 5, {
 });
 
 /** 7 × 9 sound-effect font, two-pixel strokes: just the letters the pieces shout. */
-const F7 = font(7, 9, {
+const F7 = /* @__PURE__ */ font(7, 9, {
   P: "######. ####### ##...## ##...## ####### ######. ##..... ##..... ##.....",
   O: ".#####. ####### ##...## ##...## ##...## ##...## ##...## ####### .#####.",
   W: "##...## ##...## ##...## ##.#.## ##.#.## ####### ####### ###.### ##...##",
