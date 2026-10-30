@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.19.0
 
 - **Gallery: the "how it works" labs, #42–#46.** DOM VIRUS's five Under the hood labs move onto
   Fizlet as scenes in `site/labs/` (one source: the hub vendors them): pool ("One loop. Bounded
@@ -92,6 +92,47 @@
   `coach` passed an optional `signal` straight into listener options, which strict consumers (the
   arcade games) reject; 0.18.0 broke their typecheck. Same runtime, no byte change. `npm run
   typecheck` now also runs with `exactOptionalPropertyTypes`, so it can't regress.
+- **Website: gallery #032, "the transformer fights the diffuser to a KO".** Made by `fe anim` from
+  the prompt (recipe fight, the fight scene, gag ko; kernel + sprite + fx + slot): live 9,490 B ·
+  total 11,416 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never
+  under reduced motion; settles to zero frames.
+- **Website: gallery #033, "the tokenizer counts tokens in a punch combo".** Made by `fe anim` from
+  the prompt (recipe fight, the fight scene, gag combo; kernel + sprite + fx + slot): live 9,493 B ·
+  total 11,419 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never
+  under reduced motion; settles to zero frames.
+- **Website: gallery #034, "the context window takes punches until it overflows".** Made by `fe
+  anim` from the prompt (recipe fight, the fight scene, gag overflow; kernel + sprite + fx + slot):
+  live 9,492 B · total 11,418 B gzip (with the 1,926 B loader) on this build, loaded only near the
+  viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #035, "the hallucinator punches a mirage".** Made by `fe anim` from the prompt
+  (recipe fight, the fight scene, gag hallucinate; kernel + sprite + fx + slot): live 9,491 B ·
+  total 11,417 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never
+  under reduced motion; settles to zero frames.
+- **Website: gallery #036, "the overfitter blocks every jab it trained on".** Made by `fe anim` from
+  the prompt (recipe fight, the fight scene, gag overfit; kernel + sprite + fx + slot): live 9,494 B
+  · total 11,420 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport,
+  never under reduced motion; settles to zero frames.
+- **Website: gallery #037, "the diffuser denoises out of static and wins".** Made by `fe anim` from
+  the prompt (recipe fight, the fight scene, gag diffuse; kernel + sprite + fx + slot): live 9,489 B
+  · total 11,415 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport,
+  never under reduced motion; settles to zero frames.
+- **Website: gallery #038, "a to the moon rocket launches off a button".** Made by `fe anim` from
+  the prompt (recipe meme, the meme scene, bit rocket; kernel + sprite + fx + slot): live 9,233 B ·
+  total 11,159 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never
+  under reduced motion; settles to zero frames.
+- **Website: gallery #039, "diamond hands sparkle and never let go".** Made by `fe anim` from the
+  prompt (recipe meme, the meme scene, bit diamond; kernel + sprite + fx + slot): live 9,240 B ·
+  total 11,166 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never
+  under reduced motion; settles to zero frames.
+- **Website: gallery #040, "a candle chart pumps then dumps".** Made by `fe anim` from the prompt
+  (recipe meme, the meme scene, bit candles; kernel + sprite + fx + slot): live 9,238 B · total
+  11,164 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under
+  reduced motion; settles to zero frames.
+- **Website: gallery #041, "laser eyes mascot powers on and fires".** Made by `fe anim` from the
+  prompt (recipe meme, the meme scene, bit laser; kernel + sprite + fx + slot): live 9,239 B · total
+  11,165 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under
+  reduced motion; settles to zero frames.
+
 ## 0.18.0
 - **`fizlet/arcade` canvas fills its root on 2x/zoomed screens** (`width:100%;height:100%`): the backing store is `innerWidth × dpr` with no CSS size, so it drew 1.5–2× too big and game art sat away from the page targets (owner report; from fizlet#60).
 - **Arcade: an array of controls and scoreboards (`hud`)**, the first step of the plan to make
@@ -206,6 +247,30 @@
   from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,766 B · total 8,692 B
   gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
   motion; settles to zero frames.
+- **Website: gallery #027, "bat blaster: tap to shoot the swooping pixel bats before they fly off
+  across the page".** Made by `fe anim` from the prompt (recipe bats, a playable Halloween hero;
+  kernel + fx + sprite + slot): live 9,671 B · total 11,597 B gzip (with the 1,926 B loader) on this
+  build, loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #028, "pumpkin smash: whack the jack-o-lanterns as they pop up, pixel goo
+  bursts".** Made by `fe anim` from the prompt (recipe smash, a playable Halloween hero; kernel + fx
+  + sprite + slot): live 9,471 B · total 11,397 B gzip (with the 1,926 B loader) on this build,
+  loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #029, "pumpkin slice: swipe through the pumpkins as they arc up, halves and
+  seeds fall".** Made by `fe anim` from the prompt (recipe slice, a playable Halloween hero; kernel
+  + fx + sprite + slot): live 9,700 B · total 11,626 B gzip (with the 1,926 B loader) on this build,
+  loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #030, "haunted page: a ghost drifts over the headings and makes the letters
+  shiver".** Made by `fe anim` from the prompt (recipe haunt, a playable Halloween hero that reads
+  the page's own headings and writes only through the ledger; kernel + board-page + sprite + slot):
+  live 9,541 B · total 11,467 B gzip (with the 1,926 B loader) on this build, loaded only near the
+  viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #031, "candy cauldron: tap to drop candy into a bubbling cauldron and watch it
+  fizz".** Made by `fe anim` from the prompt (recipe cauldron, a playable Halloween hero; kernel +
+  fx + sprite + slot): live 9,638 B · total 11,564 B gzip (with the 1,926 B loader) on this build,
+  loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: the gallery theme filter follows the address.** A `#theme-` link to the page you are
+  on (or back) now filters too, not only on arrival (`hashchange`); it showed once there were two
+  themes.
 
 ## 0.17.0
 
