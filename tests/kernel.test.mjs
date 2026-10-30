@@ -99,23 +99,24 @@ function settleRun({ settle = 0.6, hold = null, at = 0, frameMs = 1000 / 60, fra
   return settled;
 }
 
-test("busy(sec) holds a settling engine awake past settle; it settles as soon as the hold ends", () => {
+test("busy(sec) holds a settling engine awake for sec of its own time, then settle counts", () => {
   // An intro that waits 1.5 s with settle 0.6: without a hold the engine sleeps at 0.6 s.
   const plain = settleRun({ hold: null });
   assert.ok(plain >= 36 && plain <= 37, `busy() alone: asleep after 0.6 s (36 steps): ${plain}`);
   const held = settleRun({ hold: 1.5 });
   assert.ok(held >= 90, `busy(1.5): awake for the whole 1.5 s (90 steps), settled after ${held}`);
-  assert.ok(held <= 92, `busy(1.5): settles right after the hold (quiet time counted meanwhile), not 0.6 s later: ${held}`);
+  assert.ok(held >= 126 && held <= 127, `busy(1.5): then settle (0.6 s) counts from the end of the hold: ${held}`);
   // The #026 shape: a 0.6 s wait against a 0.6 s settle.
   assert.ok(settleRun({ hold: 0.6 }) >= 36, "busy(0.6) with settle 0.6: still awake when the wait ends");
   // A janky display: 250 ms frames run 4 steps (the rest is dropped), so wall time outruns the
-  // engine's own. The hold is in steps, so the scheduled thing still comes first.
-  assert.ok(settleRun({ hold: null, frameMs: 250 }) < 36, "busy() alone on 250 ms frames: asleep before 0.6 s of its own time");
+  // engine's own. Settle and holds count engine time, so neither sleeps early.
+  const jankPlain = settleRun({ hold: null, frameMs: 250 });
+  assert.ok(jankPlain >= 36 && jankPlain <= 40, `busy() alone on 250 ms frames: settles after 0.6 s of its own time, not of wall time: ${jankPlain}`);
   const janky = settleRun({ hold: 1.5, frameMs: 250 });
-  assert.ok(janky >= 90, `busy(1.5) on 250 ms frames: awake for 90 steps of its own time, settled after ${janky}`);
-  // A hold shorter than settle changes nothing: the same step as busy().
-  assert.equal(settleRun({ hold: 0.2 }), settleRun({ hold: null }), "busy(0.2) with settle 0.6: settles exactly as busy() does");
-  assert.equal(settleRun({ hold: 0.2, at: 30 }), settleRun({ hold: null, at: 30 }), "and the same from mid-run");
+  assert.ok(janky >= 126, `busy(1.5) on 250 ms frames: awake for 90 steps of its own time, then settle: ${janky}`);
+  // Mid-run, a hold extends from where it is asked.
+  const mid = settleRun({ hold: 0.2, at: 30 });
+  assert.ok(mid >= 30 + 48 && mid <= 30 + 49, `busy(0.2) at step 30: awake 0.2 s, then 0.6 s settle: ${mid}`);
   // A later, shorter hold never cuts an earlier, longer one short.
   const e = createEngine({ settle: 0.1 });
   e.add({ step: (x) => (x.steps === 0 && x.busy(1), x.steps === 10 && x.busy(0.05)) });
@@ -126,8 +127,18 @@ test("busy(sec) holds a settling engine awake past settle; it settles as soon as
   for (let i = 0; i < 30; i++) flush((t += 1000 / 60));
   assert.deepEqual(e.paused, ["settled"], "and then it settles");
   e.destroy();
-  // A NaN hold (a delay computed from nothing) holds nothing: it settles as busy() would.
+  // A hold asked before the engine runs (a scene's intro, set at mount) survives start() and wake().
+  const g = createEngine({ settle: 0.6 });
+  g.busy(1.5);
+  g.start();
+  g.wake();
+  let gt = 0, gs = null;
+  for (let i = 0; i < 400 && gs == null; i++) (flush((gt += 1000 / 60)), !g.running && (gs = g.steps));
+  assert.ok(gs >= 126, `busy(1.5) before start, then wake(): still held, then settle: ${gs}`);
+  g.destroy();
+  // 0 or NaN (a delay computed from nothing) is plain busy().
   assert.equal(settleRun({ hold: NaN }), settleRun({ hold: null }), "busy(NaN): settles as busy() does");
+  assert.equal(settleRun({ hold: 0 }), settleRun({ hold: null }), "busy(0): settles as busy() does");
   // Without settle, a hold is a no-op.
   const f = createEngine();
   f.add({ step: (x) => x.busy(0.5) });

@@ -2,13 +2,12 @@
 // story to the end before its engine settles. Each entry runs alone on its own gallery page
 // (site-dist/, the real figure and stage), with its live chunk rebuilt here from the same module
 // and one probe in the kernel: after each frame it reports whether the frame counted as busy
-// (`busy()` was called, or a `busy(sec)` hold was still running).
+// (`busy()` was called in it, or a `busy(sec)` hold is still ahead of the engine's time).
 //
 // The rule: with no input, once a frame isn't busy, nothing may become busy again by itself. A quiet
 // stretch followed by a busy frame means something was counting down without keeping the engine
 // awake (an intro delay, a pause between beats, an autoplay timer). Settle can end the scene in that
-// stretch: on a slow page the quiet time (wall time) runs ahead of the countdown (the engine's own
-// steps, at most `maxSteps` a frame), so any such stretch can be cut short, not only one ≥ settle.
+// stretch.
 // The fix is `e.busy(sec)` when the thing is scheduled. Once it settles, the guard wakes every engine
 // and lets it settle again: whatever was still pending would show up then.
 //
@@ -41,17 +40,20 @@ const only = process.argv[2]; // one id, to look at a single entry
 // else changes), and one per wake(). A wake comes from outside the story (input, the figure coming
 // on screen): it starts a new stretch, like a tap would. The build fails if either line moves in the
 // kernel, so the guard can't go blind.
-const PROBE_AT = "      if (settle) {\n        if (moved)", WAKE_AT = "    wake() {\n";
+const PROBE_AT = "      if (settle && n[TIME]! - n[QUIET]! >= settle)", WAKE_AT = "    wake() {\n", BUSY_AT = "    busy(sec?: number) {\n";
 const probe = {
   name: "settle-probe",
   setup(b) {
     b.onLoad({ filter: /src[\\/]kernel[\\/]engine\.ts$/ }, ({ path }) => {
       const src = readFileSync(path, "utf8");
-      if (!src.includes(PROBE_AT) || !src.includes(WAKE_AT)) throw new Error("settle-guard: the kernel's settle check or wake() moved; update PROBE_AT, WAKE_AT");
+      if (!src.includes(PROBE_AT) || !src.includes(WAKE_AT) || !src.includes(BUSY_AT)) throw new Error("settle-guard: the kernel's settle check, wake() or busy() moved; update PROBE_AT, WAKE_AT, BUSY_AT");
       return {
         loader: "ts",
         contents: src
-          .replace(PROBE_AT, "      if (settle) globalThis.__fzFrame?.(engine, moved || n[STEPS]! < n[HOLD]!, settle);\n" + PROBE_AT)
+          // A frame is busy when busy() was called in it (marked here, test build only) or a
+          // busy(sec) hold is still ahead of the engine's time.
+          .replace(BUSY_AT, BUSY_AT + "      (engine as any).__b = 1;\n")
+          .replace(PROBE_AT, "      if (settle) globalThis.__fzFrame?.(engine, !!(engine as any).__b || n[QUIET]! > n[TIME]!, settle), ((engine as any).__b = 0);\n" + PROBE_AT)
           .replace(WAKE_AT, WAKE_AT + "      globalThis.__fzWake?.(engine);\n"),
       };
     });
