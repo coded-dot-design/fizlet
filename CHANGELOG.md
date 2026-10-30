@@ -27,6 +27,28 @@
     closed and the rack rebooted clean, a file unplugged, the kill switch registered. The test also
     checks the end card's lesson, settle to 0 frames, a tap replaying, `destroy()` mid-play giving
     the page back byte for byte, and reduced motion loading nothing.
+- **Gallery: Outbreak, act 2, the white hats: "White hat: the edge filter" vs Slammer (pending
+  owner approval).** You beat the worm the way it was really done. The stage is a network map of
+  real elements: four segments of SQL hosts joined by six routers, two at the edge and four inside.
+  The flood pours in from the internet down the links, and an infected host fires at its neighbours
+  and down every link it has.
+  - Tap a router to filter UDP 1434 on that link: packets bounce off it (segmentation).
+  - Tap a host to reboot and patch it. The patch takes about a second, and a hit while it is
+    patching knocks it back. A patched host is a shield that packets die on. So the order is the
+    lesson: cut a segment off first, then patch it.
+  - You win when every segment is clean: no host infected or mid-patch, and every host either
+    patched or cut off from the internet. If you don't, the clock (20×) ends it at ten minutes.
+  - The end card states the facts: identified by a traffic spike on UDP 1434 within minutes; fixed
+    by filtering 1434 at network edges, then patching (MS02-039, out six months earlier). The lesson
+    is that a patch only works once it's installed.
+  - This is a different mechanic from act 1's Slammer, where you hunt for the port. Here you work a
+    topology: links, then hosts. It is built on the same shared core (`pieces/outbreak.ts`) and has
+    no gallery number.
+  - Live chunk: 8,186 B gzip (10,114 B with the loader). It settles to 0 frames once still and holds
+    the intro with `engine.busy(sec)`. It has a reduced-motion poster, Recall is exact, and step
+    allocates nothing (typed arrays, the exact `hypot`).
+  - Tests: `tests/outbreak.mjs` gets an `edge-filter` case. It filters both edges and checks the
+    flood bounces, then segments the inside, patches until clean, and checks the end card's facts.
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about

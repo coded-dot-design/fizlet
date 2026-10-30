@@ -1,7 +1,9 @@
-// The Outbreak series, act 1 (ILOVEYOU, Slammer, WannaCry), each on its own stage markup
+// The Outbreak series, act 1 (ILOVEYOU, Slammer, WannaCry) and act 2 (the white hats: the edge
+// filter), each on its own stage markup
 // (site/gallery/stages/<id>.html) in Chromium: it mounts through fizlet/slot (the poster steps
 // aside), plays its real spread by itself, every tap has its consequence (a letter deleted; a port
-// closed and a server rebooted; a file unplugged and the kill switch registered), the end card tells
+// closed and a server rebooted; a file unplugged and the kill switch registered; a router filtered so
+// the flood bounces, then hosts patched into shields), the end card tells
 // the lesson, it settles to no frames once still, a tap plays it again, destroy() mid-play gives the
 // page back byte for byte, and under reduced motion nothing loads.
 import assert from "node:assert/strict";
@@ -10,7 +12,7 @@ import { build } from "esbuild";
 import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
 
-const PIECES = ["iloveyou", "slammer", "wannacry"];
+const PIECES = ["iloveyou", "slammer", "wannacry", "edge-filter"];
 const browser = await chromium.launch(launchOptions());
 const frames = (p, n = 4) => p.evaluate((n) => new Promise((ok) => { const f = () => (n-- ? requestAnimationFrame(f) : ok()); f(); }), n);
 try {
@@ -91,6 +93,29 @@ try {
       const st = await p.evaluate(() => scene.state);
       assert.ok(st.closed && st.hot === 0 && st.reboots >= 1, `closed and rebooted clean (${JSON.stringify(st)})`);
       assert.match(await endText(p), /^Clean at \d+:\d\d/, "the end card gives the time it took");
+    } else if (id === "edge-filter") {
+      // The flood comes in from the internet and infects a host.
+      await p.waitForFunction(() => scene.state.hot >= 1, null, { timeout: 8000 });
+      // Filter 1434 at both edges: the flood bounces off the routers.
+      for (const r of ["ia", "ic"]) {
+        await tapEl(p, `[data-wh-r="${r}"]`);
+        assert.equal(await p.locator(`[data-wh-r="${r}"]`).getAttribute("data-wh"), "filtered", `edge router ${r} filters 1434`);
+      }
+      await p.waitForFunction(() => scene.state.bounced >= 3, null, { timeout: 5000 });
+      // Segment the inside too, then patch every host that isn't a shield yet.
+      for (const r of ["ab", "ac", "bd", "cd"]) await tapEl(p, `[data-wh-r="${r}"]`);
+      assert.equal(await p.evaluate(() => scene.state.filtered), 6, "every link filtered");
+      for (let i = 0; i < 160 && (await p.evaluate(() => scene.state.phase)) === 1; i++) {
+        const at = await p.evaluate(() => scene.thing(0));
+        if (at) await tapAt(p, at);
+        else await frames(p, 3);
+      }
+      await p.waitForFunction(() => scene.state.phase === 2, null, { timeout: 8000 });
+      const st = await p.evaluate(() => scene.state);
+      assert.ok(st.hot === 0 && st.fix === 0 && st.safe >= 1, `every segment clean (${JSON.stringify(st)})`);
+      assert.equal(await p.locator('[data-wh-h][data-wh="safe"]').count(), st.safe, "every patched host shows its shield");
+      assert.match(await endText(p), /^Clean at \d+:\d\d/, "the end card gives the time it took");
+      assert.match(await endText(p), /UDP 1434 within minutes · Fix: filter 1434 at network edges, then patch \(MS02-039, out six months earlier\)/, "and the facts");
     } else {
       // A file is hit and locked; the lookup log shows the kill-switch domain going unanswered.
       await p.waitForFunction(() => scene.state.locked >= 1, null, { timeout: 8000 });
