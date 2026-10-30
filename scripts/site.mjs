@@ -6,6 +6,7 @@ import { build, transform } from "esbuild";
 import { gzipSync } from "node:zlib";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "./sizes.mjs";
+import { llmsFull } from "./llms-full.mjs";
 import { page, mark, SITE, ROOT, REPO, PERSON, ORG, WEBSITE } from "../site/layout.mjs";
 import { home } from "../site/pages/index.mjs";
 import { quickStartPage } from "../site/pages/quick-start.mjs";
@@ -303,5 +304,9 @@ for (const g of ["Pages", "Notes", "Bricks", "Demos and examples"]) {
     llms.push(`- [${meta(p.html, /<title>([^<]*)<\/title>/)}](${p.url}): ${meta(p.html, /<meta name="description" content="([^"]*)"/)}`);
   llms.push("");
 }
+// llms-full.txt: the whole API in plain text, from the declarations the brick pages use; llms.txt
+// points to it in its opening text (its link lists are the indexable pages only).
+writeFileSync(`${OUT}/llms-full.txt`, llmsFull({ bricks, sizes, version, site: SITE, description: JSON.parse(readFileSync("package.json", "utf8")).description }));
+llms.splice(llms.findIndex((l) => l.startsWith("## ")), 0, `The whole API, every export of every brick with its signature, doc comment and status, in plain text: [llms-full.txt](${SITE}llms-full.txt)`, "");
 writeFileSync(`${OUT}/llms.txt`, llms.join("\n").trimEnd() + "\n");
 console.log(`Built ${OUT}/: ${pages.length} pages, fizlet.js ${bundle} B gzip, kernel ${kernel.gzip} B gzip`);

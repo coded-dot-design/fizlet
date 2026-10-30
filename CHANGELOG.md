@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+- **Website: a generated API reference for every brick, and `llms-full.txt` (E5).** Each brick page's
+  API section now lists every export with its signature, parameters, return type, doc comment and
+  status flag, generated at site build time from the published declarations (`dist/*.d.ts`) by the
+  TypeScript compiler API (`typescript/unstable/sync`, the dev dependency the repo already type-checks
+  with: no new dependency). It can't drift from the code: the page and the file are rebuilt from the
+  declarations on every `npm run site`.
+  - `scripts/api.mjs` reads exports through the compiler (re-exports followed, overloads and
+    `const A = 1, B = 2` kept as one entry each) instead of scanning lines. A function's inline object
+    return type reads as its exported alias (`createEngine(o?: EngineOptions): Engine`). A const that
+    holds a function gets its signature. Type names the module exports link to their entries.
+  - Status per export: the brick's flag, unless its doc comment says `@deprecated`, `@experimental`
+    or `@beta`.
+  - `llms-full.txt`: the whole API in plain text for AI agents (every brick: import, status, measured
+    size, summary; every export: kind, status, doc, signatures, declaration). llms.txt links to it
+    in its opening text.
+  - Every public export now has a doc comment: 96 were missing one (options interfaces, `ReturnType`
+    aliases, factories such as `createEngine`, `controls`, `pad`, `sound`, `match`, `arcade`). A test
+    fails on any export without one (`tests/api.test.mjs`), so new exports must be documented.
+    Comments only: no JS changes, so every size is unchanged (kernel 3,438 B gzip).
+  - The site's own JS is byte-identical; `site.css` grows 102 B gzip (9,788 → 9,890 B) for the
+    signature and parameter rows.
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
