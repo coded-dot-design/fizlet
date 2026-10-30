@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **`fizlet/steer` and `fizlet/coach` are COMPLETE.** Battlefield Blitz moves every tank on steer
+  (`drive`, `seek`, `arrive`, `wander`, the exact `hypot` and `turn`) and runs its practice coach on
+  `tour` and `card` (dom-battlefield-blitz#22). Its replay plays the pinned matches value for value,
+  lockstep shows 0 desyncs, and its zero-GC test is green. No API change. The README table and
+  `site/bricks.mjs` say COMPLETE.
+
 - **Board UI kit: a hidden `fizlet/coach` card is not drawn.** `card()` lays itself out inline
   (`display: grid`), and an inline display beats the browser's `[hidden]` rule. So `hide()` (and
   the card before its first `show`) left an empty card over the board, catching clicks: Battlefield

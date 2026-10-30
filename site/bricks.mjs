@@ -100,12 +100,12 @@ launch(startKey, start); // press, invert, shatter` },
     tag: "PERF", role: "sys", modules: [mod("fizlet/perf", "perf")] },
   { id: "rules", status: "complete", since: "0.6.0", tests: ["rules.test.mjs"], used: ["DOM Battlefield 1.0.0 (supply drops: drops in src/model.ts, dom-battlefield#11)", "Battlefield Blitz 0.8.0+ (supply crates: drops in src/game.ts, Blitz#4)", "Null Invaders 1.0 (drops, score)", "Sherman Bytes 1.0 (drops, score, waves)"],
     tag: "RULES", role: "advance", modules: [mod("fizlet/rules", "rules")] },
-  { id: "steer", status: "beta", since: "0.17.0", tests: ["steer.test.mjs"], used: [], why: "No released game moves on it yet (Battlefield Blitz is first in line).",
+  { id: "steer", status: "complete", since: "0.17.0", tests: ["steer.test.mjs"], used: ["Battlefield Blitz (every tank: drive, seek, arrive, wander in src/game.ts, dom-battlefield-blitz#22)"],
     tag: "STEER", role: "advance", modules: [mod("fizlet/steer", "steer")],
     snippet: `const m = steer({ cap: 16, random: e.random, blocked: (i, at) => wall(at[0], at[1]) });
 m.place(0, 100, 200);
 m.seek(0, player.x, player.y, dt); // in a step: also flee, arrive, wander, patrol` },
-  { id: "coach", status: "beta", since: "0.17.0", tests: ["coach.test.mjs", "coach.mjs"], used: [], why: "No released game runs its tutorial on it yet.",
+  { id: "coach", status: "complete", since: "0.17.0", tests: ["coach.test.mjs", "coach.mjs"], used: ["Battlefield Blitz (the practice coach: tour and card in src/game.ts, dom-battlefield-blitz#22)"],
     tag: "COACH", role: "sys", modules: [mod("fizlet/coach", "coach")],
     snippet: `const tips = flag("my-game:tips", "off"); // localStorage, never throws
 const t = tour(e), c = card(root, { onEnd: quit });
