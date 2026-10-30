@@ -1,6 +1,7 @@
-// The can, as pixel data for fizlet/sprite: 20 × 40 sprite pixels, flat Fizlet tokens, an ink rim.
-// Frame 0: tab down (sealed). Frame 1: tab up, the opening dark. Shared by the live scene (baked
-// once onto the canvas) and the build (the same pixels as an SVG for the still poster).
+// The can, as pixel data for fizlet/sprite, in flat Fizlet tokens with an ink rim. Side view: 20 × 40
+// sprite pixels; frames 0 sealed, 1 open, 2 crunched and sealed, 3 crunched and open. Top view
+// (looking into the can): 22 × 22; frames 0 sealed, 1 open. Shared by the live scene (baked once
+// onto the canvas) and the build (the same pixels as an SVG for the still poster).
 import type { SpriteDef } from "../../../src/sprite";
 
 /** Brand tokens (fizlet-engine brands/fizlet/style-guide.md). */
@@ -65,14 +66,42 @@ put(open, 4, 7, "ddd");
 put(open, 6, 9, "kkkk");
 put(open, 7, 10, "kk");
 
-export const W = 20, H = 40;
+// Crunched: the middle of the body caves in (the sides step in, creases across the front).
+const dent = (r: string[]) => {
+  const d = r.slice();
+  for (let y = 25; y < 31; y++) put(d, y, 0, y > 25 && y < 30 ? ".s" : "s"), put(d, y, 18, y > 25 && y < 30 ? "s." : "s");
+  put(d, 26, 5, "sss");
+  put(d, 27, 8, "ssss");
+  put(d, 28, 12, "ss");
+  put(d, 29, 6, "ss");
+  return d;
+};
+
+// Top view: the pink shoulder (shaded on the lower right), the rim, the groove, the lid; the tab
+// lies flat, then stands up and leaves the opening dark.
+const top = (open: boolean) =>
+  Array.from({ length: 22 }, (_, y) => {
+    let r = "";
+    for (let x = 0; x < 22; x++) {
+      const d = Math.hypot(x - 10.5, y - 10.5);
+      r += d > 11 ? "." : d > 9.6 ? (x + y > 24 ? "s" : "p") : d > 9 ? "d" : d > 7.8 ? "m" : d > 7.2 ? "d" :
+        open && y > 2 && y < 8 && Math.abs(x - 10.5) < (y > 3 && y < 7 ? 3 : 2) ? "k" :
+        !open && y > 3 && y < 13 && x > 8 && x < 13 ? (x > 9 && x < 12 && y > 4 && y < 12 ? "m" : "d") :
+        open && y > 8 && y < 12 && x > 7 && x < 14 ? (y === 10 && x > 8 && x < 13 ? "m" : "d") : "t";
+    }
+    return r;
+  });
+
+export const W = 20, H = 40, T = 22;
 /** The opening, in sprite pixels from the top left. */
 export const MOUTH = { x: 11, y: 6 };
 
 export const CAN: SpriteDef = {
-  frames: [sealed, open],
+  frames: [sealed, open, dent(sealed), dent(open)],
   colors: { k: C.rim, d: C.line, m: C.muted, t: C.ink, p: C.attack, h: C.aim, s: C.shade, c: C.sys, g: C.go },
-  ax: W / 2,
-  ay: H,
   outline: C.rim,
 };
+
+export const TOP: SpriteDef = { frames: [top(false), top(true)], colors: CAN.colors!, outline: C.rim };
+/** The opening in the top view, in sprite pixels from the top left. */
+export const HOLE = { x: 10.5, y: 5 };

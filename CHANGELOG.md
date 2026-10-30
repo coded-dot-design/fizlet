@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+- **The fizz, dialled in** (the brand animation, `site/demos/fizz/`). A tap **crunches** the can
+  (it squashes and dents, and stays dented), then the tab pops. The fizz **sprays out of the
+  card**: a geyser, a burst and a glug fly on a pixel layer the card's width, reaching from 70% of
+  the card's height above it down to its bottom (no pointer), so the top of the spray is no longer
+  cropped. The card shows the **side view and a top-down view** of the same moment, looking into
+  the can as the tab opens and it fizzes (22 × 22 sprite pixels from the same tokens). The
+  full-page zoom is gone: `fizlet/camera` moves only the inside of the card, in on the opening,
+  across to the top view while it fizzes, then home. Headline "Crack the can. / *Hear the fizz.*";
+  CAM 1 · SIDE / CAM 2 · TOP labels on the card (HTML, not in the chunk).
+  - Bytes: the scene draws `spriteURL` frames (each rasterised once into a bitmap, so no SVG work
+    per frame) instead of the whole `sprites()` cache. Scene and loader are two files with no
+    shared chunk (a split cost ~260 B). The story state is plain locals. To fit, the screen shake,
+    the third pop word, the slow bubbles, a second drip and the drip's fall off the base went (it
+    runs down the side and splashes at the floor).
+  - Measured (Chromium 153, 4× CPU throttle): live chunk **9,701 B** gzip (5.3% under 10,240),
+    loader 2,023 B, poster 3,457 B; script per frame 1.3 ms avg, 4.0 ms p95, 18.2 ms max; 0 frames
+    settled, offscreen and with reduced motion; CLS from the slot 0. `tests/fizz.mjs`: the spray
+    leaves the card, and the camera moves the card, never the page.
 - **Layers story: controls** (owner feedback). A play/pause key (the kit's arcade key) on one side
   and a 3D slider on the other that scrubs the explode/assemble timeline: vertical down the right
   edge when the slot is wide, along the bottom when it is tall. The slider is a small copy of the
