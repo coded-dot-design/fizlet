@@ -18,9 +18,10 @@ building, then section 16 (lessons: mistakes we already paid for) and section 17
 
 ## 1. Principles (the rules everything else follows)
 
-1. **Everything you can press is a 3D key.** A face over a hard base *straight below* it. Never a
-   diagonal or side shadow on the board (the hub's marketing site uses diagonal shadows; the
-   board does not).
+1. **Everything you can press is a 3D key.** A face over a hard base in the **domain's shadow
+   direction** (section 4.1): straight below by default and on every Battlefield board, 45°
+   down-right on the DOM VIRUS hub. A component never hard-codes a shadow direction; the domain
+   sets it once, so a key, card or cartridge moved to another site takes that site's angle.
 2. **One physical travel.** Face and base move together on one curve (transform + box-shadow,
    120ms ease-out, 50ms on press). They never snap separately.
 3. **Colour is the job.** One colour per job (section 3). The same job is the same colour on
@@ -153,6 +154,40 @@ applyPalette(root, { cmd: "#8573ee", teamA: "#4bce82" });   // returns restore()
 - **Radii:** base key 6u, arcade 10u, sticker key 12u, card 10u, dock 12u, pills 4–6u, round 50%.
 - **Borders:** key 2u, sticker key 3u (white), card 2.5u (cmd), sticker 2.5u (rim).
 - **Touch targets:** ≥ 44u on phones (keys are 44u; stick and fire are larger).
+
+### 4.1 Shadow direction: a domain token, never a component's choice
+
+Every hard shadow (key bases, sticker, cards, toast, HUD, coach card) and every press travel reads
+three page-level tokens. **The domain sets them once at its root; components never hard-code a
+direction.** A component moved from one site to another takes the new site's angle with it.
+
+| Token | Type | Meaning | Kit fallback |
+|---|---|---|---|
+| `--shadow-x` | number (unitless) | horizontal share of a component's depth: the hard shadow's x offset is `depth × --shadow-x` | `0` |
+| `--shadow-y` | number (unitless) | vertical share of the depth: y offset = `depth × --shadow-y` | `1` |
+| `--shadow-color` | colour | the colour of rim-coloured hard shadows (sticker, toast, cards' ink, arcade edge mix) | `var(--rim)` |
+
+- **Depth stays the component's own** (`--py`: base key 3u, arcade 4u, sticker 5u; card 5u…). The
+  direction is a unit vector per unit of depth, so a 3u key and a 14px console extrusion follow the
+  same angle at their own depth: `box-shadow: calc(var(--py) * var(--shadow-x)) calc(var(--py) *
+  var(--shadow-y)) 0 <colour>`, or `calc(12px * var(--shadow-x)) …` for a fixed-pixel component.
+- **Unitless, on purpose.** Kit depths are in `--u` (a length that scales on phones), so the
+  direction must be a number: `length × length` is not valid CSS.
+- **The press follows the shadow.** A pressed face drops toward its base by the same vector
+  (`translate(depth × x, depth × y)`) and the base shrinks to `0 0`; hover lifts the opposite way.
+- **Angle:** x and y are a direction, not normalised: `1 1` is the classic "4px 4px" 45° hard
+  shadow (each axis gets the full depth). For a true angle, a site can write
+  `--shadow-x: cos(135deg); --shadow-y: sin(135deg)` (CSS trig, all evergreen browsers).
+- **Where to set it:** `:root` of the site (light and dark alike). Custom properties inherit into
+  shadow roots, so `mount()`ed boards and the arcade's shadow-DOM UI follow the page with no extra
+  wiring. The kit itself never writes `:root` (embed-safe, rule 10): the defaults are `var()`
+  fallbacks inside the `.bui` / `:host` token blocks.
+
+| Domain | Setting |
+|---|---|
+| Battlefield, Blitz, any board (default) | none needed, or `:root { --shadow-x: 0; --shadow-y: 1; }` |
+| DOM VIRUS hub | `:root { --shadow-x: 1; --shadow-y: 1; }` (45° down-right) |
+| fizlet.com | `:root { --shadow-x: 0; --shadow-y: 1; }` (straight below, its keys and cards today) |
 
 ---
 
