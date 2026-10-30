@@ -18,13 +18,28 @@ Byte Runner and Sherman Bytes 1.0, Swarm Protocol 1.4).
 ## Install
 
 ```sh
-npm install fizlet   # coming soon: not published yet
+npm install fizlet
 ```
 
-Until the first npm release, use the hosted builds or build from source (`npm ci && npm run build`
-gives you `dist/` with the subpath exports). One package, one import per piece (`fizlet`, `fizlet/fx`, `fizlet/slot`, ...): you ship only what
-you import. ES modules with TypeScript types; no runtime dependencies. No npm? The site hosts the
-same builds (see the [quick start](https://coded-dot-design.github.io/fizlet/)).
+```ts
+import { createEngine } from "fizlet"; // the kernel
+import { effects } from "fizlet/fx";    // one import per brick: you ship only what you import
+import "fizlet/ui/board-ui.css";        // the Board UI stylesheet, when you use fizlet/ui
+```
+
+One package, one subpath per brick (`fizlet`, `fizlet/fx`, `fizlet/slot`, ...; the full list is
+under [What's in the box](#whats-in-the-box)). ES modules with TypeScript types (Node and bundler
+resolution); no runtime dependencies; only the stylesheet has side effects, so a bundler drops
+every brick you don't import. Releases are published from CI with
+[npm provenance](https://docs.npmjs.com/generating-provenance-statements), so
+`npm audit signatures` can check that the tarball was built from this repo.
+
+> The first npm publish goes out with the first release tag after the repository's `NPM_TOKEN`
+> secret is set (`.github/workflows/release.yml`). Until `npm view fizlet version` prints a
+> version, use the hosted builds or build from source: `git clone
+> https://github.com/coded-dot-design/fizlet && cd fizlet && npm ci && npm run build` gives you
+> `dist/` with the same subpath exports. No npm? The site hosts the same builds (see the
+> [quick start](https://coded-dot-design.github.io/fizlet/)).
 
 ```ts
 import { createEngine } from "fizlet";
@@ -711,6 +726,8 @@ npm run check         # typecheck, contract tests (node), build
 npm run size          # size budgets
 npm run test:browser  # contract tests in Chromium (Playwright)
 npm run test:pack     # pack, install the tarball, import + typecheck every subpath
+npm run api:check     # the COMPLETE bricks' API snapshots (api/) match the build
+npm run api:write     # rewrite them after an intended API change (+ a CHANGELOG line)
 npm run site          # the website, into site-dist/
 ```
 
@@ -739,6 +756,13 @@ Releases: bump `version` in `package.json` (and the lockfile) and add a CHANGELO
 `vX.Y.Z` on `main` after the checks pass, and `.github/workflows/release.yml` publishes that tag to
 npm with provenance (it also runs on a `v*` tag pushed by hand). Publishing needs the `NPM_TOKEN`
 repository secret; without it the release job checks and packs, then skips the publish with a warning.
+
+API snapshots: `api/<brick>.api.txt` holds the public types of each COMPLETE brick (its built
+declarations, comments stripped). CI runs `npm run api:check -- --base HEAD^`: it fails when a
+snapshot no longer matches the build (run `npm run api:write`), and when one changed and the
+CHANGELOG's `## Unreleased` does not name the brick (`fizlet/fx`, or "Kernel" / "Board UI").
+COMPLETE bricks keep their API, so that line says what changed; a breaking change moves the brick
+back to BETA.
 
 ## Licence
 

@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+- **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
+  first release tag after the owner adds the `NPM_TOKEN` repository secret; the release workflow
+  (`.github/workflows/release.yml`, `npm publish --provenance --access public`) checks, packs and
+  skips the publish with a warning until then. No version bump here.
+  - **API snapshots** (`npm run api:check` / `api:write`, `scripts/api-snapshot.mjs`, tested in
+    `tests/api-snapshot.test.mjs`): `api/<brick>.api.txt` holds the public types of each of the 14
+    COMPLETE bricks, from the built declarations with comments stripped, following their
+    re-exports and the BETA types they name (arcade → board-page). CI (`--base HEAD^`) fails when a
+    snapshot is stale, or when one changed and this section does not name the brick. The release
+    workflow checks they match the tag.
+  - **Pack smoke** (`npm run test:pack`) now also proves: every built entry is in `exports`, with
+    `types` first next to its `.js`; the tarball holds every export target and nothing outside the
+    whitelist (no sources, no maps); every subpath typechecks under Bundler as well as NodeNext
+    resolution; importing any subpath adds no globals, and what a bundler keeps of a bare import
+    touches no page API, so `sideEffects: ["*.css"]` is right (and keeps
+    `fizlet/ui/board-ui.css`). Measured on 0.20.0 + Unreleased: 85 files, 176.6 kB packed, 27 JS
+    subpaths and 2 data subpaths.
+  - README "Install": the exact commands, the imports, and how to build from source until the
+    first publish.
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
