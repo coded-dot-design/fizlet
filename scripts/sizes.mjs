@@ -10,7 +10,9 @@ export const BUDGETS = [
   // on the kit tokens (~0.45 KB) so it works on pages without board-ui.css.
   ["fizlet/perf", "src/perf.ts", 2048],
   ["fizlet/input", "src/input.ts", 1536],
-  ["fizlet/pad", "src/pad.ts", 2048],
+  // 1,995 B gz in 0.19.0; 2,073 B once stickAt/dpadAt/the drag use steer's exact `hypot` (+78 B, K5:
+  // `Math.hypot` boxes its arguments, 23 young GCs per 1M drags; now 0). Budget raised by that delta.
+  ["fizlet/pad", "src/pad.ts", 2126],
   ["fizlet/collide", "src/collide.ts", 1536],
   ["fizlet/grid", "src/grid.ts", 1536],
   // Whole module: effects() 2,1xx B + gravity, plus emitter() and KINDS (~0.6 KB), which tree-shake
@@ -49,7 +51,9 @@ export const BUDGETS = [
   // skirmish game can now ask for. Only skirmish games pay it; the card build is below.
   // +174 B (owner-approved, Unreleased): every run locks the page with fizlet/touch (lockTouch on the
   // whole page plus touch-action: manipulation through the ledger), 21,915 → 22,089 B; budget + the delta.
-  ["fizlet/arcade", "src/arcade.ts", 24210],
+  // in the sections it uses). +67 B (21,970 → 22,037) when pad took the exact `hypot` (K5); budget
+  // raised by that delta from 22,016.
+  ["fizlet/arcade", "src/arcade.ts", 24323],
   // A card game (`hud` left out): the shell and the `arcade` preset, skirmish tree-shaken away.
   // 17,622 B gz with the `hud` option (+311 B: the preset contract, header and nav choice); 17,311
   // in 0.17.0, 17,206 in 0.14.0 (17,081 in 0.13.0, 16,960 in 0.12.1, 16,946 in 0.12.0, 16,731 in
@@ -63,7 +67,9 @@ export const BUDGETS = [
   // when the board sat under a header or mid-page). +15 B budget (17,984 → 17,999) for sound's
   // own-key cue check (brick audit 2, P10: an event named "constructor" crashed render): measured
   // 17,964 → 17,979 B; with fizlet#103's +7 B, 17,986 B.
-  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18247],
+  // when the board sat under a header or mid-page). 18,040 B (+76 B) when pad took the exact `hypot`
+  // (K5); budget raised by that delta from 17,984.
+  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18317],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
   // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B).
