@@ -29,6 +29,10 @@ export const BUDGETS = [
   ["fizlet/match", "src/match.ts", 2816],
   // 1,318 B gz with per-drop age, landing spot and drop:land (0.10.1).
   ["fizlet/rules", "src/rules.ts", 1536],
+  // seek, flee, arrive, wander, patrol on typed arrays: 950 B gz when added.
+  ["fizlet/steer", "src/steer.ts", 1280],
+  // flag + tour + the kit card (its look inline on the tokens): 1,192 B gz when added; flag and tour alone tree-shake to less.
+  ["fizlet/coach", "src/coach.ts", 1536],
   // The whole arcade shell with every brick it composes (kernel, board-page, input, pad, sound, ui js):
   // 17,206 B gz in 0.14.0 (17,081 in 0.13.0, 16,960 in 0.12.1, 16,946 in 0.12.0, 16,731 in 0.11.0), of which arcade's own code, markup and CSS was 6,694 B in 0.12.0. The
   // Board UI kit CSS is the game's (it bakes in the sections it uses).

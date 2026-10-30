@@ -27,11 +27,11 @@ export function galleryPage({ entries, loader, figures, snippets = {}, base }) {
     const fig = (figures[e.figure] ?? (e.stage === "page" ? pageFigure : plainFigure)(e)).replace("<figure ", `<figure data-gallery="${esc(e.id)}" `);
     const measured = e.pageCost?.measured;
     const cost = [
-      `<li>${sizeBadge(e.size, { name: `gallery:${e.id}`, note: "live chunk" })} <span class="gal-total" data-total="gallery:${esc(e.id)}">live ${fmt(e.size)} B · total <b>${fmt(e.size + loader)} B</b> with the loader</span></li>`,
+      `<li>${sizeBadge(e.size, `gallery/${e.id}.js`, `${e.title}, its live chunk`)} <span class="gal-total" data-total="gallery:${esc(e.id)}">live ${fmt(e.size)} B · total <b>${fmt(e.size + loader)} B</b> with the loader</span></li>`,
       `<li><b>${fmt(loader)} B</b> before it nears the screen (the shared loader)</li>`,
       measured ? `<li><b>${measured.framesSettled}</b> frames a second once still · <b>${measured.framesOffscreen}</b> off screen · Recall ${measured.recallExact ? "exact" : "not exact"} <small>(Chromium ${esc(measured.chromium.split(".")[0])})</small></li>` : "",
     ].join("");
-    return `<li class="panel gal-item" id="${esc(e.id)}">
+    return `<li class="panel gal-item" id="${esc(e.id)}" data-demo-host>
       <div class="gal-stage">${fig}</div>
       <div class="gal-meta">
         <p class="eyebrow"><span class="index">#${String(e.no).padStart(3, "0")}</span> ${esc(e.date)} · ${e.made === "fe anim" ? `MADE BY FE ANIM · RECIPE ${esc(e.recipe.toUpperCase())}` : "HAND-BUILT"}</p>

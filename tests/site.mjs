@@ -27,6 +27,7 @@ const slug = (prompt) => makeSlug(MAKE_TABLE, prompt);
 const VERSION = JSON.parse(readFileSync("package.json", "utf8")).version;
 /** The size a snippet's header says it is. */
 const snippetSize = (text) => Number(/^ {5}([\d,]+) B gzip, this whole file/m.exec(text)?.[1].replace(/,/g, "") ?? NaN);
+import { liveBytes } from "../scripts/live-bytes.mjs";
 
 const ROOT = "site-dist", BASE = SITE_ROOT;
 if (!existsSync(`${ROOT}/index.html`)) throw new Error("site-dist/ is missing: run `npm run site` first");
@@ -56,6 +57,12 @@ const status = async (path) => (await fetch(ORIGIN + path)).status;
 // Every built page, at its URL path ("" is the home page, "bricks/" the bricks index).
 const PAGES = readdirSync(ROOT, { recursive: true }).filter((f) => f.endsWith(".html") && !f.startsWith("dist")).map((f) => f.replace(/\\/g, "/").replace(/(^|\/)index\.html$/, "$1")).sort();
 for (const b of BRICKS) assert.ok(PAGES.includes(`bricks/${b.id}.html`), `a page for ${b.name}`);
+// What counts as a live demo: the home blast board, slot scenes (layers, fizz), brick demos and the
+// quick start's canvas. The demos' own standalone pages (built by site/demos/*) have no badge yet.
+const DEMOS = "[data-demo], figure.ae-slot, [data-brick-demo], canvas.qs-canvas";
+const NO_BADGE = { "demos/fizz/": 1, "demos/layers/": 1, "examples/fizz/": 1 };
+let badges = 0, sizeCache = null;
+const measured = async () => (sizeCache ??= await measure());
 const browser = await chromium.launch(launchOptions());
 const shots = process.env.SITE_SHOTS;
 let where = "start";
@@ -133,7 +140,7 @@ try {
     for (let i = 1; i < GALLERY.length; i++) assert.ok(GALLERY[i - 1].date >= GALLERY[i].date, "newest first");
     for (const e of GALLERY) {
       const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
-      assert.ok(html.includes(`data-size="gallery:${e.id}"><b>${bytes.toLocaleString("en-US")} B</b>`), `${e.id}: its badge shows ${bytes} B`);
+      assert.ok(html.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `${e.id}: its badge shows ${bytes} B`);
       const loader = gzipSync(readFileSync(`${ROOT}/gallery/gallery.js`)).length;
       assert.ok(html.includes(`data-total="gallery:${e.id}">live ${bytes.toLocaleString("en-US")} B · total <b>${(bytes + loader).toLocaleString("en-US")} B</b>`), `${e.id}: live and total, one size`);
       assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
@@ -161,7 +168,7 @@ try {
     for (const n of NOTES) {
       assert.ok(PAGES.includes(notePath(n)), `${n.slug}: built at ${notePath(n)}`);
       const html = readFileSync(`${ROOT}/${notePath(n)}index.html`, "utf8");
-      assert.ok(html.includes(`data-size="kernel"><b>${kernel.gzip.toLocaleString("en-US")} B</b>`), `${n.slug}: the kernel badge shows ${kernel.gzip} B, measured on this build`);
+      assert.ok(html.includes(`data-bytes="${kernel.gzip}" data-live="size:${kernel.name}"`), `${n.slug}: the kernel badge shows ${kernel.gzip} B, measured on this build`);
       assert.match(html, /<p class="note-by">By <a href="https:\/\/coded\.design\/">Chris Cooley<\/a>/, `${n.slug}: by Chris Cooley`);
       const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
       const post = graph.find((x) => x["@type"] === "BlogPosting");
@@ -200,6 +207,30 @@ try {
       assert.ok(over.scroll <= over.w, `${where}: horizontal overflow ${over.scroll} > ${over.w}: ${over.wide.join(", ")}`);
       assert.deepEqual(over.wide, [], `${where}: content wider than the screen`);
       if (label === "desktop") {
+        // Size badges: every live demo on the page sits in a host that shows what it ships, and the
+        // number is the gzip size of the built file it names (measured again here).
+        const demo = await page.evaluate((sel) => {
+          const out = { missing: [], badges: [] };
+          for (const el of document.querySelectorAll(sel)) {
+            const host = el.closest("[data-demo-host]");
+            const b = host?.querySelector("[data-size-badge]");
+            if (!b) out.missing.push(el.outerHTML.slice(0, 80));
+          }
+          for (const b of document.querySelectorAll("[data-size-badge]")) {
+            const r = b.getBoundingClientRect();
+            out.badges.push({ bytes: Number(b.dataset.bytes), live: b.dataset.live, text: b.textContent, visible: r.width > 0 && r.height > 0 && getComputedStyle(b).visibility !== "hidden" });
+          }
+          return out;
+        }, DEMOS);
+        const knownMissing = NO_BADGE[path] ?? 0;
+        assert.equal(demo.missing.length, knownMissing, `${where}: a live demo without a size badge: ${demo.missing.join(" | ")}`);
+        for (const b of demo.badges) {
+          const want = b.live.startsWith("size:") ? (await measured()).find((x) => x.name === b.live.slice(5))?.gzip : liveBytes(`${ROOT}/${b.live}`);
+          assert.equal(b.bytes, want, `${where}: badge for ${b.live} shows the measured bytes`);
+          assert.ok(b.text.startsWith(`${(b.bytes / 1024).toFixed(1)} KB gz`), `${where}: badge text "${b.text}"`);
+          assert.ok(b.visible, `${where}: badge for ${b.live} is visible`);
+        }
+        badges += demo.badges.length;
         const links = await page.evaluate(() => [...document.querySelectorAll("a[href]")].map((a) => a.href));
         for (const href of links) {
           const u = new URL(href);
@@ -317,9 +348,10 @@ try {
   where = "gallery";
   {
     const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
-    const { page, errors } = await open(context, "gallery/");
+    // Listen before the page opens: an entry near the top can load before "load" returns.
     const loaded = [];
-    page.on("request", (r) => r.url().includes("/gallery/") && r.url().endsWith(".js") && loaded.push(r.url().split("/gallery/")[1]));
+    context.on("request", (r) => r.url().includes("/gallery/") && r.url().endsWith(".js") && loaded.push(r.url().split("/gallery/")[1]));
+    const { page, errors } = await open(context, "gallery/");
     await page.waitForTimeout(600);
     const last = GALLERY[GALLERY.length - 1].id;
     assert.ok(!loaded.includes(`${last}.js`), `${last} (far below) has not loaded yet`);
@@ -378,7 +410,7 @@ try {
   {
     const html = readFileSync(`${ROOT}/make/index.html`, "utf8");
     const script = gzipSync(readFileSync(`${ROOT}/make/make.js`)).length;
-    assert.ok(html.includes(`data-size="make"><b>${script.toLocaleString("en-US")} B</b>`), `make: the page's script badge shows ${script} B`);
+    assert.ok(html.includes(`data-bytes="${script}" data-live="make/make.js"`), `make: the page's script badge shows ${script} B`);
     assert.match(html, /logged nowhere: no server, no analytics, no tracking/, "make: says unknown words are logged nowhere");
     const def = readFileSync(`${ROOT}/make/default.snippet.txt`, "utf8");
     assert.equal(snippetSize(def), gzipSync(def).length, "make: the prebuilt default snippet says its own size");
@@ -528,7 +560,8 @@ try {
     assert.deepEqual(errors, []);
     await context.close();
   }
-  console.log(`site: ${PAGES.length} pages × 2 widths, html gates, gallery (${GALLERY.length} entries), ${checked.size} internal links, demo, brick demos, ${keyCount} page keys, reduced motion and quick start ok`);
+  assert.ok(badges >= 9 + GALLERY.length, `size badges on the home page, the quick start, every brick demo and every gallery entry (${badges})`);
+  console.log(`site: ${PAGES.length} pages × 2 widths, html gates, gallery (${GALLERY.length} entries), ${badges} size badges, ${checked.size} internal links, demo, brick demos, ${keyCount} page keys, reduced motion and quick start ok`);
 } catch (err) {
   console.error(`site test failed at: ${where}`);
   throw err;
