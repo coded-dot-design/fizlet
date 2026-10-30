@@ -9,6 +9,7 @@ const { createEngine } = await import("../src/index.ts");
 const { hud } = await import("../src/hud.ts");
 
 const writes = new Int32Array(1);
+const kidReads = new Int32Array(1); // `el.children` reads (this fake builds a new array per read)
 class Text {
   nodeType = 3;
   nextSibling = null;
@@ -48,6 +49,7 @@ class El {
     return this.childNodes[0] ?? null;
   }
   get children() {
+    kidReads[0]++;
     return this.childNodes.filter((n) => n.nodeType === 1);
   }
   get text() {
@@ -164,6 +166,13 @@ test("feed and banner: driven by the event ring, newest first, capped at rows", 
   assert.equal(list.children.length, 3, "never more rows than asked for");
   assert.deepEqual(banner.children.map((c) => c.text), ["3 KILL STREAK", "AIRSTRIKE READY"]);
   assert.equal(played, 1);
+  // Rows and text nodes are found on the first event only: later event frames read no DOM.
+  const reads = kidReads[0];
+  q.push(["kill", 3, 4], ["streak", 4]);
+  e.advance(1 / 60);
+  assert.equal(kidReads[0], reads, "an event frame reads no children");
+  assert.deepEqual(list.children.map((r) => r.text), ["VIPER ✕ KITE", "RAVEN ✕ BISON", "KITE ✕ YOU"]);
+  assert.equal(played, 2);
   e.destroy();
 });
 
@@ -176,7 +185,7 @@ test("zero allocation in the steady state, bounded when values change", async (t
   const els = Array.from({ length: 6 }, () => new El("b", ""));
   const list = new El("ol"), banner = new El("div");
   banner.appendChild(new El("b"));
-  const LINES = ["A ✕ B", "C ✕ D"];
+  const LINES = ["A ✕ B", "C ✕ D"], STREAK = ["STREAK"];
   const h = hud(e, null)
     .num(els[0], () => s[0]) // whole numbers from a getter: no boxing
     .num(els[1], [s, 1], "clock") // running fractions from a typed-array slot
@@ -184,7 +193,7 @@ test("zero allocation in the steady state, bounded when values change", async (t
     .meter(els[3], [s, 3], 0.3)
     .flag(els[4], "low", () => s[3] < 0.3)
     .feed(list, 4, "kill", (a) => LINES[a & 1])
-    .banner(banner, "streak", () => ["STREAK"]);
+    .banner(banner, "streak", () => STREAK); // callbacks that return what they have: nothing allocates
   const mode = new Int32Array(1), ring = e.events;
   // The HUD system alone, as the kernel test runs the kernel alone (engine.advance also calls
   // performance.now(), which boxes on some Node versions and would hide the brick's own number).
@@ -217,7 +226,7 @@ test("zero allocation in the steady state, bounded when values change", async (t
   console.log(`# hud young GCs over 1M frames: unchanged ${still}, every value changing ${moving}, + feed/banner events ${events}`);
   assert.ok(still <= 1, `unchanged values: ${still} young GCs`);
   assert.ok(moving <= 1, `changing values reuse cached strings: ${moving} young GCs`);
-  // Events allocate only what `line`/`text` return (here: a 1-element array per banner).
-  assert.ok(events <= 10, `events: ${events} young GCs`);
+  // Events read no DOM and box nothing; `line`/`text` here return strings and arrays they hold.
+  assert.ok(events <= 1, `events: ${events} young GCs`);
   e.destroy();
 });

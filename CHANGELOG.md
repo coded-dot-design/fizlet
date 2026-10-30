@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Fix: fizlet/hud's events zero-allocation test no longer flakes; an event frame reads no DOM.**
+  The feed and banner read `el.children` on every frame with an event, not only on the first. On
+  the test's fake DOM each read built a new array, about 12 MB per 1M frames; a real `children`
+  is a cached live collection, but still a DOM call per event. The GC count of the same bytes
+  scaled with the young generation V8 chose: 3 scavenges at ~4 MB each, 14 when a loaded machine
+  had shrunk it to ~1 MB (`--trace-gc`). Ring numbers passed to `line`/`text` were not it (whole
+  numbers stay small integers). Rows and text nodes are now found once, on the first event. The
+  events window measures 0 young GCs and its bound drops from 10 to 1 (the test's banner returns
+  an array it holds); a new check counts `children` reads on later event frames (fails on main).
+  fizlet/hud 1,320 → 1,325 B gzip; arcade 21,970 → 21,980.
 - **Gallery: DOM Virus, two hand-built micro games (pending the owner's approval).** A new theme,
   `dom-virus`, with #047 **Terminal virus**: a worm types itself into a terminal, crawls onto the
   README beside it and eats its real letters (each bite rewrites a character of the page's own
