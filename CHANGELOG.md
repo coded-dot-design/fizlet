@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **fizlet/input: intents resolve once; `id()` gives a step a number.** `down`, `hit` and `axis`
+  looked an intent up with `names.indexOf` on every call: a scan of the names in the step. Each
+  intent now resolves once, at setup, in a Map keyed by its name and by its number, so a lookup is
+  one Map read, never a scan. New `c.id("fire")` returns the number for hot paths (`c.hit(FIRE)` in
+  a step); a name that is no intent throws there, at setup. Names keep working everywhere.
+  Test: `tests/bricks.test.mjs` "input: intents resolve once…" (handle and name read the same over
+  65 intents, a typo throws, 0 young GCs over 1M frames by number). Size (gzip): input 1,287 →
+  1,335 B; page build 7,126 → 7,161 (budget 7,168 kept); arcade 21,973 → 22,015; arcade (`hud`
+  omitted) 17,967 → 18,024. The arcade budgets rise by exactly those deltas (22,058; 18,041), with
+  the reason in `scripts/sizes.mjs`.
 - **Fix: an on-screen key wakes a settled engine.** `controls().press()` and `steer()` now call
   `engine.wake()`, as a real key or pointer already did. A `fizlet/pad` key is
   `[data-fizlet-ignore]`, so its tap never reached input's own wake: on an engine with `settle`, a

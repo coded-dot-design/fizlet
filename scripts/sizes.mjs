@@ -39,15 +39,17 @@ export const BUDGETS = [
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, fizlet/hud included). The Board UI kit CSS is the game's (it bakes
-  // in the sections it uses).
-  ["fizlet/arcade", "src/arcade.ts", 22016],
+  // in the sections it uses). +42 B (21,973 → 22,015, on #107's wake) when input resolved intents
+  // once and took `id()` handles; budget raised by that delta from 22,016 (it fit with 1 B left).
+  ["fizlet/arcade", "src/arcade.ts", 22058],
   // A card game (`hud` left out): the shell and the `arcade` preset, skirmish tree-shaken away.
   // 17,622 B gz with the `hud` option (+311 B: the preset contract, header and nav choice); 17,311
   // in 0.17.0, 17,206 in 0.14.0 (17,081 in 0.13.0, 16,960 in 0.12.1, 16,946 in 0.12.0, 16,731 in
   // 0.11.0), of which arcade's own code, markup and CSS was 6,694 B in 0.12.0. 17,912 B in 0.19.0;
   // 17,964 B once drag() positions in the board's containing block (+52 B, a fix: the card jumped
-  // when the board sat under a header or mid-page).
-  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 17984],
+  // when the board sat under a header or mid-page). 18,024 B (+57 B on #107's 17,967) when input
+  // resolved intents once and took `id()` handles; budget raised by that delta from 17,984.
+  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18041],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
   // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B).
