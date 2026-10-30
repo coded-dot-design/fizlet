@@ -1,4 +1,4 @@
-// Comic lettering and outlined sprites for the pixel-buffer pieces (#047 the wall-crawler, #048 spin
+// Comic lettering and outlined sprites for the pixel-buffer pieces (#047 Gecko, #048 spin
 // it back): a 5 × 5 font drawn into a palette buffer (./pixel-stage.ts) with a rim, an extrude down
 // and right, and the face; and a one-pixel rim added around a sprite once, at load. Each piece
 // passes only the glyphs it shouts, so a piece carries no letters it never says.
