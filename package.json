@@ -1,6 +1,6 @@
 {
   "name": "fizlet",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Tiny physics for your page: a micro game and animation engine for the DOM, by Chris Cooley. One loop, bounded everything, and the page always comes back.",
   "license": "MIT",
   "author": "Chris Cooley <https://coded.design>",
@@ -125,7 +125,7 @@
     "provenance": true
   },
   "scripts": {
-    "typecheck": "tsc --noEmit && tsc -p site/tsconfig.json && tsc -p site/demos/fizz/tsconfig.json",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p . --exactOptionalPropertyTypes && tsc -p site/tsconfig.json && tsc -p site/demos/fizz/tsconfig.json",
     "test": "node --expose-gc --import tsx --test --test-concurrency=1 tests/*.test.mjs",
     "build": "node scripts/build.mjs",
     "check": "npm run typecheck && npm test && npm run build",
