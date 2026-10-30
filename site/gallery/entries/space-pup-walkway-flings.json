@@ -1,0 +1,20 @@
+{
+  "id": "space-pup-walkway-flings",
+  "date": "2026-10-30",
+  "prompt": "a space-age pup on a moving walkway: tap to go faster until it flings him across the page",
+  "title": "WALKIES",
+  "kind": "micro",
+  "theme": "cartoon-classics",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/space-pup-walkway-flings.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
