@@ -20,7 +20,9 @@ try {
       bundle: true, format: "iife", globalName: "piece", write: false, logLevel: "silent",
     })).outputFiles[0].text;
     const page = await browser.newPage();
-    await page.setContent(`<!doctype html><body style="margin:0"><div id="host" style="position:relative;width:640px;height:360px"></div><script>${js}</script></body>`);
+    // The host holds the piece's own stage markup, as the gallery figure does (a piece may read it).
+    const stage = readFileSync(`${DIR}/stages/${e.id}.html`, "utf8");
+    await page.setContent(`<!doctype html><body style="margin:0;--sans:system-ui,sans-serif;--mono:ui-monospace,monospace"><div id="host" style="position:relative;width:640px;height:360px">${stage}</div><script>${js}</script></body>`);
     const png = await page.evaluate(() => {
       const host = document.getElementById("host");
       const scene = piece.mount(host, host, null);
