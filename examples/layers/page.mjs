@@ -2,9 +2,11 @@
 // poster) and a tiny loader are inline; the live chunk (fizlet/slot + scene) loads when the slot is near. The caption prints only measured numbers
 // (site/demos/layers/measured.json, written by site/demos/layers/measure.mjs). The page is a Board UI
 // root: colours, keys and cards come from the kit (src/ui/board-ui.css), no style of its own.
+import { sizeBadge } from "../../site/size-badge.mjs";
+
 const kb = (b) => `${(b / 1024).toFixed(1)} KB`;
 
-export function page({ figure, css, loader, measured: m }) {
+export function page({ figure, css, loader, measured: m, sizes }) {
   const caption = m
     ? `Live chunk ${kb(m.bytes.live)} gzip (slot + scene, one file), loaded only once the slot is near. Inline poster and loader ${kb(m.bytes.poster)}. ` +
       `At 4× CPU throttle, script per frame ${m.frame.p50} ms median, ${m.frame.p95} ms p95, capped at ${m.frame.fps} fps. ` +
@@ -19,7 +21,7 @@ export function page({ figure, css, loader, measured: m }) {
 <meta name="description" content="A game is a stack of layers. Battlefield Blitz fans out into its bricks, one faults, gets patched, and folds back.">
 <link rel="stylesheet" href="board-ui.css">
 <style>
-:root{color-scheme:dark}
+:root{color-scheme:dark;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,"SF Pro Display","Segoe UI",system-ui,-apple-system,Arial,sans-serif}
 main{max-width:1200px;margin:0 auto;padding:32px 16px 48px}
 .k{font:700 11px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--k-sys-ink);margin:0}
@@ -35,10 +37,11 @@ ${css}
 <main>
 <p class="k">Layers</p>
 <h1>A game is a stack.<br><em>Each layer, one brick.</em></h1>
-<p>Battlefield Blitz turns sideways and fans out into its layers, each labelled with the bytes its own code costs. One layer faults, a scan patches it, and the stack folds back into the game.</p>
+<p>Battlefield Blitz turns sideways and fans out into its layers, each labelled with the bytes its own code costs. One layer faults, a scan patches it, and the stack folds back into the game. Pause it, or drag the slider to fan the layers out yourself.</p>
 ${figure}
+<p class="cap">${sizeBadge(sizes.live, { name: "layers", note: "live chunk, measured on this build" })}</p>
 <p class="cap">${caption}</p>
-<p class="cap">Layer bytes: Battlefield Blitz c8c8ca4, layer manifest (game code per layer, min + gzip; Effects is all brick, min). Built on fizlet, fizlet/slot, fizlet/grid, fizlet/sprite and fizlet/fx. By <a href="https://coded.design/">Chris Cooley</a>.</p>
+<p class="cap">Layer bytes: Battlefield Blitz c8c8ca4, layer manifest (game code per layer, min + gzip; Effects is all brick, min). Built on fizlet, fizlet/slot, fizlet/sprite and fizlet/fx. By <a href="https://coded.design/">Chris Cooley</a>.</p>
 </main>
 ${loader}
 </body>

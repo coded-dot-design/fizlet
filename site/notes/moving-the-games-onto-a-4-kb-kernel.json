@@ -1,0 +1,226 @@
+{
+  "$comment": "Generated from the content model; do not edit by hand.",
+  "id": "blog-moving-the-games-onto-a-4-kb-kernel",
+  "site": "fizlet",
+  "brand": "fizlet",
+  "games": [
+    "dom-battlefield-blitz",
+    "null-invaders",
+    "byte-runner",
+    "sherman-bytes",
+    "swarm-protocol",
+    "dom-battlefield"
+  ],
+  "type": "blog",
+  "slug": "moving-the-games-onto-a-4-kb-kernel",
+  "title": "Moving the games onto a 4 KB kernel",
+  "subtitle": "Every game got bigger. Here is each byte, and what it bought.",
+  "eyebrow": "Field notes · E3 ports",
+  "tags": [
+    "fizlet",
+    "engine",
+    "performance",
+    "size",
+    "games"
+  ],
+  "date": "2026-10-29",
+  "status": "published",
+  "lead": [
+    "Five games now run on Fizlet's kernel, which has a 4 KB gzip budget: DOM Battlefield, Battlefield Blitz, Null Invaders, Byte Runner and Sherman Bytes. Every one got bigger in gzip bytes, by 7 to 21%. Most of the growth is the shared button kit. The rest buys steps that never allocate, runs that replay from a seed and one shell for three games."
+  ],
+  "blocks": [
+    {
+      "type": "stats",
+      "heading": "The ports in four numbers",
+      "items": [
+        {
+          "value": "+14.6%",
+          "label": "the four ported games together: 110,105 → 126,162 B gzip"
+        },
+        {
+          "value": "8,724 B",
+          "label": "of the three arcade games' growth is the Board UI kit CSS they now bake in"
+        },
+        {
+          "value": "0",
+          "label": "minor GCs in 20,000 busy steps, in each arcade port's test"
+        },
+        {
+          "value": "3,413 B",
+          "label": "the kernel on Fizlet 0.15.0, gzip (budget 4,096 B)"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "Where each game stands",
+      "body": [
+        {
+          "type": "p",
+          "text": "A port keeps gameplay. Same numbers, same controller API, and the page comes back byte for byte. What changes is underneath: one engine per run, the rules as one system on typed arrays, and the bricks."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**Battlefield Blitz: shipped.** It ran on Fizlet first. Its port (0.8.0) made it replay from a seed and moved its supply crates onto `fizlet/rules`. It is on Fizlet 0.14.1 now.",
+            "**Null Invaders 1.0.0: shipped.** The first game on `fizlet/arcade`; the shell was extracted from it.",
+            "**Byte Runner 1.0.0: shipped.** The maze is SVG inside the page, through the arcade's `ctx.attach`.",
+            "**Sherman Bytes 1.0.0: shipped.** Waves, airdrops and cannon tiers come from `fizlet/rules`.",
+            "**Swarm Protocol: in progress, the last one.** It moves onto the kernel and bricks and keeps its own shell and API. The four hooks it needs shipped in Fizlet 0.14.0.",
+            "**DOM Battlefield 1.0.0: shipped.** One Fizlet engine steps the battle; its model stays the logic layer and its repair kits are `fizlet/rules` drops. The board UI now comes from `fizlet/ui`."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The three arcade ports changed one thing you can see: their scoreboards now wear the Board UI kit, DOM Battlefield's keys and readouts, so every game reads like it runs on the same engine."
+        }
+      ]
+    },
+    {
+      "type": "features",
+      "layout": "rows",
+      "heading": "Before and after, in gzip bytes",
+      "subhead": "From the size ledger: the shipped file when the game reports one, else the measured bundle. Nothing is estimated.",
+      "items": [
+        {
+          "title": "Battlefield Blitz: 31,011 → 33,254 B (+2,243 B, +7.2%)",
+          "body": "Measured bundle. Moving to Fizlet 0.10.0 added 1,436 B; the crates on `fizlet/rules` brought it to 33,286 B, and reading crate age from the brick to 33,254 B. Blitz baked in the kit CSS before its port."
+        },
+        {
+          "title": "Null Invaders: 22,940 → 26,434 B (+3,494 B, +15.2%)",
+          "body": "Without the kit CSS (2,702 B): 23,732 B, +792 B. The general arcade shell costs Null 321 B more than its own shell did."
+        },
+        {
+          "title": "Byte Runner: 29,160 → 33,868 B (+4,708 B, +16.1%)",
+          "body": "Without the kit CSS (2,962 B): 30,906 B, +1,746 B. Its rules moved from objects to typed arrays: actors, a compiled maze graph, preallocated chase fields. Longer source, and a step that never allocates."
+        },
+        {
+          "title": "Sherman Bytes: 26,994 → 32,606 B (+5,612 B, +20.8%)",
+          "body": "Without the kit CSS (3,060 B): 29,546 B, +2,552 B. Typed-array rules, and the step asks the page through `hitAt` and `nearAt`."
+        },
+        {
+          "title": "Swarm Protocol: 32,125 B today",
+          "body": "The baseline. Its port moves the food checks out of the step and into the read phase. The plan expects the game chunk to grow, as every port's did; we will report it with and without what is shared."
+        },
+        {
+          "title": "DOM Battlefield: 36,524 → 41,111 B (+4,587 B, +12.6%)",
+          "body": "Part of it is the engine's `Ledger`, which Battlefield never uses but `createEngine` always builds."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "Why bigger",
+      "body": [
+        {
+          "type": "p",
+          "text": "The three arcade games grew 13,814 B together. 8,724 B of that is the kit CSS each one bakes in. Without it, they grew 79,094 → 84,184 B: +5,090 B, or 6.4%."
+        },
+        {
+          "type": "p",
+          "text": "The kit buys one button language across the family. A key in Null Invaders presses like a key in DOM Battlefield. That is a shared look, not shared bytes."
+        },
+        {
+          "type": "p",
+          "text": "`fizlet/arcade` is one shell for three games, but each game bundles its own copy. So the shell saves source and fixes, not bytes per game. It is general, too: action keys, any readouts, a meter."
+        },
+        {
+          "type": "p",
+          "text": "Some layers did shrink, because that code is the engine's now. Byte Runner's clock went 925 → 252 B. Null's collision went 377 → 54 B, and its page code 386 → 100 B."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "What the shared code buys",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**Steps that never allocate.** Each arcade port has a test: 20,000 busy steps, 0 minor GCs.",
+            "**Runs that replay.** Each port has a same-seed test. Blitz played seed 41 twice over 3,600 frames, identical, with 0 `Math.random` calls in play.",
+            "**Gameplay held still.** Blitz 0.8.0 and 0.8.1 gave the same tanks, shells, bombs and crates for 5 seeds × 7,200 frames.",
+            "**Recall, tested.** Each arcade port's browser test checks that the page comes back byte for byte.",
+            "**A fix lands once.** In 0.12.1 the arcade scoreboard keys stopped breaking their labels over lines. One change in the shell fixed it for every game on it."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "What the ports taught the engine",
+      "body": [
+        {
+          "type": "p",
+          "text": "**A number passed to a call V8 does not inline gets boxed.** That is one allocation each. A big game step stops V8 inlining, and Sherman's step boxed four numbers per shell per step."
+        },
+        {
+          "type": "p",
+          "text": "That meant 5 minor GCs in 20,000 steps. Fizlet 0.13.0 added `hitAt(p, i)` and `nearAt(p, i, out)`: they read from a typed array, so nothing boxes. The count went to 0."
+        },
+        {
+          "type": "p",
+          "text": "**`Math.hypot` allocates on every call in V8.** Byte Runner's ported step still made minor GCs, and a heap sample put almost all of them in `Math.hypot`. With `Math.sqrt(x * x + y * y)` instead, 20,000 busy steps make none."
+        },
+        {
+          "type": "p",
+          "text": "**A getter that returns a number can box it.** The page brick read its refresh clock through `engine.time`: 12 B a frame, found with the sampling heap profiler. Since 0.15.0 it reads `engine.timing`, a typed array."
+        },
+        {
+          "type": "p",
+          "text": "**Tests that wait on the wall clock flake.** The camera test waited 120 ms for a move and failed twice on CI. It now waits frame by frame. Blitz's friendly-fire test failed about 1 run in 10; with seed 7, a stopped clock and fixed steps, it passed 10 of 10."
+        },
+        {
+          "type": "p",
+          "text": "**Test files run in parallel skew GC counts.** CPU contention delays V8's background compiler, so a check can run unoptimised. Under load, one check read 14 young GCs instead of 3. Run one file at a time, it passed 20 of 20."
+        },
+        {
+          "type": "p",
+          "text": "**A zero-GC test only proves the paths it drives.** So the acceptance for a port also scans the step for `Math.random`, `Math.hypot` and wall-clock reads. It found `Math.hypot` in two ported games' steps; the fix swaps in a helper that returns exactly what `Math.hypot` does, so replays stay byte-identical."
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "q": "Did any game get smaller on Fizlet?",
+          "a": "No. All four grew, by 7.2% to 20.8% in gzip bytes. Without the kit CSS, the three arcade games grew 6.4% together."
+        },
+        {
+          "q": "Why share a shell if each game still bundles a copy?",
+          "a": "Source and fixes. One shell means one place for a fix, one set of tests and one controller the hub drives. It does not mean fewer bytes per game."
+        },
+        {
+          "q": "How do you know the steps never allocate?",
+          "a": "Each arcade port runs 20,000 busy steps after a warm-up and counts minor GCs with Node's GC observer, best of three windows. All three read 0."
+        },
+        {
+          "q": "When does Swarm Protocol move?",
+          "a": "It is in progress and the last one; its engine hooks shipped in Fizlet 0.14.0 and 0.16.0. No date."
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "Kernel and bricks",
+          "href": "/bricks/"
+        },
+        {
+          "label": "Changelog",
+          "href": "https://github.com/coded-dot-design/fizlet/blob/main/CHANGELOG.md"
+        },
+        {
+          "label": "Play Blitz",
+          "href": "https://coded-dot-design.github.io/dom-battlefield/blitz/"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Moving the games onto a 4 KB kernel · Fizlet",
+    "description": "Four games on Fizlet's 4 KB kernel: each grew 7 to 21% in gzip bytes. Every byte, why it is there, and what the shared engine bought."
+  }
+}

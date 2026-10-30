@@ -7,23 +7,23 @@
 <title>Fizz · a Fizlet hero</title>
 <style>
   body { margin: 0; background: #07060f; color: #f6f3ff; font: 16px/1.6 system-ui, sans-serif; overflow-x: clip; }
-  .frame { overflow: clip; }
+  .card { padding-top: 120px; width: min(100%, 720px); }
   .hero { display: grid; place-items: center; gap: 12px; padding: 40px 16px; }
-  figure.ae-slot { position: relative; width: min(100%, 720px); aspect-ratio: 2 / 1; margin: 0; }
+  figure.ae-slot { position: relative; width: 100%; aspect-ratio: 16 / 10; margin: 0; overflow: hidden; background: #0b0918; }
   .ae-slot__placeholder { position: absolute; inset: 0; width: 100%; height: 100%; }
   a { color: #19f0ff; }
 </style>
-<div class="frame">
-  <!-- data-fizz-zoom: this element is "the page" that zooms; its parent clips. -->
-  <main data-fizz-zoom class="hero">
-    <h1>Crack a can.</h1>
-    <figure class="ae-slot ae-slot--2x1" data-slot-target="fizz#hero" role="img" aria-label="A pixel soda can pops open and fizzes">
+<main class="hero">
+  <h1>Crack the can.</h1>
+  <!-- The figure's parent is the box the spray may fly over: it reaches up above the card. -->
+  <div class="card">
+    <figure class="ae-slot ae-slot--16x10" data-slot-target="fizz#hero" role="img" aria-label="A pixel soda can, side and top views, crunches, pops and fizzes">
       <!-- The poster: also the still frame for reduced motion. The site build writes the real one. -->
-      <svg class="ae-slot__placeholder" viewBox="-50 0 100 64" aria-hidden="true"><rect x="-10" y="15" width="20" height="40" fill="#ff2e88"/></svg>
+      <svg class="ae-slot__placeholder" viewBox="0 0 160 100" aria-hidden="true"><rect x="28" y="6" width="40" height="80" fill="#ff2e88"/></svg>
     </figure>
-    <p>Tap the can. By <a href="https://coded.design/">Chris Cooley</a>.</p>
-  </main>
-</div>
+  </div>
+  <p>Tap the can. By <a href="https://coded.design/">Chris Cooley</a>.</p>
+</main>
 <script type="module">
   import { slot } from "../../dist/slot.js";
   slot("fizz#hero", () => import("../../demos/fizz/scene.js").then((m) => m.mount));
