@@ -7,29 +7,17 @@
   "kind": "micro",
   "theme": "crypto-memes",
   "author": "chris-cooley",
-  "recipe": "meme",
+  "recipe": "hand-built",
   "bricks": [
     "fizlet/kernel",
     "fizlet/sprite",
-    "fizlet/fx",
     "fizlet/slot"
   ],
-  "pageCost": {
-    "settles": true,
-    "measured": {
-      "chromium": "153.0.8010.12",
-      "framesPlaying": 31,
-      "framesSettled": 0,
-      "framesOffscreen": 0,
-      "recallExact": true,
-      "reducedMotionStill": true,
-      "allocBytesPerFrame": 24.87
-    }
-  },
-  "fizlet": "0.17.0",
-  "made": "fe anim",
-  "module": "anims/laser-eyes-mascot-powers-fires.ts",
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/laser-eyes-mascot-powers-fires.ts",
   "export": "mount",
   "aspect": "16 / 9",
+  "stage": "own",
   "approved": "2026-10-30"
 }
