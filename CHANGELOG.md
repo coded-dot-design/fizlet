@@ -11,6 +11,10 @@
     (cap 7,168). No budget moves.
   - Test: `tests/kernel.test.mjs` settle test: after `start()` a settled engine runs steps for a
     full settle window, then settles again; `start()` after `destroy()` stays inert.
+- **Roadmap: E5 (docs for humans and AI) is done.** Docs, guides, release notes, the authoring
+  guide with three recipes, the generated API reference with llms-full.txt, and live kernel stats on
+  DOM VIRUS's Under the Hood (dom-virus#21). `site/roadmap.mjs` and the engine's ROADMAP.md agree
+  (`fe roadmap check`).
 - **Website: a generated API reference for every brick, and `llms-full.txt` (E5).** Each brick page's
   API section now lists every export with its signature, parameters, return type, doc comment and
   status flag, generated at site build time from the published declarations (`dist/*.d.ts`) by the
