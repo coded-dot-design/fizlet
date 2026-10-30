@@ -35,6 +35,9 @@
     fizlet --today 2026-10-31T09:00:00-04:00`): How small is small, Recall: the page always comes
     back, Lockstep multiplayer in a few KB. Published 2026-10-31 09:00 New York; the multiplayer
     guide and the budgets page link to them.
+  - The three launch notes (How small is small, Recall: the page always comes back, Lockstep
+    multiplayer in a few KB) are scheduled for 2026-10-31 09:00 New York and land in their own PR.
+- Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
