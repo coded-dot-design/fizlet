@@ -53,7 +53,8 @@ for (const b of BRICKS) assert.ok(PAGES.includes(`bricks/${b.id}.html`), `a page
 // quick start's canvas. The demos' own standalone pages (built by site/demos/*) have no badge yet.
 const DEMOS = "[data-demo], figure.ae-slot, [data-brick-demo], canvas.qs-canvas";
 const NO_BADGE = { "demos/fizz/": 1, "demos/layers/": 1, "examples/fizz/": 1 };
-let badges = 0;
+let badges = 0, sizeCache = null;
+const measured = async () => (sizeCache ??= await measure());
 const browser = await chromium.launch(launchOptions());
 const shots = process.env.SITE_SHOTS;
 let where = "start";
@@ -149,7 +150,7 @@ try {
     for (const n of NOTES) {
       assert.ok(PAGES.includes(notePath(n)), `${n.slug}: built at ${notePath(n)}`);
       const html = readFileSync(`${ROOT}/${notePath(n)}index.html`, "utf8");
-      assert.ok(html.includes(`data-size="kernel"><b>${kernel.gzip.toLocaleString("en-US")} B</b>`), `${n.slug}: the kernel badge shows ${kernel.gzip} B, measured on this build`);
+      assert.ok(html.includes(`data-bytes="${kernel.gzip}" data-live="size:${kernel.name}"`), `${n.slug}: the kernel badge shows ${kernel.gzip} B, measured on this build`);
       assert.match(html, /<p class="note-by">By <a href="https:\/\/coded\.design\/">Chris Cooley<\/a>/, `${n.slug}: by Chris Cooley`);
       const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
       const post = graph.find((x) => x["@type"] === "BlogPosting");
@@ -206,7 +207,8 @@ try {
         const knownMissing = NO_BADGE[path] ?? 0;
         assert.equal(demo.missing.length, knownMissing, `${where}: a live demo without a size badge: ${demo.missing.join(" | ")}`);
         for (const b of demo.badges) {
-          assert.equal(b.bytes, liveBytes(`${ROOT}/${b.live}`), `${where}: badge for ${b.live} shows the measured bytes`);
+          const want = b.live.startsWith("size:") ? (await measured()).find((x) => x.name === b.live.slice(5))?.gzip : liveBytes(`${ROOT}/${b.live}`);
+          assert.equal(b.bytes, want, `${where}: badge for ${b.live} shows the measured bytes`);
           assert.ok(b.text.startsWith(`${(b.bytes / 1024).toFixed(1)} KB gz`), `${where}: badge text "${b.text}"`);
           assert.ok(b.visible, `${where}: badge for ${b.live} is visible`);
         }

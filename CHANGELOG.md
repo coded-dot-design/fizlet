@@ -7,7 +7,8 @@
   gzipped, with every chunk it imports statically (`scripts/live-bytes.mjs`), measured on the built
   file at build time and never typed; kit tokens only; the full byte count is in screen-reader
   text and the tooltip. One component for all of them: `sizeBadge(bytes, live, what)` in `site/size-badge.mjs`
-  (it replaces the gallery's `{ name, note }` form; one `.size-badge` style).
+  (it replaces the gallery's `{ name, note }` form; one `.size-badge` style). A module's own size
+  names its `scripts/sizes.mjs` entry instead of a file (`"size:fizlet (kernel)"`, the notes' kernel badge).
   `tests/site.mjs` fails if a live demo has no badge, if a badge's bytes differ from a fresh
   measurement of the file it names, or if it is hidden. The demos' own standalone pages
   (`demos/fizz/`, `demos/layers/`, `examples/fizz/`) have none yet; they are listed in the test.
