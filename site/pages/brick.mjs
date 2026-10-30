@@ -11,13 +11,13 @@ const num = (n) => n.toLocaleString("en-US");
 export const prose = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
 
 /** A brick's status flag as a Board UI status pill (flat: a readout, not a key). */
-export const statusPill = (status) => `<span class="status-pill" data-status="${status}" title="${esc(STATUS[status].line)}">${STATUS[status].label}</span>`;
+export const statusPill = (status) => `<span class="status-pill" data-flag="${status}" title="${esc(STATUS[status].line)}">${STATUS[status].label}</span>`;
 
 /** The status panel on a brick page: the flag, what it means, and the evidence behind it. */
 function statusPanel(brick) {
   const s = STATUS[brick.status];
   const list = (xs) => xs.map((x) => `<li>${prose(x)}</li>`).join("");
-  return `<div class="panel bp-status" data-status="${brick.status}">
+  return `<div class="panel bp-status" data-flag="${brick.status}">
       <div class="code-head"><span class="bui-label"><b>STATUS</b> · <a href="./#status">what the flags mean</a></span>${statusPill(brick.status)}</div>
       <p>${esc(s.line)}${brick.why ? ` ${esc(brick.why)}` : ""}</p>
       <dl>
@@ -115,7 +115,7 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
 function statusLegend(bricks) {
   return Object.entries(STATUS).map(([k, s]) => {
     const n = bricks.filter((b) => b.status === k).length;
-    return `<li class="panel status-card" data-status="${k}"><div class="brick-top">${statusPill(k)}<small>${n ? `${n} ${n === 1 ? "brick" : "bricks"}` : k === "roadmap" ? "planned below" : "none today"}</small></div>
+    return `<li class="panel status-card" data-flag="${k}"><div class="brick-top">${statusPill(k)}<small>${n ? `${n} ${n === 1 ? "brick" : "bricks"}` : k === "roadmap" ? "planned below" : "none today"}</small></div>
         <p>${esc(s.line)}</p>
         <ul>${s.criteria.map((c) => `<li>${prose(c)}</li>`).join("")}</ul>
       </li>`;
@@ -155,7 +155,7 @@ export function bricksIndex({ bricks, sizes, version, planned = [] }) {
       <p class="lead">Planned, not shipped: nothing here is in the package yet. Each size is a target, not a measurement.</p>
     </div>
     <ul class="bricks planned">
-      ${planned.map((p) => `<li class="panel brick" data-status="roadmap">
+      ${planned.map((p) => `<li class="panel brick" data-flag="roadmap">
         <div class="brick-top"><span class="brick-tag">${esc(p.phase)}</span>${statusPill("roadmap")}<span class="brick-size"><small>target ≤ ${kb(p.target)} KB gzip</small></span></div>
         <h3><code>${esc(p.name)}</code></h3>
         <p>${esc(p.purpose)}</p>

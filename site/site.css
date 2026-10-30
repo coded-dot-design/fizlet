@@ -2875,10 +2875,10 @@ html.bui[data-theme="light"] .phases b {
   white-space: nowrap;
   vertical-align: middle;
 }
-.status-pill[data-status="beta"] { --tone: var(--k-sys); }
-.status-pill[data-status="experimental"] { --tone: var(--k-aim); }
-.status-pill[data-status="deprecated"] { --tone: var(--hurt); }
-.status-pill[data-status="roadmap"] {
+.status-pill[data-flag="beta"] { --tone: var(--k-sys); }
+.status-pill[data-flag="experimental"] { --tone: var(--k-aim); }
+.status-pill[data-flag="deprecated"] { --tone: var(--hurt); }
+.status-pill[data-flag="roadmap"] {
   color: var(--muted);
   background: transparent;
   border-color: var(--line);
