@@ -26,6 +26,9 @@ try {
   // 1. The page as shipped: lays out, settles, 0 frames still and off screen; a drag; settles again.
   for (const reduced of [false, true]) {
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: reduced ? "reduce" : "no-preference" });
+    // Only the diagram's frames: the index's live brick cards (site/brick-cards.ts, tested in
+    // tests/brick-cards.mjs) play when the scroll below brings them on screen, so they stay out.
+    await ctx.route("**/brick-cards.js", (r) => r.fulfill({ body: "", contentType: "text/javascript" }));
     const p = await ctx.newPage(), errs = [];
     p.on("pageerror", (e) => errs.push(e.message));
     await p.addInitScript(COUNT);
