@@ -1,0 +1,19 @@
+{
+  "id": "stone-car-skids",
+  "date": "2026-10-30",
+  "prompt": "a stone-age dad runs his foot-powered stone car down Main Street; click and he brakes with his heels, the car skids in a cloud of dust and its load of rocks flies on into the billboard's letters; a double click floors it, and the speed bump is a page element he hops",
+  "title": "Foot brake",
+  "kind": "micro",
+  "theme": "cartoon-classics",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/stone-car-skids.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
