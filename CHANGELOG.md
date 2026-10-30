@@ -23,6 +23,17 @@
   card; `tests/brick-cards-alloc.mjs` (`npm run test:alloc:cards`) measures each card's allocation,
   best of 3 over 6,000 hand-driven frames: 0 B a step for all nine (input 1.1 B), whole moving frame
   21–811 B (canvas and style writes box their arguments; nothing once settled).
+- **Four more brick cards: hud, match, sound, presence.** hud: a high striker; tap fast to heat it
+  and ring the bell; its real DOM scoreboard (score, best, heat meter, HOT flag, a feed of strikes) is
+  bound with fizlet/hud and the readout counts DOM writes against frames. match: a ten-second round on
+  the headless phase machine (PRESS START, 3 · 2 · 1, catch eight falling bricks on a paddle, STAGE
+  CLEAR or GAME OVER, rematch). sound: a ball bounces down seven brick stairs and every landing emits
+  an event that fizlet/sound plays as that brick's cue (no audio files). presence: two seats a
+  100 ms in-memory link apart run one lockstep world; every brick lands on both boards on the same
+  frame and the readout shows both hashes equal. Card chunks (gzip, with the kernel, slot and frame):
+  hud 7,869 B, match 8,849, sound 6,984, presence 7,432; thirteen cards on the bricks page 38,696 B
+  in all, each loaded near the viewport. Allocation (best of 3, 6,000 frames): step 0 to 0.8 B a frame,
+  whole moving frame 35 to 270 B.
 - **fizlet/arcade's skirmish preset runs its flow on `fizlet/match` (G15).** One owner of the phase:
   the countdown, pause / surrender and result are match's, on a small engine of its own that lives
   as long as the overlay (Recall destroys it, and its ledger takes the overlay back). The shell keeps
