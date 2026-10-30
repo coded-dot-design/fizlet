@@ -1,0 +1,33 @@
+{
+  "no": 61,
+  "id": "ghosts-float-up-bottom",
+  "date": "2026-10-30",
+  "prompt": "ghosts float up from the bottom",
+  "title": "Ghosts float up from the bottom",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "float",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 0.3
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/ghosts-float-up-bottom.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}

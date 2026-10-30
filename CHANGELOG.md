@@ -80,6 +80,10 @@
   (recipe shower, the critter scene: a skull pixel sprite, the shower motion; kernel + sprite +
   slot): live 6,061 B · total 7,987 B gzip (with the 1,926 B loader) on this build, loaded only near
   the viewport, never under reduced motion; loops while visible, asleep off screen.
+- **Website: gallery #061, "ghosts float up from the bottom".** Made by `fe anim` from the prompt
+  (recipe float, the critter scene: a ghost pixel sprite, the float motion; kernel + sprite + slot):
+  live 6,076 B · total 8,002 B gzip (with the 1,926 B loader) on this build, loaded only near the
+  viewport, never under reduced motion; settles to zero frames.
 
 ## 0.17.0
 
