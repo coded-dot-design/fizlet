@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **Fix: `destroy()` clears the fps cap's pending wake-up.** An engine with `fps` waits off the
+  shared clock on a timer between frames; `destroy()` left that timer to fire once more (harmless,
+  but it held the engine until then). It now clears it, so nothing of the engine outlives
+  `destroy()`. Test: `tests/kernel.test.mjs` ("destroy() clears the pending wake-up timer").
+  Kernel 3,439 → 3,441 B gzip; page build 7,127 → 7,128; arcade 21,970 → 21,973; arcade (`hud`
+  omitted) 17,964 → 17,963.
 - Gallery: the five how-it-works labs (#042–#046) approved by the owner and live.
 - **Fix: a dragged scoreboard no longer jumps when its board is not the viewport.** `drag()`
   (fizlet/arcade's panel drag, also used by Battlefield Blitz) set `left`/`top` from viewport
