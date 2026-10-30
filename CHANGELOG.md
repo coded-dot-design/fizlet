@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.20.0
 
 - **Gallery: the 7 kept pieces, rebuilt by hand as micro games** (owner approved, 2026-10-30). Each
   has its own stage (`stage: "own"`, `site/gallery/stages/<id>.html`) and story; page text moves
