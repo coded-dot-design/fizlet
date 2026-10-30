@@ -66,9 +66,12 @@ export function presence(e: Engine, o: PresenceOptions) {
   const receive = (d: Uint8Array) => {
     const k = d[0], s = d[1]!, f = d[4]! | (d[5]! << 8) | (d[6]! << 16) | (d[7]! << 24);
     if (d.length < 12 || s >= P || s === me) return;
+    // First write wins: a second INPUT or HASH for a frame a seat already sent is dropped, so a
+    // peer that sends two different inputs for one frame can't split the others' sims.
+    const i = s * C + (f % C);
     if (k === LEAVE) n[LOST]! |= 1 << s;
-    else if (k === INPUT && f >= n[FRAME]! && f < n[FRAME]! + C) put(s, f, d[8]! | (d[9]! << 8) | (d[10]! << 16) | (d[11]! << 24));
-    else if (k === HASH && f > n[FRAME]! - C && f < n[FRAME]! + C) check(s, f, d[8]! | (d[9]! << 8) | (d[10]! << 16) | (d[11]! << 24));
+    else if (k === INPUT && f >= n[FRAME]! && f < n[FRAME]! + C && tag[i] !== f) put(s, f, d[8]! | (d[9]! << 8) | (d[10]! << 16) | (d[11]! << 24));
+    else if (k === HASH && f > n[FRAME]! - C && f < n[FRAME]! + C && htag[i] !== f) check(s, f, d[8]! | (d[9]! << 8) | (d[10]! << 16) | (d[11]! << 24));
     else n[DROPPED]!++;
   };
   const system: System = {
@@ -105,7 +108,7 @@ export function presence(e: Engine, o: PresenceOptions) {
     get stalls() {
       return n[STALLS]!;
     },
-    /** Messages refused (out of the window, bad seat). */
+    /** Messages refused (out of the window, bad seat, a second input or hash for one frame). */
     get dropped() {
       return n[DROPPED]!;
     },
@@ -208,10 +211,12 @@ export function websocket(ws: WebSocket): Transport {
   };
 }
 
-/** Join a room (`fizlet-rooms`): resolves when the room is full with your seat and the shared seed. */
-export function join(url: string, signal?: AbortSignal) {
+/** Join a room (`fizlet-rooms`): resolves when the room is full with your seat and the shared seed.
+ *  `protocols` go to the WebSocket handshake: fizlet-rooms reads its invite code there
+ *  (`["fizlet-rooms", "invite." + code]`), so the code stays out of the URL and the logs. */
+export function join(url: string, signal?: AbortSignal, protocols?: string | string[]) {
   return new Promise<{ transport: Transport; slot: number; players: number; seed: number }>((ok, fail) => {
-    const ws = new WebSocket(url), t = websocket(ws);
+    const ws = new WebSocket(url, protocols), t = websocket(ws);
     const bye = () => (t.close(), fail(new Error("presence: room closed")));
     ws.addEventListener("close", bye);
     ws.addEventListener("error", bye);

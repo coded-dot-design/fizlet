@@ -72,6 +72,10 @@
       "types": "./dist/embed.d.ts",
       "default": "./dist/embed.js"
     },
+    "./touch": {
+      "types": "./dist/touch.d.ts",
+      "default": "./dist/touch.js"
+    },
     "./slot": {
       "types": "./dist/slot.d.ts",
       "default": "./dist/slot.js"
@@ -134,7 +138,8 @@
     "build": "node scripts/build.mjs",
     "check": "npm run typecheck && npm test && npm run build",
     "size": "node scripts/size.mjs",
-    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/drag.mjs && node tests/coach.mjs && node tests/timeline.mjs && node tests/labs.mjs && node tests/virus.mjs && node tests/small-packages.mjs && node tests/comic.mjs && node tests/hero-duo.mjs && node tests/pixel-pieces.mjs",
+    "readme:sizes": "node scripts/readme-sizes.mjs",
+    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/drag.mjs && node tests/coach.mjs && node tests/timeline.mjs && node tests/labs.mjs && node tests/virus.mjs && node tests/small-packages.mjs && node tests/touch.mjs && node tests/comic.mjs && node tests/hero-duo.mjs && node tests/pixel-pieces.mjs",
     "test:layers": "tsc -p site/demos/layers/tsconfig.json && node tests/layers.mjs",
     "test:pack": "node scripts/pack-smoke.mjs",
     "site": "npm run build && node scripts/site.mjs",

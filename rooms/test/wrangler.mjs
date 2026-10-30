@@ -2,7 +2,8 @@
 // 1. The gate: no invite, a wrong invite, a room past MAX_ROOMS, too many players → refused.
 // 2. Two fizlet engines with a valid invite join one room, play N lockstep frames, compare state.
 // 3. The caps: an oversized message and a message flood each get the socket closed; a silent room
-//    is closed after IDLE_SECONDS.
+//    is closed after IDLE_SECONDS, a room nobody else joins after LOBBY_SECONDS.
+// 4. The invite out of the URL: POST /invite and the WebSocket subprotocol (answered in the 101).
 // Needs fizlet built first (cd .. && npm run build). Node 22+ (global WebSocket, fetch).
 import { spawn, execFileSync } from "node:child_process";
 import { request } from "node:http";
@@ -21,7 +22,7 @@ const env = { ...process.env, WRANGLER_SEND_METRICS: "false", CI: "1" };
 
 // Seed the local KV with the test invite (its hash, as the owner's invite tool does).
 execFileSync("npx", ["wrangler", "kv", "key", "put", "--binding", "INVITES", await inviteKey(CODE), "e2e", "--local", "--persist-to", state], { cwd, env, stdio: "pipe" });
-const dev = spawn("npx", ["wrangler", "dev", "--local", "--port", String(PORT), "--ip", "127.0.0.1", "--persist-to", state, "--var", "IDLE_SECONDS:3", "--var", "MAX_ROOMS:4", "--var", "MAX_PLAYERS:2", "--var", "ALLOWED_ORIGINS:"], { cwd, env, detached: true });
+const dev = spawn("npx", ["wrangler", "dev", "--local", "--port", String(PORT), "--ip", "127.0.0.1", "--persist-to", state, "--var", "IDLE_SECONDS:3", "--var", "LOBBY_SECONDS:3", "--var", "MAX_ROOMS:5", "--var", "MAX_PLAYERS:2", "--var", "ALLOWED_ORIGINS:"], { cwd, env, detached: true });
 let log = "";
 dev.stdout.on("data", (d) => (log += d));
 dev.stderr.on("data", (d) => (log += d));
@@ -65,7 +66,7 @@ try {
   assert.equal((await fetch(`${HTTP}/invite?code=NOT-A-CODE`)).status, 403);
   assert.equal(await status(`${HTTP}/room/0?players=2`), 403, "no invite, no room");
   assert.equal(await status(`${HTTP}/room/0?players=2&invite=WRONG-CODE`), 403);
-  assert.equal(await status(`${HTTP}/room/4?players=2&invite=${CODE}`), 404, "MAX_ROOMS=4: rooms 0..3 only");
+  assert.equal(await status(`${HTTP}/room/5?players=2&invite=${CODE}`), 404, "MAX_ROOMS=5: rooms 0..4 only");
   assert.equal(await status(`${HTTP}/room/abc?players=2&invite=${CODE}`), 404);
   assert.equal(await status(`${HTTP}/room/0?players=3&invite=${CODE}`), 400, "MAX_PLAYERS=2");
 
@@ -121,7 +122,26 @@ try {
   assert.ok(idle.some((x) => x.code === 1001 && x.reason === "room idle"), JSON.stringify(idle));
   assert.ok(leftAt && idleMs >= 2500 && idleMs < 6000, `the room let go after ${idleMs} ms`);
 
-  console.log(`ok: gate (invite, room range, seats) refused bad joins; 2 clients, ${N} frames through wrangler dev (workerd, DO, KV) in ${ms.toFixed(0)} ms, byte-identical, stalls ${a.net.stalls}/${b.net.stalls}; flood → 1008, 13-byte message → 1009, silent room closed after ${(idleMs / 1000).toFixed(1)} s.`);
+  // A lone player in an unfilled room is let go after LOBBY_SECONDS (3 here), whatever it sends.
+  const t2 = performance.now();
+  const lone = await ends(`${WS}/room/4?players=2&invite=${CODE}`, (ws) => { const i = setInterval(() => ws.readyState === 1 ? ws.send(new Uint8Array(12).fill(1)) : clearInterval(i), 200); }, 20000);
+  assert.deepEqual(lone, { code: 1001, reason: "room not filled" });
+  const loneMs = performance.now() - t2;
+
+  // 4. The invite out of the URL.
+  const posted = await fetch(`${HTTP}/invite`, { method: "POST", body: CODE });
+  assert.equal(posted.status, 200, "POST /invite with the code as the body");
+  assert.equal((await fetch(`${HTTP}/invite`, { method: "POST", body: "NOT-A-CODE-12" })).status, 403);
+  const proto = await new Promise((ok) => {
+    const ws = new WebSocket(`${WS}/room/0?players=2`, ["fizlet-rooms", `invite.${CODE}`]);
+    ws.addEventListener("open", () => (ok(ws.protocol), ws.close()));
+    ws.addEventListener("error", () => ok("error"));
+  });
+  assert.equal(proto, "fizlet-rooms", "the invite as a subprotocol opens the room, and the 101 answers fizlet-rooms");
+  const badProto = await ends(`${WS}/room/0?players=2`, null, 5000).catch(() => "error");
+  assert.notEqual(badProto, "open");
+
+  console.log(`ok: gate (invite, room range, seats) refused bad joins; 2 clients, ${N} frames through wrangler dev (workerd, DO, KV) in ${ms.toFixed(0)} ms, byte-identical, stalls ${a.net.stalls}/${b.net.stalls}; flood → 1008, 13-byte message → 1009, silent room closed after ${(idleMs / 1000).toFixed(1)} s, lone player let go after ${(loneMs / 1000).toFixed(1)} s; POST /invite and the subprotocol invite work.`);
   bye(0);
 } catch (err) {
   console.error(err);
