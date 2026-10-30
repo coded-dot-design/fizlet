@@ -23,6 +23,153 @@
   card; `tests/brick-cards-alloc.mjs` (`npm run test:alloc:cards`) measures each card's allocation,
   best of 3 over 6,000 hand-driven frames: 0 B a step for all nine (input 1.1 B), whole moving frame
   21–811 B (canvas and style writes box their arguments; nothing once settled).
+- Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
+- **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
+  intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
+  could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
+  1 run in 3). `busy(sec)` keeps the engine awake for `sec` of its own time, then settle counts
+  from there. A later, shorter hold never cuts a longer one; `busy()`, `busy(0)` and `busy(NaN)` are
+  the plain "something moved" call.
+  - Settle now counts engine time (steps), not wall time. On a slow page whose frames drop steps,
+    wall time runs ahead of the engine's own, so a plain `busy()` with settle 0.6 used to sleep
+    after 0.27 s of engine time on 250 ms frames; now it waits the full 0.6 s.
+  - One value instead of two: the quiet clock becomes "the engine time settle counts from"
+    (`busy()` sets it to now, `busy(sec)` to now + sec, at least), and the `moved` flag is gone.
+    `wake()` is `busy()`, so a hold asked before the engine runs (a scene's intro, at mount)
+    survives start and wake.
+  - Sizes (gzip, measured on the 0.20.0 release train): kernel 3,443 → 3,438 B; page build (kernel +
+    slot + input + fx) 7,164 → 7,166 B (cap 7,168); arcade with `hud` omitted 18,351 → 18,348 B;
+    the layers hero's live chunk 9,720 → 9,724 B (the 5% margin under 10 KB, ≤ 9,728, unchanged).
+    No budget moves.
+  - Tests: a hold keeps the engine awake for its length, then settle (also on 250 ms frames); a
+    hold asked mid-run counts from there; a hold asked before start survives start and wake; a later shorter hold never cuts a longer one; 0 and NaN
+    are plain `busy()`; 1M steps calling `busy(sec)` allocate nothing.
+- **Gallery: scheduled intros hold the engine.** #023 (red cape) waited 0.5 s before its intro
+  without keeping the engine busy (settle 0.6 s); #026 (the landing) waited 0.6 s (settle 0.6 s)
+  and was fixed by counting the wait as busy. Both now call `engine.busy(wait)` when the wait is
+  set (at mount). The settle guard below found #023 and confirmed #026.
+- **Settle guard** (`npm run test:settle`, in CI after the site build; `tests/settle-guard.mjs`):
+  every gallery entry, live and archived, runs alone on its gallery page in Chromium with a probe in
+  the kernel, and must play its autoplay story through without a quiet stretch that turns busy again
+  by itself, then stay settled once woken with nothing pending. It failed on #023 and on #026
+  before these fixes in 3 of 3 runs each.
+- **`fizlet/css-clock`** (new brick, 477 B gz of its own; 5,377 B on 0.20.0 with the kernel and timeline it
+  composes, budget 5,632): a page's own CSS `@keyframes` on the kernel clock, so a site's ambient
+  loops (blinks, pulses, diagram loops, patrols) eat the dog food without being rewritten. The look
+  stays in the stylesheet: each animation is `paused` and reads its time from one custom property,
+  `animation-delay: var(--fz-t, 0s)` (or `calc(var(--fz-t, 0s) + <its own delay>)`); a timeline
+  moves that property through the ledger. `cssClock(root, { span, loops, prop, fps, motion, signal })`
+  → `{ engine, tl, play, hold, destroy }`. One shared requestAnimationFrame; off screen or in a
+  hidden tab, no frames; after `loops` plays of `span` seconds it rests on frame one (every
+  animation whose duration divides `span`) and the engine settles; a pointer, focus or coming back
+  into view plays it again; reduced motion lands on the rest frame at once; `destroy()` is Recall.
+  - Tests: `tests/css-clock.test.mjs` (clock, rest, settle, replay, hold, reduced motion, Recall) and
+    `tests/css-clock.mjs` in Chromium (real paused keyframes follow the clock mid-way, an own delay
+    composes with `calc()`, settled at 0 frames on frame one, Recall byte for byte).
+  - Status: BETA in `site/bricks.mjs` (since 0.21.0; fizlet.com ships it, its API may still move),
+    and a README row.
+- **Website: the last two CSS loops are on Fizlet.** The home demo's "CLICK THE PAGE" blink and the
+  roadmap's current-phase pulse (the kit's `bui-locked`) run on `fizlet/css-clock`: four blinks and
+  three pulses, then they rest and settle (before: infinite CSS loops). `demo.js` 10,070 → 12,077 B
+  gzip (+2,007 B: timeline and the brick; the kernel was already there).
+- **Site: on phones the layers story waits for a tap.** On a coarse pointer or at ≤ 600px (the
+  site's phone rule), the hero starts on the poster pose with the Board UI Play key showing, and
+  it asks for no frames until a tap. Desktop still autoplays. Each autoplay frame cost a 4× phone
+  about +40 idle points of main thread over the poster page. Paused, `npm run perf:page` measures
+  mobile idle at −3.6, −2.8 and +3.5 points over three runs (budget +10). `tests/layers.mjs`
+  covers a 390px window and a 1024px touch device (paused, no frames, a tap plays). Poster +
+  loader: 5,398 B gzip (+27 B). The live chunk is unchanged (9,720 B on 0.20.0).
+
+- **Fix: the layers story no longer shifts the page's layout as it opens (`index#layers`, CLS
+  +0.002 → 0).** As the story fanned the layers out, its slider's knob moved by `bottom`/`left`
+  and its rail squares spread by a growing flex `gap`, so the browser counted each frame as a
+  layout shift. The PerformanceObserver gave the knob `.lyr__k` and the rail's `i` squares as the
+  sources. Both now move by `translate`, measured in container units on the slider (`.lyr__sl`
+  is a size container; the figure's container is named `lyr` so its orientation queries still
+  read the figure). They draw where they did before: a pixel diff at 1440 and 390 for `--e` 0,
+  0.5 and 1 shows 0 changed pixels at rest and sub-pixel antialiasing only on the moving squares.
+  `tests/layers.mjs` now fails on any layout shift over a full cycle. Poster + loader: 5,371 B
+  gzip (+102 B; budget 6,144). The live chunk is unchanged (9,720 B on 0.20.0).
+- **Site: the home page reads shorter, and every link follows the site nav rules.** The sections
+  below the fold reveal as they come on screen: a divider draws in, then the head and the panels
+  stagger up. The hero grid and a big ghost number per numbered section drift with a light
+  parallax. All of it runs on Fizlet itself (`site/home-motion.ts`: one settling engine and
+  `fizlet/timeline`, with parallax as paused timelines scrubbed by `seek()`). It moves only opacity,
+  scale and translate, so there is no layout shift. It is still once the scroll stops,
+  hides nothing without JS, and does nothing under reduced motion. The home brick cards are now
+  compact: each snippet lives on its brick page, and the name's long story moved to `demos/fizz/`.
+  The home page is 13,578 px tall at 1440 (was 15,756) and 22,884 px at 390 (was 27,063). An
+  "On this page" strip jumps to each numbered section. Nav: the header lists the top-level pages
+  (Notes and Contest added; Recall and Games now live in the strip). Header and
+  footer links show where you are (`aria-current`). Every deep page has breadcrumbs (`crumbs()`
+  in `site/layout.mjs`). External links end in ↗, and the footer reaches every section, demos
+  included, so `examples/fizz/` is no longer an orphan. `scripts/check-nav.mjs` checks these rules
+  on every build in `npm run test:site`, with unit tests in `tests/check-nav.test.mjs`. The site
+  test also checks the reveals, reduced motion, settling and layout shift. Two press fixes: a
+  revealed section (positioned) no longer covers the base of a key on the previous section's
+  bottom edge (its box lets the pointer through, its content takes it back), and `.hero` is
+  `overflow: clip`, so the parallaxed field never gives a focus or `scrollIntoView` a hidden
+  scroll to move. The site test's `revealAll` and the home rhythm check wait on the reveals' state, not on time.
+
+## 0.20.0
+
+- **Gallery: the 7 kept pieces, rebuilt by hand as micro games** (owner approved, 2026-10-30). Each
+  has its own stage (`stage: "own"`, `site/gallery/stages/<id>.html`) and story; page text moves
+  only where the game hits it.
+  - #004 Sparky's workshop (pink sparks): a welding robot strikes an arc where you tap; sparks
+    bounce, scorch and fade, and one landing on the firework's fuse may set it off.
+  - #005 The rainy neon street (neon rain): taps raise the storm; drops short the real FIZLET sign
+    only where they hit it, and the third short blows it.
+  - #020 POW! BAM! ZAP!: click the Glitch to land hits with knockback; miss and it hits back; KO it
+    and the next one comes back tougher.
+  - #021 Here comes the rush (speed lines): a rocket bowls over the real heading's letters, the
+    wind leans the ones it passes, STRIKE for a whole line, and the "!" is a heavy pin.
+  - #022 Attack of the Halftone: each click prints a plate as a halftone dot wave; the cover is a
+    surprise until the black plate lands; about one sheet in four is a MISPRINT.
+  - #023 The night patrol (red cape): the gust swings each real pennant only as he passes it; a tap
+    dashes him into the city (bonks, waking windows, a leaking water tower, a cross moon).
+  - #026 The landing (hero lands): a three-point landing on its own landing page, a crater that
+    fades, a shockwave that knocks only the letters and buttons it reaches, and a cat that may end
+    up on his head.
+  - Posters are drawn from the scenes themselves (`scripts/gallery-posters.mjs`,
+    `scripts/pixel-posters.mjs`). Their frames-per-second and allocation lines are not re-measured
+    yet, so the cards leave them out.
+- **Fix: the heroes page's Prev key is served disabled** (the row starts on the first card), not
+  disabled only once the carousel's IntersectionObserver runs. The phone key check could list it as
+  enabled and then tap a disabled key (a flake on main too); it also waits for the centre card.
+- **Status flags on every brick; Fizlet launches as a 0.x public beta.** One source,
+  `site/bricks.mjs`: `STATUS` (COMPLETE "done, and always getting smaller and faster", BETA,
+  EXPERIMENTAL, ROADMAP, DEPRECATED, each with written criteria) and per brick `status`, `since`,
+  `tests`, `used` (released games and pages that ship it) and `why` (what keeps a BETA brick from
+  COMPLETE); `PLANNED` lists the ROADMAP bricks with phase, purpose, size target and dependencies.
+  At 0.19.0: 14 COMPLETE, 9 BETA (grid, camera, hud, match, presence, steer, coach, timeline,
+  board-page: tested only in the browser, no allocation test yet). A COMPLETE brick's `used` names
+  the releases that ship it (rules: DOM Battlefield 1.0.0, Blitz 0.8.0+, Null Invaders and Sherman
+  Bytes 1.0). The
+  README table gains a Status column and a Status flags section; brick pages show the flag as a
+  Board UI status pill with its evidence; the bricks index adds the pills, the criteria and the
+  planned bricks; the home page says "public beta" under the byline. `tests/status.test.mjs`
+  checks the evidence (test files exist, `since` is a release, COMPLETE names a shipped user, BETA a
+  why, planned bricks aren't exported) and that the README agrees.
+- **README sizes come from the build.** `npm run readme:sizes` rewrites the "What's in the box"
+  size column and the kernel's measured bytes from `scripts/sizes.mjs` (the CI budget's measure).
+  It is a release step, not a PR gate: `land.py bump` runs it, the release workflow fails on a stale
+  README (`--check`), and `tests/status.test.mjs` proves the generator on a fixture. Corrected at 0.19.0: kernel 3.4 KB
+  (3,439 B), slot 1.8, board-page 4.0, fx 2.7 (the whole module), camera 1.4, presence/check 4.8,
+  arcade 17.5 / 21.5, ui 2.8 + 4.8 KB css.
+- **Website: the roadmap runs E0 to E16, ticked only with evidence.** E1, E2 (re-scoped: the 22
+  bricks shipped; layout, view and actor bricks move to E10/E11) and E4 (re-scoped: two players on
+  the live site; Battlefield matches and AI players move to E12) are done; E0, E3, E5–E8 list what's
+  left; E7 (page interactions) and E8 (the game kit) are new; E9–E16 are planned with their bricks.
+  The games section and README say what's true now: every DOM VIRUS game runs on Fizlet.
+- **Website: the roadmap has one source, `site/roadmap.mjs`.** The home page's section 09 renders
+  it (phase range, launch scope, pills and boxes all from the data; no phase written in
+  `pages/index.mjs`), and a planned phase lists its ROADMAP bricks from `site/bricks.mjs` `PLANNED`
+  with their size targets. Statuses use the engine ROADMAP's words (done, partly, nearly, in
+  progress, started, planned), so the engine side can check that both say the same thing.
+  `tests/roadmap.test.mjs` checks phases in order, the launch scope (E0–E8) vs planned (E9–E16),
+  ticks that agree with each status, every planned brick under its phase, and that the page shows
+  exactly the source.
 - **fizlet/arcade's skirmish preset runs its flow on `fizlet/match` (G15).** One owner of the phase:
   the countdown, pause / surrender and result are match's, on a small engine of its own that lives
   as long as the overlay (Recall destroys it, and its ledger takes the overlay back). The shell keeps
@@ -59,12 +206,30 @@
   `tile()` and `draw()` now throw a `RangeError` ("fizlet/sprite: no sprite …"), like `need` does
   for bad options. Test: `tests/bricks.test.mjs` ("an id that names no sprite throws"); `draw`
   still allocates nothing once baked. fizlet/sprite 1,403 → 1,437 B gzip (budget 1,536).
+- **fizlet/input: intents resolve once; `id()` gives a step a number.** `down`, `hit` and `axis`
+  looked an intent up with `names.indexOf` on every call: a scan of the names in the step. Each
+  intent now resolves once, at setup, in a Map keyed by its name and by its number, so a lookup is
+  one Map read, never a scan. New `c.id("fire")` returns the number for hot paths (`c.hit(FIRE)` in
+  a step); a name that is no intent throws there, at setup. Names keep working everywhere.
+  Test: `tests/bricks.test.mjs` "input: intents resolve once…" (handle and name read the same over
+  65 intents, a typo throws, 0 young GCs over 1M frames by number). Size (gzip): input 1,287 →
+  1,335 B; page build 7,126 → 7,161 (budget 7,168 kept); arcade 21,973 → 22,015; arcade (`hud`
+  omitted) 17,967 → 18,024. The arcade budgets rise by exactly those deltas (22,058; 18,041), with
+  the reason in `scripts/sizes.mjs`.
 - **Fix: an on-screen key wakes a settled engine.** `controls().press()` and `steer()` now call
   `engine.wake()`, as a real key or pointer already did. A `fizlet/pad` key is
   `[data-fizlet-ignore]`, so its tap never reached input's own wake: on an engine with `settle`, a
   tap was latched but not stepped until something else woke it. Test: `tests/bricks.test.mjs`
   ("press() and steer() wake a settled engine"). fizlet/input 1,283 → 1,287 B gzip; arcade
   21,970 → 21,973; arcade (hud omitted) 17,964 → 17,967; page build 7,127 → 7,130 (all in budget).
+- **Fix: the fps cap counts its slot from the frame's start, not the end of its work.** A capped
+  engine napped `1000/fps − 4` ms after its hooks finished, so a frame whose work took longer than
+  the 4 ms slack missed its slot by a whole vsync: at 4× CPU the battlefield.domvirus.com hero
+  (`fps: 30`, ~13–28 ms a frame on a 390 × 844 phone) ran at 21.6–21.9 rAF/s instead of 30. The nap
+  is now shortened by the frame's own work time (`timing[1]`), never below 0. Test:
+  `tests/kernel.test.mjs` ("a slow frame still meets its next slot": 20 ms frames, 20 → 30 fps;
+  the fake display's timers now count each frame's work). Kernel 3,441 → 3,443 B gzip (a negative
+  nap is left to `setTimeout`, which clamps it to 0); page build unchanged (budget 7,168).
 - **Fix: `destroy()` clears the fps cap's pending wake-up.** An engine with `fps` waits off the
   shared clock on a timer between frames; `destroy()` left that timer to fire once more (harmless,
   but it held the engine until then). It now clears it, so nothing of the engine outlives
@@ -78,6 +243,29 @@
   order, then id; a pending entry has none. When two entries share a number, the first to land keeps
   it. The build shows a live entry's coming number (so a PR builds) and fails on a shared number,
   naming the entries and the fix. Tests: `tests/gallery-number.test.mjs`.
+- **fizlet-rooms: hardened for launch (brick audit 2, S1–S5).** Needs `wrangler deploy` (owner's go).
+  - **First input wins at the relay (S1).** A seat's `INPUT` and `HASH` frames must rise: a second,
+    different input for a frame, or an older frame, is never relayed, so one peer can't split the
+    others (fizlet/presence keeps the first one too, in its own PR).
+  - **Invite codes out of URLs and logs (S2).** `POST /invite` with the code as a text body, and the
+    WebSocket subprotocols `["fizlet-rooms", "invite." + code]` (the `101` answers `fizlet-rooms`).
+    `?code=` / `?invite=` still work for one release. `wrangler.toml` turns invocation logs off
+    (they record URLs); the worker logs nothing itself. Codes that travelled in URLs should be
+    rotated after the deploy (DEPLOY.md).
+  - **Rate caps and longer codes (S3).** `GATE_RATE` (30): invite checks + joins per IP a minute,
+    counted in each Worker isolate, refused with `429` before the KV read. `JOIN_RATE` (10): joins
+    per IP a minute into one room, counted by the room before a socket is accepted. Both are free
+    (no binding, no KV), with ceilings in `src/limits.js` like every cap. Codes are now 10 to 64
+    characters (was 6); the invite helper makes 15.
+  - **No room squatting (S4).** Only relayed messages and seats taken keep a room alive; a lone
+    player's refused messages and "room full" joiners no longer do, and a room not full
+    `LOBBY_SECONDS` (90) after its first seat closes with `1001 room not filled` (it could be held
+    open for 30 min).
+  - **Threat model (S5):** `rooms/THREAT-MODEL.md`, what is protected and what isn't. CI runs
+    `cd rooms && npm test`.
+  - Tests: `test/room.test.mjs` (new: the Worker and the Room on platform fakes; each test fails on
+    the old code), relay and limits tests; `test:wrangler` adds the lobby timeout, `POST /invite` and
+    the subprotocol invite through real workerd. Ran: `npm test` 16/16, `npm run test:wrangler` ✓.
 - **fizlet-rooms: rooms of up to 4 players, and `/invite` says the room size.** `wrangler.toml`
   `MAX_PLAYERS` 2 → 4 (the code ceiling stays 8 in `src/limits.js`); `GET /invite` now answers
   `{"ok":true,"players":<MAX_PLAYERS>}` so a page offers only room sizes that can join (Blitz's
@@ -94,6 +282,74 @@
   measured, the test that holds it and the PR. First entries (0.19.0, #67): the fps cap caps rAF
   (home at 1440, 119.6 → 28.5 rAF/s) and the demo settles (60.4 → 0 rAF/s). `tests/perf-log.test.mjs`
   fails when the log is stale or an entry has no measured number, PR or test.
+- **Phones: taps and swipes never zoom or pan the page** (owner: "for mobile all of our pages right
+  now need to lock down double tap and pinch to zoom… the pages get all out of shape").
+  - **`fizlet/touch`** (new brick, 310 B gzip, budget 512): `lockTouch(doc, sel)`, one delegated,
+    non-passive listener set that cancels iOS Safari's `gesturestart` / `gesturechange` (its pinch
+    ignores `user-scalable=no`) and any multi-touch start or move on the surfaces matching `sel`
+    (default `SURFACES`: slot stages, game hosts, the pad, draggable grips, `[data-touch-lock]`).
+    One finger is never touched, so taps, drags and scrolling stay. `null` locks the whole page (a
+    full-screen board). Returns `release()`.
+  - **Board UI kit (CSS):** `.bui` is `touch-action: manipulation` (no double-tap zoom) with
+    `text-size-adjust: 100%`; game hosts and `[data-touch-lock]` are `touch-action: none`, slots
+    (`.ae-slot`, `[data-fizlet-slot]`, `[data-touch-lock="y"]`) `pan-y`, all
+    `overscroll-behavior: none`. Slots stay `pan-y`, not `none`, so a hero that fills a phone never
+    traps the page's scroll; a swipe game sets `none` on its stage.
+  - **Every arcade game, automatically:** while a run is live the page is the board, so `arcade`
+    calls `lockTouch(document, null)` (no pinch or iOS gesture anywhere) and sets
+    `touch-action: manipulation` on the page through the ledger (no double-tap zoom, scrolling
+    stays); the engine's end releases both, so the page comes back exactly. Budgets rise by the
+    measured cost (owner-approved): `fizlet/arcade` +174 B (22,089 B, budget 22,190), the card build
+    +181 B (18,093 B, budget 18,101). `tests/arcade.mjs` checks the lock and its release.
+  - **fizlet.com:** every page runs `lockTouch` on the demo surfaces (home demo, brick demos,
+    timeline, labs, slots); they are `pan-y` and the full-screen hero `none`. Content pages keep
+    pinch-zoom on the copy (WCAG 1.4.4); only the double-tap zoom and the surfaces are locked. The
+    fizz example does the same.
+  - `tests/touch.mjs` (Chromium, 390 × 844, touch, mobile; in `test:browser`): pinch, double-tap
+    and swipe on a slot and a game host leave `visualViewport.scale` at 1 and the page 390 wide; a
+    game host never scrolls, the page still scrolls through a slot, the copy still zooms, and the
+    unlocked control page does zoom and scroll. `test:site` checks every page on a phone:
+    `touch-action: manipulation` on the page, every demo surface `none` or `pan-y`.
+  - **Status: BETA** in `site/bricks.mjs` (since 0.20.0; no released game ships it yet) and a README
+    row. `tests/status.test.mjs` accepts a `since` that is the coming release (newer than
+    package.json's version, with an Unreleased section) as well as a released one.
+- **Fix: fizlet/hud's events zero-allocation test no longer flakes; an event frame reads no DOM.**
+  The feed and banner read `el.children` on every frame with an event, not only on the first. On
+  the test's fake DOM each read built a new array, about 12 MB per 1M frames; a real `children`
+  is a cached live collection, but still a DOM call per event. The GC count of the same bytes
+  scaled with the young generation V8 chose: 3 scavenges at ~4 MB each, 14 when a loaded machine
+  had shrunk it to ~1 MB (`--trace-gc`). Ring numbers passed to `line`/`text` were not it (whole
+  numbers stay small integers). Rows and text nodes are now found once, on the first event. The
+  events window measures 0 young GCs and its bound drops from 10 to 1 (the test's banner returns
+  an array it holds); a new check counts `children` reads on later event frames (fails on main).
+  fizlet/hud 1,320 → 1,325 B gzip; arcade 21,970 → 21,980.
+- **Fix: fizlet/pad's `stickAt` and `dpadAt` allocate nothing (K5).** `stickAt` said "never
+  allocates" but called `Math.hypot`, which boxes its arguments: 23 young GCs per 1M fractional
+  drags. `stickAt`, `dpadAt` and the stick drag now use fizlet/steer's exact `hypot` (the same bits
+  as `Math.hypot`): 0. Test: `tests/bricks.test.mjs` "pad: stickAt and dpadAt allocate nothing"
+  (fails on main with 23). Size (gzip): pad 1,995 → 2,073 B; arcade 21,970 → 22,037; arcade (`hud`
+  omitted) 17,964 → 18,040. Each budget rises by exactly that delta (pad 2,126; arcade 22,083;
+  card 18,060), with the reason in `scripts/sizes.mjs`.
+- **Fix: fizlet/board-page's `hit` computes its query radius with the exact `hypot` (K5).** It used
+  `Math.sqrt(dx * dx + dy * dy)`, which differs from `Math.hypot` in the last bit for about 40% of
+  inputs (the games' `dist` is exact, so a replay keeps every bit). It now uses fizlet/steer's
+  `hypot`. Test: `tests/bricks.test.mjs` "K5: no plain-sqrt distance in a brick" scans every
+  source (fails on main at `src/board-page.ts:261`). Size (gzip): board-page 4,097 → 4,162 B;
+  arcade 21,970 → 22,023; arcade (`hud` omitted) 17,964 → 18,024. Each budget rises by exactly that
+  delta (board-page 4,193; arcade 22,069; card 18,044), with the reason in `scripts/sizes.mjs`.
+- **Tests: no wall-time waits of 300, 500 or 1000 ms; the fx "full pool" check counts work, not
+  milliseconds.** `tests/browser.mjs` waits on the launch burst being gone (was 1 s), on 30 engine
+  frames for "one rAF for many engines" (was 500 ms) and on the offscreen / onscreen pause state
+  (was 300 ms twice); `tests/arcade-hud.mjs` holds fire until a shot is out (was 500 ms);
+  `tests/labs.mjs`, `tests/virus.mjs` and `tests/layers.mjs` count page frames (was 300, 500 and
+  300 ms). Every wait is capped. `tests/bricks.test.mjs` "a full pool stops the blast's work" no
+  longer asserts `ms < 20`: two pools on one visual seed show that ten 1e6-power blasts on a full
+  pool draw exactly what ten tiny ones do (it fails if the work scales with power). No source change.
+- **fizlet.com: the two stylesheets every page loads are minified.** `npm run site` writes
+  `board-ui.css` and `site.css` through esbuild's CSS minifier instead of copying the readable
+  sources: board-ui.css 8,301 → 4,884 B gzip (exactly the `fizlet/ui (css)` number the bricks
+  page quotes, now what the site serves), site.css 11,530 → 9,091 B; 5,856 B gzip less on every
+  first visit. The npm package's `dist/ui/board-ui.css` is unchanged (consumers minify).
 - **Gallery: DOM Virus, two hand-built micro games (pending the owner's approval).** A new theme,
   `dom-virus`, with #047 **Terminal virus**: a worm types itself into a terminal, crawls onto the
   README beside it and eats its real letters (each bite rewrites a character of the page's own
@@ -110,6 +366,27 @@
   `tests/virus.mjs` (in `test:browser`) plays both: kills and zaps have their consequences, the
   README reads exactly as before once every worm is dead, both settle, a tap plays again,
   `destroy()` mid-play gives the page back byte for byte, and reduced motion loads nothing.
+- **fizlet/presence: first input wins (security).** A peer that sent two different inputs for one
+  frame could split the other peers' sims: one ran the frame with the first input, another got the
+  second before its step (brick audit 2, S1). Now a second INPUT or HASH for a frame a seat already
+  sent is dropped and counted in `dropped`, and the pre-filled frames before `delay` can't be
+  rewritten. Honest peers send one input per frame, so nothing changes for them. fizlet-rooms
+  drops the same duplicates at the relay (its own PR). Test: `tests/presence.test.mjs` (a cheating
+  seat 0, one peer stepping between the two inputs; fails on the old code). +14 B gzip (1,792 →
+  1,806 / 2,048), with:
+- **fizlet/presence: `join(url, signal, protocols)`.** The protocols go to the WebSocket handshake,
+  so a page can hand fizlet-rooms its invite code as `["fizlet-rooms", "invite." + code]` instead of
+  in the URL (URLs land in request logs). Optional; `join(url)` is unchanged.
+- **Fix: fizlet/sound no longer crashes on an event or cue named like an `Object.prototype` key.**
+  `o.cues[ev.type]` with an event type such as `"constructor"` or `"toString"` (a timeline label
+  can be anything) found a function, `NOTES[fn]` was undefined, and `for…of` threw in render, so
+  the engine's `onError` stopped the game; `play("toString")` from JS did the same (brick audit 2,
+  P10). `play()` now plays only cues that are `NOTES`' own keys (`Object.hasOwn`), so unknown cues
+  are ignored for the synth and a custom `play` alike (`Cue` already names the nine). An own
+  `cues.constructor` mapping still plays. Test: `tests/sound.test.mjs` (new; the old code throws
+  "NOTES[cue] is not iterable"). Sizes: sound 1,000 → 1,015 B gzip; arcade 21,970 → 21,981;
+  the card build 17,964 → 17,979, so its budget rises by the same 15 B (17,984 → 17,999,
+  reason in `scripts/sizes.mjs`): with fizlet#103 (+7 B) it would be 2 B over the old budget.
 - **Fix: `slot("page#slot", …)` finds astro-engine's current slot markup.** The engine now renders
   `<figure class="ae-slot-figure"><div class="ae-slot" data-slot-target role="img">…</div><figcaption
   class="ae-slot__fallback">` (the caption outside the role="img" box), and `findSlot()` looked only
@@ -117,6 +394,9 @@
   the figure or the box; the caption outside the box stays visible while the scene runs.
   `tests/browser.mjs` mounts a scene in both shapes. fizlet/slot 1,852 B gzip (−4 B); page build
   7,122 B (−5 B).
+- **Docs: no private pointers.** The README no longer links a private repo (astro-base-engine), and
+  `rooms/DEPLOY.md` makes invite keys with the public `inviteKey()` (a one-line command) instead of
+  a helper outside this repo. No code change.
 - **Website: Make one (`/make/`), v0.** Type a prompt, get one drop-in file: a `data-fizlet`
   mount and one module script with only the bricks the scene uses, its gzip size measured into its
   own header, by Chris Cooley, MIT. It all runs in the browser: the prompt is matched against the
@@ -182,6 +462,13 @@
     array: 22 young GCs per 400k sends, now 0. `tests/presence.test.mjs` (fake socket, best of 3).
     fizlet/presence 1,792 → 1,818 B gzip (budget 2,048).
   - `tests/camera.mjs` waits on frames until the engine settles instead of a 2 s wall-clock sleep.
+- **Sizes with release train 0.20.0's changes together** (#103, #96, #113, #115, #114, #117–#122,
+  #111, #105; measured on the integrated branch against main with #116; the numbers in the bullets
+  above are each change on its own). fizlet/arcade 23,999 → 24,334 B gzip (budget 24,064 →
+  24,399); the card build 18,038 → 18,351 (budget 18,048 → 18,361); fizlet/board-page 4,097 →
+  4,162 (budget 4,193); fizlet/pad 1,995 → 2,073 (budget 2,126); kernel 3,441 → 3,443; the page
+  build 7,129 → 7,164 (budget 7,168, unchanged: the hero's bricks stay ≤ 7 KB). Pad's and
+  board-page's exact `hypot` share code, so arcade rises 73 B for both, not 135.
 
 ## 0.19.0
 

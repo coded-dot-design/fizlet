@@ -2,7 +2,7 @@
 // the template modules in site/, the Board UI kit CSS, the live demo bundled from src/ with
 // esbuild, a one-file script-tag build (fizlet.js) and the ESM dist/ for the quick start.
 // No framework, no dependencies beyond the repo's dev tools. Run `npm run build` first (npm run site).
-import { build } from "esbuild";
+import { build, transform } from "esbuild";
 import { gzipSync } from "node:zlib";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "./sizes.mjs";
@@ -22,7 +22,7 @@ import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
 import { CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
-import { BRICKS, brickPath } from "../site/bricks.mjs";
+import { BRICKS, PLANNED, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
 import { liveBytes } from "./live-bytes.mjs";
@@ -52,7 +52,7 @@ const bundle = gzipSync(iife.outputFiles[0].contents).length;
 
 // Page scripts: the demo (bundled from src/, as a game would) and the shared site script.
 await build({
-  entryPoints: { demo: "site/demo.ts", site: "site/site.ts" },
+  entryPoints: { demo: "site/demo.ts", site: "site/site.ts", "home-motion": "site/home-motion.ts" },
   outdir: OUT, bundle: true, minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning",
 });
 
@@ -84,8 +84,11 @@ const blast = { live: "demo.js", bytes: liveBytes(`${OUT}/demo.js`) };
 const quick = { live: "fizlet.js", bytes: liveBytes(`${OUT}/fizlet.js`) };
 
 cpSync("dist", `${OUT}/dist`, { recursive: true });
-cpSync("src/ui/board-ui.css", `${OUT}/board-ui.css`);
-cpSync("site/site.css", `${OUT}/site.css`);
+// The two stylesheets every page loads, minified (the sources stay readable; esbuild is already the
+// build's tool): board-ui.css 8,301 → 4,884 B gzip, site.css 11,530 → 9,091 B (2026-10-30 sources).
+const minCss = async (from, to) => writeFileSync(to, (await transform(readFileSync(from, "utf8"), { loader: "css", minify: true })).code);
+await minCss("src/ui/board-ui.css", `${OUT}/board-ui.css`);
+await minCss("site/site.css", `${OUT}/site.css`);
 writeFileSync(`${OUT}/icon.svg`, mark(64).replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" style="color:#39ffb0;background:#07060f" '));
 writeFileSync(`${OUT}/og.png`, ogImage());
 writeFileSync(`${OUT}/.nojekyll`, "");
@@ -204,7 +207,7 @@ const pages = [
   ["index.html", page({
     title: "Fizlet · Tiny physics for your page",
     description: homeDescription,
-    base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast }), scripts: ["site.js", "demo.js", "demos/fizz/main.js"],
+    base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast }), scripts: ["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js"],
   })],
   ["examples/quick-start.html", page({
     title: "Quick start: ten lines to a blast · Fizlet",
@@ -214,7 +217,7 @@ const pages = [
   ["bricks/index.html", page({
     title: "Kernel and bricks: every module and its size · Fizlet",
     description: `Every Fizlet module with its API and its measured size: the kernel is ${(kernel.gzip / 1024).toFixed(1)} KB gzip, each brick its own import.`,
-    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version }), scripts: ["site.js", "brick-cards.js"],
+    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version, planned: PLANNED }), scripts: ["site.js", "brick-cards.js"],
   })],
   // The gallery: PAGE_SIZE entries a page (gallery/, gallery/page/2/, …), in theme sections.
   ...gallery.pages.map((p) => [`${p.path}index.html`, page({

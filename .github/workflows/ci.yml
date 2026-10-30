@@ -28,6 +28,10 @@ jobs:
           npm run check 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
       # Size budgets: kernel <= 4 KB gzip, each brick ~1.5 KB.
       - run: npm run size
+      # fizlet-rooms (the room server prototype): caps, relay, the Worker and Room on fakes. No
+      # install: its Node tests need no packages (wrangler is only for test:wrangler and deploys).
+      - run: npm test
+        working-directory: rooms
       # The runtime has no dependencies, ever.
       - run: node -e "const p=require('./package.json'); if (Object.keys(p.dependencies||{}).length || Object.keys(p.peerDependencies||{}).length) { console.error('Fizlet ships no runtime dependencies'); process.exit(1) }"
       - run: npx playwright install --with-deps chromium
@@ -47,6 +51,12 @@ jobs:
         run: |
           set -o pipefail
           npm run test:site 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
+      # Every gallery entry plays its autoplay story through before it settles (on the built site).
+      - name: npm run test:settle
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test:settle 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed|quiet for" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
   perf:
     # Measured, not claimed: frame times, dropped frames, first paint, heap and minor GCs under a
     # 4x CPU throttle, failing over tests/perf/budgets.json; plus the game-level allocation test.
