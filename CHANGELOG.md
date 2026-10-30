@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+- **Brick cards: a live toy per brick, built with that brick.** `site/cards/` holds one fizlet/slot
+  scene per brick on one shared frame (`frame.ts`: a 320 × 200 stage whose backing store matches the
+  slot in device pixels, so lines and labels stay sharp at any width and DPR; the brick drawn the
+  Board UI way; a floor; a readout of the engine's state: AWAKE n fps, then ASLEEP · 0 FPS). Nine so
+  far, each its own idea: kernel (bricks drop, stack, get knocked out; the loop sleeps when they
+  stop), fx (a crate knocked about by small blasts until the hero blast takes it apart), collide
+  (balls knock bricks out of a wall; grid checks against all pairs), grid (A* across a seeded board;
+  break a rock and the walk takes the short cut), steer (a tower of bricks flees the pointer and
+  arrives home), input (whack-a-brick: keys and taps on the same intents, a hit true for one step),
+  sprite (a pixel bug that flashes, gets angry and bursts into its own pixels), camera (a tiny DOM
+  page with fine print you can read only when the camera dives in) and timeline (six DOM bricks
+  dance into the next arrangement). Each shows its brick's gzip size from the build, loads near the
+  viewport, sleeps off screen, keeps a still labelled poster under reduced motion, and gives the page
+  back exactly. On the bricks page and each brick's page; `brickCard()` (site/brick-cards.mjs) plus
+  `brick-cards.js` mounts one anywhere (note cards, a gallery hero). Card chunks (gzip, with the
+  kernel, slot and frame): kernel 5,739 B, fx 8,821, collide 8,115, grid 7,532, steer 6,893, input
+  7,432, sprite 7,303, camera 7,126, timeline 7,757; loader 2,324 B; all nine on the bricks page
+  27,072 B (each loads only near the viewport). `tests/brick-cards.mjs` (in `test:site`) plays every
+  card; `tests/brick-cards-alloc.mjs` (`npm run test:alloc:cards`) measures each card's allocation,
+  best of 3 over 6,000 hand-driven frames: 0 B a step for all nine (input 1.1 B), whole moving frame
+  21–811 B (canvas and style writes box their arguments; nothing once settled).
 - **Four more brick cards: hud, match, sound, presence.** hud: a high striker; tap fast to heat it
   and ring the bell; its real DOM scoreboard (score, best, heat meter, HOT flag, a feed of strikes) is
   bound with fizlet/hud and the readout counts DOM writes against frames. match: a ten-second round on
@@ -26,27 +47,6 @@
   (gzip, with the kernel, slot and frame): pad 10,681 B, slot 8,117, board-page 11,250, ui 6,836.
   Allocation (best of 3, 6,000 frames): step 0.0 B a frame for all four, whole moving frame 57 to
   350 B. The alloc test and the site build accept card ids with a hyphen.
-- **Brick cards: a live toy per brick, built with that brick.** `site/cards/` holds one fizlet/slot
-  scene per brick on one shared frame (`frame.ts`: a 320 × 200 stage whose backing store matches the
-  slot in device pixels, so lines and labels stay sharp at any width and DPR; the brick drawn the
-  Board UI way; a floor; a readout of the engine's state: AWAKE n fps, then ASLEEP · 0 FPS). Nine so
-  far, each its own idea: kernel (bricks drop, stack, get knocked out; the loop sleeps when they
-  stop), fx (a crate knocked about by small blasts until the hero blast takes it apart), collide
-  (balls knock bricks out of a wall; grid checks against all pairs), grid (A* across a seeded board;
-  break a rock and the walk takes the short cut), steer (a tower of bricks flees the pointer and
-  arrives home), input (whack-a-brick: keys and taps on the same intents, a hit true for one step),
-  sprite (a pixel bug that flashes, gets angry and bursts into its own pixels), camera (a tiny DOM
-  page with fine print you can read only when the camera dives in) and timeline (six DOM bricks
-  dance into the next arrangement). Each shows its brick's gzip size from the build, loads near the
-  viewport, sleeps off screen, keeps a still labelled poster under reduced motion, and gives the page
-  back exactly. On the bricks page and each brick's page; `brickCard()` (site/brick-cards.mjs) plus
-  `brick-cards.js` mounts one anywhere (note cards, a gallery hero). Card chunks (gzip, with the
-  kernel, slot and frame): kernel 5,739 B, fx 8,821, collide 8,115, grid 7,532, steer 6,893, input
-  7,432, sprite 7,303, camera 7,126, timeline 7,757; loader 2,324 B; all nine on the bricks page
-  27,072 B (each loads only near the viewport). `tests/brick-cards.mjs` (in `test:site`) plays every
-  card; `tests/brick-cards-alloc.mjs` (`npm run test:alloc:cards`) measures each card's allocation,
-  best of 3 over 6,000 hand-driven frames: 0 B a step for all nine (input 1.1 B), whole moving frame
-  21–811 B (canvas and style writes box their arguments; nothing once settled).
 - **Six more brick cards: rules, coach, perf, css-clock, touch, embed.** Each has its own tap idea.
   rules: tap for a wave of supply crates (waves paces them, drops lets them fall, land and expire);
   tap landed crates in a quick chain for a combo and level up (score); an expired crate ends the
@@ -90,24 +90,6 @@
   - Sizes (gzip): ui css 4,974 → 5,125 B (budget 5,120 → 5,136); arcade with `hud` omitted 18,348 →
     18,363 B (budget 18,361 → 18,376); arcade 24,327 → 24,351 B; ui js 2,893 → 2,907 B; perf 1,958
     → 1,981 B; embed 2,016 → 2,040 B. Every other brick is unchanged.
-- Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
-- **Gallery, labs and the vendored domvirus pieces: hard shadows follow the domain.** Every offset
-  `box-shadow` / `drop-shadow` (and the press travel that goes with it) keeps its depth and reads
-  the Board UI tokens (`--shadow-x`, `--shadow-y`, unitless; BOARD-UI.md §4.1, #136):
-  `calc(<depth> * var(--shadow-x, 0)) calc(<depth> * var(--shadow-y, 1))`. On fizlet.com (0 1)
-  the diagonal slabs that came from DOM VIRUS now drop straight below like the site's own keys;
-  moved back to a 1 1 domain they turn 45° again with no edit.
-  - Ported: the labs (`site/labs/labs.css`: stage card, keys and their press, the Macs, the parcel's
-    drop-shadow), the stages of #021, #026, SMASH, the hammer and the terminal virus, Big things,
-    small packages' card, and both domvirus pieces (by the vendor script, below).
-  - `scripts/shadow-tokens.mjs`: `tokenShadows(css)` rewrites a stylesheet (a shadow that is not one
-    depth along one direction, such as sideways or up, can't be expressed and is removed);
-    `hardShadows(text)` finds what is left. `scripts/vendor-dom-virus.mjs` runs `tokenShadows` on
-    every piece it vendors.
-  - **Check** (`tests/shadow-tokens.test.mjs`, in `npm test`): no file in `site/` or `src/ui/` may
-    hard-code an offset shadow. Rings, glows and inset bevels are fine. Still waiting, counted and
-    only allowed to go down: `site/site.css` (17), `src/ui/board-ui.css` (12, #136), the layers
-    demo (4).
 - **Gallery: two pieces from domvirus.com, vendored at a pinned commit** (owner approved,
   2026-10-30; numbers at land time). Both are DOM VIRUS micros and link back to domvirus.com.
   - **your.page / under attack**: the domvirus.com home hero (dom-virus#20's Fizlet scene). The
@@ -130,6 +112,23 @@
   - Tests: `tests/dv-pieces.mjs` (in `test:browser`): plays, settles to 0 frames, a pointer wakes it,
     the hero's tap starts the game and its pause key stops frames, Recall byte for byte, reduced
     motion keeps the poster. `tests/vendor-dom-virus.test.mjs`. Both pass `npm run test:settle`.
+- **Gallery, labs and the vendored domvirus pieces: hard shadows follow the domain.** Every offset
+  `box-shadow` / `drop-shadow` (and the press travel that goes with it) keeps its depth and reads
+  the Board UI tokens (`--shadow-x`, `--shadow-y`, unitless; BOARD-UI.md §4.1, #136):
+  `calc(<depth> * var(--shadow-x, 0)) calc(<depth> * var(--shadow-y, 1))`. On fizlet.com (0 1)
+  the diagonal slabs that came from DOM VIRUS now drop straight below like the site's own keys;
+  moved back to a 1 1 domain they turn 45° again with no edit.
+  - Ported: the labs (`site/labs/labs.css`: stage card, keys and their press, the Macs, the parcel's
+    drop-shadow), the stages of #021, #026, SMASH, the hammer and the terminal virus, Big things,
+    small packages' card, and both domvirus pieces (by the vendor script, below).
+  - `scripts/shadow-tokens.mjs`: `tokenShadows(css)` rewrites a stylesheet (a shadow that is not one
+    depth along one direction, such as sideways or up, can't be expressed and is removed);
+    `hardShadows(text)` finds what is left. `scripts/vendor-dom-virus.mjs` runs `tokenShadows` on
+    every piece it vendors.
+  - **Check** (`tests/shadow-tokens.test.mjs`, in `npm test`): no file in `site/` or `src/ui/` may
+    hard-code an offset shadow. Rings, glows and inset bevels are fine. Still waiting, counted and
+    only allowed to go down: `site/site.css` (17), `src/ui/board-ui.css` (12, #136), the layers
+    demo (4).
 - **Board UI kit: a hidden `fizlet/coach` card is not drawn.** `card()` lays itself out inline
   (`display: grid`), and an inline display beats the browser's `[hidden]` rule. So `hide()` (and
   the card before its first `show`) left an empty card over the board, catching clicks: Battlefield
@@ -161,6 +160,7 @@
     closed and the rack rebooted clean, a file unplugged, the kill switch registered. The test also
     checks the end card's lesson, settle to 0 frames, a tap replaying, `destroy()` mid-play giving
     the page back byte for byte, and reduced motion loading nothing.
+- Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
