@@ -75,7 +75,7 @@ const cardBuild = await build({
 });
 const cardSizes = {};
 for (const [file, o] of Object.entries(cardBuild.metafile.outputs)) {
-  const id = o.entryPoint?.match(/^site\/cards\/(\w+)\.ts$/)?.[1];
+  const id = o.entryPoint?.match(/^site\/cards\/([\w-]+)\.ts$/)?.[1];
   if (id) cardSizes[id] = { live: file.slice(OUT.length + 1), bytes: liveBytes(file) };
 }
 for (const id of Object.keys(CARDS)) if (!cardSizes[id]) throw new Error(`brick card ${id}: no built chunk`);
