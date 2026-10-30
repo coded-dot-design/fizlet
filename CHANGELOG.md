@@ -2,6 +2,41 @@
 
 ## Unreleased
 
+- **Layers story: controls** (owner feedback). A play/pause key (the kit's arcade key) on one side
+  and a 3D slider on the other that scrubs the explode/assemble timeline: vertical down the right
+  edge when the slot is wide, along the bottom when it is tall. The slider is a small copy of the
+  stack (eight tilted plates on a kit rail, collision in green) that fans out as the real one does,
+  with the kit's arcade key as its knob. `role="slider"`: arrows, Page Up/Down, Home/End, touch and
+  mouse drag, the kit's focus ring. Scrubbing pauses; play resumes from that pose; paused, it
+  settles (0 frames). Reduced motion: the play key is hidden and the scene never loads, but the
+  slider still scrubs the still view (the poster is posed by one CSS variable, `--e`). One writer
+  at a time: the inline controller before the scene loads, the scene (through its ledger) once it
+  is mounted, so Recall restores the controls exactly. The figure is now labelled and described
+  (`aria-describedby`) instead of `role="img"`, so its controls stay reachable. The HUD's clock,
+  the tank hit flash, the scene's hex fallbacks for kit tokens (the figure is always a `.bui` root
+  with `board-ui.css`) and its `data-settle` option went to keep the live chunk ≥ 5% under budget on
+  0.15.0's bricks: 9,713 B gzip (≤ 9,728); poster, controls and inline script 5,258 B (budget 6 KB). The demo page shows the live chunk on
+  the size badge (`site/size-badge.mjs`). Tests: the controls with the scene (pause settles, keys,
+  pointer, play, Recall) and under reduced motion (keys, pointer); the budget test now fails above
+  9,728 B.
+- **Layers story: clean labels at every size** (owner feedback: "at the end the layer labels get
+  a little jumbled"). Four causes, each fixed:
+  - while the fix phase dimmed the other layers, `opacity` on a `preserve-3d` layer flattened it,
+    so its label lost its counter-rotation and smeared into the layer's plane; the scene now dims
+    a layer's children, never the layer;
+  - the scene's state classes (`o`, `f`, `b`, `k`) could match a host page's CSS: the demo page's
+    `.k` kicker stretched every label for the patched phase. Now `lz--o`, `lz--f`, `lz--b`, `lz--k`;
+  - labels faded with the open amount, so they slid together and ran off the edge as the stack
+    folded; they now show only while the stack is fully open (in after it opens, out before the
+    fold starts);
+  - the exploded gap was fixed, so on narrow slots labels sat closer than their height. The gap now
+    widens to keep a 28px label pitch on screen, and the scene measures its widest label at mount
+    (one layout read), so a wide fallback monospace no longer clips. The reduced-motion poster gets
+    the same pitch rule in CSS.
+  New browser test: through one full cycle at 390 and 1440, every visible label faces the screen,
+  stays inside the figure and overlaps no other (fails on 0.10.0). Measured (Chromium 153, 4× CPU
+  throttle): live chunk 9,609 → 9,717 B gzip (still ≥ 5% under 10 KB), poster + loader 2,962 →
+  3,153 B; script per frame 0.8 ms median, 3.1 ms p95; CLS 0; 0 frames settled.
 - **Website: notes (`/notes/`)**, posts written for fizlet.com from `site/notes/<slug>.json` (generated, never hand-edited), on the site's own parts: section head, panels, stat cards, kit keys, and the kernel's size badge measured on the build. BlogPosting + FAQPage JSON-LD; listed in the sitemap and under Notes in llms.txt. First note: "Moving the games onto a 4 KB kernel" (every number from the size ledger and this changelog).
 
 ## 0.16.0

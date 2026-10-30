@@ -18,25 +18,32 @@ await build({
 });
 // The poster is rendered at build time (TS through esbuild, run here in Node).
 const tmp = await build({ entryPoints: [`${HERE}/poster.ts`], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
-const { poster, loader, POSTER_CSS, bounds, BOUNDS } = await import("data:text/javascript;base64," + Buffer.from(tmp.outputFiles[0].text).toString("base64"));
+const { poster, loader, POSTER_CSS, bounds, BOUNDS, LAYERS } = await import("data:text/javascript;base64," + Buffer.from(tmp.outputFiles[0].text).toString("base64"));
 // The live chunk uses precomputed bounds; they must match the formula.
 const b = bounds();
-if (Math.abs(b.w - BOUNDS.w) > 0.01 || Math.abs(b.h - BOUNDS.h) > 0.01 || Math.abs(b.cx) > 0.01 || Math.abs(b.cy) > 0.01)
-  throw new Error(`data.ts BOUNDS is stale: bounds() gives ${JSON.stringify(b)}`);
+const hb = bounds(1).h;
+if (Math.abs(b.w - BOUNDS.w) > 0.01 || Math.abs(b.h - BOUNDS.h) > 0.01 || Math.abs(hb - BOUNDS.hb) > 0.01 || Math.abs(b.cx) > 0.01 || Math.abs(b.cy) > 0.01)
+  throw new Error(`data.ts BOUNDS is stale: bounds() gives ${JSON.stringify({ ...b, hb })}`);
+// The scene carries only the layer ids; they must match LAYERS.
+const ids = (readFileSync(`${HERE}/scene.ts`, "utf8").match(/const IDS = "([^"]+)"/) ?? [])[1];
+if (ids !== LAYERS.map((l) => l.id).join(" ")) throw new Error(`scene.ts IDS (${ids}) does not match data.ts LAYERS`);
 const { page } = await import("../../../examples/layers/page.mjs");
 
 let measured = null;
 try { measured = JSON.parse(readFileSync(`${HERE}/measured.json`, "utf8")); } catch {}
 copyFileSync("src/ui/board-ui.css", join(OUT, "board-ui.css"));
-// The site's search and sharing tags on the example host page (the example itself stays plain).
-const head = { title: "Layers: a game is a stack, each layer one brick · Fizlet", path: "demos/layers/",
-  description: "A game is a stack of layers. Battlefield Blitz fans out into its bricks, one faults, gets patched, and folds back." };
-writeFileSync(join(OUT, "index.html"), page({ figure: poster(), css: POSTER_CSS, loader: loader(), measured })
-  .replace(/<title>[^<]*<\/title>/, `<title>${esc(head.title)}</title>`).replace(/(<meta name="description"[^>]*>)/, `$1\n${social(head)}\n${jsonLd()}`));
 
 const gz = (b) => gzipSync(b).length;
 const sizes = { loader: gz(loader()), live: gz(readFileSync(join(OUT, "layers.js"))) };
 // Inline on the page: the figure, its CSS and the loader.
 sizes.poster = gz(`<style>${POSTER_CSS}</style>${poster()}${loader()}`);
 writeFileSync(join(OUT, "sizes.json"), JSON.stringify(sizes));
+// The size badge (site/size-badge.mjs) and its rules, read from site/site.css (one source).
+const badgeCss = (readFileSync("site/site.css", "utf8").match(/\.size-badge \{[\s\S]*?\n\}\n\.size-badge b \{[\s\S]*?\n\}/) ?? [""])[0];
+if (!badgeCss) throw new Error("site/site.css: the .size-badge rules moved; update build.mjs");
+// The site's search and sharing tags on the example host page (the example itself stays plain).
+const head = { title: "Layers: a game is a stack, each layer one brick · Fizlet", path: "demos/layers/",
+  description: "A game is a stack of layers. Battlefield Blitz fans out into its bricks, one faults, gets patched, and folds back." };
+writeFileSync(join(OUT, "index.html"), page({ figure: poster(), css: POSTER_CSS + badgeCss, loader: loader(), measured, sizes })
+  .replace(/<title>[^<]*<\/title>/, `<title>${esc(head.title)}</title>`).replace(/(<meta name="description"[^>]*>)/, `$1\n${social(head)}\n${jsonLd()}`));
 console.log(`Built ${OUT}: live chunk ${sizes.live} B, inline poster + loader ${sizes.poster} B (loader ${sizes.loader} B) gzip`);
