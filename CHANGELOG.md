@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Site: one section rule, one section gap.** The home page's gradient dividers (inset, faded, drawn on a section's top edge right under the last section's keys) are now the footer's top border: a 2px `--line` rule, edge to edge, in the flow, with `--section-gap` on each side, so it never touches content. The closing band's dashed rule is the same rule. `--section-gap` (`clamp(70px, 10vw, 120px)`, the space the dashed rule had above it) is every section's top space and the space above the footer. Site CSS 10,422 → 10,407 B gzip (minified); no package size change.
 - **Tests: `fizlet/css-clock` has its zero-allocation proof** (`tests/css-clock.test.mjs`): 200k steps while it plays and 200k whole frames at rest (held) each take ≤ 1 young-generation GC (best of 3 windows). Its tests never counted allocations (touch has no loop; arcade is covered by #144) (2026-10-30 code audit, `fe audit fizlet`). Tests only; no size change.
 - **Kernel fix: `start()` on a settled engine runs again.** It cleared the settled bit but not the
   quiet time, so the first frame after it (0 s, no steps) found the engine still quiet and put it

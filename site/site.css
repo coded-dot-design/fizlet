@@ -7,6 +7,9 @@
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --page: 1200px;
   --gutter: 30px;
+  /* The least block space a section gets, and what sits on each side of a section rule (the
+     space the closing band's rule had above it). */
+  --section-gap: clamp(70px, 10vw, 120px);
   /* A panel's base: the card colour pushed into the rim, straight below (never to the side). */
   --base: color-mix(in srgb, var(--k-cmd) 38%, var(--rim));
   --grid: color-mix(in srgb, var(--k-sys) 9%, transparent);
@@ -328,7 +331,7 @@ a.bui-sticker-key {
 
 /* ---------- Footer ---------- */
 .site-foot {
-  margin-top: 40px;
+  margin-top: var(--section-gap);
   border-top: 2px solid var(--line);
   background: var(--surface);
 }
@@ -804,7 +807,7 @@ html.bui[data-theme="light"] .dl.hot {
 
 /* ---------- Sections ---------- */
 .section {
-  padding: clamp(70px, 10vw, 120px) 0 0;
+  padding: var(--section-gap) 0 0;
 }
 .section-head {
   max-width: 780px;
@@ -830,7 +833,7 @@ html.bui[data-theme="light"] .dl.hot {
   margin-top: 26px;
 }
 
-/* Home rhythm (site/home-motion.ts): a divider that draws in and a big ghost number per numbered
+/* Home rhythm (site/home-motion.ts): a rule that draws in and a big ghost number per numbered
    section, both aria-hidden. fizlet/timeline writes their scale, opacity and translate inline;
    without JS (or with reduced motion) these resting values are what shows. Only opacity, scale
    and translate move, on composited layers: nothing shifts the layout or repaints the page. */
@@ -847,20 +850,19 @@ html.bui[data-theme="light"] .dl.hot {
 .section[data-reveal] > :not(.sec-rule, .sec-num) {
   pointer-events: auto;
 }
+/* A section rule is the footer's top border: solid, edge to edge, in the flow (so it never
+   overlaps a section's content), with the section gap on each side. */
 .sec-rule {
-  position: absolute;
-  top: 0;
-  left: max(var(--gutter), (100% - var(--page)) / 2 + var(--gutter));
-  right: max(var(--gutter), (100% - var(--page)) / 2 + var(--gutter));
+  display: block;
   height: 2px;
-  background: linear-gradient(90deg, var(--k-sys), var(--k-cmd) 60%, transparent);
+  margin-bottom: var(--section-gap);
+  background: var(--line);
   transform-origin: left;
-  opacity: 0.7;
 }
 .sec-num {
   position: absolute;
   z-index: -1;
-  top: clamp(40px, 7vw, 80px);
+  top: calc(var(--section-gap) + clamp(40px, 7vw, 80px));
   right: max(var(--gutter), (100% - var(--page)) / 2 + var(--gutter));
   font: 900 clamp(96px, 17vw, 230px) / 1 var(--mono);
   letter-spacing: -0.06em;
@@ -1586,17 +1588,11 @@ html.bui[data-theme="light"] .phases b {
 }
 
 /* Final */
-.final {
-  padding-bottom: 40px;
-}
 .final-inner {
   display: grid;
   justify-items: center;
   gap: 18px;
-  padding-top: 60px;
-  padding-bottom: 50px;
   text-align: center;
-  border-top: 2px dashed var(--line);
 }
 .final-inner h2 {
   margin: 0;
