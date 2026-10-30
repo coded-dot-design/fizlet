@@ -2,7 +2,7 @@
 // the template modules in site/, the Board UI kit CSS, the live demo bundled from src/ with
 // esbuild, a one-file script-tag build (fizlet.js) and the ESM dist/ for the quick start.
 // No framework, no dependencies beyond the repo's dev tools. Run `npm run build` first (npm run site).
-import { build } from "esbuild";
+import { build, transform } from "esbuild";
 import { gzipSync } from "node:zlib";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "./sizes.mjs";
@@ -72,8 +72,11 @@ const blast = { live: "demo.js", bytes: liveBytes(`${OUT}/demo.js`) };
 const quick = { live: "fizlet.js", bytes: liveBytes(`${OUT}/fizlet.js`) };
 
 cpSync("dist", `${OUT}/dist`, { recursive: true });
-cpSync("src/ui/board-ui.css", `${OUT}/board-ui.css`);
-cpSync("site/site.css", `${OUT}/site.css`);
+// The two stylesheets every page loads, minified (the sources stay readable; esbuild is already the
+// build's tool): board-ui.css 8,301 → 4,884 B gzip, site.css 11,530 → 9,091 B (2026-10-30 sources).
+const minCss = async (from, to) => writeFileSync(to, (await transform(readFileSync(from, "utf8"), { loader: "css", minify: true })).code);
+await minCss("src/ui/board-ui.css", `${OUT}/board-ui.css`);
+await minCss("site/site.css", `${OUT}/site.css`);
 writeFileSync(`${OUT}/icon.svg`, mark(64).replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" style="color:#39ffb0;background:#07060f" '));
 writeFileSync(`${OUT}/og.png`, ogImage());
 writeFileSync(`${OUT}/.nojekyll`, "");

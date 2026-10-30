@@ -10,12 +10,19 @@ import { BRICKS, PLANNED, STATUS, BETA_LINE } from "../site/bricks.mjs";
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
 const readme = readFileSync("README.md", "utf8");
 const SHIPPED = ["complete", "beta", "experimental", "deprecated"];
+const ver = (v) => v.split(".").map(Number);
+/** A brick merged since the last release: `since` is newer than package.json's version and the CHANGELOG has an Unreleased section. */
+const coming = (v) => {
+  const [a, b] = [ver(v), ver(pkg.version)];
+  const newer = a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
+  return newer > 0 && readFileSync("CHANGELOG.md", "utf8").includes("## Unreleased");
+};
 
 test("every brick carries a known flag, the release it shipped in and its tests", () => {
   for (const b of BRICKS) {
     assert.ok(SHIPPED.includes(b.status), `${b.id}: status "${b.status}" (a shipped brick can't be roadmap)`);
     assert.match(b.since, /^\d+\.\d+\.\d+$/, `${b.id}: since`);
-    assert.ok(readFileSync("CHANGELOG.md", "utf8").includes(`## ${b.since}`), `${b.id}: ${b.since} is not a CHANGELOG release`);
+    assert.ok(readFileSync("CHANGELOG.md", "utf8").includes(`## ${b.since}`) || coming(b.since), `${b.id}: ${b.since} is not a CHANGELOG release (or the coming one)`);
     assert.ok(Array.isArray(b.used), `${b.id}: used`);
     if (b.status !== "experimental") assert.ok(b.tests.length, `${b.id}: a ${b.status} brick needs tests`);
     for (const t of b.tests) assert.ok(existsSync(`tests/${t}`), `${b.id}: tests/${t} is missing`);
