@@ -20,6 +20,10 @@ export const CARDS: Record<string, Load> = {
   match: () => import("./cards/match"),
   sound: () => import("./cards/sound"),
   presence: () => import("./cards/presence"),
+  pad: () => import("./cards/pad"),
+  slot: () => import("./cards/slot"),
+  "board-page": () => import("./cards/board-page"),
+  ui: () => import("./cards/ui"),
 };
 
 const mounted = new WeakSet<Element>(); // not a data attribute: the page stays byte for byte
