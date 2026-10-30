@@ -1,8 +1,7 @@
-// The can, as pixel data for fizlet/sprite, in flat Fizlet tokens with an ink rim, drawn by code
-// (no hand-typed rows): a glossy cylinder, light from the upper left. Side view: 40 × 80 sprite
-// pixels; frames 0–2 the tab flat, lifting and up (the opening dark), 3–5 the same crunched. Top
-// view (looking into the can): 44 × 44; frames 0–2 the tab flat, lifting and up. Shared by the live
-// scene (baked once onto the canvas) and the build (the same pixels as an SVG for the still poster).
+// The can, as pixel data for fizlet/sprite, in flat Fizlet tokens with an ink rim. Side view: 20 × 40
+// sprite pixels; frames 0 sealed, 1 open, 2 crunched and sealed, 3 crunched and open. Top view
+// (looking into the can): 22 × 22; frames 0 sealed, 1 open. Shared by the live scene (baked once
+// onto the canvas) and the build (the same pixels as an SVG for the still poster).
 import type { SpriteDef } from "../../../src/sprite";
 
 /** Brand tokens (fizlet-engine brands/fizlet/style-guide.md). */
@@ -19,78 +18,90 @@ export const C = {
   base: "#3f296a",
 };
 
-export const W = 40, H = 80, T = 44;
-/** The opening in the side view and in the top view, in sprite pixels from the top left. */
-export const MOUTH = { x: 24, y: 11 };
-export const HOLE = { x: 22, y: 11 };
+// Rows 0–3: headroom for the raised tab. Lid 4–8, neck 9–10, body 11–35, base 36–39.
+const lid = [
+  "....................",
+  "....................",
+  "....................",
+  "....................",
+  "....dmmmmmmmmmmd....",
+  "..dmmttttttttttmmd..",
+  ".dmttttttttttttttmd.",
+  ".dmmttttttttttttmmd.",
+  "..ddmmmmmmmmmmmmdd..",
+  "..shhpppppppppppss..",
+  ".shhppppppppppppps..",
+];
+const body = (band: string) => `shhpp${band}pss`;
+const plain = body("pppppppppppp"), stripe = body("gggggggggggg"), blank = body("cccccccccccc");
+// FIZ in a 3 × 5 pixel font on the cyan band.
+const word = ["kkk.k.kkk", "k...k...k", "kk..k..k.", "k...k.k..", "k...k.kkk"].map((r) =>
+  body(("." + r + "..").replace(/\./g, "c")),
+);
+const rows = [
+  ...lid,
+  plain, plain, plain,
+  stripe,
+  blank,
+  ...word,
+  blank,
+  stripe,
+  plain, plain, plain, plain, plain, plain, plain, plain, plain, plain, plain, plain,
+  ".shhppppppppppppps..",
+  "..dmmmmmmmmmmmmmmd..",
+  "...dmmmmmmmmmmmmd...",
+  "....dddddddddddd....",
+];
+const put = (r: string[], y: number, x: number, s: string) => (r[y] = r[y]!.slice(0, x) + s + r[y]!.slice(x + s.length));
+const sealed = rows.slice(), open = rows.slice();
+// Sealed: the tab lies flat on the lid.
+put(sealed, 5, 7, "dddd");
+put(sealed, 6, 7, "dttd");
+put(sealed, 7, 8, "dd");
+// Open: the tab stands up behind the opening, the opening is dark.
+put(open, 1, 7, "ddd");
+put(open, 2, 7, "dtd");
+put(open, 3, 7, "dtd");
+put(open, 4, 7, "ddd");
+put(open, 6, 9, "kkkk");
+put(open, 7, 10, "kk");
 
-// FIZ in a 5 × 7 pixel font.
-const FIZ = ["11111.1.11111", "1.....1.....1", "1.....1....1.", "1111..1...1..", "1.....1..1...", "1.....1.1....", "1.....1.11111"];
-
-/** Cylinder shading across the body: gloss on the left, the token pink, shade on the right. */
-const tone = (x: number, l: number, r: number, band: boolean) => {
-  const u = (x - l) / (r - l);
-  if (u < 0.05 || u > 0.94) return band ? "g" : "s";
-  if (u > 0.13 && u < 0.18) return "t"; // the specular line
-  if (u < 0.26) return band ? "c" : "h";
-  return u > 0.74 ? (band ? "g" : "s") : band ? "c" : "p";
+// Crunched: the middle of the body caves in (the sides step in, creases across the front).
+const dent = (r: string[]) => {
+  const d = r.slice();
+  for (let y = 25; y < 31; y++) put(d, y, 0, y > 25 && y < 30 ? ".s" : "s"), put(d, y, 18, y > 25 && y < 30 ? "s." : "s");
+  put(d, 26, 5, "sss");
+  put(d, 27, 8, "ssss");
+  put(d, 28, 12, "ss");
+  put(d, 29, 6, "ss");
+  return d;
 };
 
-function side(tab: number, crunched: boolean) {
-  const g: string[][] = Array.from({ length: H }, () => Array(W).fill("."));
-  const set = (x: number, y: number, c: string) => x >= 0 && x < W && y >= 0 && y < H && (g[y]![x] = c);
-  for (let y = 0; y < H; y++) {
-    // The silhouette: lid rim 8–15, neck 16–19, shoulder 20–23, body, the base taper 72–79.
-    let l = y < 8 ? 99 : y < 16 ? 4 : y < 20 ? 5 + (y - 16 > 1 ? 1 : 0) : y < 24 ? 5 - (y - 19) : y < 72 ? 1 : y < 76 ? 1 + (y - 71) : 6 + (y - 76);
-    if (crunched && y > 50 && y < 62) l += y > 52 && y < 60 ? 2 : 1;
-    const r = W - 1 - l;
-    for (let x = l; x <= r; x++) {
-      const metal = y < 20 || y >= 74, u = (x - l) / Math.max(1, r - l);
-      let c = metal ? (u < 0.2 ? "t" : u > 0.75 ? "d" : "m") : tone(x, l, r, y >= 33 && y <= 52);
-      if (!metal && (y === 33 || y === 52)) c = "d";
-      if (y === 16 || y === 74) c = "d"; // the seams
-      set(x, y, c);
-    }
-  }
-  // The lid seen just from above: a flat ellipse of light metal inside the rim.
-  for (let y = 9; y < 15; y++)
-    for (let x = 6; x < 34; x++) {
-      const e = ((x - 19.5) / 13.5) ** 2 + ((y - 11.5) / 2.6) ** 2;
-      if (e < 1) set(x, y, e > 0.72 ? "d" : x < 14 ? "t" : "m");
-    }
-  // The tab: flat on the lid, lifting, then upright behind the dark opening.
-  if (tab === 0) for (const [x, y, c] of [[17, 10, "d"], [18, 10, "d"], [19, 10, "d"], [20, 10, "d"], [17, 11, "d"], [18, 11, "t"], [19, 11, "t"], [20, 11, "d"], [18, 12, "d"], [19, 12, "d"]] as const) set(x, y, c);
-  else {
-    const top = tab === 1 ? 6 : 1;
-    for (let y = top; y < 12; y++) for (let x = 16; x < 21; x++) set(x, y, x === 16 || x === 20 || y === top ? "d" : x === 17 ? "t" : "m");
-    if (tab === 2) for (let y = 10; y < 13; y++) for (let x = 21; x < 28; x++) if (((x - 24) / 3.5) ** 2 + ((y - 11) / 1.6) ** 2 < 1) set(x, y, "k");
-  }
-  // The label: FIZ in ink-dark on the cyan band, set a little left of centre (the can turns).
-  FIZ.forEach((row, i) => [...row].forEach((b, j) => b === "1" && set(12 + j, 39 + i, "k")));
-  // Crunched: creases across the front.
-  if (crunched) for (const [x, y, n] of [[8, 54, 6], [16, 56, 8], [26, 55, 5], [11, 58, 5], [21, 59, 6]]) for (let i = 0; i < n!; i++) set(x! + i, y!, "s");
-  return g.map((r) => r.join(""));
-}
-
-function top(tab: number) {
-  const g: string[] = [];
-  for (let y = 0; y < T; y++) {
+// Top view: the pink shoulder (shaded on the lower right), the rim, the groove, the lid; the tab
+// lies flat, then stands up and leaves the opening dark.
+const top = (open: boolean) =>
+  Array.from({ length: 22 }, (_, y) => {
     let r = "";
-    for (let x = 0; x < T; x++) {
-      const d = Math.hypot(x - 21.5, y - 21.5), a = x + y;
-      // Shoulder (lit upper left, shaded lower right), rim, lid with a groove; the opening and tab.
-      r += d > 22 ? "." : d > 19.4 ? (a < 30 ? "h" : a > 56 ? "s" : "p") : d > 18.4 ? "d" : d > 16 ? (a < 34 ? "t" : "m") : d > 15 ? "d"
-        : tab === 2 && ((x - 22) / 5) ** 2 + ((y - 11) / 3.2) ** 2 < 1 ? "k"
-        : tab === 0 && x > 18 && x < 25 && y > 8 && y < 26 ? (x > 19 && x < 24 && y > 9 && y < 25 && !(y > 18 && y < 22 && x > 20 && x < 23) ? "t" : "d")
-        : tab === 1 && x > 18 && x < 25 && y > 13 && y < 26 ? (x > 19 && x < 24 && y > 14 && y < 25 ? "t" : "d")
-        : tab === 2 && x > 18 && x < 25 && y > 19 && y < 25 ? (y > 20 && y < 24 && x > 19 && x < 24 ? "t" : "d")
-        : a < 30 ? "t" : "m";
+    for (let x = 0; x < 22; x++) {
+      const d = Math.hypot(x - 10.5, y - 10.5);
+      r += d > 11 ? "." : d > 9.6 ? (x + y > 24 ? "s" : "p") : d > 9 ? "d" : d > 7.8 ? "m" : d > 7.2 ? "d" :
+        open && y > 2 && y < 8 && Math.abs(x - 10.5) < (y > 3 && y < 7 ? 3 : 2) ? "k" :
+        !open && y > 3 && y < 13 && x > 8 && x < 13 ? (x > 9 && x < 12 && y > 4 && y < 12 ? "m" : "d") :
+        open && y > 8 && y < 12 && x > 7 && x < 14 ? (y === 10 && x > 8 && x < 13 ? "m" : "d") : "t";
     }
-    g.push(r);
-  }
-  return g;
-}
+    return r;
+  });
 
-const colors = { k: C.rim, d: C.line, m: C.muted, t: C.ink, p: C.attack, h: C.aim, s: C.shade, c: C.sys, g: C.go };
-export const CAN: SpriteDef = { frames: [0, 1, 2, 0, 1, 2].map((t, i) => side(t, i > 2)), colors, outline: C.rim };
-export const TOP: SpriteDef = { frames: [0, 1, 2].map(top), colors, outline: C.rim };
+export const W = 20, H = 40, T = 22;
+/** The opening, in sprite pixels from the top left. */
+export const MOUTH = { x: 11, y: 6 };
+
+export const CAN: SpriteDef = {
+  frames: [sealed, open, dent(sealed), dent(open)],
+  colors: { k: C.rim, d: C.line, m: C.muted, t: C.ink, p: C.attack, h: C.aim, s: C.shade, c: C.sys, g: C.go },
+  outline: C.rim,
+};
+
+export const TOP: SpriteDef = { frames: [top(false), top(true)], colors: CAN.colors!, outline: C.rim };
+/** The opening in the top view, in sprite pixels from the top left. */
+export const HOLE = { x: 10.5, y: 5 };
