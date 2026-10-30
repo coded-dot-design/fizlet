@@ -1,0 +1,20 @@
+{
+  "id": "dunk-tank",
+  "date": "2026-10-30",
+  "prompt": "a dunk tank: tap to throw at the target and the smug man on the plank drops into the water, and the splash wets the letters it lands on; tap twice for a fastball that takes his hat",
+  "title": "Dunk Sir Dry",
+  "kind": "micro",
+  "theme": "carnival",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/dunk-tank.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
