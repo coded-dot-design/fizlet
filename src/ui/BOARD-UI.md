@@ -177,11 +177,18 @@ direction.** A component moved from one site to another takes the new site's ang
   (`translate(depth × x, depth × y)`) and the base shrinks to `0 0`; hover lifts the opposite way.
 - **Angle:** x and y are a direction, not normalised: `1 1` is the classic "4px 4px" 45° hard
   shadow (each axis gets the full depth). For a true angle, a site can write
-  `--shadow-x: cos(135deg); --shadow-y: sin(135deg)` (CSS trig, all evergreen browsers).
+  `--shadow-x: cos(45deg); --shadow-y: sin(45deg)` (CSS trig; angles turn clockwise from "right",
+  because y points down: 90deg is straight below).
+- **Not directional, so not tokens:** soft glows, spread focus rings, the planning-art outline
+  (four equal drop shadows) and inset bands.
+- **Inside the kit** the tokens are read once on the `.bui` root as `--bui-sx`, `--bui-sy` and
+  `--bui-shadow` (tokens.json `shadow.aliases`), and every key derives `--bx` / `--by` from its `--py`.
+  A brick's CSS outside a `.bui` root (the perf overlay, the embed toggle) reads
+  `var(--shadow-x, 0)` / `var(--shadow-y, 1)` directly.
 - **Where to set it:** `:root` of the site (light and dark alike). Custom properties inherit into
   shadow roots, so `mount()`ed boards and the arcade's shadow-DOM UI follow the page with no extra
   wiring. The kit itself never writes `:root` (embed-safe, rule 10): the defaults are `var()`
-  fallbacks inside the `.bui` / `:host` token blocks.
+  fallbacks on the `.bui` root.
 
 | Domain | Setting |
 |---|---|
@@ -199,12 +206,13 @@ direction.** A component moved from one site to another takes the new site's ang
  ┌──────────────┐  face: background var(--c) (arcade) or --surface (base key), 2u rim border
  │ ◆ Label  [K] │  icon 18u (stroke 2) · label · shortcut chip pushed to the right edge
  └──────────────┘
- ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  base: box-shadow 0 var(--py) 0 var(--edge)  (straight below)
+ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  base: box-shadow var(--bx) var(--by) 0 var(--edge)  (--py along the domain direction, 4.1)
 ```
 
 | Variable | Base key | Arcade | Sticker key | Meaning |
 |---|---|---|---|---|
-| `--py` | 3u | 4u | 5u | base height (resting travel) |
+| `--py` | 3u | 4u | 5u | base depth (resting travel), along the domain's shadow direction |
+| `--bx`, `--by` | derived | derived | derived | the base offset: `--py × --shadow-x / -y` (never set them; set `--py`) |
 | `--hy` | 1u | 2u | 2u | hover lift |
 | `--edge` | `--line` | `--c` 45% into rim | `#f6f3ff` | base colour |
 | `--c` | n/a | role colour | n/a | face colour |
@@ -215,13 +223,13 @@ direction.** A component moved from one site to another takes the new site's ang
 
 | State | Selector | Face | Base | Extra |
 |---|---|---|---|---|
-| rest | — | `transform: none` | `0 py 0 edge` | glow |
-| hover | `:hover` on `(hover: hover) and (pointer: fine)` only, not locked/disabled/pressed | `translateY(-hy)` | `0 (py+hy) 0 edge-hover` | border `--border-hover` |
-| press | `:active`, `.down` (always beats hover) | `translateY(py)` | `0 0 0 edge` | 50ms; reduced motion: no tween, face `brightness(.82)` |
-| locked | `[aria-pressed=true]`, `[aria-expanded=true]`, `.active` | `translateY(py)` | `0 0 0` | background `--lock`; `breath` 1.8s |
+| rest | — | `transform: none` | `bx by 0 edge` | glow |
+| hover | `:hover` on `(hover: hover) and (pointer: fine)` only, not locked/disabled/pressed | `translate(-hy × dir)` | `(py+hy) × dir, 0 edge-hover` | border `--border-hover` |
+| press | `:active`, `.down` (always beats hover) | `translate(bx, by)` | `0 0 0 edge` | 50ms; reduced motion: no tween, face `brightness(.82)` |
+| locked | `[aria-pressed=true]`, `[aria-expanded=true]`, `.active` | `translate(bx, by)` | `0 0 0` | background `--lock`; `breath` 1.8s |
 | call | `.bui-call` | up | normal | `::after` ring from the base bottom, 1.4s; never on a locked key |
 | disabled | `:disabled`; link keys `aria-disabled="true"` | rest | rest | opacity .45, `not-allowed`; a disabled link key takes no pointer (drop its `href` too) |
-| focus | `:focus-visible` | as state | as state | ring: 3u `--bg` gap + 6u `--k-sys-ink`, on face **and** base (two spread shadows, one at y=0, one at y=py); pressed keys get the face ring only |
+| focus | `:focus-visible` | as state | as state | ring: 3u `--bg` gap + 6u `--k-sys-ink`, on face **and** base (two spread shadows, one at 0 0, one at the base offset bx by); pressed keys get the face ring only |
 
 Transitions: `transform 120ms ease-out, box-shadow 120ms ease-out, background-color 140ms,
 border-color 140ms`. Locked keys in a footer bar keep a steady glow (no breath) so the bar stays
@@ -277,7 +285,8 @@ never restate its states. `bui-key` gives, on top of the family:
   the key rests while the face travels, so a click or tap on the base, or just under the top edge
   (which the dropping face leaves), lands on the key. (The base is a box-shadow, which never takes
   a pointer.) Don't use `::before` on a page key for anything else.
-- **Press beats hover.** On a mouse, the face drops by `--py` on `:active` even while hovered.
+- **Press beats hover.** On a mouse, the face drops by its base (`--py` along the domain's shadow
+  direction, section 4.1) on `:active` even while hovered.
 - **Keyboard and iOS.** Call `pressCue(document)` once per page (`fizlet/ui`): Enter (and Space on
   a button) shows the pressed face (`.down`) until release or blur, and a passive `touchstart`
   listener lets iOS Safari apply `:active`. Activation stays native: links navigate, buttons click.
@@ -317,7 +326,7 @@ Rename per game (e.g. SQUAD, CREW, SHIPS) but keep the grammar.
 
 ### 7.1 Anatomy
 
-- Card: `--card` at 94%, 2.5u cmd border, 10u radius, base `0 5u 0 --k-cmd-base`.
+- Card: `--card` at 94%, 2.5u cmd border, 10u radius, base 5u deep (section 4.1) in `--k-cmd-base`.
 - **Grip**: a 36 × 12u cmd tab centred on the top edge (dot pattern). Drag by it or any empty part
   (5px threshold before a drag starts; a mouse drag never becomes a click). A dragged card gets
   `data-moved` and keeps its place until the stage changes.
@@ -472,7 +481,7 @@ own action** (a reset that cancels effects must be told to keep it).
   key from `tokens.json` `storage`; storage that throws is ignored (the switch works, it forgets).
 - **Performance overlay** (`fizlet/perf`, switch label "Performance overlay", key `dom-virus:perf`,
   **off by default**, F9 toggles it): a flat card in a corner of the board, `--surface` on a 2u
-  `--rim` border with a 3u rim base straight below, 9u/700 mono caps, numbers in `--ink`, labels in
+  `--rim` border with a 3u rim base in the page's shadow direction, 9u/700 mono caps, numbers in `--ink`, labels in
   `--muted`. One 120 × 36u chart on `--bg`: a bar per frame, `--k-go` within 1.25 frame budgets,
   `--hurt` within 2, `--critical` beyond, the budget line in `--line` over the bars. z-index 60
   (between gate and boot), `pointer-events: none`, never covers a key the player needs.
@@ -619,6 +628,9 @@ remembered (`dom-virus:<game>:sound`).
     screen, both themes, both sides, 4 and 12 units.
 11. Reduced motion, keyboard (focus ring, Esc, shortcuts), screen reader names.
 12. Size budget in CI; no layout reads in the frame loop; one `AbortSignal` teardown.
+13. No shadow direction in the board's CSS: every hard shadow is `depth × var(--bui-sx) / (--bui-sy)`
+    (or `var(--bx) var(--by)` on a key) and every press travels the same vector (section 4.1). The
+    site sets `--shadow-x` / `--shadow-y` once at its `:root`.
 
 ## 18. Readouts (CSS section 12, `readouts()`)
 

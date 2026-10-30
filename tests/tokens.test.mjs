@@ -21,6 +21,8 @@ test("tokens: a drifted CSS default, an unknown --k-* variable or a drifted pale
   const tokens = structuredClone(src.tokens);
   tokens.palette.surfaces.bg.dark = "#000001";
   assert.match(checkTokens({ ...src, tokens }).join("\n"), /--bg/);
+  const shadow = src.css.replace("--bui-sy: var(--shadow-y, 1);", "--bui-sy: 1;");
+  assert.match(checkTokens({ ...src, css: shadow }).join("\n"), /--bui-sy/);
   const ts = src.ts.replace('sys: "--k-sys"', 'sys: "--k-sis"');
   assert.match(checkTokens({ ...src, ts }).join("\n"), /sys/);
 });
