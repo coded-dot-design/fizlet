@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **Website: gallery #042, "purple bats burst out when you hover".** Made by `fe anim` from the
+  prompt (recipe scatter, the critter scene: a bat pixel sprite, the scatter motion; kernel + sprite
+  + slot): live 6,148 B · total 8,074 B gzip (with the 1,926 B loader) on this build, loaded only
+  near the viewport, never under reduced motion; settles to zero frames.
+
 ## 0.17.0
 
 - **Website: a themed gallery, a heroes row and contributor profiles** (launch infrastructure).

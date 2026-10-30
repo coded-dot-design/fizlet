@@ -1,0 +1,33 @@
+{
+  "no": 42,
+  "id": "purple-bats-burst-out-hover",
+  "date": "2026-10-30",
+  "prompt": "purple bats burst out when you hover",
+  "title": "Purple bats burst out when you hover",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "scatter",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 32,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 0.75
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/purple-bats-burst-out-hover.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}
