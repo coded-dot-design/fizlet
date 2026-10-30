@@ -27,6 +27,32 @@
   the live site; Battlefield matches and AI players move to E12) are done; E0, E3, E5–E8 list what's
   left; E7 (page interactions) and E8 (the game kit) are new; E9–E16 are planned with their bricks.
   The games section and README say what's true now: every DOM VIRUS game runs on Fizlet.
+- **Fix: an on-screen key wakes a settled engine.** `controls().press()` and `steer()` now call
+  `engine.wake()`, as a real key or pointer already did. A `fizlet/pad` key is
+  `[data-fizlet-ignore]`, so its tap never reached input's own wake: on an engine with `settle`, a
+  tap was latched but not stepped until something else woke it. Test: `tests/bricks.test.mjs`
+  ("press() and steer() wake a settled engine"). fizlet/input 1,283 → 1,287 B gzip; arcade
+  21,970 → 21,973; arcade (hud omitted) 17,964 → 17,967; page build 7,127 → 7,130 (all in budget).
+- **Fix: `destroy()` clears the fps cap's pending wake-up.** An engine with `fps` waits off the
+  shared clock on a timer between frames; `destroy()` left that timer to fire once more (harmless,
+  but it held the engine until then). It now clears it, so nothing of the engine outlives
+  `destroy()`. Test: `tests/kernel.test.mjs` ("destroy() clears the pending wake-up timer").
+  Kernel 3,439 → 3,441 B gzip; page build 7,127 → 7,128; arcade 21,970 → 21,973; arcade (`hud`
+  omitted) 17,964 → 17,963.
+- **Website: gallery numbers are given at land time, never in a PR.** Parallel PRs each took "the
+  next number" and kept claiming the same one (three PRs on #047). `scripts/gallery-number.mjs`
+  holds the rule, pure and shared with the engine's land step (`fe anim number --write`). Existing
+  numbers stay; a live entry without one takes the next free number by approval date, then merge
+  order, then id; a pending entry has none. When two entries share a number, the first to land keeps
+  it. The build shows a live entry's coming number (so a PR builds) and fails on a shared number,
+  naming the entries and the fix. Tests: `tests/gallery-number.test.mjs`.
+- **fizlet-rooms: rooms of up to 4 players, and `/invite` says the room size.** `wrangler.toml`
+  `MAX_PLAYERS` 2 → 4 (the code ceiling stays 8 in `src/limits.js`); `GET /invite` now answers
+  `{"ok":true,"players":<MAX_PLAYERS>}` so a page offers only room sizes that can join (Blitz's
+  multiplayer page shows its 2 · 3 · 4 pick from it; an older answer without `players` means two).
+  Relay unchanged: it already seated any count. Cost: a 4-player room relays each input to three
+  sockets instead of one (MSG_RATE per socket is unchanged). Needs `wrangler deploy` (owner's go).
+  `test/relay.test.mjs`: a four-player room (seats, fan-out to the other three, a leave told to all).
 - **CI: one run per change, not two.** `Fizlet checks` ran on `push` and `pull_request`, so every
   push to a branch with an open PR ran the whole workflow twice. Push now runs on `main` only
   (`tag-version` and `release` are unchanged); branches are checked by their PR run. On
