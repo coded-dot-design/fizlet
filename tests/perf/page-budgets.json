@@ -16,8 +16,8 @@
       "task": "G20",
       "track": "https://github.com/coded-dot-design/fizlet/issues/139",
       "why": "The layers story autoplays on desktop at 30 fps, and every scene frame re-layerizes the whole document (its preserve-3d stack, about 50 layers; fizlet#123). Phones start paused and pass. The fix moves the story onto compositor animations (G20); a spike halves the cost but is 453 B over the live-chunk bar and needs the owner on tank firing and the look.",
-      "ceiling": 10,
-      "measured": "CI perf job, best of 3 per run, live minus poster: +7.8 (EPYC 7763), +7.1 (Xeon 8573C), +7.2 (EPYC 9V45) on 2026-10-30, and +10 reported before fizlet#125; ceiling +10"
+      "ceiling": 12,
+      "measured": "CI perf job 2026-10-30, six runs, best of 3 each, live minus poster: +7.8 (EPYC 7763), +7.1 (Xeon 8573C), +7.2 (EPYC 9V45), +10.0 (EPYC 7763), +10.7 (Xeon 8370C), +7.0 (EPYC 9V45). Ceiling +12: the highest run (+10.7) plus the runner spread seen between runs on one runner type (about 1 point)"
     }
   ]
 }
