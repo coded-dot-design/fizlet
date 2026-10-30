@@ -17,6 +17,8 @@ import { notePage, notesIndex, noteLd } from "../site/pages/notes.mjs";
 import { notes as loadNotes, notePath } from "./notes.mjs";
 import { playFigure } from "../site/pages/index.mjs";
 import { buildGallery, personPath } from "./gallery.mjs";
+import { buildMake, snippetFor, TABLE as MAKE_TABLE } from "./make.mjs";
+import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
 import { CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
@@ -33,6 +35,7 @@ rmSync(OUT, { recursive: true, force: true });
 mkdirSync(`${OUT}/examples`, { recursive: true });
 mkdirSync(`${OUT}/bricks`, { recursive: true });
 mkdirSync(`${OUT}/gallery`, { recursive: true });
+mkdirSync(`${OUT}/make`, { recursive: true });
 const NOTES = loadNotes();
 for (const n of NOTES) mkdirSync(`${OUT}/${notePath(n)}`, { recursive: true });
 
@@ -106,6 +109,11 @@ const labs = {
 // The gallery: one bundle per entry, each measured here (its size badge). The story demos keep
 // their own posters as their figures; the blast demo waits in a <template> until its slot mounts.
 const gallery = await buildGallery(OUT);
+// Make one (/make/): the templates, its script, the default prompt's snippet (the page works before
+// any script runs) and a snippet for every gallery entry made from a prompt ("Get the snippet").
+const make = await buildMake(OUT, { version, entries: gallery.entries });
+const defaultSnippet = await snippetFor(DEFAULT_PROMPT, { version, templates: make.templates });
+writeFileSync(`${OUT}/make/default.snippet.txt`, defaultSnippet.text);
 const figures = {
   layers: L.poster("gallery#layers"),
   fizz: fizzFigure.replace('data-slot-target="fizz#hero"', 'data-slot-target="gallery#fizz"').replace('<figure class="ae-slot ae-slot--16x10"', '<figure class="ae-slot ae-slot--16x10 gal-fig"'),
@@ -197,7 +205,7 @@ const pages = [
       ? `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by theme).`
       : `Fizlet gallery page ${p.n} of ${gallery.pages.length}: older animations by theme, each with its prompt, its live demo and its size measured on this build.`,
     base: GB(p), version, path: p.path,
-    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length }),
+    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length }),
     scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
   })]),
   ["gallery/archive/index.html", page({
@@ -213,6 +221,11 @@ const pages = [
     base: "../", version, path: "heroes/",
     body: `<style>${layers.css}</style>` + heroesPage({ heroes, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: "../", urlOf }),
     scripts: ["site.js", "gallery/heroes.js"],
+  })],
+  ["make/index.html", page({
+    title: "Make one: a prompt in, a snippet out · Fizlet",
+    description: `Type a prompt, get a drop-in Fizlet animation: one file, only the bricks it uses, its size measured in your browser. No server, no tracking.`,
+    base: "../", version, path: "make/", body: makePage({ made: defaultSnippet, script: make.script, recipes: Object.keys(MAKE_TABLE.recipes), base: "../" }), scripts: ["site.js", "make/make.js"],
   })],
   ["people/index.html", page({
     title: "People: the maker and the house personas · Fizlet",
