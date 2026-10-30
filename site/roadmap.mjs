@@ -83,7 +83,8 @@ export const ROADMAP = [
     [1, "arcade: the shell under Null Invaders, Byte Runner and Sherman Bytes"],
     [1, "HUD presets (card, skirmish bar) and swappable touch pads"],
     [1, "match, coach and steer bricks"],
-    [0, "Battlefield Blitz on the skirmish preset, steer and coach"],
+    [1, "Battlefield Blitz moves and coaches on steer and coach"],
+    [0, "Battlefield Blitz on the skirmish preset"],
     [0, "A released game on fizlet/match"],
   ] },
   { id: "E9", name: "On npm", status: "planned", goal: "npm install fizlet: one package, a subpath per brick, published from CI with provenance.", items: [
