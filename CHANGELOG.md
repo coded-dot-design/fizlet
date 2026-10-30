@@ -12,6 +12,11 @@
   gallery card) and the build fails if it is a week's winner. `/contest/` lists the week's dailies
   smallest first with their measured size and marks the smallest that can win. Archived entries
   never enter.
+- **Gallery: the owner approves every new piece.** An entry is live once it carries
+  `"approved": "<date>"`; a new one lands pending (no `approved`) and is checked but never built,
+  listed, indexed or entered in the contest until the owner approves it (or pulls it to the
+  archive). The 25 entries already live are grandfathered with their own date. Tests: the gate in
+  `tests/gallery.test.mjs`, and no card, index row or bundle for a pending entry in `tests/site.mjs`.
 - **The fizz: the original can, without the zoom** (owner: "the og ones were good, just the zoom
   needs to be killed"). The 20 × 40 can and its story are back (the 0.18.0 hi-def redraw stays in
   history, to try other cans later; it never shipped in a release), and `fizlet/camera` is out: the card holds still, the side and

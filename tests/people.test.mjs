@@ -111,7 +111,7 @@ test("contest: the page leads with this week, else the next one, else the latest
   const shipped = contestWeeks([], PEOPLE);
   assert.ok(shipped.some((w) => w.week === "2026-W44" && w.theme === "Halloween"), "launch week: Halloween");
   const html = contestPage({ now: contestNow(shipped, "2026-10-31"), weeks: shipped, people: PEOPLE, base: "../", urlOf: (id) => `gallery/#${id}` });
-  for (const rule of ["weekly contest", "Small wins", "10 KB gzip or less", "10,240 B", "Too big to win", "Smallest", "One new piece a day, at most", "One winner a week", "No daily winner", "Monday, October 26 to Sunday, November 1, 2026", "Winner badge", "Not live yet", "No winners yet"]) assert.ok(html.includes(rule), `the page says: ${rule}`);
+  for (const rule of ["weekly contest", "Small wins", "10 KB gzip or less", "10,240 B", "Too big to win", "Smallest", "One or two new pieces a day, at most", "approved by the owner", "One winner a week", "No daily winner", "Monday, October 26 to Sunday, November 1, 2026", "Winner badge", "Not live yet", "No winners yet"]) assert.ok(html.includes(rule), `the page says: ${rule}`);
 });
 
 test("stats: a contributor's entries and their measured bytes", () => {

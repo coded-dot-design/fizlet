@@ -29,7 +29,7 @@ export function contestPage({ now, weeks, people, base, urlOf }) {
   const rules = [
     `**Small wins.** Any prompt, any length: size decides. To win, a piece's live code is **${CAP_KB} gzip or less** (${CAP_B} B, measured at build).`,
     `**Bigger than ${CAP_KB}?** It is still posted, marked **Too big to win**. The week's smallest piece that can win is marked **Smallest**.`,
-    "**One new piece a day, at most.** Those are the week's dailies, and its entries. A week runs Monday to Sunday, UTC. Archived gallery pieces don't enter.",
+    "**One or two new pieces a day, at most**, each approved by the owner before it goes live. Those are the week's dailies, and its entries. A week runs Monday to Sunday, UTC. Archived gallery pieces don't enter.",
     "**One winner a week**, picked by the team from that week's dailies, never one that is too big. No daily winner.",
     "**Winners are featured on the gallery** with a Winner badge, and on their maker's page.",
     "Every piece keeps the contract: still once it settles, asleep off screen, and the page comes back.",
@@ -62,7 +62,7 @@ export function contestPage({ now, weeks, people, base, urlOf }) {
     <div class="section-head">
       <p class="eyebrow"><span class="index">WEEKLY</span> ONE THEME · ONE WINNER</p>
       <h1 id="ct-title">The weekly contest.<br><em>Small wins.</em></h1>
-      <p class="lead">Every week has a theme. Each day brings at most one new piece to the <a href="${base}gallery/">gallery</a>, and once a week the team picks one winner from them. Write any prompt; the size decides. At ${CAP_KB} gzip or less a piece can win; bigger, it is posted but too big to win. The <a href="${base}people/">house personas</a> make pieces too.</p>
+      <p class="lead">Every week has a theme. Each day brings one or two new pieces, at most, to the <a href="${base}gallery/">gallery</a>, and once a week the team picks one winner from them. Write any prompt; the size decides. At ${CAP_KB} gzip or less a piece can win; bigger, it is posted but too big to win. The <a href="${base}people/">house personas</a> make pieces too.</p>
     </div>
     ${theme}
     ${entries}

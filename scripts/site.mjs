@@ -100,6 +100,7 @@ const figures = {
 const GB = (p) => "../".repeat(p.path.split("/").length - 1);
 const urlOf = (id) => gallery.index.find((r) => r.id === id).url;
 const heroes = gallery.entries.filter((e) => e.kind === "hero");
+if (gallery.pending.length) console.log(`Gallery: ${gallery.pending.length} pending (not approved, not built): ${gallery.pending.join(", ")}`);
 for (const p of gallery.pages) mkdirSync(`${OUT}/${p.path}`, { recursive: true });
 mkdirSync(`${OUT}/gallery/archive`, { recursive: true });
 mkdirSync(`${OUT}/heroes`, { recursive: true });
@@ -210,7 +211,7 @@ const pages = [
   })]),
   ["contest/index.html", page({
     title: "Weekly contest: small wins, one winner · Fizlet",
-    description: `The Fizlet weekly contest: a theme a week, one new piece a day, one winner a week; ${CONTEST.maxLive / 1024} KB gzip or less can win, bigger is too big to win.`,
+    description: `The Fizlet weekly contest: a theme a week, one or two pieces a day, one winner a week; ${CONTEST.maxLive / 1024} KB gzip or less can win, bigger is too big to win.`,
     base: "../", version, path: "contest/", body: contestPage({ now, weeks: WEEKS, people: PEOPLE, base: "../", urlOf }), scripts: ["site.js"],
   })],
   ["notes/index.html", page({
