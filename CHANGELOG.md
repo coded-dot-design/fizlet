@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **CI: the perf job runs weekly too** (Mondays 06:17 UTC, `schedule:` in `ci.yml`; the `check` job
+  skips scheduled runs). Each run uploads `perf-results.json`, kept 90 days.
 - Gallery: the five how-it-works labs (#042–#046) approved by the owner and live.
 - **Fix: a dragged scoreboard no longer jumps when its board is not the viewport.** `drag()`
   (fizlet/arcade's panel drag, also used by Battlefield Blitz) set `left`/`top` from viewport
