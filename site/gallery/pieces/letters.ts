@@ -7,7 +7,8 @@
 // the page back byte for byte.
 // Layout is read only after a resize (offsets, which ignore the transforms we write), never in a step.
 import type { Engine } from "../../../src/kernel/index";
-import { W } from "./pix";
+/** The art grid's width (./pix.ts: W); kept here so a piece using only the letters doesn't bundle pix's fonts. */
+const W = 160;
 
 /** Channels: shift x, shift y (% of the letter), turn, lean (deg), stretch x (% over 100). */
 export const TX = 0, TY = 1, ROT = 2, LEAN = 3, STRETCH = 4;
