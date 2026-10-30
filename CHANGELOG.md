@@ -23,6 +23,9 @@
   - Posters are drawn from the scenes themselves (`scripts/gallery-posters.mjs`,
     `scripts/pixel-posters.mjs`). Their frames-per-second and allocation lines are not re-measured
     yet, so the cards leave them out.
+- **Fix: the heroes page's Prev key is served disabled** (the row starts on the first card), not
+  disabled only once the carousel's IntersectionObserver runs. The phone key check could list it as
+  enabled and then tap a disabled key (a flake on main too); it also waits for the centre card.
 - **Status flags on every brick; Fizlet launches as a 0.x public beta.** One source,
   `site/bricks.mjs`: `STATUS` (COMPLETE "done, and always getting smaller and faster", BETA,
   EXPERIMENTAL, ROADMAP, DEPRECATED, each with written criteria) and per brick `status`, `since`,

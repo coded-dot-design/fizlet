@@ -373,6 +373,8 @@ try {
     await context.close();
     const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const tap = await open(phone, path);
+    // Heroes: the skip below needs the centre card (aria-current), which an IntersectionObserver sets.
+    if (path === "heroes/") await tap.page.waitForSelector("[data-hero][aria-current]");
     // Heroes: on a phone the other cards sit off to the side, and a scroll to one of their keys snaps the
     // row to that card (the key moves under the tap); the centre card's keys are tapped.
     await checkTaps(tap.page, `${where} (phone)`, { skip: path === "heroes/" ? "[data-hero]:not([aria-current])" : "" });
