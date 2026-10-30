@@ -9,6 +9,7 @@
   per 400k (#104); fizlet.com's two stylesheets 19,831 → 13,975 B gzip (#105). A win may name
   another repo (`repo`: a game site running Fizlet, with that repo's version), and `Unreleased` is a
   version. `tests/site.mjs` now checks the served stylesheets are minified (the CSS win had no test).
+- Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
