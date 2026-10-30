@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+- **`fizlet/scene`** (new brick, EXPERIMENTAL, E13; 1,928 B gz of its own, planned at ≤ 2,048;
+  8,467 B with the kernel, fx, sprite and timeline's easings it composes, budget 8,704): an
+  animation recipe as data. A scene is JSON: a **stage** (a pixel grid fitted to the box,
+  background, seeded starfield, shake, `end`, `loop`, an intro `delay`, the reduced-motion
+  `poster` time), a **cast** (sprites, rects, text and lines drawn in order; every value a number,
+  a track `[from, to, at, dur, ease]` on fizlet/timeline's `EASES`, a jump (`dur` 0, numbers or
+  colours) or a blink), **cues** (fx words, kicks and bursts, once each, in order) and **gags**
+  (an fx emitter held open over a window, following a track). `scene(data, { motion })` is a slot
+  mount; `mountScene(stage, data)` returns `{ engine, play, destroy }` and is the engine's system.
+  One canvas through the ledger (Recall exact), the clock moves in the step on numbers only, it
+  rests on the last frame and settles (`engine.busy(sec)` holds it to the end, intro delay
+  included), a tap replays, reduced motion draws the poster and settles.
+  - Tests: `tests/scene.test.mjs` (values, cues, gags, settle, replay, loop, delay, poster, Recall,
+    zero allocation per step, the own-code size, every gallery scene file against the format) and
+    `tests/scene.mjs` in Chromium (below).
+  - Allocation: zero per step, except a gag that follows a track. It hands `fx.emit` a new x and y
+    each step (~32 B), only while its window is open. fizlet/fx's `emit` takes numbers, and the
+    recipe code made the same call.
+  - Status: EXPERIMENTAL in `site/bricks.mjs` (since 0.21.0), a README row, its brick page; it
+    leaves `PLANNED`, and E13 lists its acceptance items.
+- **Gallery: three meme micros are scene data, not code.** #38 "a to the moon rocket launches off a
+  button", #41 "laser eyes mascot powers on and fires" and #40 "a candle chart pumps then dumps"
+  are `site/gallery/anims/<id>.scene.json`. Same ids, numbers and approvals. The build mounts a `.json`
+  module with fizlet/scene (`entrySource` in `scripts/gallery.mjs`; the settle guard uses it too).
+  Live size, gzip: rocket 9,256 → 9,104 B (−152), laser 9,262 → 8,947 B (−315), candles 9,261 →
+  9,014 B (−247). Behaviour is unchanged: in Chromium, both versions run by hand on the same
+  clock and match pixel for pixel on every frame of a play and a tap replay (1,776 frames).
+  They settle within a step of each other, the poster is the rest frame, and Recall is exact
+  (`tests/scene.mjs`). "Diamond hands" (#39) stays on the recipe code: its words fly on
+  accumulated speed and trigger on contact, which the format does not express yet.
+
 - Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`

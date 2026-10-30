@@ -117,6 +117,15 @@ export function archive({ themeList, people, live }) {
   return { entries: list, themes: all.sort((a, b) => a.order - b.order) };
 }
 
+/**
+ * The source of an entry's bundle (resolved from site/gallery/). A `.json` module is fizlet/scene
+ * data (the recipe as data: what `fe anim` emits): the build mounts it with the brick's player.
+ * Anything else is code that exports the slot mount named by `export`.
+ */
+export const entrySource = (e) => e.module.endsWith(".json")
+  ? `import d from ${JSON.stringify("./" + e.module)}; import { scene } from "../../src/scene"; export const mount = scene(d);`
+  : `export { ${e.export} as mount } from ${JSON.stringify("./" + e.module)};`;
+
 export async function buildGallery(out) {
   mkdirSync(`${out}/gallery`, { recursive: true });
   const themeList = themes(), people = contributors();
@@ -129,7 +138,7 @@ export async function buildGallery(out) {
   const gz = (r) => gzipSync(r.outputFiles[0].contents).length;
   const write = (r, file) => writeFileSync(file, r.outputFiles[0].contents);
   for (const e of list) {
-    const r = await build({ ...common, stdin: { contents: `export { ${e.export} as mount } from ${JSON.stringify("./" + e.module)};`, resolveDir: DIR, loader: "ts" } });
+    const r = await build({ ...common, stdin: { contents: entrySource(e), resolveDir: DIR, loader: "ts" } });
     write(r, join(out, "gallery", `${e.id}.js`));
     e.size = gz(r);
   }
