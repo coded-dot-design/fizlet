@@ -334,7 +334,7 @@ a.bui-sticker-key {
 }
 .site-foot .wrap {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) repeat(5, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.4fr) repeat(6, minmax(0, 1fr));
   gap: 28px;
   padding-top: 40px;
   padding-bottom: 40px;
@@ -3195,6 +3195,145 @@ html.bui[data-theme="light"] .phases b {
   }
 }
 
+/* ---------- Docs, guides and news (/docs/, /guides/, /news/): the notes' parts, plus code and tables ---------- */
+.doc .note-block .code-card,
+.doc-code {
+  max-width: 780px;
+  margin-top: 22px;
+}
+.doc-code .code {
+  white-space: pre;
+}
+.note-block.doc-wide {
+  max-width: none;
+}
+.doc-wide .rules {
+  margin-top: 22px;
+}
+.doc-table {
+  margin-top: 22px;
+  padding: 0;
+}
+.doc-table td:nth-child(n + 2),
+.doc-table th:nth-child(n + 2) {
+  text-align: right;
+  white-space: nowrap;
+}
+.doc-table td a {
+  color: var(--ink);
+}
+.doc-map {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 48px;
+  padding: 22px;
+}
+.doc-map h2 {
+  margin: 0 0 10px;
+  font: 700 11px var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.doc-map h2 + p {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.doc-map h2 a {
+  color: var(--ink);
+}
+.doc-map ol {
+  margin: 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+.doc-map a[aria-current="page"] {
+  color: var(--k-sys-ink);
+  font-weight: 700;
+}
+.bp-step span {
+  font-weight: 700;
+}
+.news-h {
+  margin: 48px 0 18px;
+  font-size: clamp(22px, 2.6vw, 30px);
+}
+.note-cards h3 {
+  margin: 0;
+  font-size: clamp(20px, 2.4vw, 26px);
+  overflow-wrap: anywhere;
+}
+.note-cards h3 a {
+  color: var(--ink);
+}
+.release-body h2 {
+  margin-top: 28px;
+  font-size: 20px;
+}
+.release-body .note-list .note-list {
+  margin-top: 8px;
+  font-size: 15px;
+}
+.release-body a,
+.release-body code {
+  overflow-wrap: anywhere;
+}
+.site-foot .foot-note {
+  margin-top: 14px;
+  font-size: 13px;
+}
+@media (max-width: 860px) {
+  .doc-map {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (pointer: coarse) {
+  .doc-map a,
+  .note-cards h3 a,
+  .site-foot .foot-note a {
+    padding-block: 15px;
+  }
+  .doc-map ol a,
+  .doc-map h2 a {
+    display: inline-block;
+    padding-block: 12px;
+    margin-block: -12px;
+  }
+}
+/* List cards: an empty mount point a brick animation can fill (data-anim-slot names it); no box until it does. */
+.card-anim:empty {
+  display: none;
+}
+.recipe-live {
+  margin: 22px 0 0;
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+.recipe-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.recipe-live figcaption {
+  margin: 0;
+}
+.recipe .doc-code {
+  max-width: none;
+}
+.recipe-live,
+.recipe-live > * {
+  min-width: 0;
+}
+.recipe-head .bui-label {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 /* ---------- Brick cards (site/brick-cards.mjs, site/cards/): one live toy per brick ---------- */
 .bc {
   display: grid;
