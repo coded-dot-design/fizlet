@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Contest: weekly, and small wins.** One winner a week, picked from that week's dailies (the
+  gallery's new pieces dated inside the ISO week, at most one a day); no daily winner and no
+  12-entry minimum. Data moves from `site/contest/days/<date>.json` to
+  `site/contest/weeks/<YYYY-Www>.json`, and entries no longer carry a `contest` stamp (the build
+  fails on one). The prompt is no longer the judge (the 60-character rule is gone); size is: a
+  piece whose live chunk is 10 KB gzip or less (10,240 B, the hero live-chunk budget, measured at
+  build) can win; a bigger one is posted with a "Too big to win" sticker (on `/contest/` and its
+  gallery card) and the build fails if it is a week's winner. `/contest/` lists the week's dailies
+  smallest first with their measured size and marks the smallest that can win. Archived entries
+  never enter.
 - **The fizz: the original can, without the zoom** (owner: "the og ones were good, just the zoom
   needs to be killed"). The 20 × 40 can and its story are back (the 0.18.0 hi-def redraw stays in
   history, to try other cans later; it never shipped in a release), and `fizlet/camera` is out: the card holds still, the side and

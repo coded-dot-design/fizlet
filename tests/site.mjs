@@ -219,7 +219,7 @@ try {
     }
   }
 
-  // ---------- People and the daily contest: stats measured on this build, personas say so ----------
+  // ---------- People and the weekly contest: stats measured on this build, personas say so ----------
   where = "people";
   {
     const people = profiles(), index = readFileSync(`${ROOT}/people/index.html`, "utf8");
@@ -236,7 +236,10 @@ try {
       assert.ok(p.kind === "owner" ? profile.mainEntity["@id"].endsWith("#author") : !profile.mainEntity && profile.about["@type"] !== "Person", `${p.id}: only the maker is a Person`);
     }
     const contest = readFileSync(`${ROOT}/contest/index.html`, "utf8");
-    assert.match(contest, /60 characters or fewer/);
+    assert.match(contest, /10 KB gzip or less/);
+    assert.match(contest, /Too big to win/);
+    assert.doesNotMatch(contest, /characters or fewer/, "the prompt length is not a rule");
+    assert.match(contest, /One winner a week/);
     assert.match(contest, /Not live yet/, "open prompts are planned, not live");
   }
 
