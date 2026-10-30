@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- **Website: the roadmap tells the truth again.** E2 lists rules, steer, coach, camera, perf and
+  arcade as shipped (timeline and layout to come); E3 is nearly done (Null Invaders, Byte Runner,
+  Sherman Bytes and DOM Battlefield at 1.0, Battlefield Blitz on Fizlet, Swarm Protocol 1.4 in
+  review) and adds "every animation on the sites on Fizlet, heroes first"; E4 adds the room
+  server's invite gate and spend caps; E5 adds the gallery and notes.
+
 ## 0.17.0
 
 - **Website: people and the daily contest.** `/people/` lists who makes the animations: Chris
