@@ -1,0 +1,18 @@
+{
+  "no": 42,
+  "id": "lab-pool",
+  "date": "2026-10-30",
+  "prompt": "one loop drives a fixed pool of 32 sparks: spawn past the cap and the engine says no, nothing is allocated, and the frame stays in budget",
+  "title": "One loop. Bounded work.",
+  "kind": "micro",
+  "theme": "everyday",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel"
+  ],
+  "made": "by hand",
+  "module": "seeds/labs.ts",
+  "export": "poolLab",
+  "figure": "lab-pool"
+}
