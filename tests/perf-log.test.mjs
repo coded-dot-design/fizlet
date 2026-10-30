@@ -13,11 +13,14 @@ test("perf log: PERF-LOG.md is the generated table (run `node scripts/perf-log.m
 test("perf log: one row per win, with before → after and a link to its PR", () => {
   const wins = loadWins();
   assert.ok(wins.length >= 2);
-  const rows = render(wins).split("\n").filter((l) => /^\| \d/.test(l));
+  const rows = render(wins).split("\n").filter((l) => /^\| (?!Version|---)/.test(l));
   assert.equal(rows.length, wins.length);
-  assert.match(rows[0], /119\.6 → 28\.5 rAF\/s/);
-  assert.match(rows[0], /\[#67\]\(https:\/\/github\.com\/coded-dot-design\/fizlet\/pull\/67\)/);
-  assert.match(rows[1], /60\.4 → 0 rAF\/s/);
+  const row = (re) => rows.find((r) => re.test(r)) ?? assert.fail(`no row matches ${re}`);
+  assert.match(row(/119\.6 → 28\.5 rAF\/s/), /\[#67\]\(https:\/\/github\.com\/coded-dot-design\/fizlet\/pull\/67\)/);
+  row(/60\.4 → 0 rAF\/s/);
+  // A win on a game's site links that repo's PR and says whose version it is.
+  assert.match(row(/91\.7 → 49\.4 % busy/), /^\| dom-battlefield 1\.0\.1 \|.*\[dom-battlefield#21\]\(https:\/\/github\.com\/coded-dot-design\/dom-battlefield\/pull\/21\)/);
+  assert.match(row(/0\.002 → 0 CLS/), /^\| Unreleased \|/);
 });
 
 test("perf log: an entry without a measured number, a PR or a test is refused", () => {
@@ -33,4 +36,6 @@ test("perf log: an entry without a measured number, a PR or a test is refused", 
   bad({ test: "" }, /missing test/);
   bad({ after: 2 }, /not a win/);
   bad({ how: "a | b" }, /table cell/);
+  bad({ version: "next" }, /version/);
+  bad({ repo: "dom-battlefield" }, /owner\/name/);
 });

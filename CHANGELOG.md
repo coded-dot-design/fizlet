@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **PERF-LOG.md: five more measured wins** (roadmap E6, G9), each with its merged PR's numbers:
+  the layers story's CLS 0.002 → 0 (#129, #123); the Battlefield landing hero 91.7 → 49.4 % main
+  thread busy on a 4× phone (dom-battlefield#21); the fps cap's slot from the frame's start, that
+  hero 22.6 → 27.8 rAF/s of the 30 it asks for (#122); presence's WebSocket send 22 → 0 young GCs
+  per 400k (#104); fizlet.com's two stylesheets 19,831 → 13,975 B gzip (#105). A win may name
+  another repo (`repo`: a game site running Fizlet, with that repo's version), and `Unreleased` is a
+  version. `tests/site.mjs` now checks the served stylesheets are minified (the CSS win had no test).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about

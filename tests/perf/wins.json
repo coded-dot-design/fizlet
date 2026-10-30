@@ -2,6 +2,62 @@
   "_note": "The perf win log: one entry per measured win, newest first. PERF-LOG.md is generated from this file (`node scripts/perf-log.mjs --write`); tests/perf-log.test.mjs fails when it is stale or an entry is missing a measured before and after, a unit, how it was measured, a test or a PR.",
   "wins": [
     {
+      "version": "Unreleased",
+      "pr": 129,
+      "win": "The home page's layers story no longer shifts the layout as it opens (#123)",
+      "metric": "CLS of the home page over a full layers cycle (index#layers), Chromium",
+      "before": 0.002,
+      "after": 0,
+      "unit": "CLS",
+      "how": "PerformanceObserver layout-shift entries (sources: the slider knob and the rail squares, now moved by translate); pixel diff at 1440 and 390 unchanged at rest",
+      "test": "tests/layers.mjs (fails on any layout shift over a full cycle)"
+    },
+    {
+      "version": "1.0.1",
+      "repo": "coded-dot-design/dom-battlefield",
+      "pr": 21,
+      "win": "The Battlefield landing hero runs at 30 fps instead of every vsync",
+      "metric": "main thread busy, battlefield.domvirus.com hero, 390 × 844 phone at 4× CPU, seconds 6–11 after load, median of 3 (hero-less page 0.5 %)",
+      "before": 91.7,
+      "after": 49.4,
+      "unit": "% busy",
+      "how": "Chromium, CPU throttle, interleaved with the hero-less page; load avg 5.5 → 3.2 (a second run: 88.4 → 53.5 %)",
+      "test": "dom-battlefield tests/site.mjs (hero frame cap (phone): ≤ 33 rAF/s battling, 0 once settled)"
+    },
+    {
+      "version": "0.20.0",
+      "pr": 122,
+      "win": "The fps cap counts its slot from the frame's start, so a slow frame still meets its next slot",
+      "metric": "rAF/s of the battlefield.domvirus.com hero (fps: 30), 390 × 844 phone at 4× CPU, seconds 6–11 after load, median of 3 (asked for 30)",
+      "before": 22.6,
+      "after": 27.8,
+      "unit": "rAF/s",
+      "how": "Chromium, CPU throttle, page-wide rAF count; vendored 0.19.0 vs fizlet main's engine.ts with the fix, same run, load avg 2.3–3.4",
+      "test": "tests/kernel.test.mjs (a slow frame still meets its next slot: 20 ms frames at fps 30, 20 → 30 fps)"
+    },
+    {
+      "version": "0.20.0",
+      "pr": 104,
+      "win": "presence's WebSocket transport allocates nothing per message",
+      "metric": "young-generation GCs over 400k WebSocket sends (Node 24, fake socket, best of 3)",
+      "before": 22,
+      "after": 0,
+      "unit": "young GCs",
+      "how": "node --expose-gc, scavenges counted around the send loop",
+      "test": "tests/presence.test.mjs (≤ 1 scavenge over 400k sends)"
+    },
+    {
+      "version": "0.20.0",
+      "pr": 105,
+      "win": "fizlet.com serves its two stylesheets minified",
+      "metric": "gzip bytes of board-ui.css + site.css, loaded by every fizlet.com page (8,301 → 4,884 and 11,530 → 9,091)",
+      "before": 19831,
+      "after": 13975,
+      "unit": "B gzip",
+      "how": "zlib gzip of site-dist before and after (−5,856 B on every first visit); screenshots of every page compared",
+      "test": "tests/site.mjs (the served stylesheets are minified and smaller than their sources)"
+    },
+    {
       "version": "0.19.0",
       "pr": 67,
       "win": "The fps cap caps requestAnimationFrame, not just the work",
