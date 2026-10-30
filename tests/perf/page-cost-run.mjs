@@ -3,9 +3,9 @@
 // and exits 1 when a page adds more than its budget. See page-cost.mjs for how it is measured.
 //   PAGE_RUNS (default 3)   PAGE_OUT (default page-cost-results.json)   PAGE_ONLY=<page name>
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { cpus } from "node:os";
+import { cpus, loadavg } from "node:os";
 import { launch, serve } from "./harness.mjs";
-import { PROFILES, measurePage, verdict } from "./page-cost.mjs";
+import { PROFILES, exceptionsFor, measurePage, verdict } from "./page-cost.mjs";
 
 const RUNS = Number(process.env.PAGE_RUNS ?? 3);
 const cfg = JSON.parse(readFileSync(new URL("./page-budgets.json", import.meta.url), "utf8"));
@@ -13,7 +13,9 @@ if (!existsSync("site-dist/index.html")) throw new Error("site-dist/ is missing:
 
 const site = await serve("site-dist", "/fizlet/");
 const browser = await launch();
-const report = [], over = [];
+const report = [], over = [], excepted = [];
+// On GitHub Actions each line is also an annotation, readable through the API without the artifact.
+const note = (kind, line) => process.env.GITHUB_ACTIONS && console.log(`::${kind} title=page cost::${line}`);
 try {
   for (const pg of cfg.pages.filter((p) => !process.env.PAGE_ONLY || p.name === process.env.PAGE_ONLY)) {
     for (const [profName, prof] of Object.entries(PROFILES)) {
@@ -24,23 +26,25 @@ try {
         if (r.errors.length) over.push(`${pg.name} ${profName} ${v}: page errors: ${r.errors.join("; ")}`);
         runs.push(r);
       }
-      const v = verdict(`${pg.name} ${profName}`, runs, cfg.budgets[profName]);
-      over.push(...v.over);
+      const v = verdict(`${pg.name} ${profName}`, runs, cfg.budgets[profName], exceptionsFor(cfg, pg.name, profName));
+      over.push(...v.over), excepted.push(...v.excepted);
       report.push({ page: pg.name, profile: profName, ...v, runs });
       const f = (k) => `${k} ${v.live[k]} vs ${v.poster[k]} (+${v.delta[k]}, budget +${cfg.budgets[profName][k]})`;
-      console.log(`${pg.name.padEnd(6)} ${profName.padEnd(7)} ${f("cls")} · ${f("tapMs")} · ${f("idlePts")}`);
+      const line = `${pg.name.padEnd(6)} ${profName.padEnd(7)} ${f("cls")} · ${f("tapMs")} · ${f("idlePts")}`;
+      console.log(line), note("notice", line);
     }
   }
 } finally {
   await browser.close();
   await site.close();
 }
-const machine = `${cpus()[0]?.model ?? "unknown CPU"} × ${cpus().length}, Chromium ${browser.version()}, best of ${RUNS}`;
-console.log(`machine ${machine}`);
+const machine = `${cpus()[0]?.model ?? "unknown CPU"} × ${cpus().length}, Chromium ${browser.version()}, best of ${RUNS}, load ${loadavg().map((n) => n.toFixed(2)).join(" ")}`;
+console.log(`machine ${machine}`), note("notice", `machine ${machine}`);
+for (const x of excepted) console.log(`EXCEPTION ${x}`), note("warning", x);
 const out = process.env.PAGE_OUT ?? "page-cost-results.json";
-writeFileSync(out, JSON.stringify({ machine, runs: RUNS, budgets: cfg.budgets, report, over, pass: over.length === 0 }, null, 2) + "\n");
+writeFileSync(out, JSON.stringify({ machine, runs: RUNS, budgets: cfg.budgets, exceptions: cfg.exceptions ?? [], report, over, excepted, pass: over.length === 0 }, null, 2) + "\n");
 console.log(`report  ${out}`);
 if (over.length) {
-  for (const o of over) console.error(`OVER ${o}`);
+  for (const o of over) console.error(`OVER ${o}`), note("error", o);
   process.exit(1);
 }

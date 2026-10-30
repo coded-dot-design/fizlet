@@ -25,24 +25,35 @@ export const median = (xs) => {
 };
 export const best = (xs) => (xs.length ? Math.min(...xs) : NaN);
 
+/** The exceptions for one page and profile from page-budgets.json: { [measure]: { task, ceiling } }. */
+export const exceptionsFor = (cfg, page, profile) =>
+  Object.fromEntries((cfg.exceptions ?? []).filter((x) => x.page === page && x.profile === profile).map((x) => [x.measure, x]));
+
 /**
  * The verdict for one page and profile. runs: [{ variant: "live"|"poster", cls, tapMs, idlePct }].
  * budget: { cls, tapMs, idlePts } (each the most the live page may add over the poster page).
- * Returns { live, poster, delta, over: [messages] }.
+ * exceptions: { [measure]: { task, ceiling } } from page-budgets.json: a named, tracked exception
+ * for one measure. Over its budget it is reported (in `excepted`), not failed, until it passes
+ * its ceiling (the measured level when it was written, so it can never get worse unseen). The
+ * budget itself never moves.
+ * Returns { live, poster, delta, over: [messages], excepted: [messages] }.
  */
-export function verdict(name, runs, budget) {
+export function verdict(name, runs, budget, exceptions = {}) {
   const pick = (v, k) => best(runs.filter((r) => r.variant === v).map((r) => r[k]));
   const keys = { cls: "cls", tapMs: "tapMs", idlePts: "idlePct" };
-  const live = {}, poster = {}, delta = {}, over = [];
+  const live = {}, poster = {}, delta = {}, over = [], excepted = [];
   for (const [b, k] of Object.entries(keys)) {
     live[b] = pick("live", k);
     poster[b] = pick("poster", k);
     // CLS is gated at its reported precision (0.000), the others at 0.1.
     const digits = b === "cls" ? 3 : 1;
     delta[b] = +(live[b] - poster[b]).toFixed(digits);
-    if (!(delta[b] <= budget[b])) over.push(`${name}: ${b} +${delta[b]} over the poster page (budget +${budget[b]})`);
+    if (delta[b] <= budget[b]) continue;
+    const msg = `${name}: ${b} +${delta[b]} over the poster page (budget +${budget[b]})`, x = exceptions[b];
+    if (x && delta[b] <= x.ceiling) excepted.push(`${msg}: exception ${x.task} (ceiling +${x.ceiling})`);
+    else over.push(x ? `${msg}, and over its exception ${x.task}'s ceiling +${x.ceiling}` : msg);
   }
-  return { live, poster, delta, over };
+  return { live, poster, delta, over, excepted };
 }
 
 /** Wait `n` animation frames (frames, not wall time). */
