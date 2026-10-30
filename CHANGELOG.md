@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Fix: `slot("page#slot", …)` finds astro-engine's current slot markup.** The engine now renders
+  `<figure class="ae-slot-figure"><div class="ae-slot" data-slot-target role="img">…</div><figcaption
+  class="ae-slot__fallback">` (the caption outside the role="img" box), and `findSlot()` looked only
+  for `figure.ae-slot`, so the target found nothing. It now matches any `.ae-slot[data-slot-target]`,
+  the figure or the box; the caption outside the box stays visible while the scene runs.
+  `tests/browser.mjs` mounts a scene in both shapes. fizlet/slot 1,852 B gzip (−4 B); page build
+  7,122 B (−5 B).
 - **Fix: a dragged scoreboard no longer jumps when its board is not the viewport.** `drag()`
   (fizlet/arcade's panel drag, also used by Battlefield Blitz) set `left`/`top` from viewport
   coordinates and replaced the card's whole inline style, so a board under a page header, mid-page
