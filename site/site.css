@@ -12,8 +12,14 @@
   --grid: color-mix(in srgb, var(--k-sys) 9%, transparent);
   --code-bg: #0b0918;
   --hl: var(--k-go);
+  /* A hard shadow's direction: straight below, never to the side. */
+  --shadow-x: 0;
+  --shadow-y: 4px;
+  /* A frame that keeps the page's scroll, while its note shows (scroll-hint.ts). */
+  --frame-warn: var(--hurt);
 }
 html.bui[data-theme="light"] {
+  --frame-warn: color-mix(in srgb, var(--hurt) 55%, var(--ink));
   --base: color-mix(in srgb, var(--k-cmd) 30%, var(--line));
   --grid: color-mix(in srgb, var(--k-cmd) 9%, transparent);
   --code-bg: #f6f5fd;
@@ -3495,5 +3501,55 @@ html.bui[data-theme="light"] .phases b {
 @media (pointer: coarse) {
   .make-try {
     row-gap: 22px;
+  }
+}
+
+/* ---------- Scroll-lock hint (site/scroll-hint.ts) ----------
+   A frame that keeps the page's scroll for its piece says why when someone tries: the frame turns
+   the warning colour and a note slides out from its edge for 3 s. */
+[data-scroll-warn] {
+  border-color: var(--frame-warn) !important;
+  box-shadow: var(--shadow-x) var(--shadow-y) 0 color-mix(in srgb, var(--frame-warn) 45%, var(--rim)), 0 0 0 1px var(--frame-warn);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.scroll-hint {
+  position: absolute;
+  z-index: 40;
+  overflow: hidden;
+  padding: 0 var(--shadow-y) var(--shadow-y);
+  margin-left: calc(-1 * var(--shadow-y));
+  box-sizing: content-box;
+  pointer-events: none;
+}
+.scroll-hint > p {
+  margin: 0;
+  padding: 8px 12px;
+  border: 2px solid var(--frame-warn);
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+  background: var(--card);
+  box-shadow: var(--shadow-x) var(--shadow-y) 0 color-mix(in srgb, var(--frame-warn) 45%, var(--rim));
+  color: var(--ink);
+  font: 600 13px/1.45 var(--sans);
+  transform: translateY(-110%);
+  transition: transform 0.24s var(--bui-out);
+}
+.scroll-hint[data-edge="top"] {
+  padding: var(--shadow-y) var(--shadow-y) 0;
+}
+.scroll-hint[data-edge="top"] > p {
+  border-top: 2px solid var(--frame-warn);
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  box-shadow: none;
+  transform: translateY(110%);
+}
+.scroll-hint[data-open] > p {
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-scroll-warn],
+  .scroll-hint > p {
+    transition: none;
   }
 }
