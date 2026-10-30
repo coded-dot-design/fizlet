@@ -34,7 +34,7 @@ export function quickStartPage({ site, quick }) {
       <div class="panel lit qs-stage" data-demo-host>${quick ? sizeBadge(quick.bytes, quick.live, "fizlet.js, the kernel and every brick but debug") : ""}${live}<span class="bui-label"><b>LIVE</b> · CLICK THE BOARD TO BLAST</span></div>
     </div>
     <div class="qs-grid">
-      <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>SOURCE</b> · the whole thing</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(shown)}</code></pre></div>
+      <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>SOURCE</b> · the whole thing</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre tabindex="0" class="code"><code>${esc(shown)}</code></pre></div>
     </div>
     <div class="split-keys"><a class="bui-key bui-arcade bui-sys" href="../#start">${icon("down", 16)}Back to quick start</a><a class="bui-key bui-arcade bui-cmd" href="${REPO}#readme">${icon("book", 16)}The API on GitHub ↗</a></div>
   </div>

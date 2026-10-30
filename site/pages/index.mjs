@@ -37,7 +37,7 @@ export const LEDGER_ROWS = [
   ["ledger.add(node)", "a node you put on the page", "a canvas, an overlay, debris"],
 ];
 
-const code = (s, cls = "") => `<pre class="code${cls ? " " + cls : ""}"><code>${esc(s)}</code></pre>`;
+const code = (s, cls = "") => `<pre tabindex="0" class="code${cls ? " " + cls : ""}"><code>${esc(s)}</code></pre>`;
 
 /** The demo page the engine knocks around: every letter and word is a real element. */
 function demoPage() {

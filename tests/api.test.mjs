@@ -73,6 +73,8 @@ test("checkHtml catches the basics", () => {
   has(good.replace("<h2>Sub</h2>", "<svg></svg>"), /svg/);
   assert.deepEqual(checkHtml(good.replace("<h2>Sub</h2>", '<h2>Sub</h2><svg aria-hidden="true"><svg x="1"></svg></svg>'), "x.html"), [], "a nested svg is hidden with its parent");
   has(good.replace("<h2>Sub</h2>", '<button type="button"></button>'), /without a name/);
+  has(good.replace("<h2>Sub</h2>", '<h2>Sub</h2><pre class="code"><code>x</code></pre>'), /<pre> without tabindex/);
+  assert.deepEqual(checkHtml(good.replace("<h2>Sub</h2>", '<h2>Sub</h2><pre tabindex="0" class="code"><code>x</code></pre>'), "x.html"), [], "a focusable code block passes");
   has(good.replace(/<link rel="canonical"[^>]*>/, ""), /canonical/);
   has(good.replace(/<meta property="og:image"[^>]*>/, ""), /og:image/);
   has(good.replace(/<meta name="description"[^>]*>/, ""), /description/);

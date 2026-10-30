@@ -23,11 +23,11 @@ function docBlock(b, { base, sizes, bricks, recipes }) {
         ${r.html}
         <figcaption class="bp-note">${inline(b.caption, base)}</figcaption>
       </figure>
-      <div class="panel code-card doc-code"><div class="code-head"><span class="bui-label"><b>THE WHOLE THING</b> · paste into a page</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(listing)}</code></pre></div>
+      <div class="panel code-card doc-code"><div class="code-head"><span class="bui-label"><b>THE WHOLE THING</b> · paste into a page</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre tabindex="0" class="code"><code>${esc(listing)}</code></pre></div>
     </section>`;
     }
     case "code":
-      return `<div class="panel code-card doc-code"><div class="code-head"><span class="bui-label"><b>${esc(b.label ?? "CODE")}</b>${b.file ? ` · ${esc(b.file)}` : ""}</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(b.code)}</code></pre></div>`;
+      return `<div class="panel code-card doc-code"><div class="code-head"><span class="bui-label"><b>${esc(b.label ?? "CODE")}</b>${b.file ? ` · ${esc(b.file)}` : ""}</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre tabindex="0" class="code"><code>${esc(b.code)}</code></pre></div>`;
     case "sizes": {
       const brickOf = (name) => bricks.find((x) => x.sizes.includes(name));
       const rows = sizes.map((s) => {

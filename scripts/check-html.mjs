@@ -61,6 +61,8 @@ export function checkHtml(html, path) {
       if (!t.endsWith("/>")) depth++;
     }
   }
+  // A code block scrolls sideways on a phone: keyboard users reach it with Tab (axe scrollable-region-focusable).
+  for (const t of tags(body, "pre")) need(attr(t, "tabindex") === "0", `<pre> without tabindex="0": ${t.slice(0, 60)}`);
   for (const t of tags(body, "canvas")) need(attr(t, "aria-hidden") === "true" || attr(t, "aria-label"), `<canvas> neither hidden nor named: ${t.slice(0, 60)}`);
   for (const [, open, inner] of body.matchAll(/<(a\b[^>]*|button\b[^>]*)>([\s\S]*?)<\/(?:a|button)>/gi))
     need(text(inner) || attr(`<${open}>`, "aria-label"), `a link or button without a name: <${open.slice(0, 60)}>`);
