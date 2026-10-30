@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **Website: notes (`/notes/`)**, posts written for fizlet.com from `site/notes/<slug>.json` (generated, never hand-edited), on the site's own parts: section head, panels, stat cards, kit keys, and the kernel's size badge measured on the build. BlogPosting + FAQPage JSON-LD; listed in the sitemap and under Notes in llms.txt. First note: "Moving the games onto a 4 KB kernel" (every number from the size ledger and this changelog).
+
 ## 0.16.0
 
 - **`board-page.consume(i, "0" | "1")`**: the game picks the digit (its particle and event show the
