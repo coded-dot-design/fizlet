@@ -63,7 +63,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
    `contain: style` (it is static, so layout or paint containment could move or clip a board's own
    layers). `hud` and `board-page` own no box: they write into the host's markup and never add
    containment to it.
-9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,347 bytes); each brick has its own budget,
+9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,468 bytes); each brick has its own budget,
    1.5 to 5 KB, and a page build (kernel + slot + input + fx) ≤ 7 KB (`scripts/sizes.mjs`); over
    budget, the build fails.
 
@@ -344,7 +344,11 @@ Bounded everything (contract 2) means something has to give at capacity. What gi
 - **Settle** (`settle: seconds`, off by default): systems call `engine.busy()` in any frame where
   something moves; after `settle` seconds without one, the engine sleeps (`paused: ["settled"]`,
   no frames at all) until `engine.wake()`, its `controls` input or `start()`. Settling is not a
-  pause: `pause` hooks don't run and held input stays. **`fps`** caps the engine's frame rate on
+  pause: `pause` hooks don't run and held input stays. Something scheduled for later (an intro
+  delay, a pause between beats, an autoplay timer) calls `engine.busy(seconds)` when it's set: the
+  engine can't settle until that much more of its own time has run (counted in steps, so a slow
+  frame can't outrun it), then settles as usual. A hold shorter than `settle` changes nothing.
+  Counting a delay down in `step` without one can lose the scheduled thing to settle. **`fps`** caps the engine's frame rate on
   the shared clock (frames closer than `1/fps` do no work; time still follows the clock).
 - A hook that throws in a scheduled frame stops only its own engine (`paused: ["stopped"]`,
   `start()` resumes) and goes to `onError(error, engine)` (default `console.error`); the shared

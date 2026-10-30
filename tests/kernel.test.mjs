@@ -87,6 +87,72 @@ test("settle: no frames once nothing is busy; wake() and start() bring it back; 
   e.destroy();
 });
 
+// Frame-by-frame settle runs: a 60 Hz display (or a janky one), the step a hold is asked in, and
+// the step the engine settled after (null if it never did).
+function settleRun({ settle = 0.6, hold = null, at = 0, frameMs = 1000 / 60, frames = 400 } = {}) {
+  const e = createEngine({ settle });
+  e.add({ step: (x) => x.steps === at && (hold == null ? x.busy() : x.busy(hold)) });
+  e.start();
+  let t = 0, settled = null;
+  for (let i = 0; i < frames && settled == null; i++) (flush((t += frameMs)), !e.running && (settled = e.steps));
+  e.destroy();
+  return settled;
+}
+
+test("busy(sec) holds a settling engine awake past settle; it settles as soon as the hold ends", () => {
+  // An intro that waits 1.5 s with settle 0.6: without a hold the engine sleeps at 0.6 s.
+  const plain = settleRun({ hold: null });
+  assert.ok(plain >= 36 && plain <= 37, `busy() alone: asleep after 0.6 s (36 steps): ${plain}`);
+  const held = settleRun({ hold: 1.5 });
+  assert.ok(held >= 90, `busy(1.5): awake for the whole 1.5 s (90 steps), settled after ${held}`);
+  assert.ok(held <= 92, `busy(1.5): settles right after the hold (quiet time counted meanwhile), not 0.6 s later: ${held}`);
+  // The #026 shape: a 0.6 s wait against a 0.6 s settle.
+  assert.ok(settleRun({ hold: 0.6 }) >= 36, "busy(0.6) with settle 0.6: still awake when the wait ends");
+  // A janky display: 250 ms frames run 4 steps (the rest is dropped), so wall time outruns the
+  // engine's own. The hold is in steps, so the scheduled thing still comes first.
+  assert.ok(settleRun({ hold: null, frameMs: 250 }) < 36, "busy() alone on 250 ms frames: asleep before 0.6 s of its own time");
+  const janky = settleRun({ hold: 1.5, frameMs: 250 });
+  assert.ok(janky >= 90, `busy(1.5) on 250 ms frames: awake for 90 steps of its own time, settled after ${janky}`);
+  // A hold shorter than settle changes nothing: the same step as busy().
+  assert.equal(settleRun({ hold: 0.2 }), settleRun({ hold: null }), "busy(0.2) with settle 0.6: settles exactly as busy() does");
+  assert.equal(settleRun({ hold: 0.2, at: 30 }), settleRun({ hold: null, at: 30 }), "and the same from mid-run");
+  // A later, shorter hold never cuts an earlier, longer one short.
+  const e = createEngine({ settle: 0.1 });
+  e.add({ step: (x) => (x.steps === 0 && x.busy(1), x.steps === 10 && x.busy(0.05)) });
+  e.start();
+  let t = 0;
+  for (let i = 0; i < 50; i++) flush((t += 1000 / 60));
+  assert.equal(e.running, true, "the longer hold still holds");
+  for (let i = 0; i < 30; i++) flush((t += 1000 / 60));
+  assert.deepEqual(e.paused, ["settled"], "and then it settles");
+  e.destroy();
+  // A NaN hold (a delay computed from nothing) holds nothing: it settles as busy() would.
+  assert.equal(settleRun({ hold: NaN }), settleRun({ hold: null }), "busy(NaN): settles as busy() does");
+  // Without settle, a hold is a no-op.
+  const f = createEngine();
+  f.add({ step: (x) => x.busy(0.5) });
+  f.start();
+  for (let i = 0; i < 100; i++) flush((t += 1000 / 60));
+  assert.equal(f.running, true);
+  f.destroy();
+});
+
+test("busy(sec) in the step allocates nothing (10k+ steps)", async (t) => {
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  const e = createEngine({ settle: 0.5 });
+  // Every step asks for a hold, with a fresh fractional length (a double, never a boxed number).
+  e.add({ step: (x, dt) => (x.busy(dt * (x.steps % 7) + 0.25), x.busy()) });
+  e.start();
+  const run = (frames) => {
+    for (let i = 0; i < frames; i++) e.advance(1 / 60);
+  };
+  run(20000);
+  const minor = await minorGCs(() => run(1000000));
+  assert.ok(minor <= 1, `young-generation GCs during 1M steps with busy(sec) (best of 3 windows): ${minor}`);
+  assert.equal(e.running, true, "held awake the whole time");
+  e.destroy();
+});
+
 test("pause stops all work; resume does not replay the gap", () => {
   const e = createEngine();
   let steps = 0;

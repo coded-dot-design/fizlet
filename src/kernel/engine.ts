@@ -36,7 +36,8 @@ export interface EngineOptions {
    *  other engines and the shared clock keep running. Default: `console.error(error)`. */
   onError?: (error: unknown, engine: Engine) => void;
   /** Settle (page interactions): after this many seconds in which no system called `busy()`, the
-   *  engine sleeps (paused: "settled", no frames at all) until `wake()`, input or `start()`. Off by default. */
+   *  engine sleeps (paused: "settled", no frames at all) until `wake()`, input or `start()`. Off by default.
+   *  Something scheduled for later (an intro delay, a beat, an autoplay timer) holds it awake with `busy(sec)`. */
   settle?: number;
   /** Frame-rate cap (e.g. 30 for an ambient hero): between frames the engine is off the shared clock
    *  and a timer brings it back, so it asks for ~fps requestAnimationFrame calls a second. */
@@ -115,8 +116,8 @@ export function createEngine(o: EngineOptions = {}) {
   let napT: ReturnType<typeof setTimeout> | undefined; // the fps cap's timer
   // Running numbers live in one typed array: updating it never allocates (a captured `let` holding
   // a double would box a new number on every write).
-  const n = new Float64Array(11);
-  const ACC = 0, LAST = 1, TIME = 2, FRAMES = 3, STEPS = 4, DROPPED = 5, MS = 6, MAX = 7, QUIET = 8, DELTA = 9, WORK = 10;
+  const n = new Float64Array(12);
+  const ACC = 0, LAST = 1, TIME = 2, FRAMES = 3, STEPS = 4, DROPPED = 5, MS = 6, MAX = 7, QUIET = 8, DELTA = 9, WORK = 10, HOLD = 11;
   n[LAST] = -1;
 
   const set = (bit: number, on: boolean) => {
@@ -185,9 +186,17 @@ export function createEngine(o: EngineOptions = {}) {
     start() {
       if (!dead) (set(SETTLED, false), set(STOPPED, false));
     },
-    /** Something moved this frame: keeps a settling engine awake (no-op without `settle`). */
-    busy() {
+    /**
+     * Something moved this frame: keeps a settling engine awake (no-op without `settle`). With
+     * `sec`, something is scheduled that far ahead (an intro delay, a pause between beats): the
+     * engine also can't settle until `sec` more of its own time has run (counted in steps, one step
+     * of slack, so a slow frame can't outrun it). The quiet time still counts meanwhile: once the hold
+     * ends it settles at once if nothing else was busy, and a hold shorter than `settle` changes nothing.
+     * A later, shorter hold never cuts a longer one; NaN holds nothing.
+     */
+    busy(sec = 0) {
       moved = true;
+      if ((sec = n[STEPS]! + sec / dt + 1) > n[HOLD]!) n[HOLD] = sec;
     },
     /** Wake a settled engine (input does this for you); the quiet time starts again. */
     wake() {
@@ -246,7 +255,7 @@ export function createEngine(o: EngineOptions = {}) {
       }
       if (settle) {
         if (moved) n[QUIET] = 0;
-        else if ((n[QUIET]! += sec) >= settle) set(SETTLED, true);
+        else if ((n[QUIET]! += sec) >= settle && n[STEPS]! >= n[HOLD]!) set(SETTLED, true);
         moved = false;
       }
       const ms = (n[WORK] = performance.now() - t0);

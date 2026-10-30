@@ -41,6 +41,12 @@ jobs:
         run: |
           set -o pipefail
           npm run test:site 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
+      # Every gallery entry plays its autoplay story through before it settles (on the built site).
+      - name: npm run test:settle
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test:settle 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed|quiet for" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
   perf:
     # Measured, not claimed: frame times, dropped frames, first paint, heap and minor GCs under a
     # 4x CPU throttle, failing over tests/perf/budgets.json; plus the game-level allocation test.
