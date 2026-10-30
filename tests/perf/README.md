@@ -25,6 +25,8 @@ npm run test:alloc           # the allocation test alone (after `npm run site`)
 - **FCP**: `first-contentful-paint` from the page's paint timing (time to first frame).
 - **heap**: CDP `JSHeapUsedSize` at the end of the run, no forced GC.
 - **minor / major GC**: V8 scavenges (`MinorGC`) and mark-compacts (`MajorGC`) in a trace of the window.
+- **layerize**: Chromium's `Layerize` ms per frame in the same trace. Every frame that repaints
+  layerizes the whole document, so every composited layer on the page costs it, on screen or not.
 
 The input is a seeded click every 250 ms on the demo board (a blast and a shock wave each time).
 

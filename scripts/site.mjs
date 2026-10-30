@@ -12,10 +12,12 @@ import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
 import { brickPage, bricksIndex } from "../site/pages/brick.mjs";
 import { galleryPage } from "../site/pages/gallery.mjs";
+import { heroesPage } from "../site/pages/heroes.mjs";
+import { personPage } from "../site/pages/people.mjs";
 import { notePage, notesIndex, noteLd } from "../site/pages/notes.mjs";
 import { notes as loadNotes, notePath } from "./notes.mjs";
 import { playFigure } from "../site/pages/index.mjs";
-import { buildGallery } from "./gallery.mjs";
+import { buildGallery, personPath } from "./gallery.mjs";
 import { buildMake, snippetFor, TABLE as MAKE_TABLE } from "./make.mjs";
 import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
 import { BRICKS, brickPath } from "../site/bricks.mjs";
@@ -99,6 +101,15 @@ const figures = {
   howitworks: `<figure class="ae-slot ae-slot--4x5 gal-fig gal-tall" data-slot-target="gallery#howitworks" role="img" aria-label="The blast demo: a small page you can knock around; Recall puts it back."><span class="ae-slot__placeholder gal-still" aria-hidden="true">“Hello, page.” Every letter is a real element.</span><template>${playFigure()}</template></figure>`,
 };
 
+// The gallery's pages sit at gallery/ and gallery/page/<n>/ (base: the path back to the root);
+// every entry's URL is on the page that holds it (the heroes and profile pages link there).
+const GB = (p) => "../".repeat(p.path.split("/").length - 1);
+const urlOf = (id) => gallery.index.find((r) => r.id === id).url;
+const heroes = gallery.entries.filter((e) => e.kind === "hero");
+for (const p of gallery.pages) mkdirSync(`${OUT}/${p.path}`, { recursive: true });
+mkdirSync(`${OUT}/heroes`, { recursive: true });
+for (const id of Object.keys(gallery.people)) mkdirSync(`${OUT}/${personPath(id)}`, { recursive: true });
+
 const sizes = await measure();
 const kernel = sizes[0];
 // Every brick's API, from its source comment and its built declarations.
@@ -152,16 +163,36 @@ const pages = [
     description: `Every Fizlet module with its API and its measured size: the kernel is ${(kernel.gzip / 1024).toFixed(1)} KB gzip, each brick its own import.`,
     base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version }), scripts: ["site.js"],
   })],
-  ["gallery/index.html", page({
-    title: "Gallery: one prompt, one animation · Fizlet",
-    description: `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by Chris Cooley).`,
-    base: "../", version, path: "gallery/", body: `<style>${layers.css}</style>` + galleryPage({ entries: gallery.entries, loader: gallery.loader, figures, snippets: make.snippets, base: "../" }), scripts: ["site.js", "gallery/gallery.js"],
+  // The gallery: PAGE_SIZE entries a page (gallery/, gallery/page/2/, …), in theme sections.
+  ...gallery.pages.map((p) => [`${p.path}index.html`, page({
+    title: p.n === 1 ? "Gallery: one prompt, one animation · Fizlet" : `Gallery, page ${p.n}: one prompt, one animation · Fizlet`,
+    description: p.n === 1
+      ? `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by theme).`
+      : `Fizlet gallery page ${p.n} of ${gallery.pages.length}: older animations by theme, each with its prompt, its live demo and its size measured on this build.`,
+    base: GB(p), version, path: p.path,
+    body: `<style>${layers.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p) }),
+    scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
+  })]),
+  ["heroes/index.html", page({
+    title: "Heroes: the big animations, one at a time · Fizlet",
+    description: `The Fizlet hero animations, large: the one in the centre plays, the rest wait as posters. ${heroes.length} so far, each with its size measured on this build.`,
+    base: "../", version, path: "heroes/",
+    body: `<style>${layers.css}</style>` + heroesPage({ heroes, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: "../", urlOf }),
+    scripts: ["site.js", "gallery/heroes.js"],
   })],
   ["make/index.html", page({
     title: "Make one: a prompt in, a snippet out · Fizlet",
     description: `Type a prompt, get a drop-in Fizlet animation: one file, only the bricks it uses, its size measured in your browser. No server, no tracking.`,
     base: "../", version, path: "make/", body: makePage({ made: defaultSnippet, script: make.script, recipes: Object.keys(MAKE_TABLE.recipes), base: "../" }), scripts: ["site.js", "make/make.js"],
   })],
+  ...Object.values(gallery.people).map((person) => [`${personPath(person.id)}index.html`, page({
+    title: `${person.name}: animations and profile · Fizlet`,
+    description: `${person.name} on Fizlet: ${gallery.entries.filter((e) => e.author === person.id).length} animations in the gallery, each with its prompt, its live demo and its measured size.`,
+    base: "../../", version, path: personPath(person.id),
+    ld: [{ "@type": "ProfilePage", "@id": `${SITE}${personPath(person.id)}#page`, url: SITE + personPath(person.id), mainEntity: person.id === "chris-cooley" ? { "@id": PERSON["@id"] } : { "@type": "Person", name: person.name, ...(person.url && { url: person.url }) } }],
+    body: personPage({ person, entries: gallery.entries, themes: gallery.themes, base: "../../", urlOf }),
+    scripts: ["site.js"],
+  })]),
   ["notes/index.html", page({
     title: "Notes: what the games taught the engine · Fizlet",
     description: `Field notes from building games on Fizlet, newest first: ports, lessons and the numbers behind them, each one measured (${NOTES.length} so far, by Chris Cooley).`,
