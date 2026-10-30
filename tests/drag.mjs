@@ -42,6 +42,28 @@ try {
   assert.ok(Math.abs(c.left - (board.left + 7)) < 1 && Math.abs(c.top - (board.top + 7)) < 1, `stays inside its board: ${JSON.stringify([c.left, c.top, board.left, board.top])}`);
   // The card's own inline styles survive (only left/top/right/bottom/translate change).
   assert.deepEqual(await p.locator("#card").evaluate((c) => [c.style.position, c.style.width, c.style.background]), ["absolute", "220px", "rgb(238, 238, 238)"], "keeps its own inline styles");
+  // A hover or a release over the card reads no layout (each move would force one after the page's
+  // own writes); a press and each drag move read it once.
+  const reads = await p.evaluate(() => {
+    const card = document.getElementById("card"), proto = Element.prototype, real = proto.getBoundingClientRect;
+    let n = 0;
+    proto.getBoundingClientRect = function () { if (this === card) n++; return real.call(this); };
+    const at = card.getBoundingClientRect(), x = at.left + 30, y = at.top + 20, ev = (type, dx = 0) => card.dispatchEvent(new PointerEvent(type, { bubbles: true, clientX: x + dx, clientY: y, pointerId: 1, isPrimary: true }));
+    n = 0;
+    for (let i = 0; i < 10; i++) ev("pointermove", i);
+    ev("pointerup");
+    const hover = n;
+    n = 0;
+    try { ev("pointerdown"); } catch {}
+    const press = n;
+    n = 0;
+    for (let i = 0; i < 5; i++) ev("pointermove", i);
+    const moves = n;
+    ev("pointerup");
+    proto.getBoundingClientRect = real;
+    return { hover, press, moves };
+  });
+  assert.deepEqual(reads, { hover: 0, press: 1, moves: 5 }, "layout is read only on a press and while dragging");
   // Its keys still click, and do not start a drag.
   await p.locator("#k").click();
   assert.equal(await p.locator("#card").evaluate((c) => c.classList.contains("drag")), false);

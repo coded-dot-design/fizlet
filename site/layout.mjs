@@ -74,10 +74,11 @@ const FOOT_ENGINE = [
 ];
 const FOOT_SITE = [
   ["gallery/", "Gallery"],
+  ["make/", "Make one"],
   ["heroes/", "Heroes"],
   ["notes/", "Notes"],
   ["people/", "People"],
-  ["contest/", "Daily contest"],
+  ["contest/", "Weekly contest"],
 ];
 const FOOT_DEMOS = [
   ["demos/layers/", "The layers story"],
