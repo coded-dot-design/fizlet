@@ -111,6 +111,8 @@ deeper on light.
 
 - A key's base is its own colour, deep: `color-mix(in srgb, var(--c) 45%, var(--rim))`.
 - Card / orbit base: `--k-cmd-base = color-mix(in srgb, var(--k-cmd) 50%, var(--rim))`.
+- White text on command (back tab, status pills): `--k-cmd-deep = color-mix(in srgb, var(--k-cmd) 80%, var(--rim))`
+  (#f6f3ff on it is 4.9:1; on `--k-cmd` itself it would be 3.4:1).
 - Glow (dark only): rest 14u at 40%, hover 18u at 55%, press 22u at 70% of `--c`.
 - Your team colour: `--team` = `--team-a`, or `--team-b` when the root has `data-side="1"`.
 
@@ -212,7 +214,7 @@ calm: `animation: none` on locked footer keys.
 - **Platoon key** (`.bui-unit`): number over size pips; health colours; `.active` = white outline
   2u at 2u offset; lost = disabled, pressed flat, number struck through.
 - **Pager** (`.bui-pager`): ‹ ★ › as one sys bar; ★ = your own unit, pressed when you are selected.
-- **Shortcut chip** (`kbd`): 9u mono, 1u currentColor border, 70% opacity, always right-aligned.
+- **Shortcut chip** (`kbd`): 9u mono, 1u currentColor border, 88% opacity (`--bui-kbd-alpha`: rim ink stays AA on every face), always right-aligned.
 
 ### 5.5 Touch pad (`fizlet/pad`, CSS section 11)
 
@@ -287,7 +289,7 @@ Rename per game (e.g. SQUAD, CREW, SHIPS) but keep the grammar.
 - **Fold key**: the card's icon/number is a real button. Click/tap/Enter/Space shrinks the card to
   that key; a hover/focus tip says "Click to shrink" / "Click to expand". A hint strip (CLICK THE
   NUMBER TO SHRINK) shows on first open.
-- **Back tab** (`.bui-back-tab`): "‹ PREVIOUS STEP" on the top edge, left side, cmd, 22u tall. A
+- **Back tab** (`.bui-back-tab`): "‹ PREVIOUS STEP" on the top edge, left side, `--k-cmd-deep`, 22u tall. A
   card with a back tab keeps 22u of top padding so its title never meets the tab.
 - **Height**: a card fits its content, up to a cap (the map height minus room for the launch key);
   its body scrolls past the cap. A resize handle can shorten a card, never stretch it past its

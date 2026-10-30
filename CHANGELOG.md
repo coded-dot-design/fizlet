@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+- **Kernel: the fps cap now caps requestAnimationFrame, not just the work** (real-browser audit,
+  `abe browse`). A capped engine used to keep asking for a frame every vsync and skip most of them,
+  so a 30 fps hero still cost 57–120 rAF calls a second (two heroes on the home page: 119.6 rAF/s at
+  1440). Now, after each frame it leaves the shared clock and one timer brings it back at its next
+  slot: 30 rAF/s for `fizz#hero` and `index#layers`, and an uncapped engine on the same page no
+  longer drags a capped one along. Something that puts it back early (a resume, a focus change)
+  gets one frame at once and the timer starts over. Kernel 3,436 B gzip (+23 B); `page build`
+  7,111 B (budget 7,168); layers live chunk 9,728 B (its ≤ 9,728 B budget). Tests: rAF calls per
+  second at 60 and 120 Hz and a capped engine beside an uncapped one (`tests/kernel.test.mjs`, both
+  fail before), and the fizz story's real page-wide rAF count ≤ 33 a second (`tests/site.mjs`).
+- **Home demo settles.** The blast demo ("Blast it. Recall it.") ran its engine every vsync while on
+  screen even when nothing moved (60 rAF/s, blamed on whichever slot was in view: `fizz#hero` on the
+  home page, `gallery#howitworks` at 60.4). It now settles half a second after the last letter,
+  wave, particle and scorch mark stop (input wakes it; the HUD reads PAUSED · SETTLED), and its
+  CLICK THE PAGE blink pauses off screen (the gallery slot kept a CSS animation running offscreen at
+  390). Tests: settles untouched with 0 frames, and no running CSS animation in the gallery slot once
+  scrolled away (`tests/site.mjs`).
+- **Board UI contrast (tokens, both themes).** Every key label passes WCAG AA on its face: the
+  shortcut chip (`kbd`) fades to `--bui-kbd-alpha` 0.88 instead of 0.7 (rim ink on the command face
+  3.72 → 4.84:1, on the attack face 4.04 → 5.24:1); the light `--k-sys-ink` is one shade deeper,
+  `#006e91` (4.06 → 5.77:1 on white, 3.58 → 5.08:1 on the page); new derived `--k-cmd-deep`
+  (command 80% over the rim) under white text: the back tab 3.42 → 4.89:1; the PLAN sticker label is
+  rim ink (4.06 → 5.38:1). Site: the `v0.2` chip sits on `--k-cmd-deep` (3.42 → 4.89:1) and the
+  light `--hl` is `#0b7a54` (4.36 → 5.35:1). Same hues; tokens.json, board-ui.css and BOARD-UI.md
+  agree. Measured with abe browse's own contrast check: 0 failures in dark (3 before) and light
+  (only the roadmap's large phase numbers remain in light).
+- **Tap targets on touch (≥ 44 px, nothing moves).** Text links grow their box with padding (taken
+  back with a negative margin where it would take room): footer, card titles, hero, gallery, notes,
+  brick contents and prev/next. The header icon keys are 44 px. Phone screenshots of every changed
+  page are pixel-identical. 668 → 24 small targets over the 30 pages at 390 px; the 24 left are the
+  copy keys, whose hit area grows instead (the kit's invisible `::before`) because their face can't.
+
 - **The fizz, dialled in** (the brand animation, `site/demos/fizz/`). A tap **crunches** the can
   (it squashes and dents, and stays dented), then the tab pops. The fizz **sprays out of the
   card**: a geyser, a burst and a glug fly on a pixel layer the card's width, reaching from 70% of

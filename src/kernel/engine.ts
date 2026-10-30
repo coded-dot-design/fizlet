@@ -38,7 +38,8 @@ export interface EngineOptions {
   /** Settle (page interactions): after this many seconds in which no system called `busy()`, the
    *  engine sleeps (paused: "settled", no frames at all) until `wake()`, input or `start()`. Off by default. */
   settle?: number;
-  /** Frame-rate cap on the shared clock (e.g. 30 for an ambient hero). Skipped frames do no work. */
+  /** Frame-rate cap (e.g. 30 for an ambient hero): between frames the engine is off the shared clock
+   *  and a timer brings it back, so it asks for ~fps requestAnimationFrame calls a second. */
   fps?: number;
   /** Auto-pause rules (all on by default; reducedMotion is opt-in: most games calm their effects). */
   pause?: { hidden?: boolean; offscreen?: boolean; editable?: boolean; reducedMotion?: boolean };
@@ -62,6 +63,8 @@ export type Engine = ReturnType<typeof createEngine>;
 // While a tick runs, `cur` is the engine being framed and `end` the last one this frame covers:
 // engines removed mid-frame shift both back (no one is skipped), engines added mid-frame wait for
 // the next frame (no one runs twice), and only the tick itself asks for the next frame.
+// An fps-capped engine leaves the clock after each frame and a timer brings it back at its next
+// slot, so a 30 fps hero costs ~30 requestAnimationFrame calls a second, not one per vsync.
 const live: Engine[] = [];
 let raf = 0, requests = 0, cur = 0, end = -1;
 function tick(now: number) {
@@ -108,13 +111,15 @@ export function createEngine(o: EngineOptions = {}) {
   const ctl = new AbortController(), signal = ctl.signal;
   const systems: System[] = [], pools: [string, Pool<unknown>][] = [];
   const events = new EventRing(o.events ?? 64), ledger = new Ledger(), random: Random = seeded(need(o.seed ?? 1, "seed"));
-  let held = STOPPED, phase = IDLE, dead = false, gone = false, moved = false;
+  let held = STOPPED, phase = IDLE, dead = false, gone = false, moved = false, napT: ReturnType<typeof setTimeout> | undefined;
   // Running numbers live in one typed array: updating it never allocates (a captured `let` holding
   // a double would box a new number on every write).
   const n = new Float64Array(11);
   const ACC = 0, LAST = 1, TIME = 2, FRAMES = 3, STEPS = 4, DROPPED = 5, MS = 6, MAX = 7, QUIET = 8, DELTA = 9, WORK = 10;
   n[LAST] = -1;
 
+  // The fps cap's timer: back on the shared clock (unless paused or destroyed meanwhile).
+  const nap = () => schedule(engine, !held && !dead);
   const set = (bit: number, on: boolean) => {
     const was = !held && !dead;
     held = on ? held | bit : held & ~bit;
@@ -195,7 +200,6 @@ export function createEngine(o: EngineOptions = {}) {
     },
     /** Called by the scheduler with the rAF timestamp. */
     frame(now: number) {
-      if (gap > 0 && n[LAST]! >= 0 && now - n[LAST]! < gap) return; // fps cap: this frame is skipped
       const sec = n[LAST]! < 0 ? 0 : (now - n[LAST]!) / 1000;
       n[LAST] = now;
       try {
@@ -207,6 +211,9 @@ export function createEngine(o: EngineOptions = {}) {
         if (!o.onError) throw err;
         o.onError(err, engine);
       }
+      // fps cap: off the shared clock until its next slot (one timer, not a frame every vsync). Put
+      // back early (a resume, a focus change), it frames at once and the timer starts over.
+      if (gap) clearTimeout(napT), schedule(engine, false), (napT = setTimeout(nap, gap));
     },
     /** Run one frame's worth of time by hand (tests, headless, a server). A hook's error throws here. */
     advance(sec: number) {
