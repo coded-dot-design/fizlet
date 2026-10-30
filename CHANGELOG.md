@@ -2,6 +2,20 @@
 
 ## 0.17.0
 
+- **Perf: the demo's blasts are back to 60 fps at 4× CPU throttle** (30 fps since 0.10.1). Bisected
+  to 1337112 (the layers story in the home page hero): scrolled off screen, its scene kept about 50
+  composited 3D layers, and Chromium layerizes the whole document on every frame that repaints, so
+  each blast frame paid 8.4–11.7 ms of `Layerize` for a scene nobody could see. `fizlet/slot`'s
+  stage is now `content-visibility: auto` (a scene off screen is skipped for style, layout, paint and
+  layers), and so is the layers figure (its slider's eight 3D plates sit outside the stage).
+  Measured (`npm run perf`, Chromium 153, 4× throttle, 10 s, a busy 4-core Xeon): before p50
+  33.3–33.4 ms, 47–61% dropped, `Layerize` 10.6–11.4 ms per frame; after p50 16.7 ms, 24–32%
+  dropped, `Layerize` 1.6–1.7 ms (0.4.4: 1.5–1.8). Size: `fizlet/slot` 1,845 B gzip (budget
+  2,048); layers live chunk 9,720 B (≤ 9,728; the
+  13 B the slot adds are paid for in the scene, which now makes its fx canvas directly instead of
+  through a `canvas` branch in its element helper). The harness now reports `layerizeMs`, and
+  `tests/perf/budgets.json` fails the demo on this regression: p50 ≤ 25 ms, p95 ≤ 67, ≤ 45%
+  dropped, `layerizeMs` ≤ 4.
 - **board-page runs in its root's own document and window.** `boardPage(e, { root })` now measures,
   observes and writes in `root.ownerDocument` (its viewport, `getComputedStyle`, observers, scroll
   and resize, highlights), so a board inside an iframe's page works. Before, it always used the
