@@ -161,7 +161,7 @@ try {
         assert.ok(html.includes(`data-total="gallery:${e.id}">live ${bytes.toLocaleString("en-US")} B · total <b>${(bytes + loader).toLocaleString("en-US")} B</b>`), `${e.id}: live and total, one size`);
         assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
         // Attribution: "by <name>", linked to the contributor's profile.
-        const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</li>")[0];
+        const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</div>\n    </li>")[0]; // a card ends at its own </li> (a poster may hold lists)
         assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
       }
     }
