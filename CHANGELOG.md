@@ -9,8 +9,6 @@
   to four of them. It now waits (up to 10 s) for six frames and the story moving past where it was
   paused: 10 of 10 under the same load. A real stall still fails it (checked with a scene whose key
   reads Pause but whose story never steps). Test only; no engine or size change.
-
-
 - **Kernel fix: `start()` on a settled engine runs again.** It cleared the settled bit but not the
   quiet time, so the first frame after it (0 s, no steps) found the engine still quiet and put it
   back to sleep: `start()` woke a settled engine for one empty frame. It now does what `wake()` does
