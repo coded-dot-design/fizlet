@@ -21,7 +21,7 @@
   revealed section (positioned) no longer covers the base of a key on the previous section's
   bottom edge (its box lets the pointer through, its content takes it back), and `.hero` is
   `overflow: clip`, so the parallaxed field never gives a focus or `scrollIntoView` a hidden
-  scroll to move. The site test's `revealAll` waits on each reveal, not on time.
+  scroll to move. The site test's `revealAll` and the home rhythm check wait on the reveals' state, not on time.
 - **Gallery: the 7 kept pieces, rebuilt by hand as micro games** (owner approved, 2026-10-30). Each
   has its own stage (`stage: "own"`, `site/gallery/stages/<id>.html`) and story; page text moves
   only where the game hits it.

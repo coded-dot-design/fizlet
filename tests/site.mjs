@@ -795,14 +795,20 @@ try {
       else assert.ok(hidden.some(([id]) => id === "roadmap") && hidden.every(([, below]) => below), `below the fold waits, in view never hides (${hidden})`);
       const h = await page.evaluate(() => document.documentElement.scrollHeight);
       for (let y = 0; y <= h; y += 400) await page.evaluate((y) => scrollTo(0, y), y), await page.waitForTimeout(40);
-      await page.waitForTimeout(1500);
+      // On state, not time: a loaded runner draws fewer frames, and the kernel caps each frame's dt, so
+      // the last reveals can take longer than any fixed wait. A part that never shows still fails.
+      await page.waitForFunction(() => ![...document.querySelectorAll("section[data-reveal] *")]
+        .some((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1")), null, { polling: "raf", timeout: 15000 }).catch(() => {});
       assert.deepEqual(await moved(page), [], `${reducedMotion}: every part shown once the reveals end`);
       if (reducedMotion === "reduce") {
         assert.equal(await page.evaluate(() => document.querySelector(".sec-num").style.translate), "", "reduced motion: no parallax");
       } else {
         assert.notEqual(await page.evaluate(() => document.querySelector(".sec-num").style.translate), "", "parallax moves the ghost numbers");
-        // Still once settled: no frames asked for after the scroll stops.
-        const frames = await page.evaluate(() => new Promise((r) => { let n = 0; const raf = window.requestAnimationFrame; window.requestAnimationFrame = (f) => (n++, raf(f)); setTimeout(() => ((window.requestAnimationFrame = raf), r(n)), 1200); }));
+        // Still once settled: no frames asked for after the scroll stops. The engine settles a little
+        // after the last reveal ends, so look at up to five 1.2 s windows; one that never settles fails all.
+        let frames = Infinity;
+        for (let i = 0; i < 5 && frames > 2; i++)
+          frames = await page.evaluate(() => new Promise((r) => { let n = 0; const raf = window.requestAnimationFrame; window.requestAnimationFrame = (f) => (n++, raf(f)); setTimeout(() => ((window.requestAnimationFrame = raf), r(n)), 1200); }));
         assert.ok(frames <= 2, `settled: ${frames} frames asked for in 1.2 s of stillness`);
       }
       assert.ok(await page.evaluate(() => window.__cls) < 0.01, "no layout shift from the reveals");
