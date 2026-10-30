@@ -1,5 +1,6 @@
 {
   "_note": "Provisional regression ceilings, set from runs on fizlet main 652455e (0.15.0) on a 4-core Xeon 2.8 GHz, Chromium 153, 4x CPU throttle, 10 s: demo p50 33.4 (one run 50.0), p95 50.1-83.3, p99 83.3-100 ms, 55-66% dropped, FCP 308-1384 ms, heap 2.7-3.4 MB, 0-2 minor GC. On 0.4.4 the same run held 60 fps (p50 16.7, 14-25% dropped). Replace with the context/03 rule 9 budgets once reconciled. droppedPct = dropped / (frames + dropped).",
-  "demo": { "p50": 50, "p95": 100, "p99": 117, "droppedPct": 75, "fcp": 2000, "heapMB": 8, "minorGC": 10 },
+  "_demo": "Blast phase (the whole measured window is seeded blasts). 0.10.1 to 0.16.0 regressed to 30 fps at 4x: p50 33.3-50, 55-66% dropped, Layerize 8.4-11.7 ms per frame (an off-screen 3D scene's composited layers re-layerized on every blast frame). Fixed (slot stage and layers figure content-visibility: auto): p50 16.7, Layerize 1.7-2.3 ms (0.4.4: 1.5-1.8). p50, droppedPct and layerizeMs each fail on that regression; layerizeMs is the steadiest on a busy machine.",
+  "demo": { "p50": 25, "p95": 67, "p99": 117, "droppedPct": 45, "layerizeMs": 4, "fcp": 2000, "heapMB": 8, "minorGC": 10 },
   "blitz": { "p50": 20, "p95": 50, "p99": 67, "droppedPct": 30, "fcp": 2000, "heapMB": 16, "minorGC": 10 }
 }
