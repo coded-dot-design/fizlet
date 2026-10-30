@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.17.0
 
 - **Perf: the demo's blasts are back to 60 fps at 4× CPU throttle** (30 fps since 0.10.1). Bisected
   to 1337112 (the layers story in the home page hero): scrolled off screen, its scene kept about 50
