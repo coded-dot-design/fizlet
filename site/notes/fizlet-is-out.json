@@ -1,0 +1,270 @@
+{
+  "$comment": "Generated from the content model; do not edit by hand.",
+  "id": "blog-fizlet-is-out",
+  "site": "fizlet",
+  "brand": "fizlet",
+  "games": [
+    "dom-battlefield",
+    "dom-battlefield-blitz",
+    "null-invaders",
+    "byte-runner",
+    "sherman-bytes",
+    "swarm-protocol"
+  ],
+  "type": "blog",
+  "slug": "fizlet-is-out",
+  "title": "Fizlet is out",
+  "subtitle": "A 4 KB kernel budget. Six games on it.",
+  "eyebrow": "Launch · 31 October 2026",
+  "tags": [
+    "fizlet",
+    "launch",
+    "engine",
+    "size",
+    "games"
+  ],
+  "date": "2026-10-31",
+  "status": "scheduled",
+  "publishAt": "2026-10-31",
+  "lead": [
+    "Fizlet is the micro animation and game engine for the DOM, by Chris Cooley. The kernel is 3,439 bytes gzip against a 4 KB budget, and every brick has its own budget, checked in CI. Six games run on it today. It is MIT licensed, with no runtime dependencies, ever."
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "heading": "Tiny physics",
+      "headingAccent": "for your page.",
+      "body": [
+        {
+          "type": "p",
+          "text": "Fizlet makes the page play. A hero that reacts, a diagram you can poke, a tiny game that runs on the text you are reading. The page is the board."
+        },
+        {
+          "type": "p",
+          "text": "It is a polite guest. It plays on a page it does not own, and `destroy()` gives that page back exactly as it found it. A newer edit by the host always wins."
+        },
+        {
+          "type": "p",
+          "text": "The fiz is fizz, the pop of an effect. The -let is small, like an applet: one small app with one job."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "Nine promises.",
+      "headingAccent": "Each one tested.",
+      "body": [
+        {
+          "type": "p",
+          "text": "Every brick and every game built on Fizlet keeps the same contract, and each rule has a test."
+        },
+        {
+          "type": "ol",
+          "items": [
+            "**One clock per page.** Every engine shares one `requestAnimationFrame`, with a fixed step (default 60 Hz) and a catch-up cap. A long frame drops time; it never spirals.",
+            "**Bounded everything.** Pools and the event ring have a fixed capacity and refuse work when full.",
+            "**Zero steady-state allocation.** 1M kernel steps of a busy system cause 0 young-generation GCs on Node 24.",
+            "**No layout reads in the step.** Read in `read`, simulate in `step`, write in `render`.",
+            "**Change-only writes.** The ledger skips writes that change nothing.",
+            "**Pause by default.** A hidden tab, a root off screen or typing in the host's own fields pauses it. Zero CPU while paused.",
+            "**Own nothing you can't give back.** Every page change goes through the ledger, and `destroy()` restores it.",
+            "**Embed-safe.** No globals, no global styles, many engines per page.",
+            "**Budgets in CI.** Over budget, the build fails."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stats",
+      "heading": "Every kilobyte",
+      "headingAccent": "is a choice.",
+      "items": [
+        {
+          "value": "3,439 B",
+          "label": "the kernel, gzip (budget 4,096)"
+        },
+        {
+          "value": "7,127 B",
+          "label": "a page build: kernel + `slot` + `input` + `fx` (budget 7,168)"
+        },
+        {
+          "value": "0",
+          "label": "runtime dependencies"
+        },
+        {
+          "value": "9",
+          "label": "contract rules, each with a test"
+        },
+        {
+          "value": "6",
+          "label": "games running on the kernel"
+        }
+      ]
+    },
+    {
+      "type": "features",
+      "layout": "grid",
+      "heading": "Take only",
+      "headingAccent": "what you need.",
+      "subhead": "One package, one import per brick: you ship only what you import. Sizes are minified + gzip, measured by `npm run size`, each against its own budget.",
+      "items": [
+        {
+          "title": "fizlet/input · 1,283 B",
+          "body": "Keys, pointer and a touch stick as intents. Keys typed into the host's own fields never count."
+        },
+        {
+          "title": "fizlet/pad · 1,995 B",
+          "body": "Swappable touch controls: a stick, a d-pad or move keys, plus arcade action keys."
+        },
+        {
+          "title": "fizlet/collide · 1,293 B",
+          "body": "A spatial hash with overlap tests and swept circle checks, so fast shots don't tunnel."
+        },
+        {
+          "title": "fizlet/grid · 1,533 B",
+          "body": "The game board: typed-array terrain, A* paths with a per-call budget, line of sight and flood fill."
+        },
+        {
+          "title": "fizlet/fx · 2,797 B",
+          "body": "Pooled particles, the hero blast, pop words, scorch and shake, and named particle kinds as data."
+        },
+        {
+          "title": "fizlet/camera · 1,385 B",
+          "body": "The page is the camera: eased pans and zooms, one transform through the ledger."
+        },
+        {
+          "title": "fizlet/sprite · 1,403 B",
+          "body": "Pixel-art characters as data, re-tinted by palette and baked once into a capped cache."
+        },
+        {
+          "title": "fizlet/sound · 1,000 B",
+          "body": "Engine events become synth cues, at most 8 voices, unlocked on a gesture."
+        },
+        {
+          "title": "fizlet/embed · 2,016 B",
+          "body": "The drop-in: a hex-only palette, easter-egg triggers, lazy load, a toggle and Escape to close."
+        },
+        {
+          "title": "fizlet/slot · 1,856 B",
+          "body": "Mounts a scene into a page slot: lazy start near the viewport, and reduced motion keeps the still frame."
+        },
+        {
+          "title": "fizlet/presence · 1,792 B",
+          "body": "Lockstep multiplayer: only inputs cross the wire, 12 bytes each, with a state-hash desync check."
+        },
+        {
+          "title": "fizlet/hud · 1,320 B",
+          "body": "Change-only readouts, meters, a feed and banners, restored on destroy."
+        },
+        {
+          "title": "fizlet/match · 2,599 B",
+          "body": "Intro, count, play, pause and end on the kit's overlays, with surrender and rematch."
+        },
+        {
+          "title": "fizlet/rules · 1,318 B",
+          "body": "Waves, drops, score, combo and levels. DOM-free, zero allocation."
+        },
+        {
+          "title": "fizlet/steer · 950 B",
+          "body": "Movers on typed arrays: seek, flee, arrive, wander and patrol, with wall slide."
+        },
+        {
+          "title": "fizlet/timeline · 2,050 B",
+          "body": "DOM choreography on the kernel clock: keyframes, stagger, labels, seek and reverse."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "body": [
+        {
+          "type": "p",
+          "text": "Also in the box: `fizlet/coach` (1,192 B) for tutorial steps and tips, and `fizlet/board-page` (4,097 B) for the host page as the board. `fizlet/arcade` (21,970 B) is the shell a page arcade game repeats, every brick it composes included. The Board UI kit is `fizlet/ui` (2,884 B plus 4,884 B of CSS), and `perf` and `debug` help in development. [See every brick](/bricks/)."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "The games",
+      "headingAccent": "are the proof.",
+      "body": [
+        {
+          "type": "p",
+          "text": "Six games run on Fizlet's kernel today. Each size below is the shipped game in gzip bytes, before and after its move, from the size ledger."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**DOM Battlefield:** 36,524 → 41,111 B (+12.6%).",
+            "**Battlefield Blitz:** 31,011 → 35,964 B (+16.0%). The first game built on Fizlet.",
+            "**Null Invaders:** 22,940 → 27,499 B (+19.9%).",
+            "**Byte Runner:** 29,160 → 34,859 B (+19.5%).",
+            "**Sherman Bytes:** 26,994 → 33,601 B (+24.5%).",
+            "**Swarm Protocol:** 32,125 → 41,039 B (+27.7%)."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Yes, every one got bigger: 178,754 → 214,073 B together, +19.8%. The bytes buy a shared button kit, steps that never allocate, runs that replay from a seed and one shell for three games. [Each byte, and what it bought](/notes/moving-the-games-onto-a-4-kb-kernel/)."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "What's next",
+      "body": [
+        {
+          "type": "p",
+          "text": "These are plans, not shipped work. Each one gets its own note, with its numbers, once it is measured."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**npm.** `npm install fizlet` is coming; until the first npm release, use the hosted builds or build from source.",
+            "**Multiplayer.** The `presence` brick and a room server prototype are in; a two-player Battlefield Blitz is next.",
+            "**The DOM VIRUS arcade.** The hub's home hero and the Battlefield landing arena move onto Fizlet.",
+            "**DOM Kaiju.** The first big game written on the engine from day one."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "q": "What is Fizlet?",
+          "a": "A micro animation and game engine for the DOM, by Chris Cooley. One shared loop, bounded work, zero steady-state allocation, and the page always comes back exactly as it was. MIT licensed."
+        },
+        {
+          "q": "How big is it?",
+          "a": "The kernel is 3,439 bytes gzip, with a 4 KB budget enforced in CI. Each brick has its own budget, and a page build (kernel + slot + input + fx) measures 7,127 bytes against 7,168."
+        },
+        {
+          "q": "Is Fizlet on npm?",
+          "a": "Not yet: the npm release is coming. Until then, use the hosted builds on this site or build from source with `npm ci && npm run build`."
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "Quick start",
+          "href": "/#start"
+        },
+        {
+          "label": "The contract",
+          "href": "/#contract"
+        },
+        {
+          "label": "Source on GitHub",
+          "href": "https://github.com/coded-dot-design/fizlet"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Fizlet is out: a micro game engine for the DOM",
+    "description": "Fizlet, by Chris Cooley: a 3,439-byte gzip kernel (4 KB budget), bricks with their own budgets, no runtime dependencies. Six games run on it."
+  }
+}

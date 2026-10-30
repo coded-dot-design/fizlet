@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Notes: the launch post, "Fizlet is out"** (`/notes/fizlet-is-out/`, dated 2026-10-31). What
+  Fizlet is, the nine-rule contract, the bricks with their measured sizes (`npm run size` on
+  `f31f456`: kernel 3,439 B gzip, page build 7,127 B), the six games on the kernel with their
+  before and after sizes from the engine's size ledger, and what is planned. Generated from the
+  content model (`fe content notes --site fizlet --as-of 2026-10-31`); merging this is publishing it.
 - **Fix: a dragged scoreboard no longer jumps when its board is not the viewport.** `drag()`
   (fizlet/arcade's panel drag, also used by Battlefield Blitz) set `left`/`top` from viewport
   coordinates and replaced the card's whole inline style, so a board under a page header, mid-page
