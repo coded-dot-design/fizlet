@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **Fix: `destroy()` clears the fps cap's pending wake-up.** An engine with `fps` waits off the
+  shared clock on a timer between frames; `destroy()` left that timer to fire once more (harmless,
+  but it held the engine until then). It now clears it, so nothing of the engine outlives
+  `destroy()`. Test: `tests/kernel.test.mjs` ("destroy() clears the pending wake-up timer").
+  Kernel 3,439 → 3,441 B gzip; page build 7,127 → 7,128; arcade 21,970 → 21,973; arcade (`hud`
+  omitted) 17,964 → 17,963.
 - **Website: gallery numbers are given at land time, never in a PR.** Parallel PRs each took "the
   next number" and kept claiming the same one (three PRs on #047). `scripts/gallery-number.mjs`
   holds the rule, pure and shared with the engine's land step (`fe anim number --write`). Existing
