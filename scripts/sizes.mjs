@@ -44,6 +44,9 @@ export const BUDGETS = [
   // A page's own CSS @keyframes on the kernel clock: 5,363 B gz with the kernel and timeline it
   // composes when added; its own code is 477 B (on a page the kernel and timeline are shared).
   ["fizlet/css-clock", "src/css-clock.ts", 5632],
+  // One DPR-correct overlay canvas with dirty-box redraw (no kernel code: it takes an engine):
+  // 936 B gz when added (target 1,229).
+  ["fizlet/view-canvas", "src/view-canvas.ts", 1229],
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, fizlet/hud included). The Board UI kit CSS is the game's (it bakes
