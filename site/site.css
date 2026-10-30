@@ -17,7 +17,7 @@ html.bui[data-theme="light"] {
   --base: color-mix(in srgb, var(--k-cmd) 30%, var(--line));
   --grid: color-mix(in srgb, var(--k-cmd) 9%, transparent);
   --code-bg: #f6f5fd;
-  --hl: #0e8a5f;
+  --hl: #0b7a54;
 }
 *,
 *::before,
@@ -635,7 +635,7 @@ html.bui[data-theme="light"] .dl.hot {
   border-radius: 5px;
 }
 .demo-chip.alt {
-  background: var(--k-cmd);
+  background: var(--k-cmd-deep);
   color: #f6f3ff;
 }
 .demo-fx {
@@ -666,6 +666,9 @@ html.bui[data-theme="light"] .dl.hot {
   height: 9px;
   border: 2px solid currentColor;
   animation: blink 1.1s steps(2) infinite;
+}
+[data-offscreen] .blink {
+  animation-play-state: paused;
 }
 @keyframes blink {
   50% {
@@ -2734,4 +2737,42 @@ html.bui[data-theme="light"] .phases b {
   color: var(--k-attack);
   border: 1px dashed var(--k-attack);
   border-radius: 4px;
+}
+
+/* ---------- Touch: every tap target at least 44 px, nothing moves ----------
+   Text links grow their box with padding (inline boxes: vertical padding takes no room; the others
+   hand it back with a negative margin of the same size, in flex or grid where margins never
+   collapse). Keys with a face can't grow without looking bigger: their hit area grows instead
+   (the kit's invisible ::before). */
+@media (pointer: coarse) {
+  .site-foot ul a,
+  .site-foot p a,
+  .foot-base a,
+  .brick h3 a,
+  .brick h2 a {
+    padding-block: 15px;
+  }
+  .hero-link,
+  .gal-link,
+  .note-back a,
+  .note-by a,
+  .bp-step,
+  .bp-toc a {
+    padding-block: 15px;
+    margin-block: -15px;
+  }
+  .site-foot ul a {
+    padding-inline: 8px;
+    margin-inline: -8px;
+  }
+  .bp-toc a {
+    min-width: 44px;
+  }
+  .head-keys .bui-icon-key {
+    width: 44px;
+    height: 44px;
+  }
+  .bui .copy::before {
+    inset: -9px -4px;
+  }
 }
