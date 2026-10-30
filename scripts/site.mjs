@@ -17,7 +17,7 @@ import { notePage, notesIndex, noteLd } from "../site/pages/notes.mjs";
 import { notes as loadNotes, notePath } from "./notes.mjs";
 import { playFigure } from "../site/pages/index.mjs";
 import { buildGallery, personPath } from "./gallery.mjs";
-import { PERSONA_NOTE, contributors, contestDays, contestToday, statsOf } from "./people.mjs";
+import { CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
 import { BRICKS, brickPath } from "../site/bricks.mjs";
@@ -118,17 +118,22 @@ const figures = {
 const GB = (p) => "../".repeat(p.path.split("/").length - 1);
 const urlOf = (id) => gallery.index.find((r) => r.id === id).url;
 const heroes = gallery.entries.filter((e) => e.kind === "hero");
+if (gallery.pending.length) console.log(`Gallery: ${gallery.pending.length} pending (not approved, not built): ${gallery.pending.join(", ")}`);
 for (const p of gallery.pages) mkdirSync(`${OUT}/${p.path}`, { recursive: true });
 mkdirSync(`${OUT}/gallery/archive`, { recursive: true });
 mkdirSync(`${OUT}/heroes`, { recursive: true });
-// People and the daily contest: each contributor's entries and bytes come from the gallery just
-// built; contest days are checked against it (prompt length, one entry per person per day, winner).
+// People and the weekly contest: each contributor's entries and bytes come from the gallery just
+// built; contest weeks are checked against it (a week's entries are its dailies, never archived
+// ones; a winner within the size cap). The archive goes in so an old "contest" stamp there fails too.
 const PEOPLE = contributors();
-const DAYS = contestDays(gallery.entries, PEOPLE);
-const winners = new Set(DAYS.map((d) => d.winner).filter(Boolean));
+// The archive goes in too, so an archived entry stamped for a day fails the build (it can't enter).
+const WEEKS = contestWeeks([...gallery.entries, ...gallery.archive.entries], PEOPLE);
+const winners = new Set(WEEKS.map((w) => w.winner).filter(Boolean));
+// Contest entries over the size cap: their gallery cards say "too big to win" too.
+const tooBig = new Set(WEEKS.flatMap((w) => w.entries.filter((e) => !canWin(e)).map((e) => e.id)));
 const people = PEOPLE.map((p) => ({ person: p, stats: statsOf(p, gallery.entries) }));
 // "Today" for the contest page: the build's UTC date (FIZLET_TODAY pins it for a preview or a test).
-const today = contestToday(DAYS, process.env.FIZLET_TODAY);
+const now = contestNow(WEEKS, process.env.FIZLET_TODAY);
 for (const p of PEOPLE) mkdirSync(`${OUT}/${personPath(p.id)}`, { recursive: true });
 mkdirSync(`${OUT}/contest`, { recursive: true });
 
@@ -192,7 +197,7 @@ const pages = [
       ? `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by theme).`
       : `Fizlet gallery page ${p.n} of ${gallery.pages.length}: older animations by theme, each with its prompt, its live demo and its size measured on this build.`,
     base: GB(p), version, path: p.path,
-    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: GB(p), winners, archived: gallery.archive.entries.length }),
+    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length }),
     scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
   })]),
   ["gallery/archive/index.html", page({
@@ -223,9 +228,9 @@ const pages = [
     body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners }), scripts: ["site.js"],
   })]),
   ["contest/index.html", page({
-    title: "Daily contest: 60 characters, one animation · Fizlet",
-    description: "The Fizlet daily contest: a theme a day, a prompt of 60 characters or fewer, one entry each, one winner featured in the gallery.",
-    base: "../", version, path: "contest/", body: contestPage({ today, days: DAYS, people: PEOPLE, base: "../", urlOf }), scripts: ["site.js"],
+    title: "Weekly contest: small wins, one winner · Fizlet",
+    description: `The Fizlet weekly contest: a theme a week, one or two pieces a day, one winner a week; ${CONTEST.maxLive / 1024} KB gzip or less can win, bigger is too big to win.`,
+    base: "../", version, path: "contest/", body: contestPage({ now, weeks: WEEKS, people: PEOPLE, base: "../", urlOf }), scripts: ["site.js"],
   })],
   ["notes/index.html", page({
     title: "Notes: what the games taught the engine · Fizlet",
