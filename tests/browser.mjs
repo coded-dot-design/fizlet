@@ -962,8 +962,10 @@ try {
   where = "slot";
   // The markup and CSS astro-base-engine renders for `[slot animation]` (engine/astro_base_engine/render.py).
   const fig = (target, label) => `<figure class="ae-slot ae-slot--16x9" data-slot="animation" data-slot-target="${target}" role="img" aria-label="${label}"><p class="ae-slot__placeholder">Animation here: ${label}</p><figcaption class="ae-slot__fallback">Still: ${label}</figcaption></figure>`;
-  const SLOT_PAGE = `<!doctype html><meta charset="utf-8"><style>.ae-slot{margin:0;display:grid;place-items:center;border:1px dashed #999;aspect-ratio:16/9;width:400px}</style><body>
-${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fig("home#below", "A blast below the fold")}
+  // The shape it renders now: the role="img" box inside the figure, the fallback caption outside it.
+  const box = (target, label) => `<figure class="ae-slot-figure"><div class="ae-slot ae-slot--16x9" data-slot="animation" data-slot-target="${target}" role="img" aria-label="${label}"><p class="ae-slot__placeholder">Animation here: ${label}</p></div><figcaption class="ae-slot__fallback">Still: ${label}</figcaption></figure>`;
+  const SLOT_PAGE = `<!doctype html><meta charset="utf-8"><style>.ae-slot-figure{margin:0}.ae-slot{margin:0;display:grid;place-items:center;border:1px dashed #999;aspect-ratio:16/9;width:400px}</style><body>
+${fig("home#hero", "Sparks over the logo")}${box("home#box", "Sparks in a box")}<div style="height:3000px"></div>${fig("home#below", "A blast below the fold")}
 <script>${bundle}</script></body>`;
   const sp = await browser.newPage({ viewport: { width: 800, height: 600 } });
   sp.on("pageerror", (e) => errors.push(e.message));
@@ -1008,6 +1010,21 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   assert.deepEqual(lazy.on, { mounted: true, loads: 1, target: "home#below", contain: "strict", size: "400x225", role: "img", label: "A blast below the fold", hidden: "true", placeholder: "none", canvas: true }, "the scene mounts contained, sized to the slot, role=img + aria-label kept");
   assert.equal(lazy.back, true, "destroy gives the slot back exactly");
   assert.equal(lazy.missingEl, null, "an unknown target is inert");
+
+  const boxed = await sp.evaluate(async () => {
+    const found = fizlet.findSlot("home#box"), s = fizlet.slot("home#box", scene(false));
+    await frame();
+    await frame();
+    const stage = s.el?.querySelector("[data-fizlet-slot]");
+    const r = {
+      tag: found?.tagName, same: found === s.el, mounted: s.mounted, inBox: stage?.parentElement === found, size: [stage?.clientWidth, stage?.clientHeight].join("x"),
+      placeholder: getComputedStyle(found.querySelector(".ae-slot__placeholder")).display, caption: getComputedStyle(found.parentElement.querySelector(".ae-slot__fallback")).display,
+    };
+    s.destroy();
+    return { ...r, back: snap() === before };
+  });
+  assert.deepEqual(boxed, { tag: "DIV", same: true, mounted: true, inBox: true, size: "400x225", placeholder: "none", caption: "block", back: true },
+    "the engine's figure > div.ae-slot shape: found by target, the scene mounts in the box, the caption outside stays, destroy gives it back");
 
   const a11y = await sp.evaluate(async () => {
     const hero = fizlet.slot(fizlet.findSlot("home#hero"), scene(true));

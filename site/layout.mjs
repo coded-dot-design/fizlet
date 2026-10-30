@@ -84,7 +84,7 @@ export const social = ({ title, description, path }) => `<link rel="canonical" h
  * A full page. `base` is the path back to the site root ("./" for top-level pages, "../" one
  * level down, "/fizlet/" for the 404 page, which can be served at any depth).
  */
-export function page({ title, description, base, version, body, scripts = [], path = "", ld = [], noindex = false }) {
+export function page({ title, description, base, version, body, scripts = [], path = "", ld = [], noindex = false, nofollow = false }) {
   const home = base;
   const nav = NAV.map(([id, label]) => `<a href="${home}${id.endsWith("/") ? id : "#" + id}"${path.startsWith(id) && id.endsWith("/") ? ' aria-current="page"' : ""}>${label}</a>`).join("");
   return `<!doctype html>
@@ -94,7 +94,7 @@ export function page({ title, description, base, version, body, scripts = [], pa
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
-${noindex ? '<meta name="robots" content="noindex">\n' : ""}${social({ title, description, path })}
+${noindex ? `<meta name="robots" content="noindex${nofollow ? ",nofollow" : ""}">\n` : ""}${social({ title, description, path })}
 <meta name="theme-color" content="#07060f">
 ${jsonLd(ld)}
 <link rel="icon" href="${base}icon.svg" type="image/svg+xml">
@@ -136,10 +136,11 @@ ${body}
         <li><a href="${home}#contract">The contract</a></li>
         <li><a href="${home}bricks/">Kernel and bricks</a></li>
         <li><a href="${home}gallery/">Gallery</a></li>
+        <li><a href="${home}make/">Make one</a></li>
         <li><a href="${home}heroes/">Heroes</a></li>
         <li><a href="${home}notes/">Notes</a></li>
         <li><a href="${home}people/">People</a></li>
-        <li><a href="${home}contest/">Daily contest</a></li>
+        <li><a href="${home}contest/">Weekly contest</a></li>
         <li><a href="${home}#recall">Recall</a></li>
         <li><a href="${home}#roadmap">Roadmap</a></li>
         <li><a href="${home}examples/quick-start.html">Quick start example</a></li>
