@@ -141,6 +141,13 @@
   (fails on main with 23). Size (gzip): pad 1,995 → 2,073 B; arcade 21,970 → 22,037; arcade (`hud`
   omitted) 17,964 → 18,040. Each budget rises by exactly that delta (pad 2,126; arcade 22,083;
   card 18,060), with the reason in `scripts/sizes.mjs`.
+- **Fix: fizlet/board-page's `hit` computes its query radius with the exact `hypot` (K5).** It used
+  `Math.sqrt(dx * dx + dy * dy)`, which differs from `Math.hypot` in the last bit for about 40% of
+  inputs (the games' `dist` is exact, so a replay keeps every bit). It now uses fizlet/steer's
+  `hypot`. Test: `tests/bricks.test.mjs` "K5: no plain-sqrt distance in a brick" scans every
+  source (fails on main at `src/board-page.ts:261`). Size (gzip): board-page 4,097 → 4,162 B;
+  arcade 21,970 → 22,023; arcade (`hud` omitted) 17,964 → 18,024. Each budget rises by exactly that
+  delta (board-page 4,193; arcade 22,069; card 18,044), with the reason in `scripts/sizes.mjs`.
 - **Gallery: DOM Virus, two hand-built micro games (pending the owner's approval).** A new theme,
   `dom-virus`, with #047 **Terminal virus**: a worm types itself into a terminal, crawls onto the
   README beside it and eats its real letters (each bite rewrites a character of the page's own
