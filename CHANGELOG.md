@@ -187,6 +187,14 @@
   bottom edge (its box lets the pointer through, its content takes it back), and `.hero` is
   `overflow: clip`, so the parallaxed field never gives a focus or `scrollIntoView` a hidden
   scroll to move. The site test's `revealAll` and the home rhythm check wait on the reveals' state, not on time.
+- **Size headroom: at least 32 B under every tight budget, no behaviour change, no budget raised.**
+  esbuild keeps property names, so the private fields that ship in every page and game are short
+  now (each named in a comment): the ledger's (`t`, `m`, `a`, `e`), grid's search buffers and
+  helpers, and collide `Grid`'s. The ledger's three copies of its "host changed this style" check
+  and two of its put-back share one helper each, and slot's placeholder selector drops its spaces.
+  gzip: page build 7,166 → 7,131 B (budget 7,168, fixed), grid 1,634 → 1,603 (1,637),
+  board-page 4,162 → 4,136 (4,193), arcade card 18,350 → 18,302 (18,361), arcade 24,331 →
+  24,286, kernel 3,438 → 3,417, collide 1,293 → 1,265.
 
 ## 0.20.0
 
