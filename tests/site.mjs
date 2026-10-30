@@ -30,6 +30,8 @@ const VERSION = JSON.parse(readFileSync("package.json", "utf8")).version;
 /** The size a snippet's header says it is. */
 const snippetSize = (text) => Number(/^ {5}([\d,]+) B gzip, this whole file/m.exec(text)?.[1].replace(/,/g, "") ?? NaN);
 import { liveBytes } from "../scripts/live-bytes.mjs";
+import { docs as siteDocs, docPath } from "../scripts/docs.mjs";
+import { releases as siteReleases, releasePath } from "../scripts/releases.mjs";
 
 const ROOT = "site-dist", BASE = SITE_ROOT;
 if (!existsSync(`${ROOT}/index.html`)) throw new Error("site-dist/ is missing: run `npm run site` first");
@@ -61,7 +63,7 @@ const PAGES = readdirSync(ROOT, { recursive: true }).filter((f) => f.endsWith(".
 for (const b of BRICKS) assert.ok(PAGES.includes(`bricks/${b.id}.html`), `a page for ${b.name}`);
 // What counts as a live demo: the home blast board, slot scenes (layers, fizz), brick demos and the
 // quick start's canvas. The demos' own standalone pages (built by site/demos/*) have no badge yet.
-const DEMOS = "[data-demo], figure.ae-slot, [data-brick-demo], canvas.qs-canvas";
+const DEMOS = "[data-demo], figure.ae-slot, [data-brick-demo], figure[data-recipe], canvas.qs-canvas";
 const NO_BADGE = { "demos/fizz/": 1, "demos/layers/": 1, "examples/fizz/": 1 };
 let badges = 0, sizeCache = null;
 const measured = async () => (sizeCache ??= await measure());
@@ -253,6 +255,27 @@ try {
       const p = readFileSync(pageFile(personPath(person.id)), "utf8");
       assert.ok(p.includes(`<h1 id="person-name" data-person="${person.id}">${person.name}</h1>`), `${person.id}: named`);
       for (const e of GALLERY.filter((x) => x.author === person.id)) assert.ok(p.includes(`>${e.title.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</a>`), `${person.id}: lists ${e.id}`);
+    }
+  }
+
+  // ---------- Docs, guides and news: every page built, numbers from this build, every release from the changelog ----------
+  where = "docs and news";
+  {
+    const sizes = await measure(), kernel = sizes[0];
+    for (const d of siteDocs()) {
+      assert.ok(PAGES.includes(docPath(d)), `${d.slug}: built at ${docPath(d)}`);
+      const html = readFileSync(`${ROOT}/${docPath(d)}index.html`, "utf8");
+      assert.doesNotMatch(html, /\{(size|kb|budget|version)(:[^}]+)?\}/, `${d.slug}: every number token filled in`);
+      assert.ok(html.includes(`"@type":"TechArticle"`) && html.includes(`"@type":"BreadcrumbList"`), `${d.slug}: TechArticle and breadcrumb JSON-LD`);
+    }
+    const budgets = readFileSync(`${ROOT}/docs/budgets/index.html`, "utf8");
+    for (const s of sizes) assert.ok(budgets.includes(`data-size="${s.name.replace(/"/g, "&quot;")}">${s.gzip.toLocaleString("en-US")} B</td>`), `budgets: ${s.name} shows ${s.gzip} B`);
+    assert.ok(readFileSync(`${ROOT}/docs/getting-started/index.html`, "utf8").includes(`${kernel.gzip.toLocaleString("en-US")} B gzip`), "getting started: the kernel size from this build");
+    const REL = siteReleases(), news = readFileSync(`${ROOT}/news/index.html`, "utf8");
+    assert.ok(REL.length > 0 && !REL.some((r) => r.version === "Unreleased"), "releases from the changelog, Unreleased left out");
+    for (const r of REL) {
+      assert.ok(PAGES.includes(releasePath(r)), `${r.version}: release notes built`);
+      assert.ok(news.includes(`href="../${releasePath(r)}"`), `news lists ${r.version}`);
     }
   }
 

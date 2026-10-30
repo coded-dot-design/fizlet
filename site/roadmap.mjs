@@ -29,12 +29,12 @@ export const LAUNCH_LAST = "E8";
  * pill ("DONE · 0.1.0"). A planned phase's PLANNED bricks are added to its items by `phases()`.
  */
 export const ROADMAP = [
-  { id: "E0", name: "Baseline and archives", status: "partly", goal: "Freeze the pre-engine games as the before picture, so every port has numbers to beat.", items: [
+  { id: "E0", name: "Baseline and archives", status: "nearly", goal: "Freeze the pre-engine games as the before picture, so every port has numbers to beat.", items: [
     [1, "Perf harness: every app under a 4× CPU throttle (Playwright)"],
     [1, "Baseline numbers and commits recorded for all six apps"],
     [0, "Tag engine-baseline in every repo"],
-    [0, "Battlefield archive selector (versioned paths)"],
-    [0, "Hub TEST A RELEASE selector for every game version, the 1.0 engine cuts included"],
+    [1, "Battlefield archive selector (versioned paths)"],
+    [1, "Hub TEST A RELEASE selector for every game version, the 1.0 engine cuts included"],
   ] },
   { id: "E1", name: "Kernel", status: "done", note: "0.1.0", goal: "The scheduler, fixed step, auto-pause, pools, event ring, seeded random, the Recall ledger and stats.", items: [
     [1, "One rAF for N engines, fixed step with a catch-up cap"],
@@ -63,7 +63,8 @@ export const ROADMAP = [
     [1, "One page per brick, generated from the source, with its status"],
     [1, "Gallery and notes, every number measured on the build"],
     [1, "llms.txt and a sitemap from the same build"],
-    [0, "Authoring guide and recipes by use case: an action on the page, a shooter, two players"],
+    [1, "Docs and guides: the contract, the loop, Recall, budgets, determinism; release notes for every version"],
+    [1, "Authoring guide and recipes by use case: an action on the page, a shooter, two players"],
     [0, "Live kernel stats on Under the Hood"],
   ] },
   { id: "E6", name: "Performance wins", status: "started", goal: "Smaller and faster every week: the perf harness in CI, the top cost fixed, the win logged.", items: [
