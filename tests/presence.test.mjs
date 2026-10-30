@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { minorGCs } from "./gc.mjs";
 
 const { createEngine, seeded } = await import("../src/index.ts");
-const { presence, memory, websocket, hash32, INPUT, LEAVE } = await import("../src/presence.ts");
+const { presence, memory, websocket, hash32, INPUT, HASH, LEAVE } = await import("../src/presence.ts");
 const { syncCheck } = await import("../src/presence-check.ts");
 
 const UP = 1, DOWN = 2, LEFT = 4, RIGHT = 8, FIRE = 16, SHOTS = 32;
@@ -107,6 +107,69 @@ test("presence: a desync is caught at the next hash check", () => {
   assert.equal(a.net.desync, 120, "hashes every 30 frames: the drift at frame 100 shows at 120");
   assert.equal(b.net.desync, 120);
   a.e.destroy(), b.e.destroy();
+});
+
+// A cheating seat 0 sends two different inputs for frame F: b steps F between them, c only after
+// the second. Last write wins would split the sims; first write wins keeps them identical.
+test("presence: first input wins: a second, different input for a frame can't split the peers", () => {
+  const hub = memory({ peers: 3 }), F = 40, N = 200;
+  const b = client(1, 3, hub.ends[1], { log: true }), c = client(2, 3, hub.ends[2], { log: true });
+  const cheat = (f, v) => {
+    const m = new Uint8Array(12), dv = new DataView(m.buffer);
+    m[0] = INPUT, m[1] = 0, m[2] = 3;
+    dv.setUint32(4, f, true), dv.setUint32(8, v, true);
+    hub.ends[0].send(m);
+    hub.tick();
+  };
+  const to = (x, frame) => {
+    for (let i = 0; x.net.frame < frame && i < 1000; i++) (x.e.advance(1 / 60), hub.tick());
+    assert.equal(x.net.frame, frame);
+  };
+  cheat(1, 99); // frames before `delay` are pre-filled with 0 on every peer: not rewritable either
+  assert.equal(b.net.confirmed(0, 1), 0);
+  assert.equal(c.net.dropped, 1);
+  for (let f = 2; f < F; f++) cheat(f, f & 7);
+  cheat(F, RIGHT | FIRE);
+  for (let f = 0; f < F; f++) to(b, f + 1), to(c, f + 1); // both at frame F, F not run yet
+  to(b, F + 1); // b runs F with the first input
+  cheat(F, LEFT | UP); // the second, different input for F reaches both
+  to(c, F + 1); // c runs F after it
+  assert.equal(b.net.confirmed(0, F), RIGHT | FIRE);
+  assert.equal(c.net.confirmed(0, F), RIGHT | FIRE, "c kept the first input, like b");
+  assert.equal(c.net.dropped, 2, "the second input is refused and counted");
+  for (let f = F + 1; f < N; f++) cheat(f, f & 7), to(b, f), to(c, f);
+  to(b, N), to(c, N);
+  assert.deepEqual(c.hashes.slice(0, N), b.hashes.slice(0, N), "same state every frame");
+  assert.equal(b.net.desync, -1);
+  assert.equal(c.net.desync, -1);
+  // A second hash for one frame is refused too (the first one is what the check compares).
+  const d0 = b.net.dropped;
+  hub.ends[0].send(Object.assign(new Uint8Array(12), { 0: HASH, 4: 210 }));
+  hub.ends[0].send(Object.assign(new Uint8Array(12), { 0: HASH, 4: 210, 8: 1 }));
+  hub.tick();
+  assert.equal(b.net.dropped - d0, 1, "the second hash for frame 210 is dropped");
+  b.e.destroy(), c.e.destroy();
+});
+
+test("presence: join() passes its protocols to the WebSocket (the room's invite, out of the URL)", async () => {
+  const real = globalThis.WebSocket, made = [];
+  globalThis.WebSocket = class extends EventTarget {
+    constructor(url, protocols) {
+      super();
+      made.push([url, protocols]);
+      this.readyState = 1;
+      this.send = () => {};
+      this.close = () => {};
+    }
+  };
+  try {
+    const { join } = await import("../src/presence.ts");
+    const p = join("wss://rooms.example/room/1?players=2", undefined, ["fizlet-rooms", "invite.ABCD-EFGH-JK"]);
+    assert.deepEqual(made[0], ["wss://rooms.example/room/1?players=2", ["fizlet-rooms", "invite.ABCD-EFGH-JK"]]);
+    p.catch(() => {});
+  } finally {
+    globalThis.WebSocket = real;
+  }
 });
 
 test("presence: bounded window, lost seats, destroy", () => {

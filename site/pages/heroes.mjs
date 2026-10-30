@@ -41,7 +41,7 @@ export function heroesPage({ heroes, themes, people, loader, figures, base, urlO
   </div>
   <div class="hero-row" role="region" aria-roledescription="carousel" aria-label="Hero animations">
     <div class="wrap hero-nav">
-      <button class="bui-key" type="button" data-hero-prev aria-label="Previous hero">${icon("left", 16)}Prev</button>
+      <button class="bui-key" type="button" data-hero-prev aria-label="Previous hero" disabled>${icon("left", 16)}Prev</button>
       <button class="bui-key" type="button" data-hero-next aria-label="Next hero">Next${icon("right", 16)}</button>
     </div>
     <ul class="hero-track" data-hero-track tabindex="0" aria-label="Heroes: left and right arrow keys move a card">

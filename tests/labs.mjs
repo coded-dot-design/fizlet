@@ -121,7 +121,7 @@ try {
     await show("pool");
     await page.waitForFunction(() => run.pool.engine.paused.includes("settled"), null, { timeout: 20000 });
     const steps = await page.evaluate(() => run.pool.engine.steps);
-    await page.waitForTimeout(300);
+    await frames(page, 20); // 20 page frames: a settled engine asks for none of them
     assert.equal(await page.evaluate(() => run.pool.engine.steps), steps, "a settled lab runs no steps");
     await pool.locator("[data-spawn]").click();
     await frames(page);

@@ -4,7 +4,7 @@
 // live bytes). The attribution line on every gallery card ("by <name>") links here. Personas are
 // characters, and every card and page says so (PERSONA_NOTE). Data: site/contributors/*.json
 // (scripts/people.mjs).
-import { esc, icon } from "../layout.mjs";
+import { crumbs, esc, icon } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { PERSONA_NOTE, avatarSvg } from "../../scripts/people.mjs";
 import { personPath } from "../../scripts/gallery.mjs";
@@ -37,7 +37,7 @@ export function personPage({ person: p, stats: s, base, urlOf, wins = new Set() 
   return `
 <article class="section ppl" aria-labelledby="person-name">
   <div class="wrap">
-    <nav class="bp-crumbs" aria-label="Breadcrumb"><a href="${base}">Fizlet</a> / <a href="${base}people/">People</a> / <span aria-current="page">${esc(p.name)}</span></nav>
+    ${crumbs(base, [["people/", "People"]], p.name)}
     <header class="ppl-head">
       <div class="ppl-frame">${avatarSvg(p.avatar, { size: 160, label: `${p.name}: pixel-art avatar${p.kind === "owner" ? " (a stylized character, not a likeness)" : ""}` })}</div>
       <div class="ppl-who">
