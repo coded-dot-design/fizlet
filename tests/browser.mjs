@@ -185,9 +185,15 @@ async function containTest() {
     const ui = fizlet.mount(document.getElementById("ui"), "");
     // The launch burst lives on <body> while it runs; fire it from a key on the kit's own root.
     const key = ui.appendChild(document.createElement("button"));
-    key.textContent = "GO";
+    key.innerHTML = "GO <b>1</b>";
+    // The burst freezes the key's look once for all seven copies (one style pass, not one per copy).
+    const gcs = window.getComputedStyle;
+    let reads = 0;
+    window.getComputedStyle = (...a) => (reads++, gcs.apply(window, a));
     fizlet.launch(key, () => {});
+    window.getComputedStyle = gcs;
     const burst = document.querySelector("body > .bui-burst");
+    const face = (n) => [n.style.color, n.style.font, n.querySelector("b").style.color];
     const contain = (el) => (el ? getComputedStyle(el).contain : "missing");
     // Every box inside a root, with its containment on and then off: nothing may move or resize.
     const boxes = (el) => [el, ...el.querySelectorAll("*")].map((n) => { const r = n.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].join(); }).join("|");
@@ -208,6 +214,7 @@ async function containTest() {
       },
       still: { pad: same(p.el), overlay: !m.el.hidden && same(m.el), burst: same(burst) },
       shown: board.querySelector("[data-k]").textContent,
+      launch: { reads, copies: burst.querySelectorAll(":scope > button").length, same: [...burst.querySelectorAll(":scope > button")].every((c) => face(c).join() === face(burst.firstChild).join() && face(c)[0] !== "") },
     };
     // Recall: the engine gives back the board, the burst ends, the kit mount is the host's to remove.
     await new Promise((r) => setTimeout(r, 1000));
@@ -225,6 +232,8 @@ async function containTest() {
   assert.deepEqual(out.still, { pad: true, overlay: true, burst: true }, "containment moves and resizes nothing");
   assert.equal(out.shown, "3", "the hud still writes into the host's markup");
   assert.equal(out.burstGone, true, "the launch burst removes itself");
+  // Key + its <b>: 2 reads for the look, 1 for the key's own style, 1 for the kit root's tones.
+  assert.deepEqual(out.launch, { reads: 4, copies: 7, same: true }, "launch reads the key's look once; all seven copies wear it");
   assert.equal(out.back, true, "Recall restores the page exactly with containment on");
   assert.deepEqual(errs, []);
   await ctx.close();
@@ -1345,6 +1354,64 @@ ${fig("home#hero", "Sparks over the logo")}${box("home#box", "Sparks in a box")}
   assert.equal(mt.back2intro, "intro");
   assert.deepEqual(mt.events.slice(0, 7), ["match:count", "match:play", "match:paused", "match:play", "match:paused", "match:flag", "match:lost"]);
   assert.equal(mt.same, true, "destroy (Recall) restores the exact DOM: overlay gone, inert and focus marks undone");
+
+  // No layout read on any phase change or countdown beat (the kit's slam() read offsetWidth each
+  // time), the sticker still slams (its animation restarts), and the white flag's wait dies with
+  // the engine (it outlived destroy()).
+  const mr = await page.evaluate(async () => {
+    const until = async (ok) => {
+      for (const t0 = performance.now(); !ok() && performance.now() - t0 < 5000; ) await new Promise((r) => setTimeout(r, 20));
+    };
+    const board = document.createElement("div");
+    board.className = "bui";
+    board.setAttribute("style", "position: relative; width: 640px; height: 400px");
+    document.body.prepend(board);
+    let reads = 0, armed = true;
+    const undo = [];
+    for (const [proto, names] of [[HTMLElement.prototype, ["offsetWidth", "offsetHeight", "offsetTop", "offsetLeft"]], [Element.prototype, ["clientWidth", "clientHeight", "scrollTop"]]])
+      for (const n of names) {
+        const d = Object.getOwnPropertyDescriptor(proto, n);
+        Object.defineProperty(proto, n, { ...d, get() { if (armed) reads++; return d.get.call(this); } });
+        undo.push(() => Object.defineProperty(proto, n, d));
+      }
+    for (const [o, n] of [[Element.prototype, "getBoundingClientRect"], [Element.prototype, "getClientRects"], [window, "getComputedStyle"]]) {
+      const f = o[n];
+      o[n] = function (...a) { if (armed) reads++; return f.apply(this, a); };
+      undo.push(() => (o[n] = f));
+    }
+    const e = fizlet.createEngine({ root: board });
+    const m = fizlet.match(e, board, { count: 2 });
+    const sticker = m.el.querySelector(".bui-sticker");
+    m.start();
+    await until(() => m.phase === "play");
+    m.pause(true);
+    armed = false;
+    const anim = sticker.getAnimations()[0]?.currentTime ?? -1;
+    armed = true;
+    m.pause(false);
+    m.finish(true);
+    m.intro();
+    armed = false;
+    undo.forEach((u) => u());
+    // The flag's wait: pause, surrender, then Recall before it ends.
+    const pending = new Set(), st = window.setTimeout, ct = window.clearTimeout;
+    window.setTimeout = (f, ms, ...a) => { const id = st(f, ms, ...a); if (ms === 480) pending.add(id); return id; };
+    window.clearTimeout = (id) => (pending.delete(id), ct(id));
+    m.start();
+    await until(() => m.phase === "play");
+    m.pause(true);
+    m.el.querySelector("[data-k=surrender]").click();
+    const armedFlag = pending.size;
+    e.destroy();
+    window.setTimeout = st;
+    window.clearTimeout = ct;
+    board.remove();
+    return { reads, anim, armedFlag, left: pending.size, phase: m.phase };
+  });
+  assert.equal(mr.reads, 0, "match reads no layout: start, two beats, play, pause, resume, end, intro");
+  assert.ok(mr.anim >= 0 && mr.anim < 300, `the sticker's slam restarted on pause (at ${mr.anim} ms)`);
+  assert.equal(mr.armedFlag, 1, "the white flag waits");
+  assert.equal(mr.left, 0, "destroy() clears the white flag's wait");
 
   assert.deepEqual(errors, []);
   console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, embed, match passed.");

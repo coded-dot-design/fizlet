@@ -27,6 +27,42 @@
   the live site; Battlefield matches and AI players move to E12) are done; E0, E3, E5–E8 list what's
   left; E7 (page interactions) and E8 (the game kit) are new; E9–E16 are planned with their bricks.
   The games section and README say what's true now: every DOM VIRUS game runs on Fizlet.
+- **fizlet/arcade's skirmish preset runs its flow on `fizlet/match` (G15).** One owner of the phase:
+  the countdown, pause / surrender and result are match's, on a small engine of its own that lives
+  as long as the overlay (Recall destroys it, and its ledger takes the overlay back). The shell keeps
+  the keys (P, Escape, the bar's pause key) and asks: `pause()`, `resume()` and the end go to the
+  HUD's new `ask` when it has one, and the HUD answers through `HudRun.go` (pause, resume, won,
+  lost, restart, exit). The countdown is on the flow's clock (was three 600 ms wall-time timers), the
+  game's engine waits for it; the result sticker outlives the game's engine (whose end gives the page
+  back) until REMATCH, EXIT or Recall; a hidden tab pauses with BATTLE PAUSED; surrender waves the
+  white flag (WHITE FLAG / GAME OVER). The preset's own overlay code is gone. Card games (`hud` left
+  out or `arcadeHud()`) behave as before: tests/arcade-hud.mjs still checks the card byte for byte.
+  Sizes: arcade 23,990 B gzip (+2,015 B: match in the bundle, less the overlays it replaced; budget
+  22,016 → 24,064); the card build 18,033 B (+62 B: the flow contract; budget 17,984 → 18,048).
+- **skirmishHud: the keys a game asks for.** `nav: ["auto", "next", "restart"]` adds Auto fire
+  (with `fire`), Next gate and Restart to the bar, as on the card; `header` takes `fold` (hides the
+  title and the text keys). Default: none, so existing bars are unchanged. On phones the bar's keys
+  wrap to another row instead of pushing the exit key off screen.
+- **fizlet/match: `on(phase)` and `hide`, and three contract fixes** (brick audit P-items), each
+  tested and each test failing on the old code:
+  - a settling engine stays awake through the countdown and play (`busy()` in step); before, the
+    countdown and clock froze once the engine settled;
+  - no layout read on a phase change or countdown beat: the sticker slams by re-insertion instead
+    of the kit's `slam()` (an `offsetWidth` read, a forced reflow each time);
+  - the white flag's 480 ms wait is cleared by `destroy()` (it outlived Recall), and a destroyed
+    engine's match is inert (no transition writes past Recall).
+  - `on(phase)`: each phase change once painted (not the first intro); `hide`: phases that show no
+    overlay. fizlet/match 2,652 B gzip (+54 B).
+  - Tests: `tests/match.test.mjs` (settle, `on`, inert after destroy, the arcade flow's zero
+    allocation over 1M frames, best of 3 windows, `--test-concurrency=1`), `tests/browser.mjs`
+    (no layout reads, the slam restarts, the flag's wait cleared), `tests/arcade-hud.mjs` (the
+    skirmish flow end to end, the nav and fold keys).
+- **Fix: a sprite id that names no sprite throws instead of drawing another sprite.** In
+  `sprites()`, an unknown name, an index past the end or a fraction made a cache key of 0, so once
+  sprite 0 was baked `tile("typo")` returned sprite 0's tile and `draw()` silently painted nothing.
+  `tile()` and `draw()` now throw a `RangeError` ("fizlet/sprite: no sprite …"), like `need` does
+  for bad options. Test: `tests/bricks.test.mjs` ("an id that names no sprite throws"); `draw`
+  still allocates nothing once baked. fizlet/sprite 1,403 → 1,437 B gzip (budget 1,536).
 - **Fix: an on-screen key wakes a settled engine.** `controls().press()` and `steer()` now call
   `engine.wake()`, as a real key or pointer already did. A `fizlet/pad` key is
   `[data-fizlet-ignore]`, so its tap never reached input's own wake: on an engine with `settle`, a
@@ -103,6 +139,53 @@
   (its offset parent's padding box) once on pointerdown and sets only `left`, `top`, `right`,
   `bottom` and `translate`. `tests/drag.mjs` drags a card in a bordered board under a header,
   scrolled. Arcade with `hud` omitted: 17,964 B gzip (+52 B; budget 17,920 → 17,984).
+- **Gallery #051 "Big things, small packages"** (micro game, new theme Dev humor; approved by the
+  owner). A pixel dev drags a package.json crate across a Board UI arena while
+  dependencies keep raining onto it (twelve a round, never past seven high). Tap one to cut it: it
+  shatters into shards that bounce off the floor, the stack, the crate and the dev
+  (`fizlet/collide`), and what was above it drops with a bounce. Cut them all and the crate shrinks
+  to the glowing Fizlet box, which flies to his hands: "Big things come in small packages", with the
+  kernel's gzip size measured by the same build (`scripts/site.mjs` puts it on the figure as
+  `data-kernel-gzip`; without it the scene shows no number at all). Tap again to play again.
+  - One world, two outputs: `site/gallery/pieces/small-packages/world.ts` paints palette indices
+    (Board UI tokens, dark and light; the page's theme picks) for the live canvas and for the two
+    build-time posters (SVG runs). Reduced motion: the poster is the whole joke and a tap shrinks
+    it (a checkbox and `:has()`, no script; the scene never loads).
+  - Bricks: kernel, collide, slot. Live chunk 8,557 B gzip (≤ 9,728 B); settles to 0 frames,
+    pauses off screen, Recall exact (Chromium 153). `tests/small-packages.mjs` (in `test:browser`)
+    plays a round to the end with real clicks.
+- **Brick audit (2026-10-30), Board UI, coach and arcade.** Fixes with tests, no API change:
+  - **Fix: the coach card's ring gives a control its own outline back.** `card().show(…, target)`
+    set the target's inline `outline` and `outline-offset` and cleared them when the ring moved on,
+    so a control with its own inline outline lost it (Recall not exact). It now puts back what was
+    there. A card made with an already-aborted `signal` is removed at once instead of staying on
+    the page. `tests/coach.mjs`. fizlet/coach 1,192 → 1,220 B gzip (budget 1,536).
+  - **`drag()` reads layout only on a press and while dragging.** Every `pointermove` and
+    `pointerup` over a panel (a plain hover) called `getBoundingClientRect()`, forcing a layout
+    after the page's own writes: 11 reads for 10 hover moves and a release, now 0 (a press and each
+    drag move read once, as before). `tests/drag.mjs` counts them.
+  - **The skirmish preset no longer ships the overlay CSS twice.** Its `css` repeated `BASE`, which
+    the shell already mounts before every preset's CSS (same cascade, one copy).
+    `tests/arcade-css.test.mjs`.
+  - **`launch()` reads the key's look once, not once per copy.** The burst's seven copies each
+    re-read the key's computed style after the burst layer went in (a style pass each): for a key
+    with one child, 16 `getComputedStyle` calls, now 4. Same look on every copy (`tests/browser.mjs`).
+  - `press()`'s doc comment sat on `readouts()`: moved back to `press()`.
+  - Sizes: fizlet/arcade 21,970 → 21,975 B, with `hud` omitted 17,964 → 17,971 B, fizlet/ui (js)
+    2,884 → 2,893 B gzip (all inside budget).
+- **Brick audit (2026-10-30), timeline, presence and camera.** Fixes with tests, no API change:
+  - **Fix: timeline's `repeat` must be a whole number ≥ 0 (or Infinity).** `repeat: -1` passed the
+    setup check and looped forever (it took the Infinity path); `repeat: 0.5` ended mid-play. Both
+    now throw a `RangeError` at setup, like every other bad option. `tests/timeline.test.mjs`.
+    fizlet/timeline 2,050 → 2,060 B gzip (budget 2,304).
+  - **Fix: presence refuses a seat outside 0..players-1.** A negative or fractional `slot` (or more
+    than 32 players: seats are bits in `lost`) never stored its own input, so the sim stalled for
+    good without a word. It now throws a `RangeError` at setup, like `slot ≥ players` did.
+  - **presence's WebSocket transport allocates nothing per message.** `send` copied each 12-byte
+    message (`slice`) before `WebSocket.send`, which copies it again, so every sim step allocated an
+    array: 22 young GCs per 400k sends, now 0. `tests/presence.test.mjs` (fake socket, best of 3).
+    fizlet/presence 1,792 → 1,818 B gzip (budget 2,048).
+  - `tests/camera.mjs` waits on frames until the engine settles instead of a 2 s wall-clock sleep.
 
 ## 0.19.0
 

@@ -42,7 +42,9 @@ const FRAME = 0, STALLS = 1, DROPPED = 2, DESYNC = 3, LOST = 4;
 
 export function presence(e: Engine, o: PresenceOptions) {
   const P = o.players, me = o.slot, D = o.delay ?? 2, C = o.cap ?? 64, every = o.hashEvery ?? 30, t = o.transport;
-  if (C < D * 2 + 2 || me >= P) throw new RangeError("presence: cap < 2 × delay + 2, or slot ≥ players");
+  // A seat outside 0..players-1 (or a fraction) would never store its own input: the sim would stall
+  // for good without a word. Seats are bits in `lost`, so at most 32 players.
+  if (C < D * 2 + 2 || !(me >= 0 && me < P && P < 33) || me % 1) throw new RangeError("presence: cap < 2 × delay + 2, or slot not a seat in 0..players-1 (players ≤ 32)");
   // One ring slot per (player, frame % cap): the frame it holds and the bits; same for hashes.
   const tag = new Int32Array(P * C).fill(-1), bits = new Uint32Array(P * C);
   const htag = new Int32Array(P * C).fill(-1), hval = new Uint32Array(P * C);
@@ -182,7 +184,8 @@ export function memory(o: { peers: number; latency?: number; jitter?: number; se
   };
 }
 
-/** Wrap an open-or-opening WebSocket as a transport. Messages before `listen` are kept (≤ 256). */
+/** Wrap an open-or-opening WebSocket as a transport. Messages before `listen` are kept (≤ 256).
+ *  `send` takes presence's 12-byte messages (the room refuses any other size). */
 export function websocket(ws: WebSocket): Transport {
   let fn: ((d: Uint8Array) => void) | null = null;
   const early: Uint8Array[] = [];
@@ -194,7 +197,9 @@ export function websocket(ws: WebSocket): Transport {
     else if (early.length < 256) early.push(d);
   });
   return {
-    send: (d) => void (ws.readyState === 1 && ws.send(d.slice(0, 12))),
+    // WebSocket.send copies the bytes before it returns, so the reused buffer goes as is: a copy
+    // here allocated one array per message, from inside presence's step.
+    send: (d) => void (ws.readyState === 1 && ws.send(d as Uint8Array<ArrayBuffer>)),
     listen(f) {
       fn = f;
       while (f && early.length) f(early.shift()!);

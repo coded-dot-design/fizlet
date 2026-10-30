@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { minorGCs } from "./gc.mjs";
 
 const { createEngine, seeded } = await import("../src/index.ts");
-const { presence, memory, hash32, INPUT, LEAVE } = await import("../src/presence.ts");
+const { presence, memory, websocket, hash32, INPUT, LEAVE } = await import("../src/presence.ts");
 const { syncCheck } = await import("../src/presence-check.ts");
 
 const UP = 1, DOWN = 2, LEFT = 4, RIGHT = 8, FIRE = 16, SHOTS = 32;
@@ -130,6 +130,34 @@ test("presence: bounded window, lost seats, destroy", () => {
   assert.ok(a.net.stalls >= 18);
   a.e.destroy();
   assert.throws(() => presence(createEngine(), { transport: hub.ends[0], slot: 0, players: 2, delay: 40, input: () => 0, step() {} }));
+  // A seat outside 0..players-1 (or a fraction) never stores its own input: refused, not a silent stall.
+  for (const [slot, players] of [[-1, 2], [0.5, 2], [2, 2], [NaN, 2], [0, 33]])
+    assert.throws(() => presence(createEngine(), { transport: hub.ends[0], slot, players, input: () => 0, step() {} }), RangeError, `slot ${slot} of ${players}`);
+});
+
+// A WebSocket stand-in: send copies the bytes before it returns (as browsers and Workers do).
+function fakeSocket() {
+  const got = new Uint8Array(12), n = new Int32Array(1);
+  return { got, n, ws: { readyState: 1, binaryType: "", addEventListener() {}, close() {}, send(d) { got.set(d); n[0]++; } } };
+}
+
+test("presence: the WebSocket transport sends the 12 bytes as given and allocates nothing per message", async (t) => {
+  const f = fakeSocket(), tr = websocket(f.ws), out = new Uint8Array(12);
+  out.set([1, 0, 0, 0, 7, 1, 0, 0, 9, 0, 0, 0]);
+  tr.send(out);
+  assert.deepEqual([...f.got], [...out]);
+  assert.equal(f.n[0], 1);
+  f.ws.readyState = 3;
+  tr.send(out);
+  assert.equal(f.n[0], 1, "nothing goes out on a closed socket");
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  f.ws.readyState = 1;
+  for (let i = 0; i < 20000; i++) (out[4] = i), tr.send(out);
+  const minor = await minorGCs(() => {
+    for (let i = 0; i < 400000; i++) (out[4] = i), tr.send(out);
+  });
+  console.log(`# young-generation GCs over 400k WebSocket sends: ${minor}`);
+  assert.ok(minor <= 1, `the transport allocated per message: ${minor} scavenges`);
 });
 
 test("presence: adds no allocation to the steady state (exchange + memory link)", async (t) => {

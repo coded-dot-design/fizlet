@@ -272,6 +272,21 @@ test("sprite: the cache bakes once per key and is capped", () => {
   assert.equal(sp.size, 0);
 });
 
+test("sprite: an id that names no sprite throws, never another sprite's tile", () => {
+  // Before the fix the cache key of an unknown id came out as 0, so once sprite 0 was baked a typo
+  // (or an id past the end) silently returned sprite 0's tile, and draw() painted nothing.
+  const sp = sprites({ a: { frames: ["1"], colors: { 1: "#f00" } }, b: { frames: ["11"], colors: { 1: "#0f0" } } }, { canvas: fakeCanvas });
+  const a = sp.tile("a");
+  assert.equal(sp.tile(0), a);
+  assert.notEqual(sp.tile("b"), a);
+  const ctx = { imageSmoothingEnabled: true, drawImage() {}, save() {}, restore() {}, translate() {}, rotate() {} };
+  for (const bad of ["nope", "toString", 2, -1, 0.5, NaN]) {
+    assert.throws(() => sp.tile(bad), RangeError, `tile(${String(bad)})`);
+    assert.throws(() => sp.draw(ctx, bad, 0, 0, 0), RangeError, `draw(${String(bad)})`);
+  }
+  assert.equal(sp.baked, 2, "nothing baked for a bad id");
+});
+
 test("sprite: the Sherman tank fixture is the original tile size and pivot", () => {
   const sp = sprites(sherman, { palettes: [{ team: "#39ffb0" }, { team: "#fff8d4" }], canvas: fakeCanvas });
   const hull = sp.tile("hull");

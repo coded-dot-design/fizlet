@@ -68,7 +68,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
    `contain: style` (it is static, so layout or paint containment could move or clip a board's own
    layers). `hud` and `board-page` own no box: they write into the host's markup and never add
    containment to it.
-9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,439 bytes); each brick has its own budget,
+9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,441 bytes); each brick has its own budget,
    1.5 to 5 KB, and a page build (kernel + slot + input + fx) ≤ 7 KB (`scripts/sizes.mjs`); over
    budget, the build fails.
 
@@ -95,13 +95,13 @@ in included, 1 KB = 1024 bytes.
 | `fizlet/presence` | BETA | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | 1.8 KB |
 | `fizlet/presence/check` | BETA | `syncCheck(setup, opts)`: runs a sim as lockstep clients and finds the first diverged frame (tests only) | 4.8 KB |
 | `fizlet/hud` | BETA | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | 1.3 KB |
-| `fizlet/match` | BETA | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.5 KB |
+| `fizlet/match` | BETA | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.6 KB |
 | `fizlet/rules` | COMPLETE | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
 | `fizlet/steer` | BETA | `steer({ cap, speed, turn, blocked, random })`: movers on typed arrays (`x`, `y`, heading `a`) with `seek`, `flee`, `arrive`, `wander` and `patrol`; a turn-rate-limited heading and per-axis wall slide (Blitz's tank drive); DOM-free, zero allocation | 0.9 KB |
 | `fizlet/coach` | BETA | `flag(key)` (a localStorage switch that never throws), `tour(engine, { steps, tips, every })` (tutorial steps, then tips in turn; `coach:step` on the ring; zero allocation) and `card(host, { onEnd })` (the Board UI coach card, rings the control it is about) | 1.2 KB |
 | `fizlet/timeline` | BETA | `timeline(engine, { repeat, yoyo, rate, motion })`: DOM choreography on the kernel clock. `to(targets, values, { dur, delay, ease, stagger, at })` keyframe tracks on CSS values (transform, opacity, clip-path, custom properties: the numbers change, the words stay) or typed-array numbers; `label`, `play`, `reverse`, `pause`, `seek`, `finish`, `revert`, `done()`; events on the ring; change-only writes through the ledger (Recall exact), settles when done, jumps to the end with reduced motion, no allocation per step | 2.0 KB |
 | `fizlet/board-page` | BETA | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 4.0 KB |
-| `fizlet/arcade` | COMPLETE | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard chosen per game with `hud` (`arcadeHud()`: the card, the default; `skirmishHud()`: Blitz's bar with clock, rank, armor bar, feed, banner, overlays, aim toggles, counted keys), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 17.5 KB for a card game with every brick it composes; 21.5 KB with `skirmishHud` (in-page art via `ctx.attach`) |
+| `fizlet/arcade` | COMPLETE | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard chosen per game with `hud` (`arcadeHud()`: the card, the default; `skirmishHud()`: Blitz's bar with clock, rank, armor bar, feed, banner, its flow on `fizlet/match`, aim toggles, counted keys), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 17.6 KB for a card game with every brick it composes; 23.4 KB with `skirmishHud` (in-page art via `ctx.attach`) |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | COMPLETE | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.8 KB + 4.8 KB css |
 | `fizlet/ui/tokens.json` | COMPLETE | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
 
@@ -455,6 +455,8 @@ const m = match(engine, board, {
   timeUp: () => myScore > theirs,  // who won when the clock runs out
   launch,            // PRESS START and SURRENDER blow up with the kit's launch burst
   labels: { intro: ["BATTLEFIELD", "BLITZ!"] },
+  on(phase) { /* each phase change, once painted: a host that owns more follows here */ },
+  hide: ["paused"],  // phases that show no overlay (the machine and its events still run)
 });
 engine.add({ step() { if (m.phase !== "play") return; /* the game */ } });
 // m.phase, m.clock, m.start(), m.pause(on?), m.finish(won, why?), m.restart(), m.intro(), m.el
@@ -622,12 +624,16 @@ game.start(); // Escape, the exit key or game.stop(): Recall gives the page back
   - `arcadeHud({ header?, nav? })`, the default: today's card. Leaving `hud` out renders it byte for
     byte; `header` (`sound` · `pause` · `fold` · `exit`) and `nav` (`next` · `restart` · `auto`)
     keep only the keys named.
-  - `skirmishHud({ readouts, header?, feed?, banner?, overlays?, result?, aim?, counts? })`:
+  - `skirmishHud({ readouts, header?, nav?, feed?, banner?, overlays?, result?, aim?, counts? })`:
     Battlefield Blitz's HUD. A bar across the top with readouts in their formats (`num`, `clock`,
     `rank`, `pct`, `bar` with a `low` state), aim toggles (`aim-auto`, `aim-lock` intents),
-    the action keys with counts and fullscreen / sound / pause / exit; a feed and a banner from the
-    event ring; pause / surrender / countdown / result overlays (the result lists `stats()` keys and
-    keeps a best on the device); on phones the pad with the aim toggles and counted keys. Values
+    the action keys with counts, the text keys a game asks for (`nav`: `auto` Auto fire, `next`
+    Next gate, `restart`; none by default) and fullscreen / sound / pause / `fold` / exit; a feed
+    and a banner from the event ring. Its flow (countdown, pause / surrender, result: the result
+    lists `stats()` keys and keeps a best on the device) is `fizlet/match` on a small engine that
+    lives as long as the overlay: match owns the phase, the shell's pause, resume and end ask it,
+    the countdown runs on its clock while the game's engine waits, and the result stays up after
+    the run (the page is already back) until REMATCH, EXIT or Recall; on phones the pad with the aim toggles and counted keys. Values
     go through `fizlet/hud` from the `hud(out)` slots: change-only, nothing allocated in the steady state.
 
   ```ts
