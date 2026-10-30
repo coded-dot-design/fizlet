@@ -1,0 +1,33 @@
+{
+  "no": 52,
+  "id": "skeletons-dance-scroll",
+  "date": "2026-10-30",
+  "prompt": "skeletons dance when you scroll",
+  "title": "Skeletons dance when you scroll",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "dance",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 32,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 0.68
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/skeletons-dance-scroll.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}

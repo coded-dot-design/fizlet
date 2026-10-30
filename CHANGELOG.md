@@ -43,6 +43,10 @@
   (recipe drift, the critter scene: a fog pixel sprite, the drift motion; kernel + sprite + slot):
   live 6,075 B · total 8,001 B gzip (with the 1,926 B loader) on this build, loaded only near the
   viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #052, "skeletons dance when you scroll".** Made by `fe anim` from the prompt
+  (recipe dance, the critter scene: a skeleton pixel sprite, the dance motion; kernel + sprite +
+  slot): live 6,116 B · total 8,042 B gzip (with the 1,926 B loader) on this build, loaded only near
+  the viewport, never under reduced motion; settles to zero frames.
 
 ## 0.17.0
 
