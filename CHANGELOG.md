@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **board-page runs in its root's own document and window.** `boardPage(e, { root })` now measures,
+  observes and writes in `root.ownerDocument` (its viewport, `getComputedStyle`, observers, scroll
+  and resize, highlights), so a board inside an iframe's page works. Before, it always used the
+  global `document` and window. Swarm Protocol needs this: its API runs in the document it is given.
+- **The ledger's Recall normalises style text in the element's own document**, not the global one,
+  so restoring an element in another document (or with no global `document`) works.
+- **`fizlet/perf`: the card pins `box-sizing: content-box`.** Its inline width (120px plus
+  padding) assumed content-box, so on a page with a global `* { box-sizing: border-box }` (the
+  DOM VIRUS hub and DOM Battlefield both) its right column clipped. Node test asserts it.
 - **Website: a size badge on every live demo** ("9.4 KB GZ"): the layers hero, the blast board,
   the fizz can, the quick start, each brick page's demo and every gallery entry. The number is what that demo ships,
   gzipped, with every chunk it imports statically (`scripts/live-bytes.mjs`), measured on the built
