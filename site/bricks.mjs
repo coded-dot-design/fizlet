@@ -73,6 +73,12 @@ const k = t.show(); if (k >= 0) c.show(\`\${k + 1}/10\`, STEPS[k], TEXT[k]);` },
   .to(screen, { "clip-path": ["inset(50%)", "inset(0%)"] }, { at: "seated" })
   .to(lines, { opacity: [0, 1] }, { stagger: 0.15 })
   .play(); // e.destroy() gives every property back` },
+  { id: "css-clock", tag: "CSS CLOCK", role: "fire", modules: [mod("fizlet/css-clock", "css-clock")],
+    snippet: `/* CSS: the look stays in the stylesheet, paused; its time is --fz-t */
+.led { animation: blink 1s steps(2) infinite paused; animation-delay: var(--fz-t, 0s); }
+
+const c = cssClock(diagram, { span: 6, loops: 3 }); // rests on frame one, settles
+pauseButton.onclick = () => c.hold(!held); // c.destroy() gives the page back` },
   { id: "arcade", tag: "ARCADE", role: "go", modules: [mod("fizlet/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
   hint: "Mouse / WASD · Space fires", css: KIT_CSS, fire: true,

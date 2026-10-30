@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased
+
+- **`fizlet/css-clock`** (new brick, 477 B gz of its own; 5,363 B with the kernel and timeline it
+  composes, budget 5,632): a page's own CSS `@keyframes` on the kernel clock, so a site's ambient
+  loops (blinks, pulses, diagram loops, patrols) eat the dog food without being rewritten. The look
+  stays in the stylesheet: each animation is `paused` and reads its time from one custom property,
+  `animation-delay: var(--fz-t, 0s)` (or `calc(var(--fz-t, 0s) + <its own delay>)`); a timeline
+  moves that property through the ledger. `cssClock(root, { span, loops, prop, fps, motion, signal })`
+  → `{ engine, tl, play, hold, destroy }`. One shared requestAnimationFrame; off screen or in a
+  hidden tab, no frames; after `loops` plays of `span` seconds it rests on frame one (every
+  animation whose duration divides `span`) and the engine settles; a pointer, focus or coming back
+  into view plays it again; reduced motion lands on the rest frame at once; `destroy()` is Recall.
+  - Tests: `tests/css-clock.test.mjs` (clock, rest, settle, replay, hold, reduced motion, Recall) and
+    `tests/css-clock.mjs` in Chromium (real paused keyframes follow the clock mid-way, an own delay
+    composes with `calc()`, settled at 0 frames on frame one, Recall byte for byte).
+- **Website: the last two CSS loops are on Fizlet.** The home demo's "CLICK THE PAGE" blink and the
+  roadmap's current-phase pulse (the kit's `bui-locked`) run on `fizlet/css-clock`: four blinks and
+  three pulses, then they rest and settle (before: infinite CSS loops). `demo.js` 10,070 → 12,077 B
+  gzip (+2,007 B: timeline and the brick; the kernel was already there).
+
 ## 0.19.0
 
 - **The fizz: the original can, without the zoom** (owner: "the og ones were good, just the zoom
