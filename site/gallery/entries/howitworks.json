@@ -20,5 +20,6 @@
   "module": "seeds/howitworks.ts",
   "export": "mount",
   "figure": "howitworks",
-  "link": "#play"
+  "link": "#play",
+  "approved": "2026-10-29"
 }
