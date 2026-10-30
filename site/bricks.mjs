@@ -119,6 +119,10 @@ const k = t.show(); if (k >= 0) c.show(\`\${k + 1}/10\`, STEPS[k], TEXT[k]);` },
   .to(screen, { "clip-path": ["inset(50%)", "inset(0%)"] }, { at: "seated" })
   .to(lines, { opacity: [0, 1] }, { stagger: 0.15 })
   .play(); // e.destroy() gives every property back` },
+  { id: "touch", status: "beta", since: "0.20.0", tests: ["touch.mjs"], used: [], why: "New in 0.20.0: no released game or page ships it yet.",
+    tag: "TOUCH", role: "sys", modules: [mod("fizlet/touch", "touch")],
+    snippet: `lockTouch(); // pinch never zooms the page from a slot, a game or the pad
+lockTouch(document, null); // a full-screen board: the whole page` },
   { id: "arcade", status: "complete", since: "0.11.0", tests: ["arcade.mjs", "arcade-game.mjs", "arcade-hud.mjs"], used: ["Null Invaders 1.0", "Byte Runner 1.0", "Sherman Bytes 1.0"],
     tag: "ARCADE", role: "go", modules: [mod("fizlet/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
