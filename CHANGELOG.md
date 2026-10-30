@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **`fizlet/perf`: the card pins `box-sizing: content-box`.** Its inline width (120px plus
+  padding) assumed content-box, so on a page with a global `* { box-sizing: border-box }` (the
+  DOM VIRUS hub and DOM Battlefield both) its right column clipped. Node test asserts it.
 - **The fizz, dialled in** (the brand animation, `site/demos/fizz/`). A tap **crunches** the can
   (it squashes and dents, and stays dented), then the tab pops. The fizz **sprays out of the
   card**: a geyser, a burst and a glug fly on a pixel layer the card's width, reaching from 70% of
