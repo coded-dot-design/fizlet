@@ -101,6 +101,9 @@ export const loader = (src = "./layers.js") =>
   `else if(v<0)b.ariaLabel=b.ariaLabel=="Play"?"Pause":"Play";else f.style.setProperty("--e",v/100),s.ariaValueNow=v},` +
   `K={ArrowUp:5,ArrowRight:5,ArrowDown:-5,ArrowLeft:-5,PageUp:25,PageDown:-25,Home:-100,End:100},` +
   `at=e=>{const r=s.getBoundingClientRect(),w=r.width>r.height;s.ariaOrientation=w?"horizontal":"vertical";put(Math.max(0,w?(e.clientX-r.left-18)/(r.width-36)*100:(r.bottom-13-e.clientY)/(r.height-26)*100))};` +
+  // Phones (the site's rule: coarse pointer or ≤ 600px) start on the poster pose with the Play key
+  // showing: the story plays on a tap, never on its own (its frames cost a phone's main thread).
+  `if(matchMedia("(pointer:coarse),(max-width:600px)").matches)b.ariaLabel="Play";` +
   `if(m.matches)s.ariaValueNow=100;s.ariaOrientation=s.offsetWidth>s.offsetHeight?"horizontal":"vertical";` +
   `s.addEventListener("keydown",e=>{const k=K[e.key];if(k)e.preventDefault(),put(Math.max(0,(performance.now()-t<200?c:+s.ariaValueNow)+k))});` +
   `s.addEventListener("pointerdown",e=>{s.setPointerCapture(e.pointerId);at(e)});` +

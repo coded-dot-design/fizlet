@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Site: on phones the layers story waits for a tap.** On a coarse pointer or at ≤ 600px (the
+  site's phone rule), the hero starts on the poster pose with the Board UI Play key showing, and
+  it asks for no frames until a tap. Desktop still autoplays. Each autoplay frame cost a 4× phone
+  about +40 idle points of main thread over the poster page. Paused, `npm run perf:page` measures
+  mobile idle at −3.6, −2.8 and +3.5 points over three runs (budget +10). `tests/layers.mjs`
+  covers a 390px window and a 1024px touch device (paused, no frames, a tap plays). Poster +
+  loader: 5,398 B gzip (+27 B). The live chunk is unchanged (9,727 B).
+
 - **Fix: the layers story no longer shifts the page's layout as it opens (`index#layers`, CLS
   +0.002 → 0).** As the story fanned the layers out, its slider's knob moved by `bottom`/`left`
   and its rail squares spread by a growing flex `gap`, so the browser counted each frame as a

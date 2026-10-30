@@ -104,6 +104,8 @@ for (const [w, h] of [[390, 844], [1440, 900]])
     const page = await browser.newPage({ viewport: { width: w, height: h } });
     await page.setContent(PAGE);
     await page.waitForSelector("[data-fizlet-slot] .lz", { timeout: 10000 });
+    // A phone starts paused on the poster pose: tap Play, as a visitor would.
+    if (w <= 600) await page.click(".lyr__play");
     const bad = new Set();
     let seen = 0;
     const t0 = Date.now();
@@ -130,6 +132,27 @@ for (const [w, h] of [[390, 844], [1440, 900]])
     assert.equal(seen, 8, "all 8 labels show during the cycle");
     assert.deepEqual([...bad], []);
     await page.close();
+  });
+
+// Phones (coarse pointer or ≤ 600px) start paused on the poster pose, Play showing: no frames until
+// a tap. Desktop autoplays (the first test). A phone-width window and a touch device both count.
+for (const [name, opts] of [["390px", { viewport: { width: 390, height: 844 } }], ["touch at 1024px", { viewport: { width: 1024, height: 768 }, hasTouch: true, isMobile: true }]])
+  await test(`phones start paused on the poster pose, Play shows, no frames until a tap (${name})`, async () => {
+    const ctx = await browser.newContext(opts);
+    const page = await ctx.newPage();
+    await page.setContent(PAGE);
+    await page.waitForFunction(() => window.handle.mounted, null, { timeout: 10000 });
+    await page.waitForTimeout(800);
+    const s = await page.evaluate(() => ({ key: document.querySelector(".lyr__play").getAttribute("aria-label"), pose: document.querySelector(".lz-s").style.transform, f: window.frames_ }));
+    assert.equal(s.key, "Play");
+    assert.match(s.pose, /rotateX\(0deg\)/, "rests on the game frame (the poster pose)");
+    await page.waitForTimeout(600);
+    assert.equal(await page.evaluate(() => window.frames_), s.f, "settled: no frames");
+    await page.click(".lyr__play");
+    await page.waitForTimeout(300);
+    assert.equal(await page.evaluate(() => document.querySelector(".lyr__play").getAttribute("aria-label")), "Pause", "a tap plays it");
+    assert.ok(await page.evaluate(() => window.frames_) > s.f, "playing: frames");
+    await ctx.close();
   });
 
 // The controls with the scene: pause settles it, the slider scrubs the explode/assemble timeline by
