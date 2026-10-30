@@ -71,13 +71,26 @@ let where = "start";
 
 // The home page's sections reveal as they come on screen (site/home-motion.ts). The key checks
 // press a key right after scrolling to it, so let every reveal play out first (a key mid-reveal moves).
+// On state, never wall time: each section is brought on screen and waited on until none of its parts
+// is still part-way (a fast scroll past can leave a section waiting, and it would play under a key press).
 async function revealAll(page) {
   if (!(await page.$("section[data-reveal]"))) return;
-  await page.evaluate(async () => {
-    for (let y = 0; y < document.documentElement.scrollHeight; y += 400) scrollTo(0, y), await new Promise((r) => setTimeout(r, 30));
+  const left = await page.evaluate(async () => {
+    const frame = () => new Promise((r) => requestAnimationFrame(r));
+    const moving = (s) => [...s.querySelectorAll(":scope > .wrap *")].some((e) => (e.style.opacity !== "" && e.style.opacity !== "1") || (e.style.translate !== "" && e.style.translate !== "0px 0px" && e.style.translate !== "0px"));
+    const stuck = [];
+    for (const s of document.querySelectorAll("section[data-reveal]")) {
+      s.scrollIntoView({ block: "center", behavior: "instant" });
+      await frame(); await frame();
+      let i = 0;
+      for (; i < 600 && moving(s); i++) await frame();
+      if (moving(s)) stuck.push(s.id || s.className);
+    }
     scrollTo(0, 0);
+    await frame(); await frame();
+    return stuck;
   });
-  await page.waitForTimeout(1200);
+  assert.deepEqual(left, [], "every section's reveal plays out once it is on screen");
 }
 
 async function open(context, path) {

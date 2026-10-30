@@ -462,6 +462,9 @@ a.bui-sticker-key {
 .hero {
   position: relative;
   overflow: hidden;
+  /* clip, not a scroll container: the parallaxed field's overflow must never scroll the hero (a
+     focus or scrollIntoView would, and the copy would jump back on the next frame) */
+  overflow: clip;
   isolation: isolate;
   border-bottom: 2px solid var(--line);
   background: radial-gradient(ellipse 70% 70% at 80% 30%, color-mix(in srgb, var(--k-cmd) 16%, transparent), transparent 70%), var(--bg);
@@ -834,6 +837,15 @@ html.bui[data-theme="light"] .dl.hot {
 .section[data-reveal] {
   position: relative;
   isolation: isolate;
+}
+/* Positioned, each section paints over the one before it, and its box would cover the base of a
+   key that sits on that section's bottom edge (the kit's hit area reaches below the face). The box
+   lets the pointer through; its content takes it back. */
+.section[data-reveal] {
+  pointer-events: none;
+}
+.section[data-reveal] > :not(.sec-rule, .sec-num) {
+  pointer-events: auto;
 }
 .sec-rule {
   position: absolute;
