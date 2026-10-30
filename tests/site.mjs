@@ -328,6 +328,19 @@ try {
       });
       assert.ok(over.scroll <= over.w, `${where}: horizontal overflow ${over.scroll} > ${over.w}: ${over.wide.join(", ")}`);
       assert.deepEqual(over.wide, [], `${where}: content wider than the screen`);
+      if (label === "phone") {
+        // Touch: no double-tap zoom anywhere, and no demo surface pans sideways or zooms the page.
+        const touch = await page.evaluate(() => ({
+          html: getComputedStyle(document.documentElement).touchAction,
+          loose: [...document.querySelectorAll(".ae-slot,[data-fizlet-slot],.demo-board,.bd-canvas,.bd-tl,.lab-stage")].filter((el) => {
+            // touch-action narrows down the tree: a surface is locked when it or a parent is.
+            for (let p = el; p; p = p.parentElement) if (/^(none|pan-y)$/.test(getComputedStyle(p).touchAction)) return false;
+            return true;
+          }).map((el) => el.className),
+        }));
+        assert.equal(touch.html, "manipulation", `${where}: the page is touch-action: manipulation`);
+        assert.deepEqual(touch.loose, [], `${where}: demo surfaces are touch-action none or pan-y`);
+      }
       if (label === "desktop") {
         // Size badges: every live demo on the page sits in a host that shows what it ships, and the
         // number is the gzip size of the built file it names (measured again here).
@@ -392,6 +405,8 @@ try {
     const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const tap = await open(phone, path);
     await revealAll(tap.page);
+    // Heroes: the skip below needs the centre card (aria-current), which an IntersectionObserver sets.
+    if (path === "heroes/") await tap.page.waitForSelector("[data-hero][aria-current]");
     // Heroes: on a phone the other cards sit off to the side, and a scroll to one of their keys snaps the
     // row to that card (the key moves under the tap); the centre card's keys are tapped.
     await checkTaps(tap.page, `${where} (phone)`, { skip: path === "heroes/" ? "[data-hero]:not([aria-current])" : "" });

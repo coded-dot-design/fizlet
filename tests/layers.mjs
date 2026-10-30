@@ -190,7 +190,10 @@ await test("controls: pause settles, slider scrubs (keys, pointer), play resumes
 await test("reduced motion: the slider still scrubs the still view (keys, pointer)", async () => {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
   await page.setContent(PAGE);
-  await page.waitForTimeout(300);
+  // 20 page frames (not wall time): the slot has decided (reduced motion: it loads nothing).
+  await page.evaluate(async () => {
+    for (let f = 0; f < 20; f++) await new Promise(requestAnimationFrame);
+  });
   const s = page.locator("[role=slider]");
   const look = () => page.evaluate(() => ({
     v: document.querySelector("[role=slider]").ariaValueNow,
