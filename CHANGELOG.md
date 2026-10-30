@@ -28,6 +28,7 @@
     18,363 B (budget 18,361 → 18,376); arcade 24,327 → 24,351 B; ui js 2,893 → 2,907 B; perf 1,958
     → 1,981 B; embed 2,016 → 2,040 B. Every other brick is unchanged.
 
+- Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
