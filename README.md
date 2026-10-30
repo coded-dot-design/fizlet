@@ -102,6 +102,7 @@ in included, 1 KB = 1024 bytes.
 | `fizlet/touch` | BETA | `lockTouch(doc, sel)`: a pinch (iOS gesture events, multi-touch) on a slot, a game host, the pad or `[data-touch-lock]` never zooms the page; one finger untouched; `null` locks the whole page; returns `release()`. The kit CSS adds `touch-action` (no double-tap zoom) | 0.3 KB |
 | `fizlet/timeline` | BETA | `timeline(engine, { repeat, yoyo, rate, motion })`: DOM choreography on the kernel clock. `to(targets, values, { dur, delay, ease, stagger, at })` keyframe tracks on CSS values (transform, opacity, clip-path, custom properties: the numbers change, the words stay) or typed-array numbers; `label`, `play`, `reverse`, `pause`, `seek`, `finish`, `revert`, `done()`; events on the ring; change-only writes through the ledger (Recall exact), settles when done, jumps to the end with reduced motion, no allocation per step | 2.0 KB |
 | `fizlet/css-clock` | BETA | `cssClock(root, { span, loops, prop, fps, motion, signal })`: a page's own CSS `@keyframes` on the kernel clock. Each animation stays in the stylesheet, `paused`, and reads its time from `--fz-t`; a timeline moves that one property through the ledger. One shared frame loop, no frames off screen, rests on frame one after `loops` plays and settles, reduced motion lands on the rest frame, `destroy()` is Recall | 5.3 KB |
+| `fizlet/announce` | BETA | `announce(engine, { words, gap, doc })` → `{ say, flush, destroy }`: game events read out to screen readers through one polite live region per page (`[data-fz-announce]`, status, atomic, visually hidden, made on the first word). `words(event)` turns ring events into sentences in render; sentences coalesce by key (the latest score, not ten), at most one write per `gap` (1 s); the same sentence twice is read twice; nothing in step, zero allocation; `destroy()` is Recall | 0.6 KB |
 | `fizlet/board-page` | BETA | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 4.1 KB |
 | `fizlet/arcade` | COMPLETE | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard chosen per game with `hud` (`arcadeHud()`: the card, the default; `skirmishHud()`: Blitz's bar with clock, rank, armor bar, feed, banner, its flow on `fizlet/match`, aim toggles, counted keys), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 17.9 KB for a card game with every brick it composes; 23.8 KB with `skirmishHud` (in-page art via `ctx.attach`) |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | COMPLETE | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.8 KB + 4.9 KB css |
@@ -123,8 +124,8 @@ table above, the brick pages and the bricks index read it, and `tests/status.tes
 
 ROADMAP bricks, each with its phase and size target (a goal until measured): `fizlet/layout` and
 `fizlet/view-canvas` (E10, diagrams), `fizlet/actor`, `fizlet/aim` and `fizlet/view-dom` (E11),
-`fizlet/snapshot` and `fizlet/agent` (E12, multiplayer everywhere), `fizlet/scene` (E13),
-`fizlet/announce` (E14) and `fizlet/music` (E15). The phases, E0 to E16, are the
+`fizlet/snapshot` and `fizlet/agent` (E12, multiplayer everywhere), `fizlet/scene` (E13)
+and `fizlet/music` (E15). The phases, E0 to E16, are the
 [roadmap on the website](https://fizlet.com/#roadmap).
 
 ### Input, sound and embed semantics
