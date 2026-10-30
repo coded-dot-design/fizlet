@@ -23,6 +23,31 @@
   - Posters are drawn from the scenes themselves (`scripts/gallery-posters.mjs`,
     `scripts/pixel-posters.mjs`). Their frames-per-second and allocation lines are not re-measured
     yet, so the cards leave them out.
+- **Status flags on every brick; Fizlet launches as a 0.x public beta.** One source,
+  `site/bricks.mjs`: `STATUS` (COMPLETE "done, and always getting smaller and faster", BETA,
+  EXPERIMENTAL, ROADMAP, DEPRECATED, each with written criteria) and per brick `status`, `since`,
+  `tests`, `used` (released games and pages that ship it) and `why` (what keeps a BETA brick from
+  COMPLETE); `PLANNED` lists the ROADMAP bricks with phase, purpose, size target and dependencies.
+  At 0.19.0: 14 COMPLETE, 9 BETA (grid, camera, hud, match, presence, steer, coach, timeline,
+  board-page: tested only in the browser, no allocation test yet). A COMPLETE brick's `used` names
+  the releases that ship it (rules: DOM Battlefield 1.0.0, Blitz 0.8.0+, Null Invaders and Sherman
+  Bytes 1.0). The
+  README table gains a Status column and a Status flags section; brick pages show the flag as a
+  Board UI status pill with its evidence; the bricks index adds the pills, the criteria and the
+  planned bricks; the home page says "public beta" under the byline. `tests/status.test.mjs`
+  checks the evidence (test files exist, `since` is a release, COMPLETE names a shipped user, BETA a
+  why, planned bricks aren't exported) and that the README agrees.
+- **README sizes come from the build.** `npm run readme:sizes` rewrites the "What's in the box"
+  size column and the kernel's measured bytes from `scripts/sizes.mjs` (the CI budget's measure).
+  It is a release step, not a PR gate: `land.py bump` runs it, the release workflow fails on a stale
+  README (`--check`), and `tests/status.test.mjs` proves the generator on a fixture. Corrected at 0.19.0: kernel 3.4 KB
+  (3,439 B), slot 1.8, board-page 4.0, fx 2.7 (the whole module), camera 1.4, presence/check 4.8,
+  arcade 17.5 / 21.5, ui 2.8 + 4.8 KB css.
+- **Website: the roadmap runs E0 to E16, ticked only with evidence.** E1, E2 (re-scoped: the 22
+  bricks shipped; layout, view and actor bricks move to E10/E11) and E4 (re-scoped: two players on
+  the live site; Battlefield matches and AI players move to E12) are done; E0, E3, E5–E8 list what's
+  left; E7 (page interactions) and E8 (the game kit) are new; E9–E16 are planned with their bricks.
+  The games section and README say what's true now: every DOM VIRUS game runs on Fizlet.
 - **fizlet/arcade's skirmish preset runs its flow on `fizlet/match` (G15).** One owner of the phase:
   the countdown, pause / surrender and result are match's, on a small engine of its own that lives
   as long as the overlay (Recall destroys it, and its ledger takes the overlay back). The shell keeps
