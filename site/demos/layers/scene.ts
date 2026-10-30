@@ -101,10 +101,8 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
   stage.append(root);
   let lw = 0;
   for (const t of tags) lw = Math.max(lw, t.offsetWidth);
-  // Controls keep a column on each side (landscape) or a row at the bottom (portrait).
-  const land = W > H, R = RESERVE;
-  const { sp, se, ex, g } = fit(land ? W - 2 * R : W, land ? H : H - R, lw + 14); // + 10px margin, 4px slack
-  const oy = land ? 0 : -R / 2;
+  // The controls keep a column on the left; the stack centres in the rest.
+  const { sp, se, ex, g } = fit(W - RESERVE, H, lw + 14); // + 10px margin, 4px slack
   root.style.setProperty("--se", `${se}`);
   const [gridL, charL, moveL, colL, rulesL, fxL, inL, hudL] = layers as [HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement];
   // Collision: the fixed copy, revealed by the scan, over the broken one.
@@ -227,11 +225,11 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
     render() {
       const t = phase[0]!;
       const open = t < FOLD_AT ? smooth(PLAY, OPEN, t) : 1 - smooth(FOLD_AT, CLOSED, t);
-      const s = sp + (se - sp) * open;
+      const s = sp + (se - sp) * Math.sqrt(open); // shrink ahead of the turn, so mid-poses fit too
       // Labels only while the stack is fully open: in after it opens, out before the fold starts,
       // so they never move, scale or crowd while the layers travel.
       const label = smooth(OPEN, OPEN + 0.3, t) * (1 - smooth(FOLD_AT - 0.3, FOLD_AT, t));
-      stack.style.transform = `translate(${ex * open}px,${oy}px) scale(${s}) rotateX(${TILT * open}deg) rotateZ(${TURN * open}deg)`;
+      stack.style.transform = `translateX(${ex * open + RESERVE / 2}px) scale(${s}) rotateX(${TILT * open}deg) rotateZ(${TURN * open}deg)`;
       for (let i = 0; i < N; i++) {
         const l = layers[i]!;
         l.style.transform = `translateZ(${(i - (N - 1) / 2) * g * open}px)`;

@@ -141,6 +141,11 @@ await test("controls: pause settles, slider scrubs (keys, pointer), play resumes
   const pose = () => page.evaluate(() => document.querySelector(".lz-s").style.transform);
   const frames = () => page.evaluate(() => window.frames_);
   assert.equal(await b.getAttribute("aria-label"), "Pause");
+  const col = await page.evaluate(() => {
+    const r = document.querySelector("[role=slider]").getBoundingClientRect(), k = document.querySelector(".lyr__play").getBoundingClientRect();
+    return r.bottom <= k.top && Math.abs(r.left - k.left) < 2;
+  });
+  assert.ok(col, "the slider sits right above the play key, in one column");
   await b.click();
   await page.waitForFunction(() => document.querySelector(".lyr__play").ariaLabel === "Play");
   await page.waitForTimeout(900);
@@ -201,7 +206,13 @@ await test("reduced motion: the slider still scrubs the still view (keys, pointe
   }));
   let r = await look();
   assert.deepEqual([r.v, r.shown, r.flat, r.stage, r.play], ["100", 8, false, false, "none"]);
-  assert.equal(await s.getAttribute("aria-orientation"), "horizontal", "portrait: the slider runs along the bottom");
+  assert.equal(await s.getAttribute("aria-orientation"), "vertical");
+  // The controls: one column on the left, the slider above the play key (taller than wide).
+  const geo = await page.evaluate(() => {
+    const f = document.querySelector("figure.lyr").getBoundingClientRect(), r = document.querySelector("[role=slider]").getBoundingClientRect();
+    return { left: r.left - f.left, tall: r.height > 4 * r.width };
+  });
+  assert.ok(geo.left < 20 && geo.tall, `the slider runs down the left side (${JSON.stringify(geo)})`);
   await s.focus();
   await page.keyboard.press("ArrowLeft");
   r = await look();
@@ -209,8 +220,8 @@ await test("reduced motion: the slider still scrubs the still view (keys, pointe
   await page.keyboard.press("Home");
   r = await look();
   assert.deepEqual([r.v, r.flat], ["0", true], "Home: the flat board");
-  const box = await s.boundingBox(); // portrait: horizontal, along the bottom
-  await page.mouse.click(box.x + box.width - 10, box.y + box.height / 2);
+  const box = await s.boundingBox(); // vertical: the top end is fully exploded
+  await page.mouse.click(box.x + box.width / 2, box.y + 8);
   r = await look();
   assert.deepEqual([r.v, r.shown], ["100", 8], "pointer at the end: exploded, labels in");
   await page.close();

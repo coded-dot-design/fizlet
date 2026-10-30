@@ -36,17 +36,20 @@ Optional data attributes on the figure: `data-loops` (cycles before it settles, 
 
 ## Behaviour
 
-- **Controls:** a play/pause key (the kit's arcade key, `go`) on one side and a slider on the other:
-  vertical down the right edge when the slot is wide, along the bottom when it is tall. The slider is
-  a small copy of the stack (eight tilted plates on a kit rail, the collision plate in green) that
-  fans out as the real one does, with the kit's arcade key as its knob. It scrubs the
-  explode/assemble timeline: 0 assembled (the game), 100 exploded (every label in). Dragging or keys
-  pause the story; play resumes it from that pose. `role="slider"` with arrows (±5), Page Up/Down
-  (±25), Home and End; touch and mouse drag; the kit's focus ring on the knob. One writer at a time:
-  before the scene loads (and under reduced motion) the inline controller moves the slider and the
-  poster itself; once the scene is mounted it forwards input as a `lyr` event and the scene writes
-  the controls through its ledger, so Recall gives them back exactly.
-- **Lazy:** no JS file loads up front. An ~850 B inline script (the controls' controller and loader) imports `layers.js` (`fizlet/slot`
+- **Controls:** one column on the left side of the figure (the labels take the right), in every
+  orientation and on every host: a vertical slider on top and a play/pause key (the kit's arcade
+  key, `go`) below it. The slider is a recessed kit groove with the stack's eight plates threaded on
+  it, tilted like the layers (the collision plate in green). The plates light up from the bottom and
+  a fill rises as you drag the thumb (the kit's arcade key) up, and the stack explodes with it. It
+  scrubs the explode/assemble timeline: 0 assembled (the game, thumb at the bottom), 100 exploded
+  (every label in, thumb at the top). Dragging or keys pause the story; play resumes it from that
+  pose. `role="slider"`, `aria-orientation="vertical"`: Up/Right (+5), Down/Left (−5), Page Up/Down
+  (±25), Home and End; touch and mouse drag; the kit's focus ring on the thumb. Tab order follows the
+  column: slider, then play. One writer at a time: before the scene loads (and under reduced motion)
+  the inline controller moves the slider and the poster itself; once the scene is mounted it
+  forwards input as a `lyr` event and the scene writes the controls through its ledger, so Recall
+  gives them back exactly.
+- **Lazy:** no JS file loads up front. A ~770 B inline script (the controls' controller and loader) imports `layers.js` (`fizlet/slot`
   and the scene, one file) when the slot comes within 200px or is tapped; the slot then waits for an
   idle main thread and mounts the scene. The tap that triggers the load is not replayed (the scene
   takes no tap input; a pointer only wakes a settled scene).
@@ -67,9 +70,9 @@ Optional data attributes on the figure: `data-loops` (cycles before it settles, 
 
 ## Measured
 
-See `site/demos/layers/measured.json`. On Fizlet 0.15.0, Chromium 153: live chunk 9,713 B gzip
+See `site/demos/layers/measured.json`. On Fizlet 0.17.0, Chromium 153: live chunk 9,706 B gzip
 (`fizlet/slot` + scene, loaded only once the slot is near); poster, controls and inline script
-5,258 B gzip (script 848 B); at 4× CPU throttle, script per frame 0.9 ms median, 3.3 ms p95, 11.4 ms
+4,505 B gzip (script 768 B); at 4× CPU throttle, script per frame 1.0 ms median, 3.0 ms p95, 6.0 ms
 max; layout shift 0; 0 frames once settled; 0 B of JS fetched before the slot nears the viewport.
 
 Against the hero budgets in fizlet-engine `docs/LAYERS.md`: live chunk ≥ 5% under 10 KB ✔, poster ≤ 6 KB ✔,

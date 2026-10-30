@@ -1,5 +1,27 @@
 # Changelog
 
+## Unreleased
+
+- **Layers story: the controls are one vertical column on the left** (owner feedback on the live
+  hero: the horizontal bar under the game and its bunched "<<<<" plates looked odd). On the home
+  hero and the layers page alike, in every orientation: a vertical slider on top, the play/pause key
+  (kit arcade key) below it, on the side opposite the labels. The slider reads as a vertical 3D
+  control: a recessed kit groove with the stack's eight plates threaded on it, evenly spaced and
+  tilted like the layers, lighting up from the bottom as the thumb (the kit's arcade key) rises; the
+  stack explodes as you drag up. `aria-orientation="vertical"` always; Up/Down arrows, Page Up/Down,
+  Home/End, touch and mouse drag; tab order slider then play; reduced motion keeps the slider
+  working on the still view. Also:
+  - mid-scrub poses no longer touch the frame's edge: the stack's scale eases ahead of its turn
+    (√open), the perspective origin sits at the centre of the free area and the perspective is
+    longer (2200 → 4000 px), so near layers no longer drift into the controls or past the labels;
+  - the figure's poster clips its own overflow (`overflow: clip`): the unexploded labels overflowed
+    it, so an `overflow: hidden` host figure (the gallery's) was scrollable and `scrollIntoView` on
+    a control scrolled the figure's insides, moving the controls under a tap.
+  One layout for every orientation also removed the landscape/portrait branches: live chunk 9,720 →
+  9,706 B gzip (budget ≤ 9,728, unchanged); poster, controls and inline script 5,269 → 4,505 B.
+  Measured (Chromium 153, 4× CPU throttle): script per frame 1.0 ms median, 3.0 ms p95; CLS 0;
+  0 frames once settled; `npm run perf` unchanged against main (layerize 1.9 ms/frame).
+
 ## 0.17.0
 
 - **Perf: the demo's blasts are back to 60 fps at 4× CPU throttle** (30 fps since 0.10.1). Bisected

@@ -1,14 +1,16 @@
 /** The scene's styles, inlined on the host page with the poster (so the live chunk carries no CSS).
  *  Never put opacity < 1 on a layer (.lz-l): it flattens preserve-3d, and its label would lose its
- *  counter-rotation and smear into the layer's plane. Dim a layer's children instead. */
-import { CELL, BW, BH } from "./data";
+ *  counter-rotation and smear into the layer's plane. Dim a layer's children instead.
+ *  The perspective origin sits at the centre of the free area (right of the controls' column), the
+ *  centre of the exploded stack and its labels, so near layers drift out evenly on both sides. */
+import { CELL, BW, BH, RESERVE } from "./data";
 
 export const SCENE_CSS = `.lz.lz--o .lz-l+.lz-l{border-color:var(--line);background:color-mix(in srgb,var(--surface) 42%,transparent)}
 .lz.lz--f .lz-l+.lz-l:not([data-layer=collision])>*{opacity:.4}.lz.lz--f .lz-l+.lz-l:not([data-layer=collision]){border-color:color-mix(in srgb,var(--line) 40%,transparent)}
 .lz [data-layer=collision]{opacity:0}.lz:is(.lz--o,.lz--b) [data-layer=collision]{opacity:1}
 .lz.lz--b .lz-l[data-layer=collision],.lz.lz--b .lz-l[data-layer=collision] .lz-tag{border-color:var(--k-fire)}.lz.lz--b .lz-l[data-layer=collision]{background:color-mix(in srgb,var(--k-fire) 28%,transparent)}.lz.lz--b .lz-l[data-layer=collision] .lz-tag u{color:var(--k-aim)}
 .lz.lz--k .lz-l[data-layer=collision],.lz.lz--k .lz-l[data-layer=collision] .lz-tag{border-color:var(--k-go)}.lz.lz--k .lz-l[data-layer=collision]{background:color-mix(in srgb,var(--k-go) var(--g),transparent)}.lz.lz--k .lz-l[data-layer=collision] .lz-tag u{color:var(--k-go)}
-.lz{position:absolute;inset:0;perspective:2200px;font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);user-select:none}
+.lz{position:absolute;inset:0;perspective:4000px;perspective-origin:calc(50% + ${RESERVE / 2}px) 50%;font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);user-select:none}
 .lz-s{position:absolute;left:50%;top:50%;width:${BW}px;height:${BH}px;margin:-${BH / 2}px 0 0 -${BW / 2}px;transform-style:preserve-3d;will-change:transform}
 .lz-l{position:absolute;inset:0;transform-style:preserve-3d;border:2px solid transparent;border-radius:6px}
 .lz-l>*{position:absolute}

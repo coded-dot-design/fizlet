@@ -4,8 +4,9 @@
  *
  * The poster is the same stack as the scene, posed by one CSS variable on the figure, `--e`
  * (0 assembled, 1 exploded), so it needs no JS to draw. Default 0 (the board in game mode); with
- * reduced motion 1 (the still exploded view with every label). The controls (a play/pause key and
- * a 3D slider that scrubs the explode/assemble timeline) are real HTML from the first paint.
+ * reduced motion 1 (the still exploded view with every label). The controls (a vertical 3D slider
+ * that scrubs the explode/assemble timeline, above a play/pause key, on the left) are real HTML
+ * from the first paint.
  *
  * One writer at a time: before the scene loads (and always under reduced motion, where it never
  * loads), the inline controller moves `--e` and the slider itself. Once the scene is mounted it only
@@ -17,26 +18,31 @@ import { SCENE_CSS } from "./css";
 import { LAYERS, FAULT, ARIA, LABEL_W, PITCH, SIN_TILT, BOUNDS, RESERVE, bounds, COLS, ROWS, CELL, BW, BH, MAP, TILT, TURN, GAP } from "./data";
 
 const B = bounds(), R = RESERVE, r3 = (v: number) => Math.max(0.05, Math.round(v * 1000) / 1000);
-// Scale steps by the slot's size (container queries), per orientation: landscape keeps a RESERVE
-// column on each side (play key left, slider right); portrait keeps a RESERVE row at the bottom.
+// Scale steps by the slot's size (container queries). The controls keep a RESERVE column on the
+// left (slider above the play key), in every orientation; the stack centres in the rest.
 let steps = "";
-for (const [o, dw, dh] of [["landscape", 2 * R, 0], ["portrait", 0, R]] as const)
-  for (let v = 250; v <= 1500; v += 50)
-    steps += `@container (orientation:${o}) and (min-width:${v}px){.lyr__s{--wp:${r3((v - 24 - dw) / (BW + 16))};--we:${r3((v - 28 - LABEL_W - dw) / B.w)}}}` +
-      `@container (orientation:${o}) and (min-height:${v}px){.lyr__s{--hp:${r3((v - 24 - dh) / (BH + 20))};--he:${r3((v - 24 - dh) / B.h)};--hg:${r3((v - 24 - dh - 7 * PITCH) / BOUNDS.hb)}}}`;
+for (let v = 250; v <= 1500; v += 50)
+  steps += `@container (min-width:${v}px){.lyr__s{--wp:${r3((v - 24 - R) / (BW + 16))};--we:${r3((v - 44 - LABEL_W - R) / B.w)}}}` +
+    `@container (min-height:${v}px){.lyr__s{--hp:${r3((v - 24) / (BH + 20))};--he:${r3((v - 24) / B.h)};--hg:${r3((v - 24 - 7 * PITCH) / BOUNDS.hb)}}}`;
 
 const N = LAYERS.length;
 const e = "var(--e)";
 
 export { bounds, BOUNDS, LAYERS } from "./data";
 
+// Notes on the CSS below (kept out of the shipped string):
+// - overflow:clip (the figure and its poster), not hidden: a hidden box is still a scroll container,
+//   and scrollIntoView on a control would scroll the figure's insides (the poster's unexploded labels
+//   overflow it). The poster clips its own overflow, so a host's overflow:hidden figure has none.
+// - The controls: one column on the left, the slider above the play key. The slider is a recessed kit
+//   groove with the stack's eight plates threaded on it (same tilt as the layers); the plates light
+//   up from the bottom as it rises, and the thumb is the kit's arcade key, moving up and down.
 export const POSTER_CSS = SCENE_CSS + `
-.lyr{--e:0;position:relative;margin:0;width:100%;aspect-ratio:4/5;max-height:640px;container-type:size;background:var(--rim);border:2px solid var(--line);border-radius:14px;overflow:hidden;contain:layout paint;content-visibility:auto}
+.lyr{--e:0;position:relative;margin:0;width:100%;aspect-ratio:4/5;max-height:640px;container-type:size;background:var(--rim);border:2px solid var(--line);border-radius:14px;overflow:clip;contain:layout paint;content-visibility:auto}
 .lyr__d{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.lyr__p{position:absolute;inset:0;perspective:2200px;font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink)}
-.lyr__s{position:absolute;left:50%;top:50%;width:${BW}px;height:${BH}px;margin:-${BH / 2}px 0 0 -${BW / 2}px;transform-style:preserve-3d;--oy:0px;--wp:.6;--hp:.6;--we:.2;--he:.2;--hg:.2;--sp:min(var(--wp),var(--hp));--se:min(var(--we),var(--he),var(--hg));` +
-  `transform:translate(calc(${-LABEL_W / 2 - B.cx}px * ${e}),var(--oy)) scale(calc(var(--sp) + (var(--se) - var(--sp)) * ${e})) rotateX(calc(${TILT}deg * ${e})) rotateZ(calc(${TURN}deg * ${e}))}
-@container (orientation:portrait){.lyr__s{--oy:${-R / 2}px}}
+.lyr__p{position:absolute;inset:0;overflow:clip;perspective:4000px;perspective-origin:calc(50% + ${R / 2}px) 50%;font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink)}
+.lyr__s{position:absolute;left:50%;top:50%;width:${BW}px;height:${BH}px;margin:-${BH / 2}px 0 0 -${BW / 2}px;transform-style:preserve-3d;--wp:.6;--hp:.6;--we:.2;--he:.2;--hg:.2;--sp:min(var(--wp),var(--hp));--se:min(var(--we),var(--he),var(--hg));` +
+  `transform:translateX(calc(${R / 2}px + ${-LABEL_W / 2 - B.cx}px * ${e})) scale(calc(var(--sp) + (var(--se) - var(--sp)) * sqrt(${e}))) rotateX(calc(${TILT}deg * ${e})) rotateZ(calc(${TURN}deg * ${e}))}
 ${steps}
 .lyr__l{position:absolute;inset:0;transform-style:preserve-3d;border-radius:6px}
 ${LAYERS.map((_, i) => `.lyr__l:nth-child(${i + 1}){transform:translateZ(calc(${i - (N - 1) / 2} * max(${GAP}px, ${PITCH}px / (${SIN_TILT.toFixed(4)} * var(--se))) * ${e}))}`).join("")}
@@ -47,20 +53,22 @@ ${LAYERS.map((_, i) => `.lyr__l:nth-child(${i + 1}){transform:translateZ(calc(${
 .lyr__t{position:absolute;left:100%;top:100%;white-space:nowrap;background:var(--card);border:2px solid var(--line);transform-origin:0 0;font-size:calc(11px / var(--se));border-width:calc(2px / var(--se));padding:calc(3px / var(--se)) calc(7px / var(--se));margin:calc(-2px / var(--se)) 0 0 calc(10px / var(--se));border-radius:calc(5px / var(--se));` +
   `transform:rotateZ(calc(${-TURN}deg * ${e})) rotateX(calc(${-TILT}deg * ${e}));opacity:clamp(0,(${e} - .99) * 100,1)}
 .lyr__t u{text-decoration:none;color:var(--muted)}
-.lyr__ui{position:absolute;inset:10px;z-index:1;pointer-events:none}
-.lyr__ui>*{position:absolute;pointer-events:auto}
-.lyr .lyr__play{left:0;bottom:0;width:44px;padding:0;justify-content:center}
+.lyr__ui{position:absolute;left:10px;top:10px;bottom:10px;width:44px;z-index:1;pointer-events:none}
+.lyr__ui>*{position:absolute;left:0;width:44px;pointer-events:auto}
+.lyr .lyr__play{bottom:0;padding:0;justify-content:center}
 .lyr__play svg{fill:currentColor;stroke:none}.lyr__play[aria-label=Play] .p,.lyr__play[aria-label=Pause] .q{display:none}
-.lyr__sl{right:0;top:0;bottom:6px;width:44px;touch-action:none;outline:none;cursor:pointer;--n:calc(2px + ${e} * 9%)}
-.lyr__sl::before{content:"";position:absolute;inset:0 16px;border-radius:6px;background:var(--surface);border:2px solid var(--line);box-shadow:inset 0 3px 0 var(--rim)}
-.lyr__r{position:absolute;inset:6px 0;display:flex;flex-direction:column-reverse;align-items:center;justify-content:center;gap:var(--n);transform-style:preserve-3d}
-.lyr__r i{width:16px;height:16px;flex:none;margin:-5px 0;border:2px solid var(--line);border-radius:3px;background:var(--card);transform:perspective(90px) rotateX(${TILT}deg) rotateZ(${TURN}deg)}
-.lyr__r i:nth-child(4){border-color:var(--k-go)}
-.lyr .lyr__k{position:absolute;left:4px;width:36px;min-height:0;height:26px;padding:0;bottom:calc(${e} * (100% - 26px));justify-content:center;gap:3px;pointer-events:none}
-.lyr__k b{width:3px;height:12px;background:var(--rim);border-radius:1px}
+.lyr__sl{top:0;bottom:60px;touch-action:none;outline:none;cursor:ns-resize}
+.lyr__sl::before,.lyr__sl::after{content:"";position:absolute;left:15px;right:15px;border-radius:7px}
+.lyr__sl::before{top:0;bottom:0;background:var(--surface);border:2px solid var(--line);box-shadow:inset 0 4px 0 var(--rim)}
+.lyr__sl::after{left:19px;right:19px;bottom:4px;height:calc(${e} * (100% - 30px) + 11px);background:var(--k-cmd)}
+.lyr__r{position:absolute;z-index:1;inset:13px 0 17px;display:flex;flex-direction:column-reverse;justify-content:space-between;align-items:center}
+.lyr__r i{width:30px;height:30px;margin:-12px 0;border:2px solid var(--line);border-radius:4px;transform:perspective(160px) rotateX(${TILT}deg) rotateZ(${TURN}deg)}
+${LAYERS.map((_, i) => `.lyr__r i:nth-child(${i + 1}){background:color-mix(in srgb,var(--k-sys) calc(clamp(0,(${e} * ${N} - ${i}) * 2,1) * 100%),var(--card))}`).join("")}
+.lyr__r i:nth-child(${FAULT + 1}){border-color:var(--k-go)}
+.lyr .lyr__k{position:absolute;left:2px;width:40px;min-height:0;height:26px;padding:0;bottom:calc(${e} * (100% - 30px));flex-direction:column;justify-content:center;gap:3px;pointer-events:none;z-index:2}
+.lyr__k b{width:16px;height:3px;background:var(--rim);border-radius:1px}
 .lyr__sl:focus-visible .lyr__k{box-shadow:0 var(--py) 0 var(--edge),0 0 0 3px var(--bg),0 0 0 6px var(--k-sys-ink)}
-@container (orientation:portrait){.lyr__sl{left:56px;top:auto;bottom:6px;width:auto;height:44px}.lyr__sl::before{inset:16px 0}.lyr__r{inset:0 6px;flex-direction:row}.lyr__r i{margin:0 -5px}.lyr .lyr__k{left:calc(${e} * (100% - 36px));bottom:9px}}
-@media (prefers-reduced-motion:reduce){.lyr{--e:1}.lyr .lyr__play{display:none}@container (orientation:portrait){.lyr__sl{left:0}}}`;
+@media (prefers-reduced-motion:reduce){.lyr{--e:1}.lyr .lyr__play{display:none}.lyr__sl{bottom:0}}`;
 
 const icon = (d: string, c: string) => `<svg class="${c}" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="${d}"/></svg>`;
 
@@ -78,9 +86,9 @@ export function poster(target = "index#layers") {
     `<p class="lyr__d" id="lyr-d">${ARIA}</p>` +
     `<div class="ae-slot__placeholder lyr__p" aria-hidden="true"><div class="lyr__s">${layers}</div></div>` +
     `<div class="lyr__ui">` +
-    `<button type="button" class="bui-key bui-arcade bui-go lyr__play" aria-label="Pause">${icon("M5 4h4v12H5zM11 4h4v12h-4z", "p")}${icon("m6 4 10 6-10 6Z", "q")}</button>` +
     `<div class="lyr__sl" role="slider" tabindex="0" aria-label="Explode the layers" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">` +
     `<span class="lyr__r" aria-hidden="true">${"<i></i>".repeat(N)}</span><span class="bui-key bui-arcade bui-cmd lyr__k" aria-hidden="true"><b></b><b></b><b></b></span></div>` +
+    `<button type="button" class="bui-key bui-arcade bui-go lyr__play" aria-label="Pause">${icon("M5 4h4v12H5zM11 4h4v12h-4z", "p")}${icon("m6 4 10 6-10 6Z", "q")}</button>` +
     `</div></figure>`;
 }
 
@@ -98,8 +106,8 @@ export const loader = (src = "./layers.js") =>
   `put=v=>{v=v<0?-1:Math.round(Math.min(100,v));if(v>=0)c=v,t=performance.now();if(live())f.dispatchEvent(new CustomEvent("lyr",{detail:v}));` +
   `else if(v<0)b.ariaLabel=b.ariaLabel=="Play"?"Pause":"Play";else f.style.setProperty("--e",v/100),s.ariaValueNow=v},` +
   `K={ArrowUp:5,ArrowRight:5,ArrowDown:-5,ArrowLeft:-5,PageUp:25,PageDown:-25,Home:-100,End:100},` +
-  `at=e=>{const r=s.getBoundingClientRect(),w=r.width>r.height;s.ariaOrientation=w?"horizontal":"vertical";put(Math.max(0,w?(e.clientX-r.left-18)/(r.width-36)*100:(r.bottom-13-e.clientY)/(r.height-26)*100))};` +
-  `if(m.matches)s.ariaValueNow=100;s.ariaOrientation=s.offsetWidth>s.offsetHeight?"horizontal":"vertical";` +
+  `at=e=>{const r=s.getBoundingClientRect();put(Math.max(0,(r.bottom-15-e.clientY)/(r.height-30)*100))};` +
+  `if(m.matches)s.ariaValueNow=100;` +
   `s.addEventListener("keydown",e=>{const k=K[e.key];if(k)e.preventDefault(),put(Math.max(0,(performance.now()-t<200?c:+s.ariaValueNow)+k))});` +
   `s.addEventListener("pointerdown",e=>{s.setPointerCapture(e.pointerId);at(e)});` +
   `s.addEventListener("pointermove",e=>s.hasPointerCapture(e.pointerId)&&at(e));` +

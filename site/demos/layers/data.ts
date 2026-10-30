@@ -69,8 +69,8 @@ export const LABEL_W = 204;
  *  the exploded gap between layers widens so labels never sit closer than this. 28, not 22: the
  *  perspective draws the far (lower) layers a few % smaller, so their pitch shrinks a little too. */
 export const PITCH = 28;
-/** Room the controls keep (screen px): a column on each side in landscape (play key, slider), a row
- *  at the bottom in portrait. */
+/** Room the controls keep (screen px): one column on the left (the slider above the play key), in
+ *  every orientation. */
 export const RESERVE = 56;
 /** sin(TILT): how much of the layer gap shows as vertical spacing on screen. */
 export const SIN_TILT = Math.sin((TILT * Math.PI) / 180);
@@ -104,6 +104,8 @@ export const gap = (se: number) => Math.max(GAP, PITCH / (SIN_TILT * se));
 export function fit(W: number, H: number, lw = LABEL_W) {
   const sp = Math.min((W - 24) / (BW + 16), (H - 24) / (BH + 20));
   // Height: the stack at GAP, and the board plus 7 label pitches when the gap has to widen.
-  const se = Math.min((W - 28 - lw) / BOUNDS.w, (H - 24) / BOUNDS.h, (H - 24 - 7 * PITCH) / BOUNDS.hb);
+  // 44: a 14px margin each side, plus 8px each side for the perspective (near layers draw a few %
+  // larger and drift out from the centre, most on narrow slots, where the gap widens for labels).
+  const se = Math.min((W - 44 - lw) / BOUNDS.w, (H - 24) / BOUNDS.h, (H - 24 - 7 * PITCH) / BOUNDS.hb);
   return { sp, se, ex: -lw / 2, g: gap(se) };
 }
