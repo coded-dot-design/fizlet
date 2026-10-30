@@ -166,6 +166,11 @@
   300 ms). Every wait is capped. `tests/bricks.test.mjs` "a full pool stops the blast's work" no
   longer asserts `ms < 20`: two pools on one visual seed show that ten 1e6-power blasts on a full
   pool draw exactly what ten tiny ones do (it fails if the work scales with power). No source change.
+- **fizlet.com: the two stylesheets every page loads are minified.** `npm run site` writes
+  `board-ui.css` and `site.css` through esbuild's CSS minifier instead of copying the readable
+  sources: board-ui.css 8,301 → 4,884 B gzip (exactly the `fizlet/ui (css)` number the bricks
+  page quotes, now what the site serves), site.css 11,530 → 9,091 B; 5,856 B gzip less on every
+  first visit. The npm package's `dist/ui/board-ui.css` is unchanged (consumers minify).
 - **Gallery: DOM Virus, two hand-built micro games (pending the owner's approval).** A new theme,
   `dom-virus`, with #047 **Terminal virus**: a worm types itself into a terminal, crawls onto the
   README beside it and eats its real letters (each bite rewrites a character of the page's own
