@@ -1,6 +1,8 @@
 // The README's sizes come from the build, never by hand: the "What's in the box" size column and the
 // kernel's measured bytes in the contract are rewritten from scripts/sizes.mjs (the CI budget's own
-// measure). `npm run readme:sizes` writes them; tests/status.test.mjs fails when the README is stale.
+// measure). A release step, not a PR gate (parallel PRs would all go stale at once): `land.py bump`
+// runs `npm run readme:sizes` to write them, and the release workflow runs `--check` (exit 1 if stale).
+// tests/status.test.mjs proves the generator on a fixture.
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { BRICKS } from "../site/bricks.mjs";
@@ -41,6 +43,11 @@ export function readmeSizes(md, sizes) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const md = readFileSync("README.md", "utf8");
   const next = readmeSizes(md, await measure());
-  writeFileSync("README.md", next);
-  console.log(next === md ? "README sizes already current" : "README sizes rewritten from the build");
+  if (process.argv.includes("--check")) {
+    if (next !== md) { console.error("README sizes are stale: run npm run readme:sizes (land.py bump does)"); process.exit(1); }
+    console.log("README sizes are this build's");
+  } else {
+    writeFileSync("README.md", next);
+    console.log(next === md ? "README sizes already current" : "README sizes rewritten from the build");
+  }
 }
