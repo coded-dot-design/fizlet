@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.17.0
 
 - **board-page runs in its root's own document and window.** `boardPage(e, { root })` now measures,
   observes and writes in `root.ownerDocument` (its viewport, `getComputedStyle`, observers, scroll
