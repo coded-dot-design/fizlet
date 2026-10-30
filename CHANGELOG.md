@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+- **`fizlet/aim`** (new brick, E11, EXPERIMENTAL; 682 B gz, budget 1,024 = its planned target):
+  where bots and turrets point and when they may fire, on body arrays (a `fizlet/actor` table's or a
+  steer's) and, for sight, a `fizlet/grid` board. `aim({ x, y, a, vx, vy, board, mask, foe })`:
+  - `lead(i, j, speed)`: the aim point for a straight shot to meet a straight mover, the earliest
+    meeting ahead (a numerically stable quadratic; a target as fast as the shot is caught only
+    coming in). False, with the target where it stands, when the shot can never catch it. No game
+    leads its shots today; this is new.
+  - `cone(i, j, half, range)`: inside the heading ± `half` and within `range`; `out[2]` is the signed
+    angle off the heading, so a turret turns by it (with `fizlet/steer`'s `turn`). It returns the
+    same answer as Battlefield Blitz's bot fire check on 100,000 seeded cases.
+  - `sees(i, j)`: grid's Bresenham line of sight between the two cells (symmetric; `mask` lets
+    cover block). `pick(i, list, n, half, range)`: the nearest `foe` in the cone and in sight, with
+    sight checked last and nearest first (DOM Battlefield's `nearestVisible` shape).
+  - Results land in `out` ([x, y, t or angle, distance]), so no call returns a double, and
+    distances are steer's exact `hypot`. The pick keeps its best distance in a typed-array slot:
+    a local that starts as the integer range and turns double was widened by V8 to a boxed
+    number, 21 young GCs per 100k steps of 32 turrets; now 0.
+  - Tests: `tests/aim.test.mjs` (lead checked by flying the shot on 10,000 seeded cases, earliest
+    meeting, misses never catch up, same-speed and faster targets; cone against Blitz's check,
+    wrap across ±π, inclusive range; sight with walls, cover and mask; pick on an actor table with
+    walls, mates, the dead and ties; 0 young GCs over 100k steps of lead, cone, sight and pick for
+    32 actors, best of 3 windows).
+  - Status: EXPERIMENTAL in `site/bricks.mjs` (since 0.21.0), a generated brick page, a README row.
+
 - **`fizlet/actor`** (new brick, E11, EXPERIMENTAL; 908 B gz, budget 1,229 = its planned target):
   units, bots, turrets and shots as one fixed-capacity table of typed arrays, the part every board
   game still writes itself (DOM Battlefield's `Unit` objects and its arena's hand-written
