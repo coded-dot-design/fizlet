@@ -43,7 +43,10 @@ Hand the codes out by message. To revoke one, delete its key:
 
 In `wrangler.toml` `[vars]`:
 - set `ALLOWED_ORIGINS` to the page origins that host the game, e.g. `https://battlefield.example`;
-- keep or lower the caps (they can't go past the ceilings in `src/limits.js`).
+- keep or lower the caps (they can't go past the ceilings in `src/limits.js`), including the
+  lobby timeout and the per-IP rates (`LOBBY_SECONDS`, `GATE_RATE`, `JOIN_RATE`).
+
+What the gate and the caps do and don't protect: [THREAT-MODEL.md](THREAT-MODEL.md).
 
 ## 3. Deploy
 
@@ -52,11 +55,19 @@ npx wrangler deploy --dry-run    # check the bundle and bindings first
 npx wrangler deploy              # → https://fizlet-rooms.<account>.workers.dev
 ```
 
-Smoke check:
+Smoke check (the code goes in the body, never the URL):
 
 ```sh
-curl -s https://fizlet-rooms.<account>.workers.dev/invite?code=NOPE   # → {"ok":false} (403)
+curl -s -X POST --data 'NOT-A-REAL-CODE' -H 'origin: <an ALLOWED_ORIGINS entry>' \
+  https://fizlet-rooms.<account>.workers.dev/invite        # → {"ok":false} (403)
 ```
+
+**Rotate codes that travelled in URLs.** Before invocation logs were turned off, `?code=` and
+`?invite=` URLs were kept in Workers Logs. After deploying a release with
+`invocation_logs = false`, add new codes as in step 1, hand them out, then delete each old key:
+`npx wrangler kv key delete --binding INVITES invite:<sha256> --remote`. Pages
+must send codes by `POST /invite` and the WebSocket subprotocol; the URL forms are accepted for one
+more release only.
 
 Then open `examples/two-player.html` from Blitz with
 `?rooms=wss://fizlet-rooms.<account>.workers.dev` on two devices and play.

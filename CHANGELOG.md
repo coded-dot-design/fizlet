@@ -57,6 +57,29 @@
   order, then id; a pending entry has none. When two entries share a number, the first to land keeps
   it. The build shows a live entry's coming number (so a PR builds) and fails on a shared number,
   naming the entries and the fix. Tests: `tests/gallery-number.test.mjs`.
+- **fizlet-rooms: hardened for launch (brick audit 2, S1–S5).** Needs `wrangler deploy` (owner's go).
+  - **First input wins at the relay (S1).** A seat's `INPUT` and `HASH` frames must rise: a second,
+    different input for a frame, or an older frame, is never relayed, so one peer can't split the
+    others (fizlet/presence keeps the first one too, in its own PR).
+  - **Invite codes out of URLs and logs (S2).** `POST /invite` with the code as a text body, and the
+    WebSocket subprotocols `["fizlet-rooms", "invite." + code]` (the `101` answers `fizlet-rooms`).
+    `?code=` / `?invite=` still work for one release. `wrangler.toml` turns invocation logs off
+    (they record URLs); the worker logs nothing itself. Codes that travelled in URLs should be
+    rotated after the deploy (DEPLOY.md).
+  - **Rate caps and longer codes (S3).** `GATE_RATE` (30): invite checks + joins per IP a minute,
+    counted in each Worker isolate, refused with `429` before the KV read. `JOIN_RATE` (10): joins
+    per IP a minute into one room, counted by the room before a socket is accepted. Both are free
+    (no binding, no KV), with ceilings in `src/limits.js` like every cap. Codes are now 10 to 64
+    characters (was 6); the invite helper makes 15.
+  - **No room squatting (S4).** Only relayed messages and seats taken keep a room alive; a lone
+    player's refused messages and "room full" joiners no longer do, and a room not full
+    `LOBBY_SECONDS` (90) after its first seat closes with `1001 room not filled` (it could be held
+    open for 30 min).
+  - **Threat model (S5):** `rooms/THREAT-MODEL.md`, what is protected and what isn't. CI runs
+    `cd rooms && npm test`.
+  - Tests: `test/room.test.mjs` (new: the Worker and the Room on platform fakes; each test fails on
+    the old code), relay and limits tests; `test:wrangler` adds the lobby timeout, `POST /invite` and
+    the subprotocol invite through real workerd. Ran: `npm test` 16/16, `npm run test:wrangler` ✓.
 - **fizlet-rooms: rooms of up to 4 players, and `/invite` says the room size.** `wrangler.toml`
   `MAX_PLAYERS` 2 → 4 (the code ceiling stays 8 in `src/limits.js`); `GET /invite` now answers
   `{"ok":true,"players":<MAX_PLAYERS>}` so a page offers only room sizes that can join (Blitz's
