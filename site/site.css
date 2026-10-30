@@ -576,7 +576,8 @@ html.bui[data-theme="light"] .hero h1 em {
   cursor: crosshair;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: manipulation;
+  touch-action: pan-y;
+  overscroll-behavior: none;
 }
 .demo-page {
   position: absolute;
@@ -1766,10 +1767,17 @@ html.bui[data-theme="light"] .phases b {
   border-radius: 10px;
   background: var(--code-bg);
   cursor: crosshair;
-  touch-action: manipulation;
+  touch-action: pan-y;
+  overscroll-behavior: none;
 }
 .bd-img {
   image-rendering: pixelated;
+}
+/* Demo surfaces, like the kit's slots (board-ui.css): the page scrolls through them, never pans
+   sideways or zooms; site.ts hands the same list to fizlet/touch for pinch. */
+:is(.bd-tl, .lab-stage) {
+  touch-action: pan-y;
+  overscroll-behavior: none;
 }
 /* The timeline demo: a console and a cartridge, every move written by fizlet/timeline. */
 .bd-tl {
@@ -2316,6 +2324,12 @@ html.bui[data-theme="light"] .phases b {
   place-items: center;
   padding: 16px;
   background: var(--bg);
+  overscroll-behavior: none;
+}
+/* Full screen the hero is the whole screen: no gesture pans or zooms it. */
+:is(.hero-stage:fullscreen, .hero-stage.hero-full),
+:is(.hero-stage:fullscreen, .hero-stage.hero-full) figure.ae-slot {
+  touch-action: none;
 }
 .hero-stage.hero-full {
   position: fixed;

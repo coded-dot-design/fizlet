@@ -73,6 +73,34 @@
   measured, the test that holds it and the PR. First entries (0.19.0, #67): the fps cap caps rAF
   (home at 1440, 119.6 → 28.5 rAF/s) and the demo settles (60.4 → 0 rAF/s). `tests/perf-log.test.mjs`
   fails when the log is stale or an entry has no measured number, PR or test.
+- **Phones: taps and swipes never zoom or pan the page** (owner: "for mobile all of our pages right
+  now need to lock down double tap and pinch to zoom… the pages get all out of shape").
+  - **`fizlet/touch`** (new brick, 310 B gzip, budget 512): `lockTouch(doc, sel)`, one delegated,
+    non-passive listener set that cancels iOS Safari's `gesturestart` / `gesturechange` (its pinch
+    ignores `user-scalable=no`) and any multi-touch start or move on the surfaces matching `sel`
+    (default `SURFACES`: slot stages, game hosts, the pad, draggable grips, `[data-touch-lock]`).
+    One finger is never touched, so taps, drags and scrolling stay. `null` locks the whole page (a
+    full-screen board). Returns `release()`.
+  - **Board UI kit (CSS):** `.bui` is `touch-action: manipulation` (no double-tap zoom) with
+    `text-size-adjust: 100%`; game hosts and `[data-touch-lock]` are `touch-action: none`, slots
+    (`.ae-slot`, `[data-fizlet-slot]`, `[data-touch-lock="y"]`) `pan-y`, all
+    `overscroll-behavior: none`. Slots stay `pan-y`, not `none`, so a hero that fills a phone never
+    traps the page's scroll; a swipe game sets `none` on its stage.
+  - **Every arcade game, automatically:** while a run is live the page is the board, so `arcade`
+    calls `lockTouch(document, null)` (no pinch or iOS gesture anywhere) and sets
+    `touch-action: manipulation` on the page through the ledger (no double-tap zoom, scrolling
+    stays); the engine's end releases both, so the page comes back exactly. Budgets rise by the
+    measured cost (owner-approved): `fizlet/arcade` +174 B (22,089 B, budget 22,190), the card build
+    +181 B (18,093 B, budget 18,101). `tests/arcade.mjs` checks the lock and its release.
+  - **fizlet.com:** every page runs `lockTouch` on the demo surfaces (home demo, brick demos,
+    timeline, labs, slots); they are `pan-y` and the full-screen hero `none`. Content pages keep
+    pinch-zoom on the copy (WCAG 1.4.4); only the double-tap zoom and the surfaces are locked. The
+    fizz example does the same.
+  - `tests/touch.mjs` (Chromium, 390 × 844, touch, mobile; in `test:browser`): pinch, double-tap
+    and swipe on a slot and a game host leave `visualViewport.scale` at 1 and the page 390 wide; a
+    game host never scrolls, the page still scrolls through a slot, the copy still zooms, and the
+    unlocked control page does zoom and scroll. `test:site` checks every page on a phone:
+    `touch-action: manipulation` on the page, every demo surface `none` or `pan-y`.
 - **Gallery: DOM Virus, two hand-built micro games (pending the owner's approval).** A new theme,
   `dom-virus`, with #047 **Terminal virus**: a worm types itself into a terminal, crawls onto the
   README beside it and eats its real letters (each bite rewrites a character of the page's own
