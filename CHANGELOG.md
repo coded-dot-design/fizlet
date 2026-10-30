@@ -6,6 +6,10 @@
   draggable"). The arcade card and the skirmish bar move from anywhere that isn't a key, mouse or
   touch, and stay on screen when the window shrinks (shared in `arcade-parts`). Browser test at 2×
   for both presets: the canvas at CSS size, the drag, the clamp.
+- **Fix: games with `exactOptionalPropertyTypes` compile again.** `pressCue` (board-ui) and
+  `coach` passed an optional `signal` straight into listener options, which strict consumers (the
+  arcade games) reject; 0.18.0 broke their typecheck. Same runtime, no byte change. `npm run
+  typecheck` now also runs with `exactOptionalPropertyTypes`, so it can't regress.
 
 ## 0.18.0
 
