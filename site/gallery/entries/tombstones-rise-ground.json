@@ -1,0 +1,33 @@
+{
+  "no": 47,
+  "id": "tombstones-rise-ground",
+  "date": "2026-10-30",
+  "prompt": "tombstones rise from the ground",
+  "title": "Tombstones rise from the ground",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "emerge",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 2.21
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/tombstones-rise-ground.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}
