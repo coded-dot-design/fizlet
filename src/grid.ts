@@ -5,6 +5,8 @@
  *
  * Not collision: fizlet/collide's `Grid` re-buckets moving bodies every step; a `Board` holds the
  * ground they move over. Use the same cell size for both and a body's collide bucket is its cell.
+ * The size is checked at setup: `cols` and `rows` are positive integers, `cell` a finite number > 0
+ * (a RangeError names all three).
  */
 
 /** Flags: BLOCKED stops movement and sight, COVER stops sight (pass it in a mask), OCCUPIED marks
@@ -50,8 +52,9 @@ export class Board {
   private tr = 0;
 
   constructor(cols: number, rows: number, opts: BoardOptions = {}) {
-    const n = (this.cols = cols) * (this.rows = rows);
-    this.cell = opts.cell ?? 1;
+    const n = (this.cols = cols) * (this.rows = rows), cell = (this.cell = opts.cell ?? 1);
+    if (!(cols >= 1 && rows >= 1 && cols % 1 === 0 && rows % 1 === 0 && cell > 0 && cell - cell === 0 && typeof cols + typeof rows + typeof cell == "numbernumbernumber"))
+      throw new RangeError(`fizlet/grid: cols ${cols}, rows ${rows}, cell ${cell}`);
     this.diagonal = !!opts.diagonal;
     this.terrain = new Uint8Array(n);
     this.cost = new Uint8Array(n).fill(1);

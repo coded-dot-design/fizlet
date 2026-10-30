@@ -14,7 +14,10 @@ export const BUDGETS = [
   // `Math.hypot` boxes its arguments, 23 young GCs per 1M drags; now 0). Budget raised by that delta.
   ["fizlet/pad", "src/pad.ts", 2126],
   ["fizlet/collide", "src/collide.ts", 1536],
-  ["fizlet/grid", "src/grid.ts", 1536],
+  // 1,533 B gz in 0.19.0 (3 B under 1,536); 1,634 B once the constructor checks cols, rows and cell
+  // (+101 B, brick audit P8: `cell: 0` made at() NaN, a fractional cols sized the arrays wrong). An
+  // inline check, not the kernel's `need` (+181 B: grid runs without the kernel). Raised by that delta.
+  ["fizlet/grid", "src/grid.ts", 1637],
   // Whole module: effects() 2,1xx B + gravity, plus emitter() and KINDS (~0.6 KB), which tree-shake
   // away when unused (the page build below ships effects() alone).
   ["fizlet/fx", "src/fx.ts", 3072],
