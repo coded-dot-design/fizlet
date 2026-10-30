@@ -612,16 +612,18 @@ names. Leaving `hud` out keeps the card byte for byte.
 | Preset | Layout | Pieces |
 |---|---|---|
 | `arcadeHud()` (default) | card, bottom right; folded at the top on phones | sound / pause / fold / exit; readouts; one meter; nav: actions, Next gate, Restart, Auto fire; toast; pad (stick + Fire) |
-| `skirmishHud({...})` (Blitz) | bar across the top; wraps to two rows on phones | fullscreen / sound / pause / exit; readouts (`num`, `clock`, `rank`, `pct`, `bar`); aim toggles; action keys with count badges; feed; banner; pause / surrender / countdown / result overlays; pad with aim toggles and counted keys |
+| `skirmishHud({...})` (Blitz) | bar across the top; wraps to two rows on phones | fullscreen / sound / pause / fold / exit; nav when asked: Auto fire, Next gate, Restart; readouts (`num`, `clock`, `rank`, `pct`, `bar`); aim toggles; action keys with count badges; feed; banner; pause / surrender / countdown / result overlays; pad with aim toggles and counted keys |
 | `widget` (later) | card | Swarm Protocol's widget, behind a side-by-side screenshot check |
 | `cockpit` (later) | rails on phones | DOM Battlefield's minimap, command card, orders |
 
 - **Readouts** are section 18's: label, value, tone. A `bar` readout is a track with the fill as
   the `progressbar`, `low` turning it to `--hurt`.
-- **Overlays** are section 9's: one dim layer, one sticker, at most two sticker keys, the toast
-  for the explanation. Pause: BATTLE PAUSED / GIVE UP? (KEEP FIGHTING · SURRENDER). Result:
-  INSERT COIN / GAME OVER or STAGE CLEAR / MISSION COMPLETE (REMATCH · EXIT), with the chosen
-  stats and the best on this device. Countdown: GET READY 3, 2, 1, then the engine starts.
+- **Overlays** are section 9's, run by `fizlet/match` (one owner of the phase): one dim layer, one
+  sticker, at most two sticker keys, the toast for the explanation. Pause: BATTLE PAUSED / GIVE UP?
+  (KEEP FIGHTING · SURRENDER). Result: INSERT COIN / GAME OVER, WHITE FLAG / GAME OVER or
+  STAGE CLEAR / MISSION COMPLETE (REMATCH · EXIT), with the chosen stats and the best on this
+  device; it stays up after the run until dismissed. Countdown: GET READY 3, 2, 1 on the flow's
+  clock, then the game's engine starts.
 - **Counts** are the kit's badge (`.bui-badge`, section 7) on the action's bar key and pad key.
 - **Values** go through `fizlet/hud` from typed-array slots: change-only, no layout reads, nothing
   allocated in the steady state. The game fills `hud(out)` in readout order, then the count slots.
