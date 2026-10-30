@@ -10,7 +10,7 @@ export const BUDGETS = [
   // on the kit tokens (~0.45 KB) so it works on pages without board-ui.css.
   ["fizlet/perf", "src/perf.ts", 2048],
   ["fizlet/input", "src/input.ts", 1536],
-  // 1,995 B gz in 0.19.0; 2,073 B once stickAt/dpadAt/the drag use steer's exact `hypot` (+78 B, K5:
+  // 1,995 B gz in 0.19.0; 2,073 B once stickAt/dpadAt/the drag use steer's exact `hypot` (+78 B, #118, K5:
   // `Math.hypot` boxes its arguments, 23 young GCs per 1M drags; now 0). Budget raised by that delta.
   ["fizlet/pad", "src/pad.ts", 2126],
   ["fizlet/collide", "src/collide.ts", 1536],
@@ -44,48 +44,45 @@ export const BUDGETS = [
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, fizlet/hud included). The Board UI kit CSS is the game's (it bakes
-  // in the sections it uses). 21,975 B before the skirmish flow moved onto fizlet/match (Unreleased,
-  // G15): 23,990 B, +2,015 B. That is match itself in the bundle (the phase machine, its overlay and
-  // its five keys, the white flag; the kernel was already there), less the preset's own countdown,
-  // pause / result overlays it replaced, plus the Auto fire / Next gate / Restart / fold keys a
-  // skirmish game can now ask for. Only skirmish games pay it; the card build is below.
-  // +174 B (owner-approved, Unreleased): every run locks the page with fizlet/touch (lockTouch on the
-  // whole page plus touch-action: manipulation through the ledger), 21,915 → 22,089 B; budget + the delta.
-  // in the sections it uses). +67 B (21,970 → 22,037) when pad took the exact `hypot` (K5); budget
-  // raised by that delta from 22,016.
-  // in the sections it uses). +53 B (21,970 → 22,023) when board-page's hit took the exact `hypot`
-  // (K5); budget raised by that delta from 22,016.
-  // in the sections it uses). +42 B (21,973 → 22,015, on #107's wake) when input resolved intents
-  // once and took `id()` handles; budget raised by that delta from 22,016 (it fit with 1 B left).
-  ["fizlet/arcade", "src/arcade.ts", 24371],
+  // in the sections it uses). 21,976 B on main before release train 0.20.0, 24,337 B after (+2,361 B;
+  // budget = measured + the 40 B headroom it had). Each rise, measured at its merge in the train:
+  // +2,023 B #116: the skirmish flow on fizlet/match (G15) — match's phase machine, overlay, keys and white
+  //   flag, less the preset's own countdown / pause / result overlays; Auto fire / Next / Restart / fold keys.
+  // +171 B #96: every run locks the page with fizlet/touch (owner-approved).
+  // +18 B #115: sound's own-key cue check (an event named "constructor" crashed render).
+  // +13 B #117: hud finds its rows and text nodes once (an event frame reads no DOM).
+  // +82 B #118 and −9 B #119: pad, then board-page, take steer's exact `hypot` (K5: `Math.hypot`
+  //   boxes its arguments); the second shares the first's code, so together +73 B, not +135.
+  // +57 B #120: input resolves intents once and gives steps `id()` handles.
+  // +6 B #122: the fps cap counts its slot from the frame's start (kernel).
+  ["fizlet/arcade", "src/arcade.ts", 24377],
   // A card game (`hud` left out): the shell and the `arcade` preset, skirmish tree-shaken away.
   // 17,622 B gz with the `hud` option (+311 B: the preset contract, header and nav choice); 17,311
   // in 0.17.0, 17,206 in 0.14.0 (17,081 in 0.13.0, 16,960 in 0.12.1, 16,946 in 0.12.0, 16,731 in
   // 0.11.0), of which arcade's own code, markup and CSS was 6,694 B in 0.12.0. 17,912 B in 0.19.0;
   // 17,964 B once drag() positions in the board's containing block (+52 B, a fix: the card jumped
-  // when the board sat under a header or mid-page). 17,971 B with brick audit 2's drag fix (+7 B);
-  // 18,033 B (+62 B) with the flow contract (Unreleased, G15): the shell's pause, resume and end are
-  // asked of a HUD that owns its flow (`HudView.ask`) and it answers through `HudRun.go`; the card has
-  // no flow, so it behaves byte for byte as before (tests/arcade-hud.mjs).
-  // +181 B for the touch lock (Unreleased; owner-approved): every run locks the page with fizlet/touch.
-  // when the board sat under a header or mid-page). +15 B budget (17,984 → 17,999) for sound's
-  // own-key cue check (brick audit 2, P10: an event named "constructor" crashed render): measured
-  // 17,964 → 17,979 B; with fizlet#103's +7 B, 17,986 B.
-  // when the board sat under a header or mid-page). 18,040 B (+76 B) when pad took the exact `hypot`
-  // (K5); budget raised by that delta from 17,984.
-  // when the board sat under a header or mid-page). 18,024 B (+60 B) when board-page's hit took the
-  // exact `hypot` (K5); budget raised by that delta from 17,984.
-  // when the board sat under a header or mid-page). 18,024 B (+57 B on #107's 17,967) when input
-  // resolved intents once and took `id()` handles; budget raised by that delta from 17,984.
-  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18366],
+  // when the board sat under a header or mid-page). 17,966 B on main before release train 0.20.0,
+  // 18,355 B after (+389 B; budget = measured + the 18 B headroom it had). Each rise, at its merge:
+  // +72 B #116: brick audit 2's drag fix and the flow contract (`HudView.ask` / `HudRun.go`; the
+  //   card has no flow and behaves byte for byte as before, tests/arcade-hud.mjs).
+  // +180 B #96: the touch lock (owner-approved).
+  // +11 B #115: sound's own-key cue check.
+  // +70 B #118 and −6 B #119: pad's and board-page's exact `hypot` (shared code: +64 B together).
+  // +55 B #120: input's intents resolved once, `id()` handles.
+  // +7 B #122: the fps cap counts from the frame's start.
+  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18373],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
   // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B). 4,162 B
-  // (+65 B) when `hit`'s query radius took steer's exact `hypot` (K5, not a plain sqrt); budget
+  // (+65 B, #119) when `hit`'s query radius took steer's exact `hypot` (K5, not a plain sqrt); budget
   // raised by that delta from 4,128.
   ["fizlet/board-page", "src/board-page.ts", 4193],
-  // A hero's live chunk is ≤ 10 KB gz (fizlet-engine docs/LAYERS.md); the bricks take ≤ 7 KB, the scene ≥ 3 KB.
-  ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7168],
+  // A hero's live chunk is ≤ 10 KB gz (fizlet-engine docs/LAYERS.md); the bricks were to take ≤ 7 KB, the
+  // scene ≥ 3 KB. 7,129 B on main before release train 0.20.0, 7,169 B after (+40 B; budget = measured
+  // + the 39 B headroom it had): +35 B #120 (input's intents resolved once), +5 B #122 (the fps cap
+  // counts from the frame's start). Each fit alone; together they pass 7 KB by 1 B, so a hero's scene
+  // now has 2,831 B under the 10 KB chunk (owner to confirm, or shave the bricks back under 7,168).
+  ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7208],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
   ["fizlet/ui (css)", "src/ui/board-ui.css", 5120],
 ];

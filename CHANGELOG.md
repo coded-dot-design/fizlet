@@ -276,6 +276,13 @@
     array: 22 young GCs per 400k sends, now 0. `tests/presence.test.mjs` (fake socket, best of 3).
     fizlet/presence 1,792 → 1,818 B gzip (budget 2,048).
   - `tests/camera.mjs` waits on frames until the engine settles instead of a 2 s wall-clock sleep.
+- **Sizes with release train 0.20.0's changes together** (#116, #103, #96, #113, #115, #114,
+  #117–#122, #111, #105; measured on the integrated branch against main before it; the numbers in
+  the bullets above are each change on its own). fizlet/arcade 21,976 → 24,337 B gzip (budget
+  24,377); the card build 17,966 → 18,355 (budget 18,373); fizlet/board-page 4,097 → 4,162 (4,193);
+  fizlet/pad 1,995 → 2,073 (2,126); the page build 7,129 → 7,169 (budget 7,168 → 7,208: #120's
+  input and #122's kernel fit alone, together they pass 7 KB by 1 B); kernel 3,441 → 3,450. Pad's
+  and board-page's exact `hypot` share code, so arcade rises 73 B for both, not 135.
 
 ## 0.19.0
 
