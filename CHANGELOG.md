@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **Roadmap: E5 (docs for humans and AI) is done.** Docs, guides, release notes, the authoring
+  guide with three recipes, the generated API reference with llms-full.txt, and live kernel stats on
+  DOM VIRUS's Under the Hood (dom-virus#21). `site/roadmap.mjs` and the engine's ROADMAP.md agree
+  (`fe roadmap check`).
 - **Website: docs, guides and news for launch** (fizlet.com is the engine's tech resource; the games
   live on DOM VIRUS). New sections, every number filled in from the build, never typed:
   - `/docs/`: getting started, the contract, the loop, Recall and the ledger, size budgets (every
