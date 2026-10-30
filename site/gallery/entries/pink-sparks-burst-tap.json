@@ -7,28 +7,18 @@
   "kind": "micro",
   "theme": "everyday",
   "author": "chris-cooley",
-  "recipe": "burst",
+  "recipe": "hand-built",
   "bricks": [
     "fizlet/kernel",
-    "fizlet/fx",
     "fizlet/slot"
   ],
-  "pageCost": {
-    "settles": true,
-    "measured": {
-      "chromium": "153.0.8010.12",
-      "framesPlaying": 31,
-      "framesSettled": 0,
-      "framesOffscreen": 0,
-      "recallExact": true,
-      "reducedMotionStill": true,
-      "allocBytesPerFrame": 1.16
-    }
-  },
-  "fizlet": "0.14.0",
-  "made": "fe anim",
-  "module": "anims/pink-sparks-burst-tap.ts",
+  "made": "by hand",
+  "module": "pieces/pink-sparks-burst-tap.ts",
   "export": "mount",
+  "stage": "own",
   "aspect": "16 / 9",
-  "approved": "2026-10-29"
+  "pageCost": {
+    "settles": true
+  },
+  "approved": "2026-10-30"
 }

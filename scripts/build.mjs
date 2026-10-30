@@ -6,7 +6,7 @@ import { cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } 
 import { dirname, join } from "node:path";
 import { checkTokens, readTokenSources } from "./tokens.mjs";
 
-export const ENTRIES = ["src/index.ts", "src/kernel/index.ts", "src/debug.ts", "src/perf.ts", "src/input.ts", "src/collide.ts", "src/fx.ts", "src/camera.ts", "src/sound.ts", "src/embed.ts", "src/slot.ts", "src/grid.ts", "src/sprite.ts", "src/pad.ts", "src/presence.ts", "src/presence-check.ts", "src/hud.ts", "src/match.ts", "src/rules.ts", "src/steer.ts", "src/coach.ts", "src/timeline.ts", "src/css-clock.ts", "src/arcade.ts", "src/board-page.ts", "src/ui/board-ui.ts"];
+export const ENTRIES = ["src/index.ts", "src/kernel/index.ts", "src/debug.ts", "src/perf.ts", "src/input.ts", "src/collide.ts", "src/fx.ts", "src/camera.ts", "src/sound.ts", "src/embed.ts", "src/slot.ts", "src/grid.ts", "src/sprite.ts", "src/pad.ts", "src/presence.ts", "src/presence-check.ts", "src/hud.ts", "src/match.ts", "src/rules.ts", "src/steer.ts", "src/coach.ts", "src/timeline.ts", "src/touch.ts", "src/css-clock.ts", "src/arcade.ts", "src/board-page.ts", "src/ui/board-ui.ts"];
 // tokens.json is the authoritative token source: refuse to build when the CSS or the palette map drifts.
 const drift = checkTokens(readTokenSources());
 if (drift.length) throw new Error(`Board UI tokens disagree with src/ui/tokens.json:\n  ${drift.join("\n  ")}`);

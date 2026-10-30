@@ -181,7 +181,6 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
       return;
     }
   }
-  const faulted = () => phase[0]! >= FAULT_AT && phase[0]! < SCAN_END;
   engine.add({
     step(e, dt) {
       // Paused, or done (the last cycle ended in game mode): no busy(), so the kernel settles.
@@ -204,7 +203,7 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
         }
         if ((COOL[i]! -= dt) <= 0) fire(i);
       }
-      const ghost = faulted(); // a broken collision layer: shells pass through walls
+      const ghost = phase[0]! >= FAULT_AT && phase[0]! < SCAN_END; // a broken collision layer: shells pass through walls
       for (let s = 0; s < SHELLS; s++) {
         if (SL[s]! <= 0) continue;
         SL[s]! -= dt, SX[s]! += SVX[s]! * dt, SY[s]! += SVY[s]! * dt;
