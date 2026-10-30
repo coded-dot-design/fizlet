@@ -1,0 +1,35 @@
+{
+  "no": 55,
+  "id": "haunted-typewriter-types-heading",
+  "date": "2026-10-30",
+  "prompt": "a haunted typewriter types every heading",
+  "title": "A haunted typewriter types every heading",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "type",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/board-page",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 12.82,
+      "elementsLit": 3
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/haunted-typewriter-types-heading.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "page"
+}
