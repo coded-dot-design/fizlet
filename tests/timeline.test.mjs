@@ -142,6 +142,111 @@ test("timeline: play, events, labels, done(); reverse; finish; pause and seek", 
   assert.throws(() => tl.seek(NaN), RangeError);
 });
 
+// Just enough of a page for the engine's auto-pause rules: the tab's visibility and one
+// IntersectionObserver per root. The engine is made inside it; the page is taken away after.
+function onPage(opts) {
+  const on = new Map(), io = [];
+  const doc = { visibilityState: "visible", addEventListener: (type, fn) => on.set(type, fn) };
+  const page = (f) => {
+    const keep = { document: globalThis.document, addEventListener: globalThis.addEventListener, IntersectionObserver: globalThis.IntersectionObserver };
+    Object.assign(globalThis, { document: doc, addEventListener: () => {}, IntersectionObserver: class { constructor(cb) { io.push(cb); } observe() {} disconnect() {} } });
+    try {
+      return f();
+    } finally {
+      Object.assign(globalThis, keep);
+      for (const k in keep) if (keep[k] === undefined) delete globalThis[k];
+    }
+  };
+  return {
+    e: page(() => createEngine({ root: el(), pause: { editable: false }, ...opts })),
+    hidden: (h) => page(() => ((doc.visibilityState = h ? "hidden" : "visible"), on.get("visibilitychange")())),
+    onScreen: (v) => io[0]([{ isIntersecting: v }]),
+  };
+}
+// The scheduler gives a paused engine no frames: only frame while it runs.
+const live = (e, sec) => (e.paused.length ? [] : run(e, sec));
+
+test("timeline: an engine auto-pause suspends it; the engine's resume plays it on (dom-virus#33)", () => {
+  for (const [why, away, back] of [
+    ["off screen", (p) => p.onScreen(false), (p) => p.onScreen(true)],
+    ["hidden tab", (p) => p.hidden(true), (p) => p.hidden(false)],
+    ["stop()", (p) => p.e.stop(), (p) => p.e.start()],
+  ]) {
+    const p = onPage(), e = p.e, out = new Float64Array(1);
+    const tl = timeline(e, { repeat: Infinity }).to(out, { 0: [0, 1] }, { dur: 1, ease: "linear" });
+    e.start();
+    tl.play();
+    run(e, 0.5);
+    away(p);
+    assert.equal(e.paused.length, 1, `${why}: the engine paused`);
+    const t = tl.time;
+    live(e, 0.5);
+    assert.equal(tl.time, t, `${why}: suspended, no steps`);
+    back(p);
+    assert.deepEqual(e.paused, [], `${why}: the engine resumed`);
+    assert.ok(tl.playing, `${why}: still playing`);
+    run(e, 0.5);
+    near(tl.time, t + 0.5, `${why}: it plays on from where it was`);
+    near(out[0], (t + 0.5) % 1, `${why}: and writes`);
+  }
+});
+
+test("timeline: a pause of your own holds through the engine's pause and resume", () => {
+  const p = onPage(), e = p.e, a = el();
+  const tl = timeline(e).to(a, { opacity: [0, 1] }, { dur: 1, ease: "linear" });
+  e.start();
+  tl.play();
+  run(e, 0.3);
+  tl.pause();
+  const t = tl.time;
+  p.onScreen(false), p.hidden(true), e.stop();
+  p.onScreen(true), p.hidden(false), e.start();
+  assert.deepEqual(e.paused, []);
+  run(e, 0.5);
+  assert.equal(tl.time, t, "user-paused: the playhead stays");
+  assert.equal(tl.playing, false);
+  // Paused by you while the engine was away: it stays paused when the engine comes back.
+  tl.play();
+  run(e, 0.1);
+  p.hidden(true);
+  tl.pause();
+  p.hidden(false);
+  const u = tl.time;
+  run(e, 0.3);
+  assert.equal(tl.time, u, "paused during an auto-pause: still paused after it");
+  // A pause hook from another engine's call shape (an event, no argument) is the user's pause.
+  tl.play();
+  [1].forEach(tl.pause);
+  assert.equal(tl.playing, false, "pause() called with anything but its engine is your pause");
+  // Recall and destroy are unchanged: the page comes back, nothing runs after.
+  tl.play();
+  run(e, 0.2);
+  assert.notEqual(a.props.get("opacity"), undefined);
+  e.destroy();
+  assert.equal(a.props.get("opacity"), undefined, "Recall: the inline style is given back");
+  run(e, 0.2);
+  assert.equal(a.props.get("opacity"), undefined, "destroyed: nothing writes");
+});
+
+test("timeline: zero allocation in step across engine pauses and resumes", async (t) => {
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  const p = onPage(), e = p.e, nums = new Float64Array(2);
+  const tl = timeline(e, { repeat: Infinity, yoyo: true }).to(nums, { 0: [0, 1], 1: [5, 9] }, { dur: 0.7, ease: "back" });
+  e.start();
+  tl.play();
+  const work = (n) => {
+    for (let i = 0; i < n; i++) {
+      if (i % 1000 === 0) tl.pause(e);
+      tl.step(e, DT);
+    }
+  };
+  work(20000);
+  gc();
+  const minor = await minorGCs(() => work(200000));
+  assert.ok(minor <= 1, `young-generation GCs over 200k steps with engine pauses: ${minor}`);
+  assert.ok(tl.playing, "the engine's pause hook never stops it");
+});
+
 test("timeline: repeat and yoyo", () => {
   const e = createEngine(), a = el();
   const tl = timeline(e, { repeat: 2, yoyo: true }).to(a, { opacity: [0, 1] }, { dur: 1, ease: "linear" }).label("top", 1);

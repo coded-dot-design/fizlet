@@ -142,6 +142,17 @@
   `overflow: clip`, so the parallaxed field never gives a focus or `scrollIntoView` a hidden
   scroll to move. The site test's `revealAll` and the home rhythm check wait on the reveals' state, not on time.
 
+- **timeline: an engine auto-pause no longer stops it for good** (found in dom-virus#33).
+  `pause()` is also the timeline's `System.pause` hook, so when the engine paused itself (off
+  screen, a hidden tab, `engine.stop()`) the timeline marked itself paused by you and never played
+  on when the engine resumed. Called by its engine, `pause()` now only suspends (no steps while the
+  engine is paused, as before); the timeline plays on from where it was on resume, unless you
+  paused it yourself (your pause holds through any engine pause and resume). Recall, `destroy()`
+  and zero allocation in the step are unchanged. Tests: off screen → back, hidden → visible,
+  `stop()` → `start()`, your pause held, Recall and destroy, zero allocation (Node), and off screen
+  and back with a real IntersectionObserver (Chromium). fizlet/timeline 2,060 → 2,067 B gz
+  (budget 2,304); fizlet/css-clock 5,375 → 5,383 B gz.
+
 ## 0.20.0
 
 - **Gallery: the 7 kept pieces, rebuilt by hand as micro games** (owner approved, 2026-10-30). Each
