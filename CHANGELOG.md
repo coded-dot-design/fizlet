@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.16.1
+
+- **board-page runs in its root's own document and window.** `boardPage(e, { root })` now measures,
+  observes and writes in `root.ownerDocument` (its viewport, `getComputedStyle`, observers, scroll
+  and resize, highlights), so a board inside an iframe's page works. Before, it always used the
+  global `document` and window. Swarm Protocol needs this: its API runs in the document it is given.
+  board-page is 4,095 B gzip (budget 4,096).
+
 ## 0.16.0
 
 - **`board-page.consume(i, "0" | "1")`**: the game picks the digit (its particle and event show the

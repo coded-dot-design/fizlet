@@ -1492,6 +1492,23 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
     out.queuedSurvives = /^[01]ello world$/.test(H.data);
     e2.destroy();
     out.restored2 = snap() === before;
+    // A board in another document (an iframe's page): its letters, its viewport, its Recall.
+    const frame = document.createElement("iframe");
+    frame.style.cssText = "position:fixed;left:0;top:0;width:300px;height:200px;border:0";
+    document.body.append(frame);
+    const fd = frame.contentDocument;
+    fd.body.innerHTML = "<p>Inside frame</p>";
+    const fBefore = fd.documentElement.outerHTML;
+    const e5 = fizlet.createEngine(), b5 = fizlet.boardPage(e5, { root: fd.body });
+    b5.refresh();
+    let fOn = 0;
+    const fCount = b5.glyphs.count;
+    for (let i = 0; i < fCount; i++) if (b5.glyphs.w[i] > 0) fOn++;
+    b5.consume(0, "1");
+    const fText = fd.querySelector("p").textContent;
+    e5.destroy();
+    out.frame = [fCount, fOn, fText, fd.documentElement.outerHTML === fBefore];
+    frame.remove();
     return out;
   });
   // Eligible: "Hello world" 10, "Eat these 42 words" 15, "far below" 8 (off screen) and "hidden text"
@@ -1528,6 +1545,7 @@ ${fig("home#hero", "Sparks over the logo")}<div style="height:3000px"></div>${fi
   assert.deepEqual(board.scroll, [0, 8], "scrolling re-measures: far text comes on screen");
   assert.equal(board.queuedSurvives, true, "a queued write survives a rescan");
   assert.equal(board.restored2, true);
+  assert.deepEqual(board.frame, [11, 11, "1nside frame", true], "a board in an iframe's document: its own letters, viewport and Recall");
 
   where = "board-page allocation";
   // Steady state: frames between refreshes (no time passes) plus near / hit / step. The sampling heap
