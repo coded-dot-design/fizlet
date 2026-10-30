@@ -1,0 +1,20 @@
+{
+  "id": "space-pup-belly-rub-zoomies",
+  "date": "2026-10-30",
+  "prompt": "a space-age pup rolls over for a belly rub: scratch him till he floats, too much and he gets the zoomies",
+  "title": "GOOD BOY",
+  "kind": "micro",
+  "theme": "cartoon-classics",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/space-pup-belly-rub-zoomies.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
