@@ -29,10 +29,10 @@ export const LAUNCH_LAST = "E8";
  * pill ("DONE · 0.1.0"). A planned phase's PLANNED bricks are added to its items by `phases()`.
  */
 export const ROADMAP = [
-  { id: "E0", name: "Baseline and archives", status: "nearly", goal: "Freeze the pre-engine games as the before picture, so every port has numbers to beat.", items: [
+  { id: "E0", name: "Baseline and archives", status: "done", goal: "Freeze the pre-engine games as the before picture, so every port has numbers to beat.", items: [
     [1, "Perf harness: every app under a 4× CPU throttle (Playwright)"],
     [1, "Baseline numbers and commits recorded for all six apps"],
-    [0, "Tag engine-baseline in every repo"],
+    [1, "Tag engine-baseline in every repo"],
     [1, "Battlefield archive selector (versioned paths)"],
     [1, "Hub TEST A RELEASE selector for every game version, the 1.0 engine cuts included"],
   ] },

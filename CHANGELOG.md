@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
+- Roadmap: E0 is done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped, and every app's recorded baseline commit carries the `engine-baseline` and `phase-1` tags (a manual tag workflow in each repo: dom-virus#27, dom-battlefield#23, sherman-bytes#7, byte-runner#7, swarm-protocol#7, null-invaders#8).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
