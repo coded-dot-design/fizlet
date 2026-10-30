@@ -345,6 +345,45 @@ test("sprite: draw allocates nothing once baked", async (t) => {
   assert.equal(minor, 0, `young-generation GCs over 3.2M draws: ${minor}`);
 });
 
+test("input: intents resolve once; id() gives a step a number, and a typo throws at setup", async () => {
+  globalThis.addEventListener ??= () => {};
+  const { createEngine } = await import("../src/index.ts");
+  const { controls } = await import("../src/input.ts");
+  const target = { addEventListener() {}, getBoundingClientRect: () => ({ left: 0, top: 0, width: 100 }) };
+  const e = createEngine();
+  // 64 intents: by name or by number, a lookup is one Map read (no scan of the names).
+  const keys = Object.fromEntries(Array.from({ length: 64 }, (_, i) => ["i" + i, ["Key" + i]]));
+  const c = controls(e, { target, keys: { ...keys, fire: ["Space"], left: ["KeyA"], right: ["KeyD"] } });
+  const FIRE = c.id("fire"), LEFT = c.id("left"), RIGHT = c.id("right");
+  assert.deepEqual([c.id("i0"), c.id("i63"), FIRE, RIGHT], [0, 63, 64, 66]);
+  assert.throws(() => c.id("fier"), /fizlet\/input: no fier/);
+  const seen = [];
+  e.add({ step: () => void seen.push([c.hit(FIRE), c.hit("fire"), c.down(FIRE), c.down("fire"), c.axis(LEFT, RIGHT), c.axis("left", "right")]) });
+  c.press("fire");
+  e.advance(1 / 60);
+  c.press("right");
+  e.advance(1 / 60);
+  c.press("fire", false);
+  e.advance(1 / 60);
+  assert.deepEqual(seen, [
+    [true, true, true, true, 0, 0],
+    [false, false, true, true, 1, 1],
+    [false, false, false, false, 1, 1],
+  ], "a handle and its name read the same");
+  assert.equal(c.down("fier"), false, "a name that is no intent still reads false (no throw in a step)");
+  if (typeof gc === "function") {
+    const n = new Int32Array(1);
+    e.add({ step: () => void (n[0] += +c.hit(FIRE) + +c.down(RIGHT) + c.axis(LEFT, RIGHT, 0)) });
+    for (let i = 0; i < 20000; i++) e.advance(1 / 60);
+    const minor = await minorGCs(() => {
+      for (let i = 0; i < 1000000; i++) e.advance(1 / 60);
+    });
+    console.log(`ℹ input by number over 1M frames (65 intents): ${minor} young GCs`);
+    assert.ok(minor <= 3, `young-generation GCs over 1M frames: ${minor}`); // the bound of the test below
+  }
+  e.destroy();
+});
+
 test("input: hit() and down() in a step allocate nothing", async (t) => {
   if (typeof gc !== "function") return t.skip("needs node --expose-gc");
   // No DOM in node: listeners go nowhere; the step-side API is what's measured (presses and their
