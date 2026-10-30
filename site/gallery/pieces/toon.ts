@@ -6,9 +6,9 @@
 // (anvil, piano, dynamite) and the little gag marks every toon needs (stars, a grawlix, speed
 // lines). Flat Fizlet tokens, whole pixels only.
 import type { SpriteDef } from "../../../src/sprite";
-import { C, print } from "./ink";
+import { C, print } from "./pixel-type";
 
-export { C, print, shout, textW } from "./ink";
+export { C, print, shout, textW } from "./pixel-type";
 
 /** A frame mirrored (facing left). */
 const flip = (rows: string[]) => rows.map((r) => [...r.padEnd(13, ".")].reverse().join(""));
