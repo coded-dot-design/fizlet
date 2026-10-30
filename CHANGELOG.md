@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Gallery: the five how-it-works labs (#042–#046) approved by the owner and live.
 - **Fix: a dragged scoreboard no longer jumps when its board is not the viewport.** `drag()`
   (fizlet/arcade's panel drag, also used by Battlefield Blitz) set `left`/`top` from viewport
   coordinates and replaced the card's whole inline style, so a board under a page header, mid-page
