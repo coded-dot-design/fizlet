@@ -5,6 +5,7 @@ const DEMOS: Record<string, () => Promise<{ default: (host: HTMLElement) => void
   grid: () => import("./demos/grid"),
   sprite: () => import("./demos/sprite"),
   sound: () => import("./demos/sound"),
+  timeline: () => import("./demos/timeline"),
 };
 
 for (const host of document.querySelectorAll<HTMLElement>("[data-brick-demo]")) {
