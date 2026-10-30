@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+- **`@fzlt/core/scene`** (new brick, EXPERIMENTAL, E13; 1,928 B gz of its own, planned at ≤ 2,048;
+  8,369 B with the kernel, fx, sprite and timeline's easings it composes, budget 8,704): an
+  animation recipe as data. A scene is JSON: a **stage** (a pixel grid fitted to the box,
+  background, seeded starfield, shake, `end`, `loop`, an intro `delay`, the reduced-motion
+  `poster` time), a **cast** (sprites, rects, text and lines drawn in order; every value a number,
+  a track `[from, to, at, dur, ease]` on @fzlt/core/timeline's `EASES`, a jump (`dur` 0, numbers or
+  colours) or a blink), **cues** (fx words, kicks and bursts, once each, in order) and **gags**
+  (an fx emitter held open over a window, following a track). `scene(data, { motion })` is a slot
+  mount; `mountScene(stage, data)` returns `{ engine, play, destroy }` and is the engine's system.
+  One canvas through the ledger (Recall exact), the clock moves in the step on numbers only, it
+  rests on the last frame and settles (`engine.busy(sec)` holds it to the end, intro delay
+  included), a tap replays, reduced motion draws the poster and settles.
+  - Tests: `tests/scene.test.mjs` (values, cues, gags, settle, replay, loop, delay, poster, Recall,
+    zero allocation per step, the own-code size, every gallery scene file against the format) and
+    `tests/scene.mjs` in Chromium (below).
+  - Allocation: zero per step, except a gag that follows a track. It hands `fx.emit` a new x and y
+    each step (~32 B), only while its window is open. @fzlt/core/fx's `emit` takes numbers, and the
+    recipe code made the same call.
+  - Status: EXPERIMENTAL (ALPHA in the README) in `site/bricks.mjs` (since 0.28.0, no. 43; snapshot and agent
+    move to 44 and 45), a README row, its brick page; it leaves `PLANNED`, and E13 lists its acceptance
+    items (`E13.scene`, `E13.fe-anim`, `E13.shrink`).
+- **Gallery: two meme micros are scene data, not code.** #38 "a to the moon rocket launches off a
+  button" and #40 "a candle chart pumps then dumps" are `site/gallery/anims/<id>.scene.json`. Same ids,
+  numbers and approvals. The build mounts a `.json` module with @fzlt/core/scene (`entrySource` in
+  `scripts/gallery.mjs`; the settle guard uses it too). Live size, gzip (`buildGallery`): rocket
+  9,158 → 8,999 B (−159), candles 9,162 → 8,913 B (−249). Behaviour is unchanged: in Chromium, both
+  versions run by hand on the same clock and match pixel for pixel on every frame of a play and a tap
+  replay; they settle within a step of each other, the poster is the rest frame, and Recall is exact
+  (`tests/scene.mjs`). #41 laser eyes stays the hand-built piece (#163); "diamond hands" (#39) stays on
+  the recipe code: its words fly on accumulated speed and trigger on contact, which the format does
+  not express yet.
 - **Gallery: Stack it, a hero (pending the owner's approval; its number comes at land time).** Fizlet's bricks, by their real
   names, Board UI colours (the brick catalog's roles) and sizes measured on this build, burst out over
   the stage; a hand stacks kernel, input, sprite, fx and hud onto the pad (each lands with a slam,
