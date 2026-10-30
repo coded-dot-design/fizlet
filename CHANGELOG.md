@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.18.0
 
+- **`fizlet/arcade` canvas fills its root on 2x/zoomed screens** (`width:100%;height:100%`): the backing store is `innerWidth × dpr` with no CSS size, so it drew 1.5–2× too big and game art sat away from the page targets (owner report; from fizlet#60).
 - **Arcade: an array of controls and scoreboards (`hud`)**, the first step of the plan to make
   DOM Battlefield / Blitz the standard game UI. `ArcadeDef` takes `hud`, a preset; each preset is
   its own export, so a game ships only the one it names (BOARD-UI.md §19).

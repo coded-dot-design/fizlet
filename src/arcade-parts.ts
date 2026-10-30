@@ -16,7 +16,7 @@ export const esc = (t: string) => t.replace(/[&<>"']/g, (ch) => `&#${ch.charCode
 export const BASE = `
 :host{all:initial!important;position:fixed!important;inset:0!important;display:block!important;z-index:2147483000!important;pointer-events:none!important}
 .bui{position:absolute;inset:0;background:none;font:500 12px/1.4 ui-monospace,monospace}
-canvas{position:absolute;inset:0;pointer-events:none}
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .bui .msg{position:absolute;left:50%;bottom:max(16px,env(safe-area-inset-bottom));translate:-50% 0;max-width:calc(100% - 24px);pointer-events:none}
 .bui .msg[hidden]{display:none}
 .bui .bui-pad{pointer-events:auto}
