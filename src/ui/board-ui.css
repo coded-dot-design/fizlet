@@ -63,7 +63,7 @@
   --line: #b9b2e3;
   --k-sys-ink: #006e91;
   --k-cmd-ink: #6a3ae6;
-  --k-fire-ink: #d4143a;
+  --k-fire-ink: #c01033;
   color-scheme: light;
 }
 .bui[data-side="1"] {
@@ -255,7 +255,7 @@
 .bui .bui-go { --c: var(--k-go); }
 /* Aim keys at rest are dim (on when pressed): a tinted face, aim-coloured ink. */
 .bui .bui-aim:not([aria-pressed="true"]) {
-  --c: color-mix(in srgb, var(--k-aim) 28%, var(--surface));
+  --c: color-mix(in srgb, var(--k-aim) 18%, var(--surface));
   color: var(--k-aim);
 }
 .bui[data-theme="light"] .bui-aim:not([aria-pressed="true"]) {

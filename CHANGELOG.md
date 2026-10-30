@@ -24,7 +24,9 @@
   3.72 → 4.84:1, on the attack face 4.04 → 5.24:1); the light `--k-sys-ink` is one shade deeper,
   `#006e91` (4.06 → 5.77:1 on white, 3.58 → 5.08:1 on the page); new derived `--k-cmd-deep`
   (command 80% over the rim) under white text: the back tab 3.42 → 4.89:1; the PLAN sticker label is
-  rim ink (4.06 → 5.38:1). Site: the `v0.2` chip sits on `--k-cmd-deep` (3.42 → 4.89:1) and the
+  rim ink (4.06 → 5.38:1); a dim aim key's face is aim at 18% (was 28%) so its `kbd` reads 4.69:1
+  (was 3.86), and the light `--k-fire-ink` is `#c01033` (its `kbd` on the light dim face 4.07 →
+  4.67:1, 5.0:1 on raised). Site: the `v0.2` chip sits on `--k-cmd-deep` (3.42 → 4.89:1) and the
   light `--hl` is `#0b7a54` (4.36 → 5.35:1). Same hues; tokens.json, board-ui.css and BOARD-UI.md
   agree. Measured with abe browse's own contrast check: 0 failures in dark (3 before) and light
   (only the roadmap's large phase numbers remain in light).
