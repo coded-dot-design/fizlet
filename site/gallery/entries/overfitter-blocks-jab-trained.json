@@ -30,5 +30,6 @@
   "made": "fe anim",
   "module": "anims/overfitter-blocks-jab-trained.ts",
   "export": "mount",
-  "aspect": "16 / 9"
+  "aspect": "16 / 9",
+  "approved": "2026-10-30"
 }

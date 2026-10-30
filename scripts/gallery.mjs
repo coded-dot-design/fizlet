@@ -37,6 +37,14 @@ export function contributors(dir = "site/contributors") {
   return Object.fromEntries(list.map((c) => [c.id, c]));
 }
 
+/**
+ * The owner's gate: an entry is live once it carries `approved: "<date>"` (the engine's
+ * `fe anim approve <id>` stamps it). A new `fe anim` entry lands pending (no `approved`) and stays
+ * off the site: no gallery card, index row, bundle, contest entry or people stat until approved.
+ * `fe anim pull <id>` moves it to the archive instead.
+ */
+export const isLive = (e) => typeof e.approved === "string";
+
 /** The entries, checked, newest first (then the highest number first). */
 export function entries({ dir = `${DIR}/entries`, what = "gallery/entries", themeIds = themes().map((t) => t.id), people = contributors() } = {}) {
   const list = readDir(dir, what).map((e) => {
@@ -46,6 +54,7 @@ export function entries({ dir = `${DIR}/entries`, what = "gallery/entries", them
     if (!themeIds.includes(e.theme)) throw new Error(`${at}: theme ${e.theme} has no site/gallery/themes/${e.theme}.json`);
     if (!people[e.author]) throw new Error(`${at}: author ${e.author} has no site/contributors/${e.author}.json`);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(e.date)) throw new Error(`${at}: date ${e.date}`);
+    if (e.approved !== undefined && !(typeof e.approved === "string" && /^\d{4}-\d{2}-\d{2}$/.test(e.approved))) throw new Error(`${at}: approved is the date the owner approved it (YYYY-MM-DD), or unset while pending`);
     if (e.stage === "own") {
       const f = `${DIR}/stages/${e.id}.html`;
       if (!existsSync(f)) throw new Error(`${at}: stage "own" needs ${f}`);
@@ -104,8 +113,10 @@ export function archive({ themeList, people, live }) {
 export async function buildGallery(out) {
   mkdirSync(`${out}/gallery`, { recursive: true });
   const themeList = themes(), people = contributors();
-  const live = entries({ themeIds: themeList.map((t) => t.id), people });
-  const arch = archive({ themeList, people, live });
+  const checked = entries({ themeIds: themeList.map((t) => t.id), people });
+  // Pending entries (not approved yet) are checked like the rest but never built or listed.
+  const live = checked.filter(isLive), pending = checked.filter((e) => !isLive(e));
+  const arch = archive({ themeList, people, live: checked });
   const list = [...live, ...arch.entries];
   const common = { bundle: true, minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning", write: false };
   const gz = (r) => gzipSync(r.outputFiles[0].contents).length;
@@ -123,5 +134,5 @@ export async function buildGallery(out) {
   const index = galleryIndex(live, { pages, people, themeList, loader: gz(loader) });
   writeFileSync(join(out, "gallery", "index.json"), JSON.stringify(index) + "\n");
   const archivePage = { n: 1, path: "gallery/archive/", entries: arch.entries };
-  return { entries: live, loader: gz(loader), themes: themeList, people, pages, index, archive: { ...arch, page: archivePage } };
+  return { entries: live, pending: pending.map((e) => e.id), loader: gz(loader), themes: themeList, people, pages, index, archive: { ...arch, page: archivePage } };
 }

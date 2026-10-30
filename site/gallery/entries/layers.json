@@ -17,5 +17,6 @@
   "module": "../demos/layers/scene.ts",
   "export": "mountSlot",
   "figure": "layers",
-  "link": "demos/layers/"
+  "link": "demos/layers/",
+  "approved": "2026-10-29"
 }
