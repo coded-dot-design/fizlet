@@ -1,0 +1,39 @@
+{
+  "no": 35,
+  "id": "hallucinator-punches-mirage",
+  "date": "2026-10-30",
+  "prompt": "the hallucinator punches a mirage",
+  "title": "The hallucinator punches a mirage",
+  "kind": "micro",
+  "theme": "model-battles",
+  "author": "chris-cooley",
+  "recipe": "fight",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 32,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 41.66,
+      "throttle4x": {
+        "frames": 94,
+        "p95Ms": 2.3,
+        "maxMs": 4.9
+      }
+    }
+  },
+  "fizlet": "0.18.0",
+  "made": "fe anim",
+  "module": "anims/hallucinator-punches-mirage.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}
