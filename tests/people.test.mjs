@@ -19,11 +19,12 @@ const fakeDir = (p) => {
   return d;
 };
 
-test("contributors: one owner first, then the AI agent, then the three house personas", () => {
-  assert.deepEqual(PEOPLE.map((p) => p.id), ["chris-cooley", "quill", "dj-mempool", "frame-zero", "hex-hazel"]);
-  assert.deepEqual(PEOPLE.map((p) => p.kind), ["owner", "agent", "persona", "persona", "persona"]);
+test("contributors: one owner first, then the AI agents, then the three house personas", () => {
+  assert.deepEqual(PEOPLE.map((p) => p.id), ["chris-cooley", "pip", "quill", "dj-mempool", "frame-zero", "hex-hazel"]);
+  assert.deepEqual(PEOPLE.map((p) => p.kind), ["owner", "agent", "agent", "persona", "persona", "persona"]);
   for (const p of PEOPLE.slice(1)) assert.ok(p.handle && !p.url, `${p.id}: a handle, no links`);
-  assert.equal(PEOPLE[1].pronouns, "she/her");
+  assert.equal(PEOPLE.find((p) => p.id === "quill").pronouns, "she/her");
+  assert.equal(PEOPLE.find((p) => p.id === "pip").pronouns, "they/them");
   // The owner's favorite games are his to fill: a KIT: placeholder, never invented.
   assert.ok(PEOPLE[0].favoriteGames.every((g) => g.startsWith("KIT:")), "owner favorites stay a KIT: placeholder until he fills them");
 });
@@ -57,14 +58,14 @@ test("every persona card and page says it is a character, not a real person", ()
 test("every AI agent card and page says it is an AI agent, not a real person; pronouns show on the profile", () => {
   const rows = PEOPLE.map((p) => ({ person: p, stats: { entries: [], count: 0, bytes: 0 } }));
   const line = AGENT_NOTE.replace(/ — /, "</b> — ");
-  assert.equal(peopleIndex({ rows, base: "../" }).split(line).length - 1, 1, "one agent card");
+  assert.equal(peopleIndex({ rows, base: "../" }).split(line).length - 1, PEOPLE.filter((p) => p.kind === "agent").length, "one card per agent");
   for (const r of rows) {
     const html = personPage({ ...r, base: "../../" });
     assert.equal(html.includes(line), r.person.kind === "agent", r.person.id);
     assert.equal(html.includes('class="index">AI AGENT</span>'), r.person.kind === "agent", `${r.person.id}: eyebrow`);
     assert.equal(html.includes(`<span class="ppl-pronouns">${r.person.pronouns}</span>`), !!r.person.pronouns, `${r.person.id}: pronouns`);
   }
-  const bad = (over) => () => contributors(fakeDir({ ...PEOPLE[1], ...over }));
+  const bad = (over) => () => contributors(fakeDir({ ...PEOPLE.find((p) => p.id === "quill"), ...over }));
   assert.throws(bad({ kind: "robot" }), /kind robot/);
   assert.throws(bad({ url: "https://fizlet.com/" }), /an agent has a handle and no url/);
   assert.throws(bad({ pronouns: 3 }), /pronouns is a string/);
