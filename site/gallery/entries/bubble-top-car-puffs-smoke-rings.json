@@ -1,0 +1,20 @@
+{
+  "id": "bubble-top-car-puffs-smoke-rings",
+  "date": "2026-10-30",
+  "prompt": "a space-age bubble-top car zips past houses on stilts above the clouds, puffing smoke rings: tap to swerve, honk or bump a house",
+  "title": "the bubble-top",
+  "kind": "micro",
+  "theme": "cartoon-classics",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/bubble-top-car-puffs-smoke-rings.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
