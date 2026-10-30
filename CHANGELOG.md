@@ -3,7 +3,9 @@
 ## Unreleased
 
 - **CI: the perf job runs weekly too** (Mondays 06:17 UTC, `schedule:` in `ci.yml`; the `check` job
-  skips scheduled runs). Each run uploads `perf-results.json`, kept 90 days.
+  skips scheduled runs). Each run uploads `perf-results.json`, kept 90 days. Each result line (and each
+  over-budget line) is also a GitHub annotation, readable through the API without the artifact, and
+  the machine line carries the load average at the start and end of the run.
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about

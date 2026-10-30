@@ -4,7 +4,7 @@
 //   PERF_SECONDS (default 10)   PERF_THROTTLE (default 4)   PERF_OUT (default perf-results.json)
 //   BLITZ_DIR=<built Blitz dir> also measures Battlefield Blitz (BLITZ_PATH: page inside it, default play/)
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { cpus } from "node:os";
+import { cpus, loadavg } from "node:os";
 import { clicker, fmt, launch, measure, serve } from "./harness.mjs";
 import { allocCheck, demoTarget } from "./alloc.mjs";
 
@@ -12,6 +12,12 @@ const seconds = Number(process.env.PERF_SECONDS ?? 10), throttle = Number(proces
 const budgets = JSON.parse(readFileSync(new URL("./budgets.json", import.meta.url), "utf8"));
 if (!existsSync("site-dist/index.html")) throw new Error("site-dist/ is missing: run `npm run site` first");
 
+// The machine's load at the start and end of the run is part of every result (numbers on a busy
+// machine are not numbers on an idle one). On GitHub Actions each line is also an annotation, so a
+// weekly run can be read through the API without downloading the artifact.
+const load = () => loadavg().map((n) => n.toFixed(2)).join(" ");
+const note = (line) => process.env.GITHUB_ACTIONS && console.log(`::notice title=perf::${line}`);
+const loadStart = load();
 const servers = [], targets = [];
 const site = await serve("site-dist", "/fizlet/");
 servers.push(site);
@@ -38,6 +44,7 @@ try {
     const r = await measure(browser, t, { seconds, throttle });
     results.push(r);
     console.log(fmt(r));
+    note(fmt(r));
     if (r.errors.length) over.push(`${r.name}: page errors: ${r.errors.join("; ")}`);
     const b = budgets[t.name] ?? {};
     for (const [key, max] of Object.entries(b)) {
@@ -52,12 +59,15 @@ try {
   await browser.close();
   for (const s of servers) await s.close();
 }
-const machine = `${cpus()[0]?.model ?? "unknown CPU"} × ${cpus().length}, Chromium ${browser.version()}, ${throttle}× CPU throttle, ${seconds} s`;
+const machine = `${cpus()[0]?.model ?? "unknown CPU"} × ${cpus().length}, Chromium ${browser.version()}, ${throttle}× CPU throttle, ${seconds} s, load ${loadStart} → ${load()}`;
 console.log(`machine  ${machine}`);
+note(`machine  ${machine}`);
+if (alloc) note(`alloc    idle ${alloc.idle.minorGC} minor GC / ${alloc.idle.frames} frames · scripted ${alloc.scripted.minorGC} / ${alloc.scripted.frames}`);
 const out = process.env.PERF_OUT ?? "perf-results.json";
 writeFileSync(out, JSON.stringify({ machine, throttle, seconds, budgets, results, alloc, over, pass: over.length === 0 }, null, 2) + "\n");
 console.log(`report   ${out}`);
 if (over.length) {
   console.error("Over budget:\n  " + over.join("\n  "));
+  for (const o of over) process.env.GITHUB_ACTIONS && console.log(`::error title=perf over budget::${o}`);
   process.exit(1);
 }
