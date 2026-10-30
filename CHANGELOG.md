@@ -26,6 +26,18 @@
 
 ## 0.19.0
 
+- **Gallery archive: noindex, nofollow** (owner: "archive the rest somewhere… but definitely no-follow
+  those pages"). `gallery/archive/` is `noindex,nofollow`, stays out of the sitemap and llms.txt,
+  and the gallery's one quiet link to it is `rel="nofollow"`.
+- **Gallery: the "how it works" labs, #42–#46.** DOM VIRUS's five Under the hood labs move onto
+  Fizlet as scenes in `site/labs/` (one source: the hub vendors them): pool ("One loop. Bounded
+  work.", a real `engine.pool` of 32), Recall ("Recall gives the page back.", the real `Ledger`:
+  each letter a Text node, the game's hits in a ledger whose `restore()` is the RECALL key), duel
+  ("Two Macs, one network."), board ("One host. Two worlds.") and pipeline ("Build once. Ship
+  each."). Each is one engine on the shared clock: read caches layout, step moves state, render
+  writes through the ledger, seeded random; it settles when idle, sleeps off screen, and destroy()
+  gives the figure back exactly. Attract mode plays for 12 s after a visit or the last input.
+  Reduced motion: nothing plays on its own, the keys still work. `tests/labs.mjs` (Chromium).
 - **The fizz: the original can, without the zoom** (owner: "the og ones were good, just the zoom
   needs to be killed"). The 20 × 40 can and its story are back (the 0.18.0 hi-def redraw stays in
   history, to try other cans later; it never shipped in a release), and `fizlet/camera` is out: the card holds still, the side and
