@@ -32,7 +32,7 @@ try {
       const f = (k) => `${k} ${v.live[k]} vs ${v.poster[k]} (+${v.delta[k]}, budget +${cfg.budgets[profName][k]})`;
       const line = `${pg.name.padEnd(6)} ${profName.padEnd(7)} ${f("cls")} · ${f("tapMs")} · ${f("idlePts")}`;
       console.log(line), note("notice", line);
-      const each = (v) => runs.filter((r) => r.variant === v).map((r) => `${r.idlePct}% ${r.rafPerSec} rAF/s (${r.rafBy || "none"}) cls ${r.cls}`).join(" | ");
+      const each = (v) => runs.filter((r) => r.variant === v).map((r) => `${r.idlePct}% ${r.rafPerSec} rAF/s (${r.rafBy || "none"}) cls ${r.cls}${r.shifts ? ` (${r.shifts})` : ""}`).join(" | ");
       note("notice", `${pg.name} ${profName} runs: live ${each("live")} · poster ${each("poster")}`);
     }
   }

@@ -76,7 +76,15 @@ const INIT = () => {
     return pc.raf(cb);
   };
   try {
-    new PerformanceObserver((l) => { for (const e of l.getEntries()) if (!e.hadRecentInput) pc.cls += e.value; })
+    pc.shifts = [];
+    new PerformanceObserver((l) => {
+      for (const e of l.getEntries()) if (!e.hadRecentInput) {
+        pc.cls += e.value;
+        // What moved (for the report): the first source's element, as tag.class.
+        const n = e.sources?.[0]?.node;
+        pc.shifts.push(`${n ? `${n.nodeName?.toLowerCase()}${n.className && typeof n.className === "string" ? "." + n.className.trim().split(/\s+/).join(".") : ""}` : "?"} ${e.value.toFixed(4)} @${Math.round(e.startTime)}ms`);
+      }
+    })
       .observe({ type: "layout-shift", buffered: true });
   } catch {}
   // Tap latency: from the input's own timestamp to the start of the next frame after its handlers.
@@ -138,7 +146,8 @@ export async function measurePage(browser, origin, pg, variant, prof, opts = {})
     }
     const tapList = await page.evaluate(() => window.__pc.taps.slice());
     const cls = await page.evaluate(() => window.__pc.cls);
-    return { variant, cls: +cls.toFixed(4), tapMs: +median(tapList).toFixed(1), idlePct: +idlePct.toFixed(1), rafPerSec: +rafPerSec.toFixed(1), rafBy, taps: tapList.map((t) => +t.toFixed(1)), tapTarget: target.el, errors };
+    const shifts = await page.evaluate(() => window.__pc.shifts.slice(0, 4).join(", "));
+    return { variant, cls: +cls.toFixed(4), tapMs: +median(tapList).toFixed(1), idlePct: +idlePct.toFixed(1), rafPerSec: +rafPerSec.toFixed(1), rafBy, shifts, taps: tapList.map((t) => +t.toFixed(1)), tapTarget: target.el, errors };
   } finally {
     await context.close();
   }
