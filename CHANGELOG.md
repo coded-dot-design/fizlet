@@ -12,6 +12,10 @@
   tighten: demo p50 25 → 20 ms, p95 67 → 34, p99 117 → 34, dropped 45 → 5%, layerize 4 → 3 ms,
   FCP 2,000 → 700 ms, heap 8 → 7 MB, minor GC 10 → 8. Each run, and the rule from median to ceiling,
   is in the file.
+- **Roadmap: E5 (docs for humans and AI) is done.** Docs, guides, release notes, the authoring
+  guide with three recipes, the generated API reference with llms-full.txt, and live kernel stats on
+  DOM VIRUS's Under the Hood (dom-virus#21). `site/roadmap.mjs` and the engine's ROADMAP.md agree
+  (`fe roadmap check`).
 - **Website: a generated API reference for every brick, and `llms-full.txt` (E5).** Each brick page's
   API section now lists every export with its signature, parameters, return type, doc comment and
   status flag, generated at site build time from the published declarations (`dist/*.d.ts`) by the
