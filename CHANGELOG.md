@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **Fix: games with `exactOptionalPropertyTypes` compile again.** `pressCue` (board-ui) and
+  `coach` passed an optional `signal` straight into listener options, which strict consumers (the
+  arcade games) reject; 0.18.0 broke their typecheck. Same runtime, no byte change. `npm run
+  typecheck` now also runs with `exactOptionalPropertyTypes`, so it can't regress.
+
 ## 0.18.0
 
 - **`fizlet/arcade` canvas fills its root on 2x/zoomed screens** (`width:100%;height:100%`): the backing store is `innerWidth × dpr` with no CSS size, so it drew 1.5–2× too big and game art sat away from the page targets (owner report; from fizlet#60).
