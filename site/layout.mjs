@@ -132,6 +132,7 @@ ${body}
         <li><a href="${home}#contract">The contract</a></li>
         <li><a href="${home}bricks/">Kernel and bricks</a></li>
         <li><a href="${home}gallery/">Gallery</a></li>
+        <li><a href="${home}make/">Make one</a></li>
         <li><a href="${home}notes/">Notes</a></li>
         <li><a href="${home}#recall">Recall</a></li>
         <li><a href="${home}#roadmap">Roadmap</a></li>

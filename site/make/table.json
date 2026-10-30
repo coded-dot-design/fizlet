@@ -1,0 +1,409 @@
+{
+  "about": "The fe anim recipe table (fizlet-engine factory/anim.mjs), written by `fe anim export`: the matcher's data, regexes as source text, colours as Board UI token hex (dark). Generated: change the engine, not this file.",
+  "recipes": {
+    "burst": {
+      "scene": "spray",
+      "source": "point",
+      "kind": "spark",
+      "colors": [
+        "flag",
+        "hurt",
+        "advance",
+        "attack"
+      ],
+      "count": 70,
+      "seconds": 0,
+      "gravity": 260,
+      "loop": 2.5,
+      "scale": 1.5,
+      "verbs": "\\b(burst|bursts|bursting|explode|explodes|exploding|pop|pops|popping|blast|blasts|shatter|shatters|smash|smashes|splash|splashes)\\b",
+      "nouns": "\\b(boom|explosion|firework|fireworks|sparkle|sparkles|spark|sparks)\\b"
+    },
+    "rise": {
+      "scene": "spray",
+      "source": "bottom",
+      "kind": "bubble",
+      "colors": [
+        "flag",
+        "sys",
+        "go"
+      ],
+      "count": 40,
+      "seconds": 3,
+      "gravity": 120,
+      "scale": 2,
+      "verbs": "\\b(rise|rises|rising|float|floats|floating|fizz|fizzes|bubbling|drift up|drifts up|up)\\b",
+      "nouns": "\\b(bubble|bubbles|fizzy|soda|steam|smoke|ember|embers)\\b"
+    },
+    "fall": {
+      "scene": "spray",
+      "source": "top",
+      "kind": "confetti",
+      "colors": [
+        "attack",
+        "sys",
+        "hurt",
+        "go",
+        "cmd"
+      ],
+      "count": 50,
+      "seconds": 3,
+      "gravity": 200,
+      "scale": 1,
+      "verbs": "\\b(fall|falls|falling|rains|raining|snows|snowing|drip|drips|dripping|shower|showers|drop|drops|down)\\b",
+      "nouns": "\\b(rain|snow|snowflakes?|rainfall|drizzle)\\b"
+    },
+    "sweep": {
+      "scene": "page",
+      "effect": "sweep",
+      "select": "h1,h2,h3,h4,h5,h6,[data-fizlet-heading]",
+      "colors": [
+        "sys",
+        "flag"
+      ],
+      "count": 3,
+      "seconds": 1.6,
+      "glow": 1.4,
+      "loop": 4,
+      "scale": 1,
+      "verbs": "\\b(sweep|sweeps|sweeping|scan|scans|scanning|lights? up|lighting up|highlights?|highlighting|passes)\\b",
+      "nouns": "\\b(scanline|scanlines|scanner|beam|laser)\\b"
+    },
+    "pool": {
+      "scene": "page",
+      "effect": "pool",
+      "select": "button,[role=button],a.button,a.btn,[data-fizlet-target]",
+      "colors": [
+        "sys",
+        "cmd"
+      ],
+      "count": 70,
+      "seconds": 2,
+      "glow": 1.6,
+      "loop": 3,
+      "scale": 1,
+      "verbs": "\\b(pool|pools|pooling|puddle|puddles|collect|collects|collecting|gather|gathers|gathering)\\b",
+      "nouns": "\\b(puddle|puddles)\\b"
+    }
+  },
+  "select": [
+    [
+      "\\b(headings?|titles?|headlines?)\\b",
+      "h1,h2,h3,h4,h5,h6,[data-fizlet-heading]"
+    ],
+    [
+      "\\b(buttons?|keys?|ctas?)\\b",
+      "button,[role=button],a.button,a.btn,[data-fizlet-target]"
+    ],
+    [
+      "\\b(links?)\\b",
+      "a[href]"
+    ],
+    [
+      "\\b(paragraphs?)\\b",
+      "p,[data-fizlet-text]"
+    ]
+  ],
+  "kinds": {
+    "bubble": {
+      "re": "\\b(bubble|bubbles|bubbling|fizz|fizzes|fizzy|soda)\\b"
+    },
+    "spark": {
+      "re": "\\b(spark|sparks|sparkle|sparkles|firework|fireworks|zap)\\b"
+    },
+    "drip": {
+      "re": "\\b(drip|drips|dripping|drop|drops|droplet|droplets)\\b"
+    },
+    "debris": {
+      "re": "\\b(debris|shatter|shatters|rubble|smash|chunks|shards)\\b"
+    },
+    "confetti": {
+      "re": "\\b(confetti|party|celebrate|celebration)\\b",
+      "def": {
+        "shape": "square",
+        "drag": 1.2,
+        "gravity": 0.5,
+        "angle": -1.5708,
+        "spread": 2.6,
+        "speed": [
+          140,
+          320
+        ],
+        "size": [
+          2,
+          4
+        ],
+        "life": [
+          1.2,
+          2.2
+        ]
+      }
+    },
+    "snow": {
+      "re": "\\b(snow|snows|snowing|snowflake|snowflakes|flurry|flurries)\\b",
+      "def": {
+        "shape": "disc",
+        "drag": 2,
+        "gravity": 0.08,
+        "angle": 1.5708,
+        "spread": 0.8,
+        "speed": [
+          10,
+          40
+        ],
+        "size": [
+          1.5,
+          3
+        ],
+        "life": [
+          3,
+          5
+        ]
+      }
+    },
+    "rain": {
+      "re": "\\b(rain|rains|raining|rainfall|downpour|drizzle)\\b",
+      "def": {
+        "shape": "streak",
+        "drag": 0,
+        "gravity": 1,
+        "angle": 1.5708,
+        "spread": 0.1,
+        "speed": [
+          220,
+          360
+        ],
+        "size": [
+          1,
+          1.5
+        ],
+        "life": [
+          0.8,
+          1.4
+        ]
+      }
+    },
+    "ember": {
+      "re": "\\b(ember|embers|fire|flame|flames|ash)\\b",
+      "def": {
+        "shape": "square",
+        "drag": 1.6,
+        "gravity": -0.25,
+        "angle": -1.5708,
+        "spread": 1.2,
+        "speed": [
+          30,
+          90
+        ],
+        "size": [
+          1,
+          2.5
+        ],
+        "life": [
+          0.9,
+          1.8
+        ]
+      }
+    },
+    "star": {
+      "re": "\\b(star|stars|starry|twinkle|twinkles)\\b",
+      "def": {
+        "shape": "frame",
+        "drag": 2.2,
+        "gravity": 0.2,
+        "angle": 0,
+        "spread": 6.2832,
+        "speed": [
+          80,
+          220
+        ],
+        "size": [
+          3,
+          6
+        ],
+        "life": [
+          0.6,
+          1.2
+        ]
+      }
+    }
+  },
+  "fxBuiltins": {
+    "bubble": "BUBBLE",
+    "spark": "SPARK",
+    "drip": "DRIP",
+    "debris": "DEBRIS_KIND"
+  },
+  "edges": {
+    "bottom": {
+      "angle": -1.5708,
+      "spread": 0.6
+    },
+    "top": {
+      "angle": 1.5708,
+      "spread": 0.5
+    }
+  },
+  "colors": [
+    [
+      "\\brainbow\\b",
+      [
+        "fire",
+        "advance",
+        "hurt",
+        "fallin",
+        "sys",
+        "cmd"
+      ]
+    ],
+    [
+      "\\b(pink|magenta|fuchsia|hot pink)\\b",
+      [
+        "attack"
+      ]
+    ],
+    [
+      "\\b(cyan|blue|aqua|teal|turquoise)\\b",
+      [
+        "sys"
+      ]
+    ],
+    [
+      "\\b(purple|violet|lilac)\\b",
+      [
+        "cmd"
+      ]
+    ],
+    [
+      "\\b(red|crimson)\\b",
+      [
+        "fire"
+      ]
+    ],
+    [
+      "\\b(coral|salmon|rose)\\b",
+      [
+        "aim"
+      ]
+    ],
+    [
+      "\\b(orange|amber)\\b",
+      [
+        "advance"
+      ]
+    ],
+    [
+      "\\b(lime|chartreuse)\\b",
+      [
+        "fallin"
+      ]
+    ],
+    [
+      "\\b(green|mint|emerald)\\b",
+      [
+        "go"
+      ]
+    ],
+    [
+      "\\b(white|silver|pale)\\b",
+      [
+        "flag"
+      ]
+    ],
+    [
+      "\\b(yellow|gold|golden)\\b",
+      [
+        "hurt"
+      ]
+    ]
+  ],
+  "amount": [
+    [
+      "\\b(lots|many|tons|loads|wild|crazy|massive|thousands?|heaps|storm)\\b",
+      2
+    ],
+    [
+      "\\b(few|gentle|gently|soft|softly|calm|light|quiet|subtle)\\b",
+      0.5
+    ]
+  ],
+  "scale": [
+    [
+      "\\b(big|huge|giant|chunky|large)\\b",
+      1.5
+    ],
+    [
+      "\\b(tiny|small|little|fine)\\b",
+      0.7
+    ]
+  ],
+  "loop": "\\b(loop|loops|looping|forever|always|endless|endlessly|ambient|constant|constantly|keeps)\\b",
+  "tap": "\\b(tap|taps|tapped|tapping|click|clicks|clicked|touch|touches|press|presses|hover|hovers|hovered|hovering)\\b",
+  "stop": [
+    "a",
+    "an",
+    "the",
+    "of",
+    "with",
+    "and",
+    "that",
+    "on",
+    "in",
+    "from",
+    "over",
+    "to",
+    "into",
+    "across",
+    "for",
+    "where",
+    "when",
+    "you",
+    "my",
+    "your",
+    "its",
+    "it",
+    "is",
+    "are",
+    "as",
+    "at",
+    "by",
+    "every",
+    "each",
+    "all",
+    "then",
+    "this",
+    "these",
+    "they",
+    "them",
+    "which",
+    "while"
+  ],
+  "bricks": {
+    "spray": [
+      "fizlet/kernel",
+      "fizlet/fx",
+      "fizlet/slot"
+    ],
+    "page": [
+      "fizlet/kernel",
+      "fizlet/board-page",
+      "fizlet/slot"
+    ]
+  },
+  "defaultRecipe": "burst",
+  "tokens": {
+    "sys": "#19f0ff",
+    "cmd": "#9a63ff",
+    "fire": "#ff2b4e",
+    "aim": "#ff7389",
+    "attack": "#ff2e88",
+    "advance": "#ff8a1f",
+    "fallin": "#a8ff3e",
+    "flag": "#f6f3ff",
+    "go": "#39ffb0",
+    "teamA": "#39ffb0",
+    "teamB": "#ff5c8f",
+    "hurt": "#ffc21a",
+    "critical": "#f0506e"
+  }
+}

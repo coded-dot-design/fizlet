@@ -22,7 +22,7 @@ const pageFigure = (e) =>
   `<b class="gal-mini-h2" data-fizlet-heading>Recall gives it back</b></span>` +
   `<span class="ae-slot__placeholder gal-cap" aria-hidden="true">“${esc(e.prompt)}”</span></figure>`;
 
-export function galleryPage({ entries, loader, figures, base }) {
+export function galleryPage({ entries, loader, figures, snippets = {}, base }) {
   const cards = entries.map((e) => {
     const fig = (figures[e.figure] ?? (e.stage === "page" ? pageFigure : plainFigure)(e)).replace("<figure ", `<figure data-gallery="${esc(e.id)}" `);
     const measured = e.pageCost?.measured;
@@ -39,6 +39,7 @@ export function galleryPage({ entries, loader, figures, base }) {
         <p class="gal-prompt"><span class="bui-label">${e.made === "fe anim" ? "PROMPT" : "BRIEF"}</span> “${esc(e.prompt)}”</p>
         <ul class="gal-cost" aria-label="What it costs the page">${cost}</ul>
         <p class="gal-bricks">${e.bricks.map((b) => `<code>${esc(b)}</code>`).join(" ")}</p>
+        ${snippets[e.id] ? `<p class="gal-keys"><a class="bui-key bui-arcade bui-go" href="${base}gallery/${esc(snippets[e.id].file)}" download="fizlet-${esc(e.id)}.html" data-snippet="${esc(e.id)}">${icon("down", 16)}Get the snippet</a><span>one drop-in file, <b>${fmt(snippets[e.id].size)} B</b> gzip · <a href="${base}make/?p=${encodeURIComponent(e.prompt)}">change the prompt</a></span></p>` : ""}
         ${e.link ? `<p><a class="gal-link" href="${base}${esc(e.link)}">${icon("out", 16)}See it on its own page</a></p>` : ""}
       </div>
     </li>`;
@@ -49,7 +50,7 @@ export function galleryPage({ entries, loader, figures, base }) {
     <div class="section-head">
       <p class="eyebrow"><span class="index">${entries.length}</span> ANIMATIONS · NEWEST FIRST</p>
       <h1 id="gal-title">One prompt.<br><em>One animation.</em></h1>
-      <p class="lead">A new animation from a simple prompt, made from Fizlet bricks. Each one shows the prompt it was made from, runs live once it nears the screen, and wears its size, measured on this build. Still once it settles, asleep off screen, and the page always comes back. By <a href="https://coded.design/">Chris Cooley</a>.</p>
+      <p class="lead">A new animation from a simple prompt, made from Fizlet bricks. Each one shows the prompt it was made from, runs live once it nears the screen, and wears its size, measured on this build. Still once it settles, asleep off screen, and the page always comes back. Take any of them home as one file, or <a href="${base}make/">make your own</a>. By <a href="https://coded.design/">Chris Cooley</a>.</p>
     </div>
     <ol class="gal" reversed>
     ${cards}

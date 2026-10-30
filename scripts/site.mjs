@@ -16,6 +16,8 @@ import { notePage, notesIndex, noteLd } from "../site/pages/notes.mjs";
 import { notes as loadNotes, notePath } from "./notes.mjs";
 import { playFigure } from "../site/pages/index.mjs";
 import { buildGallery } from "./gallery.mjs";
+import { buildMake, snippetFor, TABLE as MAKE_TABLE } from "./make.mjs";
+import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
 import { BRICKS, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
@@ -28,6 +30,7 @@ rmSync(OUT, { recursive: true, force: true });
 mkdirSync(`${OUT}/examples`, { recursive: true });
 mkdirSync(`${OUT}/bricks`, { recursive: true });
 mkdirSync(`${OUT}/gallery`, { recursive: true });
+mkdirSync(`${OUT}/make`, { recursive: true });
 const NOTES = loadNotes();
 for (const n of NOTES) mkdirSync(`${OUT}/${notePath(n)}`, { recursive: true });
 
@@ -74,6 +77,11 @@ const fizz = { figure: fizzFigure, sizes: fizzSizes };
 // The gallery: one bundle per entry, each measured here (its size badge). The story demos keep
 // their own posters as their figures; the blast demo waits in a <template> until its slot mounts.
 const gallery = await buildGallery(OUT);
+// Make one (/make/): the templates, its script, the default prompt's snippet (the page works before
+// any script runs) and a snippet for every gallery entry made from a prompt ("Get the snippet").
+const make = await buildMake(OUT, { version, entries: gallery.entries });
+const defaultSnippet = await snippetFor(DEFAULT_PROMPT, { version, templates: make.templates });
+writeFileSync(`${OUT}/make/default.snippet.txt`, defaultSnippet.text);
 const figures = {
   layers: L.poster("gallery#layers"),
   fizz: fizzFigure.replace('data-slot-target="fizz#hero"', 'data-slot-target="gallery#fizz"').replace('<figure class="ae-slot ae-slot--16x10"', '<figure class="ae-slot ae-slot--16x10 gal-fig"'),
@@ -136,7 +144,12 @@ const pages = [
   ["gallery/index.html", page({
     title: "Gallery: one prompt, one animation · Fizlet",
     description: `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by Chris Cooley).`,
-    base: "../", version, path: "gallery/", body: `<style>${layers.css}</style>` + galleryPage({ entries: gallery.entries, loader: gallery.loader, figures, base: "../" }), scripts: ["site.js", "gallery/gallery.js"],
+    base: "../", version, path: "gallery/", body: `<style>${layers.css}</style>` + galleryPage({ entries: gallery.entries, loader: gallery.loader, figures, snippets: make.snippets, base: "../" }), scripts: ["site.js", "gallery/gallery.js"],
+  })],
+  ["make/index.html", page({
+    title: "Make one: a prompt in, a snippet out · Fizlet",
+    description: `Type a prompt, get a drop-in Fizlet animation: one file, only the bricks it uses, its size measured in your browser. No server, no tracking.`,
+    base: "../", version, path: "make/", body: makePage({ made: defaultSnippet, script: make.script, recipes: Object.keys(MAKE_TABLE.recipes), base: "../" }), scripts: ["site.js", "make/make.js"],
   })],
   ["notes/index.html", page({
     title: "Notes: what the games taught the engine · Fizlet",
