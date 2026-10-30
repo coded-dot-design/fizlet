@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **`PERF-LOG.md`: every perf win, one measured line each.** Generated from `tests/perf/wins.json`
+  by `node scripts/perf-log.mjs --write` (never by hand); each row has before → after, how it was
+  measured, the test that holds it and the PR. First entries (0.19.0, #67): the fps cap caps rAF
+  (home at 1440, 119.6 → 28.5 rAF/s) and the demo settles (60.4 → 0 rAF/s). `tests/perf-log.test.mjs`
+  fails when the log is stale or an entry has no measured number, PR or test.
 - Gallery: the five how-it-works labs (#042–#046) approved by the owner and live.
 - **Fix: a dragged scoreboard no longer jumps when its board is not the viewport.** `drag()`
   (fizlet/arcade's panel drag, also used by Battlefield Blitz) set `left`/`top` from viewport
