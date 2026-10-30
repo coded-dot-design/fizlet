@@ -94,11 +94,13 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
       <div class="bp-sizes">${sizeCards(brick, sizes)}<p class="bp-note">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>
     </div>
     ${demo}
+    ${brick.card ? `<div class="bp-card">${brick.card(`bricks/${brick.id}`)}</div>` : ""}
     ${statusPanel(brick)}
     <div class="bp-use">
       <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>MODULES</b> · hosted on this site</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(esm)}</code></pre></div>
       <div class="panel code-card bp-npm"><div class="code-head"><span class="bui-label"><b>NPM</b> · <span class="soon-tag">COMING SOON</span></span></div><pre class="code"><code>${esc(`npm install fizlet   # not published yet\n${npm}`)}</code></pre></div>
     </div>
+    ${brick.example ? `<div class="panel code-card bp-snippet"><div class="code-head"><span class="bui-label"><b>EXAMPLE</b> · typechecked against v${esc(version)}</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(brick.example)}</code></pre></div>` : ""}
     ${brick.snippet ? `<div class="panel code-card bp-snippet"><div class="code-head"><span class="bui-label"><b>IN SHORT</b></span></div><pre class="code"><code>${esc(brick.snippet)}</code></pre></div>` : ""}
     <div class="bp-api" id="api">
       <h2>API</h2>
@@ -129,6 +131,7 @@ export function bricksIndex({ bricks, sizes, version, planned = [] }) {
     return `<li class="panel brick" style="--tone: var(--k-${b.role})">
         <div class="brick-top"><span class="brick-tag">${esc(b.tag)}</span>${statusPill(b.status)}<span class="brick-size"><b>${kb(s.gzip)} KB</b><small> / ${kb(s.budget)} KB gzip</small></span></div>
         <h2><a href="${b.id}.html"><code>${esc(b.name)}</code></a></h2>
+        ${b.card ? b.card("bricks") : ""}
         <p>${prose(b.summary)}</p>
       </li>`;
   }).join("\n      ");
