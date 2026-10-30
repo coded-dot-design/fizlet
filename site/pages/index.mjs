@@ -135,11 +135,11 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
   const bricks = catalog.map((b, i) => {
     const s = size(b.sizes[0]);
     const extra = b.id === "ui" ? ` + ${kb(css.gzip)} KB css` : "";
+    // Compact on the home page: the snippet and the whole API live on each brick's own page.
     return `<li class="panel brick${i === 0 ? " lit kernel" : ""}" style="--tone: var(--k-${b.role})">
         <div class="brick-top"><span class="brick-tag">${b.tag}</span><span class="brick-size"><b>${kb(s.gzip)} KB</b>${extra}<small> / ${kb(s.budget)} KB gzip</small></span></div>
         <h3><a href="bricks/${b.id}.html"><code>${b.name}</code></a></h3>
         <p>${esc(b.summary)}</p>
-        ${b.snippet ? code(b.snippet) : ""}
         <span class="meter" aria-hidden="true"><i style="--v:${(s.gzip / s.budget).toFixed(3)}"></i></span>
       </li>`;
   }).join("\n      ");
@@ -177,7 +177,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
     <div class="hero-copy">
       <p class="eyebrow"><span class="dot"></span>MICRO GAME ENGINE <span>/</span> <b>FOR THE DOM</b></p>
       <h1 id="hero-title">The page<br><em>is the board.</em></h1>
-      <p class="byline">by <a href="${AUTHOR}">Chris Cooley</a></p>
+      <p class="byline">by <a href="${AUTHOR}">Chris Cooley ↗</a></p>
       <p class="lead">Fizlet is a tiny game engine that plays on the page you already have: one shared loop, bounded everything, and the page always comes back exactly as it was. The kernel is <b>${kb(kernel.gzip)} KB</b> gzipped. No runtime dependencies, ever.</p>
       <div class="hero-keys">
         <a class="bui-key bui-arcade bui-go" href="#start">${icon("play", 16)}Quick start</a>
@@ -209,8 +209,13 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
   </div>
 </section>
 
+<!-- ON THIS PAGE: one jump per numbered section (the long page's own table of contents) -->
+<nav class="page-toc" aria-label="On this page">
+  <div class="wrap"><span class="bui-label"><b>ON THIS PAGE</b></span><ol><li><a href="#contract"><b>01</b>Contract</a></li><li><a href="#bricks"><b>02</b>Bricks</a></li><li><a href="#board"><b>03</b>The board</a></li><li><a href="#loop"><b>04</b>The loop</a></li><li><a href="#recall"><b>05</b>Recall</a></li><li><a href="#specs"><b>06</b>Specs</a></li><li><a href="#ship"><b>07</b>Ship</a></li><li><a href="#games"><b>08</b>Games</a></li><li><a href="#roadmap"><b>09</b>Roadmap</a></li><li><a href="#start"><b>10</b>Quick start</a></li></ol></div>
+</nav>
+
 <!-- PLAY: the live board, running on Fizlet itself -->
-<section id="play" class="section" aria-labelledby="play-title">
+<section id="play" class="section" data-reveal aria-labelledby="play-title">
   <div class="wrap split">
     <div>
       <p class="eyebrow"><span class="index">▶</span> BLAST IT · RECALL IT</p>
@@ -222,14 +227,13 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 </section>
 
 <!-- THE NAME: the origin story (owner-stated), and the slot for the soda-can fizz scene -->
-<section id="story" class="section" aria-labelledby="story-title">
+<section id="story" class="section" data-reveal aria-labelledby="story-title">
   <div class="wrap split">
     <div>
       <p class="eyebrow"><span class="index">FZ</span> THE NAME</p>
       <h2 id="story-title">Crack the can.<br><em>Hear the fizz.</em></h2>
       <p class="lead"><b>-let</b>, as in applet: a very small app with one job. <b>Fiz-</b>, from the old soda commercial: a can cracks, the shot zooms in on the bubbles and the drip running down the side.</p>
-      <p class="body">That shot looks expensive. Up close the fizz is full of detail, the kind of thing you'd reach for a heavy animation library to make. You don't need much to make it, though. That's the whole point: motion that looks complex, a tiny footprint, and the page as the stage.</p>
-      <p class="body">It started with DOM VIRUS: small games with a few characters, running right inside a page, changing the DOM itself and then giving it back. The bar for every brick since is simple: do one thing well, and fit with everything around it.</p>
+      <p class="body">Motion that looks complex, a tiny footprint, and the page as the stage. <a href="demos/fizz/#fz-story">The whole story of the name</a>.</p>
     </div>
     <!-- The soda-can fizz scene (site/demos/fizz/): its own figure and poster; demos/fizz/main.js mounts it. -->
     <div class="fizz-slot" data-demo-host>
@@ -241,7 +245,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 </section>
 
 <!-- THE PAGE PROFILE -->
-<section id="profile" class="section" aria-labelledby="profile-title">
+<section id="profile" class="section" data-reveal aria-labelledby="profile-title">
   <div class="wrap split">
     <div>
       <p class="eyebrow"><span class="index">00</span> HEROES AND DIAGRAMS · THE PAGE PROFILE</p>
@@ -265,7 +269,9 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 </section>
 
 <!-- 01 THE CONTRACT -->
-<section id="contract" class="section" aria-labelledby="contract-title">
+<section id="contract" class="section" data-reveal aria-labelledby="contract-title">
+  <span class="sec-rule" aria-hidden="true"></span>
+  <span class="sec-num" aria-hidden="true">01</span>
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow"><span class="index">01</span> WHY · THE CONTRACT</p>
@@ -279,14 +285,16 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 </section>
 
 <!-- 02 KERNEL + BRICKS -->
-<section id="bricks" class="section" aria-labelledby="bricks-title">
+<section id="bricks" class="section" data-reveal aria-labelledby="bricks-title">
+  <span class="sec-rule" aria-hidden="true"></span>
+  <span class="sec-num" aria-hidden="true">02</span>
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow"><span class="index">02</span> KERNEL + BRICKS</p>
       <h2 id="bricks-title">Take only<br><em>what you need.</em></h2>
-      <p class="lead">One small kernel and a box of bricks, each its own import with its own budget. Sizes are measured on this build: minified, gzipped, with everything each one pulls in. Each brick has a page with its whole API.</p>
+      <p class="lead">One small kernel and a box of bricks, each its own import with its own budget. Sizes are measured on this build: minified, gzipped, with everything each one pulls in. Each brick has a page with a snippet, its whole API and, for most, a live demo.</p>
     </div>
-    <ul class="bricks">
+    <ul class="bricks compact">
       ${bricks}
     </ul>
     <div class="split-keys"><a class="bui-key bui-arcade bui-sys" href="bricks/">${icon("grid", 16)}Every brick, every export</a></div>
@@ -294,7 +302,9 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 </section>
 
 <!-- 03 THE PAGE BECOMES THE BOARD -->
-<section id="board" class="section" aria-labelledby="board-title">
+<section id="board" class="section" data-reveal aria-labelledby="board-title">
+  <span class="sec-rule" aria-hidden="true"></span>
+  <span class="sec-num" aria-hidden="true">03</span>
   <div class="wrap split">
     <div>
       <p class="eyebrow"><span class="index">03</span> THE PAGE BECOMES THE BOARD</p>
@@ -311,7 +321,9 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 </section>
 
 <!-- 04 ONE LOOP. BOUNDED WORK. -->
-<section id="loop" class="section" aria-labelledby="loop-title">
+<section id="loop" class="section" data-reveal aria-labelledby="loop-title">
+  <span class="sec-rule" aria-hidden="true"></span>
+  <span class="sec-num" aria-hidden="true">04</span>
   <div class="wrap split flip">
     <div>
       <p class="eyebrow"><span class="index">04</span> A FRAME, NOT A FREE-FOR-ALL</p>
@@ -330,7 +342,9 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 </section>
 
 <!-- 05 RECALL -->
-<section id="recall" class="section" aria-labelledby="recall-title">
+<section id="recall" class="section" data-reveal aria-labelledby="recall-title">
+  <span class="sec-rule" aria-hidden="true"></span>
+  <span class="sec-num" aria-hidden="true">05</span>
   <div class="wrap split">
     <div>
       <p class="eyebrow"><span class="index">05</span> THE PART WE CARE ABOUT MOST</p>
@@ -352,7 +366,9 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 </section>
 
 <!-- 06 SPEC SHEET -->
-<section id="specs" class="section" aria-labelledby="specs-title">
+<section id="specs" class="section" data-reveal aria-labelledby="specs-title">
+  <span class="sec-rule" aria-hidden="true"></span>
+  <span class="sec-num" aria-hidden="true">06</span>
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow"><span class="index">06</span> SPEC SHEET</p>
@@ -368,7 +384,9 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 </section>
 
 <!-- 07 BUILD ONCE. SHIP EACH. -->
-<section id="ship" class="section" aria-labelledby="ship-title">
+<section id="ship" class="section" data-reveal aria-labelledby="ship-title">
+  <span class="sec-rule" aria-hidden="true"></span>
+  <span class="sec-num" aria-hidden="true">07</span>
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow"><span class="index">07</span> INDEPENDENT PACKAGES · SHARED FOUNDATIONS</p>
@@ -380,7 +398,9 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 </section>
 
 <!-- 08 GAMES -->
-<section id="games" class="section" aria-labelledby="games-title">
+<section id="games" class="section" data-reveal aria-labelledby="games-title">
+  <span class="sec-rule" aria-hidden="true"></span>
+  <span class="sec-num" aria-hidden="true">08</span>
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow"><span class="index">08</span> BUILT ON FIZLET</p>
@@ -400,8 +420,8 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
         </ul>
         <p class="game-uses">Built on <code>fizlet</code> · <code>input</code> · <code>collide</code> · <code>fx</code> · <code>sound</code> · <code>embed</code> · <code>ui</code></p>
         <div class="game-keys">
-          <a class="bui-key bui-arcade bui-attack" href="${BLITZ}play/">${icon("play", 16)}Play Blitz</a>
-          <a class="bui-key bui-arcade bui-sys" href="${BLITZ}">${icon("book", 16)}About Blitz</a>
+          <a class="bui-key bui-arcade bui-attack" href="${BLITZ}play/">${icon("play", 16)}Play Blitz ↗</a>
+          <a class="bui-key bui-arcade bui-sys" href="${BLITZ}">${icon("book", 16)}About Blitz ↗</a>
         </div>
       </article>
       <article class="panel game">
@@ -421,12 +441,14 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 </section>
 
 <!-- 09 ROADMAP -->
-<section id="roadmap" class="section" aria-labelledby="roadmap-title">
+<section id="roadmap" class="section" data-reveal aria-labelledby="roadmap-title">
+  <span class="sec-rule" aria-hidden="true"></span>
+  <span class="sec-num" aria-hidden="true">09</span>
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow"><span class="index">09</span> ROADMAP · E0 TO E6</p>
       <h2 id="roadmap-title">What's done.<br><em>What's left.</em></h2>
-      <p class="lead">The plan of record is <a href="${ENGINE_PLAN}">ENGINE.md</a> in the DOM VIRUS repo. The kernel is done, the first bricks shipped with Blitz, and the rest of E2 is next.</p>
+      <p class="lead">The plan of record is <a href="${ENGINE_PLAN}">ENGINE.md ↗</a> in the DOM VIRUS repo. The kernel is done, the first bricks shipped with Blitz, and the rest of E2 is next.</p>
     </div>
     <ol class="roadmap">
       ${roadmap}
@@ -435,7 +457,9 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 </section>
 
 <!-- 10 QUICK START -->
-<section id="start" class="section" aria-labelledby="start-title">
+<section id="start" class="section" data-reveal aria-labelledby="start-title">
+  <span class="sec-rule" aria-hidden="true"></span>
+  <span class="sec-num" aria-hidden="true">10</span>
   <div class="wrap start">
     <div class="start-head">
       <p class="eyebrow"><span class="index">10</span> QUICK START</p>
@@ -448,7 +472,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
       </ol>
       <div class="split-keys">
         <a class="bui-key bui-arcade bui-go" href="examples/quick-start.html">${icon("play", 16)}Run the example</a>
-        <a class="bui-key bui-arcade bui-sys" href="${REPO}#readme">${icon("book", 16)}Read the API</a>
+        <a class="bui-key bui-arcade bui-sys" href="${REPO}#readme">${icon("book", 16)}Read the API on GitHub ↗</a>
       </div>
     </div>
     <div class="start-code">
@@ -463,15 +487,15 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 </section>
 
 <!-- FINAL -->
-<section class="section final" aria-labelledby="final-title">
+<section class="section final" data-reveal aria-labelledby="final-title">
   <div class="wrap final-inner">
     <p class="eyebrow">MIT · NO DEPENDENCIES · V${esc(version)}</p>
     <h2 id="final-title">Make the page play.</h2>
     <div class="final-keys">
       <a class="bui-key bui-arcade bui-go" href="#start">${icon("play", 16)}Quick start</a>
-      <a class="bui-key bui-arcade bui-sys" href="${REPO}">${icon("github", 16)}Source on GitHub</a>
+      <a class="bui-key bui-arcade bui-sys" href="${REPO}">${icon("github", 16)}Source on GitHub ↗</a>
     </div>
-    <p class="final-links"><a href="${REPO}/blob/main/CHANGELOG.md">Changelog</a> · <a href="${ENGINE_PLAN}">Engine plan</a> · <a href="${HUB}">DOM VIRUS</a> · <a href="${BATTLEFIELD}">DOM Battlefield</a></p>
+    <p class="final-links"><a href="${REPO}/blob/main/CHANGELOG.md">Changelog ↗</a> · <a href="${ENGINE_PLAN}">Engine plan ↗</a> · <a href="${HUB}">DOM VIRUS ↗</a> · <a href="${BATTLEFIELD}">DOM Battlefield ↗</a></p>
   </div>
 </section>
 `;

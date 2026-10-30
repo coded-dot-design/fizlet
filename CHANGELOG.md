@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+- **Site: the home page reads shorter, and every link follows the site nav rules.** The sections
+  below the fold reveal as they come on screen: a divider draws in, then the head and the panels
+  stagger up. The hero grid and a big ghost number per numbered section drift with a light
+  parallax. All of it runs on Fizlet itself (`site/home-motion.ts`: one settling engine and
+  `fizlet/timeline`, with parallax as paused timelines scrubbed by `seek()`). It moves only opacity,
+  scale and translate, so there is no layout shift. It is still once the scroll stops,
+  hides nothing without JS, and does nothing under reduced motion. The home brick cards are now
+  compact: each snippet lives on its brick page, and the name's long story moved to `demos/fizz/`.
+  The home page is 13,578 px tall at 1440 (was 15,756) and 22,884 px at 390 (was 27,063). An
+  "On this page" strip jumps to each numbered section. Nav: the header lists the top-level pages
+  (Notes and Contest added; Recall and Games now live in the strip). Header and
+  footer links show where you are (`aria-current`). Every deep page has breadcrumbs (`crumbs()`
+  in `site/layout.mjs`). External links end in ↗, and the footer reaches every section, demos
+  included, so `examples/fizz/` is no longer an orphan. `scripts/check-nav.mjs` checks these rules
+  on every build in `npm run test:site`, with unit tests in `tests/check-nav.test.mjs`. The site
+  test also checks the reveals, reduced motion, settling and layout shift.
+
 - **Fix: a dragged scoreboard no longer jumps when its board is not the viewport.** `drag()`
   (fizlet/arcade's panel drag, also used by Battlefield Blitz) set `left`/`top` from viewport
   coordinates and replaced the card's whole inline style, so a board under a page header, mid-page

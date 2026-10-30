@@ -12,6 +12,7 @@ import { extname, join, normalize } from "node:path";
 import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
 import { checkHtml } from "../scripts/check-html.mjs";
+import { checkNav } from "../scripts/check-nav.mjs";
 import { SITE, ROOT as SITE_ROOT } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
@@ -59,6 +60,17 @@ const measured = async () => (sizeCache ??= await measure());
 const browser = await chromium.launch(launchOptions());
 const shots = process.env.SITE_SHOTS;
 let where = "start";
+
+// The home page's sections reveal as they come on screen (site/home-motion.ts). The key checks
+// press a key right after scrolling to it, so let every reveal play out first (a key mid-reveal moves).
+async function revealAll(page) {
+  if (!(await page.$("section[data-reveal]"))) return;
+  await page.evaluate(async () => {
+    for (let y = 0; y < document.documentElement.scrollHeight; y += 400) scrollTo(0, y), await new Promise((r) => setTimeout(r, 30));
+    scrollTo(0, 0);
+  });
+  await page.waitForTimeout(1200);
+}
 
 async function open(context, path) {
   const page = await context.newPage();
@@ -117,6 +129,11 @@ try {
   }
   assert.ok(robots.includes(`Sitemap: ${SITE}sitemap.xml`) && /User-agent: \*\nAllow: \//.test(robots), "robots.txt admits crawlers and names the sitemap");
   assert.equal(await status(`${BASE}og.png`), 200, "the social card");
+  // Site nav rules (scripts/check-nav.mjs): one header, an active state, breadcrumbs on deep pages,
+  // external links marked ↗, descriptive link text, no orphan pages. The two standalone example
+  // pages keep their own plain shell (the same ones the landmark gate lists).
+  where = "site nav";
+  assert.deepEqual(checkNav(PAGES.map((path) => ({ path, html: readFileSync(fileOf(path), "utf8") })), { site: SITE, standalone: Object.keys(KNOWN) }), [], "site nav rules");
 
   // ---------- Brick pages: the sizes are the ones measured on this build ----------
   where = "brick sizes";
@@ -213,7 +230,7 @@ try {
       assert.ok(PAGES.includes(notePath(n)), `${n.slug}: built at ${notePath(n)}`);
       const html = readFileSync(`${ROOT}/${notePath(n)}index.html`, "utf8");
       assert.ok(html.includes(`data-bytes="${kernel.gzip}" data-live="size:${kernel.name}"`), `${n.slug}: the kernel badge shows ${kernel.gzip} B, measured on this build`);
-      assert.match(html, /<p class="note-by">By <a href="https:\/\/coded\.design\/">Chris Cooley<\/a>/, `${n.slug}: by Chris Cooley`);
+      assert.match(html, /<p class="note-by">By <a href="https:\/\/coded\.design\/">Chris Cooley ↗<\/a>/, `${n.slug}: by Chris Cooley`);
       const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
       const post = graph.find((x) => x["@type"] === "BlogPosting");
       assert.equal(post.headline, n.title);
@@ -327,11 +344,13 @@ try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const { page, errors } = await open(context, path);
     if (path === "bricks/sound.html") await page.waitForSelector("[data-brick-demo][data-ready]");
+    await revealAll(page);
     keyCount += await checkKeys(page, where);
     assert.deepEqual(errors, [], `${where}: errors`);
     await context.close();
     const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const tap = await open(phone, path);
+    await revealAll(tap.page);
     // Heroes: on a phone the other cards sit off to the side, and a scroll to one of their keys snaps the
     // row to that card (the key moves under the tap); the centre card's keys are tapped.
     await checkTaps(tap.page, `${where} (phone)`, { skip: path === "heroes/" ? "[data-hero]:not([aria-current])" : "" });
@@ -645,6 +664,41 @@ try {
     assert.equal(r.running, false);
     assert.deepEqual(errors, []);
     await context.close();
+  }
+
+  // ---------- Home rhythm (site/home-motion.ts): reveals and parallax on fizlet/timeline ----------
+  // Off-screen sections wait hidden and play in on screen; once the scroll stops, everything is
+  // shown and still. With reduced motion nothing is ever hidden or moved. No layout shift either way.
+  where = "home rhythm";
+  {
+    // What is hidden or moved on the page right now: sections' parts below full opacity, layers moved.
+    const moved = (page) => page.evaluate(() => [...document.querySelectorAll("section[data-reveal] *, .hero-field")]
+      .filter((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1")).map((el) => el.className || el.tagName));
+    const cls = () => { window.__cls = 0; new PerformanceObserver((l) => { for (const x of l.getEntries()) if (!x.hadRecentInput) window.__cls += x.value; }).observe({ type: "layout-shift", buffered: true }); };
+    for (const reducedMotion of ["no-preference", "reduce"]) {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 860 }, reducedMotion });
+      await context.addInitScript(cls);
+      const { page, errors } = await open(context, "");
+      await page.waitForTimeout(300);
+      const hidden = await page.evaluate(() => [...document.querySelectorAll("section[data-reveal]")].filter((s) => [...s.querySelectorAll("*")].some((el) => el.style.opacity === "0")).map((s) => [s.id, s.getBoundingClientRect().top >= innerHeight]));
+      if (reducedMotion === "reduce") assert.deepEqual(hidden, [], "reduced motion: no section waits hidden");
+      else assert.ok(hidden.some(([id]) => id === "roadmap") && hidden.every(([, below]) => below), `below the fold waits, in view never hides (${hidden})`);
+      const h = await page.evaluate(() => document.documentElement.scrollHeight);
+      for (let y = 0; y <= h; y += 400) await page.evaluate((y) => scrollTo(0, y), y), await page.waitForTimeout(40);
+      await page.waitForTimeout(1500);
+      assert.deepEqual(await moved(page), [], `${reducedMotion}: every part shown once the reveals end`);
+      if (reducedMotion === "reduce") {
+        assert.equal(await page.evaluate(() => document.querySelector(".sec-num").style.translate), "", "reduced motion: no parallax");
+      } else {
+        assert.notEqual(await page.evaluate(() => document.querySelector(".sec-num").style.translate), "", "parallax moves the ghost numbers");
+        // Still once settled: no frames asked for after the scroll stops.
+        const frames = await page.evaluate(() => new Promise((r) => { let n = 0; const raf = window.requestAnimationFrame; window.requestAnimationFrame = (f) => (n++, raf(f)); setTimeout(() => ((window.requestAnimationFrame = raf), r(n)), 1200); }));
+        assert.ok(frames <= 2, `settled: ${frames} frames asked for in 1.2 s of stillness`);
+      }
+      assert.ok(await page.evaluate(() => window.__cls) < 0.01, "no layout shift from the reveals");
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
   }
 
   // ---------- The quick start example runs ----------
