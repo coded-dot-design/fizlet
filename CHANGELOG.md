@@ -84,6 +84,19 @@
   (its offset parent's padding box) once on pointerdown and sets only `left`, `top`, `right`,
   `bottom` and `translate`. `tests/drag.mjs` drags a card in a bordered board under a header,
   scrolled. Arcade with `hud` omitted: 17,964 B gzip (+52 B; budget 17,920 → 17,984).
+- **Brick audit (2026-10-30), timeline, presence and camera.** Fixes with tests, no API change:
+  - **Fix: timeline's `repeat` must be a whole number ≥ 0 (or Infinity).** `repeat: -1` passed the
+    setup check and looped forever (it took the Infinity path); `repeat: 0.5` ended mid-play. Both
+    now throw a `RangeError` at setup, like every other bad option. `tests/timeline.test.mjs`.
+    fizlet/timeline 2,050 → 2,060 B gzip (budget 2,304).
+  - **Fix: presence refuses a seat outside 0..players-1.** A negative or fractional `slot` (or more
+    than 32 players: seats are bits in `lost`) never stored its own input, so the sim stalled for
+    good without a word. It now throws a `RangeError` at setup, like `slot ≥ players` did.
+  - **presence's WebSocket transport allocates nothing per message.** `send` copied each 12-byte
+    message (`slice`) before `WebSocket.send`, which copies it again, so every sim step allocated an
+    array: 22 young GCs per 400k sends, now 0. `tests/presence.test.mjs` (fake socket, best of 3).
+    fizlet/presence 1,792 → 1,818 B gzip (budget 2,048).
+  - `tests/camera.mjs` waits on frames until the engine settles instead of a 2 s wall-clock sleep.
 
 ## 0.19.0
 
