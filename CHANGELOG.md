@@ -9,6 +9,7 @@
   `arrive`, bit for bit (tested frame by frame); a zero-allocation test runs the platoon pattern
   (bare 0, `arriveGoal` 0, `arrive(i, gx, gy)` 55 young GCs per 300k frames on Node 24). `arrive` is
   unchanged. Steer 950 → 958 B gz (budget 1,280): the band moved into the shared `toward` (a pace below 0), so `arrive` has no extra call level either.
+- **Tests: `fizlet/css-clock` has its zero-allocation proof** (`tests/css-clock.test.mjs`): 200k steps while it plays and 200k whole frames at rest (held) each take ≤ 1 young-generation GC (best of 3 windows). Its tests never counted allocations (touch has no loop; arcade is covered by #144) (2026-10-30 code audit, `fe audit fizlet`). Tests only; no size change.
 - **Kernel fix: `start()` on a settled engine runs again.** It cleared the settled bit but not the
   quiet time, so the first frame after it (0 s, no steps) found the engine still quiet and put it
   back to sleep: `start()` woke a settled engine for one empty frame. It now does what `wake()` does
