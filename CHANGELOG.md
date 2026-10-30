@@ -128,6 +128,16 @@
 - **fizlet/presence: `join(url, signal, protocols)`.** The protocols go to the WebSocket handshake,
   so a page can hand fizlet-rooms its invite code as `["fizlet-rooms", "invite." + code]` instead of
   in the URL (URLs land in request logs). Optional; `join(url)` is unchanged.
+- **Fix: fizlet/sound no longer crashes on an event or cue named like an `Object.prototype` key.**
+  `o.cues[ev.type]` with an event type such as `"constructor"` or `"toString"` (a timeline label
+  can be anything) found a function, `NOTES[fn]` was undefined, and `for…of` threw in render, so
+  the engine's `onError` stopped the game; `play("toString")` from JS did the same (brick audit 2,
+  P10). `play()` now plays only cues that are `NOTES`' own keys (`Object.hasOwn`), so unknown cues
+  are ignored for the synth and a custom `play` alike (`Cue` already names the nine). An own
+  `cues.constructor` mapping still plays. Test: `tests/sound.test.mjs` (new; the old code throws
+  "NOTES[cue] is not iterable"). Sizes: sound 1,000 → 1,015 B gzip; arcade 21,970 → 21,981;
+  the card build 17,964 → 17,979, so its budget rises by the same 15 B (17,984 → 17,999,
+  reason in `scripts/sizes.mjs`): with fizlet#103 (+7 B) it would be 2 B over the old budget.
 - **Fix: `slot("page#slot", …)` finds astro-engine's current slot markup.** The engine now renders
   `<figure class="ae-slot-figure"><div class="ae-slot" data-slot-target role="img">…</div><figcaption
   class="ae-slot__fallback">` (the caption outside the role="img" box), and `findSlot()` looked only

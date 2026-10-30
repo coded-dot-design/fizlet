@@ -60,7 +60,10 @@ export const BUDGETS = [
   // asked of a HUD that owns its flow (`HudView.ask`) and it answers through `HudRun.go`; the card has
   // no flow, so it behaves byte for byte as before (tests/arcade-hud.mjs).
   // +181 B for the touch lock (Unreleased; owner-approved): every run locks the page with fizlet/touch.
-  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18236],
+  // when the board sat under a header or mid-page). +15 B budget (17,984 → 17,999) for sound's
+  // own-key cue check (brick audit 2, P10: an event named "constructor" crashed render): measured
+  // 17,964 → 17,979 B; with fizlet#103's +7 B, 17,986 B.
+  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18247],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
   // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B).
