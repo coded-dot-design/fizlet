@@ -31,6 +31,7 @@ import { sound } from "./sound";
 import type { Cue } from "./sound";
 import { mount, readouts, toast } from "./ui/board-ui";
 import { BASE, ICON, drag, esc } from "./arcade-parts";
+import { lockTouch } from "./touch";
 export { skirmishHud } from "./arcade-skirmish";
 export type { SkirmishOptions, SkirmishReadout } from "./arcade-skirmish";
 
@@ -426,6 +427,10 @@ export function arcade<S>(def: ArcadeDef<S>, options: ArcadeOptions<S> = {}): Ar
       const live = () => status === "running";
       const guarded = (ev: Event) => ev.composedPath().some((n) => n === host || (n instanceof Element && n.matches(`${EDIT},${PROTECTED}`)));
       const on = { signal: e.signal, capture: true } as const;
+      // The page is the board (the host is a full-screen overlay): for the run, no pinch, iOS gesture
+      // or double-tap zooms or pans it; the engine's end gives the page its gestures back.
+      e.signal.addEventListener("abort", lockTouch(doc, null));
+      e.ledger.style(doc.documentElement, "touch-action", "manipulation");
       doc.addEventListener("pointermove", (ev) => {
         if (!live() || ev.pointerType === "touch" || keyboard || guarded(ev)) return;
         p[P_X] = ev.clientX; p[P_Y] = ev.clientY; p[P_ON] = 1; mode = 1;

@@ -15,6 +15,12 @@
     (`.ae-slot`, `[data-fizlet-slot]`, `[data-touch-lock="y"]`) `pan-y`, all
     `overscroll-behavior: none`. Slots stay `pan-y`, not `none`, so a hero that fills a phone never
     traps the page's scroll; a swipe game sets `none` on its stage.
+  - **Every arcade game, automatically:** while a run is live the page is the board, so `arcade`
+    calls `lockTouch(document, null)` (no pinch or iOS gesture anywhere) and sets
+    `touch-action: manipulation` on the page through the ledger (no double-tap zoom, scrolling
+    stays); the engine's end releases both, so the page comes back exactly. Budgets rise by the
+    measured cost (owner-approved): `fizlet/arcade` +174 B (22,089 B, budget 22,190), the card build
+    +181 B (18,093 B, budget 18,101). `tests/arcade.mjs` checks the lock and its release.
   - **fizlet.com:** every page runs `lockTouch` on the demo surfaces (home demo, brick demos,
     timeline, labs, slots); they are `pan-y` and the full-screen hero `none`. Content pages keep
     pinch-zoom on the copy (WCAG 1.4.4); only the double-tap zoom and the surfaces are locked. The

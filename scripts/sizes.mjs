@@ -43,12 +43,15 @@ export const BUDGETS = [
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, fizlet/hud included). The Board UI kit CSS is the game's (it bakes
   // in the sections it uses).
-  ["fizlet/arcade", "src/arcade.ts", 22016],
+  // +174 B (owner-approved, Unreleased): every run locks the page with fizlet/touch (lockTouch on the
+  // whole page plus touch-action: manipulation through the ledger), 21,915 → 22,089 B; budget + the delta.
+  ["fizlet/arcade", "src/arcade.ts", 22190],
   // A card game (`hud` left out): the shell and the `arcade` preset, skirmish tree-shaken away.
   // 17,622 B gz with the `hud` option (+311 B: the preset contract, header and nav choice); 17,311
   // in 0.17.0, 17,206 in 0.14.0 (17,081 in 0.13.0, 16,960 in 0.12.1, 16,946 in 0.12.0, 16,731 in
   // 0.11.0), of which arcade's own code, markup and CSS was 6,694 B in 0.12.0.
-  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 17920],
+  // +181 B for the same touch lock (Unreleased): 17,912 → 18,093 B; budget + the delta.
+  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18101],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
   // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B).
