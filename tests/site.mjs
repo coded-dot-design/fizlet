@@ -30,10 +30,11 @@ const VERSION = JSON.parse(readFileSync("package.json", "utf8")).version;
 /** The size a snippet's header says it is. */
 const snippetSize = (text) => Number(/^ {5}([\d,]+) B gzip, this whole file/m.exec(text)?.[1].replace(/,/g, "") ?? NaN);
 import { liveBytes } from "../scripts/live-bytes.mjs";
+import { heroes as siteHeroes } from "../scripts/heroes.mjs";
 
 const ROOT = "site-dist", BASE = SITE_ROOT;
 if (!existsSync(`${ROOT}/index.html`)) throw new Error("site-dist/ is missing: run `npm run site` first");
-const TYPES = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml", ".ts": "text/plain", ".png": "image/png", ".xml": "application/xml" };
+const TYPES = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript", ".jpg": "image/jpeg", ".svg": "image/svg+xml", ".ts": "text/plain", ".png": "image/png", ".xml": "application/xml" };
 
 // A tiny static server shaped like Pages: <BASE><path>, dir → index.html, else 404.html with 404.
 const server = createServer((req, res) => {
@@ -98,7 +99,8 @@ async function open(context, path) {
   const errors = [];
   page.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));
   page.on("console", (m) => m.type() === "error" && !m.text().includes("404 (Not Found)") && errors.push(`console: ${m.text()}`));
-  page.on("requestfailed", (r) => r.url().startsWith(ORIGIN) && errors.push(`requestfailed: ${r.url()}`));
+  // A hero stage taken off mid-load (its card left the centre) aborts its own requests: not a failure.
+  page.on("requestfailed", (r) => r.url().startsWith(ORIGIN) && !(/\/heroes\/[^/]+\//.test(r.url()) && r.failure()?.errorText === "net::ERR_ABORTED") && errors.push(`requestfailed: ${r.url()}`));
   page.on("response", (r) => r.url().startsWith(ORIGIN) && r.status() >= 400 && !r.url().endsWith("/missing/page") && errors.push(`${r.status()}: ${r.url()}`));
   await page.goto(ORIGIN + BASE + path, { waitUntil: "load" });
   return { page, errors };
@@ -112,7 +114,17 @@ try {
   // until this list is updated.
   const SEO = ["og:type", "og:title", "og:description", "og:url", "og:image", "og:site_name"].map((p) => `<meta property="${p}">`);
   const LANDMARKS = ["a <header> landmark", "a <nav> landmark", "a <footer> landmark"];
-  const KNOWN = { "demos/layers/": LANDMARKS, "examples/fizz/": LANDMARKS };
+  // The hero stages (heroes/<id>/stage.html): a game's own hero alone in its document, the part of
+  // /heroes/ that runs in a card (noindex). No site chrome; the cartridge shelf's heading is an h2 on its own site.
+  // Beyond the landmarks, their open gaps are the games' own markup (vendored as served; fix upstream, re-vendor):
+  const SVG = (t) => `<svg> neither hidden nor named: ${t}`;
+  const CART_SKULL = SVG('<svg viewBox="0 0 64 64" shape-rendering="crispEdges" data-a');
+  const STAGE_GAPS = {
+    "dom-battlefield": [SVG('<svg viewBox="0 0 20 20" data-astro-cid-d3dbfs7z>')],
+    "dom-virus-cartridges": ["exactly one <h1> (found 0)", CART_SKULL, CART_SKULL, CART_SKULL, CART_SKULL, CART_SKULL, SVG('<svg width="22" height="22" viewBox="0 0 64 64" fill="curren')],
+  };
+  const STAGES = Object.fromEntries(siteHeroes().map((h) => [`heroes/${h.id}/stage.html`, [...LANDMARKS, ...(STAGE_GAPS[h.id] ?? [])]]));
+  const KNOWN = { "demos/layers/": LANDMARKS, "examples/fizz/": LANDMARKS, ...STAGES };
   for (const path of PAGES) {
     const file = path === "" || path.endsWith("/") ? `${path}index.html` : path;
     const want = KNOWN[path] ?? [];
@@ -154,7 +166,11 @@ try {
   // external links marked ↗, descriptive link text, no orphan pages. The two standalone example
   // pages keep their own plain shell (the same ones the landmark gate lists).
   where = "site nav";
-  assert.deepEqual(checkNav(PAGES.map((path) => ({ path, html: readFileSync(fileOf(path), "utf8") })), { site: SITE, standalone: Object.keys(KNOWN) }), [], "site nav rules");
+  // A hero stage's links are the game's own copy, made absolute to its domain and inert on fizlet.com
+  // (site/heroes/stage.ts: nothing in a hero navigates; tests/heroes.mjs clicks every one): no ↗ to add.
+  const navProblems = checkNav(PAGES.map((path) => ({ path, html: readFileSync(fileOf(path), "utf8") })), { site: SITE, standalone: Object.keys(KNOWN) })
+    .filter((p) => !(Object.keys(STAGES).some((st) => p.startsWith(`${st}: external link without ↗`))));
+  assert.deepEqual(navProblems, [], "site nav rules");
 
   // ---------- Brick pages: the sizes are the ones measured on this build ----------
   where = "brick sizes";
@@ -235,16 +251,17 @@ try {
 
   // ---------- Heroes and people: every hero has a large card; every contributor a profile ----------
   where = "heroes and people";
-  const HEROES = GALLERY.filter((e) => e.kind === "hero");
+  // The heroes are the games' own (site/heroes/heroes.json, the allow-list), never gallery entries.
+  const HEROES = siteHeroes();
   {
     assert.ok(HEROES.length >= 2, "at least two heroes");
     const html = readFileSync(pageFile("heroes/"), "utf8");
-    assert.deepEqual([...html.matchAll(/<li class="hero-card panel" id="hero-([^"]+)"/g)].map((m) => m[1]), HEROES.map((e) => e.id), "heroes: every hero, newest first");
+    assert.deepEqual([...html.matchAll(/<li class="hero-card panel" id="hero-([^"]+)"/g)].map((m) => m[1]), HEROES.map((e) => e.id), "heroes: exactly the allow-list, in its order");
     for (const e of HEROES) {
-      const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
+      const bytes = liveBytes(`${ROOT}/heroes/${e.id}/stage.js`);
       const card = html.slice(html.indexOf(`id="hero-${e.id}"`)).split("</li>")[0];
-      assert.ok(card.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `hero ${e.id}: its badge shows ${bytes} B`);
-      assert.ok(card.includes(`<p class="hero-by">by <a href="../${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `hero ${e.id}: by ${PEOPLE[e.author].name}, linked`);
+      assert.ok(card.includes(`data-bytes="${bytes}" data-live="heroes/${e.id}/stage.js"`), `hero ${e.id}: its badge shows ${bytes} B`);
+      assert.ok(card.includes(`<p class="hero-by">by <a href="../${personPath("chris-cooley")}">${PEOPLE["chris-cooley"].name}</a></p>`), `hero ${e.id}: by the owner, linked`);
       assert.ok(!/data-slot-target/.test(card), `hero ${e.id}: no gallery slot wiring on its poster`);
     }
     assert.ok(PEOPLE["chris-cooley"], "the owner's profile");
@@ -320,8 +337,9 @@ try {
         const wide = [...document.querySelectorAll("body *")].filter((el) => {
           const r = el.getBoundingClientRect();
           if (r.width === 0 || r.right <= w + 1) return false;
-          // A slot's scene (figure.ae-slot) clips its own stage: what it draws past its edge is cut, by design.
-          for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) if (/auto|scroll/.test(getComputedStyle(p).overflowX) || p.matches("figure.ae-slot")) return false;
+          // A slot's scene (figure.ae-slot) clips its own stage: what it draws past its edge is cut, by
+          // design; so does a hero stage's own hero (main.fz-stage, the game's clipping section).
+          for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) if (/auto|scroll/.test(getComputedStyle(p).overflowX) || p.matches("figure.ae-slot, main.fz-stage > section")) return false;
           return true;
         }).slice(0, 5).map((el) => `${el.tagName.toLowerCase()}.${el.className} → ${Math.round(el.getBoundingClientRect().right)}`);
         return { scroll: document.documentElement.scrollWidth, w, wide };
@@ -399,7 +417,10 @@ try {
     const { page, errors } = await open(context, path);
     if (path === "bricks/sound.html") await page.waitForSelector("[data-brick-demo][data-ready]");
     await revealAll(page);
-    keyCount += await checkKeys(page, where);
+    // Heroes: the cards are wide (a game's own desktop hero), so a scroll to another card's key snaps
+    // the row under the pointer, as on a phone: the centre card's keys are checked.
+    if (path === "heroes/") await page.waitForSelector("[data-hero][aria-current]");
+    keyCount += await checkKeys(page, where, { skip: path === "heroes/" ? "[data-hero]:not([aria-current])" : "" });
     assert.deepEqual(errors, [], `${where}: errors`);
     await context.close();
     const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
@@ -693,7 +714,7 @@ try {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
     const { page, errors } = await open(context, "heroes/");
     const loaded = [];
-    page.on("request", (r) => /\/gallery\/[^/]+\.js$/.test(r.url()) && !r.url().endsWith("heroes.js") && loaded.push(r.url()));
+    page.on("request", (r) => /\/heroes\/[^/]+\/stage\.html/.test(r.url()) && loaded.push(r.url()));
     await page.$eval("[data-hero-track]", (t) => t.scrollIntoView({ block: "center" }));
     await page.waitForTimeout(500);
     assert.deepEqual(loaded, [], "reduced motion: posters, nothing loads");

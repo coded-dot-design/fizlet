@@ -1,0 +1,124 @@
+{
+  "note": "The heroes on fizlet.com/heroes/: the games' own landing heroes, each vendored from its game repo at a pinned commit by scripts/heroes-vendor.mjs (never hand-copied). Only these ids render on /heroes/ (the allow-list); gallery entries never do. Change a pin here, then run `node scripts/heroes-vendor.mjs`.",
+  "heroes": [
+    {
+      "id": "dom-battlefield",
+      "title": "DOM Battlefield",
+      "line": "Twelve tanks. One radio.",
+      "about": "The game's own landing hero: two platoons fight across the headline and the copy, HQ A against HQ B. Tap the field for an airstrike.",
+      "game": "https://battlefield.domvirus.com/",
+      "repo": "coded-dot-design/dom-battlefield",
+      "commit": "72785635fda56ba72181adfd98e492810595e489",
+      "origin": "https://battlefield.domvirus.com/",
+      "build": [
+        [
+          "npx",
+          "astro",
+          "build",
+          "--config",
+          "site/astro.config.mjs"
+        ]
+      ],
+      "out": "artifacts/pages",
+      "section": "<section class=\"hero\" data-arena",
+      "copy": {
+        "scene.ts": "site/src/scripts/arena/scene.ts",
+        "sim.ts": "site/src/scripts/arena/sim.ts",
+        "tank.ts": "site/src/scripts/arena/tank.ts",
+        "audio.ts": "src/audio.ts"
+      },
+      "poster": {
+        "reduced": true
+      }
+    },
+    {
+      "id": "battlefield-blitz",
+      "title": "Battlefield Blitz",
+      "line": "Every tank for itself.",
+      "about": "The game's own landing hero: its attract mode, eight tanks parachuting onto a blinking grid and blowing up the boxes.",
+      "game": "https://battlefieldblitz.domvirus.com/",
+      "repo": "coded-dot-design/dom-battlefield-blitz",
+      "commit": "44880fd65f8382b826c074a92cea95074dc240ea",
+      "origin": "https://battlefieldblitz.domvirus.com/",
+      "build": [
+        [
+          "npx",
+          "astro",
+          "build",
+          "--config",
+          "site/astro.config.mjs"
+        ]
+      ],
+      "out": "artifacts/pages",
+      "section": "<section class=\"bz-hero\"",
+      "copy": {
+        "blitz.mjs": "dist/blitz.mjs",
+        "blitz.d.mts": "dist/blitz.d.ts"
+      },
+      "poster": {
+        "reduced": false,
+        "wait": 3500
+      }
+    },
+    {
+      "id": "dom-virus",
+      "title": "DOM VIRUS",
+      "line": "Your page. Their playground.",
+      "about": "domvirus.com's own home hero: bad guys from every game spawn into your.page, a tank and an interceptor blast them. Tap the card to play.",
+      "game": "https://domvirus.com/",
+      "repo": "coded-dot-design/dom-virus",
+      "commit": "63a6a1ec7274d49e256a60b1902b2788e6d09834",
+      "origin": "https://domvirus.com/",
+      "build": [
+        [
+          "node",
+          "site-kit/scripts/prepare.mjs"
+        ],
+        [
+          "npx",
+          "astro",
+          "build",
+          "--config",
+          "site/astro.config.mjs"
+        ]
+      ],
+      "out": "artifacts/site",
+      "section": "<section class=\"hero\" id=\"top\"",
+      "copy": {
+        "hero-game.ts": "site-kit/hero-game.ts"
+      },
+      "poster": {
+        "reduced": true
+      }
+    },
+    {
+      "id": "dom-virus-cartridges",
+      "title": "Pick a cartridge",
+      "line": "Five cartridges, one console.",
+      "about": "domvirus.com's cartridge shelf and handheld: pick a cartridge and plug it in. This console has the DOM virus, so nothing boots.",
+      "game": "https://domvirus.com/#games",
+      "repo": "coded-dot-design/dom-virus",
+      "commit": "63a6a1ec7274d49e256a60b1902b2788e6d09834",
+      "origin": "https://domvirus.com/",
+      "build": [
+        [
+          "node",
+          "site-kit/scripts/prepare.mjs"
+        ],
+        [
+          "npx",
+          "astro",
+          "build",
+          "--config",
+          "site/astro.config.mjs"
+        ]
+      ],
+      "out": "artifacts/site",
+      "section": "<section class=\"cartridge-shelf\"",
+      "copy": {},
+      "poster": {
+        "reduced": true
+      }
+    }
+  ]
+}

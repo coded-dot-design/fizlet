@@ -3,8 +3,11 @@
 // next keys and the arrow keys move a card at a time. Each card's Play key pauses or plays it (and
 // is the only way to play under reduced motion: posters until asked). Full screen: the Fullscreen
 // API, or an overlay where it is missing; Esc closes and focus goes back to the key that opened it.
-// A hero's live chunk is its gallery bundle (gallery/<id>.js: the bytes on its size badge).
-import type { SlotMount, SlotScene } from "../../src/slot";
+// A hero is a game's own landing hero in its own document (site/heroes/: the stage, data-stage on
+// the card): playing it mounts the stage in an iframe over the poster; stopping it removes the
+// iframe (the scene, its engine and its listeners go with it). The iframe is sandboxed without
+// top navigation, and the stage itself drops every link and form (site/heroes/stage.ts): nothing
+// in a hero ever leaves this page.
 
 const track = document.querySelector<HTMLElement>("[data-hero-track]");
 const reduce = matchMedia("(prefers-reduced-motion: reduce)");
@@ -13,9 +16,9 @@ if (track) {
   const cards = [...track.querySelectorAll<HTMLElement>("[data-hero]")];
   const prev = document.querySelector<HTMLButtonElement>("[data-hero-prev]");
   const next = document.querySelector<HTMLButtonElement>("[data-hero-next]");
-  const base = new URL(".", import.meta.url);
-  const live = new Map<HTMLElement, { scene: SlotScene; stage: HTMLElement; hid: HTMLElement[] }>();
+  const live = new Map<HTMLElement, { stage: HTMLElement; hid: HTMLElement[] }>();
   const loading = new Map<HTMLElement, number>();
+  const pending = new Map<HTMLElement, HTMLIFrameElement>(); // stages still loading
   const stopped = new Set<HTMLElement>(); // paused by hand: the centre does not restart them
   const asked = new Set<HTMLElement>(); // played by hand (the only way under reduced motion)
   let centre: HTMLElement | null = null, run = 0, opener: HTMLElement | null = null, full: HTMLElement | null = null;
@@ -29,31 +32,39 @@ if (track) {
     on ? (card.dataset.playing = "1") : delete card.dataset.playing;
   };
 
-  async function play(card: HTMLElement) {
+  function play(card: HTMLElement) {
     if (live.has(card) || loading.has(card)) return;
     const id = ++run;
     loading.set(card, id);
     mark(card);
-    const m = (await import(new URL(`${card.dataset.hero}.js`, base).href)) as { mount: SlotMount };
-    if (loading.get(card) !== id) return;
-    loading.delete(card);
     const f = fig(card);
-    const hid = [...f.querySelectorAll<HTMLElement>(":scope > .ae-slot__placeholder, :scope > .ae-slot__fallback")].filter((c) => c.style.display !== "none");
-    for (const c of hid) c.style.display = "none";
-    const stage = document.createElement("div");
+    const stage = document.createElement("iframe");
+    stage.src = new URL(card.dataset.stage!, location.href).href;
+    stage.title = card.dataset.stageTitle!;
     stage.setAttribute("data-fizlet-slot", card.dataset.hero!);
-    stage.setAttribute("aria-hidden", "true");
-    stage.style.cssText = "position:absolute;inset:0;contain:strict;overflow:hidden";
+    stage.setAttribute("sandbox", "allow-scripts allow-same-origin");
+    stage.style.cssText = "position:absolute;inset:0;width:100%;height:100%;border:0;contain:strict;opacity:0";
+    // The poster stays until the stage has painted: no blank frame between them.
+    stage.addEventListener("load", () => {
+      if (loading.get(card) !== id) return;
+      loading.delete(card);
+      pending.delete(card);
+      stage.style.opacity = "";
+      const hid = [...f.querySelectorAll<HTMLElement>(":scope > .ae-slot__placeholder, :scope > .ae-slot__fallback")].filter((c) => c.style.display !== "none");
+      for (const c of hid) c.style.display = "none";
+      live.set(card, { stage, hid });
+      mark(card);
+    }, { once: true });
     f.append(stage);
-    live.set(card, { scene: m.mount(stage, f, null), stage, hid });
-    mark(card);
+    pending.set(card, stage);
   }
   function stop(card: HTMLElement) {
     loading.delete(card);
+    pending.get(card)?.remove();
+    pending.delete(card);
     const l = live.get(card);
     if (l) {
       live.delete(card);
-      l.scene.destroy();
       l.stage.remove();
       for (const c of l.hid) c.style.display = "";
     }
@@ -63,7 +74,7 @@ if (track) {
    *  (motion allowed, not paused by hand). Everything else is its poster. */
   const wanted = (c: HTMLElement) => (full ? c === full : asked.has(c) || (c === centre && !reduce.matches && !stopped.has(c)));
   function settle() {
-    for (const c of cards) wanted(c) ? void play(c) : stop(c);
+    for (const c of cards) wanted(c) ? play(c) : stop(c);
   }
   /** A size change (full screen in or out): the scene reads its stage size at mount, so mount it again. */
   const remount = (card: HTMLElement) => (stop(card), requestAnimationFrame(() => settle()));
@@ -104,7 +115,7 @@ if (track) {
     key(card).addEventListener("click", () => {
       const on = live.has(card) || loading.has(card);
       if (on) (stopped.add(card), asked.delete(card), stop(card));
-      else (stopped.delete(card), asked.add(card), void play(card));
+      else (stopped.delete(card), asked.add(card), play(card));
     });
     const openKey = card.querySelector<HTMLButtonElement>("[data-hero-open]")!;
     openKey.addEventListener("click", () => open(card, openKey));

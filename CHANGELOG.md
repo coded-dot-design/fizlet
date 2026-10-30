@@ -2,6 +2,34 @@
 
 ## Unreleased
 
+- **Website: the heroes are the games' own landing heroes, only.** /heroes/ shows exactly the four in
+  `site/heroes/heroes.json` (the allow-list): DOM Battlefield ("Twelve tanks. One radio."), Battlefield
+  Blitz ("Every tank for itself."), the DOM VIRUS home hero ("Your page. Their playground.") and its
+  "Pick a cartridge." shelf and console. Each links to its game.
+  - One source: `scripts/heroes-vendor.mjs` checks out each game repo at its pinned commit, builds
+    the game's own site and takes the hero's section, CSS and scene from it (`site/heroes/vendor/<id>/`,
+    sha256 of every file in ORIGIN.json; the build fails on a hand edit). Bump a pin and run
+    `npm run heroes:vendor`.
+  - Each hero is a stage (`heroes/<id>/stage.html` + `stage.js`) the heroes page mounts in an iframe
+    only while its card is centred and on screen; posters otherwise and under reduced motion. The
+    Battlefield arena runs on this build of Fizlet; Blitz is its own committed build, byte for byte.
+    Every stage comes to rest with no input (no frames) and Recall gives it back exactly.
+  - Nothing in a hero navigates: links and forms are inert in the stage and the iframe has no top
+    navigation. The cartridge console is fizlet.com's joke: plug one in and the screen says
+    CARTRIDGE CORRUPTED, THIS CONSOLE HAS THE DOM VIRUS.
+  - Sizes measured on this build: live 14,634 B (Battlefield), 41,518 B (Blitz), 4,326 B (DOM VIRUS
+    hero), 4,944 B (cartridges); the badge says when a game's own hero is over the 9,728 B budget for
+    scenes made for fizlet.com.
+  - Offset shadows in the vendored CSS follow the Board UI kit's `--shadow-x` / `--shadow-y` (depth ×
+    token, fizlet#136); the stage takes the host page's values.
+- **Gallery: the former heroes are micro games.** Layers, Fizz, Haunted Page, Bat Blaster, Pumpkin
+  Smash, Pumpkin Slice and Candy Cauldron are `kind: "micro"` now, numbers, approvals and pending
+  states unchanged. A gallery entry never renders on /heroes/ whatever its kind (open #126 and #99:
+  land them as `kind: "micro"`).
+- Tests: `tests/heroes.mjs` (browser: exactly the allow-list, each stage mounts, every link clicked
+  and the URL never moves, rest, Recall, reduced motion), `tests/heroes.test.mjs` (pins, vendored
+  hashes, helpers).
+
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about

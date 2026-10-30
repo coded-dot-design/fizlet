@@ -26,6 +26,7 @@ import { BRICKS, PLANNED, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
 import { liveBytes } from "./live-bytes.mjs";
+import { buildHeroes, HERO_BUDGET } from "./heroes.mjs";
 
 const OUT = "site-dist";
 const { version } = JSON.parse(readFileSync("package.json", "utf8"));
@@ -128,7 +129,10 @@ const figures = {
 // every entry's URL is on the page that holds it (the heroes and profile pages link there).
 const GB = (p) => "../".repeat(p.path.split("/").length - 1);
 const urlOf = (id) => gallery.index.find((r) => r.id === id).url;
-const heroes = gallery.entries.filter((e) => e.kind === "hero");
+// The heroes (/heroes/): only the games' own heroes in site/heroes/heroes.json (the allow-list),
+// each built into heroes/<id>/ and measured here. Gallery entries never render there, whatever their kind.
+const heroes = await buildHeroes(OUT, { site: SITE });
+const OWNER = gallery.people["chris-cooley"];
 if (gallery.pending.length) console.log(`Gallery: ${gallery.pending.length} pending (not approved, not built): ${gallery.pending.join(", ")}`);
 for (const p of gallery.pages) mkdirSync(`${OUT}/${p.path}`, { recursive: true });
 mkdirSync(`${OUT}/gallery/archive`, { recursive: true });
@@ -213,7 +217,7 @@ const pages = [
       ? `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by theme).`
       : `Fizlet gallery page ${p.n} of ${gallery.pages.length}: older animations by theme, each with its prompt, its live demo and its size measured on this build.`,
     base: GB(p), version, path: p.path,
-    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length }),
+    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length, heroes: heroes.length }),
     scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
   })]),
   ["gallery/archive/index.html", page({
@@ -225,9 +229,9 @@ const pages = [
   })],
   ["heroes/index.html", page({
     title: "Heroes: the big animations, one at a time · Fizlet",
-    description: `The Fizlet hero animations, large: the one in the centre plays, the rest wait as posters. ${heroes.length} so far, each with its size measured on this build.`,
+    description: `The games' own landing heroes on Fizlet, large: the one in the centre plays, the rest wait as posters. ${heroes.length}, each with its size measured on this build.`,
     base: "../", version, path: "heroes/",
-    body: `<style>${layers.css}</style>` + heroesPage({ heroes, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: "../", urlOf }),
+    body: heroesPage({ heroes, budget: HERO_BUDGET, base: "../", owner: { id: "chris-cooley", name: OWNER.name } }),
     scripts: ["site.js", "gallery/heroes.js"],
   })],
   ["make/index.html", page({

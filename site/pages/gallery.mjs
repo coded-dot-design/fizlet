@@ -54,7 +54,7 @@ const card = (e, { loader, figures, base, people, themeTitle, winners, tooBig = 
   return `<li class="panel gal-item" id="${esc(e.id)}" data-demo-host data-kind="${esc(e.kind)}">
       <div class="gal-stage">${fig}</div>
       <div class="gal-meta">
-        <p class="eyebrow"><span class="index">#${e.archived ? "A" : ""}${String(e.no).padStart(3, "0")}</span> ${esc(e.date)} · ${e.kind === "hero" ? "HERO · " : ""}${esc(themeTitle.toUpperCase())} · ${e.made === "fe anim" ? `MADE BY FE ANIM · RECIPE ${esc(e.recipe.toUpperCase())}` : "HAND-BUILT"}</p>
+        <p class="eyebrow"><span class="index">#${e.archived ? "A" : ""}${String(e.no).padStart(3, "0")}</span> ${esc(e.date)} · ${esc(themeTitle.toUpperCase())} · ${e.made === "fe anim" ? `MADE BY FE ANIM · RECIPE ${esc(e.recipe.toUpperCase())}` : "HAND-BUILT"}</p>
         <h3>${esc(e.title)}${winners.has(e.id) ? ` ${winnerBadge()}` : ""}${tooBig.has(e.id) ? ` ${tooBigBadge()}` : ""}</h3>
         ${byLine(e, people, base)}
         <p class="gal-prompt"><span class="bui-label">${e.made === "fe anim" ? "PROMPT" : "BRIEF"}</span> “${esc(e.prompt)}”</p>
@@ -72,7 +72,7 @@ const card = (e, { loader, figures, base, people, themeTitle, winners, tooBig = 
  * `winners`: ids of weekly-contest winners (site/contest/weeks), featured with the Winner badge;
  * `tooBig`: ids of contest entries over the size cap, which wear the Too big to win sticker.
  */
-export function galleryPage({ page, pages, all, themes, people, loader, figures, snippets = {}, base, winners = new Set(), tooBig = new Set(), archived = 0 }) {
+export function galleryPage({ page, pages, all, themes, people, loader, figures, snippets = {}, base, winners = new Set(), tooBig = new Set(), archived = 0, heroes = 0 }) {
   const firstPage = Object.fromEntries(themes.map((t) => [t.id, pages.find((p) => p.entries.some((e) => e.theme === t.id))]));
   const used = themes.filter((t) => firstPage[t.id]);
   const chips = [`<a class="bui-key gal-chip" href="${base}gallery/" data-theme-chip="all"${page.n === 1 ? ' aria-current="true"' : ""}>All <small>${all.length}</small></a>`,
@@ -87,7 +87,6 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
   const nav = pages.length > 1 ? `<nav class="gal-pages" aria-label="Gallery pages">${pages.map((p) => p.n === page.n
     ? `<span class="gal-page-now" aria-current="page">${p.n}</span>`
     : `<a class="bui-key" href="${base}${p.path}"${p.n === page.n - 1 ? ' rel="prev"' : p.n === page.n + 1 ? ' rel="next"' : ""} aria-label="Gallery page ${p.n}">${p.n}</a>`).join("")}</nav>` : "";
-  const heroes = all.filter((e) => e.kind === "hero").length;
   return `
 <section class="section" aria-labelledby="gal-title">
   <div class="wrap">
@@ -95,7 +94,7 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
     <div class="section-head">
       <p class="eyebrow"><span class="index">${all.length}</span> ANIMATIONS · NEWEST FIRST${pages.length > 1 ? ` · PAGE ${page.n} OF ${pages.length}` : ""}</p>
       <h1 id="gal-title">One prompt.<br><em>One animation.</em></h1>
-      <p class="lead">A new animation from a simple prompt, made from Fizlet bricks. Each one shows the prompt it was made from, runs live once it nears the screen, and wears its size, measured on this build. Still once it settles, asleep off screen, and the page always comes back. Take any made from a prompt home as one file, or <a href="${base}make/">make your own</a>. By <a href="https://coded.design/">Chris Cooley ↗</a>${heroes ? ` · <a href="${base}heroes/">the ${heroes} heroes, big</a>` : ""}.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/" rel="nofollow">the archive</a>.` : ""}</p>
+      <p class="lead">A new animation from a simple prompt, made from Fizlet bricks. Each one shows the prompt it was made from, runs live once it nears the screen, and wears its size, measured on this build. Still once it settles, asleep off screen, and the page always comes back. Take any made from a prompt home as one file, or <a href="${base}make/">make your own</a>. By <a href="https://coded.design/">Chris Cooley ↗</a>${heroes ? ` · <a href="${base}heroes/">the ${heroes} games' own heroes, big</a>` : ""}.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/" rel="nofollow">the archive</a>.` : ""}</p>
     </div>
     <nav class="gal-themes" aria-label="Themes">${chips}</nav>
     <form class="gal-search" role="search" data-gal-search data-base="${base}" hidden>

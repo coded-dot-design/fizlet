@@ -1,1 +1,1 @@
-{"extends":"../tsconfig.json","compilerOptions":{"noEmit":true,"declaration":false,"emitDeclarationOnly":false,"rootDir":".."},"include":["*.ts","demos/*.ts","demos/halloween/*.ts","gallery/**/*.ts","labs/*.ts","../src/**/*.ts"]}
+{"extends":"../tsconfig.json","compilerOptions":{"noEmit":true,"declaration":false,"emitDeclarationOnly":false,"rootDir":".."},"include":["*.ts","demos/*.ts","demos/halloween/*.ts","gallery/**/*.ts","labs/*.ts","heroes/*.ts","../src/**/*.ts"]}

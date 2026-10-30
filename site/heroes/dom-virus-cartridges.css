@@ -1,0 +1,32 @@
+/* fizlet.com's own layer on the vendored shelf: the corrupted screen (site/heroes/dom-virus-cartridges.ts).
+   The console's own screen colours; the glitch plays only while data-corrupt is "glitch" (1.1 s), then holds still. */
+[data-console][data-corrupt] [data-attract],
+[data-console][data-corrupt] [data-console-press],
+[data-console][data-corrupt] [data-console-loading] {
+  display: none;
+}
+.fz-corrupt {
+  grid-area: 1 / 1;
+  display: grid;
+  gap: 8px;
+  place-items: center;
+  padding: 0 12px;
+  text-align: center;
+  font: 700 13px/1.25 var(--mono);
+  letter-spacing: 2px;
+}
+.fz-corrupt b {
+  color: #f4457a;
+}
+.fz-corrupt small {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: #8f86b8;
+}
+[data-corrupt="glitch"] .fz-corrupt {
+  animation: fz-glitch 0.12s steps(2) infinite;
+}
+@keyframes fz-glitch {
+  0% { transform: translate(-3px, 1px); text-shadow: 2px 0 #06c4ff; }
+  100% { transform: translate(2px, -1px); text-shadow: -2px 0 #f4457a; }
+}

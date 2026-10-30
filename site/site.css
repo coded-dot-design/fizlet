@@ -2405,7 +2405,7 @@ html.bui[data-theme="light"] .phases b {
 /* ---------- Heroes: a row of large cards; the centre one plays (site/gallery/heroes.ts) ---------- */
 /* --hero-w: the stage's width (≥ 300 px); a card is that plus its padding. */
 .hero-row {
-  --hero-w: clamp(300px, 62vw, 760px);
+  --hero-w: clamp(300px, 86vw, 1180px); /* the games' own heroes: a desktop hero needs the room */
   --hero-card: calc(var(--hero-w) + 32px); /* 14 px padding and the panel's 2 px border, each side */
 }
 .hero-nav {
@@ -2466,6 +2466,35 @@ html.bui[data-theme="light"] .phases b {
   .hero-stage figure.ae-slot {
     aspect-ratio: 16 / 10;
   }
+}
+/* A game's own hero: its poster fills the figure (light or dark with the theme); on a phone the
+   figure is taller, so the hero's phone layout fits as it does on its own site. */
+.hero-stage figure.hero-game {
+  aspect-ratio: 3 / 4;
+}
+@media (min-width: 860px) {
+  .hero-stage figure.hero-game {
+    aspect-ratio: 16 / 10;
+  }
+}
+.hero-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left top;
+}
+html.bui[data-theme="light"] .hero-poster--dark,
+html.bui:not([data-theme="light"]) .hero-poster--light {
+  visibility: hidden;
+}
+.hero-about {
+  max-width: 68ch;
+}
+.hero-alone {
+  align-self: center;
+  font-size: 0.875rem;
 }
 .hero-stage .fz-poster {
   position: absolute;
