@@ -1,7 +1,7 @@
 // The fizz demo (site/demos/fizz/) in Chromium: it mounts through fizlet/slot, animates (the can
-// crunches, the tab pops, the spray flies up out of the card, the camera moves inside the card and
-// never the page), settles (no frames), wakes on a tap, Recall gives the page back byte for byte,
-// and reduced motion keeps the still poster (the scene never mounts).
+// crunches, the tab lifts and the lid opens, the spray flies up out of the card; nothing zooms),
+// settles (no frames), wakes on a tap, Recall gives the page back byte for byte, and reduced motion
+// keeps the still poster (the scene never mounts).
 import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { chromium } from "playwright";
@@ -43,22 +43,31 @@ try {
     }));
     assert.deepEqual(mounted, { canvas: true, spray: true, host: "relative", poster: "none", hidden: "true" }, "mounts the card canvas in the slot stage and the spray layer over the host; the poster steps aside");
 
-    // Animates: the can crunches and pops by itself, the spray flies up out of the card, and the
-    // camera zooms inside the card (the world in the stage), never the page.
-    await p.waitForTimeout(1500);
-    const world = "[data-fizlet-slot] > div";
-    const mid = await p.evaluate((world) => {
-      const w = document.querySelector(world), st = scene.engine.stats();
+    // Animates: the can crunches and pops by itself, and the spray flies up out of the card. The
+    // tab opens: the top view's pixels change between before the pop and after it. Nothing zooms.
+    const topView = () => p.evaluate(() => {
+      const c = document.querySelector("[data-fizlet-slot] canvas"), d = c.getContext("2d").getImageData(Math.round(c.width * 0.55), 0, Math.round(c.width * 0.4), Math.round(c.height * 0.5)).data;
+      let n = 0;
+      for (let i = 0; i < d.length; i += 4) n = (n * 31 + d[i] + d[i + 1] * 3 + d[i + 2] * 7) >>> 0;
+      return n;
+    });
+    await p.waitForTimeout(700);
+    const sealed = await topView();
+    await p.waitForTimeout(800);
+    const opened = await topView();
+    assert.notEqual(opened, sealed, "the top view changes as the tab lifts and the lid opens");
+    const mid = await p.evaluate(() => {
+      const st = scene.engine.stats();
       const l = document.querySelector("#card > canvas"), f = document.querySelector("figure").getBoundingClientRect();
       const above = Math.floor(f.top - l.getBoundingClientRect().top), d = l.getContext("2d").getImageData(0, 0, l.width, above).data;
       let out = 0;
       for (let i = 3; i < d.length; i += 4) if (d[i]) out++;
-      return { frames: st.frames, live: st.paused.length === 0, transform: w.style.transform, origin: w.style.transformOrigin, page: document.getElementById("page").getAttribute("style"), out };
-    }, world);
+      const moved = [...document.querySelectorAll("[data-fizlet-slot] *")].some((el) => el.style.transform);
+      return { frames: st.frames, live: st.paused.length === 0, moved, page: document.getElementById("page").getAttribute("style"), out };
+    });
     assert.ok(mid.frames > 10 && mid.live, `animates (${mid.frames} frames)`);
-    assert.match(mid.transform, /^translate\(-?[0-9.]+px, -?[0-9.]+px\) scale\(1\.[0-9]+\)$/, `the card zooms through fizlet/camera (${mid.transform})`);
-    assert.equal(mid.origin, "0px 0px", "the camera transforms from the stage corner");
-    assert.equal(mid.page, null, "the page itself never zooms");
+    assert.equal(mid.moved, false, "no zoom: nothing in the card is transformed");
+    assert.equal(mid.page, null, "the page itself is never styled");
     assert.ok(mid.out > 200, `the spray flies up out of the card (${mid.out} px above it)`);
     const px = await p.evaluate(() => {
       const c = document.querySelector("[data-fizlet-slot] canvas"), d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
@@ -68,23 +77,23 @@ try {
     });
     assert.ok(px > 500, `the can is drawn (${px} pixels)`);
 
-    // Settles: the story ends, the page is back at scale 1, and the engine stops asking for frames.
+    // Settles: the story ends and the engine stops asking for frames.
     await p.waitForFunction(() => scene.engine.paused.includes("settled"), null, { timeout: 10000 });
     const still = await p.evaluate(async () => {
       const a = scene.engine.stats().frames;
       await new Promise((r) => setTimeout(r, 600));
-      return { more: scene.engine.stats().frames - a, transform: document.querySelector("[data-fizlet-slot] > div").style.transform };
+      return scene.engine.stats().frames - a;
     });
-    assert.deepEqual(still, { more: 0, transform: "" }, "settled: no frames, the camera home");
+    assert.equal(still, 0, "settled: no frames");
 
     // A tap on the can wakes it and cracks it again.
     const box = await p.locator("[data-fizlet-slot]").boundingBox();
     await p.mouse.click(box.x + box.width / 2, box.y + box.height * 0.7);
     await p.waitForTimeout(900);
-    const again = await p.evaluate(() => ({ running: scene.engine.running, transform: document.querySelector("[data-fizlet-slot] > div").style.transform }));
-    assert.ok(again.running && /scale/.test(again.transform), "a tap crunches it again and the camera moves in");
+    const again = await p.evaluate(() => scene.engine.running);
+    assert.ok(again, "a tap crunches it again");
 
-    // Recall mid-zoom: the page comes back exactly.
+    // Recall mid-spray: the page comes back exactly.
     const after = await p.evaluate(() => (hero.destroy(), { same: document.body.innerHTML === window.before, running: scene.engine.running }));
     assert.deepEqual(after, { same: true, running: false }, "Recall restores the page byte for byte");
     assert.deepEqual(errs, [], "no page errors");
@@ -106,7 +115,7 @@ try {
     assert.deepEqual(rm, { made: 0, mounted: false, same: true, poster: "inline" }, "reduced motion: still poster, no scene");
     await ctx.close();
   }
-  console.log("fizz: mounts, crunches, sprays out of the card, card-only camera, settles, wakes, Recall exact, reduced motion still — ok");
+  console.log("fizz: mounts, crunches, the lid opens, sprays out of the card, no zoom, settles, wakes, Recall exact, reduced motion still — ok");
 } finally {
   await browser.close();
 }

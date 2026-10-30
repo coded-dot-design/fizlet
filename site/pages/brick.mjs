@@ -15,6 +15,7 @@ const DEMO_NOTES = {
   grid: "A seeded board (the same seed lays the same rocks). Click a cell for the A* path from the green corner.",
   sprite: "One sprite written as rows of characters, drawn at three scales in three palettes (side A, side B, hit flash), then the same pixels as an SVG image.",
   sound: "Every built-in cue. No audio files: a tiny oscillator synth, silent until your first press.",
+  timeline: "DOM choreography on the kernel clock: the cartridge seats, the screen opens, the lines stagger in. When it ends, the engine settles. Replay runs it again; with reduced motion it lands on the end at once.",
 };
 
 /** The size cards for one brick, from the measured sizes. */
