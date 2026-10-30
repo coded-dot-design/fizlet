@@ -7,7 +7,8 @@
 // @keyframes they name and the custom properties they read (dark theme, the domain's own colours).
 // Rules are wrapped in @scope (the piece's root), keyframes get a `dv-` prefix, links are made inert
 // (an <a> becomes a <span>) and view-transition names are dropped, so a piece never leaks into or
-// navigates away from the page that hosts it. ORIGIN.json records the commit and a sha256 per file.
+// navigates away from the page that hosts it. Hard shadows keep their depth and take the host's
+// direction (scripts/shadow-tokens.mjs). ORIGIN.json records the commit and a sha256 per file.
 //
 // Users: the gallery (site/gallery/pieces/dv-*.ts, stages read these files) and the heroes. Change a
 // piece in dom-virus, then move PIN and run this again; never edit the vendored files.
@@ -20,6 +21,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { tokenShadows } from "./shadow-tokens.mjs";
 
 export const REPO = "https://github.com/coded-dot-design/dom-virus";
 /** dom-virus#23's head: #20 (the home hero on Fizlet) + the Battlefield field on fizlet/css-clock. */
@@ -185,6 +187,10 @@ async function vendor(from, build) {
     // The fizlet/slot stage lives on the host's figure, not inside the piece: drop dom-virus's own
     // "until the scene is up" rule (the poster shows until then).
     css = css.split("\n").filter((r) => !r.includes("data-fizlet-slot")).join("\n");
+    // Shadows take the host domain's direction (--shadow-x/-y, BOARD-UI.md §4.1): dom-virus's 45°
+    // slabs and press travel keep their depth and follow the page they are on.
+    css = tokenShadows(css);
+    keyframes = tokenShadows(keyframes);
     // Inert: links become spans, no view-transition names.
     html = html
       .replace(/<a\b([^>]*?)\shref="[^"]*"/g, "<span$1")

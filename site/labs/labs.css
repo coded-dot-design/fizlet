@@ -18,18 +18,18 @@ html[data-theme="light"] .fzl-lime { --accent-text: #171022; --accent-ink: #1020
 html[data-theme="light"] .fzl-violet { --accent-text: #5f48ba; --accent-ink: #21051a; }
 
 /* The stage: a card in the lab's accent with a hard shadow. */
-.fzl.lab-stage{position:relative;margin:0;padding:18px;background:var(--surface);border:2px solid var(--ink);border-radius:10px;box-shadow:6px 6px 0 var(--accent);color:var(--ink);line-height:1.65;text-align:left}
+.fzl.lab-stage{position:relative;margin:0;padding:18px;background:var(--surface);border:2px solid var(--ink);border-radius:10px;box-shadow:calc(6px * var(--shadow-x, 0)) calc(6px * var(--shadow-y, 1)) 0 var(--accent);color:var(--ink);line-height:1.65;text-align:left}
 .fzl .lab-keys{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:14px}
-.fzl .lab-key{min-height:38px;padding:8px 14px;font:700 11px/1 var(--mono);letter-spacing:.08em;color:var(--ink);background:var(--surface);border:2px solid var(--ink);border-radius:8px;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.fzl .lab-key{min-height:38px;padding:8px 14px;font:700 11px/1 var(--mono);letter-spacing:.08em;color:var(--ink);background:var(--surface);border:2px solid var(--ink);border-radius:8px;box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--ink);cursor:pointer}
 .fzl .lab-key[aria-pressed="true"],.fzl .primary-key{background:var(--accent);color:var(--accent-ink)}
-.fzl .lab-key[aria-pressed="true"],.fzl .lab-key[aria-pressed="true"]:hover{transform:translate(3px,3px)!important;box-shadow:0 0 0 var(--ink)!important}
+.fzl .lab-key[aria-pressed="true"],.fzl .lab-key[aria-pressed="true"]:hover{transform:translate(calc(3px * var(--shadow-x, 0)), calc(3px * var(--shadow-y, 1)))!important;box-shadow:0 0 0 var(--ink)!important}
 .fzl .lab-key:disabled{opacity:.45;cursor:default}
 .fzl .lab-readout{font:600 10px/1.4 var(--mono);letter-spacing:.06em;color:var(--muted)}
 
 /* duel */
 .fzl.duel{display:grid;grid-template-columns:1fr 70px 1fr;align-items:start;gap:0}
 .fzl .machine{display:grid;justify-items:center;gap:8px;text-align:center}
-.fzl .mac{display:grid;width:100%;max-width:170px;padding:9px 9px 0;background:#d9d3c3;border:2px solid var(--ink);border-radius:10px 10px 6px 6px;box-shadow:3px 3px 0 var(--ink)}
+.fzl .mac{display:grid;width:100%;max-width:170px;padding:9px 9px 0;background:#d9d3c3;border:2px solid var(--ink);border-radius:10px 10px 6px 6px;box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--ink)}
 .fzl .crt{position:relative;display:grid;place-items:center;aspect-ratio:4/3;background:repeating-linear-gradient(0deg,#ffffff08 0 2px,transparent 2px 4px),#0b0a1a;border:2px solid #8f8879;border-radius:6px;color:var(--accent);overflow:hidden}
 /* A scrap of a Bolo map: walls, a pillbox and a dot grid. */
 .fzl .crt::before{content:"";position:absolute;inset:0;background:linear-gradient(#3d3566,#3d3566) 10% 18%/22% 9% no-repeat,linear-gradient(#3d3566,#3d3566) 10% 18%/7% 30% no-repeat,linear-gradient(#3d3566,#3d3566) 88% 82%/26% 9% no-repeat,linear-gradient(#3d3566,#3d3566) 72% 14%/9% 9% no-repeat,linear-gradient(#ffd16655,#ffd16655) 16% 84%/8% 11% no-repeat,radial-gradient(#ffffff16 1px,transparent 1.5px) 0 0/10px 10px}
@@ -56,7 +56,7 @@ html[data-theme="light"] .fzl-violet { --accent-text: #5f48ba; --accent-ink: #21
 .fzl .mini-page .mini-title{display:inline-block;margin:6px 0 14px;font:800 30px/1 var(--mono);letter-spacing:-.02em}
 .fzl .mini-page p{width:fit-content;margin:0 0 10px;font-size:14px;color:var(--muted)}
 .fzl .mini-page p.short{margin-left:80px}
-.fzl .mini-button{margin-top:10px;min-height:34px;padding:6px 14px;font:700 11px var(--mono);color:var(--ink);background:var(--raised);border:2px solid var(--ink);border-radius:6px;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.fzl .mini-button{margin-top:10px;min-height:34px;padding:6px 14px;font:700 11px var(--mono);color:var(--ink);background:var(--raised);border:2px solid var(--ink);border-radius:6px;box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--ink);cursor:pointer}
 .fzl .xray{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .2s}
 .fzl.board[data-xray-on] .xray{opacity:1}
 .fzl .xray b{position:absolute;border:2px dashed var(--accent);border-radius:3px;background:color-mix(in srgb,var(--accent) 10%,transparent)}
@@ -94,7 +94,7 @@ html[data-theme="light"] .fzl-violet { --accent-text: #5f48ba; --accent-ink: #21
 .fzl .stages b{font:700 11px/1.2 var(--mono);color:var(--ink);overflow-wrap:anywhere}
 .fzl .stages span{font-size:10px;color:var(--muted)}
 .fzl .parcel{position:absolute;left:0;top:0;z-index:2;width:22px;height:22px;opacity:0;pointer-events:none}
-.fzl .parcel svg{width:100%;height:100%;fill:#f4457a;filter:drop-shadow(1px 1px 0 var(--ink))}
+.fzl .parcel svg{width:100%;height:100%;fill:#f4457a;filter:drop-shadow(calc(1px * var(--shadow-x, 0)) calc(1px * var(--shadow-y, 1)) 0 var(--ink))}
 
 @media (max-width:900px){
   .fzl .stages{grid-template-columns:repeat(2,minmax(0,1fr))}
