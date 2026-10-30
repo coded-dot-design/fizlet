@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **Fix: an on-screen key wakes a settled engine.** `controls().press()` and `steer()` now call
+  `engine.wake()`, as a real key or pointer already did. A `fizlet/pad` key is
+  `[data-fizlet-ignore]`, so its tap never reached input's own wake: on an engine with `settle`, a
+  tap was latched but not stepped until something else woke it. Test: `tests/bricks.test.mjs`
+  ("press() and steer() wake a settled engine"). fizlet/input 1,283 → 1,287 B gzip; arcade
+  21,970 → 21,973; arcade (hud omitted) 17,964 → 17,967; page build 7,127 → 7,130 (all in budget).
 - **Gallery: DOM Virus, two hand-built micro games (pending the owner's approval).** A new theme,
   `dom-virus`, with #047 **Terminal virus**: a worm types itself into a terminal, crawls onto the
   README beside it and eats its real letters (each bite rewrites a character of the page's own

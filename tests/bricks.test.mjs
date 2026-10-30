@@ -333,6 +333,38 @@ test("input: hit() and down() in a step allocate nothing", async (t) => {
   assert.ok(minor <= 3, `young-generation GCs over 1M frames: ${minor}`);
 });
 
+test("input: press() and steer() wake a settled engine (on-screen keys, fizlet/pad)", async () => {
+  // A pad key is [data-fizlet-ignore], so its pointerdown never reaches input's own wake: before
+  // the fix a tap on a settled engine was latched but never stepped until something else woke it.
+  globalThis.addEventListener ??= () => {};
+  const { createEngine } = await import("../src/index.ts");
+  const { controls } = await import("../src/input.ts");
+  const target = { addEventListener() {}, getBoundingClientRect: () => ({ left: 0, top: 0, width: 100 }) };
+  const e = createEngine({ settle: 0.1 });
+  const c = controls(e, { target, keys: { fire: ["Space"] } });
+  let fired = 0;
+  e.add({ step: () => c.hit("fire") && fired++ });
+  e.start();
+  const sleep = () => {
+    for (let i = 0; i < 12 && e.running; i++) e.advance(1 / 60);
+    assert.deepEqual(e.paused, ["settled"], "nothing busy: it settles");
+  };
+  sleep();
+  c.press("fire");
+  assert.equal(e.running, true, "press() wakes it");
+  e.advance(1 / 60);
+  assert.equal(fired, 1, "and the press is stepped");
+  c.press("fire", false);
+  sleep();
+  c.steer(1, 0);
+  assert.equal(e.running, true, "steer() wakes it");
+  assert.equal(c.axis("left", "right", 0), 1);
+  sleep();
+  c.press("nope");
+  assert.deepEqual(e.paused, ["settled"], "an unknown intent does nothing");
+  e.destroy();
+});
+
 // Gravity and named kinds (phase 2: page interactions).
 const { emitter, KINDS } = await import("../src/fx.ts");
 
