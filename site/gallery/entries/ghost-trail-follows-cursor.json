@@ -1,0 +1,33 @@
+{
+  "no": 46,
+  "id": "ghost-trail-follows-cursor",
+  "date": "2026-10-30",
+  "prompt": "a ghost trail follows your cursor",
+  "title": "A ghost trail follows your cursor",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "follow",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 32,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 0.34
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/ghost-trail-follows-cursor.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}

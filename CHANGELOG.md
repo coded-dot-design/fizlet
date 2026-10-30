@@ -19,6 +19,10 @@
   through the ledger; kernel + board-page + slot): live 9,285 B · total 11,211 B gzip (with the
   1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
   to zero frames.
+- **Website: gallery #046, "a ghost trail follows your cursor".** Made by `fe anim` from the prompt
+  (recipe follow, the critter scene: a ghost pixel sprite, the follow motion; kernel + sprite +
+  slot): live 6,171 B · total 8,097 B gzip (with the 1,926 B loader) on this build, loaded only near
+  the viewport, never under reduced motion; settles to zero frames.
 
 ## 0.17.0
 
