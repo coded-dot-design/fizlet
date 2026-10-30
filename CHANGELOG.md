@@ -2,6 +2,33 @@
 
 ## 0.17.0
 
+- **Website: a themed gallery, a heroes row and contributor profiles** (launch infrastructure).
+  - **Data, one file each:** every gallery entry (`site/gallery/entries/<id>.json`) now has `kind`
+    (`"hero"` or `"micro"`), `theme` and `author` (a contributor id; it replaces `by`). Themes are
+    data (`site/gallery/themes/<id>.json`: title, blurb, order; Halloween, Thanksgiving, Christmas,
+    Heroes and comics, Crypto memes, Battle of the Models, Everyday): a new theme is a file, not
+    code. Contributors are `site/contributors/<id>.json` (the owner's, `chris-cooley`, to start).
+    The build checks every entry against them and writes the index, `gallery/index.json` (each
+    entry's page, author name and sizes measured on that build); nothing shared is hand-edited.
+  - **/gallery/:** theme sections (an `h2` and a `#theme-<id>` anchor each), newest first inside
+    each, still lazy-mounted through `fizlet/slot`. A row of theme chips (`bui-key` links: each
+    jumps to its theme without script, filters the page with it) and a search box over title,
+    prompt, theme and author (`site/gallery/browse.ts` + `search.ts`, no dependencies; the index is
+    fetched on the first keystroke). Pages of 24 (`/gallery/page/2/` …, built only once there are
+    more than 24). Every card says "by <name>", linked to the profile.
+  - **/heroes/ (new):** the hero animations as large cards (at least 300 × 300 px, bigger on
+    desktop) in a scroll-snap row; prev / next keys and the arrow keys move a card. The card in
+    the centre plays (an IntersectionObserver band); the rest are posters. A Play key per card
+    pauses or plays it (the only way to play under reduced motion). Full screen through the
+    Fullscreen API, or an overlay where it is missing; Esc closes and focus returns to the key that
+    opened it. A size badge on each card (its gallery bundle). Fizz and Layers are the first heroes.
+  - **/people/<id>/ (new):** a contributor's profile and every animation of theirs.
+  - Fixed: the gallery's "TAP TO PLAY" rule left its `@media` block open, so the size badge
+    styles applied only without reduced motion.
+  - `tests/site.mjs`: pages, sections and chips in order, index rows against the built files,
+    attribution links, the filter and the search in a browser, the heroes row (centre plays alone,
+    next / arrow keys, pause, full screen and the overlay with focus return, reduced motion
+    posters and play on request) and the profiles; `tests/gallery.test.mjs` for the data model.
 - **Perf: the demo's blasts are back to 60 fps at 4× CPU throttle** (30 fps since 0.10.1). Bisected
   to 1337112 (the layers story in the home page hero): scrolled off screen, its scene kept about 50
   composited 3D layers, and Chromium layerizes the whole document on every frame that repaints, so

@@ -4,7 +4,9 @@
   "date": "2026-10-29",
   "prompt": "pink sparks burst where you tap",
   "title": "Pink sparks burst where you tap",
-  "by": "Chris Cooley",
+  "kind": "micro",
+  "theme": "everyday",
+  "author": "chris-cooley",
   "recipe": "burst",
   "bricks": [
     "fizlet/kernel",
