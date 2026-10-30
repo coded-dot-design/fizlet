@@ -7,6 +7,7 @@
   and the page-cost gate in CI (#97) with one named exception, the layers story's desktop idle CPU,
   tracked as its own task (G20, #136). E7's "page cost gated in CI" box is ticked by the same gate.
   Merge after #92, #97 and #135.
+- Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
