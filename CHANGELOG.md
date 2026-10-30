@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **CI: one run per change, not two.** `Fizlet checks` ran on `push` and `pull_request`, so every
+  push to a branch with an open PR ran the whole workflow twice. Push now runs on `main` only
+  (`tag-version` and `release` are unchanged); branches are checked by their PR run. On
+  2026-10-30, 35 of the 90 runs were these duplicates: 159 of 401 wall minutes (40 %).
 - **Gallery: DOM Virus, two hand-built micro games (pending the owner's approval).** A new theme,
   `dom-virus`, with #047 **Terminal virus**: a worm types itself into a terminal, crawls onto the
   README beside it and eats its real letters (each bite rewrites a character of the page's own

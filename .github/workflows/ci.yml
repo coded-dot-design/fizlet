@@ -1,5 +1,11 @@
 name: Fizlet checks
-on: [push, pull_request]
+# Push runs on main only (tag-version and release need them); a branch is checked by its PR run.
+# Before: a branch with a PR ran twice per push (35 of 90 runs on 2026-10-30, 159 of 401 wall
+# minutes). fizlet-engine's CI uses the same triggers.
+on:
+  push:
+    branches: [main]
+  pull_request:
 permissions:
   contents: read
 jobs:
