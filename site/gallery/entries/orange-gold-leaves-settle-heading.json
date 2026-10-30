@@ -1,0 +1,35 @@
+{
+  "no": 11,
+  "id": "orange-gold-leaves-settle-heading",
+  "date": "2026-10-30",
+  "prompt": "orange and gold leaves settle on every heading",
+  "title": "Orange and gold leaves settle on every heading",
+  "kind": "micro",
+  "theme": "thanksgiving",
+  "author": "chris-cooley",
+  "recipe": "settle",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/board-page",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 33,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 12.3,
+      "elementsLit": 1
+    }
+  },
+  "fizlet": "0.16.0",
+  "made": "fe anim",
+  "module": "anims/orange-gold-leaves-settle-heading.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "page"
+}

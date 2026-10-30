@@ -1,0 +1,33 @@
+{
+  "no": 26,
+  "id": "hero-lands-cyan-shockwave-tap",
+  "date": "2026-10-30",
+  "prompt": "a hero lands with a cyan shockwave where you tap",
+  "title": "A hero lands with a cyan shockwave where you tap",
+  "kind": "micro",
+  "theme": "heroes-comics",
+  "author": "chris-cooley",
+  "recipe": "burst",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 33,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 1.18
+    }
+  },
+  "fizlet": "0.16.0",
+  "made": "fe anim",
+  "module": "anims/hero-lands-cyan-shockwave-tap.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}
