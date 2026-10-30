@@ -48,7 +48,8 @@ export function whoosh(stage: HTMLElement, slot: HTMLElement, first: SlotTap | n
   const engine = createEngine({ root: stage, settle: 0.6 });
   const L = engine.ledger;
   const S = new Float64Array(48);
-  S[WAIT] = first ? 0 : 0.5;
+  // The intro waits 0.5 s: held awake that long (settle is 0.6 s, and on a slow page wall time outruns it).
+  engine.busy((S[WAIT] = first ? 0 : 0.5));
   S[RES] = S[DIRTY] = 1;
   S[P] = 3;
   S[WT] = S[BT] = -1;

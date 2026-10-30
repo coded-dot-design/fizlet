@@ -43,7 +43,8 @@ export function landing(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
   const engine = createEngine({ root: stage, settle: 0.6, seed: (Math.random() * 2147483647) | 0 || 1 });
   const L = engine.ledger;
   const S = new Float64Array(40);
-  S[WAIT] = first ? 0 : 0.6;
+  // The intro waits 0.6 s, as long as settle: held awake that long, or he might never drop.
+  engine.busy((S[WAIT] = first ? 0 : 0.6));
   S[RES] = S[DIRTY] = 1;
   S[P] = 3;
   S[RR] = -1;
@@ -250,9 +251,7 @@ export function landing(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
         begin();
       } else if (S[QUEUE] === 1 && S[HM] !== WAITING && (S[HM] !== LANDED || S[HT]! > 0.25) && (S[HM] !== STUCK || S[HT]! > 1.1)) begin();
       const m = S[HM]!, t = (S[HT] = S[HT]! + dt);
-      // The wait before the first landing counts as busy, or the settle timer (also 0.6 s) can put
-      // the engine to sleep before he ever drops.
-      if ((m !== WAITING || S[WAIT]! >= 0) && m !== STAND) busy = true;
+      if (m !== WAITING && m !== STAND) busy = true;
       if (m === LEAP) {
         // A crouch, then up and out of the top; then the drop at the target.
         if (t > 0.1) {

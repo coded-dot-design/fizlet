@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+- **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
+  intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
+  could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
+  1 run in 3). `busy(sec)` keeps the engine awake for `sec` of its own time, then settle counts
+  from there. A later, shorter hold never cuts a longer one; `busy()`, `busy(0)` and `busy(NaN)` are
+  the plain "something moved" call.
+  - Settle now counts engine time (steps), not wall time. On a slow page whose frames drop steps,
+    wall time runs ahead of the engine's own, so a plain `busy()` with settle 0.6 used to sleep
+    after 0.27 s of engine time on 250 ms frames; now it waits the full 0.6 s.
+  - One value instead of two: the quiet clock becomes "the engine time settle counts from"
+    (`busy()` sets it to now, `busy(sec)` to now + sec, at least), and the `moved` flag is gone.
+    `wake()` is `busy()`, so a hold asked before the engine runs (a scene's intro, at mount)
+    survives start and wake.
+  - Sizes (gzip, measured on the 0.20.0 release train): kernel 3,443 → 3,438 B; page build (kernel +
+    slot + input + fx) 7,164 → 7,166 B (cap 7,168); arcade with `hud` omitted 18,351 → 18,348 B;
+    the layers hero's live chunk 9,720 → 9,724 B (the 5% margin under 10 KB, ≤ 9,728, unchanged).
+    No budget moves.
+  - Tests: a hold keeps the engine awake for its length, then settle (also on 250 ms frames); a
+    hold asked mid-run counts from there; a hold asked before start survives start and wake; a later shorter hold never cuts a longer one; 0 and NaN
+    are plain `busy()`; 1M steps calling `busy(sec)` allocate nothing.
+- **Gallery: scheduled intros hold the engine.** #023 (red cape) waited 0.5 s before its intro
+  without keeping the engine busy (settle 0.6 s); #026 (the landing) waited 0.6 s (settle 0.6 s)
+  and was fixed by counting the wait as busy. Both now call `engine.busy(wait)` when the wait is
+  set (at mount). The settle guard below found #023 and confirmed #026.
+- **Settle guard** (`npm run test:settle`, in CI after the site build; `tests/settle-guard.mjs`):
+  every gallery entry, live and archived, runs alone on its gallery page in Chromium with a probe in
+  the kernel, and must play its autoplay story through without a quiet stretch that turns busy again
+  by itself, then stay settled once woken with nothing pending. It failed on #023 and on #026
+  before these fixes in 3 of 3 runs each.
 - **`fizlet/css-clock`** (new brick, 477 B gz of its own; 5,377 B on 0.20.0 with the kernel and timeline it
   composes, budget 5,632): a page's own CSS `@keyframes` on the kernel clock, so a site's ambient
   loops (blinks, pulses, diagram loops, patrols) eat the dog food without being rewritten. The look
