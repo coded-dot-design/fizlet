@@ -1,0 +1,33 @@
+{
+  "no": 56,
+  "id": "purple-green-potion-bubbles-rise",
+  "date": "2026-10-30",
+  "prompt": "purple and green potion bubbles rise",
+  "title": "Purple and green potion bubbles rise",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "rise",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 32,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 16.04
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/purple-green-potion-bubbles-rise.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}

@@ -59,6 +59,10 @@
   prompt (recipe type, a page scene that reads the page's own headings and writes only through the
   ledger; kernel + board-page + slot): live 9,282 B · total 11,208 B gzip (with the 1,926 B loader)
   on this build, loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #056, "purple and green potion bubbles rise".** Made by `fe anim` from the
+  prompt (recipe rise, the spray scene; kernel + fx + slot): live 6,641 B · total 8,567 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
 
 ## 0.17.0
 
