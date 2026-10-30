@@ -32,6 +32,10 @@ let probe: HTMLElement | undefined;
 /** How the browser normalises a style attribute's text (to check a restore is a no-op change). The
  *  probe comes from the element's own document (an iframe's page has no global `document` of its own). */
 const withStyle = (text: string, el: El) => ((probe ??= el.ownerDocument.createElement("i")).setAttribute("style", text), probe.style.cssText);
+/** The host changed this property since our last write (or did before): hands off. */
+const lost = (r: StyleRec, s: CSSStyleDeclaration, prop: string) => r.x || s.getPropertyValue(prop) !== r.l || s.getPropertyPriority(prop) !== r.lp;
+/** Put a property's original value back (removed if it had none). */
+const back = (r: StyleRec, s: CSSStyleDeclaration, prop: string) => (r.o ? s.setProperty(prop, r.o, r.op) : s.removeProperty(prop));
 
 export class Ledger {
   // Private names are short on purpose: esbuild keeps property names, and every byte here ships in
@@ -63,7 +67,7 @@ export class Ledger {
       const v = s.getPropertyValue(prop), p = s.getPropertyPriority(prop);
       map.set(prop, (r = { o: v, l: v, op: p, lp: p, x: false }));
     }
-    if (r.x || s.getPropertyValue(prop) !== r.l || s.getPropertyPriority(prop) !== r.lp) return !(r.x = true);
+    if (lost(r, s, prop)) return !(r.x = true);
     if (r.l === value && r.lp === priority) return true;
     s.setProperty(prop, value, priority);
     r.l = s.getPropertyValue(prop);
@@ -76,9 +80,8 @@ export class Ledger {
   unstyle(el: El, prop: string): boolean {
     const r = this.m.get(el)?.style?.get(prop), s = el.style;
     if (!r) return true;
-    if (r.x || s.getPropertyValue(prop) !== r.l || s.getPropertyPriority(prop) !== r.lp) return !(r.x = true);
-    if (r.o) s.setProperty(prop, r.o, r.op);
-    else s.removeProperty(prop);
+    if (lost(r, s, prop)) return !(r.x = true);
+    back(r, s, prop);
     this.m.get(el)!.style!.delete(prop);
     return true;
   }
@@ -132,9 +135,8 @@ export class Ledger {
       let all = true;
       e.style?.forEach((r, prop) => {
         const s = el.style;
-        if (r.x || s.getPropertyValue(prop) !== r.l || s.getPropertyPriority(prop) !== r.lp) return void (all = false);
-        if (r.o) s.setProperty(prop, r.o, r.op);
-        else s.removeProperty(prop);
+        if (lost(r, s, prop)) return void (all = false);
+        back(r, s, prop);
       });
       // Still ours end to end: put the original attribute text back byte for byte.
       if (e.style && all && e.os !== null && el.style.cssText === withStyle(e.os, el)) el.setAttribute("style", e.os);
