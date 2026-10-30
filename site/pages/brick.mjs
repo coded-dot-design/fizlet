@@ -1,6 +1,6 @@
 // One page per brick, generated from the source: the summary is the module's leading comment, the
 // API is its declarations (scripts/api.mjs), the sizes are measured on this build (scripts/sizes.mjs).
-import { esc, icon, REPO, SITE } from "../layout.mjs";
+import { crumbs, esc, icon, REPO, SITE } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { STATUS, BETA_LINE } from "../bricks.mjs";
 
@@ -23,7 +23,7 @@ function statusPanel(brick) {
       <dl>
         <div><dt>SINCE</dt><dd>v${esc(brick.since)}</dd></div>
         <div><dt>SHIPPED IN</dt><dd>${brick.used.length ? `<ul>${list(brick.used)}</ul>` : "no released game or page yet"}</dd></div>
-        <div><dt>TESTS</dt><dd><ul>${brick.tests.map((t) => `<li><a href="${REPO}/blob/main/tests/${t}"><code>${esc(t)}</code></a></li>`).join("")}</ul></dd></div>
+        <div><dt>TESTS</dt><dd><ul>${brick.tests.map((t) => `<li><a href="${REPO}/blob/main/tests/${t}"><code>${esc(t)}</code> ↗</a></li>`).join("")}</ul></dd></div>
       </dl>
     </div>`;
 }
@@ -83,7 +83,7 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
   return `
 <section class="section bp" aria-labelledby="bp-title">
   <div class="wrap">
-    <nav class="bp-crumbs" aria-label="Breadcrumb"><a href="../">Fizlet</a> / <a href="./">Bricks</a> / <span aria-current="page">${esc(brick.name)}</span></nav>
+    ${crumbs("../", [["bricks/", "Bricks"]], brick.name)}
     <div class="split bp-top" style="--tone: var(--k-${brick.role})">
       <div>
         <p class="eyebrow"><span class="index">${esc(brick.tag)}</span> V${esc(version)} ${statusPill(brick.status)}</p>

@@ -18,7 +18,7 @@ export function makePage({ made, script, recipes, base }) {
     <div class="section-head">
       <p class="eyebrow"><span class="index">V0</span> MAKE ONE · IN YOUR BROWSER</p>
       <h1 id="make-title">Type a prompt.<br><em>Get a snippet.</em></h1>
-      <p class="lead">Say what should move. This page matches your words against the ${recipes.length} recipes the <a href="${base}gallery/">gallery</a> is made from (${recipes.map(esc).join(", ")}) and hands you one file to paste into any page: a mount and one module script with only the bricks it uses, its size measured into its own header. By <a href="https://coded.design/">Chris Cooley</a>, MIT.</p>
+      <p class="lead">Say what should move. This page matches your words against the ${recipes.length} recipes the <a href="${base}gallery/">gallery</a> is made from (${recipes.map(esc).join(", ")}) and hands you one file to paste into any page: a mount and one module script with only the bricks it uses, its size measured into its own header. By <a href="https://coded.design/">Chris Cooley ↗</a>, MIT.</p>
       <p class="make-badge">${sizeBadge(script, "make/make.js", "this page's script")}</p>
     </div>
     <form class="panel make-form" data-make action="./" method="get">

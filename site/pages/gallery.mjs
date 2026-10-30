@@ -5,7 +5,7 @@
 // site/contributors); `fe anim --publish` in the engine adds entries. Each page holds PAGE_SIZE
 // entries (scripts/gallery.mjs paginate) in theme sections; a theme filter and a search over the
 // generated index (gallery/index.json) sit on top (site/gallery/browse.ts).
-import { esc, icon } from "../layout.mjs";
+import { crumbs, esc, icon } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { sections } from "../../scripts/gallery.mjs";
 import { winnerBadge } from "./people.mjs";
@@ -91,10 +91,11 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
   return `
 <section class="section" aria-labelledby="gal-title">
   <div class="wrap">
+    ${page.n > 1 ? crumbs(base, [["gallery/", "Gallery"]], `Page ${page.n}`) : ""}
     <div class="section-head">
       <p class="eyebrow"><span class="index">${all.length}</span> ANIMATIONS · NEWEST FIRST${pages.length > 1 ? ` · PAGE ${page.n} OF ${pages.length}` : ""}</p>
       <h1 id="gal-title">One prompt.<br><em>One animation.</em></h1>
-      <p class="lead">A new animation from a simple prompt, made from Fizlet bricks. Each one shows the prompt it was made from, runs live once it nears the screen, and wears its size, measured on this build. Still once it settles, asleep off screen, and the page always comes back. Take any made from a prompt home as one file, or <a href="${base}make/">make your own</a>. By <a href="https://coded.design/">Chris Cooley</a>${heroes ? ` · <a href="${base}heroes/">the ${heroes} heroes, big</a>` : ""}.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/" rel="nofollow">the archive</a>.` : ""}</p>
+      <p class="lead">A new animation from a simple prompt, made from Fizlet bricks. Each one shows the prompt it was made from, runs live once it nears the screen, and wears its size, measured on this build. Still once it settles, asleep off screen, and the page always comes back. Take any made from a prompt home as one file, or <a href="${base}make/">make your own</a>. By <a href="https://coded.design/">Chris Cooley ↗</a>${heroes ? ` · <a href="${base}heroes/">the ${heroes} heroes, big</a>` : ""}.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/" rel="nofollow">the archive</a>.` : ""}</p>
     </div>
     <nav class="gal-themes" aria-label="Themes">${chips}</nav>
     <form class="gal-search" role="search" data-gal-search data-base="${base}" hidden>
@@ -126,6 +127,7 @@ export function archivePage({ entries, themes, people, loader, figures, base }) 
   return `
 <section class="section" aria-labelledby="gal-title">
   <div class="wrap">
+    ${crumbs(base, [["gallery/", "Gallery"]], "Archive")}
     <div class="section-head">
       <p class="eyebrow"><span class="index">${entries.length}</span> ARCHIVED · NOT IN THE GALLERY</p>
       <h1 id="gal-title">The archive.</h1>
