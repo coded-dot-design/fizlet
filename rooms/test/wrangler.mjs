@@ -21,7 +21,7 @@ const env = { ...process.env, WRANGLER_SEND_METRICS: "false", CI: "1" };
 
 // Seed the local KV with the test invite (its hash, as the owner's invite tool does).
 execFileSync("npx", ["wrangler", "kv", "key", "put", "--binding", "INVITES", await inviteKey(CODE), "e2e", "--local", "--persist-to", state], { cwd, env, stdio: "pipe" });
-const dev = spawn("npx", ["wrangler", "dev", "--local", "--port", String(PORT), "--ip", "127.0.0.1", "--persist-to", state, "--var", "IDLE_SECONDS:3", "--var", "MAX_ROOMS:4", "--var", "ALLOWED_ORIGINS:"], { cwd, env, detached: true });
+const dev = spawn("npx", ["wrangler", "dev", "--local", "--port", String(PORT), "--ip", "127.0.0.1", "--persist-to", state, "--var", "IDLE_SECONDS:3", "--var", "MAX_ROOMS:4", "--var", "MAX_PLAYERS:2", "--var", "ALLOWED_ORIGINS:"], { cwd, env, detached: true });
 let log = "";
 dev.stdout.on("data", (d) => (log += d));
 dev.stderr.on("data", (d) => (log += d));
@@ -58,7 +58,9 @@ try {
     await new Promise((r) => setTimeout(r, 100));
   }
   // 1. The gate.
-  assert.equal((await fetch(`${HTTP}/invite?code=${CODE}`)).status, 200, "the invite check accepts the code");
+  const invite = await fetch(`${HTTP}/invite?code=${CODE}`);
+  assert.equal(invite.status, 200, "the invite check accepts the code");
+  assert.deepEqual(await invite.json(), { ok: true, players: 2 }, "and says how many players a room takes (MAX_PLAYERS)");
   assert.equal((await fetch(`${HTTP}/invite?code=e2e-test-invite`)).status, 200, "codes are case-insensitive");
   assert.equal((await fetch(`${HTTP}/invite?code=NOT-A-CODE`)).status, 403);
   assert.equal(await status(`${HTTP}/room/0?players=2`), 403, "no invite, no room");

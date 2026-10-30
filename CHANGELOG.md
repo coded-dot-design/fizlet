@@ -9,6 +9,45 @@
   order, then id; a pending entry has none. When two entries share a number, the first to land keeps
   it. The build shows a live entry's coming number (so a PR builds) and fails on a shared number,
   naming the entries and the fix. Tests: `tests/gallery-number.test.mjs`.
+- **fizlet-rooms: rooms of up to 4 players, and `/invite` says the room size.** `wrangler.toml`
+  `MAX_PLAYERS` 2 → 4 (the code ceiling stays 8 in `src/limits.js`); `GET /invite` now answers
+  `{"ok":true,"players":<MAX_PLAYERS>}` so a page offers only room sizes that can join (Blitz's
+  multiplayer page shows its 2 · 3 · 4 pick from it; an older answer without `players` means two).
+  Relay unchanged: it already seated any count. Cost: a 4-player room relays each input to three
+  sockets instead of one (MSG_RATE per socket is unchanged). Needs `wrangler deploy` (owner's go).
+  `test/relay.test.mjs`: a four-player room (seats, fan-out to the other three, a leave told to all).
+- **CI: one run per change, not two.** `Fizlet checks` ran on `push` and `pull_request`, so every
+  push to a branch with an open PR ran the whole workflow twice. Push now runs on `main` only
+  (`tag-version` and `release` are unchanged); branches are checked by their PR run. On
+  2026-10-30, 35 of the 90 runs were these duplicates: 159 of 401 wall minutes (40 %).
+- **`PERF-LOG.md`: every perf win, one measured line each.** Generated from `tests/perf/wins.json`
+  by `node scripts/perf-log.mjs --write` (never by hand); each row has before → after, how it was
+  measured, the test that holds it and the PR. First entries (0.19.0, #67): the fps cap caps rAF
+  (home at 1440, 119.6 → 28.5 rAF/s) and the demo settles (60.4 → 0 rAF/s). `tests/perf-log.test.mjs`
+  fails when the log is stale or an entry has no measured number, PR or test.
+- **Gallery: DOM Virus, two hand-built micro games (pending the owner's approval).** A new theme,
+  `dom-virus`, with #047 **Terminal virus**: a worm types itself into a terminal, crawls onto the
+  README beside it and eats its real letters (each bite rewrites a character of the page's own
+  text through the ledger), forking a new pid every four letters. Tap a worm to `kill -9` it: it
+  bursts, the blast knocks its neighbours tumbling, and every letter it chewed flies home as a
+  packet and is written back exactly. Let it eat half the page and the kernel panics, then Recall
+  rolls the whole page back. And #048 **Petri dish**: virus cells drift, collide (circle
+  collisions, mass by size) and split under a microscope; a zap bursts a cell, and its shockwave
+  bursts any cell caught mid-split, so a well-timed zap sets off a chain. Gold mutants split
+  faster and take two zaps; at 40 cells a UV sweep sterilises the dish. Dark is a fluorescence
+  scope, light a brightfield one. Bricks: kernel, `fizlet/steer`'s exact `hypot`, slot; both
+  settle to no frames, no allocation in step, a still poster under reduced motion. Live sizes
+  (gzip, measured): terminal virus 8,076 B, petri dish 7,608 B (kernel 3,353 B of each).
+  `tests/virus.mjs` (in `test:browser`) plays both: kills and zaps have their consequences, the
+  README reads exactly as before once every worm is dead, both settle, a tap plays again,
+  `destroy()` mid-play gives the page back byte for byte, and reduced motion loads nothing.
+- **Fix: `slot("page#slot", …)` finds astro-engine's current slot markup.** The engine now renders
+  `<figure class="ae-slot-figure"><div class="ae-slot" data-slot-target role="img">…</div><figcaption
+  class="ae-slot__fallback">` (the caption outside the role="img" box), and `findSlot()` looked only
+  for `figure.ae-slot`, so the target found nothing. It now matches any `.ae-slot[data-slot-target]`,
+  the figure or the box; the caption outside the box stays visible while the scene runs.
+  `tests/browser.mjs` mounts a scene in both shapes. fizlet/slot 1,852 B gzip (−4 B); page build
+  7,122 B (−5 B).
 - **Website: Make one (`/make/`), v0.** Type a prompt, get one drop-in file: a `data-fizlet`
   mount and one module script with only the bricks the scene uses, its gzip size measured into its
   own header, by Chris Cooley, MIT. It all runs in the browser: the prompt is matched against the
