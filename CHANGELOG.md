@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased
+
+- **Arcade: an array of controls and scoreboards (`hud`)**, the first step of the plan to make
+  DOM Battlefield / Blitz the standard game UI. `ArcadeDef` takes `hud`, a preset; each preset is
+  its own export, so a game ships only the one it names (BOARD-UI.md §19).
+  - **`arcadeHud({ header?, nav? })`, the default:** the card as it was. Leaving `hud` out (or
+    passing `arcadeHud()`) renders it byte for byte: a browser test compares the scoreboard's
+    markup at start, at game over and on a phone with a fixture captured from 0.17.0. `header`
+    and `nav` keep only the keys named.
+  - **`skirmishHud({ readouts, … })`:** Battlefield Blitz's HUD on the shell: a top bar with
+    readouts in their formats (`num`, `clock`, `rank`, `pct`, an armor `bar` with a `low` state),
+    aim toggles (intents `aim-auto` / `aim-lock`), action keys with count badges, fullscreen /
+    sound / pause / exit; a feed and a banner from the event ring; pause / surrender / countdown /
+    result overlays (the result lists `stats()` keys and keeps a best on the device); on phones
+    the pad with the aim toggles and counted keys. Values go through `fizlet/hud`.
+  - **The preset contract** (`ArcadeHud`, `HudRun`, `HudView`) is exported, so a game can bring its
+    own. `readouts` is optional in `ArcadeDef` (the card's; skirmish has its own).
+  - `tests/arcade-hud.mjs` (Chromium): the card byte for byte, picked keys, every skirmish piece,
+    change-only (0 mutations on unchanged frames), Recall exact (after a surrender, mid-run, during
+    the countdown), the phone pad, and zero allocation in the steady state: 0 minor GCs over 200k
+    HUD writes for the card and for skirmish, unchanged and with every value changing (best of 3;
+    the card's own path, which allocates when values change, shows 8, so the check can see it).
+  - **Size:** a card game (`hud` left out) 17,622 B gzip, +311 B over 0.17.0's 17,311 for the
+    preset contract and the header / nav choice (budget 17,408 → 17,920, its own line
+    "fizlet/arcade (hud omitted)"). The whole module with skirmish: 21,634 B (budget 22,016):
+    skirmish adds 4,012 B to a game that uses it, `fizlet/hud` (1,320 B) included.
+
 ## 0.17.0
 
 - **Website: a themed gallery, a heroes row and contributor profiles** (launch infrastructure).
