@@ -23,7 +23,7 @@ function statusPanel(brick) {
       <dl>
         <div><dt>SINCE</dt><dd>v${esc(brick.since)}</dd></div>
         <div><dt>SHIPPED IN</dt><dd>${brick.used.length ? `<ul>${list(brick.used)}</ul>` : "no released game or page yet"}</dd></div>
-        <div><dt>TESTS</dt><dd><ul>${brick.tests.map((t) => `<li><a href="${REPO}/blob/main/tests/${t}"><code>${esc(t)}</code></a></li>`).join("")}</ul></dd></div>
+        <div><dt>TESTS</dt><dd><ul>${brick.tests.map((t) => `<li><a href="${REPO}/blob/main/tests/${t}"><code>${esc(t)}</code> ↗</a></li>`).join("")}</ul></dd></div>
       </dl>
     </div>`;
 }
