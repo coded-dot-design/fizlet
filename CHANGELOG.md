@@ -31,6 +31,10 @@
   (recipe weave, the critter scene: a web pixel sprite, the weave motion; kernel + sprite + slot):
   live 6,095 B · total 8,021 B gzip (with the 1,926 B loader) on this build, loaded only near the
   viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #049, "witch hats pop like confetti when you tap".** Made by `fe anim` from the
+  prompt (recipe scatter, the critter scene: a hat pixel sprite, the scatter motion; kernel + sprite
+  + slot): live 6,120 B · total 8,046 B gzip (with the 1,926 B loader) on this build, loaded only
+  near the viewport, never under reduced motion; settles to zero frames.
 
 ## 0.17.0
 

@@ -1,0 +1,33 @@
+{
+  "no": 49,
+  "id": "witch-hats-pop-like-confetti",
+  "date": "2026-10-30",
+  "prompt": "witch hats pop like confetti when you tap",
+  "title": "Witch hats pop like confetti when you tap",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "scatter",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 32,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 0.84
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/witch-hats-pop-like-confetti.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}
