@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Fix: the fps cap counts its slot from the frame's start, not the end of its work.** A capped
+  engine napped `1000/fps − 4` ms after its hooks finished, so a frame whose work took longer than
+  the 4 ms slack missed its slot by a whole vsync: at 4× CPU the battlefield.domvirus.com hero
+  (`fps: 30`, ~13–28 ms a frame on a 390 × 844 phone) ran at 21.6–21.9 rAF/s instead of 30. The nap
+  is now shortened by the frame's own work time (`timing[1]`), never below 0. Test:
+  `tests/kernel.test.mjs` ("a slow frame still meets its next slot": 20 ms frames, 20 → 30 fps;
+  the fake display's timers now count each frame's work). Kernel 3,441 → 3,450 B gzip; page build
+  7,125 → 7,131 (budget 7,168).
+
 - **Fix: `destroy()` clears the fps cap's pending wake-up.** An engine with `fps` waits off the
   shared clock on a timer between frames; `destroy()` left that timer to fire once more (harmless,
   but it held the engine until then). It now clears it, so nothing of the engine outlives
