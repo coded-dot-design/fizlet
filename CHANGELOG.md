@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **Fix: a sprite id that names no sprite throws instead of drawing another sprite.** In
+  `sprites()`, an unknown name, an index past the end or a fraction made a cache key of 0, so once
+  sprite 0 was baked `tile("typo")` returned sprite 0's tile and `draw()` silently painted nothing.
+  `tile()` and `draw()` now throw a `RangeError` ("fizlet/sprite: no sprite …"), like `need` does
+  for bad options. Test: `tests/bricks.test.mjs` ("an id that names no sprite throws"); `draw`
+  still allocates nothing once baked. fizlet/sprite 1,403 → 1,437 B gzip (budget 1,536).
 - **Fix: an on-screen key wakes a settled engine.** `controls().press()` and `steer()` now call
   `engine.wake()`, as a real key or pointer already did. A `fizlet/pad` key is
   `[data-fizlet-ignore]`, so its tap never reached input's own wake: on an engine with `settle`, a
