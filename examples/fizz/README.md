@@ -4,17 +4,17 @@ By [Chris Cooley](https://coded.design/). The live page is at
 <https://coded-dot-design.github.io/fizlet/demos/fizz/>; the source is in
 [`site/demos/fizz/`](../../site/demos/fizz/).
 
-An 80s arcade soda can: the tab pops, fizz sprays from the opening, a drip runs down the side and
-the page itself zooms in on it. It mounts through `fizlet/slot`, so it can be a hero or a story
-graphic, and it is built from the kernel (`settle` + `fps`), `fizlet/fx` and `fizlet/sprite` only.
+An 80s arcade soda can, side view and top-down view of the same moment. Tap it: the can crunches,
+the tab pops, and the fizz sprays up and out of the card while a drip runs down the side. The camera
+moves inside the card only: in on the opening, across to the view straight down into the can, then
+home. It mounts through `fizlet/slot`, so it can be a hero or a story graphic, and it is built from
+the kernel (`settle` + `fps`), `fizlet/fx`, `fizlet/sprite` and `fizlet/camera` only.
 
 ```html
-<div style="overflow: clip">                     <!-- clips the zoom -->
-  <main data-fizz-zoom>                          <!-- "the page": this is what zooms -->
-    <figure class="ae-slot" data-slot-target="fizz#hero" role="img" aria-label="A pixel soda can pops open and fizzes">
-      <svg class="ae-slot__placeholder">…the still frame…</svg>
-    </figure>
-  </main>
+<div>                                            <!-- the spray may fly over this box, and above it -->
+  <figure class="ae-slot" data-slot-target="fizz#hero" role="img" aria-label="A pixel soda can, side and top views, crunches, pops and fizzes">
+    <svg class="ae-slot__placeholder">…the still frame…</svg>
+  </figure>
 </div>
 <script type="module">
   import { slot } from "fizlet/slot";
@@ -23,10 +23,12 @@ graphic, and it is built from the kernel (`settle` + `fps`), `fizlet/fx` and `fi
 ```
 
 - **Lazy:** nothing but the slot loads until the figure is near the viewport and the main thread
-  is idle. A tap before then loads it at once and pops the tab.
+  is idle. A tap before then loads it at once and crunches the can.
+- **Out of the card:** the spray draws on a layer over the figure's parent, reaching up above the
+  card (over the card's width only). It never takes a pointer.
 - **Reduced motion:** the scene never loads; the poster is the still frame.
 - **Settles:** the engine runs at 30 fps while something moves, then sleeps (no frames at all).
-- **Recall:** `destroy()` removes the canvas and gives back every style the zoom wrote, exactly.
+- **Recall:** `destroy()` removes both canvases and gives back every style it wrote, exactly.
 
 Run it: `npm run site`, serve `site-dist/`, open `/examples/fizz/`. [index.html](index.html) is the
 whole host page.
