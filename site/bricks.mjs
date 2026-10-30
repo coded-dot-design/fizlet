@@ -123,6 +123,13 @@ const k = t.show(); if (k >= 0) c.show(\`\${k + 1}/10\`, STEPS[k], TEXT[k]);` },
     tag: "TOUCH", role: "sys", modules: [mod("fizlet/touch", "touch")],
     snippet: `lockTouch(); // pinch never zooms the page from a slot, a game or the pad
 lockTouch(document, null); // a full-screen board: the whole page` },
+  { id: "css-clock", status: "beta", since: "0.21.0", tests: ["css-clock.test.mjs", "css-clock.mjs"], used: ["fizlet.com (the home demo's hint and the roadmap's current phase)"], why: "New since 0.20.0: its API may still move.",
+    tag: "CSS CLOCK", role: "fire", modules: [mod("fizlet/css-clock", "css-clock")],
+    snippet: `/* CSS: the look stays in the stylesheet, paused; its time is --fz-t */
+.led { animation: blink 1s steps(2) infinite paused; animation-delay: var(--fz-t, 0s); }
+
+const c = cssClock(diagram, { span: 6, loops: 3 }); // rests on frame one, settles
+pauseButton.onclick = () => c.hold(!held); // c.destroy() gives the page back` },
   { id: "arcade", status: "complete", since: "0.11.0", tests: ["arcade.mjs", "arcade-game.mjs", "arcade-hud.mjs"], used: ["Null Invaders 1.0", "Byte Runner 1.0", "Sherman Bytes 1.0"],
     tag: "ARCADE", role: "go", modules: [mod("fizlet/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
