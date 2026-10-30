@@ -90,7 +90,9 @@ export const BUDGETS = [
   // 4,974 B on 0.20.0. 5,125 B with #136 (+151 B): every hard base, press, hover lift, focus ring,
   // call ring, sticker slam and hit area reads the domain shadow direction (--shadow-x/-y, through
   // --bui-sx/-sy) instead of a literal "straight below"; budget raised from 5,120 by that need.
-  ["fizlet/ui (css)", "src/ui/board-ui.css", 5136],
+  // 5,139 B with #148 (+14 B): a hidden fizlet/coach card is not drawn (`[hidden]` beats its
+  // inline grid); budget raised from 5,136 by that need.
+  ["fizlet/ui (css)", "src/ui/board-ui.css", 5152],
 ];
 
 /** [{ name, entry, budget, gzip }] for every budgeted entry. */
