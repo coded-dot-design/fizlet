@@ -2733,6 +2733,23 @@ html.bui[data-theme="light"] .phases b {
   rotate: -3deg;
   vertical-align: middle;
 }
+.ct-small {
+  background: var(--k-go);
+}
+.ct-big {
+  color: var(--ink);
+  background: var(--raised);
+  border: 2px dashed var(--k-fire-ink);
+  box-shadow: none;
+  rotate: none;
+}
+.ct-entries {
+  margin-top: 36px;
+}
+.ct-entries h2 {
+  margin: 0 0 12px;
+  font-size: clamp(22px, 2.6vw, 28px);
+}
 .ct-today {
   display: grid;
   gap: 10px;

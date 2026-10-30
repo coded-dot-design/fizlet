@@ -13,6 +13,21 @@
 
 ## 0.19.0
 
+- **Contest: weekly, and small wins.** One winner a week, picked from that week's dailies (the
+  gallery's new pieces dated inside the ISO week, at most one a day); no daily winner and no
+  12-entry minimum. Data moves from `site/contest/days/<date>.json` to
+  `site/contest/weeks/<YYYY-Www>.json`, and entries no longer carry a `contest` stamp (the build
+  fails on one). The prompt is no longer the judge (the 60-character rule is gone); size is: a
+  piece whose live chunk is 10 KB gzip or less (10,240 B, the hero live-chunk budget, measured at
+  build) can win; a bigger one is posted with a "Too big to win" sticker (on `/contest/` and its
+  gallery card) and the build fails if it is a week's winner. `/contest/` lists the week's dailies
+  smallest first with their measured size and marks the smallest that can win. Archived entries
+  never enter.
+- **Gallery: the owner approves every new piece.** An entry is live once it carries
+  `"approved": "<date>"`; a new one lands pending (no `approved`) and is checked but never built,
+  listed, indexed or entered in the contest until the owner approves it (or pulls it to the
+  archive). The 25 entries already live are grandfathered with their own date. Tests: the gate in
+  `tests/gallery.test.mjs`, and no card, index row or bundle for a pending entry in `tests/site.mjs`.
 - **Gallery archive: noindex, nofollow** (owner: "archive the rest somewhere… but definitely no-follow
   those pages"). `gallery/archive/` is `noindex,nofollow`, stays out of the sitemap and llms.txt,
   and the gallery's one quiet link to it is `rel="nofollow"`.
