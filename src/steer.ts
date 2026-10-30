@@ -10,10 +10,13 @@
  * Each writes the distance moved this call to `moved[i]` (0 when standing). The heading turn and the per-axis
  * wall check (`blocked`, so a mover slides along walls) are DOM Battlefield Blitz's `drive`, and the
  * defaults are its tank numbers, so a port keeps its feel. Nothing allocates: call them from a step,
- * one mover at a time. Pass `engine.random` as `random` so seeded runs replay.
+ * one mover at a time. Pass `engine.random` as `random` so seeded runs replay. Options are checked
+ * at setup: a bad number throws a RangeError with its name instead of turning into NaN mid-game.
  */
+import { need } from "./kernel/need";
+
 export interface SteerOptions {
-  /** Movers (fixed: the arrays never grow). */
+  /** Movers, a positive integer (fixed: the arrays never grow). */
   cap: number;
   /** Pixels per second at full pace (default 150) and a multiplier for the board's scale (default 1). */
   speed?: number;
@@ -58,9 +61,12 @@ export const hypot = (dx: number, dy: number) => {
 };
 
 export function steer(o: SteerOptions) {
-  const n = Math.max(1, o.cap | 0), speed = o.speed ?? 150, scale = o.scale ?? 1, rate = o.turn ?? 7, stop = o.stop ?? 16;
-  const near = o.near ?? 14, slow = o.slow ?? 140, fast = o.fast ?? 1.05, calm = o.calm ?? 0.8, far = o.far ?? 240;
-  const every = o.every ?? 2, jitter = o.jitter ?? 2, area = o.area ?? [0, 0, 640, 480];
+  // Each number option, checked by name (one helper: the names are the only cost).
+  const num = (k: keyof SteerOptions, d: number) => need(o[k] ?? d, k);
+  const n = need(o.cap, "cap", 2), speed = num("speed", 150), scale = num("scale", 1), rate = num("turn", 7), stop = num("stop", 16);
+  const near = num("near", 14), slow = num("slow", 140), fast = num("fast", 1.05), calm = num("calm", 0.8), far = num("far", 240);
+  const every = num("every", 2), jitter = num("jitter", 2), area = o.area ?? [0, 0, 640, 480];
+  for (let i = 0; i < 4; i++) need(area[i], "area[" + i + "]");
   const blocked = o.blocked, random = o.random ?? Math.random;
   const x = new Float64Array(n), y = new Float64Array(n), a = new Float64Array(n);
   const gx = new Float64Array(n), gy = new Float64Array(n), think = new Float64Array(n), leg = new Uint32Array(n);
@@ -130,8 +136,10 @@ export function steer(o: SteerOptions) {
       v[0] = gx[i]!; v[1] = gy[i]!; v[2] = dt;
       toward(i, pace, stop);
     },
-    /** Waypoints as [x0, y0, x1, y1, …] (a typed array is best); the next one once inside `stop`. */
+    /** Waypoints as [x0, y0, x1, y1, …] (a typed array is best); the next one once inside `stop`.
+     *  No waypoint (fewer than two numbers): it stands still. */
     patrol(i: number, points: ArrayLike<number>, dt: number, pace = 1) {
+      if (points.length < 2) return void (moved[i] = 0);
       const k = (leg[i]! % (points.length >> 1)) << 1, px = points[k]!, py = points[k + 1]!;
       if (hypot(px - x[i]!, py - y[i]!) <= stop) leg[i] = (leg[i]! + 1) % (points.length >> 1);
       const j = leg[i]! << 1;
