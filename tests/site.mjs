@@ -20,7 +20,7 @@ import { notes as siteNotes, notePath } from "../scripts/notes.mjs";
 import { PERSONA_NOTE, authorOf, contributors as profiles } from "../scripts/people.mjs";
 import { gzipSync } from "node:zlib";
 import { checkKeys, checkTaps } from "./keys.mjs";
-import { snippetFor, TABLE as MAKE_TABLE } from "../scripts/make.mjs";
+import { snippetable, snippetFor, TABLE as MAKE_TABLE } from "../scripts/make.mjs";
 import { slug as makeSlug } from "../site/make/make.mjs";
 
 const slug = (prompt) => makeSlug(MAKE_TABLE, prompt);
@@ -176,11 +176,11 @@ try {
       assert.ok(hash === r.id && readFileSync(pageFile(path), "utf8").includes(`<li class="panel gal-item" id="${r.id}"`), `${r.id}: its index url ${r.url} is its card`);
     }
     for (const id of ["fizz", "layers", "howitworks"]) assert.ok(GALLERY.some((e) => e.id === id), `seeded with ${id}`);
-    // Every entry made from a prompt: a "Get the snippet" key, the same file Make one makes for its prompt.
+    // Every entry Make one can make again (made by fe anim from a recipe in its table): a "Get the snippet" key, the same file.
     for (const e of GALLERY) {
       const gp = GPAGES.find((x) => x.entries.some((y) => y.id === e.id)), html = readFileSync(pageFile(gp.path), "utf8"), up = "../".repeat(gp.path.split("/").length - 1);
       const key = html.match(new RegExp(`<a class="bui-key[^"]*" href="${up.replace(/\./g, "\\.")}gallery/${e.id}\\.snippet\\.txt" download="fizlet-${e.id}\\.html" data-snippet="${e.id}">`));
-      assert.equal(!!key, e.made === "fe anim", `${e.id}: a snippet key on every entry made from a prompt`);
+      assert.equal(!!key, snippetable(e), `${e.id}: a snippet key on every entry Make one can make again`);
       if (!key) continue;
       const text = readFileSync(`${ROOT}/gallery/${e.id}.snippet.txt`, "utf8");
       assert.equal(snippetSize(text), gzipSync(text).length, `${e.id}: the snippet's header says its own gzip size`);
@@ -460,7 +460,11 @@ try {
       const fig = page.locator(`figure[data-gallery="${e.id}"]`);
       await fig.scrollIntoViewIfNeeded();
       const unlit = () => page.waitForFunction((id) => !document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 8000 });
-      await unlit(); // the sweep on mount has passed
+      // The play on mount has passed: unlit twice, longer apart than any gap between lit elements
+      // (a scene paused off screen resumes mid-play when it is scrolled back in).
+      await unlit();
+      await page.waitForTimeout(1800);
+      await unlit();
       const before = await fig.evaluate((f) => f.querySelector(".gal-mini").outerHTML);
       await fig.click({ position: { x: 40, y: 10 } });
       await page.waitForFunction((id) => document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 4000 });
@@ -498,10 +502,13 @@ try {
     }
     await page.click('a[data-theme-chip="all"]');
     assert.deepEqual(await shown(), secs, "All: every section again");
-    // A theme in the address filters on arrival.
-    await page.goto(`${ORIGIN}${BASE}gallery/#theme-${secs[0]}`);
-    assert.deepEqual(await shown(), [secs[0]], "a #theme- address filters");
-    await page.goto(`${ORIGIN}${BASE}gallery/`);
+    // A theme in the address filters on arrival (a fresh page: from this one it is only a hash change).
+    {
+      const fresh = await open(context, `gallery/#theme-${secs[0]}`);
+      const there = await fresh.page.$$eval("section[data-theme-section]", (l) => l.filter((x) => !x.hidden).map((x) => x.dataset.themeSection));
+      assert.deepEqual(there, [secs[0]], "a #theme- address filters");
+      await fresh.page.close();
+    }
     // Search: shown with script, every word must match title, prompt, theme or author.
     assert.equal(await page.isVisible("form[data-gal-search]"), true, "the search box");
     const q = (text) => page.fill("#gal-q", text).then(() => page.waitForFunction((t) => document.querySelector("#gal-q").value === t && document.querySelector("[data-gal-found]").textContent !== "", text));

@@ -28,6 +28,12 @@ export async function snippetFor(prompt, { version, templates, id } = {}) {
 }
 
 /**
+ * An entry Make one can make again: made by fe anim with a recipe in this table, and its prompt still
+ * picks that recipe (entries made from recipes or scenes this table doesn't have yet get no snippet).
+ */
+export const snippetable = (e) => e.made === "fe anim" && e.recipe in TABLE.recipes && matchPrompt(TABLE, e.prompt).recipe === e.recipe;
+
+/**
  * site-dist/make/templates/<variant>.json ({ variant, version, code }), site-dist/make/make.js (the
  * page's script, measured: its badge) and site-dist/gallery/<id>.snippet.txt for every entry made by
  * fe anim (its "Get the snippet" key). Returns { script, templates, snippets } with sizes.
@@ -42,9 +48,8 @@ export async function buildMake(out, { version, entries }) {
   const r = await build({ ...TEMPLATE_BUILD, entryPoints: ["site/make/page.mjs"], define: { FIZLET_VERSION: JSON.stringify(version) } });
   writeFileSync(join(out, "make/make.js"), r.outputFiles[0].contents);
   const snippets = {};
-  for (const e of entries.filter((x) => x.made === "fe anim")) {
+  for (const e of entries.filter(snippetable)) {
     const s = await snippetFor(e.prompt, { version, templates, id: e.id });
-    if (s.spec.recipe !== e.recipe) throw new Error(`gallery/${e.id}: its prompt now matches recipe ${s.spec.recipe}, not ${e.recipe}: re-make the entry or fix the table`);
     writeFileSync(join(out, "gallery", `${e.id}.snippet.txt`), s.text);
     snippets[e.id] = { file: `${e.id}.snippet.txt`, size: s.size };
   }
