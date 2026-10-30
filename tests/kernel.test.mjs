@@ -87,6 +87,83 @@ test("settle: no frames once nothing is busy; wake() and start() bring it back; 
   e.destroy();
 });
 
+// Frame-by-frame settle runs: a 60 Hz display (or a janky one), the step a hold is asked in, and
+// the step the engine settled after (null if it never did).
+function settleRun({ settle = 0.6, hold = null, at = 0, frameMs = 1000 / 60, frames = 400 } = {}) {
+  const e = createEngine({ settle });
+  e.add({ step: (x) => x.steps === at && (hold == null ? x.busy() : x.busy(hold)) });
+  e.start();
+  let t = 0, settled = null;
+  for (let i = 0; i < frames && settled == null; i++) (flush((t += frameMs)), !e.running && (settled = e.steps));
+  e.destroy();
+  return settled;
+}
+
+test("busy(sec) holds a settling engine awake for sec of its own time, then settle counts", () => {
+  // An intro that waits 1.5 s with settle 0.6: without a hold the engine sleeps at 0.6 s.
+  const plain = settleRun({ hold: null });
+  assert.ok(plain >= 36 && plain <= 37, `busy() alone: asleep after 0.6 s (36 steps): ${plain}`);
+  const held = settleRun({ hold: 1.5 });
+  assert.ok(held >= 90, `busy(1.5): awake for the whole 1.5 s (90 steps), settled after ${held}`);
+  assert.ok(held >= 126 && held <= 127, `busy(1.5): then settle (0.6 s) counts from the end of the hold: ${held}`);
+  // The #026 shape: a 0.6 s wait against a 0.6 s settle.
+  assert.ok(settleRun({ hold: 0.6 }) >= 36, "busy(0.6) with settle 0.6: still awake when the wait ends");
+  // A janky display: 250 ms frames run 4 steps (the rest is dropped), so wall time outruns the
+  // engine's own. Settle and holds count engine time, so neither sleeps early.
+  const jankPlain = settleRun({ hold: null, frameMs: 250 });
+  assert.ok(jankPlain >= 36 && jankPlain <= 40, `busy() alone on 250 ms frames: settles after 0.6 s of its own time, not of wall time: ${jankPlain}`);
+  const janky = settleRun({ hold: 1.5, frameMs: 250 });
+  assert.ok(janky >= 126, `busy(1.5) on 250 ms frames: awake for 90 steps of its own time, then settle: ${janky}`);
+  // Mid-run, a hold extends from where it is asked.
+  const mid = settleRun({ hold: 0.2, at: 30 });
+  assert.ok(mid >= 30 + 48 && mid <= 30 + 49, `busy(0.2) at step 30: awake 0.2 s, then 0.6 s settle: ${mid}`);
+  // A later, shorter hold never cuts an earlier, longer one short.
+  const e = createEngine({ settle: 0.1 });
+  e.add({ step: (x) => (x.steps === 0 && x.busy(1), x.steps === 10 && x.busy(0.05)) });
+  e.start();
+  let t = 0;
+  for (let i = 0; i < 50; i++) flush((t += 1000 / 60));
+  assert.equal(e.running, true, "the longer hold still holds");
+  for (let i = 0; i < 30; i++) flush((t += 1000 / 60));
+  assert.deepEqual(e.paused, ["settled"], "and then it settles");
+  e.destroy();
+  // A hold asked before the engine runs (a scene's intro, set at mount) survives start() and wake().
+  const g = createEngine({ settle: 0.6 });
+  g.busy(1.5);
+  g.start();
+  g.wake();
+  let gt = 0, gs = null;
+  for (let i = 0; i < 400 && gs == null; i++) (flush((gt += 1000 / 60)), !g.running && (gs = g.steps));
+  assert.ok(gs >= 126, `busy(1.5) before start, then wake(): still held, then settle: ${gs}`);
+  g.destroy();
+  // 0 or NaN (a delay computed from nothing) is plain busy().
+  assert.equal(settleRun({ hold: NaN }), settleRun({ hold: null }), "busy(NaN): settles as busy() does");
+  assert.equal(settleRun({ hold: 0 }), settleRun({ hold: null }), "busy(0): settles as busy() does");
+  // Without settle, a hold is a no-op.
+  const f = createEngine();
+  f.add({ step: (x) => x.busy(0.5) });
+  f.start();
+  for (let i = 0; i < 100; i++) flush((t += 1000 / 60));
+  assert.equal(f.running, true);
+  f.destroy();
+});
+
+test("busy(sec) in the step allocates nothing (10k+ steps)", async (t) => {
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  const e = createEngine({ settle: 0.5 });
+  // Every step asks for a hold, with a fresh fractional length (a double, never a boxed number).
+  e.add({ step: (x, dt) => (x.busy(dt * (x.steps % 7) + 0.25), x.busy()) });
+  e.start();
+  const run = (frames) => {
+    for (let i = 0; i < frames; i++) e.advance(1 / 60);
+  };
+  run(20000);
+  const minor = await minorGCs(() => run(1000000));
+  assert.ok(minor <= 1, `young-generation GCs during 1M steps with busy(sec) (best of 3 windows): ${minor}`);
+  assert.equal(e.running, true, "held awake the whole time");
+  e.destroy();
+});
+
 test("pause stops all work; resume does not replay the gap", () => {
   const e = createEngine();
   let steps = 0;
@@ -310,10 +387,11 @@ test("zero allocation in the steady state (10k+ steps)", async (t) => {
 // over to the next call (the clock only moves forward). The kernel reads the global setTimeout at
 // call time, so swapping it inside a synchronous test is safe.
 let timers = [];
-function display(t0, ms, hz = 60) {
+// `work` ms: how long each frame's hooks take, so a timer armed in a frame is due `work` ms later.
+function display(t0, ms, hz = 60, work = 0) {
   const real = globalThis.setTimeout;
   let now = t0, rafs = 0;
-  globalThis.setTimeout = (cb, d) => timers.push({ at: now + d, cb });
+  globalThis.setTimeout = (cb, d) => timers.push({ at: now + work + d, cb });
   try {
     for (let k = 1; k * (1000 / hz) <= ms; k++) {
       now = t0 + k * (1000 / hz);
@@ -352,6 +430,26 @@ test("fps cap: the page asks for ~fps frames a second, not one per vsync (60 and
   }
 });
 
+test("fps cap: a slow frame still meets its next slot (the nap counts from the frame's start)", () => {
+  // Each frame's work takes 20 ms (a phone at 4× CPU). Counting the nap from the end of the work
+  // (20 + 29.3 ms) missed the 33 ms vsync and ran at 20 fps; counted from the start it holds 30.
+  const perf = globalThis.performance, real = perf.now;
+  let fake = 0;
+  perf.now = () => fake;
+  try {
+    const e = createEngine({ fps: 30 });
+    let frames = 0;
+    e.add({ render: () => ((fake += 20), frames++) });
+    e.start();
+    const { rafs } = display(4e6, 1000, 60, 20);
+    assert.ok(frames >= 29 && frames <= 31, `20 ms frames under a 30 fps cap: ${frames} frames a second`);
+    assert.ok(rafs <= 31, `${rafs} requestAnimationFrame callbacks a second`);
+    e.destroy();
+  } finally {
+    perf.now = real;
+  }
+});
+
 test("fps cap: an uncapped engine joining gets every frame; the capped one keeps its own pace", () => {
   const capped = createEngine({ fps: 10 }), free = createEngine();
   let a = 0, b = 0;
@@ -373,4 +471,22 @@ test("fps cap: an uncapped engine joining gets every frame; the capped one keeps
   capped.destroy();
   assert.equal(queue.length, 0);
   assert.equal(scheduler.engines, 0);
+});
+
+test("fps cap: destroy() clears the pending wake-up timer (nothing outlives the engine)", () => {
+  const real = [globalThis.setTimeout, globalThis.clearTimeout];
+  const pending = new Set();
+  let id = 0;
+  globalThis.setTimeout = () => (pending.add(++id), id);
+  globalThis.clearTimeout = (h) => pending.delete(h);
+  try {
+    const e = createEngine({ fps: 30 });
+    e.start();
+    e.frame(5e6);
+    assert.equal(pending.size, 1, "between capped frames: one wake-up timer");
+    e.destroy();
+    assert.equal(pending.size, 0, "destroy() clears it");
+  } finally {
+    [globalThis.setTimeout, globalThis.clearTimeout] = real;
+  }
 });

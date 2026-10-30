@@ -1,13 +1,32 @@
 // One page per brick, generated from the source: the summary is the module's leading comment, the
 // API is its declarations (scripts/api.mjs), the sizes are measured on this build (scripts/sizes.mjs).
-import { esc, icon, REPO, SITE } from "../layout.mjs";
+import { crumbs, esc, icon, REPO, SITE } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
+import { STATUS, BETA_LINE } from "../bricks.mjs";
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
 const num = (n) => n.toLocaleString("en-US");
 
 /** `code` spans in doc text, everything else escaped. */
 export const prose = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+
+/** A brick's status flag as a Board UI status pill (flat: a readout, not a key). */
+export const statusPill = (status) => `<span class="status-pill" data-flag="${status}" title="${esc(STATUS[status].line)}">${STATUS[status].label}</span>`;
+
+/** The status panel on a brick page: the flag, what it means, and the evidence behind it. */
+function statusPanel(brick) {
+  const s = STATUS[brick.status];
+  const list = (xs) => xs.map((x) => `<li>${prose(x)}</li>`).join("");
+  return `<div class="panel bp-status" data-flag="${brick.status}">
+      <div class="code-head"><span class="bui-label"><b>STATUS</b> · <a href="./#status">what the flags mean</a></span>${statusPill(brick.status)}</div>
+      <p>${esc(s.line)}${brick.why ? ` ${esc(brick.why)}` : ""}</p>
+      <dl>
+        <div><dt>SINCE</dt><dd>v${esc(brick.since)}</dd></div>
+        <div><dt>SHIPPED IN</dt><dd>${brick.used.length ? `<ul>${list(brick.used)}</ul>` : "no released game or page yet"}</dd></div>
+        <div><dt>TESTS</dt><dd><ul>${brick.tests.map((t) => `<li><a href="${REPO}/blob/main/tests/${t}"><code>${esc(t)}</code> ↗</a></li>`).join("")}</ul></dd></div>
+      </dl>
+    </div>`;
+}
 
 const DEMO_NOTES = {
   settle: "Click the board: the puck glides there. Half a second after it stops, the engine settles: no frames at all until the next click.",
@@ -64,10 +83,10 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
   return `
 <section class="section bp" aria-labelledby="bp-title">
   <div class="wrap">
-    <nav class="bp-crumbs" aria-label="Breadcrumb"><a href="../">Fizlet</a> / <a href="./">Bricks</a> / <span aria-current="page">${esc(brick.name)}</span></nav>
+    ${crumbs("../", [["bricks/", "Bricks"]], brick.name)}
     <div class="split bp-top" style="--tone: var(--k-${brick.role})">
       <div>
-        <p class="eyebrow"><span class="index">${esc(brick.tag)}</span> V${esc(version)}</p>
+        <p class="eyebrow"><span class="index">${esc(brick.tag)}</span> V${esc(version)} ${statusPill(brick.status)}</p>
         <h1 id="bp-title" class="bp-title"><code>${esc(brick.name)}</code></h1>
         <p class="lead">${prose(lead.summary)}</p>
         <div class="split-keys"><a class="bui-key bui-arcade bui-sys" href="#api">${icon("code", 16)}API</a><a class="bui-key bui-arcade bui-cmd" href="${REPO}/blob/main/${lead.src}">${icon("github", 16)}Source ↗</a></div>
@@ -75,6 +94,7 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
       <div class="bp-sizes">${sizeCards(brick, sizes)}<p class="bp-note">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>
     </div>
     ${demo}
+    ${statusPanel(brick)}
     <div class="bp-use">
       <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>MODULES</b> · hosted on this site</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(esm)}</code></pre></div>
       <div class="panel code-card bp-npm"><div class="code-head"><span class="bui-label"><b>NPM</b> · <span class="soon-tag">COMING SOON</span></span></div><pre class="code"><code>${esc(`npm install fizlet   # not published yet\n${npm}`)}</code></pre></div>
@@ -91,12 +111,23 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
 </section>`;
 }
 
-/** bricks/index.html: every brick, with its measured size. */
-export function bricksIndex({ bricks, sizes, version }) {
+/** The flags and what earns each (bricks/index.html#status). */
+function statusLegend(bricks) {
+  return Object.entries(STATUS).map(([k, s]) => {
+    const n = bricks.filter((b) => b.status === k).length;
+    return `<li class="panel status-card" data-flag="${k}"><div class="brick-top">${statusPill(k)}<small>${n ? `${n} ${n === 1 ? "brick" : "bricks"}` : k === "roadmap" ? "planned below" : "none today"}</small></div>
+        <p>${esc(s.line)}</p>
+        <ul>${s.criteria.map((c) => `<li>${prose(c)}</li>`).join("")}</ul>
+      </li>`;
+  }).join("\n      ");
+}
+
+/** bricks/index.html: every brick, with its measured size and its status. */
+export function bricksIndex({ bricks, sizes, version, planned = [] }) {
   const cards = bricks.map((b) => {
     const s = sizes.find((x) => x.name === b.sizes[0]);
     return `<li class="panel brick" style="--tone: var(--k-${b.role})">
-        <div class="brick-top"><span class="brick-tag">${esc(b.tag)}</span><span class="brick-size"><b>${kb(s.gzip)} KB</b><small> / ${kb(s.budget)} KB gzip</small></span></div>
+        <div class="brick-top"><span class="brick-tag">${esc(b.tag)}</span>${statusPill(b.status)}<span class="brick-size"><b>${kb(s.gzip)} KB</b><small> / ${kb(s.budget)} KB gzip</small></span></div>
         <h2><a href="${b.id}.html"><code>${esc(b.name)}</code></a></h2>
         <p>${prose(b.summary)}</p>
       </li>`;
@@ -111,6 +142,25 @@ export function bricksIndex({ bricks, sizes, version }) {
     </div>
     <ul class="bricks">
       ${cards}
+    </ul>
+    <div class="section-head" id="status">
+      <h2>Status flags</h2>
+      <p class="lead">${esc(BETA_LINE)} Each brick's page shows its flag and the evidence: the release it shipped in, the games and pages that ship it, and its tests.</p>
+    </div>
+    <ul class="status-cards">
+      ${statusLegend(bricks)}
+    </ul>
+    <div class="section-head" id="planned">
+      <h2>On the roadmap</h2>
+      <p class="lead">Planned, not shipped: nothing here is in the package yet. Each size is a target, not a measurement.</p>
+    </div>
+    <ul class="bricks planned">
+      ${planned.map((p) => `<li class="panel brick" data-flag="roadmap">
+        <div class="brick-top"><span class="brick-tag">${esc(p.phase)}</span>${statusPill("roadmap")}<span class="brick-size"><small>target ≤ ${kb(p.target)} KB gzip</small></span></div>
+        <h3><code>${esc(p.name)}</code></h3>
+        <p>${esc(p.purpose)}</p>
+        <p class="needs"><small>NEEDS</small> ${p.needs.map((n) => `<code>${esc(n)}</code>`).join(" ")}</p>
+      </li>`).join("\n      ")}
     </ul>
   </div>
 </section>`;

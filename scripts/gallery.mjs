@@ -8,12 +8,13 @@ import { build } from "esbuild";
 import { gzipSync } from "node:zlib";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { assignNumbers, duplicateMessage, duplicateNumbers } from "./gallery-number.mjs";
 
 const DIR = "site/gallery";
 export const KINDS = ["hero", "micro"];
 /** Entries per gallery page: /gallery/ holds the newest PAGE_SIZE, /gallery/page/2/ the next. */
 export const PAGE_SIZE = 24;
-const NEED = ["no", "id", "kind", "theme", "date", "prompt", "title", "author", "recipe", "bricks", "made", "module", "export"];
+const NEED = ["id", "kind", "theme", "date", "prompt", "title", "author", "recipe", "bricks", "made", "module", "export"];
 const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const readDir = (dir, what) => (existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(".json")).sort() : []).map((f) => {
@@ -62,9 +63,15 @@ export function entries({ dir = `${DIR}/entries`, what = "gallery/entries", them
     }
     return e;
   });
-  const nos = new Set(list.map((e) => e.no));
-  if (nos.size !== list.length) throw new Error(`${what}: two entries share a number`);
-  return list.sort((a, b) => b.date.localeCompare(a.date) || b.no - a.no);
+  // Numbers are given at land time (scripts/gallery-number.mjs): an archived entry has its own; a
+  // gallery entry may have none yet. A live one without a number shows the one land will give it.
+  for (const e of list) if (e.archived && !Number.isInteger(e.no)) throw new Error(`${what}/${e.id}.json: missing no`);
+  for (const e of list) if (e.no !== undefined && !(Number.isInteger(e.no) && e.no > 0)) throw new Error(`${what}/${e.id}.json: no is a whole number from 1`);
+  const dupes = duplicateNumbers(list);
+  if (dupes.length) throw new Error(duplicateMessage(what, dupes));
+  const given = assignNumbers(list);
+  for (const e of list) if (given[e.id]) e.no = given[e.id];
+  return list.sort((a, b) => b.date.localeCompare(a.date) || (b.no ?? 0) - (a.no ?? 0));
 }
 
 /** The site path of gallery page `n` (1-based): "gallery/", then "gallery/page/2/". */
