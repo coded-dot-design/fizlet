@@ -185,9 +185,15 @@ async function containTest() {
     const ui = fizlet.mount(document.getElementById("ui"), "");
     // The launch burst lives on <body> while it runs; fire it from a key on the kit's own root.
     const key = ui.appendChild(document.createElement("button"));
-    key.textContent = "GO";
+    key.innerHTML = "GO <b>1</b>";
+    // The burst freezes the key's look once for all seven copies (one style pass, not one per copy).
+    const gcs = window.getComputedStyle;
+    let reads = 0;
+    window.getComputedStyle = (...a) => (reads++, gcs.apply(window, a));
     fizlet.launch(key, () => {});
+    window.getComputedStyle = gcs;
     const burst = document.querySelector("body > .bui-burst");
+    const face = (n) => [n.style.color, n.style.font, n.querySelector("b").style.color];
     const contain = (el) => (el ? getComputedStyle(el).contain : "missing");
     // Every box inside a root, with its containment on and then off: nothing may move or resize.
     const boxes = (el) => [el, ...el.querySelectorAll("*")].map((n) => { const r = n.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].join(); }).join("|");
@@ -208,6 +214,7 @@ async function containTest() {
       },
       still: { pad: same(p.el), overlay: !m.el.hidden && same(m.el), burst: same(burst) },
       shown: board.querySelector("[data-k]").textContent,
+      launch: { reads, copies: burst.querySelectorAll(":scope > button").length, same: [...burst.querySelectorAll(":scope > button")].every((c) => face(c).join() === face(burst.firstChild).join() && face(c)[0] !== "") },
     };
     // Recall: the engine gives back the board, the burst ends, the kit mount is the host's to remove.
     await new Promise((r) => setTimeout(r, 1000));
@@ -225,6 +232,8 @@ async function containTest() {
   assert.deepEqual(out.still, { pad: true, overlay: true, burst: true }, "containment moves and resizes nothing");
   assert.equal(out.shown, "3", "the hud still writes into the host's markup");
   assert.equal(out.burstGone, true, "the launch burst removes itself");
+  // Key + its <b>: 2 reads for the look, 1 for the key's own style, 1 for the kit root's tones.
+  assert.deepEqual(out.launch, { reads: 4, copies: 7, same: true }, "launch reads the key's look once; all seven copies wear it");
   assert.equal(out.back, true, "Recall restores the page exactly with containment on");
   assert.deepEqual(errs, []);
   await ctx.close();
