@@ -1,0 +1,34 @@
+{
+  "no": 36,
+  "id": "overfitter-blocks-jab-trained",
+  "date": "2026-10-30",
+  "prompt": "the overfitter blocks every jab it trained on",
+  "title": "The overfitter blocks every jab it trained on",
+  "kind": "micro",
+  "theme": "model-battles",
+  "author": "chris-cooley",
+  "recipe": "fight",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 33,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 49.07
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/overfitter-blocks-jab-trained.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}

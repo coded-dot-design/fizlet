@@ -1,0 +1,34 @@
+{
+  "no": 38,
+  "id": "moon-rocket-launches-off-button",
+  "date": "2026-10-30",
+  "prompt": "a to the moon rocket launches off a button",
+  "title": "A to the moon rocket launches off a button",
+  "kind": "micro",
+  "theme": "crypto-memes",
+  "author": "chris-cooley",
+  "recipe": "meme",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 53.58
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/moon-rocket-launches-off-button.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}

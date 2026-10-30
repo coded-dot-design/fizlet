@@ -83,6 +83,47 @@
   `coach` passed an optional `signal` straight into listener options, which strict consumers (the
   arcade games) reject; 0.18.0 broke their typecheck. Same runtime, no byte change. `npm run
   typecheck` now also runs with `exactOptionalPropertyTypes`, so it can't regress.
+- **Website: gallery #032, "the transformer fights the diffuser to a KO".** Made by `fe anim` from
+  the prompt (recipe fight, the fight scene, gag ko; kernel + sprite + fx + slot): live 9,490 B ·
+  total 11,416 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never
+  under reduced motion; settles to zero frames.
+- **Website: gallery #033, "the tokenizer counts tokens in a punch combo".** Made by `fe anim` from
+  the prompt (recipe fight, the fight scene, gag combo; kernel + sprite + fx + slot): live 9,493 B ·
+  total 11,419 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never
+  under reduced motion; settles to zero frames.
+- **Website: gallery #034, "the context window takes punches until it overflows".** Made by `fe
+  anim` from the prompt (recipe fight, the fight scene, gag overflow; kernel + sprite + fx + slot):
+  live 9,492 B · total 11,418 B gzip (with the 1,926 B loader) on this build, loaded only near the
+  viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #035, "the hallucinator punches a mirage".** Made by `fe anim` from the prompt
+  (recipe fight, the fight scene, gag hallucinate; kernel + sprite + fx + slot): live 9,491 B ·
+  total 11,417 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never
+  under reduced motion; settles to zero frames.
+- **Website: gallery #036, "the overfitter blocks every jab it trained on".** Made by `fe anim` from
+  the prompt (recipe fight, the fight scene, gag overfit; kernel + sprite + fx + slot): live 9,494 B
+  · total 11,420 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport,
+  never under reduced motion; settles to zero frames.
+- **Website: gallery #037, "the diffuser denoises out of static and wins".** Made by `fe anim` from
+  the prompt (recipe fight, the fight scene, gag diffuse; kernel + sprite + fx + slot): live 9,489 B
+  · total 11,415 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport,
+  never under reduced motion; settles to zero frames.
+- **Website: gallery #038, "a to the moon rocket launches off a button".** Made by `fe anim` from
+  the prompt (recipe meme, the meme scene, bit rocket; kernel + sprite + fx + slot): live 9,233 B ·
+  total 11,159 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never
+  under reduced motion; settles to zero frames.
+- **Website: gallery #039, "diamond hands sparkle and never let go".** Made by `fe anim` from the
+  prompt (recipe meme, the meme scene, bit diamond; kernel + sprite + fx + slot): live 9,240 B ·
+  total 11,166 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never
+  under reduced motion; settles to zero frames.
+- **Website: gallery #040, "a candle chart pumps then dumps".** Made by `fe anim` from the prompt
+  (recipe meme, the meme scene, bit candles; kernel + sprite + fx + slot): live 9,238 B · total
+  11,164 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under
+  reduced motion; settles to zero frames.
+- **Website: gallery #041, "laser eyes mascot powers on and fires".** Made by `fe anim` from the
+  prompt (recipe meme, the meme scene, bit laser; kernel + sprite + fx + slot): live 9,239 B · total
+  11,165 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under
+  reduced motion; settles to zero frames.
+
 ## 0.18.0
 - **`fizlet/arcade` canvas fills its root on 2x/zoomed screens** (`width:100%;height:100%`): the backing store is `innerWidth × dpr` with no CSS size, so it drew 1.5–2× too big and game art sat away from the page targets (owner report; from fizlet#60).
 - **Arcade: an array of controls and scoreboards (`hud`)**, the first step of the plan to make
