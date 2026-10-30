@@ -1,0 +1,33 @@
+{
+  "no": 50,
+  "id": "eyeballs-follow-pointer",
+  "date": "2026-10-30",
+  "prompt": "eyeballs follow the pointer",
+  "title": "Eyeballs follow the pointer",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "watch",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 0.53
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/eyeballs-follow-pointer.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}

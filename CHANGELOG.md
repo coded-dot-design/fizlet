@@ -35,6 +35,10 @@
   prompt (recipe scatter, the critter scene: a hat pixel sprite, the scatter motion; kernel + sprite
   + slot): live 6,120 B · total 8,046 B gzip (with the 1,926 B loader) on this build, loaded only
   near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #050, "eyeballs follow the pointer".** Made by `fe anim` from the prompt
+  (recipe watch, the critter scene: a eye pixel sprite, the watch motion; kernel + sprite + slot):
+  live 6,322 B · total 8,248 B gzip (with the 1,926 B loader) on this build, loaded only near the
+  viewport, never under reduced motion; settles to zero frames.
 
 ## 0.17.0
 
