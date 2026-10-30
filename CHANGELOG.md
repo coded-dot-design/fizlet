@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Tests: the layers story's "play resumes" check counts frames, not wall time.** It failed under
+  CPU load: it passed 3 of 10 runs at load 42–72 (4 of 10 with the timeline pause fix, which the
+  layers scene doesn't use). Traced: play does resume (the key reads Pause and the story moves on);
+  under load the page's frames came 295–412 ms apart, so the old fixed 400 ms window held only two
+  to four of them. It now waits (up to 10 s) for six frames and the story moving past where it was
+  paused: 10 of 10 under the same load. A real stall still fails it (checked with a scene whose key
+  reads Pause but whose story never steps). Test only; no engine or size change.
+
 - **Website: a generated API reference for every brick, and `llms-full.txt` (E5).** Each brick page's
   API section now lists every export with its signature, parameters, return type, doc comment and
   status flag, generated at site build time from the published declarations (`dist/*.d.ts`) by the
