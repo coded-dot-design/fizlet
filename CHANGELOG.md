@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+- **Gallery, labs and the vendored domvirus pieces: hard shadows follow the domain.** Every offset
+  `box-shadow` / `drop-shadow` (and the press travel that goes with it) keeps its depth and reads
+  the Board UI tokens (`--shadow-x`, `--shadow-y`, unitless; BOARD-UI.md §4.1, #136):
+  `calc(<depth> * var(--shadow-x, 0)) calc(<depth> * var(--shadow-y, 1))`. On fizlet.com (0 1)
+  the diagonal slabs that came from DOM VIRUS now drop straight below like the site's own keys;
+  moved back to a 1 1 domain they turn 45° again with no edit.
+  - Ported: the labs (`site/labs/labs.css`: stage card, keys and their press, the Macs, the parcel's
+    drop-shadow), the stages of #021, #026, SMASH, the hammer and the terminal virus, Big things,
+    small packages' card, and both domvirus pieces (by the vendor script, below).
+  - `scripts/shadow-tokens.mjs`: `tokenShadows(css)` rewrites a stylesheet (a shadow that is not one
+    depth along one direction, such as sideways or up, can't be expressed and is removed);
+    `hardShadows(text)` finds what is left. `scripts/vendor-dom-virus.mjs` runs `tokenShadows` on
+    every piece it vendors.
+  - **Check** (`tests/shadow-tokens.test.mjs`, in `npm test`): no file in `site/` or `src/ui/` may
+    hard-code an offset shadow. Rings, glows and inset bevels are fine. Still waiting, counted and
+    only allowed to go down: `site/site.css` (17), `src/ui/board-ui.css` (12, #136), the layers
+    demo (4).
+
 - **Gallery: two pieces from domvirus.com, vendored at a pinned commit** (owner approved,
   2026-10-30; numbers at land time). Both are DOM VIRUS micros and link back to domvirus.com.
   - **your.page / under attack**: the domvirus.com home hero (dom-virus#20's Fizlet scene). The
