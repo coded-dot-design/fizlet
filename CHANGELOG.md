@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **The fizz: the original can, without the zoom** (owner: "the og ones were good, just the zoom
+  needs to be killed"). The 20 × 40 can and its story are back (the 0.18.0 hi-def redraw stays in
+  history, to try other cans later; it never shipped in a release), and `fizlet/camera` is out: the card holds still, the side and
+  top views tell it. Live chunk 8,752 B gzip (9,455 B for the redraw, 9,710 B with the camera),
+  poster 3,457 B; settled 0 frames a second, measured in Chromium 153.
 - **Kernel: the fps cap now caps requestAnimationFrame, not just the work** (real-browser audit,
   `abe browse`). A capped engine used to keep asking for a frame every vsync and skip most of them,
   so a 30 fps hero still cost 57–120 rAF calls a second (two heroes on the home page: 119.6 rAF/s at
@@ -37,15 +42,6 @@
   brick contents and prev/next. The header icon keys are 44 px. Phone screenshots of every changed
   page are pixel-identical. 668 → 24 small targets over the 30 pages at 390 px; the 24 left are the
   copy keys, whose hit area grows instead (the kit's invisible `::before`) because their face can't.
-- **The fizz, reworked** (owner feedback; `site/demos/fizz/`). No zoom: two cameras hold still,
-  side and straight down into the can, and the eye cuts between them (`fizlet/camera` is out of
-  the chunk). The can is drawn by code at twice the detail (40 × 80 side, 44 × 44 top), glossy,
-  lit from the upper left, still pixel art: the whole card and the spray sit on one pixel grid.
-  The opening is its own beat: the crunch, the tab lifts (a hiss), the lid pops (a seal-break fan,
-  a shock ring, the can kicks up), foam swells in the opening, then the fizz erupts: droplets,
-  pixel bubbles that swell and pop, foam, rings and flecks, every size. Live chunk 9,455 B gzip
-  (was 9,710), poster 5,858 B (one path per colour; the hero budget is 6,144). The settle
-  measurement starts at 9 s (the story is about a second longer).
 - **Website: the roadmap tells the truth again.** E2 lists rules, steer, coach, camera, perf and
   arcade as shipped (timeline and layout to come); E3 is nearly done (Null Invaders, Byte Runner,
   Sherman Bytes and DOM Battlefield at 1.0, Battlefield Blitz on Fizlet, Swarm Protocol 1.4 in
