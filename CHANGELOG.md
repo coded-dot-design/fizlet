@@ -117,6 +117,17 @@
   `tests/virus.mjs` (in `test:browser`) plays both: kills and zaps have their consequences, the
   README reads exactly as before once every worm is dead, both settle, a tap plays again,
   `destroy()` mid-play gives the page back byte for byte, and reduced motion loads nothing.
+- **fizlet/presence: first input wins (security).** A peer that sent two different inputs for one
+  frame could split the other peers' sims: one ran the frame with the first input, another got the
+  second before its step (brick audit 2, S1). Now a second INPUT or HASH for a frame a seat already
+  sent is dropped and counted in `dropped`, and the pre-filled frames before `delay` can't be
+  rewritten. Honest peers send one input per frame, so nothing changes for them. fizlet-rooms
+  drops the same duplicates at the relay (its own PR). Test: `tests/presence.test.mjs` (a cheating
+  seat 0, one peer stepping between the two inputs; fails on the old code). +14 B gzip (1,792 →
+  1,806 / 2,048), with:
+- **fizlet/presence: `join(url, signal, protocols)`.** The protocols go to the WebSocket handshake,
+  so a page can hand fizlet-rooms its invite code as `["fizlet-rooms", "invite." + code]` instead of
+  in the URL (URLs land in request logs). Optional; `join(url)` is unchanged.
 - **Fix: `slot("page#slot", …)` finds astro-engine's current slot markup.** The engine now renders
   `<figure class="ae-slot-figure"><div class="ae-slot" data-slot-target role="img">…</div><figcaption
   class="ae-slot__fallback">` (the caption outside the role="img" box), and `findSlot()` looked only
