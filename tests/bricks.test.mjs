@@ -73,6 +73,31 @@ test("pad: the stick has a dead zone, creeps, and clamps to the unit circle", ()
   assert.equal(v[1], -1);
 });
 
+test("pad: stickAt and dpadAt allocate nothing (exact hypot, no Math.hypot call)", async (t) => {
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  const v = new Float64Array(2), sum = new Float64Array(2), d = new Float64Array(2);
+  // The same vector as the Math.hypot form, bit for bit.
+  for (const [dx, dy] of [[0.31, -0.42], [3, 4], [-0.2, 0.05], [1e-9, 0.7], [0.6, 0.6]]) {
+    const m = Math.hypot(dx, dy), k = m < 0.15 ? 0 : (Math.min(1, m) - 0.15) / (1 - 0.15) / m;
+    stickAt(dx, dy, v);
+    assert.deepEqual([v[0], v[1]], [dx * k, dy * k]);
+  }
+  // One drag per call, as a pointermove handler runs it.
+  const drag = () => {
+    d[0] = Math.sin(++sum[1] * 0.001) * 1.3;
+    d[1] = Math.cos(sum[1] * 0.0013) * 1.1;
+    stickAt(d[0], d[1], v);
+    sum[0] += v[0] + dpadAt(d[0], d[1]);
+  };
+  const run = (n) => {
+    for (let i = 0; i < n; i++) drag();
+  };
+  run(100000); // warm up
+  const minor = await minorGCs(() => run(1000000));
+  console.log(`ℹ pad stickAt + dpadAt over 1M fractional drags: ${minor} young GCs`);
+  assert.equal(minor, 0);
+});
+
 test("pad: the d-pad reads eight equal sectors", () => {
   const UP = 1, DOWN = 2, LEFT = 4, RIGHT = 8;
   assert.equal(dpadAt(0.1, 0.1), 0, "dead zone");
@@ -166,14 +191,19 @@ test("collide: inputs are validated (finite numbers, integer capacities, ids in 
 });
 
 test("fx: a full pool stops the blast's work and counts the drops", () => {
-  const fx = effects({ cap: 8 });
+  // Two pools on one visual seed: every particle's work takes six draws from it, so the next draw
+  // tells how much work was done (counted, not timed).
+  const random = Math.random;
+  Math.random = () => 0.5;
+  const fx = effects({ cap: 8 }), ref = effects({ cap: 8 });
+  Math.random = random;
   fx.blast(0, 0, 1); // 5 + 15 + 4 = 24 wanted, 8 fit
+  ref.blast(0, 0, 1);
   assert.equal(fx.live, 8);
   assert.equal(fx.dropped, 16, "every refused particle is counted");
-  const t0 = performance.now();
   for (let i = 0; i < 10; i++) fx.blast(0, 0, 1e6); // 5,000,010 debris wanted each: none can fit
-  const ms = performance.now() - t0;
-  assert.ok(ms < 20, `a full pool does no per-particle work (10 huge blasts took ${ms.toFixed(1)} ms)`);
+  for (let i = 0; i < 10; i++) ref.blast(0, 0, 0); // 19 wanted each
+  assert.equal(fx.raw.rnd(0, 1), ref.raw.rnd(0, 1), "a full pool does no per-particle work: a huge blast draws what a tiny one does");
   fx.blast(0, 0, 200); // 1,010 debris wanted
   assert.equal(fx.dropped, 16 + 10 * (5 + 5000010 + 4) + 5 + 1010 + 4);
   assert.equal(fx.live, 8);
@@ -272,6 +302,21 @@ test("sprite: the cache bakes once per key and is capped", () => {
   assert.equal(sp.size, 0);
 });
 
+test("sprite: an id that names no sprite throws, never another sprite's tile", () => {
+  // Before the fix the cache key of an unknown id came out as 0, so once sprite 0 was baked a typo
+  // (or an id past the end) silently returned sprite 0's tile, and draw() painted nothing.
+  const sp = sprites({ a: { frames: ["1"], colors: { 1: "#f00" } }, b: { frames: ["11"], colors: { 1: "#0f0" } } }, { canvas: fakeCanvas });
+  const a = sp.tile("a");
+  assert.equal(sp.tile(0), a);
+  assert.notEqual(sp.tile("b"), a);
+  const ctx = { imageSmoothingEnabled: true, drawImage() {}, save() {}, restore() {}, translate() {}, rotate() {} };
+  for (const bad of ["nope", "toString", 2, -1, 0.5, NaN]) {
+    assert.throws(() => sp.tile(bad), RangeError, `tile(${String(bad)})`);
+    assert.throws(() => sp.draw(ctx, bad, 0, 0, 0), RangeError, `draw(${String(bad)})`);
+  }
+  assert.equal(sp.baked, 2, "nothing baked for a bad id");
+});
+
 test("sprite: the Sherman tank fixture is the original tile size and pivot", () => {
   const sp = sprites(sherman, { palettes: [{ team: "#39ffb0" }, { team: "#fff8d4" }], canvas: fakeCanvas });
   const hull = sp.tile("hull");
@@ -305,6 +350,45 @@ test("sprite: draw allocates nothing once baked", async (t) => {
   assert.equal(minor, 0, `young-generation GCs over 3.2M draws: ${minor}`);
 });
 
+test("input: intents resolve once; id() gives a step a number, and a typo throws at setup", async () => {
+  globalThis.addEventListener ??= () => {};
+  const { createEngine } = await import("../src/index.ts");
+  const { controls } = await import("../src/input.ts");
+  const target = { addEventListener() {}, getBoundingClientRect: () => ({ left: 0, top: 0, width: 100 }) };
+  const e = createEngine();
+  // 64 intents: by name or by number, a lookup is one Map read (no scan of the names).
+  const keys = Object.fromEntries(Array.from({ length: 64 }, (_, i) => ["i" + i, ["Key" + i]]));
+  const c = controls(e, { target, keys: { ...keys, fire: ["Space"], left: ["KeyA"], right: ["KeyD"] } });
+  const FIRE = c.id("fire"), LEFT = c.id("left"), RIGHT = c.id("right");
+  assert.deepEqual([c.id("i0"), c.id("i63"), FIRE, RIGHT], [0, 63, 64, 66]);
+  assert.throws(() => c.id("fier"), /fizlet\/input: no fier/);
+  const seen = [];
+  e.add({ step: () => void seen.push([c.hit(FIRE), c.hit("fire"), c.down(FIRE), c.down("fire"), c.axis(LEFT, RIGHT), c.axis("left", "right")]) });
+  c.press("fire");
+  e.advance(1 / 60);
+  c.press("right");
+  e.advance(1 / 60);
+  c.press("fire", false);
+  e.advance(1 / 60);
+  assert.deepEqual(seen, [
+    [true, true, true, true, 0, 0],
+    [false, false, true, true, 1, 1],
+    [false, false, false, false, 1, 1],
+  ], "a handle and its name read the same");
+  assert.equal(c.down("fier"), false, "a name that is no intent still reads false (no throw in a step)");
+  if (typeof gc === "function") {
+    const n = new Int32Array(1);
+    e.add({ step: () => void (n[0] += +c.hit(FIRE) + +c.down(RIGHT) + c.axis(LEFT, RIGHT, 0)) });
+    for (let i = 0; i < 20000; i++) e.advance(1 / 60);
+    const minor = await minorGCs(() => {
+      for (let i = 0; i < 1000000; i++) e.advance(1 / 60);
+    });
+    console.log(`ℹ input by number over 1M frames (65 intents): ${minor} young GCs`);
+    assert.ok(minor <= 3, `young-generation GCs over 1M frames: ${minor}`); // the bound of the test below
+  }
+  e.destroy();
+});
+
 test("input: hit() and down() in a step allocate nothing", async (t) => {
   if (typeof gc !== "function") return t.skip("needs node --expose-gc");
   // No DOM in node: listeners go nowhere; the step-side API is what's measured (presses and their
@@ -331,6 +415,38 @@ test("input: hit() and down() in a step allocate nothing", async (t) => {
   // 0.2.4's input reads 0-2 here too (strays from the test above); boxing one number per frame
   // (reading engine.time in read) showed as 7-9.
   assert.ok(minor <= 3, `young-generation GCs over 1M frames: ${minor}`);
+});
+
+test("input: press() and steer() wake a settled engine (on-screen keys, fizlet/pad)", async () => {
+  // A pad key is [data-fizlet-ignore], so its pointerdown never reaches input's own wake: before
+  // the fix a tap on a settled engine was latched but never stepped until something else woke it.
+  globalThis.addEventListener ??= () => {};
+  const { createEngine } = await import("../src/index.ts");
+  const { controls } = await import("../src/input.ts");
+  const target = { addEventListener() {}, getBoundingClientRect: () => ({ left: 0, top: 0, width: 100 }) };
+  const e = createEngine({ settle: 0.1 });
+  const c = controls(e, { target, keys: { fire: ["Space"] } });
+  let fired = 0;
+  e.add({ step: () => c.hit("fire") && fired++ });
+  e.start();
+  const sleep = () => {
+    for (let i = 0; i < 12 && e.running; i++) e.advance(1 / 60);
+    assert.deepEqual(e.paused, ["settled"], "nothing busy: it settles");
+  };
+  sleep();
+  c.press("fire");
+  assert.equal(e.running, true, "press() wakes it");
+  e.advance(1 / 60);
+  assert.equal(fired, 1, "and the press is stepped");
+  c.press("fire", false);
+  sleep();
+  c.steer(1, 0);
+  assert.equal(e.running, true, "steer() wakes it");
+  assert.equal(c.axis("left", "right", 0), 1);
+  sleep();
+  c.press("nope");
+  assert.deepEqual(e.paused, ["settled"], "an unknown intent does nothing");
+  e.destroy();
 });
 
 // Gravity and named kinds (phase 2: page interactions).
@@ -390,4 +506,18 @@ test("fx: emitting kinds under gravity allocates nothing", async (t) => {
   });
   assert.ok(fx.live > 50, `populated (${fx.live})`);
   assert.ok(minor <= 1, `young-generation GCs over 200k frames: ${minor}`);
+});
+
+test("K5: no plain-sqrt distance in a brick; the exact hypot (fizlet/steer) is the one place", async () => {
+  // Math.sqrt(x * x + y * y) differs from Math.hypot in the last bit for ~40% of inputs, and a
+  // replay that keeps every bit needs the same distance everywhere (fizlet-engine context/06 K5).
+  const { readdirSync, readFileSync } = await import("node:fs");
+  const dirs = ["src", "src/kernel", "src/ui"], plain = /Math\.sqrt\(\s*([\w.[\]!]+)\s*\*\s*\1\s*\+\s*([\w.[\]!]+)\s*\*\s*\2\s*\)/;
+  const found = [];
+  for (const d of dirs)
+    for (const f of readdirSync(d).filter((f) => f.endsWith(".ts")))
+      readFileSync(`${d}/${f}`, "utf8").split("\n").forEach((l, i) => {
+        if (plain.test(l) && !(f === "steer.ts" && /\bp \* p \+ q \* q\b/.test(l))) found.push(`${d}/${f}:${i + 1}`);
+      });
+  assert.deepEqual(found, [], "use hypot from ./steer");
 });

@@ -576,7 +576,8 @@ html.bui[data-theme="light"] .hero h1 em {
   cursor: crosshair;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: manipulation;
+  touch-action: pan-y;
+  overscroll-behavior: none;
 }
 .demo-page {
   position: absolute;
@@ -1766,10 +1767,17 @@ html.bui[data-theme="light"] .phases b {
   border-radius: 10px;
   background: var(--code-bg);
   cursor: crosshair;
-  touch-action: manipulation;
+  touch-action: pan-y;
+  overscroll-behavior: none;
 }
 .bd-img {
   image-rendering: pixelated;
+}
+/* Demo surfaces, like the kit's slots (board-ui.css): the page scrolls through them, never pans
+   sideways or zooms; site.ts hands the same list to fizlet/touch for pinch. */
+:is(.bd-tl, .lab-stage) {
+  touch-action: pan-y;
+  overscroll-behavior: none;
 }
 /* The timeline demo: a console and a cartridge, every move written by fizlet/timeline. */
 .bd-tl {
@@ -2316,6 +2324,12 @@ html.bui[data-theme="light"] .phases b {
   place-items: center;
   padding: 16px;
   background: var(--bg);
+  overscroll-behavior: none;
+}
+/* Full screen the hero is the whole screen: no gesture pans or zooms it. */
+:is(.hero-stage:fullscreen, .hero-stage.hero-full),
+:is(.hero-stage:fullscreen, .hero-stage.hero-full) figure.ae-slot {
+  touch-action: none;
 }
 .hero-stage.hero-full {
   position: fixed;
@@ -2822,6 +2836,161 @@ html.bui[data-theme="light"] .phases b {
   border: 1px dashed var(--k-attack);
   border-radius: 4px;
 }
+/* ---------- Gallery: "Get the snippet" ---------- */
+.gal-keys {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  color: var(--muted);
+  font: 13px/1.6 var(--mono);
+}
+.gal-keys b {
+  color: var(--ink);
+}
+.gal-keys a:not(.bui-key) {
+  color: var(--k-sys-ink);
+}
+/* ---------- Make one (/make/): a prompt in, a snippet out, in the browser ---------- */
+.make-badge {
+  margin-top: 14px;
+}
+.make-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 32px;
+  padding: 18px;
+}
+.make-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.make-row input {
+  flex: 1 1 260px;
+  min-width: 0;
+  padding: 10px 14px;
+  font: 600 17px/1.4 var(--sans);
+  color: var(--ink);
+  background: var(--code-bg);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+}
+.make-row input:focus-visible {
+  outline: 2px solid var(--k-sys);
+  outline-offset: 2px;
+}
+.make-try {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+.bui .make-try .copy {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+  color: var(--ink);
+  white-space: normal;
+  text-align: left;
+}
+.make-private {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0;
+  color: var(--muted);
+  font: 13px/1.6 var(--mono);
+}
+.make-private svg {
+  flex: none;
+  margin-top: 3px;
+  color: var(--k-go);
+}
+.make-out {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  align-items: start;
+  margin-top: 28px;
+}
+@media (max-width: 860px) {
+  .make-out {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.make-stage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+}
+.make-stage iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.make-still {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: var(--muted);
+  font: 700 15px/1.5 var(--mono);
+}
+.make-meta {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px;
+}
+.make-meta p,
+.make-meta h2 {
+  margin: 0;
+}
+.make-meta h2 {
+  font-size: clamp(20px, 2.4vw, 26px);
+}
+.make-matched {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: 13px/1.6 var(--mono);
+}
+.make-matched .bui-label {
+  margin-right: 6px;
+}
+.make-miss,
+.make-status {
+  color: var(--muted);
+  font: 13px/1.6 var(--mono);
+}
+.make-miss b,
+.make-matched b {
+  color: var(--ink);
+}
+.bui .make-keys {
+  margin-top: 4px;
+}
+.make-code {
+  grid-column: 1 / -1;
+}
+.make-code textarea {
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  white-space: pre;
+}
 
 /* ---------- Touch: every tap target at least 44 px, nothing moves ----------
    Text links grow their box with padding (inline boxes: vertical padding takes no room; the others
@@ -2858,5 +3027,57 @@ html.bui[data-theme="light"] .phases b {
   }
   .bui .copy::before {
     inset: -9px -4px;
+  }
+}
+
+/* Status flags (site/bricks.mjs STATUS): the Board UI status pill, flat because it is a readout. */
+.status-pill {
+  --tone: var(--k-go);
+  display: inline-block;
+  padding: 3px 8px;
+  font: 800 10px/1.4 var(--mono);
+  letter-spacing: 0.12em;
+  color: var(--rim);
+  background: var(--tone);
+  border: 1.5px solid var(--rim);
+  border-radius: 5px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.status-pill[data-flag="beta"] { --tone: var(--k-sys); }
+.status-pill[data-flag="experimental"] { --tone: var(--k-aim); }
+.status-pill[data-flag="deprecated"] { --tone: var(--hurt); }
+.status-pill[data-flag="roadmap"] {
+  color: var(--muted);
+  background: transparent;
+  border-color: var(--line);
+}
+.brick-top .status-pill { margin-right: auto; }
+.status-cards {
+  list-style: none;
+  margin: 0 0 48px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 16px;
+}
+.status-card { display: grid; align-content: start; gap: 10px; padding: 18px; min-width: 0; }
+.status-card p { margin: 0; }
+.status-card ul,
+.bp-status ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+.status-card small { font: 12px var(--mono); color: var(--muted); }
+.bricks.planned .brick { border-style: dashed; }
+.bricks.planned .needs { margin: 0; font-size: 13px; color: var(--muted); }
+.bp-status { display: grid; gap: 10px; padding: 18px 20px; margin: 0 0 28px; min-width: 0; }
+.bp-status p { margin: 0; }
+.bp-status dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; margin: 0; }
+.bp-status dt { font: 800 10px var(--mono); letter-spacing: 0.12em; color: var(--muted); }
+.bp-status dd { margin: 4px 0 0; overflow-wrap: anywhere; }
+.beta-line { margin: 0 0 16px; line-height: 1.8; font-size: 14px; color: var(--muted); }
+/* Touch: the kit grows a copy key's hit area 9px up and down (above), so the Try keys keep more
+   than that between rows and a tap on one key's base never lands on the next one's area. */
+@media (pointer: coarse) {
+  .make-try {
+    row-gap: 22px;
   }
 }

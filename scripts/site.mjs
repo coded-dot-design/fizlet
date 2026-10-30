@@ -2,7 +2,7 @@
 // the template modules in site/, the Board UI kit CSS, the live demo bundled from src/ with
 // esbuild, a one-file script-tag build (fizlet.js) and the ESM dist/ for the quick start.
 // No framework, no dependencies beyond the repo's dev tools. Run `npm run build` first (npm run site).
-import { build } from "esbuild";
+import { build, transform } from "esbuild";
 import { gzipSync } from "node:zlib";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "./sizes.mjs";
@@ -17,10 +17,12 @@ import { notePage, notesIndex, noteLd } from "../site/pages/notes.mjs";
 import { notes as loadNotes, notePath } from "./notes.mjs";
 import { playFigure } from "../site/pages/index.mjs";
 import { buildGallery, personPath } from "./gallery.mjs";
+import { buildMake, snippetFor, TABLE as MAKE_TABLE } from "./make.mjs";
+import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
 import { CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
-import { BRICKS, brickPath } from "../site/bricks.mjs";
+import { BRICKS, PLANNED, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
 import { liveBytes } from "./live-bytes.mjs";
@@ -33,6 +35,7 @@ rmSync(OUT, { recursive: true, force: true });
 mkdirSync(`${OUT}/examples`, { recursive: true });
 mkdirSync(`${OUT}/bricks`, { recursive: true });
 mkdirSync(`${OUT}/gallery`, { recursive: true });
+mkdirSync(`${OUT}/make`, { recursive: true });
 const NOTES = loadNotes();
 for (const n of NOTES) mkdirSync(`${OUT}/${notePath(n)}`, { recursive: true });
 
@@ -69,8 +72,11 @@ const blast = { live: "demo.js", bytes: liveBytes(`${OUT}/demo.js`) };
 const quick = { live: "fizlet.js", bytes: liveBytes(`${OUT}/fizlet.js`) };
 
 cpSync("dist", `${OUT}/dist`, { recursive: true });
-cpSync("src/ui/board-ui.css", `${OUT}/board-ui.css`);
-cpSync("site/site.css", `${OUT}/site.css`);
+// The two stylesheets every page loads, minified (the sources stay readable; esbuild is already the
+// build's tool): board-ui.css 8,301 → 4,884 B gzip, site.css 11,530 → 9,091 B (2026-10-30 sources).
+const minCss = async (from, to) => writeFileSync(to, (await transform(readFileSync(from, "utf8"), { loader: "css", minify: true })).code);
+await minCss("src/ui/board-ui.css", `${OUT}/board-ui.css`);
+await minCss("site/site.css", `${OUT}/site.css`);
 writeFileSync(`${OUT}/icon.svg`, mark(64).replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" style="color:#39ffb0;background:#07060f" '));
 writeFileSync(`${OUT}/og.png`, ogImage());
 writeFileSync(`${OUT}/.nojekyll`, "");
@@ -106,6 +112,11 @@ const labs = {
 // The gallery: one bundle per entry, each measured here (its size badge). The story demos keep
 // their own posters as their figures; the blast demo waits in a <template> until its slot mounts.
 const gallery = await buildGallery(OUT);
+// Make one (/make/): the templates, its script, the default prompt's snippet (the page works before
+// any script runs) and a snippet for every gallery entry made from a prompt ("Get the snippet").
+const make = await buildMake(OUT, { version, entries: gallery.entries });
+const defaultSnippet = await snippetFor(DEFAULT_PROMPT, { version, templates: make.templates });
+writeFileSync(`${OUT}/make/default.snippet.txt`, defaultSnippet.text);
 const figures = {
   layers: L.poster("gallery#layers"),
   fizz: fizzFigure.replace('data-slot-target="fizz#hero"', 'data-slot-target="gallery#fizz"').replace('<figure class="ae-slot ae-slot--16x10"', '<figure class="ae-slot ae-slot--16x10 gal-fig"'),
@@ -139,6 +150,11 @@ mkdirSync(`${OUT}/contest`, { recursive: true });
 
 const sizes = await measure();
 const kernel = sizes[0];
+// Big things, small packages (gallery): its figure and its punchline carry the kernel's gzip size,
+// measured just above (never typed). The posters are painted here by the scene's own world.
+const spMod = await build({ entryPoints: ["site/gallery/pieces/small-packages/poster.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
+const SP = await import("data:text/javascript;base64," + Buffer.from(spMod.outputFiles[0].text).toString("base64"));
+for (const e of gallery.entries.filter((x) => x.module === "pieces/small-packages/scene.ts")) figures[e.figure] = SP.figure(e, sizes.find((s) => s.name === "fizlet (kernel)").gzip);
 // Every brick's API, from its source comment and its built declarations.
 const bricks = BRICKS.map((b) => {
   const mods = b.modules.map((m) => ({ ...m, ...api(m) }));
@@ -188,7 +204,7 @@ const pages = [
   ["bricks/index.html", page({
     title: "Kernel and bricks: every module and its size · Fizlet",
     description: `Every Fizlet module with its API and its measured size: the kernel is ${(kernel.gzip / 1024).toFixed(1)} KB gzip, each brick its own import.`,
-    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version }), scripts: ["site.js"],
+    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version, planned: PLANNED }), scripts: ["site.js"],
   })],
   // The gallery: PAGE_SIZE entries a page (gallery/, gallery/page/2/, …), in theme sections.
   ...gallery.pages.map((p) => [`${p.path}index.html`, page({
@@ -197,7 +213,7 @@ const pages = [
       ? `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by theme).`
       : `Fizlet gallery page ${p.n} of ${gallery.pages.length}: older animations by theme, each with its prompt, its live demo and its size measured on this build.`,
     base: GB(p), version, path: p.path,
-    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length }),
+    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length }),
     scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
   })]),
   ["gallery/archive/index.html", page({
@@ -213,6 +229,11 @@ const pages = [
     base: "../", version, path: "heroes/",
     body: `<style>${layers.css}</style>` + heroesPage({ heroes, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: "../", urlOf }),
     scripts: ["site.js", "gallery/heroes.js"],
+  })],
+  ["make/index.html", page({
+    title: "Make one: a prompt in, a snippet out · Fizlet",
+    description: `Type a prompt, get a drop-in Fizlet animation: one file, only the bricks it uses, its size measured in your browser. No server, no tracking.`,
+    base: "../", version, path: "make/", body: makePage({ made: defaultSnippet, script: make.script, recipes: Object.keys(MAKE_TABLE.recipes), base: "../" }), scripts: ["site.js", "make/make.js"],
   })],
   ["people/index.html", page({
     title: "People: the maker and the house personas · Fizlet",

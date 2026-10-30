@@ -20,6 +20,14 @@ import { notes as siteNotes, notePath } from "../scripts/notes.mjs";
 import { PERSONA_NOTE, authorOf, contributors as profiles } from "../scripts/people.mjs";
 import { gzipSync } from "node:zlib";
 import { checkKeys, checkTaps } from "./keys.mjs";
+import { snippetable, snippetFor, TABLE as MAKE_TABLE } from "../scripts/make.mjs";
+import { slug as makeSlug } from "../site/make/make.mjs";
+
+const slug = (prompt) => makeSlug(MAKE_TABLE, prompt);
+
+const VERSION = JSON.parse(readFileSync("package.json", "utf8")).version;
+/** The size a snippet's header says it is. */
+const snippetSize = (text) => Number(/^ {5}([\d,]+) B gzip, this whole file/m.exec(text)?.[1].replace(/,/g, "") ?? NaN);
 import { liveBytes } from "../scripts/live-bytes.mjs";
 
 const ROOT = "site-dist", BASE = SITE_ROOT;
@@ -182,6 +190,17 @@ try {
       assert.ok(hash === r.id && readFileSync(pageFile(path), "utf8").includes(`<li class="panel gal-item" id="${r.id}"`), `${r.id}: its index url ${r.url} is its card`);
     }
     for (const id of ["fizz", "layers", "howitworks"]) assert.ok(GALLERY.some((e) => e.id === id), `seeded with ${id}`);
+    // Every entry Make one can make again (made by fe anim from a recipe in its table): a "Get the snippet" key, the same file.
+    for (const e of GALLERY) {
+      const gp = GPAGES.find((x) => x.entries.some((y) => y.id === e.id)), html = readFileSync(pageFile(gp.path), "utf8"), up = "../".repeat(gp.path.split("/").length - 1);
+      const key = html.match(new RegExp(`<a class="bui-key[^"]*" href="${up.replace(/\./g, "\\.")}gallery/${e.id}\\.snippet\\.txt" download="fizlet-${e.id}\\.html" data-snippet="${e.id}">`));
+      assert.equal(!!key, snippetable(e), `${e.id}: a snippet key on every entry Make one can make again`);
+      if (!key) continue;
+      const text = readFileSync(`${ROOT}/gallery/${e.id}.snippet.txt`, "utf8");
+      assert.equal(snippetSize(text), gzipSync(text).length, `${e.id}: the snippet's header says its own gzip size`);
+      assert.equal(text, (await snippetFor(e.prompt, { version: VERSION, id: e.id })).text, `${e.id}: the same file Make one makes`);
+      assert.ok(html.includes(`<b>${gzipSync(text).length.toLocaleString("en-US")} B</b> gzip`), `${e.id}: its size by the key`);
+    }
   }
 
   // ---------- Heroes and people: every hero has a large card; every contributor a profile ----------
@@ -279,6 +298,19 @@ try {
       });
       assert.ok(over.scroll <= over.w, `${where}: horizontal overflow ${over.scroll} > ${over.w}: ${over.wide.join(", ")}`);
       assert.deepEqual(over.wide, [], `${where}: content wider than the screen`);
+      if (label === "phone") {
+        // Touch: no double-tap zoom anywhere, and no demo surface pans sideways or zooms the page.
+        const touch = await page.evaluate(() => ({
+          html: getComputedStyle(document.documentElement).touchAction,
+          loose: [...document.querySelectorAll(".ae-slot,[data-fizlet-slot],.demo-board,.bd-canvas,.bd-tl,.lab-stage")].filter((el) => {
+            // touch-action narrows down the tree: a surface is locked when it or a parent is.
+            for (let p = el; p; p = p.parentElement) if (/^(none|pan-y)$/.test(getComputedStyle(p).touchAction)) return false;
+            return true;
+          }).map((el) => el.className),
+        }));
+        assert.equal(touch.html, "manipulation", `${where}: the page is touch-action: manipulation`);
+        assert.deepEqual(touch.loose, [], `${where}: demo surfaces are touch-action none or pan-y`);
+      }
       if (label === "desktop") {
         // Size badges: every live demo on the page sits in a host that shows what it ships, and the
         // number is the gzip size of the built file it names (measured again here).
@@ -307,6 +339,7 @@ try {
         const links = await page.evaluate(() => [...document.querySelectorAll("a[href]")].map((a) => a.href));
         for (const href of links) {
           const u = new URL(href);
+          if (u.protocol === "blob:") continue; // a file made in the page (Make one's download)
           if (u.origin !== new URL(ORIGIN).origin) {
             assert.match(u.protocol, /^https:$/, `${where}: external link should be https: ${href}`);
             continue;
@@ -330,7 +363,7 @@ try {
 
   // ---------- Page keys: every in-page key presses (face drops) and clicks on face and base ----------
   let keyCount = 0;
-  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", "heroes/", "contest/", ...siteNotes().map(notePath)]) {
+  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", "heroes/", "contest/", "make/", ...siteNotes().map(notePath)]) {
     where = `page keys ${path || "index"}`;
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const { page, errors } = await open(context, path);
@@ -340,6 +373,8 @@ try {
     await context.close();
     const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const tap = await open(phone, path);
+    // Heroes: the skip below needs the centre card (aria-current), which an IntersectionObserver sets.
+    if (path === "heroes/") await tap.page.waitForSelector("[data-hero][aria-current]");
     // Heroes: on a phone the other cards sit off to the side, and a scroll to one of their keys snaps the
     // row to that card (the key moves under the tap); the centre card's keys are tapped.
     await checkTaps(tap.page, `${where} (phone)`, { skip: path === "heroes/" ? "[data-hero]:not([aria-current])" : "" });
@@ -465,9 +500,10 @@ try {
   where = "gallery";
   {
     const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
-    const { page, errors } = await open(context, "gallery/");
+    // Listen before the page opens: an entry near the top can load before "load" returns.
     const loaded = [];
-    page.on("request", (r) => r.url().includes("/gallery/") && r.url().endsWith(".js") && loaded.push(r.url().split("/gallery/")[1]));
+    context.on("request", (r) => r.url().includes("/gallery/") && r.url().endsWith(".js") && loaded.push(r.url().split("/gallery/")[1]));
+    const { page, errors } = await open(context, "gallery/");
     await page.waitForTimeout(600);
     const G1 = GPAGES[0].entries;
     const last = sections(G1, THEMES).flatMap((x) => x.entries).at(-1).id;
@@ -635,6 +671,59 @@ try {
     await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[0].id, { timeout: 8000 });
     assert.equal(loaded.length, 1, "Play loads that hero, on request");
     assert.deepEqual(errors, []);
+    await context.close();
+  }
+
+  // ---------- Make one: a prompt in, the same snippet the build (and fe anim --snippet) makes, nothing sent ----------
+  where = "make";
+  {
+    const html = readFileSync(`${ROOT}/make/index.html`, "utf8");
+    const script = gzipSync(readFileSync(`${ROOT}/make/make.js`)).length;
+    assert.ok(html.includes(`data-bytes="${script}" data-live="make/make.js"`), `make: the page's script badge shows ${script} B`);
+    assert.match(html, /logged nowhere: no server, no analytics, no tracking/, "make: says unknown words are logged nowhere");
+    const def = readFileSync(`${ROOT}/make/default.snippet.txt`, "utf8");
+    assert.equal(snippetSize(def), gzipSync(def).length, "make: the prebuilt default snippet says its own size");
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    const requests = [];
+    context.on("request", (r) => requests.push(r.url()));
+    const { page, errors } = await open(context, "make/");
+    const made = (id) => page.waitForFunction((id) => document.querySelector("[data-out]").dataset.id === id && document.querySelector("[data-stage] iframe") && /^Made /.test(document.querySelector("[data-status]").textContent), id, { timeout: 8000 });
+    await made("pink-sparks-burst-tap");
+    assert.equal(await page.$eval("[data-code]", (t) => t.value), def, "make: on load it makes the default prompt, the same file as the build");
+    for (const prompt of ["gentle cyan bubbles rise from the bottom", "neon rain that pools on the buttons you hover", "lots of huge green snow falls forever"]) {
+      const node = await snippetFor(prompt, { version: VERSION });
+      await page.fill("#make-prompt", prompt);
+      await page.click("[data-make] button[type=submit]");
+      await made(node.spec.id);
+      const text = await page.$eval("[data-code]", (t) => t.value);
+      assert.equal(text, node.text, `make "${prompt}": the browser makes the same file as Node`);
+      assert.equal(snippetSize(text), gzipSync(text).length, `make "${prompt}": the size in its header is its gzip size`);
+      assert.match(await page.locator("[data-snippet-size]").textContent(), new RegExp(`^${gzipSync(text).length.toLocaleString("en-US")} B`));
+      const matched = await page.locator("[data-matched]").textContent(), miss = await page.locator("[data-miss]").textContent();
+      for (const w of node.spec.matched.recipe) assert.ok(matched.includes(w), `make "${prompt}": shows the matched word ${w}`);
+      for (const w of node.spec.matched.miss) assert.ok(miss.includes(w), `make "${prompt}": shows the miss ${w}`);
+      if (node.spec.matched.miss.length) assert.match(miss, /logged nowhere/);
+      const dl = await page.$eval("[data-download]", (a) => ({ href: a.href, name: a.download }));
+      assert.equal(dl.name, `fizlet-${node.spec.id}.html`);
+      assert.equal(await page.evaluate((href) => fetch(href).then((r) => r.text()), dl.href), text, `make "${prompt}": Download is the same file`);
+      // The preview is the snippet itself, running in a sandboxed frame.
+      const frame = page.frames().find((f) => f !== page.mainFrame());
+      await frame.waitForFunction(() => document.querySelector("[data-fizlet]")?.fizlet?.scene, null, { timeout: 8000 });
+    }
+    // A "Try" key makes its prompt.
+    await page.click("[data-try]");
+    await made(slug(await page.$eval("[data-try]", (b) => b.dataset.try)));
+    // Nothing leaves the page: every request is this site's own files, and the only ones made after
+    // load are the scene templates.
+    assert.deepEqual(requests.filter((u) => !u.startsWith(ORIGIN) && !u.startsWith("blob:") && !u.startsWith("about:") && !u.startsWith("data:")), [], "make: no request leaves the site");
+    const after = requests.filter((u) => u.startsWith(ORIGIN) && !/\.(css|svg|js)$/.test(u) && !u.endsWith("/make/"));
+    assert.ok(after.every((u) => /\/make\/templates\/[\w-]+\.json$/.test(u)), `make: only templates are fetched (${after.join(", ")})`);
+    assert.deepEqual(errors, []);
+    // ?p= fills the box and makes it.
+    const asked = await open(context, `make/?p=${encodeURIComponent("pink snow falls")}`);
+    await asked.page.waitForFunction(() => document.querySelector("[data-out]").dataset.id === "pink-snow-falls" && document.querySelector("[data-stage] iframe"), null, { timeout: 8000 });
+    assert.equal(await asked.page.inputValue("#make-prompt"), "pink snow falls");
+    assert.deepEqual(asked.errors, []);
     await context.close();
   }
 

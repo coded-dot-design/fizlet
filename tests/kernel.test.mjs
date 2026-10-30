@@ -387,10 +387,11 @@ test("zero allocation in the steady state (10k+ steps)", async (t) => {
 // over to the next call (the clock only moves forward). The kernel reads the global setTimeout at
 // call time, so swapping it inside a synchronous test is safe.
 let timers = [];
-function display(t0, ms, hz = 60) {
+// `work` ms: how long each frame's hooks take, so a timer armed in a frame is due `work` ms later.
+function display(t0, ms, hz = 60, work = 0) {
   const real = globalThis.setTimeout;
   let now = t0, rafs = 0;
-  globalThis.setTimeout = (cb, d) => timers.push({ at: now + d, cb });
+  globalThis.setTimeout = (cb, d) => timers.push({ at: now + work + d, cb });
   try {
     for (let k = 1; k * (1000 / hz) <= ms; k++) {
       now = t0 + k * (1000 / hz);
@@ -429,6 +430,26 @@ test("fps cap: the page asks for ~fps frames a second, not one per vsync (60 and
   }
 });
 
+test("fps cap: a slow frame still meets its next slot (the nap counts from the frame's start)", () => {
+  // Each frame's work takes 20 ms (a phone at 4× CPU). Counting the nap from the end of the work
+  // (20 + 29.3 ms) missed the 33 ms vsync and ran at 20 fps; counted from the start it holds 30.
+  const perf = globalThis.performance, real = perf.now;
+  let fake = 0;
+  perf.now = () => fake;
+  try {
+    const e = createEngine({ fps: 30 });
+    let frames = 0;
+    e.add({ render: () => ((fake += 20), frames++) });
+    e.start();
+    const { rafs } = display(4e6, 1000, 60, 20);
+    assert.ok(frames >= 29 && frames <= 31, `20 ms frames under a 30 fps cap: ${frames} frames a second`);
+    assert.ok(rafs <= 31, `${rafs} requestAnimationFrame callbacks a second`);
+    e.destroy();
+  } finally {
+    perf.now = real;
+  }
+});
+
 test("fps cap: an uncapped engine joining gets every frame; the capped one keeps its own pace", () => {
   const capped = createEngine({ fps: 10 }), free = createEngine();
   let a = 0, b = 0;
@@ -450,4 +471,22 @@ test("fps cap: an uncapped engine joining gets every frame; the capped one keeps
   capped.destroy();
   assert.equal(queue.length, 0);
   assert.equal(scheduler.engines, 0);
+});
+
+test("fps cap: destroy() clears the pending wake-up timer (nothing outlives the engine)", () => {
+  const real = [globalThis.setTimeout, globalThis.clearTimeout];
+  const pending = new Set();
+  let id = 0;
+  globalThis.setTimeout = () => (pending.add(++id), id);
+  globalThis.clearTimeout = (h) => pending.delete(h);
+  try {
+    const e = createEngine({ fps: 30 });
+    e.start();
+    e.frame(5e6);
+    assert.equal(pending.size, 1, "between capped frames: one wake-up timer");
+    e.destroy();
+    assert.equal(pending.size, 0, "destroy() clears it");
+  } finally {
+    [globalThis.setTimeout, globalThis.clearTimeout] = real;
+  }
 });
