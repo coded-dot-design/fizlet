@@ -20,6 +20,7 @@
     loader 2,023 B, poster 3,457 B; script per frame 1.3 ms avg, 4.0 ms p95, 18.2 ms max; 0 frames
     settled, offscreen and with reduced motion; CLS from the slot 0. `tests/fizz.mjs`: the spray
     leaves the card, and the camera moves the card, never the page.
+- **Website: notes (`/notes/`)**, posts written for fizlet.com from `site/notes/<slug>.json` (generated, never hand-edited), on the site's own parts: section head, panels, stat cards, kit keys, and the kernel's size badge measured on the build. BlogPosting + FAQPage JSON-LD; listed in the sitemap and under Notes in llms.txt. First note: "Moving the games onto a 4 KB kernel" (every number from the size ledger and this changelog).
 
 ## 0.16.0
 
