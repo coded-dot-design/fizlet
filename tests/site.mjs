@@ -417,7 +417,11 @@ try {
       const fig = page.locator(`figure[data-gallery="${e.id}"]`);
       await fig.scrollIntoViewIfNeeded();
       const unlit = () => page.waitForFunction((id) => !document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 8000 });
-      await unlit(); // the sweep on mount has passed
+      // The play on mount has passed: unlit twice, longer apart than any gap between lit elements
+      // (a scene paused off screen resumes mid-play when it is scrolled back in).
+      await unlit();
+      await page.waitForTimeout(1800);
+      await unlit();
       const before = await fig.evaluate((f) => f.querySelector(".gal-mini").outerHTML);
       await fig.click({ position: { x: 40, y: 10 } });
       await page.waitForFunction((id) => document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 4000 });
@@ -455,10 +459,13 @@ try {
     }
     await page.click('a[data-theme-chip="all"]');
     assert.deepEqual(await shown(), secs, "All: every section again");
-    // A theme in the address filters on arrival.
-    await page.goto(`${ORIGIN}${BASE}gallery/#theme-${secs[0]}`);
-    assert.deepEqual(await shown(), [secs[0]], "a #theme- address filters");
-    await page.goto(`${ORIGIN}${BASE}gallery/`);
+    // A theme in the address filters on arrival (a fresh page: from this one it is only a hash change).
+    {
+      const fresh = await open(context, `gallery/#theme-${secs[0]}`);
+      const there = await fresh.page.$$eval("section[data-theme-section]", (l) => l.filter((x) => !x.hidden).map((x) => x.dataset.themeSection));
+      assert.deepEqual(there, [secs[0]], "a #theme- address filters");
+      await fresh.page.close();
+    }
     // Search: shown with script, every word must match title, prompt, theme or author.
     assert.equal(await page.isVisible("form[data-gal-search]"), true, "the search box");
     const q = (text) => page.fill("#gal-q", text).then(() => page.waitForFunction((t) => document.querySelector("#gal-q").value === t && document.querySelector("[data-gal-found]").textContent !== "", text));

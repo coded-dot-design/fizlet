@@ -1,5 +1,96 @@
 # Changelog
 
+## Unreleased
+
+- **Website: gallery #007, "orange red and gold leaves fall gently".** Made by `fe anim` from the
+  prompt (recipe fall, the spray scene; kernel + fx + slot): live 6,784 B · total 8,710 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
+- **Website: gallery #008, "red orange and gold turkey feathers fan out on hover".** Made by `fe
+  anim` from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,791 B · total
+  8,717 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under
+  reduced motion; settles to zero frames.
+- **Website: gallery #009, "white steam rises gently off a warm pie".** Made by `fe anim` from the
+  prompt (recipe rise, the spray scene; kernel + fx + slot): live 6,786 B · total 8,712 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
+- **Website: gallery #010, "a cornucopia spills red orange and lime fruit on tap".** Made by `fe
+  anim` from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,785 B · total
+  8,711 B gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under
+  reduced motion; settles to zero frames.
+- **Website: gallery #011, "orange and gold leaves settle on every heading".** Made by `fe anim`
+  from the prompt (recipe settle, a decor scene (settle) that reads the page's own headings and
+  writes only through the ledger; kernel + board-page + slot): live 8,903 B · total 10,829 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #012, "orange embers rise from the harvest fire".** Made by `fe anim` from the
+  prompt (recipe rise, the spray scene; kernel + fx + slot): live 6,788 B · total 8,714 B gzip (with
+  the 1,926 B loader) on this build, loaded only near the viewport, never under reduced motion;
+  settles to zero frames.
+- **Website: gallery #013, "snow settles on every heading".** Made by `fe anim` from the prompt
+  (recipe settle, a decor scene (settle) that reads the page's own headings and writes only through
+  the ledger; kernel + board-page + slot): live 8,906 B · total 10,832 B gzip (with the 1,926 B
+  loader) on this build, loaded only near the viewport, never under reduced motion; settles to zero
+  frames.
+- **Website: gallery #014, "red green and gold string lights twinkle on the nav".** Made by `fe
+  anim` from the prompt (recipe lights, a decor scene (lights) that reads the page's own buttons and
+  writes only through the ledger; kernel + board-page + slot): live 8,674 B · total 10,600 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #015, "a gift box pops open into red and green confetti".** Made by `fe anim`
+  from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,785 B · total 8,711 B
+  gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #016, "a sleigh streaks across the top with gold sparkles".** Made by `fe anim`
+  from the prompt (recipe trail, the spray scene; kernel + fx + slot): live 6,806 B · total 8,732 B
+  gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #017, "ornaments jingle when you hover a button".** Made by `fe anim` from the
+  prompt (recipe jingle, a decor scene (jingle) that reads the page's own buttons and writes only
+  through the ledger; kernel + board-page + slot): live 8,702 B · total 10,628 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #018, "gold stars pop and twinkle where you tap".** Made by `fe anim` from the
+  prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,779 B · total 8,705 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #019, "candy cane red and white sweeps every heading".** Made by `fe anim` from
+  the prompt (recipe sweep, a page scene that reads the page's own headings and writes only through
+  the ledger; kernel + board-page + slot): live 8,923 B · total 10,849 B gzip (with the 1,926 B
+  loader) on this build, loaded only near the viewport, never under reduced motion; settles to zero
+  frames.
+- **Website: gallery #020, "POW BAM ZAP comic bursts where you click".** Made by `fe anim` from the
+  prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,813 B · total 8,739 B gzip
+  (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+- **Website: gallery #021, "speed lines rush past every heading".** Made by `fe anim` from the
+  prompt (recipe dash, a decor scene (dash) that reads the page's own headings and writes only
+  through the ledger; kernel + board-page + slot): live 8,883 B · total 10,809 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #022, "a halftone dot wave reveals every heading".** Made by `fe anim` from the
+  prompt (recipe halftone, a decor scene (halftone) that reads the page's own headings and writes
+  only through the ledger; kernel + board-page + slot): live 8,765 B · total 10,691 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #023, "a red cape whooshes across the top".** Made by `fe anim` from the prompt
+  (recipe trail, the spray scene; kernel + fx + slot): live 6,784 B · total 8,710 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #024, "red laser eyes scan every heading".** Made by `fe anim` from the prompt
+  (recipe sweep, a page scene that reads the page's own headings and writes only through the ledger;
+  kernel + board-page + slot): live 8,923 B · total 10,849 B gzip (with the 1,926 B loader) on this
+  build, loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #025, "a comic panel wipes across every heading".** Made by `fe anim` from the
+  prompt (recipe wipe, a decor scene (wipe) that reads the page's own headings and writes only
+  through the ledger; kernel + board-page + slot): live 8,667 B · total 10,593 B gzip (with the
+  1,926 B loader) on this build, loaded only near the viewport, never under reduced motion; settles
+  to zero frames.
+- **Website: gallery #026, "a hero lands with a cyan shockwave where you tap".** Made by `fe anim`
+  from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,766 B · total 8,692 B
+  gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
+  motion; settles to zero frames.
+
 ## 0.17.0
 
 - **Website: a themed gallery, a heroes row and contributor profiles** (launch infrastructure).
