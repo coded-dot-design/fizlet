@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+- **`fizlet/announce`** (new brick, E14 "Accessible play" pulled forward; 612 B gz, budget 614 =
+  the planned 0.6 KB; the kernel comes in as types only): game events read out to screen readers
+  through one polite live region, rate-limited. `announce(engine, { words, gap, doc })` →
+  `{ say, flush, destroy }`. The game emits on the event ring in its steps as it already does for
+  sound; `words(event)` turns an event into a sentence in render (or nothing, to stay quiet), and
+  `say(key, text)` queues one directly (a HUD, a menu, a result screen).
+  - One region per page, shared by every engine: `[data-fz-announce]`, `role="status"`,
+    `aria-live="polite"`, `aria-atomic="true"`, hidden to the eye only
+    (`position:fixed;clip-path:inset(50%)`: no room, no scroll, no hit target). Made on the first
+    word, never before; `destroy()` removes it only if this one made it, and a region the page
+    already has is used as is.
+  - Rate-limited: at most one write per `gap` (default 1 s). Sentences coalesce by key (an event's
+    `type`): a score that ticks every step is read once a gap, as its latest value; waiting
+    sentences are read together in first-queued order, joined with ". ". The same sentence twice is
+    read twice (a trailing no-break space alternates). `flush()` reads now (a result screen).
+  - Nothing in step; render only reads the ring; one timer while something waits, none after.
+    The deferred write's delay is clamped at 0: a browser reads `setTimeout`'s delay as a 32-bit
+    int, so a large negative one wrapped to weeks (found by the Chromium test; Node clamps it).
+  - Tests: `tests/announce.test.mjs` (region attributes and when it is made, words through the
+    ring, coalescing, one write per gap, repeats, flush, Recall by `destroy()` and by the engine's,
+    zero minor GCs over 200k frames) and `tests/announce.mjs` in Chromium (one `status` in the
+    accessibility tree, no scroll or hit target for a long sentence, about one write per gap on the
+    real clock with the latest score, Recall byte for byte). axe-core 4.14: no violations on a page
+    with the region speaking.
+  - Status: BETA in `site/bricks.mjs` (since 0.21.0; no released game reads out through it yet),
+    a README row; it leaves the ROADMAP list. The six launch games carry a local copy of its
+    contract (same region, same coalescing and gap) until their next Fizlet sync swaps the import.
 - Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
