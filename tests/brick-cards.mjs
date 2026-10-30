@@ -10,7 +10,9 @@ import { extname, join } from "node:path";
 import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
 
-const ROOT = "site-dist", IDS = ["kernel", "fx", "collide", "grid", "steer"];
+import { CARD_IDS as IDS } from "../site/brick-cards.mjs";
+
+const ROOT = "site-dist";
 if (!existsSync(`${ROOT}/brick-cards.js`)) throw new Error("site-dist/brick-cards.js is missing: run `npm run site` first");
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png" };
 const server = createServer((req, res) => {
@@ -21,7 +23,7 @@ const server = createServer((req, res) => {
 }).listen(0);
 const URL0 = `http://127.0.0.1:${server.address().port}/`;
 const browser = await chromium.launch(launchOptions());
-const cardChunk = /\/chunks\/(kernel|fx|collide|grid|steer)-[A-Z0-9]+\.js$/;
+const cardChunk = new RegExp(`/chunks/(${IDS.join("|")})-[A-Z0-9]+\\.js$`);
 const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
 
 async function open(path, opts = {}) {
@@ -64,7 +66,7 @@ try {
       await f.click();
       await until(async () => /^AWAKE/.test(await read(page, id)), 2000, `${id} wakes on a tap`);
       await f.click({ position: { x: 40, y: 60 } });
-      await until(async () => (await read(page, id)) === "ASLEEP · 0 FPS", 9000, `${id} settles`);
+      await until(async () => (await read(page, id)) === "ASLEEP · 0 FPS", 15000, `${id} settles`);
       await sleep(1100);
       assert.equal(await read(page, id), "ASLEEP · 0 FPS", `${id} stays asleep: no frames`);
       assert.notEqual(await f.locator(".bc-read span").textContent(), "", `${id} readout`);

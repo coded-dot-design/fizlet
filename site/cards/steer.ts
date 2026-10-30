@@ -6,7 +6,7 @@ import type { SlotMount } from "../../src/slot";
 import { steer, hypot } from "../../src/steer";
 import { mountCard, ground, brick, W, FLOOR } from "./frame";
 
-const ROWS = [5, 4, 3, 2], N = 14, BW = 24, BH = 12, FEAR = 64, SHOCK = 150;
+const ROWS = [5, 4, 3, 2], N = 14, LX = 8, LW = 78, LH = 16, BW = 24, BH = 12, FEAR = 64, SHOCK = 150;
 
 const mount: SlotMount = (stage, slot, first) => mountCard(stage, slot, first, (card) => {
   const m = steer({ cap: N, speed: 230, turn: 14, near: 3, slow: 60, far: 170, random: card.e.random, area: [8, 8, W - 16, FLOOR - 16] });
@@ -25,22 +25,29 @@ const mount: SlotMount = (stage, slot, first) => mountCard(stage, slot, first, (
       let off = 0;
       if (p[4]! > 0) p[4] = p[4]! - dt;
       for (let i = 0; i < N; i++) {
-        const near = p[4]! > 0 && p[0]! >= 0 && hypot(m.x[i]! - p[0]!, m.y[i]! - p[1]!) < FEAR;
+        const ex = m.x[i]! - p[0]!, ey = m.y[i]! - p[1]!, near = p[4]! > 0 && p[0]! >= 0 && ex * ex + ey * ey < FEAR * FEAR;
         if (near) fear[i] = 0.35;
         if (fear[i]! > 0) {
           fear[i] = fear[i]! - dt;
           m.flee(i, p[0]! >= 0 ? p[0]! : m.x[i]!, p[0]! >= 0 ? p[1]! : FLOOR, dt, 1.6);
         } else {
-          const d = hypot(hx[i]! - m.x[i]!, hy[i]! - m.y[i]!);
+          // Squared distances in the step: a call that isn't inlined boxes its double result.
+          const qx = hx[i]! - m.x[i]!, qy = hy[i]! - m.y[i]!, d2 = qx * qx + qy * qy;
           // Arrive from afar; the last few pixels ease straight into the slot (a turning mover
           // can circle a goal it is right next to) and snap, so the tower stands still exactly.
-          if (d > 28) m.arrive(i, hx[i]!, hy[i]!, dt);
-          else if (d > 0.4) (m.x[i] = m.x[i]! + (hx[i]! - m.x[i]!) * Math.min(1, 12 * dt)), (m.y[i] = m.y[i]! + (hy[i]! - m.y[i]!) * Math.min(1, 12 * dt));
+          if (d2 > 784) m.arrive(i, hx[i]!, hy[i]!, dt);
+          else if (d2 > 0.16) (m.x[i] = m.x[i]! + (hx[i]! - m.x[i]!) * Math.min(1, 12 * dt)), (m.y[i] = m.y[i]! + (hy[i]! - m.y[i]!) * Math.min(1, 12 * dt));
           else (m.x[i] = hx[i]!), (m.y[i] = hy[i]!), (m.a[i] = -Math.PI / 2);
         }
         // Keep inside the card, and shove apart any two bricks that overlap (box against box).
         m.x[i] = Math.max(BW / 2, Math.min(W - BW / 2, m.x[i]!));
         m.y[i] = Math.max(BH / 2, Math.min(FLOOR - BH / 2, m.y[i]!));
+        // The name brick in the corner is solid too: a fleeing brick slides off it, never over it.
+        const lx = LX + LW + BW / 2 + 1 - m.x[i]!, ly = m.y[i]! - (FLOOR - LH - BH / 2 - 1);
+        if (lx > 0 && ly > 0) {
+          if (lx < ly) m.x[i] = m.x[i]! + lx;
+          else m.y[i] = m.y[i]! - ly;
+        }
         if (fear[i]! > 0)
           for (let j = 0; j < N; j++) {
             if (j === i) continue;
@@ -64,7 +71,7 @@ const mount: SlotMount = (stage, slot, first) => mountCard(stage, slot, first, (
         const lift = fear[i]! > 0 ? 5 : 2;
         brick(card, m.x[i]! - BW / 2, m.y[i]! - BH / 2 - (lift - 2), BW, BH, card.tone, "", 0, lift);
       }
-      brick(card, 8, FLOOR - 16, 78, 14, card.tone, label, 0, 2);
+      brick(card, LX, FLOOR - LH, LW, LH - 2, card.tone, label, 0, 2);
     },
   });
   return {

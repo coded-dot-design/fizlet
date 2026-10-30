@@ -141,7 +141,8 @@
     "test:site": "node tests/site.mjs && node tests/brick-cards.mjs",
     "prepack": "npm run build",
     "perf": "npm run site && node tests/perf/run.mjs",
-    "test:alloc": "node tests/perf/alloc.mjs"
+    "test:alloc": "node tests/perf/alloc.mjs",
+    "test:alloc:cards": "node tests/brick-cards-alloc.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

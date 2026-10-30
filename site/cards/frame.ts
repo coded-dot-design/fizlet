@@ -22,8 +22,12 @@ export interface Card {
   kb: string;
   /** 1 on a light page (read in the system's `read`, never in a step). */
   theme: Uint8Array;
-  /** 1 when the stage must be drawn again (mount, theme change); a card's render clears it. */
+  /** 1 when the stage must be drawn again (mount, theme change, resize); a card's render clears it. */
   dirty: Uint8Array;
+  /** [device px, CSS px] per drawing unit (the backing store matches the slot: lines and text stay sharp). */
+  px: Float64Array;
+  /** The slot's stage, for a card that adds DOM of its own (camera, timeline, hud). */
+  stage: HTMLElement;
 }
 export interface CardScene {
   /** A press at (x, y) in drawing units (also the slot's first tap). */
@@ -44,13 +48,20 @@ export const faint = (t: Uint8Array) => (t[0] ? "rgba(20,18,31,.14)" : "rgba(233
  */
 export function mountCard(stage: HTMLElement, slot: HTMLElement, first: SlotTap | null, make: (card: Card) => CardScene) {
   const c = document.createElement("canvas");
-  const dpr = Math.min(2, devicePixelRatio || 1);
-  c.width = W * dpr;
-  c.height = H * dpr;
   c.style.cssText = "position:absolute;inset:0;width:100%;height:100%;touch-action:manipulation;cursor:pointer";
   stage.append(c);
   const ctx = c.getContext("2d")!;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // The backing store is the slot's size in device pixels (not 320 × 200 stretched): sharp at any
+  // width and any DPR. Re-sized (outside the loop) when the slot changes size.
+  const px = new Float64Array(2); // device px per unit, CSS px per unit
+  const size = () => {
+    px[1] = Math.max(1, stage.clientWidth || W) / W;
+    px[0] = px[1] * Math.min(2, devicePixelRatio || 1);
+    c.width = Math.round(W * px[0]);
+    c.height = Math.round(H * px[0]);
+    ctx.setTransform(px[0], 0, 0, px[0], 0, 0);
+  };
+  size();
   const tone = getComputedStyle(slot).getPropertyValue("--tone").trim() || "#39ffb0";
   const bytes = Number(slot.dataset.bytes) || 0;
   const e = createEngine({ root: c, settle: 0.6, pause: { reducedMotion: true } });
@@ -58,7 +69,10 @@ export function mountCard(stage: HTMLElement, slot: HTMLElement, first: SlotTap 
   theme[0] = light() ? 1 : 0;
   e.add({ read() { theme[0] = light() ? 1 : 0; } });
   const dirty = new Uint8Array([1]);
-  const card: Card = { e, ctx, c, tone, tag: slot.dataset.tag ?? "", bytes, kb: `${(bytes / 1024).toFixed(1)} KB`, theme, dirty };
+  const card: Card = { e, ctx, c, tone, tag: slot.dataset.tag ?? "", bytes, kb: `${(bytes / 1024).toFixed(1)} KB`, theme, dirty, px, stage };
+  const ro = new ResizeObserver(() => (size(), (dirty[0] = 1), e.wake()));
+  ro.observe(stage);
+  e.signal.addEventListener("abort", () => ro.disconnect());
   // The page's theme key flips data-theme: draw once more in the new colours, then sleep again.
   const mo = new MutationObserver(() => ((dirty[0] = 1), e.wake()));
   mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
@@ -104,7 +118,8 @@ export function mountCard(stage: HTMLElement, slot: HTMLElement, first: SlotTap 
     kick();
   }
   put();
-  return { destroy: () => e.destroy() };
+  // `engine` and `tap` are for the allocation test (frames by hand) and a host that drives a card.
+  return { destroy: () => e.destroy(), engine: e, tap: scene.tap };
 }
 
 /** The floor line and the faint grid every card stands on. */
@@ -121,6 +136,12 @@ export function ground(card: Card) {
  */
 export function brick(card: Card, x: number, y: number, w: number, h: number, color: string, label: string, squash = 0, lift = 3) {
   const { ctx } = card;
+  if (squash === 0) {
+    // A still brick sits on whole device pixels: crisp edges, crisp label.
+    const k = card.px[0]!;
+    x = Math.round(x * k) / k;
+    y = Math.round(y * k) / k;
+  }
   const sw = w * (1 + squash * 0.18), sh = h * (1 - squash * 0.28), sx = x - (sw - w) / 2, sy = y + (h - sh);
   ctx.fillStyle = RIM;
   ctx.fillRect(sx - 2, sy - 2 + lift, sw + 4, sh + 4);
@@ -133,6 +154,8 @@ export function brick(card: Card, x: number, y: number, w: number, h: number, co
     ctx.font = FONT;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(label, sx + sw / 2, sy + sh / 2 + 0.5);
+    // Snapped to whole device pixels: text on a half pixel is blurred across two.
+    const k = card.px[0]!;
+    ctx.fillText(label, Math.round((sx + sw / 2) * k) / k, Math.round((sy + sh / 2) * k) / k);
   }
 }

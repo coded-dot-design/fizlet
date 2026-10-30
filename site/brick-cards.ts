@@ -12,6 +12,10 @@ export const CARDS: Record<string, Load> = {
   collide: () => import("./cards/collide"),
   grid: () => import("./cards/grid"),
   steer: () => import("./cards/steer"),
+  input: () => import("./cards/input"),
+  sprite: () => import("./cards/sprite"),
+  camera: () => import("./cards/camera"),
+  timeline: () => import("./cards/timeline"),
 };
 
 const mounted = new WeakSet<Element>(); // not a data attribute: the page stays byte for byte

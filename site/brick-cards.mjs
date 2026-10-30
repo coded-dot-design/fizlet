@@ -19,6 +19,10 @@ export const CARDS = {
   collide: { play: "Tap to fire a ball at that spot.", what: "balls knock bricks out of a wall; the spatial grid checks only the bricks a ball can touch" },
   grid: { play: "Tap a cell to walk there; tap a rock to break it.", what: "A* finds the way across a seeded board of rocks and the brick walks it" },
   steer: { play: "Bring the pointer near, or tap the tower.", what: "a tower of small bricks that flee the pointer and arrive back in their own slots" },
+  input: { play: "Tap to start; whack a brick with a tap or its key (1–4, A S D F).", what: "whack-a-brick: keys and the pointer map to the same named intents, each hit true for one step" },
+  sprite: { play: "Tap the bug. Four times.", what: "a pixel bug that flashes, gets angry and bursts into its own pixels" },
+  camera: { play: "Tap anywhere to dive in; tap again to fly back.", what: "a tiny page of real DOM with fine print you can only read when the camera zooms in" },
+  timeline: { play: "Tap to make the bricks dance into the next shape.", what: "six DOM bricks hop, then fly into a new arrangement on a scripted timeline" },
 };
 export const CARD_IDS = Object.keys(CARDS);
 /** The bricks without a card yet (the roadmap), in catalog order. */
