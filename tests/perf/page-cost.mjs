@@ -67,7 +67,14 @@ export const frames = (page, n) => page.evaluate((n) => new Promise((r) => {
 const INIT = () => {
   const pc = (window.__pc = { raf: window.requestAnimationFrame.bind(window), cls: 0, taps: [], calls: 0 });
   // The page's own requestAnimationFrame calls (the gate's frame counter uses the raw one above).
-  window.requestAnimationFrame = (cb) => (pc.calls++, pc.raf(cb));
+  // By caller (the script that asked), for the report: which interaction is still running.
+  pc.by = {};
+  window.requestAnimationFrame = (cb) => {
+    pc.calls++;
+    const at = /\/([\w.-]+\.js)/.exec(new Error().stack?.split("\n")[2] ?? "")?.[1] ?? "?";
+    pc.by[at] = (pc.by[at] ?? 0) + 1;
+    return pc.raf(cb);
+  };
   try {
     new PerformanceObserver((l) => { for (const e of l.getEntries()) if (!e.hadRecentInput) pc.cls += e.value; })
       .observe({ type: "layout-shift", buffered: true });
@@ -105,12 +112,14 @@ export async function measurePage(browser, origin, pg, variant, prof, opts = {})
     // Idle CPU while visible, nothing touched: main-thread busy over a window of frames.
     const task = async () => (await cdp.send("Performance.getMetrics")).metrics.find((m) => m.name === "TaskDuration").value;
     const calls = () => page.evaluate(() => window.__pc.calls);
+    await page.evaluate(() => (window.__pc.by = {}));
     const a = await task(), c0 = await calls(), t0 = await page.evaluate(() => performance.now());
     await frames(page, idleFrames);
     const b = await task(), c1 = await calls(), t1 = await page.evaluate(() => performance.now());
     const idlePct = (100 * (b - a) * 1000) / (t1 - t0);
     // Diagnostics, not gated: the page's rAF calls a second over the window.
     const rafPerSec = (1000 * (c1 - c0)) / (t1 - t0);
+    const rafBy = await page.evaluate(() => Object.entries(window.__pc.by).map(([k, n]) => `${k} ${n}`).join(", "));
 
     // A tap on page text outside every interaction, in the first viewport.
     const target = await page.evaluate((ex) => {
@@ -129,7 +138,7 @@ export async function measurePage(browser, origin, pg, variant, prof, opts = {})
     }
     const tapList = await page.evaluate(() => window.__pc.taps.slice());
     const cls = await page.evaluate(() => window.__pc.cls);
-    return { variant, cls: +cls.toFixed(4), tapMs: +median(tapList).toFixed(1), idlePct: +idlePct.toFixed(1), rafPerSec: +rafPerSec.toFixed(1), taps: tapList.map((t) => +t.toFixed(1)), tapTarget: target.el, errors };
+    return { variant, cls: +cls.toFixed(4), tapMs: +median(tapList).toFixed(1), idlePct: +idlePct.toFixed(1), rafPerSec: +rafPerSec.toFixed(1), rafBy, taps: tapList.map((t) => +t.toFixed(1)), tapTarget: target.el, errors };
   } finally {
     await context.close();
   }
