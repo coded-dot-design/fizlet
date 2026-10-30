@@ -118,6 +118,16 @@
   `stop()` → `start()`, your pause held, Recall and destroy, zero allocation (Node), and off screen
   and back with a real IntersectionObserver (Chromium). fizlet/timeline 2,060 → 2,067 B gz
   (budget 2,304); fizlet/css-clock 5,375 → 5,383 B gz.
+- **Tests: `fizlet/css-clock` has its zero-allocation proof** (`tests/css-clock.test.mjs`): 200k steps while it plays and 200k whole frames at rest (held) each take ≤ 1 young-generation GC (best of 3 windows). Its tests never counted allocations (touch has no loop; arcade is covered by #144) (2026-10-30 code audit, `fe audit fizlet`). Tests only; no size change.
+- **Kernel fix: `start()` on a settled engine runs again.** It cleared the settled bit but not the
+  quiet time, so the first frame after it (0 s, no steps) found the engine still quiet and put it
+  back to sleep: `start()` woke a settled engine for one empty frame. It now does what `wake()` does
+  (the quiet time starts over, a hold still ahead stays), then clears the stop. Inert after
+  `destroy()`, as before. Found by the 2026-10-30 code audit.
+  - Sizes (gzip): kernel 3,438 → 3,439 B; page build (kernel + slot + input + fx) 7,166 → 7,167 B
+    (cap 7,168). No budget moves.
+  - Test: `tests/kernel.test.mjs` settle test: after `start()` a settled engine runs steps for a
+    full settle window, then settles again; `start()` after `destroy()` stays inert.
 - **Roadmap: E5 (docs for humans and AI) is done.** Docs, guides, release notes, the authoring
   guide with three recipes, the generated API reference with llms-full.txt, and live kernel stats on
   DOM VIRUS's Under the Hood (dom-virus#21). `site/roadmap.mjs` and the engine's ROADMAP.md agree
