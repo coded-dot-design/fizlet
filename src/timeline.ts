@@ -190,8 +190,10 @@ export function timeline(engine: Engine, o: TimelineOptions = {}) {
     play: () => go(1),
     /** Play backward (from the end if it is at the start). */
     reverse: () => go(-1),
-    pause() {
-      dir = 0;
+    /** Stop where it is. The engine calls this as its System pause hook (off screen, hidden tab,
+     *  stop()): then it only suspends, and plays on when the engine resumes unless you paused it. */
+    pause(by?: unknown) {
+      if (by !== engine) dir = 0;
       return tl;
     },
     /** Move the playhead to `t` seconds; it keeps playing or stays paused. */
