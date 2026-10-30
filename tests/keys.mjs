@@ -18,6 +18,18 @@ const basePx = (key) => key.evaluate((e) => {
   return px;
 });
 
+/** Wait for the key to come to rest: two frames (so a press or release has restyled and started its
+ *  transitions), then until none of its transitions or animations is still running. On state, never
+ *  wall time: a loaded CI runner can take longer than any fixed wait. */
+const settle = (key) => key.evaluate(async (e) => {
+  const frame = () => new Promise((r) => requestAnimationFrame(r));
+  await frame(); await frame();
+  for (let running; (running = e.getAnimations({ subtree: true }).filter((a) => a.playState === "running")).length;) {
+    await Promise.all(running.map((a) => a.finished.catch(() => {})));
+    await frame();
+  }
+});
+
 /** Number the page's enabled, visible, pressable keys (a decorative key with pointer-events: none
  *  inside a card link is the card's, not a key) and catch every click (recording which key it hit).
  *  Taps: keys that act on touchstart (the kit's press()) cancel the click, so their touchstart is
@@ -58,13 +70,13 @@ export async function checkKeys(page, label, { skip = "" } = {}) {
     const x = box.x + box.width / 2;
     // A locked key (aria-pressed) rests dropped: its base is under the face, so measure from rest.
     await page.mouse.move(2, 2);
-    await page.waitForTimeout(150);
+    await settle(key);
     const rest = await key.evaluate((e) => new DOMMatrix(getComputedStyle(e).transform).m42);
     for (const [where, y] of [["centre", box.y + box.height / 2], ["top edge", box.y + 1], ["base", box.y + box.height - rest + py / 2]]) {
       await page.mouse.move(2, 2);
       await page.mouse.move(x, y);
       await page.mouse.down();
-      await page.waitForTimeout(90);
+      await settle(key);
       const ty = await key.evaluate((e) => new DOMMatrix(getComputedStyle(e).transform).m42);
       assert.ok(Math.abs(ty - py) < 0.5, `${name} at the ${where}: the face drops by its base (${ty} vs ${py})`);
       await page.mouse.up();
@@ -90,6 +102,7 @@ export async function checkTaps(page, label, { skip = "" } = {}) {
     await key.evaluate((e) => e.scrollIntoView({ block: "center", behavior: "instant" }));
     const box = await key.boundingBox();
     const py = await basePx(key);
+    await settle(key);
     const rest = await key.evaluate((e) => new DOMMatrix(getComputedStyle(e).transform).m42);
     await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height - rest + py / 2);
     const hits = await page.evaluate(() => window.__hits.splice(0));

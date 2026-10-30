@@ -374,3 +374,21 @@ test("fps cap: an uncapped engine joining gets every frame; the capped one keeps
   assert.equal(queue.length, 0);
   assert.equal(scheduler.engines, 0);
 });
+
+test("fps cap: destroy() clears the pending wake-up timer (nothing outlives the engine)", () => {
+  const real = [globalThis.setTimeout, globalThis.clearTimeout];
+  const pending = new Set();
+  let id = 0;
+  globalThis.setTimeout = () => (pending.add(++id), id);
+  globalThis.clearTimeout = (h) => pending.delete(h);
+  try {
+    const e = createEngine({ fps: 30 });
+    e.start();
+    e.frame(5e6);
+    assert.equal(pending.size, 1, "between capped frames: one wake-up timer");
+    e.destroy();
+    assert.equal(pending.size, 0, "destroy() clears it");
+  } finally {
+    [globalThis.setTimeout, globalThis.clearTimeout] = real;
+  }
+});
