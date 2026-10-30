@@ -1,6 +1,7 @@
 // The Fizlet home page. Numbers come from the build (sizes measured like `npm run size`); claims
 // come from the test suites (tests/*.test.mjs, tests/browser.mjs).
 import { esc, icon, REPO, SITE, HUB, BATTLEFIELD, BLITZ, ENGINE_PLAN, AUTHOR } from "../layout.mjs";
+import { sizeBadge } from "../size-badge.mjs";
 import { QUICK_START } from "./quick-start.mjs";
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
@@ -89,10 +90,13 @@ function demoPage() {
     </div>`;
 }
 
-/** The "Blast it. Recall it." demo figure (site/demo.ts runs it). The gallery mounts it in a slot. */
-export function playFigure() {
-  return `<figure class="demo panel lit" data-demo aria-label="Live demo: a small page you can blast. Recall puts it back.">
-      <div class="demo-chrome"><i></i><i></i><i></i><span class="demo-url">your.page</span><span class="demo-state" data-state>BOOTING</span></div>
+/**
+ * The "Blast it. Recall it." demo figure (site/demo.ts runs it). The gallery mounts it in a slot.
+ * `badge`: its size badge (site/size-badge.mjs), shown in the window chrome.
+ */
+export function playFigure(badge = "") {
+  return `<figure class="demo panel lit" data-demo${badge ? " data-demo-host" : ""} aria-label="Live demo: a small page you can blast. Recall puts it back.">
+      <div class="demo-chrome"><i></i><i></i><i></i><span class="demo-url">your.page</span><span class="demo-state" data-state>BOOTING</span>${badge}</div>
       <div class="demo-board" data-board>
         ${demoPage()}
         <canvas class="demo-fx" data-fx aria-hidden="true"></canvas>
@@ -118,8 +122,7 @@ export function playFigure() {
     </figure>`;
 }
 
-export function home({ version, sizes, bundle, bricks: catalog, layers, fizz }) {
-  const fmt = (n) => n.toLocaleString("en-US");
+export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, blast }) {
   const size = (name) => sizes.find((s) => s.name === name);
   const kernel = size("fizlet (kernel)");
   const css = size("fizlet/ui (css)");
@@ -179,10 +182,11 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz }) 
       <div class="hero-install code-card"><div class="code-head"><span class="bui-label"><b>SCRIPT TAG</b> · ${kb(bundle)} KB, EVERY BRICK</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div>${code(`<script src="${SITE}fizlet.js"></script>`, "wrap")}</div>
     </div>
 
-    <div class="hero-layers">
+    <div class="hero-layers" data-demo-host>
       <style>${layers.css}</style>
       ${layers.figure}
-      <p class="hero-cap bui-label"><b>LIVE</b> · Battlefield Blitz as a stack of bricks · live chunk ${fmt(layers.sizes.live)} B gzip, loaded only once it nears the screen · <a href="demos/layers/">The layers story</a></p>
+      ${sizeBadge(layers.sizes.live, layers.live, "the layers scene with fizlet/slot")}
+      <p class="hero-cap bui-label"><b>LIVE</b> · Battlefield Blitz as a stack of bricks · its code loads only once it nears the screen · <a href="demos/layers/">The layers story</a></p>
       ${layers.loader}
     </div>
   </div>
@@ -208,7 +212,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz }) 
       <h2 id="play-title">Blast it.<br><em>Recall it.</em></h2>
       <p class="lead">Every letter in this little page is a real element. Click it, blast it, then press <b>Recall</b>: the ledger puts back every change the engine made.</p>
     </div>
-    ${playFigure()}
+    ${playFigure(sizeBadge(blast.bytes, blast.live, "this demo: fizlet, input, fx, sound and debug"))}
   </div>
 </section>
 
@@ -223,9 +227,10 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz }) 
       <p class="body">It started with DOM VIRUS: small games with a few characters, running right inside a page, changing the DOM itself and then giving it back. The bar for every brick since is simple: do one thing well, and fit with everything around it.</p>
     </div>
     <!-- The soda-can fizz scene (site/demos/fizz/): its own figure and poster; demos/fizz/main.js mounts it. -->
-    <div class="fizz-slot">
+    <div class="fizz-slot" data-demo-host>
       ${fizz.figure}
-      <p class="hero-cap bui-label"><b>LIVE</b> · tap the can · live chunk ${fmt(fizz.sizes.chunk)} B gzip · <a href="demos/fizz/">The fizz proof piece</a></p>
+      ${sizeBadge(fizz.sizes.chunk, fizz.live, "the fizz scene: kernel, fx, sprite, camera and the can")}
+      <p class="hero-cap bui-label"><b>LIVE</b> · tap the can · <a href="demos/fizz/">The fizz proof piece</a></p>
     </div>
   </div>
 </section>

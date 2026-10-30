@@ -39,7 +39,7 @@ ${css}
 <h1>A game is a stack.<br><em>Each layer, one brick.</em></h1>
 <p>Battlefield Blitz turns sideways and fans out into its layers, each labelled with the bytes its own code costs. One layer faults, a scan patches it, and the stack folds back into the game. Pause it, or drag the slider to fan the layers out yourself.</p>
 ${figure}
-<p class="cap">${sizeBadge(sizes.live, { name: "layers", note: "live chunk, measured on this build" })}</p>
+<p class="cap">${sizeBadge(sizes.live, "demos/layers/layers.js", "the layers scene, its live chunk")}</p>
 <p class="cap">${caption}</p>
 <p class="cap">Layer bytes: Battlefield Blitz c8c8ca4, layer manifest (game code per layer, min + gzip; Effects is all brick, min). Built on fizlet, fizlet/slot, fizlet/sprite and fizlet/fx. By <a href="https://coded.design/">Chris Cooley</a>.</p>
 </main>
