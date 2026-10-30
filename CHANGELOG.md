@@ -32,8 +32,8 @@
     notes and the authoring guide under E5; the contract card no longer says every brick is 1.5 to
     5 KB (arcade's budget is 22 KB).
   - Notes: the three launch posts, from the fizlet-engine content model (`fe content notes --site
-    fizlet --today 2026-10-31T09:00:00-04:00`): How small is small, Recall: the page always comes
-    back, Lockstep multiplayer in a few KB. Published 2026-10-31 09:00 New York; the multiplayer
+    fizlet --today 2026-10-31T09:00:00-05:00`): How small is small, Recall: the page always comes
+    back, Lockstep multiplayer in a few KB. Published 2026-10-31 09:00 Central (Port Aransas, TX); the multiplayer
     guide and the budgets page link to them.
 - Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
