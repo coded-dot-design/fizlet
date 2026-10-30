@@ -136,6 +136,7 @@ ${body}
         <li><a href="${home}#contract">The contract</a></li>
         <li><a href="${home}bricks/">Kernel and bricks</a></li>
         <li><a href="${home}gallery/">Gallery</a></li>
+        <li><a href="${home}make/">Make one</a></li>
         <li><a href="${home}heroes/">Heroes</a></li>
         <li><a href="${home}notes/">Notes</a></li>
         <li><a href="${home}people/">People</a></li>
