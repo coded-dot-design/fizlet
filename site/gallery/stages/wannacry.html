@@ -1,0 +1,36 @@
+<style>
+/* Outbreak · WannaCry (site/gallery/pieces/wannacry.ts). The files and the lookup log are real
+   elements: a locked file gets data-wc through the ledger (the sheet adds its ".WNCRY"), and the log's lines
+   are their own text. The .ob base is the Outbreak series' (one copy per stage: a stage is
+   self-contained). cqw units: 390 and 1440 are the same picture. */
+.ob-box { position: absolute; inset: 0; container-type: size; }
+.ob { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 1.8cqw; padding: 2.6cqw 3cqw calc(1.2cqw + 17px); background: var(--ob-bg); color: var(--ob-ink); font: 600 2.3cqw/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --ob-bg: var(--bg, #07060f); --ob-surface: var(--surface, #110d22); --ob-ink: var(--ink, #f6f3ff); --ob-muted: var(--muted, #aea4d6); --ob-line: var(--line, #3b3170); --ob-bug: #ff2e88; --ob-bug2: #ff7389; --ob-heal: #39ffb0; --ob-glow: #19f0ff; --ob-gold: #ffc21a; }
+html[data-theme="light"] .ob { --ob-bug: #e0006e; --ob-bug2: #ff5c8f; --ob-heal: #0b7a54; --ob-glow: #006e91; --ob-gold: #b07800; }
+.ob-head { display: flex; align-items: center; gap: 1.6cqw; margin: 0; white-space: nowrap; overflow: hidden; }
+.ob-head b { font: 900 4.6cqw/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--ob-bug); letter-spacing: -0.02em; }
+.ob-head span { padding: 0.4cqw 1cqw; border-radius: 0.6cqw; background: var(--ob-gold); color: #07060f; font-weight: 900; }
+.ob-head em { font-style: normal; color: var(--ob-muted); overflow: hidden; text-overflow: ellipsis; }
+.ob-end { display: none; position: absolute; left: 3cqw; right: 3cqw; bottom: calc(1.2cqw + 17px); margin: 0; padding: 1.6cqw 2.2cqw; background: var(--ob-surface); color: var(--ob-ink); border: 0.35cqw solid var(--ob-bug); border-radius: 1cqw; box-shadow: 0 0.8cqw 0 var(--ob-bug); font-size: 2.6cqw; font-weight: 700; }
+.ob[data-ob-state="end"] .ob-end { display: block; }
+.ob-poster { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* WannaCry */
+.wc { flex: 1; min-height: 0; display: grid; grid-template-columns: 57% 1fr; gap: 2.4cqw; }
+.wc-disk, .wc-dns { min-width: 0; display: flex; flex-direction: column; background: var(--ob-surface); border: 0.3cqw solid var(--ob-line); border-radius: 1.2cqw; overflow: hidden; }
+.wc-bar { margin: 0; padding: 0.8cqw 1.2cqw; border-bottom: 0.3cqw solid var(--ob-line); color: var(--ob-muted); font-size: 2cqw; white-space: nowrap; overflow: hidden; }
+.wc-files { flex: 1; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(3, 1fr); gap: 1cqw; padding: 1.2cqw; }
+.wc-f { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6cqw; min-width: 0; border: 0.3cqw solid transparent; border-radius: 0.8cqw; color: var(--ob-ink); text-align: center; }
+.wc-f i { width: 3.2cqw; height: 4cqw; border-radius: 0.3cqw 1.1cqw 0.3cqw 0.3cqw; background: var(--ob-line); }
+.wc-f b { max-width: 100%; font-size: 1.5cqw; font-weight: 700; line-height: 1.15; white-space: nowrap; }
+.wc-f[data-wc="locked"] b::after { content: ".WNCRY"; display: block; }
+.wc-f[data-wc="locked"] { background: var(--ob-bug); border-color: var(--ob-bug); color: var(--ob-bg); }
+.wc-f[data-wc="locked"] i { background: var(--ob-bg); border-radius: 0.6cqw; clip-path: polygon(0 40%, 18% 40%, 18% 15%, 30% 0, 70% 0, 82% 15%, 82% 40%, 100% 40%, 100% 100%, 0 100%); }
+.wc-f[data-wc="locking"] i { background: var(--ob-bug); }
+.wc-f[data-wc="cut"] { border-color: var(--ob-glow); border-style: dashed; color: var(--ob-muted); }
+.wc-f[data-wc="cut"] i { background: transparent; border: 0.3cqw dashed var(--ob-glow); }
+.wc-stat { margin: 0; padding: 0 1.2cqw 1cqw; color: var(--ob-muted); font-size: 1.8cqw; white-space: nowrap; overflow: hidden; }
+.wc-log { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 0.8cqw; padding: 1.2cqw; }
+.wc-q { display: block; min-height: 3.6cqw; padding: 0.7cqw 1cqw; border-radius: 0.6cqw; background: color-mix(in srgb, var(--ob-line) 35%, transparent); color: var(--ob-muted); font-size: 1.6cqw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wc-q[data-wc="kill"] { color: var(--ob-ink); box-shadow: inset 0.5cqw 0 0 var(--ob-gold); }
+.wc-q[data-wc="on"] { color: var(--ob-heal); box-shadow: inset 0.5cqw 0 0 var(--ob-heal); }
+.wc-hint { margin: 0; padding: 0 1.2cqw 1cqw; color: var(--ob-muted); font-size: 1.7cqw; }
+</style><div class="ob-box"><div class="ob" data-ob><p class="ob-head"><b>WANNACRY</b><span>2017</span><em>Over 200,000 computers in 150 countries.</em></p><div class="wc"><div class="wc-disk"><p class="wc-bar">Files · tap one to unplug it</p><div class="wc-files"><span class="wc-f" data-wc-f><i></i><b>essay.doc</b></span><span class="wc-f" data-wc-f><i></i><b>xray.dcm</b></span><span class="wc-f" data-wc-f><i></i><b>pay.xlsx</b></span><span class="wc-f" data-wc-f><i></i><b>pics.zip</b></span><span class="wc-f" data-wc-f><i></i><b>bill.pdf</b></span><span class="wc-f" data-wc-f><i></i><b>notes.txt</b></span><span class="wc-f" data-wc-f><i></i><b>scan.dcm</b></span><span class="wc-f" data-wc-f><i></i><b>tax.xls</b></span><span class="wc-f" data-wc-f><i></i><b>song.mp3</b></span><span class="wc-f" data-wc-f><i></i><b>plan.ppt</b></span><span class="wc-f" data-wc-f><i></i><b>orders.db</b></span><span class="wc-f" data-wc-f><i></i><b>draft.doc</b></span><span class="wc-f" data-wc-f><i></i><b>logo.psd</b></span><span class="wc-f" data-wc-f><i></i><b>taxes.pdf</b></span><span class="wc-f" data-wc-f><i></i><b>clip.mp4</b></span></div><p class="wc-stat" data-wc-stat>locked 0/15 · unplugged 0 · domain unregistered</p></div><div class="wc-dns"><p class="wc-bar">DNS lookups</p><div class="wc-log"><span class="wc-q" data-wc-q></span><span class="wc-q" data-wc-q></span><span class="wc-q" data-wc-q></span><span class="wc-q" data-wc-q></span></div><p class="wc-hint">It checks one domain before every lock. Tap it to register it.</p></div></div><p class="ob-end" data-ob-end>The kill switch: one unregistered domain. Registering it stopped new infections; it decrypted nothing.</p></div></div><svg class="ae-slot__placeholder ob-poster" viewBox="0 0 160 90" aria-hidden="true"><g fill="#ff2e88"><rect x="40" y="38" width="4" height="4"/><rect x="36" y="40" width="3" height="3" fill="#ff7389"/><rect x="33" y="42" width="2" height="2" fill="#ff7389"/></g></svg>

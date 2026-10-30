@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+- **Gallery: Outbreak, act 1, three DOM Virus entries (pending owner approval).** These are famous
+  worms from public history. Each is a micro game whose mechanic is the worm's real spread, so you
+  learn how it spread by playing it. Each card shows the year, a one-line fact and, at the end, the
+  lesson. The pieces are hand-built on one shared core (`site/gallery/pieces/outbreak.ts`: engine,
+  canvas, taps, debris, end card). The worlds are real page elements whose state goes through the
+  ledger, so Recall gives the page back exactly. They have no gallery numbers; those are given at
+  land time.
+  - **ILOVEYOU (2000):** the love letter mails itself to every contact in the address book, and each
+    contact who opens it mails it on. Tap a letter in flight to delete it: the blast shreds the
+    letters beside it and knocks the rest tumbling. The end card names the hidden `.vbs`.
+  - **Slammer (2003):** 376-byte packets flood every port, and only UDP 1434 lets them in. Race to
+    close it, but close the wrong port and your own service goes down. The worm lived only in
+    memory, so you then reboot the infected servers.
+  - **WannaCry (2017):** the worm hops file to file and locks each one (`.WNCRY`). You can unplug
+    files so the hops bounce off. To stop it, find the kill-switch domain in the lookup log and
+    register it. New copies quit; locked files stay locked.
+  - Live chunk sizes (gzip, built the way the site builds them): ILOVEYOU 7,282 B, Slammer 7,802 B,
+    WannaCry 7,588 B. All three are under the 9,728 B cap.
+  - Each piece settles to 0 frames once still, has a reduced-motion poster, and allocates nothing in
+    step (typed arrays, the exact `hypot`). The intro beat is held with `engine.busy(sec)`.
+  - Tests: `tests/outbreak.mjs` (in `test:browser`) plays each piece in Chromium. The spread runs
+    on its own. Every tap has a consequence: a letter deleted, a wrong port down then back, 1434
+    closed and the rack rebooted clean, a file unplugged, the kill switch registered. The test also
+    checks the end card's lesson, settle to 0 frames, a tap replaying, `destroy()` mid-play giving
+    the page back byte for byte, and reduced motion loading nothing.
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
