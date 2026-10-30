@@ -92,6 +92,12 @@ try {
   // Indexable: not the 404, not a noindex page (the gallery archive).
   const indexable = PAGES.filter((p) => p !== "404.html" && !/<meta name="robots" content="[^"]*noindex/i.test(readFileSync(fileOf(p), "utf8")));
   assert.ok(PAGES.includes("gallery/archive/") && !indexable.includes("gallery/archive/"), "the gallery archive is built and kept out of search");
+  // Owner: archive the rest, "but definitely no-follow those pages": noindex,nofollow, out of the
+  // sitemap and llms.txt, and the gallery's one quiet link to it is rel="nofollow".
+  assert.match(readFileSync(fileOf("gallery/archive/"), "utf8"), /<meta name="robots" content="noindex,nofollow">/, "the archive is noindex,nofollow");
+  assert.ok(!sitemap.includes("gallery/archive/") && !llms.includes("gallery/archive/"), "the archive is not in the sitemap or llms.txt");
+  const archiveLinks = [...readFileSync(fileOf("gallery/"), "utf8").matchAll(/<a [^>]*href="[^"]*gallery\/archive\/"[^>]*>/g)].map((m) => m[0]);
+  assert.ok(archiveLinks.length === 1 && archiveLinks[0].includes('rel="nofollow"'), `the gallery links the archive once, rel="nofollow" (${archiveLinks.join(" ")})`);
   const heads = indexable.map((path) => {
     const html = readFileSync(`${ROOT}/${path === "" || path.endsWith("/") ? `${path}index.html` : path}`, "utf8");
     for (const [, ld] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(ld);
@@ -160,7 +166,7 @@ try {
         assert.ok(html.includes(`data-total="gallery:${e.id}">live ${bytes.toLocaleString("en-US")} B · total <b>${(bytes + loader).toLocaleString("en-US")} B</b>`), `${e.id}: live and total, one size`);
         assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
         // Attribution: "by <name>", linked to the contributor's profile.
-        const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</li>")[0];
+        const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</div>\n    </li>")[0]; // a card ends at its own </li> (a poster may hold lists)
         assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
       }
     }
