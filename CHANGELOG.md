@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+- **Board UI: the shadow direction belongs to the domain (`--shadow-x`, `--shadow-y`,
+  `--shadow-color`).** No component hard-codes "straight below" now. A site sets its direction once
+  at `:root`, and every hard shadow in the kit and the bricks follows it: key bases, hover lifts,
+  presses, focus rings, call rings, hit areas, sticker slam, cards, dock, toast, stick, arcade card,
+  skirmish bar, perf overlay and embed toggle. So a key, card or cartridge moved to another site
+  takes that site's angle (BOARD-UI.md 4.1).
+  - The tokens are unitless (a direction per unit of depth), and each component keeps its own
+    depth: offset = `--py × --shadow-x / -y`. A pressed face travels the same vector. The fallbacks
+    are `0` / `1` / `var(--rim)`, so nothing changes until a site sets them. With no tokens set,
+    every computed shadow, transform and hit area is identical (`tests/shadow.mjs` against
+    `tests/fixtures/shadow-defaults.json`, captured from 0.20.0), and fizlet.com renders
+    byte-identical screenshots at 1440 and 390, in light and dark.
+  - Custom properties inherit across `:host`, so the arcade's shadow-DOM HUD and `mount()`ed boards
+    follow the page. `tests/shadow.mjs` checks this at 45°, at −1 / 0.5 and at 0.7071 / 0.7071. The
+    page-keys check (`tests/keys.mjs`) now reads the face drop and the base tap point along the
+    direction; it runs at three angles and on all 122 site keys.
+  - `launch()` sinks the key along its base; the kit's `.bui` root reads the tokens as `--bui-sx`,
+    `--bui-sy` and `--bui-shadow` (in `tokens.json` `shadow`, drift-checked).
+  - fizlet.com sets `:root { --shadow-x: 0; --shadow-y: 1; }` (straight below, as before), and
+    every hard base in `site.css` reads it. The labs (`site/labs/labs.css`, shared with the hub) now
+    take the domain's angle with their own depth (3px, 6px). On fizlet.com they change from the
+    hub's diagonal to straight below, and on the hub (1 / 1) they stay diagonal.
+  - Sizes (gzip): ui css 4,974 → 5,125 B (budget 5,120 → 5,136); arcade with `hud` omitted 18,348 →
+    18,363 B (budget 18,361 → 18,376); arcade 24,327 → 24,351 B; ui js 2,893 → 2,907 B; perf 1,958
+    → 1,981 B; embed 2,016 → 2,040 B. Every other brick is unchanged.
+
 - Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`

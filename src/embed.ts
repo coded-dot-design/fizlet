@@ -33,7 +33,7 @@ export interface Mounted {
 export type Mount = (host: HTMLElement, config: EmbedConfig) => Mounted;
 
 const KONAMI = ["arrowup", "arrowup", "arrowdown", "arrowdown", "arrowleft", "arrowright", "arrowleft", "arrowright", "b", "a", "enter"];
-const TOGGLE_CSS = ":host{all:initial;position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:2147483600}button{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;font:800 12px/1 ui-monospace,monospace;letter-spacing:.08em;color:#07060f;background:#39ffb0;border:2px solid #07060f;border-radius:10px;box-shadow:0 4px 0 #1d6a40;cursor:pointer}button:active{transform:translateY(4px);box-shadow:none}button.open{background:#f6f3ff;box-shadow:0 4px 0 #8f88b8}";
+const TOGGLE_CSS = ":host{all:initial;position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:2147483600}button{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;font:800 12px/1 ui-monospace,monospace;letter-spacing:.08em;color:#07060f;background:#39ffb0;border:2px solid #07060f;border-radius:10px;box-shadow:calc(4px*var(--shadow-x,0)) calc(4px*var(--shadow-y,1)) 0 #1d6a40;cursor:pointer}button:active{transform:translate(calc(4px*var(--shadow-x,0)),calc(4px*var(--shadow-y,1)));box-shadow:none}button.open{background:#f6f3ff;box-shadow:calc(4px*var(--shadow-x,0)) calc(4px*var(--shadow-y,1)) 0 #8f88b8}";
 
 export function embed(load: () => Promise<Mount> | Mount, cfg: EmbedConfig) {
   const ctl = new AbortController(), on = { signal: ctl.signal };

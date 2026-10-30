@@ -73,7 +73,8 @@ export const BUDGETS = [
   // +70 B #118 and −6 B #119: pad's and board-page's exact `hypot` (shared code: +64 B together).
   // +55 B #120: input's intents resolved once, `id()` handles.
   // +3 B #122: the fps cap counts from the frame's start.
-  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18361],
+  // +15 B #136: the card's hard base reads the domain shadow tokens (BOARD-UI.md 4.1).
+  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18376],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
   // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B). 4,162 B
@@ -86,7 +87,10 @@ export const BUDGETS = [
   // nap leaves the clamp to setTimeout; with Math.max the two together were 7,169, 1 B over).
   ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7168],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
-  ["fizlet/ui (css)", "src/ui/board-ui.css", 5120],
+  // 4,974 B on 0.20.0. 5,125 B with #136 (+151 B): every hard base, press, hover lift, focus ring,
+  // call ring, sticker slam and hit area reads the domain shadow direction (--shadow-x/-y, through
+  // --bui-sx/-sy) instead of a literal "straight below"; budget raised from 5,120 by that need.
+  ["fizlet/ui (css)", "src/ui/board-ui.css", 5136],
 ];
 
 /** [{ name, entry, budget, gzip }] for every budgeted entry. */
