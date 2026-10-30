@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Kernel fix: `start()` on a settled engine runs again.** It cleared the settled bit but not the
+  quiet time, so the first frame after it (0 s, no steps) found the engine still quiet and put it
+  back to sleep: `start()` woke a settled engine for one empty frame. It now does what `wake()` does
+  (the quiet time starts over, a hold still ahead stays), then clears the stop. Inert after
+  `destroy()`, as before. Found by the 2026-10-30 code audit.
+  - Sizes (gzip): kernel 3,438 → 3,439 B; page build (kernel + slot + input + fx) 7,166 → 7,167 B
+    (cap 7,168). No budget moves.
+  - Test: `tests/kernel.test.mjs` settle test: after `start()` a settled engine runs steps for a
+    full settle window, then settles again; `start()` after `destroy()` stays inert.
 - Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`

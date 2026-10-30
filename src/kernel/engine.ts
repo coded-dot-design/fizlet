@@ -186,8 +186,10 @@ export function createEngine(o: EngineOptions = {}) {
       pools.push([name, p as Pool<unknown>]);
       return p;
     },
+    /** Run (again). On a settled engine this is wake() too: the quiet time starts over, so it runs a
+     *  full settle window instead of going back to sleep on its first frame. Inert once destroyed. */
     start() {
-      if (!dead) (set(SETTLED, false), set(STOPPED, false));
+      engine.wake(), dead || set(STOPPED, false);
     },
     /**
      * Something moved this frame: keeps a settling engine awake (no-op without `settle`). With
