@@ -14,7 +14,7 @@ const CSS = `
 .bc-cc{position:absolute;inset:0;pointer-events:none}
 .bc-cc *{position:absolute;box-sizing:border-box;animation-play-state:paused;animation-iteration-count:infinite}
 .bc-cc .led{top:24%;width:4%;aspect-ratio:1;background:#39ffb0;border:2px solid #07060f;border-radius:50%;animation:bc-cc-blink 1s steps(2) infinite paused;animation-delay:calc(var(--fz-t,0s) - var(--d,0s))}
-.bc-cc .walk{left:0;top:${pct(FLOOR - 18, H)};width:${pct(48, W)};height:${pct(18, H)};background:var(--tone);border:2px solid #07060f;border-radius:3px;box-shadow:0 3px 0 #07060f;animation:bc-cc-walk 4s ease-in-out infinite paused;animation-delay:var(--fz-t,0s)}
+.bc-cc .walk{left:0;top:${pct(FLOOR - 18, H)};width:${pct(48, W)};height:${pct(18, H)};background:var(--tone);border:2px solid #07060f;border-radius:3px;box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 #07060f;animation:bc-cc-walk 4s ease-in-out infinite paused;animation-delay:var(--fz-t,0s)}
 .bc-cc .hop{left:${pct(196, W)};top:${pct(FLOOR - 16, H)};width:${pct(16, W)};aspect-ratio:1;background:#ffd84a;border:2px solid #07060f;border-radius:50%;animation:bc-cc-hop 1s cubic-bezier(.3,0,.7,1) infinite paused;animation-delay:var(--fz-t,0s)}
 .bc-cc .pen{left:${pct(150, W)};top:16%;width:2px;height:34%;background:currentColor;transform-origin:50% 0;animation:bc-cc-swing 2s ease-in-out infinite paused;animation-delay:var(--fz-t,0s)}
 .bc-cc .pen i{left:-7px;bottom:-12px;width:16px;height:16px;background:#ff2b4e;border:2px solid #07060f;border-radius:3px}

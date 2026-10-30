@@ -14,7 +14,7 @@ const CSS = `
 .bc-sl>div{position:absolute;inset:0}
 .bc-sl figure{position:absolute;top:0;bottom:0;width:${(FW / (WX1 - WX0)) * 100}%;margin:0 0 0 ${(((PITCH - FW) / 2) / (WX1 - WX0)) * 100}%;background:color-mix(in srgb,var(--tone) 10%,var(--bg));border:2px solid var(--rim);border-radius:6px;cursor:pointer;pointer-events:auto}
 .bc-sl .ae-slot__placeholder{position:absolute;inset:auto 0 8px;text-align:center;font:800 9px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;color:var(--muted)}
-.bc-sl i{position:absolute;left:30%;width:40%;height:24%;background:var(--tone);border:2px solid #07060f;border-radius:3px;box-shadow:0 3px 0 #07060f;font:800 9px/1 ui-monospace,Menlo,monospace;color:#07060f;display:grid;place-items:center;font-style:normal}`;
+.bc-sl i{position:absolute;left:30%;width:40%;height:24%;background:var(--tone);border:2px solid #07060f;border-radius:3px;box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 #07060f;font:800 9px/1 ui-monospace,Menlo,monospace;color:#07060f;display:grid;place-items:center;font-style:normal}`;
 
 const mount: SlotMount = (stage, _slot, first) => mountCard(stage, _slot, first, (card) => {
   // Mini scenes: drop y (0 top .. 1 floor), its speed, live, drops, last drawn y (rounded tenths).

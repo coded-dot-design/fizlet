@@ -161,6 +161,11 @@
     checks the end card's lesson, settle to 0 frames, a tap replaying, `destroy()` mid-play giving
     the page back byte for byte, and reduced motion loading nothing.
 - Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
+- **Train fix: the shadow check reads the kit's keys, and the new cards and Outbreak stages are on
+  the tokens.** `--bui-sx` / `--bui-sy` (board-ui.css: `var(--shadow-x, 0)` / `var(--shadow-y, 1)`) count
+  as the domain tokens, so the site chrome ported in the Board UI change leaves the pending list
+  (site.css 17 to 0, board-ui.css 12 to 1). The brick cards' and Outbreak stages' hard shadows go
+  through `tokenShadows()`; same look on fizlet.com (0 1).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about

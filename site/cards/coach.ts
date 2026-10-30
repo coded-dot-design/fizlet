@@ -27,7 +27,7 @@ const mount: SlotMount = (stage, slot, first) => mountCard(stage, slot, first, (
   const els: HTMLElement[] = [];
   for (let i = 0; i < N; i++) {
     const b = document.createElement("i");
-    b.style.cssText = `position:absolute;left:${(x[i]! / W) * 100}%;top:${((FLOOR - BH) / H) * 100}%;width:${(BW / W) * 100}%;height:${(BH / H) * 100}%;box-sizing:border-box;display:grid;place-items:center;background:${COLORS[i]};border:2px solid #07060f;border-radius:3px;box-shadow:0 3px 0 #07060f;font:800 ${Math.max(7, Math.round(7 * k))}px ui-monospace,Menlo,monospace;color:#07060f;font-style:normal;pointer-events:none`;
+    b.style.cssText = `position:absolute;left:${(x[i]! / W) * 100}%;top:${((FLOOR - BH) / H) * 100}%;width:${(BW / W) * 100}%;height:${(BH / H) * 100}%;box-sizing:border-box;display:grid;place-items:center;background:${COLORS[i]};border:2px solid #07060f;border-radius:3px;box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 #07060f;font:800 ${Math.max(7, Math.round(7 * k))}px ui-monospace,Menlo,monospace;color:#07060f;font-style:normal;pointer-events:none`;
     if (i === 3) b.textContent = card.tag.slice(0, 5);
     els.push(b);
     card.stage.insertBefore(b, card.c.nextSibling);

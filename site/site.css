@@ -3216,7 +3216,7 @@ html.bui[data-theme="light"] .phases b {
   background: color-mix(in srgb, var(--tone) 6%, var(--bg));
   border: 2px solid var(--rim);
   border-radius: 10px;
-  box-shadow: 0 4px 0 var(--rim);
+  box-shadow: calc(4px * var(--shadow-x, 0)) calc(4px * var(--shadow-y, 1)) 0 var(--rim);
 }
 .bc-poster {
   position: absolute;
@@ -3233,7 +3233,7 @@ html.bui[data-theme="light"] .phases b {
   background: var(--tone);
   border: 2px solid #07060f;
   border-radius: 3px;
-  box-shadow: 0 3px 0 #07060f;
+  box-shadow: calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 #07060f;
 }
 .bc-floor {
   position: absolute;

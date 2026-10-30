@@ -15,7 +15,7 @@ const LINES = [
 const CSS = `
 .bc-cam{position:absolute;inset:0;font:700 9px/1.3 ui-monospace,Menlo,monospace;color:var(--muted);transform-origin:0 0}
 .bc-cam h4{position:absolute;left:6%;top:16%;margin:0;font:800 18px/1 ui-monospace,Menlo,monospace;color:var(--ink);letter-spacing:.04em}
-.bc-cam i{position:absolute;display:grid;place-items:center;width:15%;height:12%;background:var(--tone);border:2px solid #07060f;border-radius:3px;box-shadow:0 3px 0 #07060f;font:800 2.6px/1.15 ui-monospace,Menlo,monospace;color:#07060f;font-style:normal;text-align:center;padding:2px;box-sizing:border-box}
+.bc-cam i{position:absolute;display:grid;place-items:center;width:15%;height:12%;background:var(--tone);border:2px solid #07060f;border-radius:3px;box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 #07060f;font:800 2.6px/1.15 ui-monospace,Menlo,monospace;color:#07060f;font-style:normal;text-align:center;padding:2px;box-sizing:border-box}
 .bc-cam p{position:absolute;left:6%;margin:0;font-size:3px;letter-spacing:.02em;white-space:nowrap}
 .bc-cam .lbl{top:auto;bottom:6%;font-size:9px;color:var(--ink)}`;
 

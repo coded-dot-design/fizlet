@@ -10,10 +10,9 @@ import { join } from "node:path";
 import { hardShadows, layerToToken, tokenShadows } from "../scripts/shadow-tokens.mjs";
 
 const PENDING = {
-  "site/site.css": 17,
   "site/demos/layers/css.ts": 3,
   "site/demos/layers/poster.ts": 1,
-  "src/ui/board-ui.css": 12,
+  "src/ui/board-ui.css": 1,
 };
 
 const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(d, e.name)) : [join(d, e.name)]));

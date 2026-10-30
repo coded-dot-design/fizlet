@@ -39,7 +39,8 @@ const LENGTH = /^(-?(\d*\.)?\d+([a-z%]+)?|(max|min|clamp|calc)\(.*\))$/i;
 const zero = (w) => /^-?0*\.?0+([a-z%]+)?$/i.test(w);
 const neg = (w) => w.startsWith("-");
 const token = (depth, axis) => `calc(${depth} * var(--shadow-${axis}, ${axis === "x" ? 0 : 1}))`;
-const usesToken = (w) => /--shadow-[xy]\b/.test(w);
+// The kit's own keys (--bui-sx/-sy, board-ui.css) are the domain tokens under another name.
+const usesToken = (w) => /--(shadow-[xy]|bui-s[xy])\b/.test(w);
 
 /**
  * One shadow layer on the tokens: the new layer, unchanged, or null when it can't be expressed.

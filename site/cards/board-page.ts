@@ -19,8 +19,8 @@ const CSS = `
 .bc-bp h3{margin:0;font:800 .9em/1 ui-monospace,Menlo,monospace;letter-spacing:.12em;color:var(--muted)}
 .bc-bp p{margin:0;text-wrap:pretty}
 .bc-bp div{display:flex;gap:.7em}
-.bc-bp button{font:800 .82em/1 ui-monospace,Menlo,monospace;letter-spacing:.08em;padding:.5em .9em;color:#07060f;background:var(--tone);border:2px solid #07060f;border-radius:4px;box-shadow:0 3px 0 #07060f;transition:none}
-.bc-bp button.hit{background:#fff;translate:0 2px;box-shadow:0 1px 0 #07060f}`;
+.bc-bp button{font:800 .82em/1 ui-monospace,Menlo,monospace;letter-spacing:.08em;padding:.5em .9em;color:#07060f;background:var(--tone);border:2px solid #07060f;border-radius:4px;box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 #07060f;transition:none}
+.bc-bp button.hit{background:#fff;translate:0 2px;box-shadow:calc(1px * var(--shadow-x, 0)) calc(1px * var(--shadow-y, 1)) 0 #07060f}`;
 
 const mount: SlotMount = (stage, slot, first) => mountCard(stage, slot, first, (card) => {
   const wrap = document.createElement("div"), page = document.createElement("div");
