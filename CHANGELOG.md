@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **`fizlet/hud` is COMPLETE.** A released game now ships it: Sherman Bytes' scoreboard is
+  fizlet/arcade's `skirmishHud` preset, and its values go through `fizlet/hud`
+  (coded-dot-design/sherman-bytes#6, on Fizlet 0.19.0). `site/bricks.mjs` and the README table say
+  so. The API is unchanged since 0.3.6.
 - **Status flags on every brick; Fizlet launches as a 0.x public beta.** One source,
   `site/bricks.mjs`: `STATUS` (COMPLETE "done, and always getting smaller and faster", BETA,
   EXPERIMENTAL, ROADMAP, DEPRECATED, each with written criteria) and per brick `status`, `since`,
