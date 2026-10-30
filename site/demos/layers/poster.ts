@@ -31,7 +31,7 @@ const e = "var(--e)";
 export { bounds, BOUNDS, LAYERS } from "./data";
 
 export const POSTER_CSS = SCENE_CSS + `
-.lyr{--e:0;position:relative;margin:0;width:100%;aspect-ratio:4/5;max-height:640px;container-type:size;background:var(--rim);border:2px solid var(--line);border-radius:14px;overflow:hidden;contain:layout paint;content-visibility:auto}
+.lyr{--e:0;position:relative;margin:0;width:100%;aspect-ratio:4/5;max-height:640px;container-type:size;background:var(--rim);border:2px solid var(--line);border-radius:14px;overflow:hidden;contain:layout paint;content-visibility:auto;container-name:lyr}
 .lyr__d{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .lyr__p{position:absolute;inset:0;perspective:2200px;font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink)}
 .lyr__s{position:absolute;left:50%;top:50%;width:${BW}px;height:${BH}px;margin:-${BH / 2}px 0 0 -${BW / 2}px;transform-style:preserve-3d;--oy:0px;--wp:.6;--hp:.6;--we:.2;--he:.2;--hg:.2;--sp:min(var(--wp),var(--hp));--se:min(var(--we),var(--he),var(--hg));` +
@@ -51,16 +51,18 @@ ${LAYERS.map((_, i) => `.lyr__l:nth-child(${i + 1}){transform:translateZ(calc(${
 .lyr__ui>*{position:absolute;pointer-events:auto}
 .lyr .lyr__play{left:0;bottom:0;width:44px;padding:0;justify-content:center}
 .lyr__play svg{fill:currentColor;stroke:none}.lyr__play[aria-label=Play] .p,.lyr__play[aria-label=Pause] .q{display:none}
-.lyr__sl{right:0;top:0;bottom:6px;width:44px;touch-action:none;outline:none;cursor:pointer;--n:calc(2px + ${e} * 9%)}
+.lyr__sl{right:0;top:0;bottom:6px;width:44px;touch-action:none;outline:none;cursor:pointer;container-type:size}
 .lyr__sl::before{content:"";position:absolute;inset:0 16px;border-radius:6px;background:var(--surface);border:2px solid var(--line);box-shadow:inset 0 3px 0 var(--rim)}
-.lyr__r{position:absolute;inset:6px 0;display:flex;flex-direction:column-reverse;align-items:center;justify-content:center;gap:var(--n);transform-style:preserve-3d}
+.lyr__r{position:absolute;inset:6px 0;display:flex;flex-direction:column-reverse;align-items:center;justify-content:center;gap:2px;transform-style:preserve-3d}
 .lyr__r i{width:16px;height:16px;flex:none;margin:-5px 0;border:2px solid var(--line);border-radius:3px;background:var(--card);transform:perspective(90px) rotateX(${TILT}deg) rotateZ(${TURN}deg)}
 .lyr__r i:nth-child(4){border-color:var(--k-go)}
-.lyr .lyr__k{position:absolute;left:4px;width:36px;min-height:0;height:26px;padding:0;bottom:calc(${e} * (100% - 26px));justify-content:center;gap:3px;pointer-events:none}
+${Array.from({ length: N }, (_, i) => `.lyr__r i:nth-child(${i + 1}){--k:${i - (N - 1) / 2}}`).join("")}
+.lyr__r i{translate:0 calc(var(--k) * ${e} * -.09 * (100cqh - 12px))}
+.lyr .lyr__k{position:absolute;left:4px;width:36px;min-height:0;height:26px;padding:0;bottom:0;translate:0 calc(${e} * (26px - 100cqh));justify-content:center;gap:3px;pointer-events:none}
 .lyr__k b{width:3px;height:12px;background:var(--rim);border-radius:1px}
 .lyr__sl:focus-visible .lyr__k{box-shadow:0 var(--py) 0 var(--edge),0 0 0 3px var(--bg),0 0 0 6px var(--k-sys-ink)}
-@container (orientation:portrait){.lyr__sl{left:56px;top:auto;bottom:6px;width:auto;height:44px}.lyr__sl::before{inset:16px 0}.lyr__r{inset:0 6px;flex-direction:row}.lyr__r i{margin:0 -5px}.lyr .lyr__k{left:calc(${e} * (100% - 36px));bottom:9px}}
-@media (prefers-reduced-motion:reduce){.lyr{--e:1}.lyr .lyr__play{display:none}@container (orientation:portrait){.lyr__sl{left:0}}}`;
+@container lyr (orientation:portrait){.lyr__sl{left:56px;top:auto;bottom:6px;width:auto;height:44px}.lyr__sl::before{inset:16px 0}.lyr__r{inset:0 6px;flex-direction:row}.lyr__r i{margin:0 -5px;translate:calc(var(--k) * ${e} * .09 * (100cqw - 12px)) 0}.lyr .lyr__k{left:0;translate:calc(${e} * (100cqw - 36px)) 0;bottom:9px}}
+@media (prefers-reduced-motion:reduce){.lyr{--e:1}.lyr .lyr__play{display:none}@container lyr (orientation:portrait){.lyr__sl{left:0}}}`;
 
 const icon = (d: string, c: string) => `<svg class="${c}" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="${d}"/></svg>`;
 

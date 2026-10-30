@@ -1,5 +1,5 @@
 // Browser test for the layers story (site/demos/layers): it mounts through fizlet/slot, runs one
-// full cycle (open, fault, scan, patch, fold), settles (no requestAnimationFrame at all), Recall
+// full cycle (open, fault, scan, patch, fold) with no layout shift, settles (no requestAnimationFrame at all), Recall
 // gives the page back byte for byte (controls included), reduced motion keeps the still exploded
 // poster, the inline loader fetches no JS until the slot nears the viewport, and the controls (play
 // key, 3D slider) work by keyboard and pointer, with and without the scene.
@@ -31,6 +31,9 @@ const PAGE = html
   window.frames_ = 0;
   window.requestAnimationFrame = (cb) => raf((t) => (window.frames_++, cb(t)));
   window.states = [];
+  // Layout shifts (CLS): the story moves the controls; they must move without moving layout.
+  window.cls_ = 0;
+  new PerformanceObserver((l) => { for (const e of l.getEntries()) if (!e.hadRecentInput) window.cls_ += e.value; }).observe({ type: "layout-shift", buffered: true });
   window.before = document.body.innerHTML;
   window.handle = L.slot(document.querySelector("figure.lyr"), () => L.mountSlot, { idle: 0 });
   new MutationObserver(() => {
@@ -52,7 +55,7 @@ async function test(name, fn) {
   }
 }
 
-await test("mounts, cycles once, settles, Recall is exact", async () => {
+await test("mounts, cycles once without a layout shift, settles, Recall is exact", async () => {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
@@ -77,6 +80,8 @@ await test("mounts, cycles once, settles, Recall is exact", async () => {
   await page.waitForTimeout(13000 / 4 + 600);
   const states = await page.evaluate(() => window.states);
   assert.deepEqual(states.filter(Boolean), ["FAULT", "SCANNING", "PATCHED"]);
+  // The slider's knob and rail follow the story by transform (translate), never by layout.
+  assert.equal(await page.evaluate(() => window.cls_), 0, "no layout shift over a cycle");
   const pose = await page.evaluate(() => document.querySelector(".lz-s").style.transform);
   assert.match(pose, /rotateX\(0deg\)/, "rests in game mode");
   const f0 = await page.evaluate(() => window.frames_);

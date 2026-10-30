@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- **Fix: the layers story no longer shifts the page's layout as it opens (`index#layers`, CLS
+  +0.002 → 0).** As the story fanned the layers out, its slider's knob moved by `bottom`/`left`
+  and its rail squares spread by a growing flex `gap`, so the browser counted each frame as a
+  layout shift. The PerformanceObserver gave the knob `.lyr__k` and the rail's `i` squares as the
+  sources. Both now move by `translate`, measured in container units on the slider (`.lyr__sl`
+  is a size container; the figure's container is named `lyr` so its orientation queries still
+  read the figure). They draw where they did before: a pixel diff at 1440 and 390 for `--e` 0,
+  0.5 and 1 shows 0 changed pixels at rest and sub-pixel antialiasing only on the moving squares.
+  `tests/layers.mjs` now fails on any layout shift over a full cycle. Poster + loader: 5,371 B
+  gzip (+102 B; budget 6,144). The live chunk is unchanged (9,727 B).
+
 - **Site: the home page reads shorter, and every link follows the site nav rules.** The sections
   below the fold reveal as they come on screen: a divider draws in, then the head and the panels
   stagger up. The hero grid and a big ghost number per numbered section drift with a light
