@@ -435,7 +435,8 @@ try {
   where = "gallery, offscreen";
   {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
-    const { page, errors } = await open(context, "gallery/");
+    // howitworks is the oldest entry: once the gallery is paginated it lives on a later page.
+    const { page, errors } = await open(context, GPAGES.find((p) => p.entries.some((e) => e.id === "howitworks")).path);
     const fig = "figure[data-slot-target='gallery#howitworks']";
     await page.$eval(fig, (el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
     await page.waitForSelector(`${fig} [data-demo]`, { timeout: 8000 });
