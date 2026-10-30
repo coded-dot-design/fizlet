@@ -1,0 +1,33 @@
+{
+  "no": 53,
+  "id": "green-slime-oozes-drips",
+  "date": "2026-10-30",
+  "prompt": "green slime oozes and drips",
+  "title": "Green slime oozes and drips",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "ooze",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 32,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 3.19
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/green-slime-oozes-drips.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}

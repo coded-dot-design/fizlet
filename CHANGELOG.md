@@ -47,6 +47,10 @@
   (recipe dance, the critter scene: a skeleton pixel sprite, the dance motion; kernel + sprite +
   slot): live 6,116 B · total 8,042 B gzip (with the 1,926 B loader) on this build, loaded only near
   the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #053, "green slime oozes and drips".** Made by `fe anim` from the prompt
+  (recipe ooze, the critter scene: a slime pixel sprite, the ooze motion; kernel + sprite + slot):
+  live 6,153 B · total 8,079 B gzip (with the 1,926 B loader) on this build, loaded only near the
+  viewport, never under reduced motion; settles to zero frames.
 
 ## 0.17.0
 
