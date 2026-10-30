@@ -1,4 +1,4 @@
-// #047 "The wall-crawler climbs the page": golden hour on a building site. The tower in the middle
+// Gecko climbs the page: golden hour on a building site. The tower in the middle
 // is the page itself: its headline, its line of copy, two buttons and two cards are the stage's real
 // elements, stacked into a skyscraper of pixel brick. Gecko (an original hero: mint suit, gold
 // goggle eyes, a tail) shoots a line up to the crane's jib, swings, bowls into the window cleaner's

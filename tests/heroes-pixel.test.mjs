@@ -1,8 +1,8 @@
 // The two heroes pixel pieces (site/gallery/pieces/), headless: their stories run on plain numbers (no
-// DOM), so the games in them are checked here. #047, the wall-crawler: the line sticks only to
+// DOM), so the games in them are checked here. Gecko climbs the page: the line sticks only to
 // something solid, the swing hits the window cleaner's cradle and the tower (and only the tower's
 // letters are knocked), a line that falls short ends in a SPLAT, the pigeon settles on his head.
-// #048, spin it back: meteors throw only the letters they reach, the laps spin the world backwards and
+// Spin it back: meteors throw only the letters they reach, the laps spin the world backwards and
 // the page's past plays in reverse until every letter is home and the clock reads the minute before;
 // spinning on past that brings the dinosaurs, and one more tap brings their meteor. Each settles.
 import test from "node:test";
@@ -16,7 +16,7 @@ const run = (w, sec, each) => { for (let i = 0; i < sec * 60; i++) (w.step(1 / 6
 const HX = 0, HY = 1, MODE = 4, LN = 10, QM = 22, WD = 31, WT = 34;
 const words = (w, sec) => { const seen = new Set(); run(w, sec, () => w.state[WT] === 0 || seen.add(w.state[WD])); return seen; };
 
-test("wall-crawler: the opening swing hits the cradle and the tower, then he climbs to the roof and the pigeon lands on his head", () => {
+test("Gecko: the opening swing hits the cradle and the tower, then he climbs to the roof and the pigeon lands on his head", () => {
   const knocks = [];
   const w = WC.climber(pixels(WC.GW, WC.GH), 5, { knock: (x, y, p) => knocks.push([x, y, p]) });
   w.tap(108, 4); // the jib, as the piece does on its own
@@ -32,7 +32,7 @@ test("wall-crawler: the opening swing hits the cradle and the tower, then he cli
   w.paint();
 });
 
-test("wall-crawler: a line at thin air flops; a line that falls short is a fall, and a fall from the roof is a SPLAT", () => {
+test("Gecko: a line at thin air flops; a line that falls short is a fall, and a fall from the roof is a SPLAT", () => {
   const w = WC.climber(pixels(WC.GW, WC.GH), 5);
   w.tap(108, 4);
   run(w, 8);

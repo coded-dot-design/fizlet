@@ -1,4 +1,4 @@
-// #048 "Spin it back": two comic panels. Left, the page: PAGE ONE, the headline NOTHING BROKE., a
+// "Spin it back": two comic panels. Left, the page: PAGE ONE, the headline NOTHING BROKE., a
 // line of copy, a clock and an UNDO key, all real elements. Right, space: a pixel globe turning, and
 // Captain Undo (an original caped flier: cyan suit, pink cape, an undo arrow on the chest) hovering by
 // it. Meteors fall on the page: wherever one lands the page cracks and the letters it reaches fly

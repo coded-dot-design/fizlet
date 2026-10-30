@@ -1,4 +1,4 @@
-// The two heroes pixel pieces (#047 the wall-crawler, #048 spin it back) in Chromium, each on its own
+// The two heroes pixel pieces (Gecko climbs the page, spin it back) in Chromium, each on its own
 // stage (site/gallery/stages/<id>.html), mounted through fizlet/slot as the gallery does. At 390 and
 // 1440 wide: the real blocks sit exactly on the holes the scene leaves for them; it plays by itself
 // and the page's letters move only where something reaches them (never all of them); it settles to
