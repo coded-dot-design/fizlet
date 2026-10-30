@@ -15,5 +15,6 @@
   "module": "pieces/hill-war-pick-weapon-mind-wind.ts",
   "export": "mount",
   "aspect": "16 / 9",
-  "stage": "own"
+  "stage": "own",
+  "approved": "2026-10-30"
 }
