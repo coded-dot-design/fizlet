@@ -52,6 +52,20 @@
     when the engine is destroyed first". Both fail on main (8.75 ≠ 5; "hung"), both pass now. The
     zero-allocation test still passes; Chromium `tests/timeline.mjs` and `tests/css-clock.mjs` green.
   - Size (gzip): timeline 2,060 → 2,114 B (budget 2,304); css-clock 5,375 → 5,393 B (budget 5,632).
+- **`fizlet/steer`: options are checked; `patrol()` with no waypoint stands still (audit P8).**
+  - steer was the one new brick without `need()`. `cap` was silently `max(1, cap | 0)` (so `cap: 0`,
+    `2.5` or a missing cap made one mover), and a NaN or string speed, turn, stop, near, slow, fast,
+    calm, far, every, jitter or area value turned every mover's position into NaN at the first step.
+    Now each throws a `RangeError` at setup that names the option. **API note (BETA):** `cap` is
+    required and must be a positive integer; a call that relied on the silent clamp now throws.
+  - `patrol(i, points)` with fewer than two numbers did `% 0` and wrote NaN into `x`, `y` and `a`
+    for good. Now the mover stands still (`moved[i] = 0`); one waypoint is a patrol of one.
+  - Tests (`tests/steer.test.mjs`): "options are checked at setup" and "patrol: no waypoints stands
+    still". Both fail on main (no exception; `[NaN, NaN, NaN, NaN]`), both pass now. Every
+    Blitz-parity test and the 1M-frame zero-allocation test still pass (3 of 3 runs).
+  - Size (gzip): steer 950 → 1,150 B (budget 1,280; the kernel's `need` is about 110 B of it and is
+    shared on a page that has the kernel). pad, board-page and arcade import only steer's `hypot`
+    and are unchanged (2,073 · 4,162 · 24,327 B).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
