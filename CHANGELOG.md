@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+- **Status flags on every brick; Fizlet launches as a 0.x public beta.** One source,
+  `site/bricks.mjs`: `STATUS` (COMPLETE "done, and always getting smaller and faster", BETA,
+  EXPERIMENTAL, ROADMAP, DEPRECATED, each with written criteria) and per brick `status`, `since`,
+  `tests`, `used` (released games and pages that ship it) and `why` (what keeps a BETA brick from
+  COMPLETE); `PLANNED` lists the ROADMAP bricks with phase, purpose, size target and dependencies.
+  At 0.19.0: 15 COMPLETE, 8 BETA (grid, camera, hud, match, presence, steer, coach, timeline). The
+  README table gains a Status column and a Status flags section; brick pages show the flag as a
+  Board UI status pill with its evidence; the bricks index adds the pills, the criteria and the
+  planned bricks; the home page says "public beta" under the byline. `tests/status.test.mjs`
+  checks the evidence (test files exist, `since` is a release, COMPLETE names a shipped user, BETA a
+  why, planned bricks aren't exported) and that the README agrees.
+- **Website: the roadmap runs E0 to E16, ticked only with evidence.** E1, E2 (re-scoped: the 22
+  bricks shipped; layout, view and actor bricks move to E10/E11) and E4 (re-scoped: two players on
+  the live site; Battlefield matches and AI players move to E12) are done; E0, E3, E5–E8 list what's
+  left; E7 (page interactions) and E8 (the game kit) are new; E9–E16 are planned with their bricks.
+  The games section and README say what's true now: every DOM VIRUS game runs on Fizlet.
+
 ## 0.19.0
 
 - **Gallery: the "how it works" labs, #42–#46.** DOM VIRUS's five Under the hood labs move onto

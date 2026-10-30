@@ -3,6 +3,8 @@
 import { esc, icon, REPO, SITE, HUB, BATTLEFIELD, BLITZ, ENGINE_PLAN, AUTHOR } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { QUICK_START } from "./quick-start.mjs";
+import { BETA_LINE } from "../bricks.mjs";
+import { statusPill } from "./brick.mjs";
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
 
@@ -18,51 +20,95 @@ const CONTRACT = [
   ["Budgets in CI", "Kernel at most 4 KB gzip, each brick its own budget of 1.5 to 5 KB. Over budget, the build fails."],
 ];
 
+// The roadmap: E0–E8 are the launch scope, E9–E16 the next eight. Each item is checked only with
+// evidence (a release, a merged PR, a test); the ROADMAP bricks of E10–E15 are site/bricks.mjs PLANNED.
 const ROADMAP = [
-  ["E0", "Baseline and archives", "part", "PARTLY DONE", "Freeze today's games as the before picture, so every port has numbers to beat.", [
+  ["E0", "Baseline and archives", "part", "PARTLY DONE", "Freeze the pre-engine games as the before picture, so every port has numbers to beat.", [
     [1, "Perf harness: every app under a 4× CPU throttle (Playwright)"],
     [1, "Baseline numbers and commits recorded for all six apps"],
     [0, "Tag engine-baseline in every repo"],
     [0, "Battlefield archive selector (versioned paths)"],
-    [0, "Hub TEST A RELEASE selector for every game version"],
+    [0, "Hub TEST A RELEASE selector for every game version, the 1.0 engine cuts included"],
   ]],
   ["E1", "Kernel", "done", "DONE · 0.1.0", "The scheduler, fixed step, auto-pause, pools, event ring, seeded random, the Recall ledger and stats.", [
     [1, "One rAF for N engines, fixed step with a catch-up cap"],
     [1, "Zero allocation over 1M steps, exact DOM restore"],
     [1, "Kernel under the 4 KB budget"],
   ]],
-  ["E2", "Bricks", "now", "IN PROGRESS", "Small, separately importable bricks lifted from the games, each with tests and a size budget.", [
+  ["E2", "The first box of bricks", "done", "DONE · 0.19.0", "Small, separately importable bricks lifted from the games, each with tests, a CI size budget and a generated page. layout, view and actor bricks moved to E10 and E11.", [
     [1, "input · pad · collide · fx · sound · embed · ui"],
     [1, "grid · sprite · hud · match · board-page"],
     [1, "slot and the page profile: settle, fps cap, idle load"],
-    [1, "rules · steer · coach"],
-    [1, "camera · perf · arcade (the shared game shell)"],
-    [0, "timeline (keyframes on the kernel clock)"],
-    [0, "layout"],
+    [1, "rules · steer · coach · camera · perf · arcade · timeline"],
+    [1, "A status flag on every brick, with its evidence"],
   ]],
-  ["E3", "Port the games", "now", "NEARLY DONE", "One game at a time, smallest first, each as a 1.0 engine cut with the old build still playable.", [
+  ["E3", "Port the games", "now", "NEARLY DONE", "Every game on the engine, each as a 1.0 engine cut.", [
     [1, "Null Invaders → Byte Runner → Sherman Bytes (1.0 each)"],
-    [1, "DOM Battlefield 1.0 · Battlefield Blitz"],
-    [0, "Swarm Protocol 1.4 (in review)"],
-    [0, "Every animation on the sites on Fizlet, heroes first"],
-    [0, "Perf equal or better than the baseline"],
+    [1, "DOM Battlefield 1.0 · Battlefield Blitz · Swarm Protocol 1.4"],
+    [0, "No copied shared/ code left in the games"],
+    [0, "Frame time equal or better than the E0 baseline, measured per game"],
   ]],
-  ["E4", "Presence and multiplayer", "now", "STARTED", "A few-KB presence client where humans and AI agents are the same kind of player.", [
+  ["E4", "Presence and multiplayer", "done", "DONE · TWO PLAYERS", "A few-KB presence client and a room server: two people play Battlefield Blitz on the live site. Battlefield matches and AI players moved to E12.", [
     [1, "presence brick + determinism check"],
     [1, "Room server: invite gate and hard spend caps"],
-    [0, "Battlefield Blitz two players (in review)"],
-    [0, "An AI agent joins a room"],
+    [1, "Battlefield Blitz two players against the deployed room server"],
   ]],
-  ["E5", "Docs for humans and AI", "now", "STARTED", "Build a game or micro-interaction in an afternoon, from docs a person or an agent can follow.", [
-    [1, "One page per brick, generated from the source"],
+  ["E5", "Docs for humans and AI", "now", "IN PROGRESS", "Build a game or micro-interaction in an afternoon, from docs a person or an agent can follow.", [
+    [1, "One page per brick, generated from the source, with its status"],
     [1, "Gallery and notes, every number measured on the build"],
-    [0, "Authoring guide and recipes"],
-    [0, "AGENTS.md: the strict, AI-readable spec"],
+    [1, "llms.txt and a sitemap from the same build"],
+    [0, "Authoring guide and recipes by use case: an action on the page, a shooter, two players"],
     [0, "Live kernel stats on Under the Hood"],
   ]],
-  ["E6", "Weekly performance wins", "next", "NOT STARTED", "A standing weekly pass: run the perf harness, fix the top cost, log the win.", [
-    [0, "Weekly harness run against the baseline"],
-    [0, "perf-log.md of every win"],
+  ["E6", "Performance wins", "now", "STARTED", "Smaller and faster every week: the perf harness in CI, the top cost fixed, the win logged.", [
+    [1, "Perf harness and allocation test in CI on every push"],
+    [0, "A weekly run against the baseline"],
+    [0, "A public log of every win"],
+  ]],
+  ["E7", "Page interactions", "now", "NEARLY DONE", "Heroes, diagrams and micro animations on ordinary pages: lazy, contained, settled when still.", [
+    [1, "slot, the page profile, camera and timeline"],
+    [1, "Gallery: one prompt, one animation, its size on show"],
+    [1, "fizlet.com and the DOM VIRUS home hero on Fizlet"],
+    [0, "The DOM Battlefield landing hero on Fizlet"],
+    [0, "The DOM VIRUS Under the Hood labs on Fizlet"],
+    [0, "Page cost (CLS, tap delay, idle CPU) gated in CI"],
+  ]],
+  ["E8", "The game kit", "now", "IN PROGRESS", "The shell every page game repeats, so a game is its rules and its art: HUD and control presets, match flow, coach.", [
+    [1, "arcade: the shell under Null Invaders, Byte Runner and Sherman Bytes"],
+    [1, "HUD presets (card, skirmish bar) and swappable touch pads"],
+    [1, "match, coach and steer bricks"],
+    [0, "Battlefield Blitz on the skirmish preset, steer and coach"],
+    [0, "A released game on fizlet/match"],
+  ]],
+  ["E9", "On npm", "next", "PLANNED", "npm install fizlet: one package, a subpath per brick, published from CI with provenance.", [
+    [0, "fizlet@0.x on npm from the release workflow"],
+    [0, "An API snapshot test for every COMPLETE brick"],
+  ]],
+  ["E10", "Diagrams", "next", "PLANNED", "Interactive diagrams that settle: graphs laid out on the kernel clock.", [
+    [0, "fizlet/layout (force layout, Barnes-Hut)"],
+    [0, "fizlet/view-canvas (one canvas, dirty redraw)"],
+  ]],
+  ["E11", "Actors", "next", "PLANNED", "Units, bots and turrets as data: the parts every board game still writes itself.", [
+    [0, "fizlet/actor · fizlet/aim · fizlet/view-dom"],
+  ]],
+  ["E12", "Multiplayer everywhere", "next", "PLANNED", "Authoritative rooms, interpolation, and AI agents that join a room like any player.", [
+    [0, "fizlet/snapshot · fizlet/agent"],
+    [0, "A DOM Battlefield match between two networks"],
+    [0, "An AI agent joins a room"],
+  ]],
+  ["E13", "Animation library", "next", "PLANNED", "A recipe used twice becomes data; a recipe used across games becomes a brick.", [
+    [0, "fizlet/scene (a recipe as data)"],
+  ]],
+  ["E14", "Accessible play", "next", "PLANNED", "Every game playable by keyboard and gamepad, and heard by screen readers.", [
+    [0, "fizlet/announce (events to a live region)"],
+    [0, "Gamepad in fizlet/input"],
+  ]],
+  ["E15", "Music", "next", "PLANNED", "Background loops from the same tiny synth, on the kernel clock.", [
+    [0, "fizlet/music (a step sequencer)"],
+  ]],
+  ["E16", "1.0", "next", "PLANNED", "Every shipped brick COMPLETE or DEPRECATED, the API frozen, the games on 1.0, and smaller and faster than 0.x by a measured margin.", [
+    [0, "Every brick COMPLETE or DEPRECATED"],
+    [0, "fizlet@1.0.0"],
   ]],
 ];
 
@@ -136,7 +182,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
     const s = size(b.sizes[0]);
     const extra = b.id === "ui" ? ` + ${kb(css.gzip)} KB css` : "";
     return `<li class="panel brick${i === 0 ? " lit kernel" : ""}" style="--tone: var(--k-${b.role})">
-        <div class="brick-top"><span class="brick-tag">${b.tag}</span><span class="brick-size"><b>${kb(s.gzip)} KB</b>${extra}<small> / ${kb(s.budget)} KB gzip</small></span></div>
+        <div class="brick-top"><span class="brick-tag">${b.tag}</span>${statusPill(b.status)}<span class="brick-size"><b>${kb(s.gzip)} KB</b>${extra}<small> / ${kb(s.budget)} KB gzip</small></span></div>
         <h3><a href="bricks/${b.id}.html"><code>${b.name}</code></a></h3>
         <p>${esc(b.summary)}</p>
         ${b.snippet ? code(b.snippet) : ""}
@@ -178,6 +224,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
       <p class="eyebrow"><span class="dot"></span>MICRO GAME ENGINE <span>/</span> <b>FOR THE DOM</b></p>
       <h1 id="hero-title">The page<br><em>is the board.</em></h1>
       <p class="byline">by <a href="${AUTHOR}">Chris Cooley</a></p>
+      <p class="beta-line"><span class="status-pill" data-status="beta">PUBLIC BETA</span> v${esc(version)} · a 0.x public beta: <a href="bricks/#status">every brick carries its status</a></p>
       <p class="lead">Fizlet is a tiny game engine that plays on the page you already have: one shared loop, bounded everything, and the page always comes back exactly as it was. The kernel is <b>${kb(kernel.gzip)} KB</b> gzipped. No runtime dependencies, ever.</p>
       <div class="hero-keys">
         <a class="bui-key bui-arcade bui-go" href="#start">${icon("play", 16)}Quick start</a>
@@ -398,22 +445,22 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
           <li><b>3 min</b><span>free-for-all match</span></li>
           <li><b>Esc</b><span>gives the page back</span></li>
         </ul>
-        <p class="game-uses">Built on <code>fizlet</code> · <code>input</code> · <code>collide</code> · <code>fx</code> · <code>sound</code> · <code>embed</code> · <code>ui</code></p>
+        <p class="game-uses">Built on <code>fizlet</code> · <code>input</code> · <code>collide</code> · <code>fx</code> · <code>sound</code> · <code>embed</code> · <code>rules</code> · <code>presence</code> · <code>ui</code></p>
         <div class="game-keys">
           <a class="bui-key bui-arcade bui-attack" href="${BLITZ}play/">${icon("play", 16)}Play Blitz</a>
           <a class="bui-key bui-arcade bui-sys" href="${BLITZ}">${icon("book", 16)}About Blitz</a>
         </div>
       </article>
       <article class="panel game">
-        <p class="eyebrow"><b>THE ARCADE</b> · PORTING IN E3</p>
+        <p class="eyebrow"><b>THE ARCADE</b> · ON FIZLET</p>
         <h3>DOM VIRUS</h3>
-        <p>Tiny games that turn your page into the game board. Fizlet is the engine they proved out: Null Invaders, Byte Runner, Sherman Bytes and Swarm Protocol move onto it one at a time.</p>
+        <p>Tiny games that turn your page into the game board. Fizlet is the engine they proved out, and now they run on it: Null Invaders, Byte Runner and Sherman Bytes at 1.0 on <code>fizlet/arcade</code>, Swarm Protocol 1.4 on the kernel.</p>
         <div class="game-keys"><a class="bui-key bui-arcade bui-cmd" href="${HUB}">${icon("cart", 16)}Visit DOM VIRUS ↗</a></div>
       </article>
       <article class="panel game">
-        <p class="eyebrow"><b>SQUAD TACTICS</b> · PORTING IN E3</p>
+        <p class="eyebrow"><b>SQUAD TACTICS</b> · ON FIZLET 1.0</p>
         <h3>DOM Battlefield</h3>
-        <p>Twelve tanks, one radio. The game whose board UI became this design system, and the next big port: then multiplayer, in E4.</p>
+        <p>Twelve tanks, one radio. The game whose board UI became this design system, on the Fizlet kernel since 1.0; two-network matches come in E12.</p>
         <div class="game-keys"><a class="bui-key bui-arcade bui-go" href="${BATTLEFIELD}">${icon("out", 16)}DOM Battlefield ↗</a></div>
       </article>
     </div>
@@ -424,9 +471,9 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 <section id="roadmap" class="section" aria-labelledby="roadmap-title">
   <div class="wrap">
     <div class="section-head">
-      <p class="eyebrow"><span class="index">09</span> ROADMAP · E0 TO E6</p>
+      <p class="eyebrow"><span class="index">09</span> ROADMAP · E0 TO E16</p>
       <h2 id="roadmap-title">What's done.<br><em>What's left.</em></h2>
-      <p class="lead">The plan of record is <a href="${ENGINE_PLAN}">ENGINE.md</a> in the DOM VIRUS repo. The kernel is done, the first bricks shipped with Blitz, and the rest of E2 is next.</p>
+      <p class="lead">${esc(BETA_LINE)} E0 to E8 are the launch scope; a box is ticked only with a release, a merged change or a test behind it. E9 to E16 are next, with the bricks each adds (<a href="bricks/#planned">ROADMAP</a> on the bricks page). The first plan, E0 to E6, is <a href="${ENGINE_PLAN}">ENGINE.md</a> in the DOM VIRUS repo.</p>
     </div>
     <ol class="roadmap">
       ${roadmap}
