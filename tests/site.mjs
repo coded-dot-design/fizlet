@@ -151,6 +151,11 @@ try {
     assert.ok(llms.includes(`](${SITE}${path}):`), `llms.txt lists ${path || "index"}`);
   }
   assert.ok(robots.includes(`Sitemap: ${SITE}sitemap.xml`) && /User-agent: \*\nAllow: \//.test(robots), "robots.txt admits crawlers and names the sitemap");
+  // llms-full.txt: the whole API in plain text for agents, linked from llms.txt, every brick in it.
+  const llmsFull = readFileSync(`${ROOT}/llms-full.txt`, "utf8");
+  assert.ok(llms.includes(`[llms-full.txt](${SITE}llms-full.txt)`), "llms.txt links llms-full.txt");
+  for (const b of BRICKS) assert.ok(llmsFull.includes(`\n## ${b.name}\n`), `llms-full.txt has ${b.name}`);
+  assert.equal(await status(`${BASE}llms-full.txt`), 200, "llms-full.txt is served");
   assert.equal(await status(`${BASE}og.png`), 200, "the social card");
   // Site nav rules (scripts/check-nav.mjs): one header, an active state, breadcrumbs on deep pages,
   // external links marked ↗, descriptive link text, no orphan pages. The two standalone example

@@ -59,13 +59,14 @@ export const ROADMAP = [
     [1, "Room server: invite gate and hard spend caps"],
     [1, "Battlefield Blitz two players against the deployed room server"],
   ] },
-  { id: "E5", name: "Docs for humans and AI", status: "in progress", goal: "Build a game or micro-interaction in an afternoon, from docs a person or an agent can follow.", items: [
+  { id: "E5", name: "Docs for humans and AI", status: "done", goal: "Build a game or micro-interaction in an afternoon, from docs a person or an agent can follow.", items: [
     [1, "One page per brick, generated from the source, with its status"],
     [1, "Gallery and notes, every number measured on the build"],
     [1, "llms.txt and a sitemap from the same build"],
     [1, "Docs and guides: the contract, the loop, Recall, budgets, determinism; release notes for every version"],
+    [1, "An API reference for every brick, generated at build time by the TypeScript compiler, and llms-full.txt"],
     [1, "Authoring guide and recipes by use case: an action on the page, a shooter, two players"],
-    [0, "Live kernel stats on Under the Hood"],
+    [1, "Live kernel stats on Under the Hood"],
   ] },
   { id: "E6", name: "Performance wins", status: "started", goal: "Smaller and faster every week: the perf harness in CI, the top cost fixed, the win logged.", items: [
     [1, "Perf harness and allocation test in CI on every push"],

@@ -9,6 +9,40 @@
   Person. The index lists the maker, then the agents, then the house personas. First agent: Quill
   (`site/contributors/quill.json`), the keeper, with an original pixel owl holding a quill. Chris
   Cooley's role now reads "Chef Unicorn · creator of Fizlet". Tests: `tests/people.test.mjs`.
+- **Kernel fix: `start()` on a settled engine runs again.** It cleared the settled bit but not the
+  quiet time, so the first frame after it (0 s, no steps) found the engine still quiet and put it
+  back to sleep: `start()` woke a settled engine for one empty frame. It now does what `wake()` does
+  (the quiet time starts over, a hold still ahead stays), then clears the stop. Inert after
+  `destroy()`, as before. Found by the 2026-10-30 code audit.
+  - Sizes (gzip): kernel 3,438 → 3,439 B; page build (kernel + slot + input + fx) 7,166 → 7,167 B
+    (cap 7,168). No budget moves.
+  - Test: `tests/kernel.test.mjs` settle test: after `start()` a settled engine runs steps for a
+    full settle window, then settles again; `start()` after `destroy()` stays inert.
+- **Roadmap: E5 (docs for humans and AI) is done.** Docs, guides, release notes, the authoring
+  guide with three recipes, the generated API reference with llms-full.txt, and live kernel stats on
+  DOM VIRUS's Under the Hood (dom-virus#21). `site/roadmap.mjs` and the engine's ROADMAP.md agree
+  (`fe roadmap check`).
+- **Website: a generated API reference for every brick, and `llms-full.txt` (E5).** Each brick page's
+  API section now lists every export with its signature, parameters, return type, doc comment and
+  status flag, generated at site build time from the published declarations (`dist/*.d.ts`) by the
+  TypeScript compiler API (`typescript/unstable/sync`, the dev dependency the repo already type-checks
+  with: no new dependency). It can't drift from the code: the page and the file are rebuilt from the
+  declarations on every `npm run site`.
+  - `scripts/api.mjs` reads exports through the compiler (re-exports followed, overloads and
+    `const A = 1, B = 2` kept as one entry each) instead of scanning lines. A function's inline object
+    return type reads as its exported alias (`createEngine(o?: EngineOptions): Engine`). A const that
+    holds a function gets its signature. Type names the module exports link to their entries.
+  - Status per export: the brick's flag, unless its doc comment says `@deprecated`, `@experimental`
+    or `@beta`.
+  - `llms-full.txt`: the whole API in plain text for AI agents (every brick: import, status, measured
+    size, summary; every export: kind, status, doc, signatures, declaration). llms.txt links to it
+    in its opening text.
+  - Every public export now has a doc comment: 96 were missing one (options interfaces, `ReturnType`
+    aliases, factories such as `createEngine`, `controls`, `pad`, `sound`, `match`, `arcade`). A test
+    fails on any export without one (`tests/api.test.mjs`), so new exports must be documented.
+    Comments only: no JS changes, so every size is unchanged (kernel 3,438 B gzip).
+  - The site's own JS is byte-identical; `site.css` grows 102 B gzip (9,788 → 9,890 B) for the
+    signature and parameter rows.
 - **Website: docs, guides and news for launch** (fizlet.com is the engine's tech resource; the games
   live on DOM VIRUS). New sections, every number filled in from the build, never typed:
   - `/docs/`: getting started, the contract, the loop, Recall and the ledger, size budgets (every
