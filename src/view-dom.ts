@@ -5,8 +5,8 @@
  * again (a new actor) the same node comes back. So the page holds at most `cap` nodes, and
  * `engine.destroy()` (Recall) takes every one away and leaves the host as it was.
  *
- * Each render it writes, change-only through the ledger: `transform` (the body's `x`, `y`, to
- * 0.01 px, centred on the node unless `center: false`, turned by the heading `a` unless
+ * Each render it writes, change-only through the ledger: `transform` (the body's `x`, `y` times
+ * `scale`, to 0.01 px, centred on the node unless `center: false`, turned by the heading `a` unless
  * `turn: false`), `--hp` (hp / max, to 0.01), and `data-side` / `data-kind` when a row shows. The
  * look is the page's CSS (`[data-side="1"] { … }`, `width: calc(var(--hp) * 100%)`); give `hidden`
  * the last word if a rule sets `display`. `paint(i, el)` runs after for a row's own change-only
@@ -23,6 +23,8 @@ type El = HTMLElement | SVGElement;
 export interface ViewOptions {
   /** A node for row i, made once, the first time row i shows (default: an empty `<i>`). */
   make?(i: number): El;
+  /** Pixels per world unit (default 1): a board whose units live in cells passes its tile size. */
+  scale?: number;
   /** Turn by the heading `a` (default true). */
   turn?: boolean;
   /** Centre the node on (x, y) (default true: `translate(-50%, -50%)`). */
@@ -39,7 +41,7 @@ export interface ViewOptions {
 const NUM = Array.from({ length: 256 }, (_, k) => `${k}`);
 
 export function viewDom(engine: Engine, A: Actors, host: El, o: ViewOptions = {}) {
-  const cap = A.cap, L = engine.ledger, linger = o.linger ?? 0, turn = o.turn !== false, mid = o.center === false ? "" : " translate(-50%,-50%)";
+  const cap = A.cap, L = engine.ledger, px = (o.scale ?? 1) * 100, linger = o.linger ?? 0, turn = o.turn !== false, mid = o.center === false ? "" : " translate(-50%,-50%)";
   const nodes: (El | undefined)[] = Array(cap).fill(undefined);
   // Per row: last x, y, a, hp written (×100, rounded) and the linger clock; the generation shown; state.
   const last = new Float64Array(cap * 4), left = new Float64Array(cap), gen = new Uint32Array(cap);
@@ -74,7 +76,7 @@ export function viewDom(engine: Engine, A: Actors, host: El, o: ViewOptions = {}
             last[i * 4] = NaN; // write the body afresh
             wrote = true;
           }
-          const k = i * 4, x = Math.round(A.x[i]! * 100), y = Math.round(A.y[i]! * 100), a = turn ? Math.round(A.a[i]! * 100) : 0;
+          const k = i * 4, x = Math.round(A.x[i]! * px), y = Math.round(A.y[i]! * px), a = turn ? Math.round(A.a[i]! * 100) : 0;
           if (x !== last[k] || y !== last[k + 1] || a !== last[k + 2]) {
             last[k] = x;
             last[k + 1] = y;

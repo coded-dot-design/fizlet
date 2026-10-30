@@ -70,6 +70,14 @@ test("make, turn: false and center: false", () => {
   assert.equal(host.kids[0], v.node(i));
 });
 
+test("scale: world units to pixels (a board in cells)", () => {
+  const { A, v, frame } = setup({ scale: 48, turn: false });
+  const i = A.spawn(0, 1);
+  A.x[i] = 2.5; A.y[i] = 1 / 3;
+  frame();
+  assert.equal(v.node(i).props.get("transform"), "translate(120px,16px) translate(-50%,-50%)");
+});
+
 test("change-only: a still board writes nothing; one moved actor writes one transform", () => {
   const { A, frame } = setup({}, 16);
   for (let k = 0; k < 16; k++) { const i = A.spawn(k & 1, 3); A.x[i] = k * 10; A.y[i] = k; }

@@ -2,13 +2,14 @@
 
 ## Unreleased
 
-- **`fizlet/view-dom`** (new brick, E11, EXPERIMENTAL; 866 B gz, budget 1,536 = its planned
+- **`fizlet/view-dom`** (new brick, E11, EXPERIMENTAL; 882 B gz, budget 1,536 = its planned
   target): a `fizlet/actor` table drawn as DOM nodes, the part of DOM Battlefield's `view.ts` every
-  DOM board game rewrites. `viewDom(engine, actors, host, { make, turn, center, linger, motion, paint })`:
+  DOM board game rewrites. `viewDom(engine, actors, host, { make, scale, turn, center, linger, motion, paint })`:
   - One node per row, pooled: made the first time the row shows (`make(i)`, default an empty
     `<i>`), put in `host` through the ledger, hidden (`hidden`) when the actor dies, and the same
     node again when the row lives again, with fresh `data-side` / `data-kind`. At most `cap` nodes.
-  - Change-only through the ledger each render: `transform` (to 0.01 px, centred, turned by the
+  - Change-only through the ledger each render: `transform` (`x`, `y` times `scale`, px per world
+    unit, for a board in cells; to 0.01 px, centred, turned by the
     heading to 0.01 rad), `--hp` (hp / max, to 0.01). The look is the page's CSS; `paint(i, el)` is
     the game's hook for its own change-only writes.
   - Settle when still: a board that holds still writes nothing and calls no `busy()`, so an engine
