@@ -11,7 +11,9 @@
   Measured (`npm run perf`, Chromium 153, 4× throttle, 10 s, a busy 4-core Xeon): before p50
   33.3–33.4 ms, 47–61% dropped, `Layerize` 10.6–11.4 ms per frame; after p50 16.7 ms, 24–32%
   dropped, `Layerize` 1.6–1.7 ms (0.4.4: 1.5–1.8). Size: `fizlet/slot` 1,845 B gzip (budget
-  2,048); layers live chunk 9,725 B (≤ 9,728). The harness now reports `layerizeMs`, and
+  2,048); layers live chunk 9,720 B (≤ 9,728; the
+  13 B the slot adds are paid for in the scene, which now makes its fx canvas directly instead of
+  through a `canvas` branch in its element helper). The harness now reports `layerizeMs`, and
   `tests/perf/budgets.json` fails the demo on this regression: p50 ≤ 25 ms, p95 ≤ 67, ≤ 45%
   dropped, `layerizeMs` ≤ 4.
 - **board-page runs in its root's own document and window.** `boardPage(e, { root })` now measures,
