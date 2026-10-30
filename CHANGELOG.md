@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased
+
+- **`fizlet/timeline`** (new brick, 2,050 B gzip, budget 2,304; the target was 1,536): scripted DOM
+  choreography on the kernel clock, for the animations still on WAAPI or CSS keyframes (a cartridge
+  flying into a console, a screen growing through `clip-path`, doors folding open, staggered
+  entrances, looping patrols and diagram loops). `timeline(engine, { repeat, yoyo, rate, motion, id })`
+  and `.to(targets, values, { dur, delay, ease, stagger, at })`: keyframe tracks on CSS values (the
+  numbers change, the words stay: transform, translate, scale, rotate, opacity, clip-path, filter,
+  custom properties) or typed-array slots; easings `linear`, `in`, `out`, `inOut`, `back`,
+  `steps(n)` or a function, each sampled once into a shared 256-step table so the step never calls a
+  function (a call through a function value boxed a number per step in a node test once several
+  easings were in use); sequencing by default, `"<"`, labels, negative delays for overlap; `play`,
+  `reverse`, `pause`, `seek`, `finish`, `revert`, `done()`; `timeline:start`, `timeline:end` and
+  label names on the event ring. Writes happen in render through the ledger, change-only (values
+  rounded to a thousandth); done or paused it never calls `busy()`, so the engine settles. Reduced
+  motion: `play()` lands on the end state in one step (`motion: true` plays a variant built on
+  `tl.reduced`).
+  - Tests: `tests/timeline.test.mjs` (easings, interpolation, keyframes, sequencing, seek, reverse,
+    finish, repeat and yoyo labels, events and `done()`, `motion: false`, settle, revert, Recall, host
+    edits win, setup errors; zero allocation: at most 1 young-generation GC over 200k steps with
+    eight tracks and four easings, and over 200k whole frames once done) and `tests/timeline.mjs` in
+    Chromium (values mid-way on real elements, 0 frames requested once settled, done or paused,
+    Recall mid-play byte for byte with a host inline style, reduced motion lands on the end).
+  - Website: a brick page with a live demo (a cartridge seats in a console; the screen opens; the
+    lines stagger in).
+
 ## 0.17.0
 
 - **Website: people and the daily contest.** `/people/` lists who makes the animations: Chris
