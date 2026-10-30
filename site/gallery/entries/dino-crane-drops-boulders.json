@@ -1,0 +1,20 @@
+{
+  "id": "dino-crane-drops-boulders",
+  "date": "2026-10-30",
+  "prompt": "a long-neck crane dino at the stone-age quarry drops boulders where you click; they crack the stone letter blocks, knock them out of the stack and bounce, and a double click hauls the big one that shakes the page",
+  "title": "Rock drop",
+  "kind": "micro",
+  "theme": "cartoon-classics",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/dino-crane-drops-boulders.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "approved": "2026-10-30"
+}

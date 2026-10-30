@@ -1,0 +1,20 @@
+{
+  "id": "stone-bowling-strike",
+  "date": "2026-10-30",
+  "prompt": "a stone-age bowler twirls on tiptoe and rolls a stone ball where you click, into the page's words set up as ten pins; they scatter and knock each other over, all ten is a strike, a double click throws a hooking twister, and a pterosaur pinsetter sets the words back",
+  "title": "Stone strike",
+  "kind": "micro",
+  "theme": "cartoon-classics",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/stone-bowling-strike.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "approved": "2026-10-30"
+}
