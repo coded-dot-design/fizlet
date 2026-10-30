@@ -57,6 +57,14 @@ const ORIGIN = `http://127.0.0.1:${server.address().port}`;
 const status = async (path) => (await fetch(ORIGIN + path)).status;
 
 // Every built page, at its URL path ("" is the home page, "bricks/" the bricks index).
+// Perf win (#105, PERF-LOG.md): the two stylesheets every page loads are served minified (no
+// comments, one line) and smaller than their readable sources (8,301 → 4,884 and 11,530 → 9,091 B gz).
+for (const [served, source] of [["board-ui.css", "src/ui/board-ui.css"], ["site.css", "site/site.css"]]) {
+  const css = readFileSync(`${ROOT}/${served}`, "utf8");
+  assert.ok(!css.includes("/*") && css.trim().split("\n").length === 1, `${served} is served minified`);
+  assert.ok(gzipSync(css).length < gzipSync(readFileSync(source)).length, `${served} is smaller than ${source}`);
+}
+
 const PAGES = readdirSync(ROOT, { recursive: true }).filter((f) => f.endsWith(".html") && !f.startsWith("dist")).map((f) => f.replace(/\\/g, "/").replace(/(^|\/)index\.html$/, "$1")).sort();
 for (const b of BRICKS) assert.ok(PAGES.includes(`bricks/${b.id}.html`), `a page for ${b.name}`);
 // What counts as a live demo: the home blast board, slot scenes (layers, fizz), brick demos and the
