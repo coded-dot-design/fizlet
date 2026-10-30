@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Site: the roadmap ticks E8.blitz-kit (Battlefield Blitz on steer and coach, dom-battlefield-blitz#22); every E8 box is ticked, so E8 The game kit is done.** The engine's ROADMAP.md agrees (`fe roadmap check`).
+
 - **`@fzlt/core/steer` and `@fzlt/core/coach` are COMPLETE.** Battlefield Blitz moves every tank on steer
   (`drive`, `seek`, `arriveGoal`, `wander`, the exact `hypot`) and counts its practice coach's steps and
   tricks on `tour` (its own card stays; dom-battlefield-blitz#22, merged; Blitz's next release ships it). Its

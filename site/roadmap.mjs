@@ -90,13 +90,13 @@ export const ROADMAP = [
     [1, "The DOM VIRUS cartridge console, detail-page scenes and diagrams on Fizlet", "E7.dv-scenes"],
     [1, "Page cost (CLS, tap delay, idle CPU) gated in CI", "E7.page-cost"],
   ] },
-  { id: "E8", name: "The game kit", status: "in progress", goal: "The shell every page game repeats, so a game is its rules and its art: HUD and control presets, match flow, coach.", items: [
+  { id: "E8", name: "The game kit", status: "done", goal: "The shell every page game repeats, so a game is its rules and its art: HUD and control presets, match flow, coach.", items: [
     [1, "arcade: the shell under Null Invaders, Byte Runner and Sherman Bytes", "E8.arcade"],
     [1, "HUD presets (card, skirmish bar) and swappable touch pads", "E8.hud-pads"],
     [1, "match, coach and steer bricks", "E8.bricks"],
     [1, "touch: no page zoom or pan while a game plays, in every arcade game", "E8.touch"],
     [1, "A released game on the skirmish preset: Sherman Bytes 1.1.0", "E8.skirmish"],
-    [0, "Battlefield Blitz on steer and coach", "E8.blitz-kit"],
+    [1, "Battlefield Blitz on steer and coach", "E8.blitz-kit"],
     [1, "A released game on @fzlt/core/match", "E8.match"],
   ] },
   { id: "E9", name: "On npm", status: "done", note: "0.21.2", goal: "npm install @fzlt/core: one package, a subpath per brick, published from CI with provenance.", items: [
