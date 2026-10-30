@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Gallery: the "how it works" labs, #42–#46.** DOM VIRUS's five Under the hood labs move onto
+  Fizlet as scenes in `site/labs/` (one source: the hub vendors them): pool ("One loop. Bounded
+  work.", a real `engine.pool` of 32), Recall ("Recall gives the page back.", the real `Ledger`:
+  each letter a Text node, the game's hits in a ledger whose `restore()` is the RECALL key), duel
+  ("Two Macs, one network."), board ("One host. Two worlds.") and pipeline ("Build once. Ship
+  each."). Each is one engine on the shared clock: read caches layout, step moves state, render
+  writes through the ledger, seeded random; it settles when idle, sleeps off screen, and destroy()
+  gives the figure back exactly. Attract mode plays for 12 s after a visit or the last input.
+  Reduced motion: nothing plays on its own, the keys still work. `tests/labs.mjs` (Chromium).
+
 - **Gallery: quality over quantity.** Of the 23 recipe entries made by `fe anim`, the owner kept 7
   (pink sparks, neon rain, POW BAM ZAP, speed lines, halftone wave, red cape, hero landing); the
   other 16 move into an archive, `gallery/archive/` (noindex, out of the gallery's index and

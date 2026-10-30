@@ -1947,6 +1947,22 @@ html.bui[data-theme="light"] .phases b {
     aspect-ratio: 3 / 5;
   }
 }
+/* A "how it works" lab (site/labs/): the lab's own card is the figure, at its own height, with
+   room for its hard shadow; the caption is the placeholder (hidden once the lab runs). */
+.gal-stage figure.gal-lab {
+  padding: 0 6px 6px 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+  cursor: auto;
+}
+.gal-stage .gal-lab-cap {
+  display: block;
+  margin-top: 12px;
+  font: 11px/1.4 var(--mono);
+  color: var(--muted);
+}
 .gal-stage .fz-poster {
   position: absolute;
   inset: 0;

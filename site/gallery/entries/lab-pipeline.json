@@ -1,0 +1,18 @@
+{
+  "no": 46,
+  "id": "lab-pipeline",
+  "date": "2026-10-30",
+  "prompt": "a release hops from engine source to the live site, one stage at a time: build once, ship each",
+  "title": "Build once. Ship each.",
+  "kind": "micro",
+  "theme": "everyday",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel"
+  ],
+  "made": "by hand",
+  "module": "seeds/labs.ts",
+  "export": "pipelineLab",
+  "figure": "lab-pipeline"
+}

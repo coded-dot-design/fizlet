@@ -130,7 +130,7 @@
     "build": "node scripts/build.mjs",
     "check": "npm run typecheck && npm test && npm run build",
     "size": "node scripts/size.mjs",
-    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/coach.mjs",
+    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/coach.mjs && node tests/labs.mjs",
     "test:layers": "tsc -p site/demos/layers/tsconfig.json && node tests/layers.mjs",
     "test:pack": "node scripts/pack-smoke.mjs",
     "site": "npm run build && node scripts/site.mjs",
