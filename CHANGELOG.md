@@ -79,6 +79,19 @@
     0 now) and Chromium `tests/camera.mjs` (30 frames of drag pan: 30 layout reads on main, 0 now;
     a stage resized to 450 px is measured again).
   - Size (gzip): camera 1,385 → 1,475 B (budget 1,536).
+- **`fizlet/perf`: the overlay shows on a canvas root and sits in a static host's corner (audit P11).**
+  - The default host is the engine's root, and a game's root can be a `<canvas>` (or an `<svg>`).
+    Their HTML children never render, so the overlay was invisible. Such a host now puts the
+    overlay on `document.body`, fixed, as when there is no root.
+  - In a static host that is not the body, `position: absolute` placed the overlay against some
+    unrelated ancestor. While shown, a static host is now made `position: relative` through the
+    ledger; hiding the overlay, `destroy()` and Recall give it back. A host that is already
+    positioned is never touched.
+  - Tests (`tests/perf.test.mjs`): "a canvas or svg host puts the overlay on the page" and "a static
+    host is made relative while shown". Both fail on main, both pass now; the zero-allocation test
+    and the Chromium perf block in `tests/browser.mjs` are green.
+  - Size (gzip): perf 1,958 → 2,042 B (budget 2,048). The host test reads `getContext` /
+    `ownerSVGElement`; a tag-name list (img, video, iframe too) measured 2,057 B, over budget.
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
