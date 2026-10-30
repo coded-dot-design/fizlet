@@ -26,6 +26,12 @@ export const CARDS = {
   hud: { play: "Tap to strike; tap fast to heat it up and ring the bell.", what: "a high striker whose real DOM scoreboard is written only when what it shows changes" },
   match: { play: "Tap to start, then catch the bricks on your paddle.", what: "a ten-second round on the match phase machine: start, count, play, stage clear or game over" },
   presence: { play: "Tap a column on either board to drop a brick.", what: "two seats a hundred milliseconds apart run one lockstep world: every brick lands on both boards and the hashes match" },
+  rules: { play: "Tap for a wave; tap landed crates before they expire, fast for a combo.", what: "supply crates fall in waves; collect them in a chain for a combo and level up, all on the three rules systems" },
+  coach: { play: "Tap the brick the coach card rings.", what: "a four-step tutorial: the coach card names a brick and rings it; the right tap passes the step, a wrong one is a miss" },
+  perf: { play: "Tap high or low to drop a long task.", what: "a brick that lands does real work in that step; the perf overlay draws the late frame over its budget line and counts the drops" },
+  "css-clock": { play: "Tap anywhere to scrub the stylesheet's time.", what: "plain CSS keyframes, paused, read their time from one property the kernel clock moves; scrub it and they all follow" },
+  touch: { play: "Drag the blue brick and let go to throw it.", what: "one finger grabs and throws; two fingers would zoom the page, and the card counts the pinches it cancelled" },
+  embed: { play: "Double-tap the card, or type BRICK.", what: "a locked vault: embed stays dormant until its gesture or key sequence, then mounts the game and coins burst out" },
   sound: { play: "Tap above the stairs to drop a ball (sound on).", what: "a ball bouncing down brick stairs; every landing plays that brick's cue from a tiny synth" },
 };
 export const CARD_IDS = Object.keys(CARDS);

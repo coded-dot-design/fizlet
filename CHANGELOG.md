@@ -34,6 +34,24 @@
   hud 7,869 B, match 8,849, sound 6,984, presence 7,432; thirteen cards on the bricks page 38,696 B
   in all, each loaded near the viewport. Allocation (best of 3, 6,000 frames): step 0 to 0.8 B a frame,
   whole moving frame 35 to 270 B.
+- **Six more brick cards: rules, coach, perf, css-clock, touch, embed.** Each has its own tap idea.
+  rules: tap for a wave of supply crates (waves paces them, drops lets them fall, land and expire);
+  tap landed crates in a quick chain for a combo and level up (score); an expired crate ends the
+  streak, and between waves the wave clock comes off the engine so the card sleeps. coach: a
+  four-step tutorial for the card itself; the kit's coach card names a brick and rings that real DOM
+  brick; the right tap passes the step, a wrong one shakes and counts as a miss. perf: the higher you
+  tap, the longer the task a falling brick carries (16 to 52 ms of real work in the step it lands in);
+  fizlet/perf's own overlay in the card draws the late frame over its budget line and counts the
+  drops. css-clock: plain CSS keyframes (LEDs on steps(), a patrolling brick, a hopper, a pendulum)
+  on the kernel clock; tap anywhere to scrub the stylesheet's time along a ruler. touch: grab the
+  brick and throw it; it bounces off the walls and off the name brick's pedestal; `lockTouch` guards
+  the card and the readout counts the pinch events it cancelled. embed: a locked vault; embed stays
+  dormant until you double-tap the card or type BRICK anywhere, then mounts the game (coins burst out
+  to collect); Escape or a tap on the vault closes it and removes its host. Card chunks (gzip, with
+  the kernel, slot and frame): rules 7,539 B, coach 7,351, perf 7,648, css-clock 8,620, touch 6,248,
+  embed 8,137; all nineteen cards and the loader (2,499 B) come to 53,131 B unique, each card loaded
+  near the viewport. The card build and the allocation test now accept a card id with a hyphen
+  (`css-clock`), and the card test allows a card with a second canvas (perf's chart).
 - Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
