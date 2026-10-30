@@ -66,10 +66,11 @@ export const ROADMAP = [
     [0, "Authoring guide and recipes by use case: an action on the page, a shooter, two players"],
     [0, "Live kernel stats on Under the Hood"],
   ] },
-  { id: "E6", name: "Performance wins", status: "started", goal: "Smaller and faster every week: the perf harness in CI, the top cost fixed, the win logged.", items: [
+  { id: "E6", name: "Performance wins", status: "done", goal: "Smaller and faster every week: the perf harness in CI, the top cost fixed, the win logged.", items: [
     [1, "Perf harness and allocation test in CI on every push"],
-    [0, "A weekly run against the baseline"],
+    [1, "A weekly run against measured budgets"],
     [1, "A public log of every win: PERF-LOG.md, generated from the measured wins"],
+    [1, "Page cost (CLS, tap delay, idle CPU) gated in CI, one named exception tracked"],
   ] },
   { id: "E7", name: "Page interactions", status: "nearly", goal: "Heroes, diagrams and micro animations on ordinary pages: lazy, contained, settled when still.", items: [
     [1, "slot, the page profile, camera and timeline"],
@@ -77,7 +78,7 @@ export const ROADMAP = [
     [1, "fizlet.com and the DOM VIRUS home hero on Fizlet"],
     [0, "The DOM Battlefield landing hero on Fizlet"],
     [0, "The DOM VIRUS Under the Hood labs on Fizlet"],
-    [0, "Page cost (CLS, tap delay, idle CPU) gated in CI"],
+    [1, "Page cost (CLS, tap delay, idle CPU) gated in CI"],
   ] },
   { id: "E8", name: "The game kit", status: "in progress", goal: "The shell every page game repeats, so a game is its rules and its art: HUD and control presets, match flow, coach.", items: [
     [1, "arcade: the shell under Null Invaders, Byte Runner and Sherman Bytes"],

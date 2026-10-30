@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Roadmap: E6 "Performance wins" is done** (`site/roadmap.mjs`, the home page's #roadmap): a
+  weekly perf run against measured budgets (#92), the public win log with today's wins (#90, #135),
+  and the page-cost gate in CI (#97) with one named exception, the layers story's desktop idle CPU,
+  tracked as its own task (G20, #136). E7's "page cost gated in CI" box is ticked by the same gate.
+  Merge after #92, #97 and #135.
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
