@@ -1,0 +1,145 @@
+{
+  "$comment": "Generated from the content model; do not edit by hand.",
+  "site": "fizlet",
+  "brand": "fizlet",
+  "games": [],
+  "date": "2026-10-31",
+  "status": "scheduled",
+  "publishAt": "2026-10-31T09:00:00-04:00",
+  "id": "blog-lockstep-multiplayer-in-a-few-kb",
+  "type": "blog",
+  "slug": "lockstep-multiplayer-in-a-few-kb",
+  "title": "Lockstep multiplayer in a few KB",
+  "subtitle": "Inputs, not state. Twelve bytes a message.",
+  "eyebrow": "Field notes · multiplayer",
+  "tags": [
+    "fizlet",
+    "engine",
+    "multiplayer",
+    "determinism",
+    "cloudflare"
+  ],
+  "lead": [
+    "`fizlet/presence` is 1,792 bytes gzip. Every peer runs the same fixed-step game from the same seed, and only inputs cross the wire, 12 bytes a message. The room server is a Cloudflare Worker with one Durable Object per room. It seats players and relays messages; it never runs the game. This note covers only what has shipped, and how each part is tested."
+  ],
+  "blocks": [
+    {
+      "type": "stats",
+      "heading": "The numbers",
+      "items": [
+        {
+          "value": "1,792 B",
+          "label": "`fizlet/presence`, gzip (budget 2,048 B)"
+        },
+        {
+          "value": "12 B",
+          "label": "every message: kind, seat, players, frame, value"
+        },
+        {
+          "value": "2 frames",
+          "label": "default input delay: 33 ms at 60 Hz"
+        },
+        {
+          "value": "30",
+          "label": "frames between state-hash checks"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "Inputs, not state",
+      "body": [
+        {
+          "type": "p",
+          "text": "Fizlet steps at a fixed rate, and a sim that draws from `engine.random` and keeps its state in typed arrays replays exactly from a seed. So two browsers don't need to send each other the world. They send what each player pressed, packed into one 32-bit word per frame, and both run the same frames."
+        },
+        {
+          "type": "p",
+          "text": "Your input for a frame is sent two frames ahead, so on a good link nobody waits. A frame runs only when every player's input for it is in. A missing input stalls the sim (`net.stalls` counts it); it never guesses, so peers can't drift. Every 30 frames the peers swap a hash of their state, and `net.desync` names the first frame that differed."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "How it is tested",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "Two clients stay byte-identical for 3,000 frames with no latency.",
+            "They stay identical with delayed, jittered and reordered inputs and unequal frame rates, and with four players at latency 3.",
+            "A forced desync is caught at the next hash check.",
+            "Presence adds no allocation: the test counts young-generation GCs over 2 × 200,000 frames of the same sim, with and without it.",
+            "Through the room server on `wrangler dev`, locally: two Fizlet engines play 600 lockstep frames through one room, byte-identical."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "`syncCheck` from `fizlet/presence/check` is the same check for your own game: it runs your sim as lockstep clients over a jittery in-memory link and returns the first frame whose state differed, or -1. It is test-only code and never ships to players."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "The room server",
+      "body": [
+        {
+          "type": "p",
+          "text": "One Durable Object per numbered room seats players in arrival order. Once the room is full it sends each one a WELCOME with their seat, the player count and one shared seed, then relays every message, stamped with the sender's real seat. WebSockets use the hibernation API, so an idle room holds no running object, and rooms store nothing."
+        },
+        {
+          "type": "p",
+          "text": "Every cap is in code with a ceiling config can't lift: 16 rooms (ceiling 256), 2 players a room (ceiling 8), 90 messages a second a socket with bursts to 180, any message that is not 12 bytes closed at once, 120 s idle and 30 minutes per room. Lockstep at 60 Hz sends about 62 messages a second: at 12 bytes each, under 1 KB a second of payload per player."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "What is not there yet",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**Accounts.** The gate is a demo gate: invite codes, stored only as SHA-256 hashes.",
+            "**Leaving.** A seat that leaves mid-game makes the others wait.",
+            "**Rollback and authority.** The confirmed input log is there for a rollback layer, and some games will need an authoritative room. Neither is built."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "q": "Does the server run the game?",
+          "a": "No. It seats, seeds and relays. The game runs in each browser, the same on every one."
+        },
+        {
+          "q": "Which game uses it first?",
+          "a": "Battlefield Blitz, on DOM VIRUS: its step can be driven by presence, with a fixed arena so every screen runs the same match."
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "Multiplayer rooms guide",
+          "href": "/guides/multiplayer-rooms/"
+        },
+        {
+          "label": "fizlet/presence",
+          "href": "/bricks/presence.html"
+        },
+        {
+          "label": "Determinism",
+          "href": "/docs/determinism/"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Lockstep multiplayer in a few KB · Fizlet",
+    "description": "fizlet/presence is 1,792 B gzip: lockstep inputs, 12 bytes a message, a hash check every 30 frames, and a Cloudflare Worker room server with hard caps."
+  }
+}

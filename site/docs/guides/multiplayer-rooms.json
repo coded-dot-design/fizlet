@@ -108,6 +108,10 @@
         {
           "label": "fizlet/presence API",
           "href": "/bricks/presence.html"
+        },
+        {
+          "label": "Lockstep in a few KB",
+          "href": "/notes/lockstep-multiplayer-in-a-few-kb/"
         }
       ]
     }
