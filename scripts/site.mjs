@@ -89,6 +89,23 @@ const fizzFigure = readFileSync(`${OUT}/demos/fizz/index.html`, "utf8").match(/<
 if (!fizzFigure) throw new Error("demos/fizz/index.html: no fizz figure to embed");
 const fizz = { figure: fizzFigure, sizes: fizzSizes, live: "demos/fizz/scene.js" };
 
+// The "how it works" labs (site/labs/, the scenes DOM VIRUS's Under the hood vendors): their
+// still posters are the gallery figures (each in its own accent), their sheet goes on the page.
+const labsMod = await build({ entryPoints: ["site/labs/index.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
+const LABS = await import("data:text/javascript;base64," + Buffer.from(labsMod.outputFiles[0].text).toString("base64"));
+const labFigure = (id, accent, html) =>
+  `<figure class="ae-slot gal-lab fzl-host fzl-${accent}" data-slot-target="gallery#lab-${id}" role="img" aria-label="${html.match(/aria-label="([^"]*)"/)[1]}">${html}<span class="ae-slot__placeholder gal-lab-cap" aria-hidden="true">A still poster: the lab runs once it nears the screen.</span></figure>`;
+const labs = {
+  css: readFileSync("site/labs/labs.css", "utf8"),
+  figures: {
+    "lab-pool": labFigure("pool", "lime", LABS.poolFigure(true)),
+    "lab-recall": labFigure("recall", "violet", LABS.recallFigure(true)),
+    "lab-duel": labFigure("duel", "amber", LABS.duelFigure(true)),
+    "lab-board": labFigure("board", "cyan", LABS.boardFigure(true)),
+    "lab-pipeline": labFigure("pipeline", "amber", LABS.pipelineFigure(true)),
+  },
+};
+
 // The gallery: one bundle per entry, each measured here (its size badge). The story demos keep
 // their own posters as their figures; the blast demo waits in a <template> until its slot mounts.
 const gallery = await buildGallery(OUT);
@@ -101,6 +118,7 @@ const figures = {
   layers: L.poster("gallery#layers"),
   fizz: fizzFigure.replace('data-slot-target="fizz#hero"', 'data-slot-target="gallery#fizz"').replace('<figure class="ae-slot ae-slot--16x10"', '<figure class="ae-slot ae-slot--16x10 gal-fig"'),
   howitworks: `<figure class="ae-slot ae-slot--4x5 gal-fig gal-tall" data-slot-target="gallery#howitworks" role="img" aria-label="The blast demo: a small page you can knock around; Recall puts it back."><span class="ae-slot__placeholder gal-still" aria-hidden="true">“Hello, page.” Every letter is a real element.</span><template>${playFigure()}</template></figure>`,
+  ...labs.figures,
 };
 
 // The gallery's pages sit at gallery/ and gallery/page/<n>/ (base: the path back to the root);
@@ -182,13 +200,13 @@ const pages = [
       ? `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by theme).`
       : `Fizlet gallery page ${p.n} of ${gallery.pages.length}: older animations by theme, each with its prompt, its live demo and its size measured on this build.`,
     base: GB(p), version, path: p.path,
-    body: `<style>${layers.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, archived: gallery.archive.entries.length }),
+    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, archived: gallery.archive.entries.length }),
     scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
   })]),
   ["gallery/archive/index.html", page({
     title: "Gallery archive: earlier runs, kept to revisit · Fizlet",
     description: `Earlier Fizlet factory animations taken off the gallery (${gallery.archive.entries.length}), kept to revisit, each with its size measured on this build.`,
-    base: "../../", version, path: "gallery/archive/", noindex: true,
+    base: "../../", version, path: "gallery/archive/", noindex: true, nofollow: true,
     body: `<style>${layers.css}</style>` + archivePage({ entries: gallery.archive.entries, themes: gallery.archive.themes, people: gallery.people, loader: gallery.loader, figures, base: "../../" }),
     scripts: ["site.js", "gallery/gallery.js"],
   })],

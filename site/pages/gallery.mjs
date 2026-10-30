@@ -92,7 +92,7 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
     <div class="section-head">
       <p class="eyebrow"><span class="index">${all.length}</span> ANIMATIONS · NEWEST FIRST${pages.length > 1 ? ` · PAGE ${page.n} OF ${pages.length}` : ""}</p>
       <h1 id="gal-title">One prompt.<br><em>One animation.</em></h1>
-      <p class="lead">A new animation from a simple prompt, made from Fizlet bricks. Each one shows the prompt it was made from, runs live once it nears the screen, and wears its size, measured on this build. Still once it settles, asleep off screen, and the page always comes back. Take any made from a prompt home as one file, or <a href="${base}make/">make your own</a>. By <a href="https://coded.design/">Chris Cooley</a>${heroes ? ` · <a href="${base}heroes/">the ${heroes} heroes, big</a>` : ""}.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/">the archive</a>.` : ""}</p>
+      <p class="lead">A new animation from a simple prompt, made from Fizlet bricks. Each one shows the prompt it was made from, runs live once it nears the screen, and wears its size, measured on this build. Still once it settles, asleep off screen, and the page always comes back. Take any made from a prompt home as one file, or <a href="${base}make/">make your own</a>. By <a href="https://coded.design/">Chris Cooley</a>${heroes ? ` · <a href="${base}heroes/">the ${heroes} heroes, big</a>` : ""}.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/" rel="nofollow">the archive</a>.` : ""}</p>
     </div>
     <nav class="gal-themes" aria-label="Themes">${chips}</nav>
     <form class="gal-search" role="search" data-gal-search data-base="${base}" hidden>
@@ -111,7 +111,7 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
 
 /**
  * The archive: earlier entries taken off the gallery (most were recipe palette swaps), kept to
- * revisit. One page, by theme, no search; the page is noindex and out of the gallery's index.
+ * revisit. One page, by theme, no search; the page is noindex,nofollow (and linked with rel="nofollow") and out of the gallery's index.
  */
 export function archivePage({ entries, themes, people, loader, figures, base }) {
   const title = Object.fromEntries(themes.map((t) => [t.id, t.title]));
