@@ -4,10 +4,12 @@ import { AUTHOR, esc, icon, REPO } from "../layout.mjs";
 import { inline, longDate } from "./notes.mjs";
 import { highlights, parse, plain, releasePath } from "../../scripts/releases.mjs";
 
-/** Changelog Markdown → the notes' inline syntax: repo paths link to GitHub, bare URLs become links. */
+/** Changelog Markdown → the notes' inline syntax: repo paths link to GitHub, bare URLs become links,
+ *  and every link that leaves the site ends in ↗ (site nav rule 4). */
 const md = (s, base) => inline(s
   .replace(/\]\((?!https?:|\/|#|mailto:)([^)\s]+)\)/g, (_, p) => `](${REPO}/blob/main/${p.replace(/^\.\//, "")})`)
-  .replace(/(^|[\s(])(https:\/\/[^\s)`,]+[^\s)`,.;:])/g, (_, pre, url) => `${pre}[${url}](${url})`), base);
+  .replace(/(^|[\s(])(https:\/\/[^\s)`,]+[^\s)`,.;:])/g, (_, pre, url) => `${pre}[${url}](${url})`), base)
+  .replace(/(<a href="https?:[^"]*">)((?:(?!<\/a>).)*?)(?<!↗)<\/a>/g, "$1$2 ↗</a>");
 
 function list(items, base) {
   return `<ul class="ledger-rules note-list">${items.map((i) => `<li>${md(i.text, base)}${i.ul ? list(i.ul, base) : ""}</li>`).join("")}</ul>`;
@@ -32,7 +34,7 @@ export function releasePage({ release: r, prev, next, base, latest }) {
     <header class="section-head note-head">
       <p class="eyebrow"><span class="index">${esc(r.version)}</span> RELEASE NOTES${r.version === latest ? " · LATEST" : ""}</p>
       <h1 id="rel-title">Fizlet ${esc(r.version)}</h1>
-      <p class="note-by">By <a href="${AUTHOR}/">Chris Cooley</a>${r.date ? ` · <time datetime="${esc(r.date)}">${longDate(r.date)}</time>` : ""} · <a href="${REPO}/blob/main/CHANGELOG.md">CHANGELOG.md ↗</a></p>
+      <p class="note-by">By <a href="${AUTHOR}/">Chris Cooley ↗</a>${r.date ? ` · <time datetime="${esc(r.date)}">${longDate(r.date)}</time>` : ""} · <a href="${REPO}/blob/main/CHANGELOG.md">CHANGELOG.md ↗</a></p>
     </header>
     <section class="note-block release-body">
       ${body}
@@ -66,7 +68,7 @@ export function newsIndex({ releases, announcements, base }) {
     <div class="section-head">
       <p class="eyebrow"><span class="index">${releases.length}</span> RELEASES · NEWEST FIRST</p>
       <h1 id="news-title">Every release.<br><em>Every number.</em></h1>
-      <p class="lead">What changed in each version of Fizlet, straight from the <a href="${REPO}/blob/main/CHANGELOG.md">changelog</a>: new bricks, fixes and the sizes measured when each one shipped. Essays and field notes live in <a href="${base}notes/">Notes</a>.</p>
+      <p class="lead">What changed in each version of Fizlet, straight from the <a href="${REPO}/blob/main/CHANGELOG.md">changelog ↗</a>: new bricks, fixes and the sizes measured when each one shipped. Essays and field notes live in <a href="${base}notes/">Notes</a>.</p>
     </div>
     ${posts ? `<h2 class="news-h">Announcements</h2><ol class="gal note-cards">\n      ${posts}\n    </ol>` : ""}
     <h2 class="news-h">Release notes</h2>

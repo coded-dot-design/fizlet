@@ -8,7 +8,7 @@
   "subtitle": "nothing while it's still.",
   "summary": "Fill an astro-base-engine animation slot with a Fizlet scene: lazy, settles to zero frames, keeps the slot's text alternative.",
   "lead": [
-    "[astro-base-engine](https://github.com/brain-cache/astro-engine) renders each animation slot on a page as a sized, described placeholder. `fizlet/slot` fills it with a scene that loads only near the viewport, never under reduced motion, and settles to zero frames once nothing moves. The heroes on this site's [home page](/) are built this way."
+    "An Astro page engine (astro-base-engine) renders each animation slot on a page as a sized, described placeholder. `fizlet/slot` fills it with a scene that loads only near the viewport, never under reduced motion, and settles to zero frames once nothing moves. The heroes on this site's [home page](/) are built this way."
   ],
   "blocks": [
     {
