@@ -4,7 +4,9 @@
   "date": "2026-10-29",
   "prompt": "a scanline sweep that lights up every heading it passes",
   "title": "A scanline sweep that lights up every heading it passes",
-  "by": "Chris Cooley",
+  "kind": "micro",
+  "theme": "everyday",
+  "author": "chris-cooley",
   "recipe": "sweep",
   "bricks": [
     "fizlet/kernel",
