@@ -26,6 +26,7 @@ import { BRICKS, PLANNED, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
 import { liveBytes } from "./live-bytes.mjs";
+import { brickCard, CARDS } from "../site/brick-cards.mjs";
 
 const OUT = "site-dist";
 const { version } = JSON.parse(readFileSync("package.json", "utf8"));
@@ -67,6 +68,17 @@ for (const [file, o] of Object.entries(demos.metafile.outputs)) {
   if (id) demoSizes[id] = { live: file.slice(OUT.length + 1), bytes: liveBytes(file) };
 }
 for (const b of BRICKS) if (b.demo && !demoSizes[b.demo]) throw new Error(`brick ${b.id}: no built chunk for demo "${b.demo}"`);
+// The brick cards: one loader, one chunk per card (site/cards/), each measured for its badge.
+const cardBuild = await build({
+  entryPoints: { "brick-cards": "site/brick-cards.ts" }, metafile: true,
+  outdir: OUT, bundle: true, splitting: true, chunkNames: "chunks/[name]-[hash]", minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning",
+});
+const cardSizes = {};
+for (const [file, o] of Object.entries(cardBuild.metafile.outputs)) {
+  const id = o.entryPoint?.match(/^site\/cards\/(\w+)\.ts$/)?.[1];
+  if (id) cardSizes[id] = { live: file.slice(OUT.length + 1), bytes: liveBytes(file) };
+}
+for (const id of Object.keys(CARDS)) if (!cardSizes[id]) throw new Error(`brick card ${id}: no built chunk`);
 // The home page's blast demo and the quick start (the one-file build).
 const blast = { live: "demo.js", bytes: liveBytes(`${OUT}/demo.js`) };
 const quick = { live: "fizlet.js", bytes: liveBytes(`${OUT}/fizlet.js`) };
@@ -155,10 +167,11 @@ const kernel = sizes[0];
 const spMod = await build({ entryPoints: ["site/gallery/pieces/small-packages/poster.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
 const SP = await import("data:text/javascript;base64," + Buffer.from(spMod.outputFiles[0].text).toString("base64"));
 for (const e of gallery.entries.filter((x) => x.module === "pieces/small-packages/scene.ts")) figures[e.figure] = SP.figure(e, sizes.find((s) => s.name === "fizlet (kernel)").gzip);
-// Every brick's API, from its source comment and its built declarations.
+// Every brick's API, from its source comment and its built declarations; its card, when it has one.
 const bricks = BRICKS.map((b) => {
   const mods = b.modules.map((m) => ({ ...m, ...api(m) }));
-  return { ...b, mods, summary: mods[0].summary.match(/^.*?\.(?=\s|$)/)?.[0] ?? mods[0].summary };
+  const card = (where) => (CARDS[b.id] ? brickCard({ brick: b, bytes: sizes.find((s) => s.name === b.sizes[0]).gzip, card: cardSizes[b.id], where }) : "");
+  return { ...b, mods, card, summary: mods[0].summary.match(/^.*?\.(?=\s|$)/)?.[0] ?? mods[0].summary };
 });
 // JSON-LD: the engine's source code (home), each brick as a part of it. Facts from the page only.
 const CODE = `${SITE}#code`;
@@ -204,7 +217,7 @@ const pages = [
   ["bricks/index.html", page({
     title: "Kernel and bricks: every module and its size · Fizlet",
     description: `Every Fizlet module with its API and its measured size: the kernel is ${(kernel.gzip / 1024).toFixed(1)} KB gzip, each brick its own import.`,
-    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version, planned: PLANNED }), scripts: ["site.js"],
+    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version, planned: PLANNED }), scripts: ["site.js", "brick-cards.js"],
   })],
   // The gallery: PAGE_SIZE entries a page (gallery/, gallery/page/2/, …), in theme sections.
   ...gallery.pages.map((p) => [`${p.path}index.html`, page({
@@ -270,7 +283,7 @@ const pages = [
     ld: [{ "@type": "SoftwareSourceCode", "@id": `${SITE}${brickPath(b)}#code`, name: b.name, description: b.summary, url: SITE + brickPath(b),
       codeRepository: REPO, isPartOf: { "@id": CODE }, author: { "@id": PERSON["@id"] } }],
     body: brickPage({ brick: b, mods: b.mods, sizes, version, prev: bricks[i - 1], next: bricks[i + 1], demoSize: b.demo && demoSizes[b.demo] }),
-    scripts: b.demo ? ["site.js", "brick-demo.js"] : ["site.js"],
+    scripts: ["site.js", ...(b.demo ? ["brick-demo.js"] : []), ...(CARDS[b.id] ? ["brick-cards.js"] : [])],
   })]),
   ["404.html", page({
     title: "Not found: this square is off the board · Fizlet",
