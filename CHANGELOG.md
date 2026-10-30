@@ -26,7 +26,6 @@
   function, whose own-key check then turned the function's source into a string, every such
   event (51 young GCs per 1M frames). It now reads own keys only. Sizes (gzip): sound 1,015 →
   1,019 B; arcade 24,327 → 24,331 B; arcade with `hud` omitted 18,348 → 18,351 B. No budget moves.
-- Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **`fizlet/board-page`: BETA → COMPLETE (G19).** Its step queries now have a Node test and an
   allocation test in this repo (`tests/board-page.test.mjs`), on a fake page whose layout is known
   to the pixel: every glyph's rect and the targets; `near` / `nearAt` (rect distance, the edge
@@ -101,6 +100,36 @@
   runs). Size (gzip): grid 1,533 → 1,634 B; budget 1,536 → 1,637, raised by that delta
   (`scripts/sizes.mjs` says why; an inline check, since the kernel's `need` would cost +181 B on a
   brick that runs without the kernel). grid stays BETA: no released game runs on it yet.
+- **Size headroom: at least 32 B under every tight budget, no behaviour change, no budget raised.**
+  esbuild keeps property names, so the private fields that ship in every page and game are short
+  now (each named in a comment): the ledger's (`t`, `m`, `a`, `e`), grid's search buffers and
+  helpers, and collide `Grid`'s. The ledger's three copies of its "host changed this style" check
+  and two of its put-back share one helper each, and slot's placeholder selector drops its spaces.
+  gzip: page build 7,166 → 7,131 B (budget 7,168, fixed), grid 1,634 → 1,603 (1,637),
+  board-page 4,162 → 4,136 (4,193), arcade card 18,350 → 18,302 (18,361), arcade 24,331 →
+  24,286, kernel 3,438 → 3,417, collide 1,293 → 1,265.
+- **Brick cards: a live toy per brick, built with that brick.** `site/cards/` holds one fizlet/slot
+  scene per brick on one shared frame (`frame.ts`: a 320 × 200 stage whose backing store matches the
+  slot in device pixels, so lines and labels stay sharp at any width and DPR; the brick drawn the
+  Board UI way; a floor; a readout of the engine's state: AWAKE n fps, then ASLEEP · 0 FPS). Nine so
+  far, each its own idea: kernel (bricks drop, stack, get knocked out; the loop sleeps when they
+  stop), fx (a crate knocked about by small blasts until the hero blast takes it apart), collide
+  (balls knock bricks out of a wall; grid checks against all pairs), grid (A* across a seeded board;
+  break a rock and the walk takes the short cut), steer (a tower of bricks flees the pointer and
+  arrives home), input (whack-a-brick: keys and taps on the same intents, a hit true for one step),
+  sprite (a pixel bug that flashes, gets angry and bursts into its own pixels), camera (a tiny DOM
+  page with fine print you can read only when the camera dives in) and timeline (six DOM bricks
+  dance into the next arrangement). Each shows its brick's gzip size from the build, loads near the
+  viewport, sleeps off screen, keeps a still labelled poster under reduced motion, and gives the page
+  back exactly. On the bricks page and each brick's page; `brickCard()` (site/brick-cards.mjs) plus
+  `brick-cards.js` mounts one anywhere (note cards, a gallery hero). Card chunks (gzip, with the
+  kernel, slot and frame): kernel 5,739 B, fx 8,821, collide 8,115, grid 7,532, steer 6,893, input
+  7,432, sprite 7,303, camera 7,126, timeline 7,757; loader 2,324 B; all nine on the bricks page
+  27,072 B (each loads only near the viewport). `tests/brick-cards.mjs` (in `test:site`) plays every
+  card; `tests/brick-cards-alloc.mjs` (`npm run test:alloc:cards`) measures each card's allocation,
+  best of 3 over 6,000 hand-driven frames: 0 B a step for all nine (input 1.1 B), whole moving frame
+  21–811 B (canvas and style writes box their arguments; nothing once settled).
+- Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
@@ -187,14 +216,6 @@
   bottom edge (its box lets the pointer through, its content takes it back), and `.hero` is
   `overflow: clip`, so the parallaxed field never gives a focus or `scrollIntoView` a hidden
   scroll to move. The site test's `revealAll` and the home rhythm check wait on the reveals' state, not on time.
-- **Size headroom: at least 32 B under every tight budget, no behaviour change, no budget raised.**
-  esbuild keeps property names, so the private fields that ship in every page and game are short
-  now (each named in a comment): the ledger's (`t`, `m`, `a`, `e`), grid's search buffers and
-  helpers, and collide `Grid`'s. The ledger's three copies of its "host changed this style" check
-  and two of its put-back share one helper each, and slot's placeholder selector drops its spaces.
-  gzip: page build 7,166 → 7,131 B (budget 7,168, fixed), grid 1,634 → 1,603 (1,637),
-  board-page 4,162 → 4,136 (4,193), arcade card 18,350 → 18,302 (18,361), arcade 24,331 →
-  24,286, kernel 3,438 → 3,417, collide 1,293 → 1,265.
 
 ## 0.20.0
 
