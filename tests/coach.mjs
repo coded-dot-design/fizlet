@@ -34,8 +34,24 @@ try {
     obs.disconnect();
     c.el.querySelector("button").click();
     c.hide();
-    return { hidden0, shown, same, ended, after: [c.el.hidden, fire.style.outline] };
+    // Recall is exact: a control with its own inline outline gets it back when the ring moves on.
+    const own = host.appendChild(document.createElement("button"));
+    own.style.cssText = "outline: 2px solid red; outline-offset: 1px";
+    const css0 = own.style.cssText;
+    c.show("3/10", "AIM", "Drag to aim.", own);
+    const ringedOwn = own.style.outline;
+    c.show("4/10", "MOVE", "WASD.", fire);
+    const ownBack = own.style.cssText === css0;
+    c.remove();
+    // A card made with a signal that already aborted is never left on the page.
+    const gone = new AbortController();
+    gone.abort();
+    const late = coach.card(host, { signal: gone.signal });
+    return { hidden0, shown, same, ended, after: [c.el.hidden, fire.style.outline], ringedOwn, ownBack, lateOn: late.el.isConnected };
   });
+  assert.match(r.ringedOwn, /dashed/, "a control with its own outline is ringed too");
+  assert.equal(r.ownBack, true, "its own inline outline comes back exactly");
+  assert.equal(r.lateOn, false, "an already-aborted signal leaves no card");
   assert.deepEqual(errs, []);
   assert.equal(r.hidden0, true, "hidden until shown");
   assert.deepEqual(r.shown.slice(0, 2), [false, "2/10FIREClick, Space, or hold FIRE.END PRACTICE"]);
