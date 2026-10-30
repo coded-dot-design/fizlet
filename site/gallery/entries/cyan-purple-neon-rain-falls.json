@@ -29,6 +29,5 @@
   "made": "fe anim",
   "module": "anims/cyan-purple-neon-rain-falls.ts",
   "export": "mount",
-  "aspect": "16 / 9",
-  "archived": true
+  "aspect": "16 / 9"
 }

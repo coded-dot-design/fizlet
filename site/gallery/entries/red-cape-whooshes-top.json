@@ -1,13 +1,13 @@
 {
-  "no": 4,
-  "id": "pink-sparks-burst-tap",
-  "date": "2026-10-29",
-  "prompt": "pink sparks burst where you tap",
-  "title": "Pink sparks burst where you tap",
+  "no": 23,
+  "id": "red-cape-whooshes-top",
+  "date": "2026-10-30",
+  "prompt": "a red cape whooshes across the top",
+  "title": "A red cape whooshes across the top",
   "kind": "micro",
-  "theme": "everyday",
+  "theme": "heroes-comics",
   "author": "chris-cooley",
-  "recipe": "burst",
+  "recipe": "trail",
   "bricks": [
     "fizlet/kernel",
     "fizlet/fx",
@@ -17,18 +17,17 @@
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 31,
+      "framesPlaying": 32,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 1.16
+      "allocBytesPerFrame": 72.19
     }
   },
-  "fizlet": "0.14.0",
+  "fizlet": "0.16.0",
   "made": "fe anim",
-  "module": "anims/pink-sparks-burst-tap.ts",
+  "module": "anims/red-cape-whooshes-top.ts",
   "export": "mount",
-  "aspect": "16 / 9",
-  "archived": true
+  "aspect": "16 / 9"
 }

@@ -1,13 +1,13 @@
 {
-  "no": 23,
-  "id": "red-cape-whooshes-top",
+  "no": 20,
+  "id": "pow-bam-zap-comic-bursts",
   "date": "2026-10-30",
-  "prompt": "a red cape whooshes across the top",
-  "title": "A red cape whooshes across the top",
+  "prompt": "POW BAM ZAP comic bursts where you click",
+  "title": "POW BAM ZAP comic bursts where you click",
   "kind": "micro",
   "theme": "heroes-comics",
   "author": "chris-cooley",
-  "recipe": "trail",
+  "recipe": "burst",
   "bricks": [
     "fizlet/kernel",
     "fizlet/fx",
@@ -22,13 +22,12 @@
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 72.19
+      "allocBytesPerFrame": 39.4
     }
   },
   "fizlet": "0.16.0",
   "made": "fe anim",
-  "module": "anims/red-cape-whooshes-top.ts",
+  "module": "anims/pow-bam-zap-comic-bursts.ts",
   "export": "mount",
-  "aspect": "16 / 9",
-  "archived": true
+  "aspect": "16 / 9"
 }

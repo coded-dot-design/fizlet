@@ -1,16 +1,16 @@
 {
-  "no": 26,
-  "id": "hero-lands-cyan-shockwave-tap",
+  "no": 21,
+  "id": "speed-lines-rush-past-heading",
   "date": "2026-10-30",
-  "prompt": "a hero lands with a cyan shockwave where you tap",
-  "title": "A hero lands with a cyan shockwave where you tap",
+  "prompt": "speed lines rush past every heading",
+  "title": "Speed lines rush past every heading",
   "kind": "micro",
   "theme": "heroes-comics",
   "author": "chris-cooley",
-  "recipe": "burst",
+  "recipe": "dash",
   "bricks": [
     "fizlet/kernel",
-    "fizlet/fx",
+    "fizlet/board-page",
     "fizlet/slot"
   ],
   "pageCost": {
@@ -22,13 +22,14 @@
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 1.18
+      "allocBytesPerFrame": 12.4,
+      "elementsLit": 3
     }
   },
   "fizlet": "0.16.0",
   "made": "fe anim",
-  "module": "anims/hero-lands-cyan-shockwave-tap.ts",
+  "module": "anims/speed-lines-rush-past-heading.ts",
   "export": "mount",
   "aspect": "16 / 9",
-  "archived": true
+  "stage": "page"
 }

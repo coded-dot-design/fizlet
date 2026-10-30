@@ -2,9 +2,10 @@
 
 ## Unreleased
 
-- **Gallery: quality over quantity.** The 23 recipe entries (made by `fe anim`, mostly palette
-  swaps of the same two scenes) move off the gallery into an archive, `gallery/archive/` (noindex,
-  out of the gallery's index and search), kept to revisit; numbered A004–A026. The Christmas and
+- **Gallery: quality over quantity.** Of the 23 recipe entries made by `fe anim`, the owner kept 7
+  (pink sparks, neon rain, POW BAM ZAP, speed lines, halftone wave, red cape, hero landing); the
+  other 16 move into an archive, `gallery/archive/` (noindex, out of the gallery's index and
+  search), kept to revisit and numbered A006–A025. The Christmas and
   Thanksgiving themes live only there. The gallery keeps the fizz, layers and how-it-works.
 
 ## 0.18.0
