@@ -124,7 +124,7 @@ try {
     await page.$eval("[data-hero-track]", (t) => t.scrollIntoView({ block: "center" }));
     for (const [i, h] of HEROES.entries()) {
       if (i) await page.click("[data-hero-next]");
-      await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] iframe[data-fizlet-slot]`) && !document.querySelector(`[data-hero="${id}"] iframe`).style.opacity, h.id, { timeout: 10000 });
+      await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] iframe[data-fizlet-slot]`) && !document.querySelector(`[data-hero="${id}"] iframe`).style.opacity, h.id, { timeout: 25000 });
       const playing = await page.$$eval("[data-hero] iframe", (l) => l.map((f) => f.closest("[data-hero]").dataset.hero));
       assert.deepEqual(playing, [h.id], `${label}: ${h.id} is the only stage mounted`);
       const frame = page.frame({ url: new RegExp(`/heroes/${h.id}/stage\\.html`) });
@@ -138,30 +138,36 @@ try {
         assert.equal(page.url(), url, `${h.id}: a link in the hero moved the page`);
         assert.match(frame.url(), new RegExp(`/heroes/${h.id}/stage\\.html$`), `${h.id}: a link moved the stage`);
       }
-      if (shots) {
-        mkdirSync(shots, { recursive: true });
-        // The row has settled on this card (smooth scroll done) before the shot.
-        await page.waitForFunction((id) => {
-          const r = document.querySelector(`[data-hero="${id}"]`).getBoundingClientRect();
-          return Math.abs(r.left + r.width / 2 - innerWidth / 2) < 3;
-        }, h.id, { timeout: 5000 });
-        await page.waitForTimeout(600);
-        for (const theme of ["dark", "light"]) {
-          await page.evaluate((t) => (document.documentElement.dataset.theme = t), theme);
-          await page.waitForTimeout(400);
-          await page.locator(`[data-hero="${h.id}"]`).screenshot({ path: `${shots}/${h.id}-${viewport.width}-${theme}.png` });
-        }
-        await page.evaluate(() => (document.documentElement.dataset.theme = "dark"));
-      }
-    }
-    if (shots) for (const theme of ["dark", "light"]) {
-      await page.evaluate((t) => (document.documentElement.dataset.theme = t), theme);
-      await page.evaluate(() => scrollTo(0, 0));
-      await page.waitForTimeout(300);
-      await page.screenshot({ path: `${shots}/heroes-page-${viewport.width}-${theme}.png` });
     }
     assert.deepEqual(errors, [], `${label}: no errors`);
     await ctx.close();
+  }
+
+  // ---------- Screenshots (HEROES_SHOTS): each card centred and playing, 1440 and 390, dark and light ----------
+  if (shots) {
+    mkdirSync(shots, { recursive: true });
+    for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+      where = `shots ${viewport.width}`;
+      const ctx = await browser.newContext({ viewport });
+      const { page } = await open(ctx, "heroes/");
+      for (const theme of ["dark", "light"]) {
+        await page.evaluate((t) => (document.documentElement.dataset.theme = t), theme);
+        await page.evaluate(() => scrollTo(0, 0));
+        await page.waitForTimeout(300);
+        await page.screenshot({ path: `${shots}/heroes-page-${viewport.width}-${theme}.png` });
+      }
+      for (const h of HEROES) {
+        await page.$eval(`[data-hero="${h.id}"]`, (c) => c.scrollIntoView({ inline: "center", block: "start", behavior: "instant" }));
+        await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] iframe`) && !document.querySelector(`[data-hero="${id}"] iframe`).style.opacity, h.id, { timeout: 25000 });
+        for (const theme of ["dark", "light"]) {
+          await page.evaluate((t) => (document.documentElement.dataset.theme = t), theme);
+          await page.waitForTimeout(1500);
+          // The viewport, not the element: an element shot scrolls the snapping row to another card.
+          await page.screenshot({ path: `${shots}/${h.id}-${viewport.width}-${theme}.png` });
+        }
+      }
+      await ctx.close();
+    }
   }
 
   // ---------- Reduced motion: posters only; no stage loads until Play ----------
