@@ -26,6 +26,11 @@ import { BRICKS, PLANNED, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
 import { liveBytes } from "./live-bytes.mjs";
+import { docs as loadDocs, docPath, fill } from "./docs.mjs";
+import { docPage, docLd, sectionIndex } from "../site/pages/docs.mjs";
+import { releases as loadReleases, releasePath, parse as parseRelease, releaseDescription } from "./releases.mjs";
+import { newsIndex, releasePage, releaseLd } from "../site/pages/news.mjs";
+import { brickCard, CARDS } from "../site/brick-cards.mjs";
 
 const OUT = "site-dist";
 const { version } = JSON.parse(readFileSync("package.json", "utf8"));
@@ -38,6 +43,8 @@ mkdirSync(`${OUT}/gallery`, { recursive: true });
 mkdirSync(`${OUT}/make`, { recursive: true });
 const NOTES = loadNotes();
 for (const n of NOTES) mkdirSync(`${OUT}/${notePath(n)}`, { recursive: true });
+const RELEASES = loadReleases();
+for (const r of RELEASES) mkdirSync(`${OUT}/${releasePath(r)}`, { recursive: true });
 
 // The script-tag build: kernel and every brick except debug (dev only) on window.fizlet.
 const all = 'export * from "./src/index.ts"; export * from "./src/input.ts"; export * from "./src/collide.ts"; export * from "./src/fx.ts"; export * from "./src/sound.ts"; export * from "./src/embed.ts"; export * from "./src/ui/board-ui.ts";';
@@ -67,6 +74,17 @@ for (const [file, o] of Object.entries(demos.metafile.outputs)) {
   if (id) demoSizes[id] = { live: file.slice(OUT.length + 1), bytes: liveBytes(file) };
 }
 for (const b of BRICKS) if (b.demo && !demoSizes[b.demo]) throw new Error(`brick ${b.id}: no built chunk for demo "${b.demo}"`);
+// The brick cards: one loader, one chunk per card (site/cards/), each measured for its badge.
+const cardBuild = await build({
+  entryPoints: { "brick-cards": "site/brick-cards.ts" }, metafile: true,
+  outdir: OUT, bundle: true, splitting: true, chunkNames: "chunks/[name]-[hash]", minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning",
+});
+const cardSizes = {};
+for (const [file, o] of Object.entries(cardBuild.metafile.outputs)) {
+  const id = o.entryPoint?.match(/^site\/cards\/(\w+)\.ts$/)?.[1];
+  if (id) cardSizes[id] = { live: file.slice(OUT.length + 1), bytes: liveBytes(file) };
+}
+for (const id of Object.keys(CARDS)) if (!cardSizes[id]) throw new Error(`brick card ${id}: no built chunk`);
 // The home page's blast demo and the quick start (the one-file build).
 const blast = { live: "demo.js", bytes: liveBytes(`${OUT}/demo.js`) };
 const quick = { live: "fizlet.js", bytes: liveBytes(`${OUT}/fizlet.js`) };
@@ -150,15 +168,36 @@ mkdirSync(`${OUT}/contest`, { recursive: true });
 
 const sizes = await measure();
 const kernel = sizes[0];
+// Recipes (/docs/authoring/): each one bundled as it would ship (fizlet's imports resolved to src/),
+// its live bytes measured for its badge; the page runs it and shows it with the hosted imports.
+const fizletImports = { name: "fizlet", setup(b) { b.onResolve({ filter: /^fizlet(\/|$)/ }, (a) => ({ path: `${process.cwd()}/src/${a.path === "fizlet" ? "index" : a.path.slice(7)}.ts` })); } };
+const RECIPES = {};
+for (const f of readdirSync("site/recipes").filter((x) => x.endsWith(".js"))) {
+  const id = f.slice(0, -3);
+  await build({ entryPoints: { [id]: `site/recipes/${f}` }, outdir: `${OUT}/recipes`, bundle: true, minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning", plugins: [fizletImports] });
+  const src = readFileSync(`site/recipes/${f}`, "utf8");
+  RECIPES[id] = {
+    html: readFileSync(`site/recipes/${id}.html`, "utf8").trim(), live: `recipes/${id}.js`, bytes: liveBytes(`${OUT}/recipes/${id}.js`),
+    imports: [...src.matchAll(/from "(fizlet(?:\/[\w-]+)?)"/g)].map((m) => m[1]),
+    code: src.replace(/from "fizlet(?:\/([\w-]+))?"/g, (_, sub) => `from "${SITE}dist/${sub ?? "index"}.js"`).trim(),
+  };
+}
+// Docs and guides: their numbers filled in from this build.
+const DOCS = loadDocs().map((d) => fill(d, { sizes, version }));
+for (const d of DOCS) mkdirSync(`${OUT}/${docPath(d)}`, { recursive: true });
+for (const s of ["docs", "guides"]) mkdirSync(`${OUT}/${s}`, { recursive: true });
 // Big things, small packages (gallery): its figure and its punchline carry the kernel's gzip size,
 // measured just above (never typed). The posters are painted here by the scene's own world.
 const spMod = await build({ entryPoints: ["site/gallery/pieces/small-packages/poster.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
 const SP = await import("data:text/javascript;base64," + Buffer.from(spMod.outputFiles[0].text).toString("base64"));
 for (const e of gallery.entries.filter((x) => x.module === "pieces/small-packages/scene.ts")) figures[e.figure] = SP.figure(e, sizes.find((s) => s.name === "fizlet (kernel)").gzip);
-// Every brick's API, from its source comment and its built declarations.
+// Every brick's API, from its source comment and its built declarations; its card, when it has one.
+// A brick with no "In short" snippet gets its typechecked example (site/brick-examples/<id>.ts).
+const exampleOf = (id) => existsSync(`site/brick-examples/${id}.ts`) ? readFileSync(`site/brick-examples/${id}.ts`, "utf8").split("// ---\n")[1]?.trim() : undefined;
 const bricks = BRICKS.map((b) => {
   const mods = b.modules.map((m) => ({ ...m, ...api(m) }));
-  return { ...b, mods, summary: mods[0].summary.match(/^.*?\.(?=\s|$)/)?.[0] ?? mods[0].summary };
+  const card = (where) => (CARDS[b.id] ? brickCard({ brick: b, bytes: sizes.find((s) => s.name === b.sizes[0]).gzip, card: cardSizes[b.id], where }) : "");
+  return { ...b, mods, card, example: b.snippet ? undefined : exampleOf(b.id), summary: mods[0].summary.match(/^.*?\.(?=\s|$)/)?.[0] ?? mods[0].summary };
 });
 // JSON-LD: the engine's source code (home), each brick as a part of it. Facts from the page only.
 const CODE = `${SITE}#code`;
@@ -204,7 +243,7 @@ const pages = [
   ["bricks/index.html", page({
     title: "Kernel and bricks: every module and its size · Fizlet",
     description: `Every Fizlet module with its API and its measured size: the kernel is ${(kernel.gzip / 1024).toFixed(1)} KB gzip, each brick its own import.`,
-    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version, planned: PLANNED }), scripts: ["site.js"],
+    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version, planned: PLANNED }), scripts: ["site.js", "brick-cards.js"],
   })],
   // The gallery: PAGE_SIZE entries a page (gallery/, gallery/page/2/, …), in theme sections.
   ...gallery.pages.map((p) => [`${p.path}index.html`, page({
@@ -263,6 +302,39 @@ const pages = [
     base: "../../", version, path: notePath(n), ld: noteLd(n, { site: SITE, person: PERSON["@id"], website: WEBSITE["@id"] }),
     body: notePage({ note: n, base: "../../", kernel: kernel.gzip }), scripts: ["site.js"],
   })]),
+  ["docs/index.html", page({
+    title: "Docs: the contract, the loop, Recall, budgets · Fizlet",
+    description: `How the Fizlet DOM game engine works: getting started, the nine-rule contract, the loop, Recall, size budgets and determinism, with numbers from v${version}.`,
+    base: "../", version, path: "docs/", ld: [{ "@type": "CollectionPage", "@id": `${SITE}docs/#page`, url: `${SITE}docs/`, name: "Fizlet docs", isPartOf: { "@id": WEBSITE["@id"] }, about: { "@id": CODE } }],
+    body: sectionIndex({ section: "docs", all: DOCS, base: "../", head: { eyebrow: "DOCS · READ IN ORDER", title: "How it works.", accent: "Each claim tested.", lead: "Fizlet is a micro game and animation engine for the DOM. Start with the five-minute setup, then the ideas everything else rests on: the contract, the loop, Recall, the budgets and determinism. Every brick's API is in [Bricks](/bricks/)." } }),
+    scripts: ["site.js"],
+  })],
+  ["guides/index.html", page({
+    title: "Guides: build with Fizlet, step by step · Fizlet",
+    description: "Step-by-step Fizlet guides: build a micro game, fill an Astro slot with a scene, port a game onto the kernel and run lockstep multiplayer rooms.",
+    base: "../", version, path: "guides/", ld: [{ "@type": "CollectionPage", "@id": `${SITE}guides/#page`, url: `${SITE}guides/`, name: "Fizlet guides", isPartOf: { "@id": WEBSITE["@id"] }, about: { "@id": CODE } }],
+    body: sectionIndex({ section: "guides", all: DOCS, base: "../", head: { eyebrow: "GUIDES · ONE JOB EACH", title: "Build something.", accent: "Ship it small.", lead: "Each guide does one job end to end with real code: the APIs on the [brick pages](/bricks/), the ideas in the [docs](/docs/)." } }),
+    scripts: ["site.js"],
+  })],
+  ...DOCS.map((d) => [`${docPath(d)}index.html`, page({
+    title: d.seo.title, description: d.seo.description,
+    base: "../../", version, path: docPath(d), ld: docLd(d, { site: SITE, person: PERSON["@id"], website: WEBSITE["@id"], code: CODE }),
+    body: docPage({ doc: d, all: DOCS, base: "../../", sizes, bricks, recipes: RECIPES }),
+    scripts: ["site.js", ...d.blocks.filter((b) => b.type === "recipe").map((b) => RECIPES[b.id].live)],
+  })]),
+  ["news/index.html", page({
+    title: "News: every Fizlet release, newest first · Fizlet",
+    description: `Release notes for all ${RELEASES.length} Fizlet versions, newest first, from the changelog: new bricks, fixes and the sizes measured when each shipped.`,
+    base: "../", version, path: "news/", body: newsIndex({ releases: RELEASES, announcements: NOTES.filter((n) => n.type === "news"), base: "../" }), scripts: ["site.js"],
+  })],
+  ...RELEASES.map((r, i) => {
+    const description = releaseDescription(r, parseRelease(r.md));
+    return [`${releasePath(r)}index.html`, page({
+      title: `Fizlet ${r.version} release notes · Fizlet`, description,
+      base: "../../", version, path: releasePath(r), ld: releaseLd(r, { site: SITE, person: PERSON["@id"], website: WEBSITE["@id"], code: CODE, description }),
+      body: releasePage({ release: r, prev: RELEASES[i - 1], next: RELEASES[i + 1], base: "../../", latest: version }), scripts: ["site.js"],
+    })];
+  }),
   ...bricks.map((b, i) => [brickPath(b), page({
     title: `${b.name}: API and measured size · Fizlet`,
     description: brickDescription(b),
@@ -270,7 +342,7 @@ const pages = [
     ld: [{ "@type": "SoftwareSourceCode", "@id": `${SITE}${brickPath(b)}#code`, name: b.name, description: b.summary, url: SITE + brickPath(b),
       codeRepository: REPO, isPartOf: { "@id": CODE }, author: { "@id": PERSON["@id"] } }],
     body: brickPage({ brick: b, mods: b.mods, sizes, version, prev: bricks[i - 1], next: bricks[i + 1], demoSize: b.demo && demoSizes[b.demo] }),
-    scripts: b.demo ? ["site.js", "brick-demo.js"] : ["site.js"],
+    scripts: ["site.js", ...(b.demo ? ["brick-demo.js"] : []), ...(CARDS[b.id] ? ["brick-cards.js"] : [])],
   })]),
   ["404.html", page({
     title: "Not found: this square is off the board · Fizlet",
@@ -295,9 +367,11 @@ const AI_CRAWLERS = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Cl
 const origin = SITE.replace(/\/$/, "");
 writeFileSync(`${OUT}/robots.txt`, `# Fizlet — crawl policy: open to reputable crawlers, AI crawlers named explicitly.\n# LLM content map: ${origin}/llms.txt\n\n` +
   [...AI_CRAWLERS, "*"].map((a) => `User-agent: ${a}\nAllow: /`).join("\n\n") + `\n\nSitemap: ${origin}/sitemap.xml\n`);
-const group = (p) => (p.f.startsWith("bricks/") && p.f !== "bricks/index.html" ? "Bricks" : p.f.startsWith("notes/") && p.f !== "notes/index.html" ? "Notes" : /^(demos\/|examples\/fizz\/)/.test(p.f) ? "Demos and examples" : "Pages");
+const sub = (dir) => (p) => p.f.startsWith(dir) && p.f !== `${dir}index.html`;
+const GROUPS = [["Docs", sub("docs/")], ["Guides", sub("guides/")], ["Bricks", sub("bricks/")], ["Notes", sub("notes/")], ["Release notes", sub("news/")], ["Demos and examples", (p) => /^(demos\/|examples\/fizz\/)/.test(p.f)]];
+const group = (p) => GROUPS.find(([, is]) => is(p))?.[0] ?? "Pages";
 const llms = ["# Fizlet", "", `> ${JSON.parse(readFileSync("package.json", "utf8")).description}`, ""];
-for (const g of ["Pages", "Notes", "Bricks", "Demos and examples"]) {
+for (const g of ["Pages", ...GROUPS.map(([g]) => g)]) {
   llms.push(`## ${g}`, "");
   for (const p of indexable.filter((x) => group(x) === g))
     llms.push(`- [${meta(p.html, /<title>([^<]*)<\/title>/)}](${p.url}): ${meta(p.html, /<meta name="description" content="([^"]*)"/)}`);

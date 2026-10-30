@@ -3,6 +3,58 @@
 ## Unreleased
 
 - **Tests: `fizlet/css-clock` has its zero-allocation proof** (`tests/css-clock.test.mjs`): 200k steps while it plays and 200k whole frames at rest (held) each take ≤ 1 young-generation GC (best of 3 windows). Its tests never counted allocations (touch has no loop; arcade is covered by #144) (2026-10-30 code audit, `fe audit fizlet`). Tests only; no size change.
+- **Website: docs, guides and news for launch** (fizlet.com is the engine's tech resource; the games
+  live on DOM VIRUS). New sections, every number filled in from the build, never typed:
+  - `/docs/`: getting started, the contract, the loop, Recall and the ledger, size budgets (every
+    module's gzip and budget, measured by `scripts/sizes.mjs`, the same call CI makes) and
+    determinism. Pages are JSON in `site/docs/` (`scripts/docs.mjs`; `{size:…}`, `{budget:…}`,
+    `{kb:…}` and `{version}` are filled in from the build; an unknown one fails it).
+  - `/docs/authoring/`: the authoring guide (the shape of every Fizlet piece, bricks by use case) and
+    three recipes that run on the page as written, each with its live size measured on the build:
+    an action on the page (kernel + fx + hud), a shooter (kernel + input + collide + fx + hud) and
+    two players in lockstep over `memory()` (kernel + input + presence + hud). Sources in
+    `site/recipes/` (plain JS, typechecked with `checkJs`); the page shows them with the hosted
+    imports, ready to paste.
+  - `/guides/`: build a micro game, fill an Astro slot, port a game, multiplayer rooms. Every code
+    listing is a file in `site/docs/code/`, typechecked against the source by `npm run typecheck`.
+  - `/news/`: release notes for every version, rendered from this changelog (`scripts/releases.mjs`;
+    dates in `site/releases.json`), each with its own title, description and TechArticle JSON-LD;
+    launch announcements lead the index.
+  - List cards (notes, news, docs, guides) carry an empty `data-anim-slot` mount point (a brick id,
+    `note:<slug>` or `release:<version>`) where a brick animation can mount; it takes no room until filled.
+  - Brick pages without an "In short" snippet (pad, camera, slot, hud, match, board-page, presence,
+    perf, rules) get an example, typechecked from `site/brick-examples/`.
+  - Header nav: Docs · Bricks · Guides · Gallery · Heroes · Notes · News. Contest and Roadmap move
+    to the footer and the home page's "On this page" strip; a DOCS column in the footer (the site
+    nav rules hold: one header, aria-current, no orphans). llms.txt groups Docs, Guides and Release
+    notes. Docs pages carry TechArticle and BreadcrumbList JSON-LD.
+  - Game links go to domvirus.com, battlefield.domvirus.com and battlefieldblitz.domvirus.com, with
+    one line in the footer saying the games live there. The roadmap ticks the docs, guides, release
+    notes and the authoring guide under E5; the contract card no longer says every brick is 1.5 to
+    5 KB (arcade's budget is 22 KB).
+  - The three launch notes (How small is small, Recall: the page always comes back, Lockstep
+    multiplayer in a few KB) are scheduled for 2026-10-31 09:00 New York and land in their own PR.
+- **Brick cards: a live toy per brick, built with that brick.** `site/cards/` holds one fizlet/slot
+  scene per brick on one shared frame (`frame.ts`: a 320 × 200 stage whose backing store matches the
+  slot in device pixels, so lines and labels stay sharp at any width and DPR; the brick drawn the
+  Board UI way; a floor; a readout of the engine's state: AWAKE n fps, then ASLEEP · 0 FPS). Nine so
+  far, each its own idea: kernel (bricks drop, stack, get knocked out; the loop sleeps when they
+  stop), fx (a crate knocked about by small blasts until the hero blast takes it apart), collide
+  (balls knock bricks out of a wall; grid checks against all pairs), grid (A* across a seeded board;
+  break a rock and the walk takes the short cut), steer (a tower of bricks flees the pointer and
+  arrives home), input (whack-a-brick: keys and taps on the same intents, a hit true for one step),
+  sprite (a pixel bug that flashes, gets angry and bursts into its own pixels), camera (a tiny DOM
+  page with fine print you can read only when the camera dives in) and timeline (six DOM bricks
+  dance into the next arrangement). Each shows its brick's gzip size from the build, loads near the
+  viewport, sleeps off screen, keeps a still labelled poster under reduced motion, and gives the page
+  back exactly. On the bricks page and each brick's page; `brickCard()` (site/brick-cards.mjs) plus
+  `brick-cards.js` mounts one anywhere (note cards, a gallery hero). Card chunks (gzip, with the
+  kernel, slot and frame): kernel 5,739 B, fx 8,821, collide 8,115, grid 7,532, steer 6,893, input
+  7,432, sprite 7,303, camera 7,126, timeline 7,757; loader 2,324 B; all nine on the bricks page
+  27,072 B (each loads only near the viewport). `tests/brick-cards.mjs` (in `test:site`) plays every
+  card; `tests/brick-cards-alloc.mjs` (`npm run test:alloc:cards`) measures each card's allocation,
+  best of 3 over 6,000 hand-driven frames: 0 B a step for all nine (input 1.1 B), whole moving frame
+  21–811 B (canvas and style writes box their arguments; nothing once settled).
 - Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
