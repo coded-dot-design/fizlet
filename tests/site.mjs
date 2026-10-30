@@ -527,13 +527,14 @@ try {
     const { page, errors } = await open(context, path);
     if (path === "bricks/sound.html") await page.waitForSelector("[data-brick-demo][data-ready]");
     await revealAll(page);
-    keyCount += await checkKeys(page, where);
+    // A live scene's own keys are its pieces (Stack it's bricks fly onto the stack when pressed): tests/stack.mjs.
+    keyCount += await checkKeys(page, where, { skip: "[data-fizlet-slot]" });
     assert.deepEqual(errors, [], `${where}: errors`);
     await context.close();
     const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const tap = await open(phone, path);
     await revealAll(tap.page);
-    await checkTaps(tap.page, `${where} (phone)`);
+    await checkTaps(tap.page, `${where} (phone)`, { skip: "[data-fizlet-slot]" });
     await phone.close();
   }
 

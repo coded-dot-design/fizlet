@@ -1,0 +1,38 @@
+{
+  "id": "stack-it",
+  "date": "2026-10-30",
+  "prompt": "the bricks, by their real names and measured sizes, scatter over the stage, stack up and morph into an app; then you stack your own, press FINISHED and your app gets its stars",
+  "title": "Stack it",
+  "kind": "hero",
+  "theme": "everyday",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "settledAfterMs": 11360,
+      "framesPlaying": 32,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 6286.27,
+      "throttle4x": {
+        "frames": 87,
+        "p95Ms": 0.9,
+        "maxMs": 2.2
+      }
+    }
+  },
+  "fizlet": "0.19.0",
+  "made": "by hand",
+  "module": "../demos/stack/scene.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 10"
+}
