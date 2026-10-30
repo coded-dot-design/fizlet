@@ -130,7 +130,7 @@ More bricks land through phase E2 (actor, aim, view-dom): see the
 
 ### Fill an astro-base-engine slot
 
-[astro-base-engine](https://github.com/brain-cache/astro-engine) renders each `[slot animation]`
+astro-base-engine (a page engine for Astro sites) renders each `[slot animation]`
 as a sized, described placeholder:
 `<figure class="ae-slot" data-slot-target="<page>#<slot>" role="img" aria-label="…">`.
 `fizlet/slot` fills it with a scene:
