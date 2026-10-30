@@ -3,8 +3,9 @@
 ## Unreleased
 
 - **Website: Chris Cooley's avatar redrawn from his riding gear.** His pixel avatar on /people/ is
-  now a rider in a white moto helmet (peak, vents, angular chin bar), red goggles with a mirrored
-  lens and a black jersey; no face shown, no brand marks. Same 32 × 32 grid and Board UI tokens.
+  now a rider in a white moto helmet (peak, vents, pointed chin bar with side slots and a mesh
+  vent), red goggles with a chrome lens and a black jersey with red shoulders; no face shown, no
+  brand marks. Same 32 × 32 grid and Board UI tokens.
 - **Website: the team's AI agent on /people/.** Contributors get a third `kind`, `agent` (an AI
   agent persona: a handle, no url, like a persona), and an optional `pronouns` string shown on the
   profile. Every agent card and page says "AI agent — an AI agent persona on the Fizlet team, not a
