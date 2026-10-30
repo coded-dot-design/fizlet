@@ -45,22 +45,25 @@ export function matchPrompt(table, prompt) {
   const k = first(text, Object.entries(T.kinds).map(([n, v]) => [n, v.re]));
   const kindName = k?.name ?? R.kind;
   const colorHits = T.colors.filter(([src]) => re(src).test(text));
-  const colors = colorHits.length ? [...new Set(colorHits.flatMap(([, roles]) => roles))] : [...R.colors];
-  if (colors.length === 1) colors.push("flag"); // one colour reads flat: add the white highlight
+  // Comic words a point burst pops (POW, BAM, ZAP), in comic-book colours unless the prompt names its own.
+  const comic = R.source === "point" && T.comic ? [...new Set(hits(T.comic, text))] : [];
+  const colors = colorHits.length ? [...new Set(colorHits.flatMap(([, roles]) => roles))] : comic.length ? ["hurt", "attack", "sys", "flag"] : [...R.colors];
+  if (colors.length === 1) colors.push(colors[0] === "flag" ? "sys" : "flag"); // one colour reads flat: add a highlight
   const amountHits = T.amount.filter(([src]) => re(src).test(text)), scaleHits = T.scale.filter(([src]) => re(src).test(text));
   const amount = amountHits.reduce((a, [, f]) => a * f, 1), scale = scaleHits.reduce((a, [, f]) => a * f, R.scale);
   const loop = re(T.loop).test(text);
-  const page = R.scene === "page";
+  const page = (T.pageScenes ?? ["page"]).includes(R.scene);
   const sel = page ? first(text, T.select.map(([src, css]) => [css, src])) : null;
   const matched = {
     recipe: r ? [...hits(R.verbs, text), ...hits(R.nouns, text)] : [],
-    kind: k ? [k.word] : [],
+    kind: k ? hits(T.kinds[k.name].re, text) : [],
     colors: colorHits.flatMap(([src]) => hits(src, text)),
     amount: [...amountHits, ...scaleHits].flatMap(([src]) => hits(src, text)),
     loop: hits(T.loop, text),
     select: sel ? [sel.word] : [],
     tap: hits(T.tap, text),
   };
+  if (comic.length) matched.words = comic;
   matched.miss = missesOf(T, p, matched);
   let params;
   if (page) {
@@ -88,6 +91,8 @@ export function matchPrompt(table, prompt) {
       gravity: R.gravity,
       loop: loop ? (R.source === "point" ? R.loop : R.seconds) : 0,
       scale: Math.round(scale * 100) / 100,
+      ...(comic.length && { words: comic.map((w) => w.toUpperCase()) }),
+      ...(/\bhover/.test(text) && { hover: true }),
     };
   }
   return {
@@ -104,12 +109,13 @@ export function matchPrompt(table, prompt) {
 
 // ---------- the snippet ----------
 
-/** The prebuilt scene bundle a spec needs: the scene, plus the fizlet/fx built-in kind it imports (if any). */
+/** The prebuilt scene bundle a spec needs: the scene, plus the fizlet/fx built-in kind it imports (if any) or its decor effect. */
 export const variantOf = (table, spec) =>
-  spec.scene === "spray" && spec.params.kind.builtin ? `spray-${table.fxBuiltins[spec.params.kind.name]}` : spec.scene;
+  spec.scene === "spray" && spec.params.kind.builtin ? `spray-${table.fxBuiltins[spec.params.kind.name]}` : spec.scene === "decor" ? `decor-${spec.params.effect}` : spec.scene;
 /** Every variant: what the site prebuilds (a variant is one template; a snippet fills its one hole). */
 export const variants = (table) => [...new Set(Object.values(table.recipes).map((r) => r.scene))].flatMap((s) =>
-  s === "spray" ? ["spray", ...Object.values(table.fxBuiltins).map((b) => `spray-${b}`)] : [s]);
+  s === "spray" ? ["spray", ...Object.values(table.fxBuiltins).map((b) => `spray-${b}`)]
+  : s === "decor" ? Object.values(table.recipes).filter((r) => r.scene === "decor").map((r) => `decor-${r.effect}`) : [s]);
 export const HOLE = "__FIZLET__";
 /** The esbuild options every template is built with, here and on the site (one build, one size). */
 export const TEMPLATE_BUILD = { bundle: true, minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning", write: false };
@@ -122,12 +128,13 @@ export const TEMPLATE_BUILD = { bundle: true, minify: true, format: "esm", targe
  * (destroy() gives the page back) and el.fizlet.scene (its engine).
  */
 export function snippetEntry(variant, { slot, fx, scenes }) {
-  const [scene, builtin] = variant.split("-");
+  const [scene, part] = variant.split("-"), decor = scene === "decor", builtin = decor ? undefined : part;
   const kind = scene === "spray" ? (builtin ? "{ ...K, ...P.params.kind }" : "P.params.kind") : null;
+  // A decor variant imports only its own effect.
   return `import { slot } from ${JSON.stringify(slot)};
-import { scene } from ${JSON.stringify(`${scenes}/${scene}`)};
+import { scene${decor ? `, ${part} as E` : ""} } from ${JSON.stringify(`${scenes}/${scene}`)};
 ${builtin ? `import { ${builtin} as K } from ${JSON.stringify(fx)};\n` : ""}const P = ${HOLE};
-const make = scene(${kind ? `{ ...P.params, kind: ${kind} }` : "P.params"});
+const make = scene(${decor ? "E, " : ""}${kind ? `{ ...P.params, kind: ${kind} }` : "P.params"});
 for (const el of document.querySelectorAll("[data-fizlet]"))
   if (el.dataset.fizlet === P.id && !el.fizlet) {
     const h = (el.fizlet = { scene: null });
@@ -158,7 +165,7 @@ export function renderSnippet(table, spec, template, { version, size, pad = 0 })
   if (holes !== 1) throw new Error(`snippet template: expected one ${HOLE} hole, found ${holes}`);
   const data = JSON.stringify(snippetData(table, spec)).replace(/</g, "\\u003c");
   const code = template.replace(HOLE, () => `(${data})`).trimEnd();
-  const page = spec.scene === "page";
+  const page = spec.scene !== "spray";
   const prompt = esc(spec.prompt).replace(/-{2,}/g, "-");
   const head = `<!-- Fizlet snippet: "${prompt}"${" ".repeat(pad)}
      ${size === null ? "?" : fmt(size)} B gzip, this whole file (measured when it was made). Fizlet ${version}, recipe ${spec.recipe}: ${spec.bricks.join(" + ")}.
