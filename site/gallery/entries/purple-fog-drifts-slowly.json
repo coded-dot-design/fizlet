@@ -1,0 +1,33 @@
+{
+  "no": 51,
+  "id": "purple-fog-drifts-slowly",
+  "date": "2026-10-30",
+  "prompt": "purple fog drifts across slowly",
+  "title": "Purple fog drifts across slowly",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "drift",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 0.54
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/purple-fog-drifts-slowly.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}
