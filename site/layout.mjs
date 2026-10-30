@@ -41,6 +41,9 @@ const PATHS = {
   fire: "M10 1v5M10 14v5M1 10h5M14 10h5",
   check: "M4 10.5 8 14.5 16 5.5",
   cart: "M4 2h9l3 3v13H4ZM7 2v5h6V2M7 13h6M7 16h6",
+  close: "M5 5l10 10M15 5 5 15",
+  left: "M17 10H4M9 5l-5 5 5 5",
+  right: "M3 10h13M11 5l5 5-5 5",
 };
 export const icon = (name, size = 20) =>
   `<svg viewBox="0 0 20 20" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="${PATHS[name]}"/></svg>`;
@@ -53,6 +56,7 @@ const NAV = [
   ["contract", "Contract"],
   ["bricks/", "Bricks"],
   ["gallery/", "Gallery"],
+  ["heroes/", "Heroes"],
   ["recall", "Recall"],
   ["games", "Games"],
   ["roadmap", "Roadmap"],
@@ -132,7 +136,10 @@ ${body}
         <li><a href="${home}#contract">The contract</a></li>
         <li><a href="${home}bricks/">Kernel and bricks</a></li>
         <li><a href="${home}gallery/">Gallery</a></li>
+        <li><a href="${home}heroes/">Heroes</a></li>
         <li><a href="${home}notes/">Notes</a></li>
+        <li><a href="${home}people/">People</a></li>
+        <li><a href="${home}contest/">Daily contest</a></li>
         <li><a href="${home}#recall">Recall</a></li>
         <li><a href="${home}#roadmap">Roadmap</a></li>
         <li><a href="${home}examples/quick-start.html">Quick start example</a></li>

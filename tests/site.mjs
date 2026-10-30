@@ -15,8 +15,9 @@ import { checkHtml } from "../scripts/check-html.mjs";
 import { SITE, ROOT as SITE_ROOT } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
-import { entries as galleryEntries } from "../scripts/gallery.mjs";
+import { entries as galleryEntries, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
 import { notes as siteNotes, notePath } from "../scripts/notes.mjs";
+import { PERSONA_NOTE, authorOf, contributors as profiles } from "../scripts/people.mjs";
 import { gzipSync } from "node:zlib";
 import { checkKeys, checkTaps } from "./keys.mjs";
 import { liveBytes } from "../scripts/live-bytes.mjs";
@@ -123,21 +124,73 @@ try {
     assert.ok(readFileSync(`${ROOT}/index.html`, "utf8").includes(`${pb.gzip.toLocaleString("en-US")} B</b>`), "home: the page build size");
   }
 
-  // ---------- Gallery: newest first, a size badge measured on this build on every entry ----------
+  // ---------- Gallery: data, pages, theme sections, a size badge measured on this build on every entry ----------
   where = "gallery sizes";
-  const GALLERY = galleryEntries();
+  const GALLERY = galleryEntries(), THEMES = galleryThemes(), PEOPLE = contributors(), GPAGES = paginate(GALLERY);
+  const INDEX = JSON.parse(readFileSync(`${ROOT}/gallery/index.json`, "utf8"));
+  const pageFile = (path) => `${ROOT}/${path}index.html`;
   {
-    const html = readFileSync(`${ROOT}/gallery/index.html`, "utf8");
-    assert.deepEqual([...html.matchAll(/<li class="panel gal-item" id="([^"]+)"/g)].map((m) => m[1]), GALLERY.map((e) => e.id), "entries in order, newest first");
+    const loader = gzipSync(readFileSync(`${ROOT}/gallery/gallery.js`)).length;
     for (let i = 1; i < GALLERY.length; i++) assert.ok(GALLERY[i - 1].date >= GALLERY[i].date, "newest first");
-    for (const e of GALLERY) {
-      const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
-      assert.ok(html.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `${e.id}: its badge shows ${bytes} B`);
-      const loader = gzipSync(readFileSync(`${ROOT}/gallery/gallery.js`)).length;
-      assert.ok(html.includes(`data-total="gallery:${e.id}">live ${bytes.toLocaleString("en-US")} B · total <b>${(bytes + loader).toLocaleString("en-US")} B</b>`), `${e.id}: live and total, one size`);
-      assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
+    // Pages: PAGE_SIZE entries each, at gallery/ then gallery/page/<n>/; nothing past the last.
+    assert.deepEqual(GPAGES.map((p) => p.path), Array.from({ length: Math.max(1, Math.ceil(GALLERY.length / PAGE_SIZE)) }, (_, i) => galleryPath(i + 1)), "one gallery page per PAGE_SIZE entries");
+    assert.ok(!PAGES.includes(galleryPath(GPAGES.length + 1)), "no empty gallery page");
+    for (const gp of GPAGES) {
+      assert.ok(PAGES.includes(gp.path), `${gp.path} is built`);
+      const html = readFileSync(pageFile(gp.path), "utf8");
+      // Theme sections in theme order (data: site/gallery/themes), newest first inside each.
+      const secs = sections(gp.entries, THEMES);
+      assert.deepEqual([...html.matchAll(/<section class="gal-theme" id="theme-([^"]+)"/g)].map((m) => m[1]), secs.map((x) => x.theme.id), `${gp.path}: theme sections in order`);
+      assert.deepEqual([...html.matchAll(/<li class="panel gal-item" id="([^"]+)"/g)].map((m) => m[1]), secs.flatMap((x) => x.entries.map((e) => e.id)), `${gp.path}: entries by theme, newest first`);
+      // The chips: All, then every theme that has entries (with its count), linking to its first section.
+      const chips = [...html.matchAll(/data-theme-chip="([^"]+)"[^>]*>[^<]*<small>(\d+)<\/small>/g)].map((m) => [m[1], Number(m[2])]);
+      assert.deepEqual(chips, [["all", GALLERY.length], ...THEMES.filter((t) => GALLERY.some((e) => e.theme === t.id)).map((t) => [t.id, GALLERY.filter((e) => e.theme === t.id).length])], `${gp.path}: theme chips and counts`);
+      if (GPAGES.length > 1) assert.match(html, /<nav class="gal-pages" aria-label="Gallery pages">/, `${gp.path}: page links`);
+      for (const e of gp.entries) {
+        const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
+        assert.ok(html.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `${e.id}: its badge shows ${bytes} B`);
+        assert.ok(html.includes(`data-total="gallery:${e.id}">live ${bytes.toLocaleString("en-US")} B · total <b>${(bytes + loader).toLocaleString("en-US")} B</b>`), `${e.id}: live and total, one size`);
+        assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
+        // Attribution: "by <name>", linked to the contributor's profile.
+        const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</li>")[0];
+        assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
+      }
+    }
+    // The generated index: every entry once, newest first, on the page that holds it, its sizes measured on this build.
+    assert.deepEqual(INDEX.map((r) => r.id), GALLERY.map((e) => e.id), "gallery/index.json: every entry, newest first");
+    for (const r of INDEX) {
+      const e = GALLERY.find((x) => x.id === r.id), bytes = gzipSync(readFileSync(`${ROOT}/gallery/${r.id}.js`)).length;
+      assert.deepEqual({ kind: r.kind, theme: r.theme, author: r.author, title: r.title, prompt: r.prompt, date: r.date }, { kind: e.kind, theme: e.theme, author: e.author, title: e.title, prompt: e.prompt, date: e.date }, `${r.id}: index row`);
+      assert.deepEqual(r.sizes, { live: bytes, total: bytes + loader }, `${r.id}: index sizes measured on this build`);
+      assert.equal(r.authorName, PEOPLE[e.author].name);
+      assert.equal(r.demo, `gallery/${r.id}.js`);
+      const [path, hash] = r.url.split("#");
+      assert.ok(hash === r.id && readFileSync(pageFile(path), "utf8").includes(`<li class="panel gal-item" id="${r.id}"`), `${r.id}: its index url ${r.url} is its card`);
     }
     for (const id of ["fizz", "layers", "howitworks"]) assert.ok(GALLERY.some((e) => e.id === id), `seeded with ${id}`);
+  }
+
+  // ---------- Heroes and people: every hero has a large card; every contributor a profile ----------
+  where = "heroes and people";
+  const HEROES = GALLERY.filter((e) => e.kind === "hero");
+  {
+    assert.ok(HEROES.length >= 2, "at least two heroes");
+    const html = readFileSync(pageFile("heroes/"), "utf8");
+    assert.deepEqual([...html.matchAll(/<li class="hero-card panel" id="hero-([^"]+)"/g)].map((m) => m[1]), HEROES.map((e) => e.id), "heroes: every hero, newest first");
+    for (const e of HEROES) {
+      const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
+      const card = html.slice(html.indexOf(`id="hero-${e.id}"`)).split("</li>")[0];
+      assert.ok(card.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `hero ${e.id}: its badge shows ${bytes} B`);
+      assert.ok(card.includes(`<p class="hero-by">by <a href="../${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `hero ${e.id}: by ${PEOPLE[e.author].name}, linked`);
+      assert.ok(!/data-slot-target/.test(card), `hero ${e.id}: no gallery slot wiring on its poster`);
+    }
+    assert.ok(PEOPLE["chris-cooley"], "the owner's profile");
+    for (const person of Object.values(PEOPLE)) {
+      assert.ok(PAGES.includes(personPath(person.id)), `${person.id}: a profile page`);
+      const p = readFileSync(pageFile(personPath(person.id)), "utf8");
+      assert.ok(p.includes(`<h1 id="person-name" data-person="${person.id}">${person.name}</h1>`), `${person.id}: named`);
+      for (const e of GALLERY.filter((x) => x.author === person.id)) assert.ok(p.includes(`>${e.title.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</a>`), `${person.id}: lists ${e.id}`);
+    }
   }
 
   // ---------- Notes: every note built, newest first on the index, by Chris Cooley, kernel badge measured on this build ----------
@@ -161,6 +214,27 @@ try {
       assert.equal(graph.find((x) => x["@type"] === "FAQPage")?.mainEntity.length ?? 0, faq, `${n.slug}: its questions in JSON-LD`);
       assert.ok(llms.includes(`](${SITE}${notePath(n)}):`) && /## Notes\n/.test(llms), `${n.slug}: llms.txt lists it under Notes`);
     }
+  }
+
+  // ---------- People and the daily contest: stats measured on this build, personas say so ----------
+  where = "people";
+  {
+    const people = profiles(), index = readFileSync(`${ROOT}/people/index.html`, "utf8");
+    assert.deepEqual([...index.matchAll(/data-person="([^"]+)"/g)].map((m) => m[1]), people.map((p) => p.id), "the index lists everyone, the maker first");
+    for (const p of people) {
+      assert.ok(PAGES.includes(`people/${p.id}/`), `${p.id}: built`);
+      const html = readFileSync(`${ROOT}/people/${p.id}/index.html`, "utf8");
+      const mine = GALLERY.filter((e) => authorOf(e) === p.id);
+      const bytes = mine.reduce((n, e) => n + gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length, 0);
+      assert.ok(html.includes(`data-stat="entries">${mine.length}</b>`) && html.includes(`data-stat="bytes">${bytes.toLocaleString("en-US")} B</b>`), `${p.id}: ${mine.length} entries, ${bytes} B, measured`);
+      assert.equal(html.includes(PERSONA_NOTE.replace(/ — /, "</b> — ")), p.kind === "persona", `${p.id}: the persona line`);
+      const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
+      const profile = graph.find((x) => x["@type"] === "ProfilePage");
+      assert.ok(p.kind === "owner" ? profile.mainEntity["@id"].endsWith("#author") : !profile.mainEntity && profile.about["@type"] !== "Person", `${p.id}: only the maker is a Person`);
+    }
+    const contest = readFileSync(`${ROOT}/contest/index.html`, "utf8");
+    assert.match(contest, /60 characters or fewer/);
+    assert.match(contest, /Not live yet/, "open prompts are planned, not live");
   }
 
   // ---------- Every page, desktop and phone: errors, links, overflow ----------
@@ -239,7 +313,7 @@ try {
 
   // ---------- Page keys: every in-page key presses (face drops) and clicks on face and base ----------
   let keyCount = 0;
-  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", ...siteNotes().map(notePath)]) {
+  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", "heroes/", "contest/", ...siteNotes().map(notePath)]) {
     where = `page keys ${path || "index"}`;
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const { page, errors } = await open(context, path);
@@ -249,7 +323,9 @@ try {
     await context.close();
     const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const tap = await open(phone, path);
-    await checkTaps(tap.page, `${where} (phone)`);
+    // Heroes: on a phone the other cards sit off to the side, and a scroll to one of their keys snaps the
+    // row to that card (the key moves under the tap); the centre card's keys are tapped.
+    await checkTaps(tap.page, `${where} (phone)`, { skip: path === "heroes/" ? "[data-hero]:not([aria-current])" : "" });
     await phone.close();
   }
 
@@ -333,16 +409,17 @@ try {
     const loaded = [];
     page.on("request", (r) => r.url().includes("/gallery/") && r.url().endsWith(".js") && loaded.push(r.url().split("/gallery/")[1]));
     await page.waitForTimeout(600);
-    const last = GALLERY[GALLERY.length - 1].id;
+    const G1 = GPAGES[0].entries;
+    const last = sections(G1, THEMES).flatMap((x) => x.entries).at(-1).id;
     assert.ok(!loaded.includes(`${last}.js`), `${last} (far below) has not loaded yet`);
-    for (const e of GALLERY) {
+    for (const e of G1) {
       await page.$eval(`#${e.id}`, (el) => el.scrollIntoView({ block: "center" }));
       await page.waitForSelector(`figure[data-gallery="${e.id}"][data-live]`, { timeout: 8000 });
       await page.waitForFunction((id) => document.querySelector(`figure[data-gallery="${id}"] > :not(.ae-slot__placeholder):not(template)`), e.id, { timeout: 8000 });
     }
-    assert.deepEqual(GALLERY.map((e) => e.id).filter((id) => !loaded.includes(`${id}.js`)), [], "every entry mounted");
+    assert.deepEqual(G1.map((e) => e.id).filter((id) => !loaded.includes(`${id}.js`)), [], "every entry mounted");
     // A generated spray draws on a tap.
-    const spray = GALLERY.find((e) => e.made === "fe anim" && e.stage !== "page");
+    const spray = G1.find((e) => e.made === "fe anim" && e.stage !== "page");
     if (spray) {
       const fig = page.locator(`figure[data-gallery="${spray.id}"]`);
       await fig.scrollIntoViewIfNeeded();
@@ -358,11 +435,15 @@ try {
     }
     // A page scene reads its figure's own elements: a tap starts the sweep there, headings light up
     // (through the ledger), and they go back to exactly what they were.
-    for (const e of GALLERY.filter((x) => x.stage === "page")) {
+    for (const e of G1.filter((x) => x.stage === "page")) {
       const fig = page.locator(`figure[data-gallery="${e.id}"]`);
       await fig.scrollIntoViewIfNeeded();
       const unlit = () => page.waitForFunction((id) => !document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 8000 });
-      await unlit(); // the sweep on mount has passed
+      // The play on mount has passed: unlit twice, longer apart than any gap between lit elements
+      // (a scene paused off screen resumes mid-play when it is scrolled back in).
+      await unlit();
+      await page.waitForTimeout(1800);
+      await unlit();
       const before = await fig.evaluate((f) => f.querySelector(".gal-mini").outerHTML);
       await fig.click({ position: { x: 40, y: 10 } });
       await page.waitForFunction((id) => document.querySelector(`figure[data-gallery="${id}"] [data-fizlet-lit]`), e.id, { timeout: 4000 });
@@ -378,9 +459,121 @@ try {
     const { page, errors } = await open(context, "gallery/");
     const loaded = [];
     page.on("request", (r) => r.url().includes("/gallery/") && r.url().endsWith(".js") && !r.url().endsWith("gallery.js") && loaded.push(r.url()));
-    for (const e of GALLERY) await page.$eval(`#${e.id}`, (el) => el.scrollIntoView({ block: "center" })), await page.waitForTimeout(250);
+    for (const e of GPAGES[0].entries) await page.$eval(`#${e.id}`, (el) => el.scrollIntoView({ block: "center" })), await page.waitForTimeout(250);
     assert.deepEqual(loaded, [], "reduced motion: no scene loads, the posters stay");
-    assert.equal(await page.locator("figure[data-gallery] .ae-slot__placeholder").count(), GALLERY.length);
+    assert.equal(await page.locator("figure[data-gallery] .ae-slot__placeholder").count(), GPAGES[0].entries.length);
+    assert.deepEqual(errors, []);
+    await context.close();
+  }
+
+  // ---------- Gallery browse: the theme filter and the search over the generated index ----------
+  where = "gallery browse";
+  {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    const { page, errors } = await open(context, "gallery/");
+    const secs = sections(GPAGES[0].entries, THEMES).map((x) => x.theme.id);
+    const shown = () => page.$$eval("section[data-theme-section]", (l) => l.filter((x) => !x.hidden).map((x) => x.dataset.themeSection));
+    for (const id of secs) {
+      await page.click(`a[data-theme-chip="${id}"]`);
+      assert.deepEqual(await shown(), [id], `filter ${id}: only its section`);
+      assert.equal(await page.getAttribute(`a[data-theme-chip="${id}"]`, "aria-current"), "true");
+      assert.equal(new URL(page.url()).hash, `#theme-${id}`, `filter ${id}: in the address`);
+    }
+    await page.click('a[data-theme-chip="all"]');
+    assert.deepEqual(await shown(), secs, "All: every section again");
+    // A theme in the address filters on arrival (a fresh page: from this one it is only a hash change).
+    {
+      const fresh = await open(context, `gallery/#theme-${secs[0]}`);
+      const there = await fresh.page.$$eval("section[data-theme-section]", (l) => l.filter((x) => !x.hidden).map((x) => x.dataset.themeSection));
+      assert.deepEqual(there, [secs[0]], "a #theme- address filters");
+      await fresh.page.close();
+    }
+    // Search: shown with script, every word must match title, prompt, theme or author.
+    assert.equal(await page.isVisible("form[data-gal-search]"), true, "the search box");
+    const q = (text) => page.fill("#gal-q", text).then(() => page.waitForFunction((t) => document.querySelector("#gal-q").value === t && document.querySelector("[data-gal-found]").textContent !== "", text));
+    const hits = () => page.$$eval("[data-gal-results] a", (l) => l.map((a) => new URL(a.href).hash.slice(1)));
+    const sample = GALLERY.find((e) => e.made === "fe anim") ?? GALLERY[0];
+    await q(sample.prompt.split(" ").slice(0, 3).join(" ").toUpperCase());
+    assert.ok((await hits()).includes(sample.id), `search finds ${sample.id} by its prompt`);
+    await q(PEOPLE[sample.author].name.toLowerCase());
+    assert.equal((await hits()).length, Math.min(24, GALLERY.filter((e) => e.author === sample.author).length), "search by author");
+    await q("zzqx nothing");
+    assert.match(await page.textContent("[data-gal-found]"), /^0 matches/);
+    assert.equal((await hits()).length, 0);
+    assert.deepEqual(errors, []);
+    await context.close();
+  }
+
+  // ---------- Heroes: the centre card plays, the rest are posters; keys move; full screen and back ----------
+  where = "heroes";
+  {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    const { page, errors } = await open(context, "heroes/");
+    const playing = () => page.$$eval("[data-hero]", (l) => l.filter((c) => c.dataset.playing && c.querySelector("[data-fizlet-slot]")).map((c) => c.dataset.hero));
+    const centre = () => page.$eval("[data-hero-track]", (t) => t.querySelector("[aria-current]")?.dataset.hero ?? null);
+    await page.$eval("[data-hero-track]", (t) => t.scrollIntoView({ block: "center" }));
+    const box = await page.locator(".hero-stage figure").first().boundingBox();
+    assert.ok(box.width >= 300 && box.height >= 300, `hero cards are large (${box.width}×${box.height})`);
+    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[0].id, { timeout: 8000 });
+    assert.deepEqual(await playing(), [HEROES[0].id], "the first hero is in the centre and plays alone");
+    assert.equal(await page.getAttribute(`[data-hero="${HEROES[0].id}"] [data-hero-play]`, "aria-pressed"), "true");
+    assert.equal(await page.isDisabled("[data-hero-prev]"), true, "prev is off at the first card");
+    // Next: the second card comes to the centre and plays; the first goes back to its poster.
+    await page.click("[data-hero-next]");
+    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[1].id, { timeout: 8000 });
+    await page.waitForFunction((id) => !document.querySelector(`[data-hero="${id}"] [data-fizlet-slot]`), HEROES[0].id);
+    assert.equal(await centre(), HEROES[1].id);
+    assert.equal(await page.isVisible(`[data-hero="${HEROES[0].id}"] .ae-slot__placeholder, [data-hero="${HEROES[0].id}"] .fz-poster`), true, "the first is its poster again");
+    // Arrow keys on the row move a card.
+    await page.focus("[data-hero-track]");
+    await page.keyboard.press("ArrowLeft");
+    await page.waitForFunction((id) => document.querySelector(`[data-hero-track] [aria-current]`)?.dataset.hero === id, HEROES[0].id, { timeout: 4000 });
+    // Its Play key pauses it (and the centre does not restart it) and plays it again.
+    const key = `[data-hero="${HEROES[0].id}"] [data-hero-play]`;
+    await page.waitForFunction((k) => document.querySelector(k).getAttribute("aria-pressed") === "true", key);
+    await page.click(key);
+    assert.equal(await page.getAttribute(key, "aria-pressed"), "false");
+    await page.waitForTimeout(300);
+    assert.deepEqual(await playing(), [], "paused by hand: a poster");
+    await page.click(key);
+    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[0].id, { timeout: 8000 });
+    // Full screen (or the overlay), Esc closes, focus back on the key that opened it.
+    const openKey = `[data-hero="${HEROES[0].id}"] [data-hero-open]`;
+    await page.focus(openKey);
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(() => document.fullscreenElement?.matches("[data-hero-stage]") || document.querySelector(".hero-stage.hero-full"), null, { timeout: 4000 });
+    assert.equal(await page.evaluate(() => document.activeElement?.matches("[data-hero-close]")), true, "focus on Close in full screen");
+    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[0].id, { timeout: 8000 });
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => !document.fullscreenElement && !document.querySelector(".hero-full"), null, { timeout: 4000 });
+    await page.waitForFunction((k) => document.activeElement === document.querySelector(k), openKey, { timeout: 2000 }); // focus returns to the key that opened it
+    assert.equal(await page.isHidden(`[data-hero="${HEROES[0].id}"] [data-hero-close]`), true);
+    // The overlay, where the Fullscreen API is missing.
+    await page.evaluate(() => Object.defineProperty(Document.prototype, "fullscreenEnabled", { get: () => false }));
+    await page.click(openKey);
+    await page.waitForSelector(".hero-stage.hero-full[role=dialog][aria-modal=true]");
+    await page.keyboard.press("Tab");
+    assert.equal(await page.evaluate(() => document.activeElement?.matches("[data-hero-close]")), true, "the overlay keeps focus");
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => !document.querySelector(".hero-full"));
+    await page.waitForFunction((k) => document.activeElement === document.querySelector(k), openKey, { timeout: 2000 }); // focus returns after the overlay
+    assert.deepEqual(errors, []);
+    await context.close();
+  }
+  where = "heroes, reduced motion";
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+    const { page, errors } = await open(context, "heroes/");
+    const loaded = [];
+    page.on("request", (r) => /\/gallery\/[^/]+\.js$/.test(r.url()) && !r.url().endsWith("heroes.js") && loaded.push(r.url()));
+    await page.$eval("[data-hero-track]", (t) => t.scrollIntoView({ block: "center" }));
+    await page.waitForTimeout(500);
+    assert.deepEqual(loaded, [], "reduced motion: posters, nothing loads");
+    const box = await page.locator(".hero-stage figure").first().boundingBox();
+    assert.ok(box.width >= 300 && box.height >= 300, `hero cards stay large on a phone (${box.width}×${box.height})`);
+    await page.click(`[data-hero="${HEROES[0].id}"] [data-hero-play]`);
+    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[0].id, { timeout: 8000 });
+    assert.equal(loaded.length, 1, "Play loads that hero, on request");
     assert.deepEqual(errors, []);
     await context.close();
   }

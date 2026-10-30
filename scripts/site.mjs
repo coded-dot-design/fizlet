@@ -12,10 +12,14 @@ import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
 import { brickPage, bricksIndex } from "../site/pages/brick.mjs";
 import { galleryPage } from "../site/pages/gallery.mjs";
+import { heroesPage } from "../site/pages/heroes.mjs";
 import { notePage, notesIndex, noteLd } from "../site/pages/notes.mjs";
 import { notes as loadNotes, notePath } from "./notes.mjs";
 import { playFigure } from "../site/pages/index.mjs";
-import { buildGallery } from "./gallery.mjs";
+import { buildGallery, personPath } from "./gallery.mjs";
+import { PERSONA_NOTE, contributors, contestDays, contestToday, statsOf } from "./people.mjs";
+import { peopleIndex, personPage } from "../site/pages/people.mjs";
+import { contestPage } from "../site/pages/contest.mjs";
 import { BRICKS, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
@@ -91,6 +95,24 @@ const figures = {
   howitworks: `<figure class="ae-slot ae-slot--4x5 gal-fig gal-tall" data-slot-target="gallery#howitworks" role="img" aria-label="The blast demo: a small page you can knock around; Recall puts it back."><span class="ae-slot__placeholder gal-still" aria-hidden="true">“Hello, page.” Every letter is a real element.</span><template>${playFigure()}</template></figure>`,
 };
 
+// The gallery's pages sit at gallery/ and gallery/page/<n>/ (base: the path back to the root);
+// every entry's URL is on the page that holds it (the heroes and profile pages link there).
+const GB = (p) => "../".repeat(p.path.split("/").length - 1);
+const urlOf = (id) => gallery.index.find((r) => r.id === id).url;
+const heroes = gallery.entries.filter((e) => e.kind === "hero");
+for (const p of gallery.pages) mkdirSync(`${OUT}/${p.path}`, { recursive: true });
+mkdirSync(`${OUT}/heroes`, { recursive: true });
+// People and the daily contest: each contributor's entries and bytes come from the gallery just
+// built; contest days are checked against it (prompt length, one entry per person per day, winner).
+const PEOPLE = contributors();
+const DAYS = contestDays(gallery.entries, PEOPLE);
+const winners = new Set(DAYS.map((d) => d.winner).filter(Boolean));
+const people = PEOPLE.map((p) => ({ person: p, stats: statsOf(p, gallery.entries) }));
+// "Today" for the contest page: the build's UTC date (FIZLET_TODAY pins it for a preview or a test).
+const today = contestToday(DAYS, process.env.FIZLET_TODAY);
+for (const p of PEOPLE) mkdirSync(`${OUT}/${personPath(p.id)}`, { recursive: true });
+mkdirSync(`${OUT}/contest`, { recursive: true });
+
 const sizes = await measure();
 const kernel = sizes[0];
 // Every brick's API, from its source comment and its built declarations.
@@ -144,10 +166,40 @@ const pages = [
     description: `Every Fizlet module with its API and its measured size: the kernel is ${(kernel.gzip / 1024).toFixed(1)} KB gzip, each brick its own import.`,
     base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version }), scripts: ["site.js"],
   })],
-  ["gallery/index.html", page({
-    title: "Gallery: one prompt, one animation · Fizlet",
-    description: `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by Chris Cooley).`,
-    base: "../", version, path: "gallery/", body: `<style>${layers.css}</style>` + galleryPage({ entries: gallery.entries, loader: gallery.loader, figures, base: "../" }), scripts: ["site.js", "gallery/gallery.js"],
+  // The gallery: PAGE_SIZE entries a page (gallery/, gallery/page/2/, …), in theme sections.
+  ...gallery.pages.map((p) => [`${p.path}index.html`, page({
+    title: p.n === 1 ? "Gallery: one prompt, one animation · Fizlet" : `Gallery, page ${p.n}: one prompt, one animation · Fizlet`,
+    description: p.n === 1
+      ? `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by theme).`
+      : `Fizlet gallery page ${p.n} of ${gallery.pages.length}: older animations by theme, each with its prompt, its live demo and its size measured on this build.`,
+    base: GB(p), version, path: p.path,
+    body: `<style>${layers.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: GB(p), winners }),
+    scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
+  })]),
+  ["heroes/index.html", page({
+    title: "Heroes: the big animations, one at a time · Fizlet",
+    description: `The Fizlet hero animations, large: the one in the centre plays, the rest wait as posters. ${heroes.length} so far, each with its size measured on this build.`,
+    base: "../", version, path: "heroes/",
+    body: `<style>${layers.css}</style>` + heroesPage({ heroes, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: "../", urlOf }),
+    scripts: ["site.js", "gallery/heroes.js"],
+  })],
+  ["people/index.html", page({
+    title: "People: the maker and the house personas · Fizlet",
+    description: `Who makes Fizlet animations: Chris Cooley, and ${PEOPLE.length - 1} house personas (Fizlet characters, not real people), with their entries and bytes.`,
+    base: "../", version, path: "people/", body: peopleIndex({ rows: people, base: "../" }), scripts: ["site.js"],
+  })],
+  ...people.map(({ person: p, stats }) => [`${personPath(p.id)}index.html`, page({
+    title: `${p.name}: ${p.kind === "owner" ? "maker of Fizlet" : "a house persona"} · Fizlet`,
+    description: p.description,
+    base: "../../", version, path: personPath(p.id),
+    ld: [{ "@type": "ProfilePage", "@id": `${SITE}${personPath(p.id)}#page`, url: SITE + personPath(p.id), name: p.name,
+      ...(p.kind === "owner" ? { mainEntity: { "@id": PERSON["@id"] } } : { about: { "@type": "Thing", name: p.name, description: `${PERSONA_NOTE}. ${p.bio}` } }) }],
+    body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners }), scripts: ["site.js"],
+  })]),
+  ["contest/index.html", page({
+    title: "Daily contest: 60 characters, one animation · Fizlet",
+    description: "The Fizlet daily contest: a theme a day, a prompt of 60 characters or fewer, one entry each, one winner featured in the gallery.",
+    base: "../", version, path: "contest/", body: contestPage({ today, days: DAYS, people: PEOPLE, base: "../", urlOf }), scripts: ["site.js"],
   })],
   ["notes/index.html", page({
     title: "Notes: what the games taught the engine · Fizlet",
