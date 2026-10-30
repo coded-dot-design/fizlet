@@ -116,6 +116,10 @@
       "types": "./dist/actor.d.ts",
       "default": "./dist/actor.js"
     },
+    "./aim": {
+      "types": "./dist/aim.d.ts",
+      "default": "./dist/aim.js"
+    },
     "./css-clock": {
       "types": "./dist/css-clock.d.ts",
       "default": "./dist/css-clock.js"

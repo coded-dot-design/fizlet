@@ -94,7 +94,7 @@ export const ROADMAP = [
     [0, "An interactive diagram on a marketing page, settled at 0 frames"],
   ] },
   { id: "E11", name: "Actors", status: "planned", goal: "Units, bots and turrets as data: the parts every board game still writes itself.", items: [
-    [0, "fizlet/actor shipped EXPERIMENTAL (0.9 KB gzip): a board game on it next"],
+    [0, "fizlet/actor and fizlet/aim shipped EXPERIMENTAL: a board game on them next"],
     [0, "One board game moves its units onto them, and shrinks"],
   ] },
   { id: "E12", name: "Multiplayer everywhere", status: "planned", goal: "Authoritative rooms, interpolation, and AI agents that join a room like any player.", items: [

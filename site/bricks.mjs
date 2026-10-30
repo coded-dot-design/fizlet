@@ -137,6 +137,12 @@ const i = A.spawn(0, 5); A.x[i] = 120; A.y[i] = 80; // side 0, 5 hp
 const foe = A.nearest(i, 300, 1 << 1);  // closest side-1 actor in range
 if (foe >= 0 && A.hurt(foe, 1)) score++; // true: that killed it
 A.sweep(); // once per step: dead rows come back` },
+  { id: "aim", status: "experimental", since: "0.21.0", tests: ["aim.test.mjs"], used: [],
+    tag: "AIM", role: "aim", modules: [mod("fizlet/aim", "aim")],
+    snippet: `const s = aim({ x: A.x, y: A.y, a: A.a, vx: A.vx, vy: A.vy, board,
+  foe: (i, j) => A.alive[j] === 1 && A.side[j] !== A.side[i] });
+const j = s.pick(i, A.list, A.n, 0.6, 460); // nearest foe in the cone, in sight
+if (j >= 0 && s.lead(i, j, 400)) fire(i, s.out[0], s.out[1]); // where it will be` },
   { id: "arcade", status: "complete", since: "0.11.0", tests: ["arcade.mjs", "arcade-game.mjs", "arcade-hud.mjs"], used: ["Null Invaders 1.0", "Byte Runner 1.0", "Sherman Bytes 1.0"],
     tag: "ARCADE", role: "go", modules: [mod("fizlet/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
@@ -161,7 +167,6 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
 export const PLANNED = [
   { name: "fizlet/layout", phase: "E10", purpose: "Force-directed layout on typed arrays with a Barnes-Hut pass: diagrams and graphs that settle.", target: 2048, needs: ["fizlet", "fizlet/camera"] },
   { name: "fizlet/view-canvas", phase: "E10", purpose: "One overlay canvas per root, sized for the screen's pixel density, redrawn only where something changed.", target: 1229, needs: ["fizlet"] },
-  { name: "fizlet/aim", phase: "E11", purpose: "Lead targeting, firing cones and line of sight for bots and turrets.", target: 1024, needs: ["fizlet/steer", "fizlet/grid"] },
   { name: "fizlet/view-dom", phase: "E11", purpose: "Pooled DOM nodes bound to actors, written change-only through the ledger.", target: 1536, needs: ["fizlet/actor"] },
   { name: "fizlet/snapshot", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["fizlet/presence", "fizlet/actor"] },
   { name: "fizlet/agent", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["fizlet/presence", "fizlet/rules"] },
