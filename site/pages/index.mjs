@@ -123,7 +123,6 @@ export function playFigure(badge = "") {
 }
 
 export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, blast }) {
-  const fmt = (n) => n.toLocaleString("en-US");
   const size = (name) => sizes.find((s) => s.name === name);
   const kernel = size("fizlet (kernel)");
   const css = size("fizlet/ui (css)");
@@ -187,7 +186,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
       <style>${layers.css}</style>
       ${layers.figure}
       ${sizeBadge(layers.sizes.live, layers.live, "the layers scene with fizlet/slot")}
-      <p class="hero-cap bui-label"><b>LIVE</b> · Battlefield Blitz as a stack of bricks · live chunk ${fmt(layers.sizes.live)} B gzip, loaded only once it nears the screen · <a href="demos/layers/">The layers story</a></p>
+      <p class="hero-cap bui-label"><b>LIVE</b> · Battlefield Blitz as a stack of bricks · its code loads only once it nears the screen · <a href="demos/layers/">The layers story</a></p>
       ${layers.loader}
     </div>
   </div>
@@ -231,7 +230,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
     <div class="fizz-slot" data-demo-host>
       ${fizz.figure}
       ${sizeBadge(fizz.sizes.chunk, fizz.live, "the fizz scene: kernel, fx, sprite, camera and the can")}
-      <p class="hero-cap bui-label"><b>LIVE</b> · tap the can · live chunk ${fmt(fizz.sizes.chunk)} B gzip · <a href="demos/fizz/">The fizz proof piece</a></p>
+      <p class="hero-cap bui-label"><b>LIVE</b> · tap the can · <a href="demos/fizz/">The fizz proof piece</a></p>
     </div>
   </div>
 </section>
