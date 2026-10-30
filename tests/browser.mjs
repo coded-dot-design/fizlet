@@ -240,7 +240,8 @@ async function perfTest() {
   const errs = [];
   pp.on("pageerror", (e) => errs.push(e.message));
   // A real origin (about:blank denies localStorage outright, which the switch survives too).
-  const html = `<!doctype html><meta charset="utf-8"><body style="margin:0"><style>${CSS}</style>
+  // A host with a global border-box reset (the DOM VIRUS hub, Battlefield): the card keeps its size.
+  const html = `<!doctype html><meta charset="utf-8"><body style="margin:0"><style>${CSS}</style><style>*,*::before,*::after{box-sizing:border-box}</style>
 <div class="bui" id="board" style="position:relative;width:844px;height:390px;background:#07060f"><p id="keep" style="margin:0">field</p></div>
 <div class="bui" id="settings"><button id="perf-set" type="button" class="bui-key">Performance overlay</button></div><script>${bundle}</script></body>`;
   await pp.route("http://fizlet.test/", (r) => r.fulfill({ body: html, contentType: "text/html" }));
@@ -266,6 +267,7 @@ async function perfTest() {
       contain: cs.contain, events: cs.pointerEvents, parent: p.el.parentElement.id, ignore: p.el.hasAttribute("data-fizlet-ignore"),
       // Board UI tokens: the card is the kit's surface on the rim.
       look: [cs.backgroundColor, cs.borderTopColor, cs.position, cs.top, cs.right].join(),
+      size: [p.el.offsetWidth, p.el.scrollWidth <= p.el.clientWidth, [...p.el.children].every((c) => c.getBoundingClientRect().right <= p.el.getBoundingClientRect().right - 2)],
     };
   });
   assert.deepEqual(setup.off, { on: false, hidden: true, aria: "true", pressed: "false", stored: null }, "off by default, hidden from assistive tech");
@@ -273,6 +275,7 @@ async function perfTest() {
   assert.ok(["layout paint style", "content"].includes(setup.contain), `contained root (${setup.contain})`);
   assert.deepEqual([setup.events, setup.parent, setup.ignore], ["none", "board", true]);
   assert.equal(setup.look, "rgb(17, 13, 34),rgb(7, 6, 15),absolute,8px,8px", "kit tokens, top right of the board");
+  assert.deepEqual(setup.size, [136, true, true], "120px content + padding + border, nothing clipped under a global border-box");
 
   await pp.evaluate(() => e.start());
   await wait(700);

@@ -132,6 +132,7 @@ test("perf: hidden and off by default; show() goes through the ledger and back",
   assert.equal(p.el.getAttribute("hidden"), "");
   assert.equal(p.el.getAttribute("aria-hidden"), "true");
   assert.match(p.el.html, /contain:layout paint style/);
+  assert.match(p.el.html, /box-sizing:content-box;width:120px/, "sized for content-box whatever the page sets globally");
   assert.match(p.el.html, /role=group aria-label=Performance data-fizlet-ignore/);
   assert.match(p.el.html, /position:absolute|position:fixed/);
   assert.deepEqual(doc.body.kids, [p.el], "no root: it goes on the body");
