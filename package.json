@@ -129,7 +129,7 @@
     "provenance": true
   },
   "scripts": {
-    "typecheck": "tsc --noEmit && tsc --noEmit -p . --exactOptionalPropertyTypes && tsc -p site/tsconfig.json && tsc -p site/demos/fizz/tsconfig.json && tsc -p site/brick-examples/tsconfig.json && tsc -p site/docs/code/tsconfig.json",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p . --exactOptionalPropertyTypes && tsc -p site/tsconfig.json && tsc -p site/demos/fizz/tsconfig.json && tsc -p site/brick-examples/tsconfig.json && tsc -p site/docs/code/tsconfig.json && tsc -p site/recipes/tsconfig.json",
     "test": "node --expose-gc --import tsx --test --test-concurrency=1 tests/*.test.mjs",
     "build": "node scripts/build.mjs",
     "check": "npm run typecheck && npm test && npm run build",

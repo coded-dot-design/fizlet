@@ -3,13 +3,29 @@
 // on this build and the contract cards from the home page.
 import { esc, icon } from "../layout.mjs";
 import { block, inline } from "./notes.mjs";
+import { sizeBadge } from "../size-badge.mjs";
 import { CONTRACT } from "./index.mjs";
 import { SECTIONS, docPath } from "../../scripts/docs.mjs";
 
 const num = (n) => n.toLocaleString("en-US");
 
-function docBlock(b, { base, sizes, bricks }) {
+function docBlock(b, { base, sizes, bricks, recipes }) {
   switch (b.type) {
+    case "recipe": {
+      const r = recipes[b.id];
+      if (!r) throw new Error(`docs: no recipe site/recipes/${b.id}.js`);
+      const listing = `${r.html}\n<script type="module">\n${r.code}\n</script>`;
+      return `<section class="note-block doc-wide recipe" id="recipe-${esc(b.id)}">
+      <h2>${inline(b.heading, base)}${b.headingAccent ? `<br><em>${inline(b.headingAccent, base)}</em>` : ""}</h2>
+      ${b.body.map((p) => `<p class="body">${inline(p, base)}</p>`).join("")}
+      <figure class="panel lit recipe-live" data-demo-host data-recipe="${esc(b.id)}">
+        <div class="recipe-head"><span class="bui-label"><b>LIVE</b> · ${r.imports.map((m) => `<code>${esc(m)}</code>`).join(" + ")}</span>${sizeBadge(r.bytes, r.live, `this recipe, bundled and minified with ${r.imports.join(", ")}`)}</div>
+        ${r.html}
+        <figcaption class="bp-note">${inline(b.caption, base)}</figcaption>
+      </figure>
+      <div class="panel code-card doc-code"><div class="code-head"><span class="bui-label"><b>THE WHOLE THING</b> · paste into a page</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(listing)}</code></pre></div>
+    </section>`;
+    }
     case "code":
       return `<div class="panel code-card doc-code"><div class="code-head"><span class="bui-label"><b>${esc(b.label ?? "CODE")}</b>${b.file ? ` · ${esc(b.file)}` : ""}</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(b.code)}</code></pre></div>`;
     case "sizes": {
@@ -49,7 +65,7 @@ function map(all, base, current) {
 }
 
 /** One docs or guide page. */
-export function docPage({ doc: d, all, base, sizes, bricks }) {
+export function docPage({ doc: d, all, base, sizes, bricks, recipes = {} }) {
   const mine = all.filter((x) => x.section === d.section), i = mine.indexOf(d);
   const step = (x, dir) => (x ? `<a class="bp-step ${dir}" href="${base}${docPath(x)}"><small>${dir === "prev" ? "← PREVIOUS" : "NEXT →"}</small><span>${esc(x.nav)}</span></a>` : "<span></span>");
   return `
@@ -61,7 +77,7 @@ export function docPage({ doc: d, all, base, sizes, bricks }) {
       <h1 id="doc-title">${esc(d.title)}${d.subtitle ? `<br><em>${esc(d.subtitle)}</em>` : ""}</h1>
       ${d.lead.map((p) => `<p class="lead">${inline(p, base)}</p>`).join("")}
     </header>
-    ${d.blocks.map((b) => docBlock(b, { base, sizes, bricks })).join("\n    ")}
+    ${d.blocks.map((b) => docBlock(b, { base, sizes, bricks, recipes })).join("\n    ")}
     <nav class="bp-steps" aria-label="More ${SECTIONS[d.section].toLowerCase()}">${step(mine[i - 1], "prev")}${step(mine[i + 1], "next")}</nav>
     ${map(all, base, d)}
   </div>

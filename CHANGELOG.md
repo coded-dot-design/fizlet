@@ -8,6 +8,12 @@
     module's gzip and budget, measured by `scripts/sizes.mjs`, the same call CI makes) and
     determinism. Pages are JSON in `site/docs/` (`scripts/docs.mjs`; `{size:…}`, `{budget:…}`,
     `{kb:…}` and `{version}` are filled in from the build; an unknown one fails it).
+  - `/docs/authoring/`: the authoring guide (the shape of every Fizlet piece, bricks by use case) and
+    three recipes that run on the page as written, each with its live size measured on the build:
+    an action on the page (kernel + fx + hud), a shooter (kernel + input + collide + fx + hud) and
+    two players in lockstep over `memory()` (kernel + input + presence + hud). Sources in
+    `site/recipes/` (plain JS, typechecked with `checkJs`); the page shows them with the hosted
+    imports, ready to paste.
   - `/guides/`: build a micro game, fill an Astro slot, port a game, multiplayer rooms. Every code
     listing is a file in `site/docs/code/`, typechecked against the source by `npm run typecheck`.
   - `/news/`: release notes for every version, rendered from this changelog (`scripts/releases.mjs`;

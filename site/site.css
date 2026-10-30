@@ -2936,3 +2936,30 @@ html.bui[data-theme="light"] .phases b {
 .card-anim:empty {
   display: none;
 }
+.recipe-live {
+  margin: 22px 0 0;
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+.recipe-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.recipe-live figcaption {
+  margin: 0;
+}
+.recipe .doc-code {
+  max-width: none;
+}
+.recipe-live,
+.recipe-live > * {
+  min-width: 0;
+}
+.recipe-head .bui-label {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

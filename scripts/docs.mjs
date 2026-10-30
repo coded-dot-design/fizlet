@@ -2,7 +2,8 @@
 // written for fizlet.com (public docs; the source of truth for these pages). Blocks are the notes'
 // closed set (text, stats, cta, features, faq) plus three docs-only ones: code (a snippet), sizes
 // (every budgeted module, measured on this build) and contract (the nine rules, from the home page).
-// A code block's listing is a file in site/docs/code/, typechecked by `npm run typecheck`.
+// A code block's listing is a file in site/docs/code/, typechecked by `npm run typecheck`. A recipe
+// block runs site/recipes/<id>.js live on the page (with <id>.html), shows its measured size and its code.
 // Numbers are never typed: `{size:<entry>}` (gzip bytes), `{kb:<entry>}`, `{budget:<entry>}` (the
 // scripts/sizes.mjs entry) and `{version}` are filled in from the build, and an unknown one fails it.
 import { readdirSync, readFileSync } from "node:fs";
@@ -10,7 +11,7 @@ import { readdirSync, readFileSync } from "node:fs";
 const DIR = "site/docs";
 export const SECTIONS = { docs: "Docs", guides: "Guides" };
 const NEED = ["slug", "section", "order", "nav", "eyebrow", "title", "lead", "blocks", "seo"];
-export const DOC_BLOCKS = ["text", "stats", "cta", "features", "faq", "code", "sizes", "contract"];
+export const DOC_BLOCKS = ["text", "stats", "cta", "features", "faq", "code", "sizes", "contract", "recipe"];
 
 /** A typechecked listing (site/docs/code/<file>), from its "// ---" line on. */
 export function codeOf(file) {

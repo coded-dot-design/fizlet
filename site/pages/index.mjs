@@ -58,6 +58,7 @@ const ROADMAP = [
     [1, "Gallery and notes, every number measured on the build"],
     [1, "Docs and guides: the contract, the loop, Recall, budgets, determinism"],
     [1, "Release notes for every version, from the changelog"],
+    [1, "Authoring guide and recipes (an action, a shooter, two players)"],
     [0, "AGENTS.md: the strict, AI-readable spec"],
     [0, "Live kernel stats on Under the Hood"],
   ]],

@@ -122,6 +122,20 @@ mkdirSync(`${OUT}/contest`, { recursive: true });
 
 const sizes = await measure();
 const kernel = sizes[0];
+// Recipes (/docs/authoring/): each one bundled as it would ship (fizlet's imports resolved to src/),
+// its live bytes measured for its badge; the page runs it and shows it with the hosted imports.
+const fizletImports = { name: "fizlet", setup(b) { b.onResolve({ filter: /^fizlet(\/|$)/ }, (a) => ({ path: `${process.cwd()}/src/${a.path === "fizlet" ? "index" : a.path.slice(7)}.ts` })); } };
+const RECIPES = {};
+for (const f of readdirSync("site/recipes").filter((x) => x.endsWith(".js"))) {
+  const id = f.slice(0, -3);
+  await build({ entryPoints: { [id]: `site/recipes/${f}` }, outdir: `${OUT}/recipes`, bundle: true, minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning", plugins: [fizletImports] });
+  const src = readFileSync(`site/recipes/${f}`, "utf8");
+  RECIPES[id] = {
+    html: readFileSync(`site/recipes/${id}.html`, "utf8").trim(), live: `recipes/${id}.js`, bytes: liveBytes(`${OUT}/recipes/${id}.js`),
+    imports: [...src.matchAll(/from "(fizlet(?:\/[\w-]+)?)"/g)].map((m) => m[1]),
+    code: src.replace(/from "fizlet(?:\/([\w-]+))?"/g, (_, sub) => `from "${SITE}dist/${sub ?? "index"}.js"`).trim(),
+  };
+}
 // Docs and guides: their numbers filled in from this build.
 const DOCS = loadDocs().map((d) => fill(d, { sizes, version }));
 for (const d of DOCS) mkdirSync(`${OUT}/${docPath(d)}`, { recursive: true });
@@ -248,7 +262,8 @@ const pages = [
   ...DOCS.map((d) => [`${docPath(d)}index.html`, page({
     title: d.seo.title, description: d.seo.description,
     base: "../../", version, path: docPath(d), ld: docLd(d, { site: SITE, person: PERSON["@id"], website: WEBSITE["@id"], code: CODE }),
-    body: docPage({ doc: d, all: DOCS, base: "../../", sizes, bricks }), scripts: ["site.js"],
+    body: docPage({ doc: d, all: DOCS, base: "../../", sizes, bricks, recipes: RECIPES }),
+    scripts: ["site.js", ...d.blocks.filter((b) => b.type === "recipe").map((b) => RECIPES[b.id].live)],
   })]),
   ["news/index.html", page({
     title: "News: every Fizlet release, newest first · Fizlet",
