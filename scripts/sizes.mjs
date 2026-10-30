@@ -49,9 +49,16 @@ export const BUDGETS = [
   // A card game (`hud` left out): the shell and the `arcade` preset, skirmish tree-shaken away.
   // 17,622 B gz with the `hud` option (+311 B: the preset contract, header and nav choice); 17,311
   // in 0.17.0, 17,206 in 0.14.0 (17,081 in 0.13.0, 16,960 in 0.12.1, 16,946 in 0.12.0, 16,731 in
+<<<<<<< HEAD
   // 0.11.0), of which arcade's own code, markup and CSS was 6,694 B in 0.12.0.
   // +181 B for the same touch lock (Unreleased): 17,912 → 18,093 B; budget + the delta.
   ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18101],
+=======
+  // 0.11.0), of which arcade's own code, markup and CSS was 6,694 B in 0.12.0. 17,912 B in 0.19.0;
+  // 17,964 B once drag() positions in the board's containing block (+52 B, a fix: the card jumped
+  // when the board sat under a header or mid-page).
+  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 17984],
+>>>>>>> origin/main
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
   // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B).

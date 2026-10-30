@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { contributors, entries, galleryIndex, galleryPath, paginate, PAGE_SIZE, sections, themes } from "../scripts/gallery.mjs";
+import { contributors, entries, galleryIndex, isLive, galleryPath, paginate, PAGE_SIZE, sections, themes } from "../scripts/gallery.mjs";
 import { search } from "../site/gallery/search.ts";
 
 const THEMES = [{ id: "halloween", title: "Halloween", order: 1 }, { id: "everyday", title: "Everyday", order: 99 }];
@@ -35,6 +35,20 @@ test("entries: a bad kind, theme or author fails with the file to add", () => {
   assert.throws(() => entries({ dir: d, themeIds, people }), /author someone has no site\/contributors\/someone\.json/);
   put({ ...fake(1, { theme: "everyday", kind: "giant" }), ...base });
   assert.throws(() => entries({ dir: d, themeIds, people }), /kind is "hero" or "micro"/);
+});
+
+test("the owner's gate: an entry is live only once approved; pending ones are checked but never listed", () => {
+  const d = mkdtempSync(join(tmpdir(), "gal-gate-"));
+  const people = { "chris-cooley": { name: "Chris Cooley" } }, themeIds = ["everyday"];
+  const base = { recipe: "burst", bricks: [], made: "fe anim", module: "anims/x.ts", export: "mount", theme: "everyday" };
+  const put = (e) => writeFileSync(join(d, `${e.id}.json`), JSON.stringify(e));
+  put({ ...fake(1), ...base, approved: "2026-10-30" });
+  put({ ...fake(2), ...base });
+  const all = entries({ dir: d, themeIds, people });
+  assert.deepEqual(all.filter(isLive).map((e) => e.id), ["e1"], "approved: live");
+  assert.deepEqual(all.filter((e) => !isLive(e)).map((e) => e.id), ["e2"], "no approved: pending, off the site");
+  put({ ...fake(2), ...base, approved: true });
+  assert.throws(() => entries({ dir: d, themeIds, people }), /approved is the date the owner approved it/);
 });
 
 test("paginate: PAGE_SIZE a page at gallery/, gallery/page/2/ …; always one page", () => {

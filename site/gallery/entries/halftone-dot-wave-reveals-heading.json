@@ -31,5 +31,6 @@
   "module": "anims/halftone-dot-wave-reveals-heading.ts",
   "export": "mount",
   "aspect": "16 / 9",
-  "stage": "page"
+  "stage": "page",
+  "approved": "2026-10-30"
 }
