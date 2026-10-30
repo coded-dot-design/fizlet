@@ -2,7 +2,7 @@
   "no": 1,
   "id": "fizz",
   "date": "2026-10-29",
-  "prompt": "an arcade soda can pops, fizzes and drips while the camera pushes in",
+  "prompt": "an arcade soda can pops, fizzes and drips, seen from the side and from above",
   "title": "Fizz",
   "kind": "hero",
   "theme": "everyday",
@@ -12,7 +12,6 @@
     "fizlet/kernel",
     "fizlet/fx",
     "fizlet/sprite",
-    "fizlet/camera",
     "fizlet/slot"
   ],
   "made": "by hand",

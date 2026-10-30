@@ -77,3 +77,10 @@ test("search: every word, any case and order, over title, prompt, theme and auth
   assert.deepEqual(ids("hero"), ["a"]);
   assert.deepEqual(ids("pumpkin snow"), []);
 });
+
+test("an own stage: its markup comes from site/gallery/stages/<id>.html, and is required", () => {
+  const dir = mkdtempSync(join(tmpdir(), "gal-own-"));
+  const e = { no: 1, id: "zz-own-stage-test", kind: "micro", theme: "everyday", date: "2026-10-30", prompt: "p", title: "t", author: "chris-cooley", recipe: "hand-built", bricks: [], made: "by hand", module: "m.ts", export: "mount", stage: "own" };
+  writeFileSync(join(dir, `${e.id}.json`), JSON.stringify(e));
+  assert.throws(() => entries({ dir, themeIds: ["everyday"] }), /stage "own" needs site\/gallery\/stages\/zz-own-stage-test\.html/);
+});

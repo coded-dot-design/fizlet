@@ -42,7 +42,7 @@ const out = { date: new Date().toISOString().slice(0, 10), browser: browser.vers
   await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
   await go();
   const t0 = await now(p);
-  await p.waitForTimeout(9000); // the story (crunch, pop, fizz) and its last particles
+  await p.waitForTimeout(7000);
   const t1 = await now(p);
   await p.waitForTimeout(3000);
   const t2 = await now(p);

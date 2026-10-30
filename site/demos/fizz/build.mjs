@@ -35,29 +35,23 @@ export const sizes = { loader: bytes(`${OUT}/main.js`), chunk: bytes(`${OUT}/sce
 // the placeholder while the scene loads and the still frame for reduced motion.
 const art = await build({ stdin: { contents: 'export { CAN, TOP, C } from "./can.ts"; export { spriteSVG } from "../../../src/sprite.ts";', resolveDir: DIR, loader: "ts" }, bundle: true, format: "esm", write: false, logLevel: "silent" });
 const { CAN, TOP, C, spriteSVG } = await import("data:text/javascript;base64," + Buffer.from(art.outputFiles[0].text).toString("base64"));
-// One <path> per colour instead of a <rect> per pixel run: the hi-def can is twice the pixels.
-const compact = (svg) => {
-  const by = new Map();
-  const body = svg.replace(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)" fill="([^"]+)"\/>/g, (_, x, y, w, h, c) => (by.set(c, (by.get(c) ?? "") + `M${x} ${y}h${w}v${h}h-${w}z`), ""));
-  return body.replace("</svg>", [...by].map(([c, d]) => `<path fill="${c}" d="${d}"/>`).join("") + "</svg>");
-};
 const nest = (svg, x, y, k) => svg.replace(/^<svg[^>]*width="(\d+)" height="(\d+)"[^>]*>/, (_, w, h) => `<svg x="${x}" y="${y}" width="${w * k}" height="${h * k}" viewBox="0 0 ${w} ${h}">`);
 let seed = 7;
 const rnd = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
 const px = (x, y, n, c) => `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${n}" height="${n}" fill="${c}"/>`;
 let fizzPx = "";
 for (let i = 0; i < 30; i++) {
-  const y = 15 - rnd() * 15, x = 50 + (rnd() - 0.5) * (17 - y) * 1.3;
+  const y = 17 - rnd() * 17, x = 51 + (rnd() - 0.5) * (19 - y) * 1.3;
   fizzPx += px(x, y, i % 4 ? 1.5 : 3, i % 3 ? C.ink : C.sys);
 }
 for (let i = 0; i < 18; i++) {
   const a = rnd() * Math.PI * 2, r = 4 + rnd() * 14;
-  fizzPx += px(117 + Math.cos(a) * r, 31 + Math.sin(a) * r * 0.8, i % 3 ? 1.5 : 2.5, i % 4 ? C.ink : C.sys);
+  fizzPx += px(115.5 + Math.cos(a) * r, 29 + Math.sin(a) * r, i % 3 ? 1.5 : 2.5, i % 4 ? C.ink : C.sys);
 }
 const poster = `<svg class="ae-slot__placeholder fz-poster" viewBox="0 0 160 100" aria-hidden="true" shape-rendering="crispEdges">` +
   `<rect x="26" y="86" width="44" height="4" fill="${C.base}"/>` +
-  nest(compact(spriteSVG(CAN, 5)), 26, 4, 1) + nest(compact(spriteSVG(TOP, 2)), 82.5, 12.5, 1.5) +
-  `<rect x="62" y="26" width="2" height="58" fill="${C.aim}"/><rect x="61" y="86" width="6" height="2" fill="${C.ink}"/>` +
+  nest(spriteSVG(CAN, 3), 26, 4, 2) + nest(spriteSVG(TOP, 1), 81, 11, 3) +
+  `<rect x="62" y="26" width="2" height="52" fill="${C.aim}"/><rect x="62" y="86" width="6" height="2" fill="${C.ink}"/><rect x="64" y="86" width="2" height="2" fill="${C.sys}"/>` +
   `${fizzPx}` +
   `</svg>`;
 sizes.poster = gzipSync(poster).length;
@@ -101,11 +95,11 @@ const body = `${CSS}
       <div>
         <p class="eyebrow"><span class="index">FZ</span> THE NAME · A PROOF PIECE</p>
         <h1 id="fz-title" class="fz-title">Crack the can.<br><em>Hear the fizz.</em></h1>
-        <p class="lead">The soda-ad shot. Tap the can: it crunches, the tab lifts and the lid pops, foam swells in the opening, then the fizz erupts clean out of the card. Two cameras hold still, side and straight down into the can; the eye cuts between them.</p>
+        <p class="lead">The soda-ad shot. Tap the can: it crunches, the tab pops, and the fizz sprays clean out of the card. Two views tell it side by side: the can from the side, and straight down into it as it fizzes.</p>
         <p class="lead">By <a href="https://coded.design/">Chris Cooley</a>.</p>
       </div>
       <div class="panel lit fz-board">
-        <figure class="ae-slot ae-slot--16x10" data-slot-target="fizz#hero" role="img" aria-label="An arcade soda can, side and top views: it crunches, the tab lifts and the lid pops, fizz erupts up out of the card and a drip runs down the side">${poster}<span class="bui-label" aria-hidden="true" style="position:absolute;bottom:8px;left:10px;z-index:2;pointer-events:none">CAM 1 · SIDE</span><span class="bui-label" aria-hidden="true" style="position:absolute;bottom:8px;right:10px;z-index:2;pointer-events:none">CAM 2 · TOP</span></figure>
+        <figure class="ae-slot ae-slot--16x10" data-slot-target="fizz#hero" role="img" aria-label="An arcade soda can, side and top views: it crunches, the tab pops, fizz sprays up out of the card and a drip runs down the side">${poster}<span class="bui-label" aria-hidden="true" style="position:absolute;bottom:8px;left:10px;z-index:2;pointer-events:none">CAM 1 · SIDE</span><span class="bui-label" aria-hidden="true" style="position:absolute;bottom:8px;right:10px;z-index:2;pointer-events:none">CAM 2 · TOP</span></figure>
         <div class="fz-keys">
           <button class="bui-key bui-arcade bui-attack" type="button" data-fizz-pop>${icon("bolt", 16)}Pop</button>
           <button class="bui-key bui-arcade bui-cmd" type="button" data-fizz-recall>${icon("recall", 16)}Recall</button>
@@ -116,8 +110,8 @@ const body = `${CSS}
     </div>
     <div class="fz-how">
       <div class="panel"><h2>Kernel</h2><p><code>settle</code> and <code>fps: 30</code>. It runs while something moves, then sleeps: no frames at all until a tap.</p></div>
-      <div class="panel"><h2>fizlet/fx</h2><p>Two fixed pools. The spray flies on a layer above the card, so nothing crops it; the top view fizzes inside. Droplets, pixel bubbles that swell and pop, foam, rings and flecks, every size: kinds as data, sprayed with <code>emit()</code>.</p></div>
-      <div class="panel"><h2>fizlet/sprite</h2><p>The can is pixel data drawn by code: 40 × 80 from the side, 44 × 44 from the top, the tab flat, lifting and up, crunched or not. Baked once; the poster is the same pixels as SVG.</p></div>
+      <div class="panel"><h2>fizlet/fx</h2><p>Two fixed pools. The spray flies on a layer above the card, so nothing crops it; the top view fizzes inside. Geyser, burst, bubbles, rings: kinds as data, sprayed with <code>emit()</code>.</p></div>
+      <div class="panel"><h2>fizlet/sprite</h2><p>The can is pixel data: 20 × 40 from the side, 22 × 22 from the top, crunched or not. Baked once; the poster is the same pixels as SVG.</p></div>
       <div class="panel"><h2>fizlet/slot</h2><p>Loads near the viewport, on an idle main thread. Reduced motion keeps the still frame; the scene never loads.</p></div>
     </div>
   </div>

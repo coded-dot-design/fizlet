@@ -88,7 +88,10 @@ try {
   // Search snippets: every indexable page has its own title (30–60) and description (70–155), and
   // JSON-LD that parses; sitemap.xml and llms.txt list exactly those pages; robots.txt points at both.
   const sitemap = readFileSync(`${ROOT}/sitemap.xml`, "utf8"), llms = readFileSync(`${ROOT}/llms.txt`, "utf8"), robots = readFileSync(`${ROOT}/robots.txt`, "utf8");
-  const indexable = PAGES.filter((p) => p !== "404.html");
+  const fileOf = (path) => `${ROOT}/${path === "" || path.endsWith("/") ? `${path}index.html` : path}`;
+  // Indexable: not the 404, not a noindex page (the gallery archive).
+  const indexable = PAGES.filter((p) => p !== "404.html" && !/<meta name="robots" content="[^"]*noindex/i.test(readFileSync(fileOf(p), "utf8")));
+  assert.ok(PAGES.includes("gallery/archive/") && !indexable.includes("gallery/archive/"), "the gallery archive is built and kept out of search");
   const heads = indexable.map((path) => {
     const html = readFileSync(`${ROOT}/${path === "" || path.endsWith("/") ? `${path}index.html` : path}`, "utf8");
     for (const [, ld] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(ld);
@@ -351,6 +354,12 @@ try {
     const toDemo = () => page.evaluate(() => document.querySelector("[data-demo]").scrollIntoView({ block: "center" }));
     await toDemo();
     await page.waitForFunction(() => window.fizletDemo?.engine.stats().frames > 20);
+    // Untouched, it settles: no frames at all while nothing moves, and the HUD says so.
+    await page.waitForFunction(() => window.fizletDemo.engine.paused.includes("settled"), null, { timeout: 4000 });
+    const still = (await stats()).frames;
+    await page.waitForTimeout(400);
+    assert.equal((await stats()).frames, still, "settled: no frames while nothing moves");
+    await page.waitForFunction(() => /SETTLED/.test(document.querySelector("[data-demo] [data-state]").textContent), null, { timeout: 2000 });
     const board = page.locator("[data-demo] [data-board]");
     const box = await board.boundingBox();
     await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.25);
@@ -384,7 +393,7 @@ try {
     await page.waitForTimeout(300);
     assert.equal((await stats()).frames, frozen, "no frames while off screen");
     await toDemo();
-    await page.waitForFunction(() => window.fizletDemo.engine.running);
+    await page.waitForFunction(() => !window.fizletDemo.engine.paused.includes("offscreen"));
     // The home page also carries the two story demos: the layers hero and the fizz can.
     assert.equal(await page.locator("figure.lyr[data-slot-target]").count(), 1, "the layers hero");
     assert.equal(await page.locator(".fizz-slot figure.ae-slot[data-slot-target='fizz#hero']").count(), 1, "the fizz can in the story");
@@ -402,6 +411,42 @@ try {
   }
 
   // ---------- Gallery: each live demo loads only near the screen, plays, and gives the page back ----------
+  // ---------- Ambient slots: the fps cap holds on the page's own frame count ----------
+  where = "slot fps cap";
+  {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    const page = await context.newPage();
+    await page.addInitScript(() => {
+      const raw = requestAnimationFrame.bind(window);
+      window.__raf = 0;
+      window.requestAnimationFrame = (cb) => (window.__raf++, raw(cb));
+    });
+    await page.goto(`${ORIGIN}${BASE}demos/fizz/`);
+    await page.locator("figure.ae-slot[data-slot-target='fizz#hero']").scrollIntoViewIfNeeded();
+    await page.waitForSelector("[data-fizlet-slot='fizz#hero'] canvas", { timeout: 8000 });
+    const n0 = await page.evaluate(() => window.__raf);
+    await page.waitForTimeout(1000);
+    const n = (await page.evaluate(() => window.__raf)) - n0;
+    // fps: 30 means ~30 requestAnimationFrame calls a second, not one per vsync with frames skipped.
+    assert.ok(n > 5 && n <= 33, `the fizz story asks for ${n} frames a second (cap 30)`);
+    await context.close();
+  }
+  // ---------- Gallery at phone width: a slot's CSS animation stops once it is off screen ----------
+  where = "gallery, offscreen";
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+    const { page, errors } = await open(context, "gallery/");
+    const fig = "figure[data-slot-target='gallery#howitworks']";
+    await page.$eval(fig, (el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
+    await page.waitForSelector(`${fig} [data-demo]`, { timeout: 8000 });
+    await page.$eval(fig, (el) => scrollTo({ top: el.getBoundingClientRect().bottom + scrollY + 50, behavior: "instant" }));
+    await page.waitForSelector(`${fig} [data-demo][data-offscreen]`, { state: "attached", timeout: 3000 });
+    const running = await page.$eval(fig, (el) => el.getAnimations({ subtree: true }).filter((a) => a.playState === "running").map((a) => a.animationName));
+    assert.deepEqual(running, [], "no CSS animation runs in the slot off screen");
+    assert.deepEqual(errors, []);
+    await context.close();
+  }
+
   where = "gallery";
   {
     const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });

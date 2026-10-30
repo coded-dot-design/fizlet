@@ -33,6 +33,9 @@ export const BUDGETS = [
   ["fizlet/steer", "src/steer.ts", 1280],
   // flag + tour + the kit card (its look inline on the tokens): 1,192 B gz when added; flag and tour alone tree-shake to less.
   ["fizlet/coach", "src/coach.ts", 1536],
+  // Keyframe tracks, easings (tables), stagger, labels, repeat/yoyo, controls, events, revert:
+  // 2,050 B gz when added (target was 1,536; ~110 B of it is the kernel's `need`, shared on a page).
+  ["fizlet/timeline", "src/timeline.ts", 2304],
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, fizlet/hud included). The Board UI kit CSS is the game's (it bakes
@@ -44,7 +47,9 @@ export const BUDGETS = [
   // 0.11.0), of which arcade's own code, markup and CSS was 6,694 B in 0.12.0.
   ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 17920],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
-  ["fizlet/board-page", "src/board-page.ts", 4096],
+  // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
+  // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B).
+  ["fizlet/board-page", "src/board-page.ts", 4128],
   // A hero's live chunk is ≤ 10 KB gz (fizlet-engine docs/LAYERS.md); the bricks take ≤ 7 KB, the scene ≥ 3 KB.
   ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7168],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
