@@ -1,0 +1,23 @@
+{
+  "id": "edge-filter",
+  "date": "2026-11-01",
+  "prompt": "Outbreak, act 2 (2003): the white hats beat Slammer. Tap routers on a four-segment network map to filter UDP 1434 so the flood bounces off, then patch the hosts into shields until every segment is clean",
+  "title": "White hat: the edge filter",
+  "kind": "micro",
+  "theme": "dom-virus",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/steer",
+    "fizlet/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/edge-filter.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 9",
+  "pageCost": {
+    "settles": true
+  }
+}
