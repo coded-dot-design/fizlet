@@ -1,0 +1,21 @@
+{
+  "id": "fuse-burns-along-text-lines",
+  "date": "2026-10-30",
+  "prompt": "click to light a fuse that sparks along the page's text lines toward a napping toon's dynamite; click the spark to blow it out, or BOOM",
+  "title": "Short fuse",
+  "kind": "micro",
+  "theme": "cartoons",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/fuse-burns-along-text-lines.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
