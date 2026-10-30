@@ -79,5 +79,11 @@ outside every interaction +8 ms desktop / +24 ms mobile, idle main-thread CPU wh
   rounds to 8 ms, too coarse for a +8 ms budget.
 - **Idle CPU** is CDP `TaskDuration` over the idle window, divided by its length.
 
+**Exceptions.** `exceptions` in `page-budgets.json` names a page, profile and measure that may stay
+over its budget while its own tracking task fixes it. It is reported on every run (a warning
+annotation and `excepted` in the JSON), fails past its `ceiling` (the level measured when it was
+written), and never moves the budget. Each one names a roadmap task, links its tracking issue,
+says why and records the measured runs; CLS has none. Today: home desktop idle, G20 (#139).
+
 Options: `PAGE_RUNS`, `PAGE_OUT=<file.json>`, `PAGE_ONLY=<page name>`. Unit tests for the pure
 parts (poster page, best of N, verdict): `tests/page-cost.test.mjs`.

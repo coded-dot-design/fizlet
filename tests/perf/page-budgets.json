@@ -6,5 +6,18 @@
   },
   "pages": [
     { "name": "home", "path": "", "keep": ["./site.js"], "exclude": "a, button, figure, [data-demo], [data-slot-target], [data-fizlet-slot]" }
+  ],
+  "_exceptions": "A named exception lets one measure of one page and profile stay over its budget while its own tracking task fixes it. It is reported on every run (a warning annotation), it fails past its ceiling (the level measured when it was written), and the budget itself never moves. Delete the entry when its task lands. CLS has no exceptions (tests/page-cost.test.mjs).",
+  "exceptions": [
+    {
+      "page": "home",
+      "profile": "desktop",
+      "measure": "idlePts",
+      "task": "G20",
+      "track": "https://github.com/coded-dot-design/fizlet/issues/139",
+      "why": "The layers story autoplays on desktop at 30 fps, and every scene frame re-layerizes the whole document (its preserve-3d stack, about 50 layers; fizlet#123). Phones start paused and pass. The fix moves the story onto compositor animations (G20); a spike halves the cost but is 453 B over the live-chunk bar and needs the owner on tank firing and the look.",
+      "ceiling": 10,
+      "measured": "CI perf job, best of 3 per run, live minus poster: +7.8 (EPYC 7763), +7.1 (Xeon 8573C), +7.2 (EPYC 9V45) on 2026-10-30, and +10 reported before fizlet#125; ceiling +10"
+    }
   ]
 }
