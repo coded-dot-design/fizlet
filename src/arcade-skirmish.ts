@@ -4,7 +4,7 @@
 // result overlays (BOARD-UI.md §9); the pad on phones with counted keys and aim toggles. Values go
 // through fizlet/hud: change-only, from typed-array slots, nothing allocated in the steady state.
 import type { ArcadeHud, HudView } from "./arcade";
-import { BASE, ICON, esc } from "./arcade-parts";
+import { ICON, esc } from "./arcade-parts";
 import { hud } from "./hud";
 import { pad } from "./pad";
 import type { PadAction } from "./pad";
@@ -74,7 +74,7 @@ export function skirmishHud(o: SkirmishOptions): ArcadeHud {
   const counts = o.counts ?? {}, keys: Record<string, string[]> = {};
   for (const a of aims) keys[a] = [];
   return {
-    css: BASE + CSS,
+    css: CSS,
     keys,
     mount(r): HudView {
       const { ui, def, engine: e, input } = r, actions = def.actions ?? [], doc = ui.ownerDocument;

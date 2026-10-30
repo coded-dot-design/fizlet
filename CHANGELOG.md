@@ -10,6 +10,25 @@
   (its offset parent's padding box) once on pointerdown and sets only `left`, `top`, `right`,
   `bottom` and `translate`. `tests/drag.mjs` drags a card in a bordered board under a header,
   scrolled. Arcade with `hud` omitted: 17,964 B gzip (+52 B; budget 17,920 → 17,984).
+- **Brick audit (2026-10-30), Board UI, coach and arcade.** Fixes with tests, no API change:
+  - **Fix: the coach card's ring gives a control its own outline back.** `card().show(…, target)`
+    set the target's inline `outline` and `outline-offset` and cleared them when the ring moved on,
+    so a control with its own inline outline lost it (Recall not exact). It now puts back what was
+    there. A card made with an already-aborted `signal` is removed at once instead of staying on
+    the page. `tests/coach.mjs`. fizlet/coach 1,192 → 1,220 B gzip (budget 1,536).
+  - **`drag()` reads layout only on a press and while dragging.** Every `pointermove` and
+    `pointerup` over a panel (a plain hover) called `getBoundingClientRect()`, forcing a layout
+    after the page's own writes: 11 reads for 10 hover moves and a release, now 0 (a press and each
+    drag move read once, as before). `tests/drag.mjs` counts them.
+  - **The skirmish preset no longer ships the overlay CSS twice.** Its `css` repeated `BASE`, which
+    the shell already mounts before every preset's CSS (same cascade, one copy).
+    `tests/arcade-css.test.mjs`.
+  - **`launch()` reads the key's look once, not once per copy.** The burst's seven copies each
+    re-read the key's computed style after the burst layer went in (a style pass each): for a key
+    with one child, 16 `getComputedStyle` calls, now 4. Same look on every copy (`tests/browser.mjs`).
+  - `press()`'s doc comment sat on `readouts()`: moved back to `press()`.
+  - Sizes: fizlet/arcade 21,970 → 21,975 B, with `hud` omitted 17,964 → 17,971 B, fizlet/ui (js)
+    2,884 → 2,893 B gzip (all inside budget).
 
 ## 0.19.0
 
