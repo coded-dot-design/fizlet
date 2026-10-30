@@ -62,3 +62,24 @@ test("css-clock: reduced motion rests at once; destroy gives the style back", ()
   c.destroy();
   assert.deepEqual([...root.props], [["color", "red"]], "Recall");
 });
+
+test("css-clock: zero allocation in its steps while it plays, and in whole frames at rest", async (t) => {
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  const { minorGCs } = await import("./gc.mjs");
+  const root = el(), c = cssClock(root, { span: 2, loops: 1e6, motion: true });
+  // Steps only: render writes one style string a frame (outside the step), as fizlet/timeline does.
+  const steps = (n) => { for (let i = 0; i < n; i++) c.tl.step(c.engine, 1 / 60); };
+  steps(20000);
+  gc();
+  const playing = await minorGCs(() => steps(200000));
+  assert.ok(playing <= 1, `young-generation GCs over 200k css-clock steps: ${playing}`);
+  // At rest (held): whole frames (read, steps, render) write nothing and allocate nothing.
+  c.hold(true);
+  run(c, 0.1);
+  const frames = (n) => { for (let i = 0; i < n; i++) c.engine.advance(1 / 60); };
+  frames(20000);
+  gc();
+  const rest = await minorGCs(() => frames(200000));
+  assert.ok(rest <= 1, `young-generation GCs over 200k frames at rest: ${rest}`);
+  c.destroy();
+});
