@@ -36,7 +36,8 @@ export const BUDGETS = [
   // The whole arcade shell with every brick it composes (kernel, board-page, input, pad, sound, ui js):
   // 17,206 B gz in 0.14.0 (17,081 in 0.13.0, 16,960 in 0.12.1, 16,946 in 0.12.0, 16,731 in 0.11.0), of which arcade's own code, markup and CSS was 6,694 B in 0.12.0. The
   // Board UI kit CSS is the game's (it bakes in the sections it uses).
-  ["fizlet/arcade", "src/arcade.ts", 17408],
+  // 17,554 B with the draggable scoreboard (owner, 2026-10-30: +243 B); budget raised 17,408 → 17,664.
+  ["fizlet/arcade", "src/arcade.ts", 17664],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   ["fizlet/board-page", "src/board-page.ts", 4096],
   // A hero's live chunk is ≤ 10 KB gz (fizlet-engine docs/LAYERS.md); the bricks take ≤ 7 KB, the scene ≥ 3 KB.

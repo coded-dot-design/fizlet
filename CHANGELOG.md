@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- **Fix (`fizlet/arcade`): on a high-density screen the game's canvas was drawn 1.5× too big.**
+  Its backing store is `innerWidth × devicePixelRatio` (capped at 1.5), but its CSS never set the
+  display size, so the canvas showed at its backing size: everything it draws (tanks, shots, base
+  beacons) sat 1.5× from the viewport's corner, away from the page (owner report: Sherman Bytes on
+  the hub, the HQ outlines and the tank off where the buttons are). It now covers the viewport at
+  its CSS size. Browser test at 2×.
+- **`fizlet/arcade`: the scoreboard drags** by its header (not its keys), mouse or touch, and stays
+  on screen when the window shrinks (owner: "the in-page scoreboard is always draggable"). +243 B;
+  the arcade budget goes 17,408 → 17,664.
+
 ## 0.17.0
 
 - **Website: a themed gallery, a heroes row and contributor profiles** (launch infrastructure).

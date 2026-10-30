@@ -163,9 +163,9 @@ const esc = (t: string) => t.replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};
 const CSS = `
 :host{all:initial!important;position:fixed!important;inset:0!important;display:block!important;z-index:2147483000!important;pointer-events:none!important}
 .bui{position:absolute;inset:0;background:none;font:500 12px/1.4 ui-monospace,monospace}
-canvas{position:absolute;inset:0;pointer-events:none}
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .ar{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));width:min(300px,calc(100% - 24px));display:grid;gap:10px;padding:10px 12px 12px;pointer-events:auto;color:var(--ink);background:color-mix(in srgb,var(--card) 94%,transparent);border:2.5px solid var(--line);border-radius:10px;box-shadow:0 5px 0 var(--rim)}
-.ar header{display:flex;align-items:center;gap:6px}.ar header b{flex:1;font:900 11px/1 ui-monospace,monospace;letter-spacing:.14em;color:var(--team-a)}
+.ar header{display:flex;align-items:center;gap:6px;cursor:grab;touch-action:none}.ar.drag header{cursor:grabbing}.ar header b{flex:1;font:900 11px/1 ui-monospace,monospace;letter-spacing:.14em;color:var(--team-a)}
 .ar header button{width:34px;height:34px;min-height:0;padding:0;display:grid;place-items:center}.ar header svg{width:18px;height:18px}
 .ar .bui-readouts{justify-content:space-between;gap:12px}
 .mt{display:grid;grid-template-columns:1fr auto;gap:4px 8px;font-size:10px;letter-spacing:.08em;color:var(--muted)}.mt b{color:var(--ink)}
@@ -351,6 +351,21 @@ ${def.meter ? `<div class="mt"><b></b><span></span><i role="progressbar" aria-la
         k.pause.setAttribute("aria-label", status === "paused" ? "Resume game (P)" : "Pause game (P)");
         k.pause.disabled = status !== "running" && status !== "paused";
       };
+      // The scoreboard moves: drag it by its header (not its keys), mouse or touch. CSS min() keeps
+      // it on screen when the window shrinks.
+      const card = $<HTMLElement>(".ar"), head = card.firstElementChild as HTMLElement, g = new Float64Array(2);
+      const drag = (ev: PointerEvent) => {
+        const k = ev.type[7], r = card.getBoundingClientRect();
+        if (k === "d") {
+          if (ev.button || (ev.target as Element).closest("button")) return;
+          (g[0] = ev.clientX - r.left), (g[1] = ev.clientY - r.top);
+          head.setPointerCapture(ev.pointerId);
+          card.classList.add("drag");
+        } else if (k !== "m") card.classList.remove("drag");
+        else if (card.classList.contains("drag"))
+          card.style.cssText = `left:max(0px,min(${ev.clientX - g[0]!}px,calc(100% - ${r.width}px)));top:max(0px,min(${ev.clientY - g[1]!}px,calc(100% - ${r.height}px)));right:auto;bottom:auto`;
+      };
+      for (const t of ["pointerdown", "pointermove", "pointerup", "pointercancel"]) head.addEventListener(t, drag as EventListener, { signal: e.signal });
       ui.addEventListener("click", (ev) => {
         const b = (ev.target as Element).closest<HTMLButtonElement>("button[data-a],button[data-act]");
         if (!b) return;

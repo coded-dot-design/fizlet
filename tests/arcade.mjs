@@ -133,6 +133,33 @@ try {
   assert.deepEqual(errs, []);
   await p.close();
 
+  where = "hidpi and drag";
+  // A 2x screen: the canvas covers the viewport at its CSS size (its backing store is denser), so
+  // what it draws lines up with the page. The scoreboard drags by its header and stays on screen.
+  const hd = await browser.newContext({ viewport: { width: 1000, height: 700 }, deviceScaleFactor: 2 });
+  const hp = await hd.newPage();
+  await hp.setContent(PAGE);
+  await hp.evaluate(() => (window.g = T.launch({ root: "#board", sound: false })).start());
+  await hp.waitForTimeout(100);
+  const box = await hp.locator("[data-fizlet-host=test-game]").evaluate((h) => {
+    const c = h.shadowRoot.querySelector("canvas").getBoundingClientRect(), b = h.shadowRoot.querySelector(".ar header b").getBoundingClientRect();
+    return { w: c.width, h: c.height, cw: h.shadowRoot.querySelector("canvas").width, hx: b.left + 10, hy: b.top + b.height / 2 };
+  });
+  assert.deepEqual([box.w, box.h, box.cw], [1000, 700, 1500], "the canvas is the viewport's CSS size at 2x (backing 1.5x)");
+  await hp.mouse.move(box.hx, box.hy);
+  await hp.mouse.down();
+  await hp.mouse.move(box.hx - 500, box.hy - 400, { steps: 5 });
+  await hp.mouse.up();
+  const moved = await hp.locator("[data-fizlet-host=test-game]").evaluate((h) => h.shadowRoot.querySelector(".ar").getBoundingClientRect().toJSON());
+  assert.ok(moved.top < 300 && moved.left < 600, `the scoreboard dragged (${Math.round(moved.left)}, ${Math.round(moved.top)})`);
+  await hp.mouse.move(moved.left + 20, moved.top + 15);
+  await hp.mouse.down();
+  await hp.mouse.move(-900, -900, { steps: 3 });
+  await hp.mouse.up();
+  const kept = await hp.locator("[data-fizlet-host=test-game]").evaluate((h) => h.shadowRoot.querySelector(".ar").getBoundingClientRect().toJSON());
+  assert.ok(kept.left >= 0 && kept.top >= 0, "and stays on screen");
+  await hd.close();
+
   where = "phone";
   const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const pp = await phone.newPage();
@@ -141,7 +168,7 @@ try {
   const pad = await pp.locator("[data-fizlet-host=test-game]").evaluate((h) => ({ stick: !!h.shadowRoot.querySelector(".bui-stick"), keys: h.shadowRoot.querySelectorAll(".bui-pad button").length, compact: h.shadowRoot.querySelector(".ar").classList.contains("compact") }));
   assert.ok(pad.stick && pad.keys >= 2 && pad.compact, JSON.stringify(pad));
   await phone.close();
-  console.log("arcade: play, in-page art, readouts and meter, action key, target paint, links and fields, pause, game over then Escape, Recall exact, failed start, phone pad passed.");
+  console.log("arcade: play, in-page art, readouts and meter, action key, target paint, links and fields, pause, game over then Escape, Recall exact, failed start, 2x canvas at CSS size, draggable scoreboard, phone pad passed.");
 } catch (err) {
   console.error(`arcade test failed at: ${where}`);
   throw err;
