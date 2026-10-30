@@ -112,6 +112,10 @@
       "types": "./dist/timeline.d.ts",
       "default": "./dist/timeline.js"
     },
+    "./actor": {
+      "types": "./dist/actor.d.ts",
+      "default": "./dist/actor.js"
+    },
     "./css-clock": {
       "types": "./dist/css-clock.d.ts",
       "default": "./dist/css-clock.js"
