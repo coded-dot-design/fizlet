@@ -1,0 +1,39 @@
+{
+  "no": 27,
+  "id": "bat-blaster",
+  "date": "2026-10-30",
+  "prompt": "bat blaster: tap to shoot the swooping pixel bats before they fly off across the page",
+  "title": "Bat Blaster",
+  "kind": "hero",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "bats",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/fx",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 33,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 20.51,
+      "throttle4x": {
+        "frames": 366,
+        "p95Ms": 4,
+        "maxMs": 56.6
+      }
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/bat-blaster.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **The fizz: the original can, without the zoom** (owner: "the og ones were good, just the zoom
+  needs to be killed"). The 20 × 40 can and its story are back (the 0.18.0 hi-def redraw stays in
+  history, to try other cans later; it never shipped in a release), and `fizlet/camera` is out: the card holds still, the side and
+  top views tell it. Live chunk 8,752 B gzip (9,455 B for the redraw, 9,710 B with the camera),
+  poster 3,457 B; settled 0 frames a second, measured in Chromium 153.
 - **Gallery: quality over quantity.** Of the 23 recipe entries made by `fe anim`, the owner kept 7
   (pink sparks, neon rain, POW BAM ZAP, speed lines, halftone wave, red cape, hero landing); the
   other 16 move into an archive, `gallery/archive/` (noindex, out of the gallery's index and
@@ -65,15 +70,6 @@
   brick contents and prev/next. The header icon keys are 44 px. Phone screenshots of every changed
   page are pixel-identical. 668 → 24 small targets over the 30 pages at 390 px; the 24 left are the
   copy keys, whose hit area grows instead (the kit's invisible `::before`) because their face can't.
-- **The fizz, reworked** (owner feedback; `site/demos/fizz/`). No zoom: two cameras hold still,
-  side and straight down into the can, and the eye cuts between them (`fizlet/camera` is out of
-  the chunk). The can is drawn by code at twice the detail (40 × 80 side, 44 × 44 top), glossy,
-  lit from the upper left, still pixel art: the whole card and the spray sit on one pixel grid.
-  The opening is its own beat: the crunch, the tab lifts (a hiss), the lid pops (a seal-break fan,
-  a shock ring, the can kicks up), foam swells in the opening, then the fizz erupts: droplets,
-  pixel bubbles that swell and pop, foam, rings and flecks, every size. Live chunk 9,455 B gzip
-  (was 9,710), poster 5,858 B (one path per colour; the hero budget is 6,144). The settle
-  measurement starts at 9 s (the story is about a second longer).
 - **Website: the roadmap tells the truth again.** E2 lists rules, steer, coach, camera, perf and
   arcade as shipped (timeline and layout to come); E3 is nearly done (Null Invaders, Byte Runner,
   Sherman Bytes and DOM Battlefield at 1.0, Battlefield Blitz on Fizlet, Swarm Protocol 1.4 in
@@ -242,6 +238,30 @@
   from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,766 B · total 8,692 B
   gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
   motion; settles to zero frames.
+- **Website: gallery #027, "bat blaster: tap to shoot the swooping pixel bats before they fly off
+  across the page".** Made by `fe anim` from the prompt (recipe bats, a playable Halloween hero;
+  kernel + fx + sprite + slot): live 9,671 B · total 11,597 B gzip (with the 1,926 B loader) on this
+  build, loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #028, "pumpkin smash: whack the jack-o-lanterns as they pop up, pixel goo
+  bursts".** Made by `fe anim` from the prompt (recipe smash, a playable Halloween hero; kernel + fx
+  + sprite + slot): live 9,471 B · total 11,397 B gzip (with the 1,926 B loader) on this build,
+  loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #029, "pumpkin slice: swipe through the pumpkins as they arc up, halves and
+  seeds fall".** Made by `fe anim` from the prompt (recipe slice, a playable Halloween hero; kernel
+  + fx + sprite + slot): live 9,700 B · total 11,626 B gzip (with the 1,926 B loader) on this build,
+  loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #030, "haunted page: a ghost drifts over the headings and makes the letters
+  shiver".** Made by `fe anim` from the prompt (recipe haunt, a playable Halloween hero that reads
+  the page's own headings and writes only through the ledger; kernel + board-page + sprite + slot):
+  live 9,541 B · total 11,467 B gzip (with the 1,926 B loader) on this build, loaded only near the
+  viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #031, "candy cauldron: tap to drop candy into a bubbling cauldron and watch it
+  fizz".** Made by `fe anim` from the prompt (recipe cauldron, a playable Halloween hero; kernel +
+  fx + sprite + slot): live 9,638 B · total 11,564 B gzip (with the 1,926 B loader) on this build,
+  loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: the gallery theme filter follows the address.** A `#theme-` link to the page you are
+  on (or back) now filters too, not only on arrival (`hashchange`); it showed once there were two
+  themes.
 
 ## 0.17.0
 
