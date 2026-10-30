@@ -74,6 +74,7 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
       </div>
       <div class="bp-sizes">${sizeCards(brick, sizes)}<p class="bp-note">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>
     </div>
+    ${brick.card ? `<div class="bp-card">${brick.card(`bricks/${brick.id}`)}</div>` : ""}
     ${demo}
     <div class="bp-use">
       <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>MODULES</b> · hosted on this site</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(esm)}</code></pre></div>
@@ -98,6 +99,7 @@ export function bricksIndex({ bricks, sizes, version }) {
     return `<li class="panel brick" style="--tone: var(--k-${b.role})">
         <div class="brick-top"><span class="brick-tag">${esc(b.tag)}</span><span class="brick-size"><b>${kb(s.gzip)} KB</b><small> / ${kb(s.budget)} KB gzip</small></span></div>
         <h2><a href="${b.id}.html"><code>${esc(b.name)}</code></a></h2>
+        ${b.card ? b.card("bricks") : ""}
         <p>${prose(b.summary)}</p>
       </li>`;
   }).join("\n      ");

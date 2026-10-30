@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+- **Brick cards: a live toy per brick, built with that brick.** `site/cards/` holds one fizlet/slot
+  scene per brick on one shared frame (`frame.ts`: a 320 × 200 stage, the brick drawn the Board UI
+  way, a floor, and a readout of the engine's state: AWAKE n fps, then ASLEEP · 0 FPS). Five so far:
+  kernel (bricks drop, stack, get knocked out; the loop sleeps when they stop), fx (a crate knocked
+  about by small blasts until the hero blast takes it apart, one fixed pool), collide (balls knock
+  bricks out of a wall; the readout shows the grid's checks against all pairs), grid (A* across a
+  seeded board; tap a rock to break it and the walk takes the short cut) and steer (a tower of bricks
+  that flee the pointer and arrive back in their slots). Each shows its brick's gzip size from the
+  build, loads near the viewport, sleeps off screen, keeps a still labelled poster under reduced
+  motion, and gives the page back exactly. On the bricks page and each brick's page;
+  `brickCard()` (site/brick-cards.mjs) plus `brick-cards.js` mounts one anywhere (note cards, a
+  gallery hero). Card chunks: kernel 5,598 B, fx 8,678 B, collide 7,973 B, grid 7,391 B, steer
+  6,671 B gzip (each with the kernel and slot), loader 2,246 B. `tests/brick-cards.mjs` (in
+  `test:site`) plays every card.
+
 - **Fix: a dragged scoreboard no longer jumps when its board is not the viewport.** `drag()`
   (fizlet/arcade's panel drag, also used by Battlefield Blitz) set `left`/`top` from viewport
   coordinates and replaced the card's whole inline style, so a board under a page header, mid-page
