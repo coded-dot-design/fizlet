@@ -1,6 +1,6 @@
 // The quick start: shown on the home page, and run for real on examples/quick-start.html (the
 // site test clicks it), so the snippet people copy is a snippet we know works.
-import { esc, icon, REPO } from "../layout.mjs";
+import { crumbs, esc, icon, REPO } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 
 export const QUICK_START = (src) => `<canvas id="board" width="640" height="320"></canvas>
@@ -24,6 +24,7 @@ export function quickStartPage({ site, quick }) {
   return `
 <section class="section qs" aria-labelledby="qs-title">
   <div class="wrap">
+    ${crumbs("../", [["#start", "Quick start"]], "The example, running")}
     <div class="split qs-top">
       <div>
         <p class="eyebrow"><span class="index">EX</span> QUICK START · RUNNING</p>
@@ -35,7 +36,7 @@ export function quickStartPage({ site, quick }) {
     <div class="qs-grid">
       <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>SOURCE</b> · the whole thing</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(shown)}</code></pre></div>
     </div>
-    <div class="split-keys"><a class="bui-key bui-arcade bui-sys" href="../#start">${icon("down", 16)}Back to quick start</a><a class="bui-key bui-arcade bui-cmd" href="${REPO}#readme">${icon("book", 16)}The API</a></div>
+    <div class="split-keys"><a class="bui-key bui-arcade bui-sys" href="../#start">${icon("down", 16)}Back to quick start</a><a class="bui-key bui-arcade bui-cmd" href="${REPO}#readme">${icon("book", 16)}The API on GitHub ↗</a></div>
   </div>
 </section>`;
 }

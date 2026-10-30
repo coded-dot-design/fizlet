@@ -1,8 +1,11 @@
-// Every page: the theme toggle (shared with DOM VIRUS and Battlefield), the copy keys and the
-// kit's press cue for page keys (keyboard press, iOS :active).
+// Every page: the theme toggle (shared with DOM VIRUS and Battlefield), the copy keys, the
+// kit's press cue for page keys (keyboard press, iOS :active) and fizlet/touch, so pinching a demo
+// never zooms the page (the page itself keeps pinch-zoom, WCAG 1.4.4).
 import { pressCue } from "../src/ui/board-ui";
+import { lockTouch, SURFACES } from "../src/touch";
 
 pressCue(document);
+lockTouch(document, `${SURFACES},.demo-board,.bd-canvas,.bd-tl,.lab-stage`);
 const html = document.documentElement;
 document.querySelector("[data-theme-toggle]")?.addEventListener("click", () => {
   const next = html.dataset.theme === "light" ? "dark" : "light";
