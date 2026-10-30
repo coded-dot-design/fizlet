@@ -33,6 +33,9 @@ export const BUDGETS = [
   ["fizlet/steer", "src/steer.ts", 1280],
   // flag + tour + the kit card (its look inline on the tokens): 1,192 B gz when added; flag and tour alone tree-shake to less.
   ["fizlet/coach", "src/coach.ts", 1536],
+  // Keyframe tracks, easings (tables), stagger, labels, repeat/yoyo, controls, events, revert:
+  // 2,050 B gz when added (target was 1,536; ~110 B of it is the kernel's `need`, shared on a page).
+  ["fizlet/timeline", "src/timeline.ts", 2304],
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, fizlet/hud included). The Board UI kit CSS is the game's (it bakes

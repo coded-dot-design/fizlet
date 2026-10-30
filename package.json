@@ -104,6 +104,10 @@
       "types": "./dist/coach.d.ts",
       "default": "./dist/coach.js"
     },
+    "./timeline": {
+      "types": "./dist/timeline.d.ts",
+      "default": "./dist/timeline.js"
+    },
     "./arcade": {
       "types": "./dist/arcade.d.ts",
       "default": "./dist/arcade.js"
@@ -130,7 +134,7 @@
     "build": "node scripts/build.mjs",
     "check": "npm run typecheck && npm test && npm run build",
     "size": "node scripts/size.mjs",
-    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/coach.mjs",
+    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/coach.mjs && node tests/timeline.mjs",
     "test:layers": "tsc -p site/demos/layers/tsconfig.json && node tests/layers.mjs",
     "test:pack": "node scripts/pack-smoke.mjs",
     "site": "npm run build && node scripts/site.mjs",
