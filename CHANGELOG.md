@@ -2,6 +2,36 @@
 
 ## Unreleased
 
+- **fizlet/arcade's skirmish preset runs its flow on `fizlet/match` (G15).** One owner of the phase:
+  the countdown, pause / surrender and result are match's, on a small engine of its own that lives
+  as long as the overlay (Recall destroys it, and its ledger takes the overlay back). The shell keeps
+  the keys (P, Escape, the bar's pause key) and asks: `pause()`, `resume()` and the end go to the
+  HUD's new `ask` when it has one, and the HUD answers through `HudRun.go` (pause, resume, won,
+  lost, restart, exit). The countdown is on the flow's clock (was three 600 ms wall-time timers), the
+  game's engine waits for it; the result sticker outlives the game's engine (whose end gives the page
+  back) until REMATCH, EXIT or Recall; a hidden tab pauses with BATTLE PAUSED; surrender waves the
+  white flag (WHITE FLAG / GAME OVER). The preset's own overlay code is gone. Card games (`hud` left
+  out or `arcadeHud()`) behave as before: tests/arcade-hud.mjs still checks the card byte for byte.
+  Sizes: arcade 23,980 B gzip (+2,005 B: match in the bundle, less the overlays it replaced; budget
+  22,016 → 24,064); the card build 18,033 B (+62 B: the flow contract; budget 17,984 → 18,048).
+- **skirmishHud: the keys a game asks for.** `nav: ["auto", "next", "restart"]` adds Auto fire
+  (with `fire`), Next gate and Restart to the bar, as on the card; `header` takes `fold` (hides the
+  title and the text keys). Default: none, so existing bars are unchanged.
+- **fizlet/match: `on(phase)` and `hide`, and three contract fixes** (brick audit P-items), each
+  tested and each test failing on the old code:
+  - a settling engine stays awake through the countdown and play (`busy()` in step); before, the
+    countdown and clock froze once the engine settled;
+  - no layout read on a phase change or countdown beat: the sticker slams by re-insertion instead
+    of the kit's `slam()` (an `offsetWidth` read, a forced reflow each time);
+  - the white flag's 480 ms wait is cleared by `destroy()` (it outlived Recall), and a destroyed
+    engine's match is inert (no transition writes past Recall).
+  - `on(phase)`: each phase change once painted (not the first intro); `hide`: phases that show no
+    overlay. fizlet/match 2,652 B gzip (+54 B).
+  - Tests: `tests/match.test.mjs` (settle, `on`, inert after destroy, the arcade flow's zero
+    allocation over 1M frames, best of 3 windows, `--test-concurrency=1`), `tests/browser.mjs`
+    (no layout reads, the slam restarts, the flag's wait cleared), `tests/arcade-hud.mjs` (the
+    skirmish flow end to end, the nav and fold keys).
+
 - **Fix: `slot("page#slot", …)` finds astro-engine's current slot markup.** The engine now renders
   `<figure class="ae-slot-figure"><div class="ae-slot" data-slot-target role="img">…</div><figcaption
   class="ae-slot__fallback">` (the caption outside the role="img" box), and `findSlot()` looked only
