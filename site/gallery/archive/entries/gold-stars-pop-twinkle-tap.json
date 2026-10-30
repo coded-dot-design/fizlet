@@ -29,5 +29,6 @@
   "made": "fe anim",
   "module": "anims/gold-stars-pop-twinkle-tap.ts",
   "export": "mount",
-  "aspect": "16 / 9"
+  "aspect": "16 / 9",
+  "archived": true
 }

@@ -6,7 +6,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev --local",
+    "dev": "wrangler dev --local --var ALLOWED_ORIGINS:",
     "test": "node --test test/*.test.mjs",
     "test:wrangler": "node test/wrangler.mjs"
   },

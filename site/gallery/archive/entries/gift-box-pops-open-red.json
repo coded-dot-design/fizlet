@@ -1,35 +1,34 @@
 {
-  "no": 17,
-  "id": "ornaments-jingle-hover-button",
+  "no": 15,
+  "id": "gift-box-pops-open-red",
   "date": "2026-10-30",
-  "prompt": "ornaments jingle when you hover a button",
-  "title": "Ornaments jingle when you hover a button",
+  "prompt": "a gift box pops open into red and green confetti",
+  "title": "A gift box pops open into red and green confetti",
   "kind": "micro",
   "theme": "christmas",
   "author": "chris-cooley",
-  "recipe": "jingle",
+  "recipe": "burst",
   "bricks": [
     "fizlet/kernel",
-    "fizlet/board-page",
+    "fizlet/fx",
     "fizlet/slot"
   ],
   "pageCost": {
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 32,
+      "framesPlaying": 33,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": true,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 13.97,
-      "elementsLit": 2
+      "allocBytesPerFrame": 1.18
     }
   },
   "fizlet": "0.16.0",
   "made": "fe anim",
-  "module": "anims/ornaments-jingle-hover-button.ts",
+  "module": "anims/gift-box-pops-open-red.ts",
   "export": "mount",
   "aspect": "16 / 9",
-  "stage": "page"
+  "archived": true
 }
