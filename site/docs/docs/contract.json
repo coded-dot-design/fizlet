@@ -1,0 +1,60 @@
+{
+  "slug": "contract",
+  "section": "docs",
+  "order": 3,
+  "nav": "The contract",
+  "eyebrow": "Docs · the contract",
+  "title": "Nine promises",
+  "subtitle": "Each one tested.",
+  "summary": "The nine rules every brick and every game on Fizlet keeps, and the test that proves each one.",
+  "lead": [
+    "Most engines assume they own the page. Fizlet is a guest: it runs inside someone else's site, on a phone, next to their code, and it leaves no trace. These nine rules are the whole design. Every brick and every game built on Fizlet keeps them, and each one has a test that fails when it breaks."
+  ],
+  "blocks": [
+    {
+      "type": "contract",
+      "heading": "The nine rules"
+    },
+    {
+      "type": "text",
+      "heading": "How each rule is checked",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**One clock.** A kernel test runs several engines and counts one `requestAnimationFrame` between them; another checks the fixed step drops time after `maxSteps` (default 4) instead of spiralling. Details in [the loop](/docs/loop/).",
+            "**Bounded.** Pools and the event ring (64 events a frame by default) refuse work at their cap, and the test checks they never grew. `fizlet/fx` refuses particles past its cap (420 by default) and counts them in `fx.dropped`.",
+            "**Zero allocation.** One million kernel steps of a busy system cause 0 young-generation GCs on Node 24 (best of three windows; the test fails above 1). Bricks with a hot path have their own allocation tests.",
+            "**No layout reads in the step.** `fizlet/debug`'s `guardLayout(engine)` counts layout reads made during a step. The live demo on the [home page](/) shows the count: it stays at 0.",
+            "**Change-only writes and Recall.** Browser tests in Chromium write the same value twice and count zero mutations, then `destroy()` and compare the DOM with a snapshot taken before. See [Recall](/docs/recall/).",
+            "**Pause by default.** A browser test hides the tab, types in a host field and scrolls the root away, and checks the engine pauses for each reason (`engine.paused`) and runs again after.",
+            "**Embed-safe.** A browser test compares every box inside the pad, the match overlay and the launch burst with CSS containment on and off: nothing moves or clips.",
+            "**Budgets.** `npm run size` builds every entry, minifies and gzips it, and fails CI over its budget. The numbers are in [budgets](/docs/budgets/)."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "q": "Does a game have to keep the contract too?",
+          "a": "Yes. The bricks keep it by construction, and the games on Fizlet are tested against it: they step on typed arrays, write through the ledger and give the page back on Escape."
+        },
+        {
+          "q": "Is any rule a frame-rate promise?",
+          "a": "No. The rules bound the work an engine does; real frame time still depends on the page, the fonts and the device. What we measure is in the perf harness, under a 4× CPU throttle."
+        },
+        {
+          "q": "Can I break a rule on purpose?",
+          "a": "A change that breaks one needs a test that proves the new rule. That is how the fps cap changed in 0.19.0: it now caps requestAnimationFrame, with a test that counts the calls a second at 60 and 120 Hz."
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "The Fizlet contract: nine tested rules",
+    "description": "One clock, bounded pools, zero steady-state allocation, change-only writes, pause by default, Recall: the nine rules every Fizlet brick keeps, each tested."
+  },
+  "brick": "debug"
+}

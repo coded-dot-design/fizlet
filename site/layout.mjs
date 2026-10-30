@@ -9,9 +9,10 @@ export const REPO = "https://github.com/coded-dot-design/fizlet";
 export const SITE = new URL(process.env.FIZLET_SITE || "https://fizlet.com/").href;
 /** The site's root path on its host ("/" on fizlet.com): the 404 page links from it, at any depth. */
 export const ROOT = new URL(SITE).pathname;
-export const HUB = "https://coded-dot-design.github.io/dom-virus/";
-export const BATTLEFIELD = "https://coded-dot-design.github.io/dom-battlefield/";
-export const BLITZ = `${BATTLEFIELD}blitz/`;
+// The games live on DOM VIRUS (domvirus.com, the arcade catalog); Fizlet links there, never copies them.
+export const HUB = "https://domvirus.com/";
+export const BATTLEFIELD = "https://battlefield.domvirus.com/";
+export const BLITZ = "https://battlefieldblitz.domvirus.com/";
 export const AUTHOR = "https://coded.design";
 export const ENGINE_PLAN = "https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md";
 
@@ -53,17 +54,29 @@ export const mark = (size = 40) =>
   `<svg viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true" shape-rendering="crispEdges"><path d="M0 16h64M0 32h64M0 48h64M16 0v64M32 0v64M48 0v64" stroke="#19f0ff" stroke-opacity=".35"/><rect x="1" y="1" width="62" height="62" fill="none" stroke="#19f0ff" stroke-width="2"/><g fill="currentColor"><path fill-rule="evenodd" d="M8 30h26v26H8Zm7 7v12h12V37Z"/><path d="M36 18h14v14H36ZM40 40h8v8h-8Z"/></g><path d="M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z" fill="#ff2e88"/></svg>`;
 
 // Site navigation, one source (brain: fizlet-engine playbooks/content/site-nav.md). The header names the
-// top-level pages (plus the contract, the home page's core); the footer lists every section of the
-// site, so no page is an orphan. A link to the page you are on, or one of its parents, carries
+// top-level pages: Docs · Bricks · Guides · Gallery · Heroes · Notes · News. Contest and Roadmap sit in
+// the footer and the home page's "On this page" strip; the footer lists every section of the site,
+// so no page is an orphan. A link to the page you are on, or one of its parents, carries
 // aria-current. External links end in ↗ (icon keys name the destination in aria-label).
 export const NAV = [
-  ["#contract", "Contract"],
+  ["docs/", "Docs"],
   ["bricks/", "Bricks"],
+  ["guides/", "Guides"],
   ["gallery/", "Gallery"],
   ["heroes/", "Heroes"],
   ["notes/", "Notes"],
-  ["contest/", "Contest"],
-  ["#roadmap", "Roadmap"],
+  ["news/", "News"],
+];
+const FOOT_DOCS = [
+  ["docs/getting-started/", "Getting started"],
+  ["docs/contract/", "The contract"],
+  ["docs/loop/", "The loop"],
+  ["docs/recall/", "Recall and the ledger"],
+  ["docs/budgets/", "Size budgets"],
+  ["docs/determinism/", "Determinism"],
+  ["docs/authoring/", "Authoring guide and recipes"],
+  ["guides/", "Guides"],
+  ["news/", "News and releases"],
 ];
 const FOOT_ENGINE = [
   ["#contract", "The contract"],
@@ -168,6 +181,12 @@ ${body}
       <p>Tiny physics for your page. A micro game engine for the DOM by <a href="${AUTHOR}">Chris Cooley ↗</a>: the page is the board, and it always comes back.</p>
     </div>
     <div>
+      <h2>DOCS</h2>
+      <ul>
+        ${list(FOOT_DOCS)}
+      </ul>
+    </div>
+    <div>
       <h2>ENGINE</h2>
       <ul>
         ${list(FOOT_ENGINE)}
@@ -201,6 +220,7 @@ ${body}
         <li><a href="${BATTLEFIELD}">DOM Battlefield ↗</a></li>
         <li><a href="${HUB}">DOM VIRUS arcade ↗</a></li>
       </ul>
+      <p class="foot-note">Fizlet is the engine; the games are on <a href="${HUB}">DOM VIRUS ↗</a>.</p>
     </div>
   </div>
   <div class="foot-base">
