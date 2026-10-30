@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **PERF-LOG.md: five more measured wins** (roadmap E6, G9), each with its merged PR's numbers:
+  the layers story's CLS 0.002 → 0 (#129, #123); the Battlefield landing hero 91.7 → 49.4 % main
+  thread busy on a 4× phone (dom-battlefield#21); the fps cap's slot from the frame's start, that
+  hero 22.6 → 27.8 rAF/s of the 30 it asks for (#122); presence's WebSocket send 22 → 0 young GCs
+  per 400k (#104); fizlet.com's two stylesheets 19,831 → 13,975 B gzip (#105). A win may name
+  another repo (`repo`: a game site running Fizlet, with that repo's version), and `Unreleased` is a
+  version. `tests/site.mjs` now checks the served stylesheets are minified (the CSS win had no test).
+
 - **`@fzlt/core/terrain`: the default steep colour is the first band darkened, not black.** Without `steepColor`, `terrainView` made the steep colour as an `rgb()` string, and the shade ramp parses `#rrggbb`, so every default steep face drew black. Now the default is the first band × 0.8 as `#rrggbb`, as the option's doc meant. A view that sets `steepColor` is unchanged. Size: the terrain module 5,511 → 5,566 B gz (+55 B, inside the 5,568 B budget). Tests: `tests/terrain.test.mjs` (a slope with no `steepColor`: its steep faces take the band × 0.8 and no face is black; fails on the old code).
 
 ## 0.27.0
