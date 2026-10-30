@@ -23,6 +23,37 @@
     Comments only: no JS changes, so every size is unchanged (kernel 3,438 B gzip).
   - The site's own JS is byte-identical; `site.css` grows 102 B gzip (9,788 → 9,890 B) for the
     signature and parameter rows.
+- **Website: docs, guides and news for launch** (fizlet.com is the engine's tech resource; the games
+  live on DOM VIRUS). New sections, every number filled in from the build, never typed:
+  - `/docs/`: getting started, the contract, the loop, Recall and the ledger, size budgets (every
+    module's gzip and budget, measured by `scripts/sizes.mjs`, the same call CI makes) and
+    determinism. Pages are JSON in `site/docs/` (`scripts/docs.mjs`; `{size:…}`, `{budget:…}`,
+    `{kb:…}` and `{version}` are filled in from the build; an unknown one fails it).
+  - `/docs/authoring/`: the authoring guide (the shape of every Fizlet piece, bricks by use case) and
+    three recipes that run on the page as written, each with its live size measured on the build:
+    an action on the page (kernel + fx + hud), a shooter (kernel + input + collide + fx + hud) and
+    two players in lockstep over `memory()` (kernel + input + presence + hud). Sources in
+    `site/recipes/` (plain JS, typechecked with `checkJs`); the page shows them with the hosted
+    imports, ready to paste.
+  - `/guides/`: build a micro game, fill an Astro slot, port a game, multiplayer rooms. Every code
+    listing is a file in `site/docs/code/`, typechecked against the source by `npm run typecheck`.
+  - `/news/`: release notes for every version, rendered from this changelog (`scripts/releases.mjs`;
+    dates in `site/releases.json`), each with its own title, description and TechArticle JSON-LD;
+    launch announcements lead the index.
+  - List cards (notes, news, docs, guides) carry an empty `data-anim-slot` mount point (a brick id,
+    `note:<slug>` or `release:<version>`) where a brick animation can mount; it takes no room until filled.
+  - Brick pages without an "In short" snippet (pad, camera, slot, hud, match, board-page, presence,
+    perf, rules) get an example, typechecked from `site/brick-examples/`.
+  - Header nav: Docs · Bricks · Guides · Gallery · Heroes · Notes · News. Contest and Roadmap move
+    to the footer and the home page's "On this page" strip; a DOCS column in the footer (the site
+    nav rules hold: one header, aria-current, no orphans). llms.txt groups Docs, Guides and Release
+    notes. Docs pages carry TechArticle and BreadcrumbList JSON-LD.
+  - Game links go to domvirus.com, battlefield.domvirus.com and battlefieldblitz.domvirus.com, with
+    one line in the footer saying the games live there. The roadmap ticks the docs, guides, release
+    notes and the authoring guide under E5; the contract card no longer says every brick is 1.5 to
+    5 KB (arcade's budget is 22 KB).
+  - The three launch notes (How small is small, Recall: the page always comes back, Lockstep
+    multiplayer in a few KB) are scheduled for 2026-10-31 09:00 New York and land in their own PR.
 - **Brick cards: a live toy per brick, built with that brick.** `site/cards/` holds one fizlet/slot
   scene per brick on one shared frame (`frame.ts`: a 320 × 200 stage whose backing store matches the
   slot in device pixels, so lines and labels stay sharp at any width and DPR; the brick drawn the

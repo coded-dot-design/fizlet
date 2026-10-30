@@ -63,8 +63,9 @@ export const ROADMAP = [
     [1, "One page per brick, generated from the source, with its status"],
     [1, "Gallery and notes, every number measured on the build"],
     [1, "llms.txt and a sitemap from the same build"],
+    [1, "Docs and guides: the contract, the loop, Recall, budgets, determinism; release notes for every version"],
     [1, "An API reference for every brick, generated at build time by the TypeScript compiler, and llms-full.txt"],
-    [0, "Authoring guide and recipes by use case: an action on the page, a shooter, two players"],
+    [1, "Authoring guide and recipes by use case: an action on the page, a shooter, two players"],
     [0, "Live kernel stats on Under the Hood"],
   ] },
   { id: "E6", name: "Performance wins", status: "started", goal: "Smaller and faster every week: the perf harness in CI, the top cost fixed, the win logged.", items: [
