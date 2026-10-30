@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **`fizlet/perf`: the card pins `box-sizing: content-box`.** Its inline width (120px plus
+  padding) assumed content-box, so on a page with a global `* { box-sizing: border-box }` (the
+  DOM VIRUS hub and DOM Battlefield both) its right column clipped. Node test asserts it.
 - **Website: a size badge on every live demo** ("9.4 KB GZ"): the layers hero, the blast board,
   the fizz can, the quick start, each brick page's demo and every gallery entry. The number is what that demo ships,
   gzipped, with every chunk it imports statically (`scripts/live-bytes.mjs`), measured on the built
