@@ -234,3 +234,39 @@ test("timeline: zero allocation while it plays (steps), and none once it is done
   const idle = await minorGCs(() => frames(200000));
   assert.ok(idle <= 1, `young-generation GCs over 200k frames, every timeline done or paused: ${idle}`);
 });
+
+test("timeline: revert() gives plain numbers back too (a typed array slot, an object's property)", () => {
+  const e = createEngine();
+  const arr = new Float64Array([5, 7]), obj = { x: 3, y: "keep" };
+  const tl = timeline(e, { motion: true }).to(arr, { 0: [0, 10] }, { dur: 0.2 }).to(obj, { x: [0, 100] }, { dur: 0.2, at: 0 });
+  tl.play();
+  run(e, 0.1);
+  assert.notEqual(arr[0], 5, "it moved");
+  assert.notEqual(obj.x, 3);
+  tl.revert();
+  e.advance(DT);
+  assert.equal(arr[0], 5, "the typed array slot is back");
+  assert.equal(arr[1], 7, "an untouched slot stays");
+  assert.equal(obj.x, 3, "the object's property is back");
+  assert.equal(obj.y, "keep");
+  // It plays again from there, and a second revert gives the same values back.
+  tl.play();
+  run(e, 0.3);
+  assert.equal(arr[0], 10);
+  assert.equal(obj.x, 100);
+  tl.revert();
+  e.advance(DT);
+  assert.deepEqual([arr[0], obj.x], [5, 3]);
+});
+
+test("timeline: done() settles when the engine is destroyed first (and at once after)", async () => {
+  const e = createEngine();
+  const tl = timeline(e, { motion: true }).to({ v: 0 }, { v: [0, 1] }, { dur: 1 });
+  tl.play();
+  const before = tl.done();
+  run(e, 0.1);
+  e.destroy();
+  const t = (p) => Promise.race([p.then(() => "settled"), new Promise((r) => setTimeout(r, 50, "hung"))]);
+  assert.equal(await t(before), "settled", "a wait from before destroy resolves");
+  assert.equal(await t(tl.done()), "settled", "a wait asked after destroy resolves at once");
+});
