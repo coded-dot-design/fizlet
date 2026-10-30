@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+- **Gallery: two pieces from domvirus.com, vendored at a pinned commit** (owner approved,
+  2026-10-30; numbers at land time). Both are DOM VIRUS micros and link back to domvirus.com.
+  - **your.page / under attack**: the domvirus.com home hero (dom-virus#20's Fizlet scene). The
+    kernel plays the intro and the 8 s loop over the card's own SVG, rests after three loops
+    (0 frames), and the first tap starts the mini-game. Live chunk 10,185 B gzip (kernel + slot +
+    the scene).
+  - **Squad tactics**: DOM Battlefield's display card (domvirus.com/games/battlefield/). Its own
+    `@keyframes` run on `fizlet/css-clock`: three 6 s plays, then frame one and settle. Live chunk
+    5,448 B gzip. dom-virus#23's per-element `animation` shorthands set the field running again
+    after it pauses them; the stage holds them paused on `--fz-t` until that is fixed upstream.
+  - **One source: `scripts/vendor-dom-virus.mjs`** builds each piece from dom-virus at `PIN`
+    (248d1e9, dom-virus#23's head: #20 + the Battlefield field on css-clock) into
+    `site/vendor/dom-virus/`: the scene's TypeScript as is (imports pointed at this repo's bricks),
+    and the markup plus every matching rule, the `@keyframes` they name (`dv-` prefix) and the
+    custom properties they read (dark), taken from dom-virus's built page in Chromium, wrapped in
+    `@scope`. Links become inert spans. `ORIGIN.json` records a sha256 per file; `npm test` fails
+    on a hand edit. A stage pulls a piece in with `<!-- vendor: dom-virus/<id> -->` (the heroes can
+    use the same files).
+  - Gallery entries take an optional `source: { url, label }`, shown as "See it on <label> ↗".
+  - Tests: `tests/dv-pieces.mjs` (in `test:browser`): plays, settles to 0 frames, a pointer wakes it,
+    the hero's tap starts the game and its pause key stops frames, Recall byte for byte, reduced
+    motion keeps the poster. `tests/vendor-dom-virus.test.mjs`. Both pass `npm run test:settle`.
+
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
