@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **`fizlet/css-clock`** (new brick, 477 B gz of its own; 5,377 B on 0.20.0 with the kernel and timeline it
   composes, budget 5,632): a page's own CSS `@keyframes` on the kernel clock, so a site's ambient
   loops (blinks, pulses, diagram loops, patrols) eat the dog food without being rewritten. The look
