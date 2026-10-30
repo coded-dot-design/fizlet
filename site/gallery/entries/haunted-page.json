@@ -1,0 +1,41 @@
+{
+  "no": 30,
+  "id": "haunted-page",
+  "date": "2026-10-30",
+  "prompt": "haunted page: a ghost drifts over the headings and makes the letters shiver",
+  "title": "Haunted Page",
+  "kind": "hero",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "haunt",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/board-page",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 36,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 12.97,
+      "throttle4x": {
+        "frames": 375,
+        "p95Ms": 9.6,
+        "maxMs": 67.1
+      },
+      "elementsLit": 3
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/haunted-page.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "page"
+}

@@ -90,6 +90,30 @@
   from the prompt (recipe burst, the spray scene; kernel + fx + slot): live 6,766 B · total 8,692 B
   gzip (with the 1,926 B loader) on this build, loaded only near the viewport, never under reduced
   motion; settles to zero frames.
+- **Website: gallery #027, "bat blaster: tap to shoot the swooping pixel bats before they fly off
+  across the page".** Made by `fe anim` from the prompt (recipe bats, a playable Halloween hero;
+  kernel + fx + sprite + slot): live 9,671 B · total 11,597 B gzip (with the 1,926 B loader) on this
+  build, loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #028, "pumpkin smash: whack the jack-o-lanterns as they pop up, pixel goo
+  bursts".** Made by `fe anim` from the prompt (recipe smash, a playable Halloween hero; kernel + fx
+  + sprite + slot): live 9,471 B · total 11,397 B gzip (with the 1,926 B loader) on this build,
+  loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #029, "pumpkin slice: swipe through the pumpkins as they arc up, halves and
+  seeds fall".** Made by `fe anim` from the prompt (recipe slice, a playable Halloween hero; kernel
+  + fx + sprite + slot): live 9,700 B · total 11,626 B gzip (with the 1,926 B loader) on this build,
+  loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #030, "haunted page: a ghost drifts over the headings and makes the letters
+  shiver".** Made by `fe anim` from the prompt (recipe haunt, a playable Halloween hero that reads
+  the page's own headings and writes only through the ledger; kernel + board-page + sprite + slot):
+  live 9,541 B · total 11,467 B gzip (with the 1,926 B loader) on this build, loaded only near the
+  viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #031, "candy cauldron: tap to drop candy into a bubbling cauldron and watch it
+  fizz".** Made by `fe anim` from the prompt (recipe cauldron, a playable Halloween hero; kernel +
+  fx + sprite + slot): live 9,638 B · total 11,564 B gzip (with the 1,926 B loader) on this build,
+  loaded only near the viewport, never under reduced motion; settles to zero frames.
+- **Website: the gallery theme filter follows the address.** A `#theme-` link to the page you are
+  on (or back) now filters too, not only on arrival (`hashchange`); it showed once there were two
+  themes.
 
 ## 0.17.0
 
