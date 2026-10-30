@@ -73,6 +73,31 @@ test("pad: the stick has a dead zone, creeps, and clamps to the unit circle", ()
   assert.equal(v[1], -1);
 });
 
+test("pad: stickAt and dpadAt allocate nothing (exact hypot, no Math.hypot call)", async (t) => {
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  const v = new Float64Array(2), sum = new Float64Array(2), d = new Float64Array(2);
+  // The same vector as the Math.hypot form, bit for bit.
+  for (const [dx, dy] of [[0.31, -0.42], [3, 4], [-0.2, 0.05], [1e-9, 0.7], [0.6, 0.6]]) {
+    const m = Math.hypot(dx, dy), k = m < 0.15 ? 0 : (Math.min(1, m) - 0.15) / (1 - 0.15) / m;
+    stickAt(dx, dy, v);
+    assert.deepEqual([v[0], v[1]], [dx * k, dy * k]);
+  }
+  // One drag per call, as a pointermove handler runs it.
+  const drag = () => {
+    d[0] = Math.sin(++sum[1] * 0.001) * 1.3;
+    d[1] = Math.cos(sum[1] * 0.0013) * 1.1;
+    stickAt(d[0], d[1], v);
+    sum[0] += v[0] + dpadAt(d[0], d[1]);
+  };
+  const run = (n) => {
+    for (let i = 0; i < n; i++) drag();
+  };
+  run(100000); // warm up
+  const minor = await minorGCs(() => run(1000000));
+  console.log(`ℹ pad stickAt + dpadAt over 1M fractional drags: ${minor} young GCs`);
+  assert.equal(minor, 0);
+});
+
 test("pad: the d-pad reads eight equal sectors", () => {
   const UP = 1, DOWN = 2, LEFT = 4, RIGHT = 8;
   assert.equal(dpadAt(0.1, 0.1), 0, "dead zone");

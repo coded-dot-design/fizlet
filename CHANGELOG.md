@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Fix: fizlet/pad's `stickAt` and `dpadAt` allocate nothing (K5).** `stickAt` said "never
+  allocates" but called `Math.hypot`, which boxes its arguments: 23 young GCs per 1M fractional
+  drags. `stickAt`, `dpadAt` and the stick drag now use fizlet/steer's exact `hypot` (the same bits
+  as `Math.hypot`): 0. Test: `tests/bricks.test.mjs` "pad: stickAt and dpadAt allocate nothing"
+  (fails on main with 23). Size (gzip): pad 1,995 → 2,073 B; arcade 21,970 → 22,037; arcade (`hud`
+  omitted) 17,964 → 18,040. Each budget rises by exactly that delta (pad 2,126; arcade 22,083;
+  card 18,060), with the reason in `scripts/sizes.mjs`.
 - **Gallery: DOM Virus, two hand-built micro games (pending the owner's approval).** A new theme,
   `dom-virus`, with #047 **Terminal virus**: a worm types itself into a terminal, crawls onto the
   README beside it and eats its real letters (each bite rewrites a character of the page's own
