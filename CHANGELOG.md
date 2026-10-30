@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **CI: one run per change, not two.** `Fizlet checks` ran on `push` and `pull_request`, so every
+  push to a branch with an open PR ran the whole workflow twice. Push now runs on `main` only
+  (`tag-version` and `release` are unchanged); branches are checked by their PR run. On
+  2026-10-30, 35 of the 90 runs were these duplicates: 159 of 401 wall minutes (40 %).
 - **`PERF-LOG.md`: every perf win, one measured line each.** Generated from `tests/perf/wins.json`
   by `node scripts/perf-log.mjs --write` (never by hand); each row has before → after, how it was
   measured, the test that holds it and the PR. First entries (0.19.0, #67): the fps cap caps rAF
