@@ -23,6 +23,10 @@ export const CARDS = {
   sprite: { play: "Tap the bug. Four times.", what: "a pixel bug that flashes, gets angry and bursts into its own pixels" },
   camera: { play: "Tap anywhere to dive in; tap again to fly back.", what: "a tiny page of real DOM with fine print you can only read when the camera zooms in" },
   timeline: { play: "Tap to make the bricks dance into the next shape.", what: "six DOM bricks hop, then fly into a new arrangement on a scripted timeline" },
+  hud: { play: "Tap to strike; tap fast to heat it up and ring the bell.", what: "a high striker whose real DOM scoreboard is written only when what it shows changes" },
+  match: { play: "Tap to start, then catch the bricks on your paddle.", what: "a ten-second round on the match phase machine: start, count, play, stage clear or game over" },
+  presence: { play: "Tap a column on either board to drop a brick.", what: "two seats a hundred milliseconds apart run one lockstep world: every brick lands on both boards and the hashes match" },
+  sound: { play: "Tap above the stairs to drop a ball (sound on).", what: "a ball bouncing down brick stairs; every landing plays that brick's cue from a tiny synth" },
 };
 export const CARD_IDS = Object.keys(CARDS);
 /** The bricks without a card yet (the roadmap), in catalog order. */
