@@ -198,6 +198,9 @@ test("timeline: host edits win; bad input is refused at setup", () => {
   assert.throws(() => t2.to(el(), { opacity: [0, 1] }, { ease: "bounce" }), RangeError);
   assert.throws(() => t2.to(el(), { opacity: [0, 1] }, { dur: NaN }), RangeError);
   assert.throws(() => timeline(createEngine(), { rate: 0 }), RangeError);
+  // repeat is a whole number ≥ 0 or Infinity: -1 used to loop forever, 0.5 to stop mid-play.
+  for (const repeat of [-1, -2, 0.5, NaN]) assert.throws(() => timeline(createEngine(), { repeat }), RangeError, `repeat ${repeat}`);
+  for (const repeat of [0, 2, Infinity]) assert.doesNotThrow(() => timeline(createEngine(), { repeat }), `repeat ${repeat}`);
 });
 
 test("timeline: zero allocation while it plays (steps), and none once it is done (whole frames)", async (t) => {

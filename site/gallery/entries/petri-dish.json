@@ -1,0 +1,24 @@
+{
+  "no": 48,
+  "id": "petri-dish",
+  "date": "2026-10-30",
+  "prompt": "virus cells drift, collide and split in a petri dish under the microscope; tap to zap one and its shockwave bursts any cell caught mid-split, a chain",
+  "title": "Petri dish",
+  "kind": "micro",
+  "theme": "dom-virus",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/steer",
+    "fizlet/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/petri-dish.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 9",
+  "pageCost": {
+    "settles": true
+  }
+}
