@@ -26,7 +26,7 @@
   "date": "2026-10-29",
   "status": "published",
   "lead": [
-    "Four games now run on Fizlet's kernel, which has a 4 KB gzip budget. Battlefield Blitz ships on it; Null Invaders, Byte Runner and Sherman Bytes are in review. Every one got bigger in gzip bytes, by 7 to 21%. Most of the growth is the shared button kit. The rest buys steps that never allocate, runs that replay from a seed and one shell for three games."
+    "Five games now run on Fizlet's kernel, which has a 4 KB gzip budget: DOM Battlefield, Battlefield Blitz, Null Invaders, Byte Runner and Sherman Bytes. Every one got bigger in gzip bytes, by 7 to 21%. Most of the growth is the shared button kit. The rest buys steps that never allocate, runs that replay from a seed and one shell for three games."
   ],
   "blocks": [
     {
@@ -63,16 +63,16 @@
           "type": "ul",
           "items": [
             "**Battlefield Blitz: shipped.** It ran on Fizlet first. Its port (0.8.0) made it replay from a seed and moved its supply crates onto `fizlet/rules`. It is on Fizlet 0.14.1 now.",
-            "**Null Invaders 1.0.0: in review.** The first game on `fizlet/arcade`; the shell was extracted from it.",
-            "**Byte Runner 1.0.0: in review.** The maze is SVG inside the page, through the arcade's `ctx.attach`.",
-            "**Sherman Bytes 1.0.0: in review.** Waves, airdrops and cannon tiers come from `fizlet/rules`.",
-            "**Swarm Protocol: in progress.** It moves onto the kernel and bricks and keeps its own shell and API. The four hooks it needs shipped in Fizlet 0.14.0.",
-            "**DOM Battlefield: next.** The plan keeps its model as the logic layer; only its score and supply code moves."
+            "**Null Invaders 1.0.0: shipped.** The first game on `fizlet/arcade`; the shell was extracted from it.",
+            "**Byte Runner 1.0.0: shipped.** The maze is SVG inside the page, through the arcade's `ctx.attach`.",
+            "**Sherman Bytes 1.0.0: shipped.** Waves, airdrops and cannon tiers come from `fizlet/rules`.",
+            "**Swarm Protocol: in progress, the last one.** It moves onto the kernel and bricks and keeps its own shell and API. The four hooks it needs shipped in Fizlet 0.14.0.",
+            "**DOM Battlefield 1.0.0: shipped.** One Fizlet engine steps the battle; its model stays the logic layer and its repair kits are `fizlet/rules` drops. The board UI now comes from `fizlet/ui`."
           ]
         },
         {
           "type": "p",
-          "text": "The three arcade ports wait on one design answer, not on code: their scoreboards now wear the Board UI kit, DOM Battlefield's keys and readouts."
+          "text": "The three arcade ports changed one thing you can see: their scoreboards now wear the Board UI kit, DOM Battlefield's keys and readouts, so every game reads like it runs on the same engine."
         }
       ]
     },
@@ -103,8 +103,8 @@
           "body": "The baseline. Its port moves the food checks out of the step and into the read phase. The plan expects the game chunk to grow, as every port's did; we will report it with and without what is shared."
         },
         {
-          "title": "DOM Battlefield: 36,524 B today",
-          "body": "The baseline. Not ported yet."
+          "title": "DOM Battlefield: 36,524 → 41,111 B (+4,587 B, +12.6%)",
+          "body": "Part of it is the engine's `Ledger`, which Battlefield never uses but `createEngine` always builds."
         }
       ]
     },
@@ -176,7 +176,7 @@
         },
         {
           "type": "p",
-          "text": "**A zero-GC test only proves the paths it drives.** So the acceptance for a port also scans the step for `Math.random`, `Math.hypot` and wall-clock reads. It already found `Math.hypot` left in one draft's step, to fix before it ships."
+          "text": "**A zero-GC test only proves the paths it drives.** So the acceptance for a port also scans the step for `Math.random`, `Math.hypot` and wall-clock reads. It found `Math.hypot` in two ported games' steps; the fix swaps in a helper that returns exactly what `Math.hypot` does, so replays stay byte-identical."
         }
       ]
     },
@@ -196,8 +196,8 @@
           "a": "Each arcade port runs 20,000 busy steps after a warm-up and counts minor GCs with Node's GC observer, best of three windows. All three read 0."
         },
         {
-          "q": "When do Swarm Protocol and DOM Battlefield move?",
-          "a": "Swarm Protocol is in progress; its engine hooks shipped in Fizlet 0.14.0. DOM Battlefield is next. Neither has a date."
+          "q": "When does Swarm Protocol move?",
+          "a": "It is in progress and the last one; its engine hooks shipped in Fizlet 0.14.0 and 0.16.0. No date."
         }
       ]
     },

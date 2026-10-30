@@ -47,7 +47,7 @@ export interface BoardTarget {
   hp: number;
 }
 
-/** One Text node: our last value of it; per glyph offset, length, state (0, 1 binary, 2 erase), range. */
+/** One Text node: our last value of it; per glyph offset, length, state (0, 1 binary, 2 erase, 3 "0", 4 "1"), range, letter. */
 type Rec = [node: Text, value: string, off: number[], len: number[], state: number[], ranges: (Range | undefined)[], chars: string[]];
 
 /** Never a target or food: fields, editable, live regions, dialogs, opted out, a Fizlet host. */
@@ -70,7 +70,7 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
   const recs: Rec[] = [], byNode = new Map<Text, Rec>(), targets: BoardTarget[] = [], byEl = new Map<Element, BoardTarget>();
   const grid = new Grid(32, MAX, 1, 1), range = doc.createRange(), seg = new Intl.Segmenter(undefined, { granularity: "grapheme" });
   // Small integers stay unboxed in `let`s; times and the hit fraction (doubles) live in a typed array.
-  let count = 0, queued = 0, cursor = 0, reads = 0, dirty = 1, rescan = 1, mark = 0;
+  let count = 0, queued = 0, cursor = 0, reads = 0, dirty = 1, rescan = 1, mark = 0, scans = 0;
   let shown = new Int32Array(0);
   // Query scratch: the grid's typed form and the plain-number API's own copies, so the hot path
   // never passes a number to a call V8 may not inline (each would box: one allocation).
@@ -101,6 +101,7 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
 
   function scan() {
     rescan = 0;
+    scans++;
     const seen = new Set<Rec>();
     let total = 0, visited = 0;
     if (textSel) for (const el of [...root.querySelectorAll(textSel)].slice(0, 160)) {
@@ -195,7 +196,7 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
 
   function write(r: Rec, k: number) {
     const off = r[2][k]!, len = r[3][k]!;
-    const bit = r[4][k] === 2 ? " " : e.random() < 0.5 ? "0" : "1", next = r[1].slice(0, off) + bit + r[1].slice(off + len);
+    const s = r[4][k], bit = s === 2 ? " " : s === 3 ? "0" : s === 4 ? "1" : e.random() < 0.5 ? "0" : "1", next = r[1].slice(0, off) + bit + r[1].slice(off + len);
     if (!L.text(r[0], next)) return;
     r[1] = next;
     r[3][k] = 1;
@@ -327,17 +328,22 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
       return n[T]!;
     },
     /** Range reads made by the last refresh (never more than `reads`). */
+    /** Rescans so far: glyph indices from before a rescan mean nothing after it. */
+    get scans() {
+      return scans;
+    },
     get reads() {
       return reads;
     },
     /**
-     * Consume glyph i: a 0/1 ("binary") or a no-break space ("erase") in the page's own text,
-     * through the ledger; from a step it is written in render. False if spent or not ours anymore.
+     * Consume glyph i: a 0/1 ("binary": the board's random draw; "0" / "1": the game's) or a no-break
+     * space ("erase") in the page's own text, through the ledger; from a step it is written in
+     * render. False if spent or not ours anymore.
      */
-    consume(i: number, as?: "binary" | "erase") {
+    consume(i: number, as?: "binary" | "erase" | "0" | "1") {
       if (!(i >= 0 && i < count) || spent[i] || !ours(recs[gr[i]!]!)) return false;
       spent[i] = 1;
-      recs[gr[i]!]![4][gk[i]!] = as === "erase" ? 2 : 1;
+      recs[gr[i]!]![4][gk[i]!] = as === "erase" ? 2 : as === "0" ? 3 : as === "1" ? 4 : 1;
       w[i] = h[i] = 0;
       if (e.phase === RENDER || e.phase === IDLE) write(recs[gr[i]!]!, gk[i]!);
       else (qr[queued] = recs[gr[i]!]!), (queue[queued++] = gk[i]!);
