@@ -80,10 +80,10 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
   root.innerHTML = `<div class="lz-s"></div>`; // styles: SCENE_CSS (css.ts), inline on the host page
   const stack = root.lastElementChild as HTMLElement;
   const el = (parent: HTMLElement, cls: string, x = 0, y = 0) => {
-    const e = document.createElement(cls === "canvas" ? "canvas" : "div");
-    if (cls !== "canvas") e.className = cls;
+    const e = document.createElement("div");
+    e.className = cls;
     if (x || y) e.style.transform = `translate(${x}px,${y}px)`;
-    return parent.appendChild(e) as HTMLElement;
+    return parent.appendChild(e);
   };
   const layers: HTMLElement[] = [], tags: HTMLElement[] = [];
   const names = fig.querySelectorAll(".lyr__t"), slider = fig.querySelector<HTMLElement>("[role=slider]"), key = fig.querySelector<HTMLElement>(".lyr__play");
@@ -119,7 +119,7 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
   // Rules: spawn pads in the corners.
   for (let k = 0; k < 4; k++) el(rulesL, "lz-p", (k & 1) * (COLS - 1) * CELL, (k >> 1) * (ROWS - 1) * CELL);
   // Effects: the fx brick draws on its own canvas inside its layer.
-  const cv = el(fxL, "canvas") as HTMLCanvasElement;
+  const cv = fxL.appendChild(document.createElement("canvas"));
   cv.className = "lz-cv";
   const dpr = Math.min(2, devicePixelRatio);
   cv.width = BW * dpr, cv.height = BH * dpr;

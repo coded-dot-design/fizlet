@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.17.0
 
 - **Website: a themed gallery, a heroes row and contributor profiles** (launch infrastructure).
   - **Data, one file each:** every gallery entry (`site/gallery/entries/<id>.json`) now has `kind`
@@ -29,7 +29,29 @@
     attribution links, the filter and the search in a browser, the heroes row (centre plays alone,
     next / arrow keys, pause, full screen and the overlay with focus return, reduced motion
     posters and play on request) and the profiles; `tests/gallery.test.mjs` for the data model.
-
+- **Perf: the demo's blasts are back to 60 fps at 4× CPU throttle** (30 fps since 0.10.1). Bisected
+  to 1337112 (the layers story in the home page hero): scrolled off screen, its scene kept about 50
+  composited 3D layers, and Chromium layerizes the whole document on every frame that repaints, so
+  each blast frame paid 8.4–11.7 ms of `Layerize` for a scene nobody could see. `fizlet/slot`'s
+  stage is now `content-visibility: auto` (a scene off screen is skipped for style, layout, paint and
+  layers), and so is the layers figure (its slider's eight 3D plates sit outside the stage).
+  Measured (`npm run perf`, Chromium 153, 4× throttle, 10 s, a busy 4-core Xeon): before p50
+  33.3–33.4 ms, 47–61% dropped, `Layerize` 10.6–11.4 ms per frame; after p50 16.7 ms, 24–32%
+  dropped, `Layerize` 1.6–1.7 ms (0.4.4: 1.5–1.8). Size: `fizlet/slot` 1,845 B gzip (budget
+  2,048); layers live chunk 9,720 B (≤ 9,728; the
+  13 B the slot adds are paid for in the scene, which now makes its fx canvas directly instead of
+  through a `canvas` branch in its element helper). The harness now reports `layerizeMs`, and
+  `tests/perf/budgets.json` fails the demo on this regression: p50 ≤ 25 ms, p95 ≤ 67, ≤ 45%
+  dropped, `layerizeMs` ≤ 4.
+- **board-page runs in its root's own document and window.** `boardPage(e, { root })` now measures,
+  observes and writes in `root.ownerDocument` (its viewport, `getComputedStyle`, observers, scroll
+  and resize, highlights), so a board inside an iframe's page works. Before, it always used the
+  global `document` and window. Swarm Protocol needs this: its API runs in the document it is given.
+- **The ledger's Recall normalises style text in the element's own document**, not the global one,
+  so restoring an element in another document (or with no global `document`) works.
+- **`fizlet/perf`: the card pins `box-sizing: content-box`.** Its inline width (120px plus
+  padding) assumed content-box, so on a page with a global `* { box-sizing: border-box }` (the
+  DOM VIRUS hub and DOM Battlefield both) its right column clipped. Node test asserts it.
 - **Website: a size badge on every live demo** ("9.4 KB GZ"): the layers hero, the blast board,
   the fizz can, the quick start, each brick page's demo and every gallery entry. The number is what that demo ships,
   gzipped, with every chunk it imports statically (`scripts/live-bytes.mjs`), measured on the built
@@ -95,6 +117,24 @@
   throttle): live chunk 9,609 → 9,717 B gzip (still ≥ 5% under 10 KB), poster + loader 2,962 →
   3,153 B; script per frame 0.8 ms median, 3.1 ms p95; CLS 0; 0 frames settled.
 - **Website: notes (`/notes/`)**, posts written for fizlet.com from `site/notes/<slug>.json` (generated, never hand-edited), on the site's own parts: section head, panels, stat cards, kit keys, and the kernel's size badge measured on the build. BlogPosting + FAQPage JSON-LD; listed in the sitemap and under Notes in llms.txt. First note: "Moving the games onto a 4 KB kernel" (every number from the size ledger and this changelog).
+- **`fizlet/steer`** (new brick, 950 B gzip, budget 1,280): `seek`, `flee`, `arrive`, `wander` and
+  `patrol` for movers on typed arrays (position, heading, wander goal, patrol leg), DOM-free. The
+  heading turns at most `turn` rad/s and walls are checked per axis, like DOM Battlefield Blitz's tank
+  `drive`; its defaults are Blitz's numbers. A test runs `wander`, `seek` and `arrive` frame by frame
+  against Blitz's practice movers, bots and wingmen (same seed, same walls: identical positions and
+  headings). `flee` and `patrol` are the same drive pointed away from a point, or along a route. No
+  allocation per frame across 1M frames with 16 movers: it ships its own `hypot` (the same bits as
+  `Math.hypot`, tested), because V8 boxes `Math.hypot`'s arguments, and `blocked(i, at)` gets the
+  spot in a typed array for the same reason.
+- **`fizlet/coach`** (new brick, 1,192 B gzip, budget 1,536): the hints and tutorial layer of DOM
+  Battlefield and Blitz. `flag(key, value)` is a once-only localStorage switch whose reads and
+  writes are each wrapped in try/catch (blocked storage reads "not set"). `tour(engine)` runs the
+  tutorial steps, then cycles tips, says `coach:step` on the ring, and allocates nothing per frame.
+  `card(host)` is the Board UI coach card (DOM Battlefield's dashed card, on the kit tokens): it
+  writes only what changed and rings the control it is about. Tests: `tour` frame by frame against
+  Blitz's practice coach (steps, time on the step, the card shown, the power-up events), `flag`
+  against Battlefield's tips switch (each reads what the other wrote; blocked and missing storage),
+  and the card in Chromium.
 
 ## 0.16.0
 

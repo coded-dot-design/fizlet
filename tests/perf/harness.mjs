@@ -5,6 +5,7 @@
 //   - time to first frame: first-contentful-paint from the page's own paint timing
 //   - JS heap: CDP Performance.getMetrics JSHeapUsedSize at the end of the run (no forced GC)
 //   - minor GCs: V8 scavenges in a CDP trace taken over the measured window only
+//   - layerize: Chromium's Layerize ms per frame in the same trace (the cost of every composited layer)
 import { createServer } from "node:http";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize, resolve } from "node:path";
@@ -73,7 +74,8 @@ export async function measure(browser, target, { seconds = 10, throttle = 4, war
   const metrics = Object.fromEntries((await cdp.send("Performance.getMetrics")).metrics.map((m) => [m.name, m.value]));
   await context.close();
 
-  return { name: target.name, throttle, seconds, fcp, ...frameStats(stamps), heapMB: metrics.JSHeapUsedSize / 1048576, ...gcStats(events), errors };
+  const frames = frameStats(stamps);
+  return { name: target.name, throttle, seconds, fcp, ...frames, layerizeMs: layerizeMs(events, frames.frames), heapMB: metrics.JSHeapUsedSize / 1048576, ...gcStats(events), errors };
 }
 
 export function frameStats(stamps, vsync = 1000 / 60) {
@@ -84,6 +86,16 @@ export function frameStats(stamps, vsync = 1000 / 60) {
   let dropped = 0;
   for (const d of dt) dropped += Math.max(0, Math.round(d / vsync) - 1);
   return { frames: dt.length, p50: q(0.5), p95: q(0.95), p99: q(0.99), max: sorted.at(-1) ?? NaN, dropped };
+}
+
+// Layerize: Chromium turns the whole document's paint into composited layers on every frame that
+// repaints (devtools.timeline "Layerize"), so its cost grows with every composited layer on the page,
+// on screen or not. Mean ms per frame over the window. 0.10.1 to 0.16.0: an off-screen 3D scene
+// (the layers story, ~50 layers) put 8-11 ms of it into every blast frame at 4x; 1.5-2 ms without.
+export function layerizeMs(events, frames) {
+  let ms = 0;
+  for (const e of events) if (e.name === "Layerize" && e.ph === "X") ms += e.dur / 1000;
+  return frames ? ms / frames : 0;
 }
 
 // Minor GC = scavenge. Chromium names it MinorGC (devtools.timeline) and V8.GC_SCAVENGER (v8.gc);
@@ -109,4 +121,4 @@ export function clicker(selector, every = 250) {
   };
 }
 
-export const fmt = (r) => `${r.name.padEnd(8)} p50 ${r.p50.toFixed(1)} ms · p95 ${r.p95.toFixed(1)} · p99 ${r.p99.toFixed(1)} · dropped ${r.dropped}/${r.frames} · FCP ${r.fcp == null ? "none" : r.fcp.toFixed(0) + " ms"} · heap ${r.heapMB.toFixed(2)} MB · minor GC ${r.minorGC} · major GC ${r.majorGC}`;
+export const fmt = (r) => `${r.name.padEnd(8)} p50 ${r.p50.toFixed(1)} ms · p95 ${r.p95.toFixed(1)} · p99 ${r.p99.toFixed(1)} · dropped ${r.dropped}/${r.frames} · layerize ${r.layerizeMs.toFixed(2)} ms/frame · FCP ${r.fcp == null ? "none" : r.fcp.toFixed(0) + " ms"} · heap ${r.heapMB.toFixed(2)} MB · minor GC ${r.minorGC} · major GC ${r.majorGC}`;

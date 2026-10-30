@@ -1,6 +1,6 @@
 {
   "name": "fizlet",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Tiny physics for your page: a micro game and animation engine for the DOM, by Chris Cooley. One loop, bounded everything, and the page always comes back.",
   "license": "MIT",
   "author": "Chris Cooley <https://coded.design>",
@@ -96,6 +96,14 @@
       "types": "./dist/rules.d.ts",
       "default": "./dist/rules.js"
     },
+    "./steer": {
+      "types": "./dist/steer.d.ts",
+      "default": "./dist/steer.js"
+    },
+    "./coach": {
+      "types": "./dist/coach.d.ts",
+      "default": "./dist/coach.js"
+    },
     "./arcade": {
       "types": "./dist/arcade.d.ts",
       "default": "./dist/arcade.js"
@@ -122,7 +130,7 @@
     "build": "node scripts/build.mjs",
     "check": "npm run typecheck && npm test && npm run build",
     "size": "node scripts/size.mjs",
-    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs",
+    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/coach.mjs",
     "test:layers": "tsc -p site/demos/layers/tsconfig.json && node tests/layers.mjs",
     "test:pack": "node scripts/pack-smoke.mjs",
     "site": "npm run build && node scripts/site.mjs",
