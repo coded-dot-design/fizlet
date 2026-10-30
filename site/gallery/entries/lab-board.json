@@ -1,0 +1,18 @@
+{
+  "no": 45,
+  "id": "lab-board",
+  "date": "2026-10-30",
+  "prompt": "a tiny page is the board: X-ray shows the boxes the game reads, bugs bounce off them, and the button is an enemy factory",
+  "title": "One host. Two worlds.",
+  "kind": "micro",
+  "theme": "everyday",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel"
+  ],
+  "made": "by hand",
+  "module": "seeds/labs.ts",
+  "export": "boardLab",
+  "figure": "lab-board"
+}
