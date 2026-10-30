@@ -15,7 +15,7 @@ import { checkHtml } from "../scripts/check-html.mjs";
 import { SITE, ROOT as SITE_ROOT } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
-import { entries as galleryEntries, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
+import { entries as galleryEntries, isLive, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
 import { notes as siteNotes, notePath } from "../scripts/notes.mjs";
 import { PERSONA_NOTE, authorOf, contributors as profiles } from "../scripts/people.mjs";
 import { gzipSync } from "node:zlib";
@@ -135,8 +135,13 @@ try {
 
   // ---------- Gallery: data, pages, theme sections, a size badge measured on this build on every entry ----------
   where = "gallery sizes";
-  const GALLERY = galleryEntries(), THEMES = galleryThemes(), PEOPLE = contributors(), GPAGES = paginate(GALLERY);
+  // The owner's gate: only approved entries are built; a pending one has no card, row or bundle.
+  const GALLERY = galleryEntries().filter(isLive), PENDING = galleryEntries().filter((e) => !isLive(e)), THEMES = galleryThemes(), PEOPLE = contributors(), GPAGES = paginate(GALLERY);
   const INDEX = JSON.parse(readFileSync(`${ROOT}/gallery/index.json`, "utf8"));
+  for (const e of PENDING) {
+    assert.ok(!INDEX.some((r) => r.id === e.id), `${e.id}: pending, not in gallery/index.json`);
+    assert.ok(!existsSync(`${ROOT}/gallery/${e.id}.js`), `${e.id}: pending, no bundle`);
+  }
   const pageFile = (path) => `${ROOT}/${path}index.html`;
   {
     const loader = gzipSync(readFileSync(`${ROOT}/gallery/gallery.js`)).length;
@@ -225,7 +230,7 @@ try {
     }
   }
 
-  // ---------- People and the daily contest: stats measured on this build, personas say so ----------
+  // ---------- People and the weekly contest: stats measured on this build, personas say so ----------
   where = "people";
   {
     const people = profiles(), index = readFileSync(`${ROOT}/people/index.html`, "utf8");
@@ -242,7 +247,10 @@ try {
       assert.ok(p.kind === "owner" ? profile.mainEntity["@id"].endsWith("#author") : !profile.mainEntity && profile.about["@type"] !== "Person", `${p.id}: only the maker is a Person`);
     }
     const contest = readFileSync(`${ROOT}/contest/index.html`, "utf8");
-    assert.match(contest, /60 characters or fewer/);
+    assert.match(contest, /10 KB gzip or less/);
+    assert.match(contest, /Too big to win/);
+    assert.doesNotMatch(contest, /characters or fewer/, "the prompt length is not a rule");
+    assert.match(contest, /One winner a week/);
     assert.match(contest, /Not live yet/, "open prompts are planned, not live");
   }
 
