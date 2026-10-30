@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **`fizlet/arcade`: every HUD preset's panel drags** (owner: "the in-page scoreboard is always
+  draggable"). The arcade card and the skirmish bar move from anywhere that isn't a key, mouse or
+  touch, and stay on screen when the window shrinks (shared in `arcade-parts`). Browser test at 2×
+  for both presets: the canvas at CSS size, the drag, the clamp.
+
 ## 0.18.0
 
 - **`fizlet/arcade` canvas fills its root on 2x/zoomed screens** (`width:100%;height:100%`): the backing store is `innerWidth × dpr` with no CSS size, so it drew 1.5–2× too big and game art sat away from the page targets (owner report; from fizlet#60).
