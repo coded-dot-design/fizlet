@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+- **Tests: the evidence behind six COMPLETE flags** (daily audit 2026-10-30: 9 gaps). New Node
+  suites, each proving its brick's contract and zero allocation on the path it runs often, with a
+  self-check in the same harness that the GC counter does see an allocation (best of 3 windows,
+  `--test-concurrency=1`): `sound.test.mjs` (off, paused, disposed and destroyed are silent; the
+  synth waits for a trusted gesture, rate-limits a cue, caps 8 voices, and Recall closes its
+  AudioContext and listeners; reading the ring allocates nothing), `embed.test.mjs` (open now or
+  behind the toggle, Escape, a close that beats a late load, the Konami code ignoring fields and
+  slow sequences, double-tap / long-press / hold-tap / click triggers, Recall leaves no listener or
+  node; the dormant pointer path allocates nothing), `debug.test.mjs` (only the STEP phase counts,
+  per engine, the off switch and destroy stop it, reads return the real value; guarded steps and
+  reads allocate nothing), `slot.test.mjs` (lazy near the viewport then idle, the first tap as
+  numbers, reduced motion never loads and takes a running scene down, role=img until a scene is
+  accessible, Recall exact; taps on a running scene allocate nothing), `ui.test.mjs` (mount's
+  shared sheets, hex-only palette and its undo, readouts, press / pressCue / setting, launch under
+  reduced motion; the press paths allocate nothing) and `arcade.test.mjs` (the controller without a
+  page: idle snapshot, a start that fails mid-run leaves the page exactly as it was, destroy is
+  final; a run itself needs a real page and stays in the Chromium suites). `tests/fake-dom.mjs` is
+  the small shared page they run on. site/bricks.mjs lists them (and `sound.test.mjs`, which it
+  missed).
+- **sound: an event named like an Object.prototype key no longer allocates in render.** The render
+  loop looked the cue up with `o.cues[type]`, so an event typed "constructor" handed `play()` a
+  function, whose own-key check then turned the function's source into a string, every such
+  event (51 young GCs per 1M frames). It now reads own keys only. Sizes (gzip): sound 1,015 →
+  1,019 B; arcade 24,327 → 24,331 B; arcade with `hud` omitted 18,348 → 18,351 B. No budget moves.
+
 - Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
