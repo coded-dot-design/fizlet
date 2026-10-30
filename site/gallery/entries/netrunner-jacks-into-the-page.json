@@ -1,0 +1,23 @@
+{
+  "id": "netrunner-jacks-into-the-page",
+  "date": "2026-10-30",
+  "prompt": "a netrunner jacks into a corp's page behind rain-soaked glass: its real elements are ICE nodes, taps fire hack packets that ricochet off them, a breach glitches only the text it hits; trip the alarm and black ICE hunts your cursor",
+  "title": "Jack in",
+  "kind": "micro",
+  "theme": "movie-homages",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/netrunner-jacks-into-the-page.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 9",
+  "pageCost": {
+    "settles": true
+  },
+  "approved": "2026-10-30"
+}

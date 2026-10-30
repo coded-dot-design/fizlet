@@ -1,0 +1,23 @@
+{
+  "id": "light-cycles-duel-on-the-grid",
+  "date": "2026-10-30",
+  "prompt": "two light-cycles duel on a neon grid laid over the page: tap to turn, their walls of light crash into the page's real elements and each other, a crash breaks into pixels; every round sudden death against a new rival AI",
+  "title": "Grid duel",
+  "kind": "micro",
+  "theme": "movie-homages",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/light-cycles-duel-on-the-grid.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 9",
+  "pageCost": {
+    "settles": true
+  },
+  "approved": "2026-10-30"
+}
