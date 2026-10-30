@@ -1,0 +1,10 @@
+{
+  "_note": "Page interaction budgets (hero profile), per profile: the most the live page may add over the same page with only its posters. CLS 0; a tap on page text +8 ms desktop, +24 ms mobile (4x CPU); idle main-thread CPU while visible +3 points desktop, +10 mobile. Lab, best of N runs.",
+  "budgets": {
+    "desktop": { "cls": 0, "tapMs": 8, "idlePts": 3 },
+    "mobile": { "cls": 0, "tapMs": 24, "idlePts": 10 }
+  },
+  "pages": [
+    { "name": "home", "path": "", "keep": ["./site.js"], "exclude": "a, button, figure, [data-demo], [data-slot-target], [data-fizlet-slot]" }
+  ]
+}

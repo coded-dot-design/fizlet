@@ -141,7 +141,8 @@
     "test:site": "node tests/site.mjs",
     "prepack": "npm run build",
     "perf": "npm run site && node tests/perf/run.mjs",
-    "test:alloc": "node tests/perf/alloc.mjs"
+    "test:alloc": "node tests/perf/alloc.mjs",
+    "perf:page": "node tests/perf/page-cost-run.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

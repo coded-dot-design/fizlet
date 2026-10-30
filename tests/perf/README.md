@@ -6,6 +6,7 @@ Measured numbers, not claims. Playwright + Chromium over CDP; it loads built pag
 npm run perf                 # one command: builds the site, 4x CPU throttle, 10 s per target, then the
                              # allocation test; writes perf-results.json, exits 1 over budget
 npm run test:alloc           # the allocation test alone (after `npm run site`)
+npm run perf:page            # the page-cost gate (after `npm run site`): page-cost-results.json, exits 1 over budget
 # cloud sessions: CHROMIUM_PATH=/opt/pw-browsers/chromium npm run perf
 # options: PERF_SECONDS, PERF_THROTTLE, PERF_OUT=<file.json>, ALLOC_FRAMES
 # Battlefield Blitz: BLITZ_DIR=<its built dir> [BLITZ_PATH=play/] npm run perf
@@ -17,6 +18,7 @@ npm run test:alloc           # the allocation test alone (after `npm run site`)
 | `recorder.js` | rAF frame recorder injected before page scripts; writes into a preallocated `Float64Array` |
 | `run.mjs` | the perf run against `budgets.json` (CI job `perf`) |
 | `alloc.mjs` | allocation test; the template a game copies |
+| `page-cost.mjs` / `page-cost-run.mjs` | the page-cost gate against `page-budgets.json` (below) |
 
 ## What each number means
 
@@ -57,3 +59,25 @@ That is why `alloc.mjs` also prints the sampled top allocators.
 
 Battlefield Blitz: not measured yet. Its source is not in this repo and the hosted build was not
 reachable from the session that wrote this; set `BLITZ_DIR` to measure it.
+
+## Page cost (`npm run perf:page`)
+
+What a page's interactions cost the page they sit on. Each page in `page-budgets.json` is loaded
+as built ("live") and with only its posters ("poster": every `<script type="module">` removed
+except the ones in `keep`, the site chrome), at desktop (1440×900) and mobile (390×844, 4× CPU).
+The gate is live minus poster, against the page budgets: CLS +0 (at 0.000), a tap on page text
+outside every interaction +8 ms desktop / +24 ms mobile, idle main-thread CPU while visible +3 /
++10 points.
+
+- **Frames, not wall time.** Every wait counts animation frames: 120 to settle after load, a
+  180-frame idle window, 20 frames between taps.
+- **Best of N.** Each measure is the median over its taps (5) or its window inside a run, then the
+  best of `PAGE_RUNS` runs (default 3), live and poster interleaved. Noise only adds cost, so the
+  best run is the closest to the page's real cost.
+- **Tap latency** is read in the page: the input event's own `timeStamp` to the start of the next
+  frame after its handlers, at sub-ms resolution. Event Timing reports nothing under 16 ms and
+  rounds to 8 ms, too coarse for a +8 ms budget.
+- **Idle CPU** is CDP `TaskDuration` over the idle window, divided by its length.
+
+Options: `PAGE_RUNS`, `PAGE_OUT=<file.json>`, `PAGE_ONLY=<page name>`. Unit tests for the pure
+parts (poster page, best of N, verdict): `tests/page-cost.test.mjs`.

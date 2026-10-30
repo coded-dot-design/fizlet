@@ -56,11 +56,17 @@ jobs:
       - run: npx playwright install --with-deps chromium
       # One command: builds the site, measures, runs the allocation test, writes perf-results.json.
       - run: npm run perf
+      # Page cost: each page live vs poster-only, desktop and mobile (4x CPU), best of 3; fails over
+      # tests/perf/page-budgets.json (CLS 0, a tap on page text +8/+24 ms, idle CPU +3/+10 points).
+      - if: success() || failure()
+        run: npm run perf:page
       - if: always()
         uses: actions/upload-artifact@v4
         with:
           name: perf-results
-          path: perf-results.json
+          path: |
+            perf-results.json
+            page-cost-results.json
           if-no-files-found: ignore
   tag-version:
     needs: check

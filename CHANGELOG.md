@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Page-cost gate (`npm run perf:page`, CI `perf` job).** Each page in `tests/perf/page-budgets.json`
+  is loaded live and poster-only (module scripts removed but the site chrome), at desktop and mobile
+  (4× CPU), best of 3; it fails when the live page adds more than CLS 0, a tap on page text +8 / +24 ms
+  or idle CPU +3 / +10 points. Waits count frames, never wall time; the tap is timed in the page at
+  sub-ms resolution. Writes `page-cost-results.json`. The home page is over today (two runs of 3:
+  desktop CLS +0.002–0.003, tap +19.5–20.5 ms, idle +44.1–56.2 points; mobile idle +27.5–37.9).
+  Unit tests: `tests/page-cost.test.mjs`.
 - Gallery: the five how-it-works labs (#042–#046) approved by the owner and live.
 - **Fix: a dragged scoreboard no longer jumps when its board is not the viewport.** `drag()`
   (fizlet/arcade's panel drag, also used by Battlefield Blitz) set `left`/`top` from viewport
