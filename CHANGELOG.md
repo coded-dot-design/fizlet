@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **E11 migration note: DOM Battlefield onto the actor bricks** (`src/ACTORS.md`). It covers which
+  parts of `model.ts` and `view.ts` move onto `fizlet/actor`, `fizlet/aim` and `fizlet/view-dom`,
+  in what order (shots, then tanks, targeting and the view, with the site's arena last), and what
+  has to stay the same (seeded replays, range edges, zero GC, Recall). The game's own
+  `scripts/size.mjs` total is the ledger: E11's box is ticked only when it goes down. Writing the
+  note found two gaps, both closed in the entries below: `aim`'s `clear` and `view-dom`'s `scale`. The port
+  itself comes later, in the game's repo.
+
 - **`fizlet/view-dom`** (new brick, E11, EXPERIMENTAL; 882 B gz, budget 1,536 = its planned
   target): a `fizlet/actor` table drawn as DOM nodes, the part of DOM Battlefield's `view.ts` every
   DOM board game rewrites. `viewDom(engine, actors, host, { make, scale, turn, center, linger, motion, paint })`:
