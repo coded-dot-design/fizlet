@@ -5,7 +5,8 @@
  * - `lead(i, j, speed)`: where i must shoot a shot of `speed` px/s to meet j, moving at (vx, vy):
  *   the intercept of a straight shot and a straight mover, the earliest one ahead;
  * - `cone(i, j, half, range)`: j inside i's heading ± `half` radians and within `range`;
- * - `sees(i, j)`: no `mask` cell strictly between them on the board (Bresenham, symmetric);
+ * - `sees(i, j)`: no `mask` cell strictly between them on the board (Bresenham, symmetric), or
+ *   the game's own `clear(i, j)`;
  * - `pick(i, list, n, half, range)`: the nearest `foe` of i among list[0..n) in its cone and in
  *   sight (an actor table's `list` and `n` as they are).
  * Results land in `out[0..3]` ([x, y, t, d]: aim point, seconds to impact or the off-heading angle, and
@@ -28,16 +29,18 @@ export interface AimOptions {
   board?: Board;
   /** Cell flags that block sight (default 1: grid's BLOCKED; BLOCKED | COVER lets cover block). */
   mask?: number;
+  /** Your own line of sight, used instead of `board` (a game whose tiles have their own rule). */
+  clear?(i: number, j: number): boolean;
   /** May i shoot at j? (default: any j but i). With actors: `(i, j) => A.side[j] !== A.side[i]`. */
   foe?(i: number, j: number): boolean;
 }
 
 export function aim(o: AimOptions) {
-  const { x, y, a, vx, vy, board } = o, mask = o.mask ?? 1, foe = o.foe;
+  const { x, y, a, vx, vy, board, clear } = o, mask = o.mask ?? 1, foe = o.foe;
   // out, then the best distance so far in pick: a typed-array slot, never a local that starts an
   // integer (the range) and turns double, which V8 widens to a boxed number.
   const out = new Float64Array(5);
-  const sees = (i: number, j: number) => !board || board.los(board.cellOf(x, y, i), board.cellOf(x, y, j), mask);
+  const sees = (i: number, j: number) => (clear ? clear(i, j) : !board || board.los(board.cellOf(x, y, i), board.cellOf(x, y, j), mask));
   /** Where j is from i: out = [j's x, y, signed angle off i's heading, distance]. */
   const look = (i: number, j: number) => {
     const dx = x[j]! - x[i]!, dy = y[j]! - y[i]!, b = Math.atan2(dy, dx) - (a ? a[i]! : 0);
@@ -80,8 +83,8 @@ export function aim(o: AimOptions) {
     },
     sees,
     /** The nearest foe of i among rows list[0..n) inside its cone and range and in sight; -1 if none.
-     *  Skip dead rows with `foe` (e.g. `A.alive[j] && …`). Sight is checked last, nearest first,
-     *  so a long list costs one Bresenham walk per closer candidate, not per row. out is the pick's. */
+     *  Skip dead rows with `foe` (e.g. `A.alive[j] && …`). Sight is checked last, and only for a row
+     *  closer than the best so far, so a long list costs a sight check per closer candidate, not per row. out is the pick's. */
     pick(i: number, list: Int32Array, n: number, half: number, range: number) {
       let best = -1;
       out[4] = range;

@@ -122,6 +122,10 @@ test("sees: grid's line of sight, symmetric, cover by mask, everything without a
   assert.equal(s.sees(0, 1), true, "cover lets a shot by");
   assert.equal(hard.sees(0, 1), false, "unless the mask says cover blocks");
   assert.equal(aim(b).sees(0, 1), true, "no board");
+  const asked = [];
+  const own = aim({ ...b, board: g, clear: (i, j) => (asked.push([i, j]), i === 0) });
+  assert.deepEqual([own.sees(0, 1), own.sees(1, 0)], [true, false], "clear: the game's own sight, instead of the board");
+  assert.deepEqual(asked, [[0, 1], [1, 0]]);
 });
 
 test("pick: the nearest foe in the cone and in sight, on an actor table", () => {
@@ -139,7 +143,12 @@ test("pick: the nearest foe in the cone and in sight, on an actor table", () => 
   assert.equal(s.pick(me, A.list, A.n, 0.4, 44), -1, "out of range");
   A.kill(hidden);
   assert.equal(s.pick(me, A.list, A.n, 0.4, 500), far, "the dead are skipped by foe");
-  void mate; void off;
+  // clear (the game's own sight) is asked last, and only for a row closer than the best so far.
+  const asked = [];
+  const own = aim({ x: A.x, y: A.y, a: A.a, foe: (i, j) => A.alive[j] === 1 && A.side[j] !== A.side[i], clear: (i, j) => (asked.push(j), j !== behind) });
+  assert.equal(own.pick(me, A.list, A.n, Math.PI, 500), off, "the nearest it can see");
+  assert.deepEqual(asked, [behind, far, off], "sight asked only for closer candidates (list order)");
+  void mate;
   // Ties go to the earlier row; with no foe filter every other row counts.
   const b = bodies(3), t = aim(b);
   put(b, 0, 0, 0); put(b, 1, 10, 0); put(b, 2, 0, 10);

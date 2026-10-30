@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-- **`fizlet/aim`** (new brick, E11, EXPERIMENTAL; 682 B gz, budget 1,024 = its planned target):
+- **`fizlet/aim`** (new brick, E11, EXPERIMENTAL; 692 B gz, budget 1,024 = its planned target):
   where bots and turrets point and when they may fire, on body arrays (a `fizlet/actor` table's or a
-  steer's) and, for sight, a `fizlet/grid` board. `aim({ x, y, a, vx, vy, board, mask, foe })`:
+  steer's) and, for sight, a `fizlet/grid` board. `aim({ x, y, a, vx, vy, board, mask, clear, foe })`:
   - `lead(i, j, speed)`: the aim point for a straight shot to meet a straight mover, the earliest
     meeting ahead (a numerically stable quadratic; a target as fast as the shot is caught only
     coming in). False, with the target where it stands, when the shot can never catch it. No game
@@ -13,8 +13,10 @@
     angle off the heading, so a turret turns by it (with `fizlet/steer`'s `turn`). It returns the
     same answer as Battlefield Blitz's bot fire check on 100,000 seeded cases.
   - `sees(i, j)`: grid's Bresenham line of sight between the two cells (symmetric; `mask` lets
-    cover block). `pick(i, list, n, half, range)`: the nearest `foe` in the cone and in sight, with
-    sight checked last and nearest first (DOM Battlefield's `nearestVisible` shape).
+    cover block), or the game's own `clear(i, j)` instead (a game whose tiles have their own rule,
+    as DOM Battlefield's do). `pick(i, list, n, half, range)`: the nearest `foe` in the cone and in
+    sight. Sight is checked last, and only for a row closer than the best so far: the same answer as
+    DOM Battlefield's `nearestVisible` (sort by distance, take the first in sight).
   - Results land in `out` ([x, y, t or angle, distance]), so no call returns a double, and
     distances are steer's exact `hypot`. The pick keeps its best distance in a typed-array slot:
     a local that starts as the integer range and turns double was widened by V8 to a boxed
