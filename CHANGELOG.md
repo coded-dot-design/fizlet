@@ -27,6 +27,10 @@
   (recipe emerge, the critter scene: a tomb pixel sprite, the emerge motion; kernel + sprite +
   slot): live 6,159 B · total 8,085 B gzip (with the 1,926 B loader) on this build, loaded only near
   the viewport, never under reduced motion; settles to zero frames.
+- **Website: gallery #048, "cobwebs spin into every corner".** Made by `fe anim` from the prompt
+  (recipe weave, the critter scene: a web pixel sprite, the weave motion; kernel + sprite + slot):
+  live 6,095 B · total 8,021 B gzip (with the 1,926 B loader) on this build, loaded only near the
+  viewport, never under reduced motion; settles to zero frames.
 
 ## 0.17.0
 

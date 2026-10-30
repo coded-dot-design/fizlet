@@ -1,0 +1,33 @@
+{
+  "no": 48,
+  "id": "cobwebs-spin-corner",
+  "date": "2026-10-30",
+  "prompt": "cobwebs spin into every corner",
+  "title": "Cobwebs spin into every corner",
+  "kind": "micro",
+  "theme": "halloween",
+  "author": "chris-cooley",
+  "recipe": "weave",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 32,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": true,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 0.36
+    }
+  },
+  "fizlet": "0.17.0",
+  "made": "fe anim",
+  "module": "anims/cobwebs-spin-corner.ts",
+  "export": "mount",
+  "aspect": "16 / 9"
+}
