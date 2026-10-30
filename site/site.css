@@ -462,6 +462,9 @@ a.bui-sticker-key {
 .hero {
   position: relative;
   overflow: hidden;
+  /* clip, not a scroll container: the parallaxed field's overflow must never scroll the hero (a
+     focus or scrollIntoView would, and the copy would jump back on the next frame) */
+  overflow: clip;
   isolation: isolate;
   border-bottom: 2px solid var(--line);
   background: radial-gradient(ellipse 70% 70% at 80% 30%, color-mix(in srgb, var(--k-cmd) 16%, transparent), transparent 70%), var(--bg);
@@ -594,7 +597,8 @@ html.bui[data-theme="light"] .hero h1 em {
   cursor: crosshair;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: manipulation;
+  touch-action: pan-y;
+  overscroll-behavior: none;
 }
 .demo-page {
   position: absolute;
@@ -834,6 +838,15 @@ html.bui[data-theme="light"] .dl.hot {
 .section[data-reveal] {
   position: relative;
   isolation: isolate;
+}
+/* Positioned, each section paints over the one before it, and its box would cover the base of a
+   key that sits on that section's bottom edge (the kit's hit area reaches below the face). The box
+   lets the pointer through; its content takes it back. */
+.section[data-reveal] {
+  pointer-events: none;
+}
+.section[data-reveal] > :not(.sec-rule, .sec-num) {
+  pointer-events: auto;
 }
 .sec-rule {
   position: absolute;
@@ -1919,10 +1932,17 @@ html.bui[data-theme="light"] .phases b {
   border-radius: 10px;
   background: var(--code-bg);
   cursor: crosshair;
-  touch-action: manipulation;
+  touch-action: pan-y;
+  overscroll-behavior: none;
 }
 .bd-img {
   image-rendering: pixelated;
+}
+/* Demo surfaces, like the kit's slots (board-ui.css): the page scrolls through them, never pans
+   sideways or zooms; site.ts hands the same list to fizlet/touch for pinch. */
+:is(.bd-tl, .lab-stage) {
+  touch-action: pan-y;
+  overscroll-behavior: none;
 }
 /* The timeline demo: a console and a cartridge, every move written by fizlet/timeline. */
 .bd-tl {
@@ -2469,6 +2489,12 @@ html.bui[data-theme="light"] .phases b {
   place-items: center;
   padding: 16px;
   background: var(--bg);
+  overscroll-behavior: none;
+}
+/* Full screen the hero is the whole screen: no gesture pans or zooms it. */
+:is(.hero-stage:fullscreen, .hero-stage.hero-full),
+:is(.hero-stage:fullscreen, .hero-stage.hero-full) figure.ae-slot {
+  touch-action: none;
 }
 .hero-stage.hero-full {
   position: fixed;
@@ -3168,6 +3194,51 @@ html.bui[data-theme="light"] .phases b {
     inset: -9px -4px;
   }
 }
+
+/* Status flags (site/bricks.mjs STATUS): the Board UI status pill, flat because it is a readout. */
+.status-pill {
+  --tone: var(--k-go);
+  display: inline-block;
+  padding: 3px 8px;
+  font: 800 10px/1.4 var(--mono);
+  letter-spacing: 0.12em;
+  color: var(--rim);
+  background: var(--tone);
+  border: 1.5px solid var(--rim);
+  border-radius: 5px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.status-pill[data-flag="beta"] { --tone: var(--k-sys); }
+.status-pill[data-flag="experimental"] { --tone: var(--k-aim); }
+.status-pill[data-flag="deprecated"] { --tone: var(--hurt); }
+.status-pill[data-flag="roadmap"] {
+  color: var(--muted);
+  background: transparent;
+  border-color: var(--line);
+}
+.brick-top .status-pill { margin-right: auto; }
+.status-cards {
+  list-style: none;
+  margin: 0 0 48px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 16px;
+}
+.status-card { display: grid; align-content: start; gap: 10px; padding: 18px; min-width: 0; }
+.status-card p { margin: 0; }
+.status-card ul,
+.bp-status ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+.status-card small { font: 12px var(--mono); color: var(--muted); }
+.bricks.planned .brick { border-style: dashed; }
+.bricks.planned .needs { margin: 0; font-size: 13px; color: var(--muted); }
+.bp-status { display: grid; gap: 10px; padding: 18px 20px; margin: 0 0 28px; min-width: 0; }
+.bp-status p { margin: 0; }
+.bp-status dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; margin: 0; }
+.bp-status dt { font: 800 10px var(--mono); letter-spacing: 0.12em; color: var(--muted); }
+.bp-status dd { margin: 4px 0 0; overflow-wrap: anywhere; }
+.beta-line { margin: 0 0 16px; line-height: 1.8; font-size: 14px; color: var(--muted); }
 /* Touch: the kit grows a copy key's hit area 9px up and down (above), so the Try keys keep more
    than that between rows and a tap on one key's base never lands on the next one's area. */
 @media (pointer: coarse) {

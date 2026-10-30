@@ -71,13 +71,26 @@ let where = "start";
 
 // The home page's sections reveal as they come on screen (site/home-motion.ts). The key checks
 // press a key right after scrolling to it, so let every reveal play out first (a key mid-reveal moves).
+// On state, never wall time: each section is brought on screen and waited on until none of its parts
+// is still part-way (a fast scroll past can leave a section waiting, and it would play under a key press).
 async function revealAll(page) {
   if (!(await page.$("section[data-reveal]"))) return;
-  await page.evaluate(async () => {
-    for (let y = 0; y < document.documentElement.scrollHeight; y += 400) scrollTo(0, y), await new Promise((r) => setTimeout(r, 30));
+  const left = await page.evaluate(async () => {
+    const frame = () => new Promise((r) => requestAnimationFrame(r));
+    const moving = (s) => [...s.querySelectorAll(":scope > .wrap *")].some((e) => (e.style.opacity !== "" && e.style.opacity !== "1") || (e.style.translate !== "" && e.style.translate !== "0px 0px" && e.style.translate !== "0px"));
+    const stuck = [];
+    for (const s of document.querySelectorAll("section[data-reveal]")) {
+      s.scrollIntoView({ block: "center", behavior: "instant" });
+      await frame(); await frame();
+      let i = 0;
+      for (; i < 600 && moving(s); i++) await frame();
+      if (moving(s)) stuck.push(s.id || s.className);
+    }
     scrollTo(0, 0);
+    await frame(); await frame();
+    return stuck;
   });
-  await page.waitForTimeout(1200);
+  assert.deepEqual(left, [], "every section's reveal plays out once it is on screen");
 }
 
 async function open(context, path) {
@@ -315,6 +328,19 @@ try {
       });
       assert.ok(over.scroll <= over.w, `${where}: horizontal overflow ${over.scroll} > ${over.w}: ${over.wide.join(", ")}`);
       assert.deepEqual(over.wide, [], `${where}: content wider than the screen`);
+      if (label === "phone") {
+        // Touch: no double-tap zoom anywhere, and no demo surface pans sideways or zooms the page.
+        const touch = await page.evaluate(() => ({
+          html: getComputedStyle(document.documentElement).touchAction,
+          loose: [...document.querySelectorAll(".ae-slot,[data-fizlet-slot],.demo-board,.bd-canvas,.bd-tl,.lab-stage")].filter((el) => {
+            // touch-action narrows down the tree: a surface is locked when it or a parent is.
+            for (let p = el; p; p = p.parentElement) if (/^(none|pan-y)$/.test(getComputedStyle(p).touchAction)) return false;
+            return true;
+          }).map((el) => el.className),
+        }));
+        assert.equal(touch.html, "manipulation", `${where}: the page is touch-action: manipulation`);
+        assert.deepEqual(touch.loose, [], `${where}: demo surfaces are touch-action none or pan-y`);
+      }
       if (label === "desktop") {
         // Size badges: every live demo on the page sits in a host that shows what it ships, and the
         // number is the gzip size of the built file it names (measured again here).
@@ -379,6 +405,8 @@ try {
     const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const tap = await open(phone, path);
     await revealAll(tap.page);
+    // Heroes: the skip below needs the centre card (aria-current), which an IntersectionObserver sets.
+    if (path === "heroes/") await tap.page.waitForSelector("[data-hero][aria-current]");
     // Heroes: on a phone the other cards sit off to the side, and a scroll to one of their keys snaps the
     // row to that card (the key moves under the tap); the centre card's keys are tapped.
     await checkTaps(tap.page, `${where} (phone)`, { skip: path === "heroes/" ? "[data-hero]:not([aria-current])" : "" });
@@ -767,14 +795,20 @@ try {
       else assert.ok(hidden.some(([id]) => id === "roadmap") && hidden.every(([, below]) => below), `below the fold waits, in view never hides (${hidden})`);
       const h = await page.evaluate(() => document.documentElement.scrollHeight);
       for (let y = 0; y <= h; y += 400) await page.evaluate((y) => scrollTo(0, y), y), await page.waitForTimeout(40);
-      await page.waitForTimeout(1500);
+      // On state, not time: a loaded runner draws fewer frames, and the kernel caps each frame's dt, so
+      // the last reveals can take longer than any fixed wait. A part that never shows still fails.
+      await page.waitForFunction(() => ![...document.querySelectorAll("section[data-reveal] *")]
+        .some((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1")), null, { polling: "raf", timeout: 15000 }).catch(() => {});
       assert.deepEqual(await moved(page), [], `${reducedMotion}: every part shown once the reveals end`);
       if (reducedMotion === "reduce") {
         assert.equal(await page.evaluate(() => document.querySelector(".sec-num").style.translate), "", "reduced motion: no parallax");
       } else {
         assert.notEqual(await page.evaluate(() => document.querySelector(".sec-num").style.translate), "", "parallax moves the ghost numbers");
-        // Still once settled: no frames asked for after the scroll stops.
-        const frames = await page.evaluate(() => new Promise((r) => { let n = 0; const raf = window.requestAnimationFrame; window.requestAnimationFrame = (f) => (n++, raf(f)); setTimeout(() => ((window.requestAnimationFrame = raf), r(n)), 1200); }));
+        // Still once settled: no frames asked for after the scroll stops. The engine settles a little
+        // after the last reveal ends, so look at up to five 1.2 s windows; one that never settles fails all.
+        let frames = Infinity;
+        for (let i = 0; i < 5 && frames > 2; i++)
+          frames = await page.evaluate(() => new Promise((r) => { let n = 0; const raf = window.requestAnimationFrame; window.requestAnimationFrame = (f) => (n++, raf(f)); setTimeout(() => ((window.requestAnimationFrame = raf), r(n)), 1200); }));
         assert.ok(frames <= 2, `settled: ${frames} frames asked for in 1.2 s of stillness`);
       }
       assert.ok(await page.evaluate(() => window.__cls) < 0.01, "no layout shift from the reveals");
