@@ -329,11 +329,11 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
     get t() {
       return n[T]!;
     },
-    /** Range reads made by the last refresh (never more than `reads`). */
     /** Rescans so far: glyph indices from before a rescan mean nothing after it. */
     get scans() {
       return scans;
     },
+    /** Range reads made by the last refresh (never more than `reads`). */
     get reads() {
       return reads;
     },

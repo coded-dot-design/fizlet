@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- **`fizlet/board-page`: BETA → COMPLETE (G19).** Its step queries now have a Node test and an
+  allocation test in this repo (`tests/board-page.test.mjs`), on a fake page whose layout is known
+  to the pixel: every glyph's rect and the targets; `near` / `nearAt` (rect distance, the edge
+  counts, `out` caps the answer); `hit` / `hitAt` (first glyph along the segment, the 2 px pad, `t`);
+  `consume` (outside a step it writes at once; from a step it is queued, written in render and
+  survives a rescan; spent glyphs leave `near` and `hit`; "erase" keeps `char()`); a host edit wins
+  and Recall gives the text back; the `still` and `reads` budgets; destroy. **0 young GCs over 300k
+  frames of `nearAt` + `hitAt`** (best of 3; the same test with one object allocated per query
+  fails). The status flag moves on that evidence; the released users
+  (Byte Runner, Sherman Bytes, Swarm Protocol 1.4, Null Invaders through `fizlet/arcade`) were
+  already listed. The `reads` getter gets its own JSDoc back (it sat above `scans`). 0 B: board-page
+  4,162 B gz, unchanged. README sizes regenerated (`npm run readme:sizes`: kernel 3,438 B, css-clock
+  5.2 KB).
+
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
   could lose to `settle`: the engine slept before the scheduled thing happened (#026's intro, about
