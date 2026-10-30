@@ -250,7 +250,9 @@ export function landing(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
         begin();
       } else if (S[QUEUE] === 1 && S[HM] !== WAITING && (S[HM] !== LANDED || S[HT]! > 0.25) && (S[HM] !== STUCK || S[HT]! > 1.1)) begin();
       const m = S[HM]!, t = (S[HT] = S[HT]! + dt);
-      if (m !== WAITING && m !== STAND) busy = true;
+      // The wait before the first landing counts as busy, or the settle timer (also 0.6 s) can put
+      // the engine to sleep before he ever drops.
+      if ((m !== WAITING || S[WAIT]! >= 0) && m !== STAND) busy = true;
       if (m === LEAP) {
         // A crouch, then up and out of the top; then the drop at the target.
         if (t > 0.1) {
