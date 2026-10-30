@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { Relay, msg, INPUT, WELCOME, LEAVE } from "../src/relay.js";
+import { Relay, msg, INPUT, HASH, WELCOME, LEAVE } from "../src/relay.js";
 
 const peer = () => ({ got: [], send(d) { this.got.push(Uint8Array.from(d)); } });
 
@@ -34,4 +34,19 @@ test("relay: four players, every input to the three others, a leave told to all 
   r.leave(3);
   p.slice(0, 3).forEach((x) => assert.deepEqual([x.got.at(-1)[0], x.got.at(-1)[1]], [LEAVE, 3]));
   assert.equal(r.join(peer()), -1, "a started room takes nobody new, even after a leave");
+});
+
+test("relay: first input wins: a seat's repeated or older frame is never relayed", () => {
+  const r = new Relay(3, 1), p = [peer(), peer(), peer()];
+  p.forEach((x) => r.join(x));
+  assert.equal(r.message(0, msg(INPUT, 0, 0, 5, 1)), true);
+  assert.equal(r.message(0, msg(INPUT, 0, 0, 5, 2)), false, "a second, different input for frame 5");
+  assert.equal(r.message(0, msg(INPUT, 0, 0, 4, 2)), false, "an older frame");
+  assert.equal(r.message(0, msg(INPUT, 0, 0, 6, 3)), true);
+  assert.equal(r.message(1, msg(INPUT, 0, 0, 5, 9)), true, "each seat has its own frames");
+  assert.equal(r.message(0, msg(HASH, 0, 0, 30, 7)), true, "hashes are counted apart from inputs");
+  assert.equal(r.message(0, msg(HASH, 0, 0, 30, 8)), false);
+  const got = p[2].got.slice(1).map((d) => [d[1], d[0], d[4], d[8]]);
+  assert.deepEqual(got, [[0, INPUT, 5, 1], [0, INPUT, 6, 3], [1, INPUT, 5, 9], [0, HASH, 30, 7]], "both others got the first input only");
+  assert.deepEqual(p[1].got.slice(1).map((d) => d[8]), [1, 3, 7]);
 });

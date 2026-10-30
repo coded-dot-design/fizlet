@@ -171,8 +171,10 @@ try {
   assert.equal(await html(p), before, "Recall during the countdown: the page byte for byte");
   await p.evaluate(() => window.g.start());
   await p.waitForFunction(() => window.g.getSnapshot().elapsed > 0, null, { timeout: 4000 });
+  // Fire mid-run, held until a shot is out (state, not wall time), then leave by the exit key.
+  const fired = (await snap(p)).shots;
   await p.keyboard.down("Space");
-  await p.waitForTimeout(500);
+  await p.waitForFunction((n) => window.g.getSnapshot().shots > n, fired, { timeout: 4000 });
   await p.keyboard.up("Space");
   await sh(p, (r) => r.querySelector("[data-a=exit]").click());
   assert.equal((await snap(p)).status, "idle");
