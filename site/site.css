@@ -2057,6 +2057,42 @@ html.bui[data-theme="light"] .phases b {
   max-width: 78ch;
   line-height: 1.6;
 }
+.bp-decl .status-pill {
+  vertical-align: 2px;
+}
+.bp-sig {
+  margin: 0 0 8px;
+}
+.bp-params {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+.bp-params div {
+  display: grid;
+  grid-template-columns: minmax(80px, max-content) 1fr;
+  gap: 12px;
+  min-width: 0;
+}
+.bp-params dt {
+  font: 11px/1.9 var(--mono);
+  color: var(--muted);
+}
+.bp-params dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.bp-params dd small {
+  color: var(--muted);
+}
+.bp-full summary {
+  cursor: pointer;
+  font: 12px var(--mono);
+  color: var(--muted);
+  margin-bottom: 8px;
+}
 .bp-steps {
   display: flex;
   justify-content: space-between;
@@ -3333,6 +3369,82 @@ html.bui[data-theme="light"] .phases b {
 .recipe-head .bui-label {
   white-space: normal;
   overflow-wrap: anywhere;
+}
+/* ---------- Brick cards (site/brick-cards.mjs, site/cards/): one live toy per brick ---------- */
+.bc {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.bc-name {
+  margin: 0;
+}
+.bc-fig {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--tone) 6%, var(--bg));
+  border: 2px solid var(--rim);
+  border-radius: 10px;
+  box-shadow: 0 4px 0 var(--rim);
+}
+.bc-poster {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: end center;
+}
+.bc-block {
+  margin-bottom: 11%;
+  padding: 6px 12px;
+  font: 800 11px var(--mono);
+  letter-spacing: 0.1em;
+  color: #07060f;
+  background: var(--tone);
+  border: 2px solid #07060f;
+  border-radius: 3px;
+  box-shadow: 0 3px 0 #07060f;
+}
+.bc-floor {
+  position: absolute;
+  inset: auto 0 11% 0;
+  height: 2px;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+}
+.bc-read {
+  position: absolute;
+  inset: 6px 8px auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  font: 700 9.5px var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  pointer-events: none;
+}
+.bc-read b {
+  font-weight: 800;
+  white-space: nowrap;
+}
+.bc-read.on b {
+  color: var(--tone);
+}
+.bc-cap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 10px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.bp-card {
+  max-width: 560px;
+  margin: 0 0 28px;
 }
 /* Status flags (site/bricks.mjs STATUS): the Board UI status pill, flat because it is a readout. */
 .status-pill {

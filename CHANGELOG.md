@@ -6,6 +6,27 @@
   guide with three recipes, the generated API reference with llms-full.txt, and live kernel stats on
   DOM VIRUS's Under the Hood (dom-virus#21). `site/roadmap.mjs` and the engine's ROADMAP.md agree
   (`fe roadmap check`).
+- **Website: a generated API reference for every brick, and `llms-full.txt` (E5).** Each brick page's
+  API section now lists every export with its signature, parameters, return type, doc comment and
+  status flag, generated at site build time from the published declarations (`dist/*.d.ts`) by the
+  TypeScript compiler API (`typescript/unstable/sync`, the dev dependency the repo already type-checks
+  with: no new dependency). It can't drift from the code: the page and the file are rebuilt from the
+  declarations on every `npm run site`.
+  - `scripts/api.mjs` reads exports through the compiler (re-exports followed, overloads and
+    `const A = 1, B = 2` kept as one entry each) instead of scanning lines. A function's inline object
+    return type reads as its exported alias (`createEngine(o?: EngineOptions): Engine`). A const that
+    holds a function gets its signature. Type names the module exports link to their entries.
+  - Status per export: the brick's flag, unless its doc comment says `@deprecated`, `@experimental`
+    or `@beta`.
+  - `llms-full.txt`: the whole API in plain text for AI agents (every brick: import, status, measured
+    size, summary; every export: kind, status, doc, signatures, declaration). llms.txt links to it
+    in its opening text.
+  - Every public export now has a doc comment: 96 were missing one (options interfaces, `ReturnType`
+    aliases, factories such as `createEngine`, `controls`, `pad`, `sound`, `match`, `arcade`). A test
+    fails on any export without one (`tests/api.test.mjs`), so new exports must be documented.
+    Comments only: no JS changes, so every size is unchanged (kernel 3,438 B gzip).
+  - The site's own JS is byte-identical; `site.css` grows 102 B gzip (9,788 → 9,890 B) for the
+    signature and parameter rows.
 - **Website: docs, guides and news for launch** (fizlet.com is the engine's tech resource; the games
   live on DOM VIRUS). New sections, every number filled in from the build, never typed:
   - `/docs/`: getting started, the contract, the loop, Recall and the ledger, size budgets (every
@@ -37,6 +58,27 @@
     5 KB (arcade's budget is 22 KB).
   - The three launch notes (How small is small, Recall: the page always comes back, Lockstep
     multiplayer in a few KB) are scheduled for 2026-10-31 09:00 New York and land in their own PR.
+- **Brick cards: a live toy per brick, built with that brick.** `site/cards/` holds one fizlet/slot
+  scene per brick on one shared frame (`frame.ts`: a 320 × 200 stage whose backing store matches the
+  slot in device pixels, so lines and labels stay sharp at any width and DPR; the brick drawn the
+  Board UI way; a floor; a readout of the engine's state: AWAKE n fps, then ASLEEP · 0 FPS). Nine so
+  far, each its own idea: kernel (bricks drop, stack, get knocked out; the loop sleeps when they
+  stop), fx (a crate knocked about by small blasts until the hero blast takes it apart), collide
+  (balls knock bricks out of a wall; grid checks against all pairs), grid (A* across a seeded board;
+  break a rock and the walk takes the short cut), steer (a tower of bricks flees the pointer and
+  arrives home), input (whack-a-brick: keys and taps on the same intents, a hit true for one step),
+  sprite (a pixel bug that flashes, gets angry and bursts into its own pixels), camera (a tiny DOM
+  page with fine print you can read only when the camera dives in) and timeline (six DOM bricks
+  dance into the next arrangement). Each shows its brick's gzip size from the build, loads near the
+  viewport, sleeps off screen, keeps a still labelled poster under reduced motion, and gives the page
+  back exactly. On the bricks page and each brick's page; `brickCard()` (site/brick-cards.mjs) plus
+  `brick-cards.js` mounts one anywhere (note cards, a gallery hero). Card chunks (gzip, with the
+  kernel, slot and frame): kernel 5,739 B, fx 8,821, collide 8,115, grid 7,532, steer 6,893, input
+  7,432, sprite 7,303, camera 7,126, timeline 7,757; loader 2,324 B; all nine on the bricks page
+  27,072 B (each loads only near the viewport). `tests/brick-cards.mjs` (in `test:site`) plays every
+  card; `tests/brick-cards-alloc.mjs` (`npm run test:alloc:cards`) measures each card's allocation,
+  best of 3 over 6,000 hand-driven frames: 0 B a step for all nine (input 1.1 B), whole moving frame
+  21–811 B (canvas and style writes box their arguments; nothing once settled).
 - Roadmap: E0 is nearly done. The Battlefield archive selector (dom-battlefield#20) and the hub's TEST A RELEASE list of every game version (dom-virus#26) are shipped; only the `engine-baseline` tags remain (owner, needs tag push).
 - **Kernel: `engine.busy(seconds)` holds a settling engine awake for something scheduled.** An
   intro delay, a pause between beats or an autoplay timer counted down in `step` without `busy()`
