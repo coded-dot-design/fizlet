@@ -164,12 +164,18 @@ try {
       window.touched.clear();
       window.scrambled = 0;
       const t = document.querySelector(".nr-h i").firstChild;
-      new MutationObserver(() => t.nodeValue !== "NIMBUS VAULT" && window.scrambled++).observe(t, { characterData: true });
+      // Old values too: with the clock driven by hand, a scramble can resolve within one batch of steps.
+      new MutationObserver((rs) => rs.some((r) => r.oldValue !== "NIMBUS VAULT") || t.nodeValue !== "NIMBUS VAULT" ? window.scrambled++ : 0).observe(t, { characterData: true, characterDataOldValue: true });
     });
-    for (let k = 0; k < 8 && !(await p.evaluate(() => window.scrambled)); k++) {
+    // The clock is driven by hand, as below (engine stopped, fixed steps per tap; a tap is read on
+    // the next step): on a slow runner real time let the tries run out before the heading broke.
+    await p.evaluate(() => scene.engine.stop());
+    for (let k = 0; k < 16 && !(await p.evaluate(() => window.scrambled)); k++) {
       await at(heading, 0.5 + (k % 3) * 0.1);
-      await until(p, () => scene.state.packets === 0, null, 900, `${id}: the packets spend their charges`);
+      const left = await p.evaluate(() => { for (let i = 0; i < 2; i++) scene.engine.advance(1 / 60); for (let i = 0; i < 900 && scene.state.packets; i++) scene.engine.advance(1 / 60); for (let i = 0; i < 6; i++) scene.engine.advance(1 / 60); return scene.state.packets; });
+      assert.equal(left, 0, `${id}: the packets spend their charges`);
     }
+    await p.evaluate(() => scene.engine.start());
     const glitch = await p.evaluate(() => ({ scrambled: window.scrambled > 0, breaches: scene.state.breaches, text: document.querySelector(".nr-h i").textContent, nodes: [...touched].every((e) => e.closest("[data-nr-node]") || e.closest(".nr-deck")) }));
     assert.deepEqual(glitch.scrambled, true, `${id}: the breach scrambles the heading's own text`);
     assert.ok(glitch.breaches >= 1, `${id}: a node is breached`);
