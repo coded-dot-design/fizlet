@@ -30,6 +30,21 @@ npm run test:alloc           # the allocation test alone (after `npm run site`)
 
 The input is a seeded click every 250 ms on the demo board (a blast and a shock wave each time).
 
+## Budgets (`budgets.json`, 2026-10-30)
+
+Measured, no longer provisional: the medians of 3 runs of the CI `perf` job (GitHub Actions
+ubuntu-latest, AMD EPYC 7763 × 4, Chromium 145, load ≤ 1.15) for the demo, and of 3 local runs
+(load 17–26, noted) for Blitz, which CI does not build. Each run's numbers and the rule from median
+to ceiling are in the file. Every result line is also a GitHub annotation, so a run reads as:
+`gh api repos/coded-dot-design/fizlet/check-runs/<perf job id>/annotations`.
+
+| target | p50 | p95 | p99 | dropped | layerize | FCP | heap | minor GC |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| demo median (CI) | 16.7 | 16.7 | 16.8 | 0% | 1.49 ms | 320 ms | 3.55 MB | 4 |
+| demo ceiling | 20 | 34 | 34 | 5% | 3 ms | 700 ms | 7 MB | 8 |
+| Blitz median (local, loaded) | 16.7 | 16.8 | 50.0 | 6.1% | 0.03 ms | 428 ms | 2.72 MB | 0 |
+| Blitz ceiling | 20 | 34 | 67 | 12% | 1 ms | 900 ms | 5.5 MB | 4 |
+
 ## Measured (demo, 2026-10-29)
 
 Machine: cloud container, Intel Xeon @ 2.80 GHz × 4, 15 GB, Linux, headless Chromium 153.0.8010.12,
