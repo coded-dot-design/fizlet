@@ -18,6 +18,7 @@
 //   POST /pass/revoke  authorization: Bearer <ROOMS_ADMIN_KEY>, body: the pass or its id  → 200 | 401 | 400
 //   POST /pass/list    authorization: Bearer <ROOMS_ADMIN_KEY>  → {passes:[{id, devices, exp}], revoked:[{id, exp}]}
 import { DurableObject } from "cloudflare:workers";
+import { bodyText } from "./limits.js";
 
 export const PASS_MAX_CHARS = 600;
 /** [days, devices] at most, per kind. */
@@ -124,8 +125,8 @@ export async function adminRequest(req, env, path, now = Math.floor(Date.now() /
   const auth = req.headers.get("authorization") ?? "";
   if (!(await same(auth, "Bearer " + env.ROOMS_ADMIN_KEY))) return { status: 401, body: { error: "admin key needed" } };
   if (path === "/pass/list") return { status: 200, body: await book(env).list() };
-  if (Number(req.headers.get("content-length") ?? 0) > PASS_MAX_CHARS) return { status: 400, body: { error: "pass not valid" } };
-  const text = (await req.text()).trim();
+  const text = (await bodyText(req, PASS_MAX_CHARS))?.trim();
+  if (text == null) return { status: 400, body: { error: "pass not valid" } };
   if (ID.test(text)) {
     await book(env).revoke(text, now + Math.max(...Object.values(PASS_LIMITS).map(([d]) => d)) * DAY + SKEW);
     return { status: 200, body: { ok: true, id: text } };
