@@ -2,11 +2,11 @@
 // pixel avatar, who they are, what they make, their gallery entries (each linked to its card on
 // the gallery page that holds it) and two stats measured on this build (entries and their total
 // live bytes). The attribution line on every gallery card ("by <name>") links here. Personas are
-// characters, and every card and page says so (PERSONA_NOTE). Data: site/contributors/*.json
-// (scripts/people.mjs).
+// characters, and every card and page says so (PERSONA_NOTE); AI agents say they are AI agents
+// (AGENT_NOTE). Data: site/contributors/*.json (scripts/people.mjs).
 import { crumbs, esc, icon } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
-import { PERSONA_NOTE, avatarSvg } from "../../scripts/people.mjs";
+import { AGENT_NOTE, PERSONA_NOTE, avatarSvg } from "../../scripts/people.mjs";
 import { personPath } from "../../scripts/gallery.mjs";
 
 const fmt = (n) => n.toLocaleString("en-US");
@@ -14,10 +14,11 @@ const isTodo = (s) => /^KIT:/.test(s);
 /** The winner sticker: a contest winner, here, on /contest/ and on its /gallery/ card. */
 export const winnerBadge = () => `<span class="win-badge">${icon("check", 14)}WINNER</span>`;
 
-/** The persona sticker (cards and pages), or the maker's. */
-const tag = (p) => p.kind === "persona"
-  ? `<p class="ppl-persona"><b>${PERSONA_NOTE.split(" — ").map(esc).join("</b> — ")}.</p>`
+/** The persona or AI agent sticker (cards and pages), or the maker's. */
+const note = (line) => `<p class="ppl-persona"><b>${line.split(" — ").map(esc).join("</b> — ")}.</p>`;
+const tag = (p) => p.kind === "persona" ? note(PERSONA_NOTE) : p.kind === "agent" ? note(AGENT_NOTE)
   : `<p class="ppl-owner"><b>Maker</b> — the real person who builds Fizlet.</p>`;
+const EYEBROW = { owner: "MAKER", persona: "PERSONA", agent: "AI AGENT" };
 
 const stats = (s) => `<ul class="rules ppl-stats" aria-label="Measured on this build">
         <li class="panel rule"><b data-stat="entries">${fmt(s.count)}</b><p>gallery ${s.count === 1 ? "entry" : "entries"}</p></li>
@@ -41,7 +42,7 @@ export function personPage({ person: p, stats: s, base, urlOf, wins = new Set() 
     <header class="ppl-head">
       <div class="ppl-frame">${avatarSvg(p.avatar, { size: 160, label: `${p.name}: pixel-art avatar${p.kind === "owner" ? " (a stylized character, not a likeness)" : ""}` })}</div>
       <div class="ppl-who">
-        <p class="eyebrow"><span class="index">${p.kind === "owner" ? "MAKER" : "PERSONA"}</span> ${esc(p.handle ?? "FIZLET")}</p>
+        <p class="eyebrow"><span class="index">${EYEBROW[p.kind]}</span> ${esc(p.handle ?? "FIZLET")}${p.pronouns ? ` · <span class="ppl-pronouns">${esc(p.pronouns)}</span>` : ""}</p>
         <h1 id="person-name" data-person="${esc(p.id)}">${esc(p.name)}</h1>
         <p class="ppl-role">${esc(p.role)}</p>
         ${tag(p)}
@@ -61,7 +62,7 @@ export function personPage({ person: p, stats: s, base, urlOf, wins = new Set() 
 </article>`;
 }
 
-/** The index: the maker first, then the personas. `rows`: [{ person, stats }]. */
+/** The index: the maker first, then the AI agents, then the personas. `rows`: [{ person, stats }]. */
 export function peopleIndex({ rows, base }) {
   const cards = rows.map(({ person: p, stats: s }) => `<li class="panel ppl-tile" data-person="${esc(p.id)}">
       <span class="ppl-frame">${avatarSvg(p.avatar, { size: 96 })}</span>
@@ -78,7 +79,7 @@ export function peopleIndex({ rows, base }) {
     <div class="section-head">
       <p class="eyebrow"><span class="index">${rows.length}</span> PEOPLE · ${rows.filter((r) => r.person.kind === "persona").length} HOUSE PERSONAS</p>
       <h1 id="ppl-index">Who makes<br><em>the animations.</em></h1>
-      <p class="lead">Fizlet is made by <a href="${base}${personPath(rows[0].person.id)}">Chris Cooley</a>. The house personas are Fizlet characters, not real people: each one has a style, a way of writing prompts and a seat at the <a href="${base}contest/">weekly contest</a>. Entries and bytes are measured on this build.</p>
+      <p class="lead">Fizlet is made by <a href="${base}${personPath(rows[0].person.id)}">Chris Cooley</a>. The house personas are Fizlet characters, not real people: each one has a style, a way of writing prompts and a seat at the <a href="${base}contest/">weekly contest</a>.${rows.some((r) => r.person.kind === "agent") ? " The AI agents on the team are labelled as AI agents: they keep the engine running, and they are not people either." : ""} Entries and bytes are measured on this build.</p>
     </div>
     <ul class="ppl-tiles">
     ${cards}

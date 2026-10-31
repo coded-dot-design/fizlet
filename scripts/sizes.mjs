@@ -35,7 +35,8 @@ export const BUDGETS = [
   ["fizlet/match", "src/match.ts", 2816],
   // 1,318 B gz with per-drop age, landing spot and drop:land (0.10.1).
   ["fizlet/rules", "src/rules.ts", 1536],
-  // seek, flee, arrive, wander, patrol on typed arrays: 950 B gz when added.
+  // seek, flee, arrive, wander, patrol on typed arrays: 950 B gz when added. 958 B with arriveGoal (+8 B,
+  // the goal read from gx/gy: Blitz's wingmen boxed their per-frame slot as arrive's arguments).
   ["fizlet/steer", "src/steer.ts", 1280],
   // flag + tour + the kit card (its look inline on the tokens): 1,192 B gz when added; flag and tour alone tree-shake to less.
   ["fizlet/coach", "src/coach.ts", 1536],
