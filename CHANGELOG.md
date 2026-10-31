@@ -49,6 +49,123 @@
     resize, settled at 0 frames, Recall byte for byte).
   - Status: EXPERIMENTAL in `site/bricks.mjs` (since 0.21.0), a README row and a generated brick
     page; off the ROADMAP list.
+- **Tests: the evidence behind six COMPLETE flags** (daily audit 2026-10-30: 9 gaps). New Node
+  suites, each proving its brick's contract and zero allocation on the path it runs often, with a
+  self-check in the same harness that the GC counter does see an allocation (best of 3 windows,
+  `--test-concurrency=1`): `sound.test.mjs` (off, paused, disposed and destroyed are silent; the
+  synth waits for a trusted gesture, rate-limits a cue, caps 8 voices, and Recall closes its
+  AudioContext and listeners; reading the ring allocates nothing), `embed.test.mjs` (open now or
+  behind the toggle, Escape, a close that beats a late load, the Konami code ignoring fields and
+  slow sequences, double-tap / long-press / hold-tap / click triggers, Recall leaves no listener or
+  node; the dormant pointer path allocates nothing), `debug.test.mjs` (only the STEP phase counts,
+  per engine, the off switch and destroy stop it, reads return the real value; guarded steps and
+  reads allocate nothing), `slot.test.mjs` (lazy near the viewport then idle, the first tap as
+  numbers, reduced motion never loads and takes a running scene down, role=img until a scene is
+  accessible, Recall exact; taps on a running scene allocate nothing), `ui.test.mjs` (mount's
+  shared sheets, hex-only palette and its undo, readouts, press / pressCue / setting, launch under
+  reduced motion; the press paths allocate nothing) and `arcade.test.mjs` (the controller without a
+  page: idle snapshot, a start that fails mid-run leaves the page exactly as it was, destroy is
+  final; a run itself needs a real page and stays in the Chromium suites). `tests/fake-dom.mjs` is
+  the small shared page they run on. site/bricks.mjs lists them (and `sound.test.mjs`, which it
+  missed).
+- **sound: an event named like an Object.prototype key no longer allocates in render.** The render
+  loop looked the cue up with `o.cues[type]`, so an event typed "constructor" handed `play()` a
+  function, whose own-key check then turned the function's source into a string, every such
+  event (51 young GCs per 1M frames). It now reads own keys only. Sizes (gzip): sound 1,015 →
+  1,019 B; arcade 24,327 → 24,331 B; arcade with `hud` omitted 18,348 → 18,351 B. No budget moves.
+- **`fizlet/board-page`: BETA → COMPLETE (G19).** Its step queries now have a Node test and an
+  allocation test in this repo (`tests/board-page.test.mjs`), on a fake page whose layout is known
+  to the pixel: every glyph's rect and the targets; `near` / `nearAt` (rect distance, the edge
+  counts, `out` caps the answer); `hit` / `hitAt` (first glyph along the segment, the 2 px pad, `t`);
+  `consume` (outside a step it writes at once; from a step it is queued, written in render and
+  survives a rescan; spent glyphs leave `near` and `hit`; "erase" keeps `char()`); a host edit wins
+  and Recall gives the text back; the `still` and `reads` budgets; destroy. **0 young GCs over 300k
+  frames of `nearAt` + `hitAt`** (best of 3; the same test with one object allocated per query
+  fails). The status flag moves on that evidence; the released users
+  (Byte Runner, Sherman Bytes, Swarm Protocol 1.4, Null Invaders through `fizlet/arcade`) were
+  already listed. The `reads` getter gets its own JSDoc back (it sat above `scans`). 0 B: board-page
+  4,162 B gz, unchanged. README sizes regenerated (`npm run readme:sizes`: kernel 3,438 B, css-clock
+  5.2 KB).
+- **`fizlet/timeline`: `revert()` gives plain numbers back, and `done()` never hangs (audit P7).**
+  - `revert()` said "every property" but gave back only styles. A typed array slot or an object's
+    property kept the timeline's last value. Now each plain-number property keeps its value from
+    when its first track was added, and `revert()` writes it back in render (styles still go back
+    through the ledger, where a newer host edit wins).
+  - `done()` resolved only when the timeline ended. If the engine was destroyed first, the promise
+    never settled, and an `await tl.done()` hung for good. Now every wait resolves when the engine's
+    signal aborts, and a `done()` asked after that resolves at once.
+  - Tests (`tests/timeline.test.mjs`): "revert() gives plain numbers back too" and "done() settles
+    when the engine is destroyed first". Both fail on main (8.75 ≠ 5; "hung"), both pass now. The
+    zero-allocation test still passes; Chromium `tests/timeline.mjs` and `tests/css-clock.mjs` green.
+  - Size (gzip): timeline 2,060 → 2,114 B (budget 2,304); css-clock 5,375 → 5,393 B (budget 5,632).
+- **`fizlet/steer`: options are checked; `patrol()` with no waypoint stands still (audit P8).**
+  - steer was the one new brick without `need()`. `cap` was silently `max(1, cap | 0)` (so `cap: 0`,
+    `2.5` or a missing cap made one mover), and a NaN or string speed, turn, stop, near, slow, fast,
+    calm, far, every, jitter or area value turned every mover's position into NaN at the first step.
+    Now each throws a `RangeError` at setup that names the option. **API note (BETA):** `cap` is
+    required and must be a positive integer; a call that relied on the silent clamp now throws.
+  - `patrol(i, points)` with fewer than two numbers did `% 0` and wrote NaN into `x`, `y` and `a`
+    for good. Now the mover stands still (`moved[i] = 0`); one waypoint is a patrol of one.
+  - Tests (`tests/steer.test.mjs`): "options are checked at setup" and "patrol: no waypoints stands
+    still". Both fail on main (no exception; `[NaN, NaN, NaN, NaN]`), both pass now. Every
+    Blitz-parity test and the 1M-frame zero-allocation test still pass (3 of 3 runs).
+  - Size (gzip): steer 950 → 1,150 B (budget 1,280; the kernel's `need` is about 110 B of it and is
+    shared on a page that has the kernel). pad, board-page and arcade import only steer's `hypot`
+    and are unchanged (2,073 · 4,162 · 24,327 B).
+- **`fizlet/camera`: no DOM call in a step, and no layout read per frame while panning (audit P5, P6).**
+  - Reduced motion was read (`matchMedia(...).matches`) in every step while a move eased: a DOM
+    call in the step, up to 4 per frame. It is now read once per frame in the read phase, only
+    while moving, and kept in the camera's typed array for the step. A Node test counts where it is
+    read: 31 times in a step on main, 0 now.
+  - Every `pan()` / `to()` asked for a re-measure, so a drag pan did a `getBoundingClientRect()`
+    every frame, after the previous frame's transform write: a forced style and layout pass per
+    frame. The stage is now measured at setup, then again only when a `ResizeObserver` says it
+    resized (a transform never changes a layout size), or while its size is still unknown (hidden
+    at setup). Tests: Node "a pan or a move doesn't re-measure the stage" (62 extra reads on main,
+    0 now) and Chromium `tests/camera.mjs` (30 frames of drag pan: 30 layout reads on main, 0 now;
+    a stage resized to 450 px is measured again).
+  - Size (gzip): camera 1,385 → 1,475 B (budget 1,536).
+- **`fizlet/perf`: the overlay shows on a canvas root and sits in a static host's corner (audit P11).**
+  - The default host is the engine's root, and a game's root can be a `<canvas>` (or an `<svg>`).
+    Their HTML children never render, so the overlay was invisible. Such a host now puts the
+    overlay on `document.body`, fixed, as when there is no root.
+  - In a static host that is not the body, `position: absolute` placed the overlay against some
+    unrelated ancestor. While shown, a static host is now made `position: relative` through the
+    ledger; hiding the overlay, `destroy()` and Recall give it back. A host that is already
+    positioned is never touched.
+  - Tests (`tests/perf.test.mjs`): "a canvas or svg host puts the overlay on the page" and "a static
+    host is made relative while shown". Both fail on main, both pass now; the zero-allocation test
+    and the Chromium perf block in `tests/browser.mjs` are green.
+  - Size (gzip): perf 1,958 → 2,042 B (budget 2,048). The host test reads `getContext` /
+    `ownerSVGElement`; a tag-name list (img, video, iframe too) measured 2,057 B, over budget.
+- **`fizlet/grid`: the board's size is checked (audit P8, G18's missing tests).** `board(cols, rows,
+  { cell })` checked nothing: `cell: 0` made `at()` return NaN, a fractional or NaN `cols`/`rows`
+  sized the typed arrays wrong (or to nothing), and a string passed by coercion. Now `cols` and
+  `rows` must be positive integers and `cell` a finite number > 0, or the constructor throws a
+  `RangeError` (`fizlet/grid: cols …, rows …, cell …`). Test: "grid: options are checked at setup"
+  (fails on main: no exception; passes now). The zero-allocation search test still passes (3 of 3
+  runs). Size (gzip): grid 1,533 → 1,634 B; budget 1,536 → 1,637, raised by that delta
+  (`scripts/sizes.mjs` says why; an inline check, since the kernel's `need` would cost +181 B on a
+  brick that runs without the kernel). grid stays BETA: no released game runs on it yet.
+- **Size headroom: at least 32 B under every tight budget, no behaviour change, no budget raised.**
+  esbuild keeps property names, so the private fields that ship in every page and game are short
+  now (each named in a comment): the ledger's (`t`, `m`, `a`, `e`), grid's search buffers and
+  helpers, and collide `Grid`'s. The ledger's three copies of its "host changed this style" check
+  and two of its put-back share one helper each, restore's attribute put-back is one expression,
+  and slot's placeholder selector drops its spaces. gzip, measured with #174's start fix (+5 B):
+  page build 7,166 → 7,128 B (budget 7,168, fixed), grid 1,634 → 1,603 (1,637), board-page
+  4,162 → 4,136 (4,193), arcade card 18,350 → 18,296 (18,361), arcade 24,331 → 24,280, kernel
+  3,438 → 3,413, collide 1,293 → 1,265.
+- **timeline: an engine auto-pause no longer stops it for good** (found in dom-virus#33).
+  `pause()` is also the timeline's `System.pause` hook, so when the engine paused itself (off
+  screen, a hidden tab, `engine.stop()`) the timeline marked itself paused by you and never played
+  on when the engine resumed. Called by its engine, `pause()` now only suspends (no steps while the
+  engine is paused, as before); the timeline plays on from where it was on resume, unless you
+  paused it yourself (your pause holds through any engine pause and resume). Recall, `destroy()`
+  and zero allocation in the step are unchanged. Tests: off screen → back, hidden → visible,
+  `stop()` → `start()`, your pause held, Recall and destroy, zero allocation (Node), and off screen
+  and back with a real IntersectionObserver (Chromium). fizlet/timeline 2,060 → 2,067 B gz
+  (budget 2,304); fizlet/css-clock 5,375 → 5,383 B gz.
 - **Website: the people page as one illustrated set.** All six avatars (Chris, Quill, Pip, Frame
   Zero, DJ Mempool, Hex Hazel) are redrawn in one style: a full bust in the 32 × 32 frame, a 1-px
   rim outline, 2–3 shades per colour, a bright prop and sparkles on a dark ground. Each has 2 frames
