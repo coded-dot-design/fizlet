@@ -1,0 +1,24 @@
+{
+  "id": "iloveyou",
+  "date": "2026-10-31",
+  "prompt": "Outbreak, act 1 (2000): the love letter opens itself and mails a copy to every contact in the address book, and every contact who opens it mails it on; tap a letter in flight to delete it, and its blast shreds the letters beside it",
+  "title": "ILOVEYOU",
+  "kind": "micro",
+  "theme": "dom-virus",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/steer",
+    "fizlet/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/iloveyou.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 9",
+  "pageCost": {
+    "settles": true
+  },
+  "approved": "2026-10-30"
+}

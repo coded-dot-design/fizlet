@@ -3,6 +3,9 @@
 // match the DOM Battlefield site, so the two read as siblings. Dark by default; the theme is shared
 // with DOM VIRUS and Battlefield (localStorage "dom-virus:theme").
 
+import { resolveAnalytics } from "./analytics/config.mjs";
+import { analyticsSnippet } from "./analytics/snippet.mjs";
+
 export const REPO = "https://github.com/coded-dot-design/fizlet";
 // The production host: canonical, og:url, sitemap, llms.txt and the hosted script URLs all use it.
 // FIZLET_SITE overrides it for a preview build on another host (e.g. the GitHub Pages address).
@@ -22,6 +25,13 @@ export const WEBSITE = { "@type": "WebSite", "@id": `${SITE}#website`, name: "Fi
 
 /** Escape text for HTML. */
 export const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+// GA4 + PostHog, consent first (site/analytics, from astro-engine kit/src/lib/analytics): only when
+// PUBLIC_GA4_ID or PUBLIC_POSTHOG_KEY is set at build time (repository Variables); otherwise no
+// analytics code ships. Never in src/: the engine (kernel and bricks) stays analytics-free.
+export const ANALYTICS = resolveAnalytics(process.env);
+const analytics = (base) =>
+  analyticsSnippet(ANALYTICS, { privacyUrl: `${base}privacy/`, cookiesUrl: `${base}cookies/`, storageKey: "fizlet:consent" });
 
 // Line icons on a 20px grid (the Battlefield site's stroke style).
 const PATHS = {
@@ -54,10 +64,10 @@ export const mark = (size = 40) =>
   `<svg viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true" shape-rendering="crispEdges"><path d="M0 16h64M0 32h64M0 48h64M16 0v64M32 0v64M48 0v64" stroke="#19f0ff" stroke-opacity=".35"/><rect x="1" y="1" width="62" height="62" fill="none" stroke="#19f0ff" stroke-width="2"/><g fill="currentColor"><path fill-rule="evenodd" d="M8 30h26v26H8Zm7 7v12h12V37Z"/><path d="M36 18h14v14H36ZM40 40h8v8h-8Z"/></g><path d="M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z" fill="#ff2e88"/></svg>`;
 
 // Site navigation, one source (brain: fizlet-engine playbooks/content/site-nav.md). The header names the
-// top-level pages: Docs · Bricks · Guides · Gallery · Heroes · Notes · News. Contest and Roadmap sit in
-// the footer and the home page's "On this page" strip; the footer lists every section of the site,
-// so no page is an orphan. A link to the page you are on, or one of its parents, carries
-// aria-current. External links end in ↗ (icon keys name the destination in aria-label).
+// top-level pages: Docs · Bricks · Guides · Gallery · Heroes · Notes · News. The footer's site map
+// lists every indexable page (siteMap() below), so no page is an orphan. A link to the page you are
+// on, or one of its parents, carries aria-current. External links end in ↗ (icon keys name the
+// destination in aria-label).
 export const NAV = [
   ["docs/", "Docs"],
   ["bricks/", "Bricks"],
@@ -66,37 +76,6 @@ export const NAV = [
   ["heroes/", "Heroes"],
   ["notes/", "Notes"],
   ["news/", "News"],
-];
-const FOOT_DOCS = [
-  ["docs/getting-started/", "Getting started"],
-  ["docs/contract/", "The contract"],
-  ["docs/loop/", "The loop"],
-  ["docs/recall/", "Recall and the ledger"],
-  ["docs/budgets/", "Size budgets"],
-  ["docs/determinism/", "Determinism"],
-  ["docs/authoring/", "Authoring guide and recipes"],
-  ["guides/", "Guides"],
-  ["news/", "News and releases"],
-];
-const FOOT_ENGINE = [
-  ["#contract", "The contract"],
-  ["bricks/", "Kernel and bricks"],
-  ["#recall", "Recall"],
-  ["#roadmap", "Roadmap"],
-  ["examples/quick-start.html", "Quick start example"],
-];
-const FOOT_SITE = [
-  ["gallery/", "Gallery"],
-  ["make/", "Make one"],
-  ["heroes/", "Heroes"],
-  ["notes/", "Notes"],
-  ["people/", "People"],
-  ["contest/", "Weekly contest"],
-];
-const FOOT_DEMOS = [
-  ["demos/layers/", "The layers story"],
-  ["demos/fizz/", "The fizz proof piece"],
-  ["examples/fizz/", "The fizz hero example"],
 ];
 
 /** `aria-current` for a nav link to `id` from the page at `path`: "page" on the page itself, "true"
@@ -129,6 +108,59 @@ export const social = ({ title, description, path }) => `<link rel="canonical" h
 <meta name="twitter:card" content="summary_large_image">
 <meta name="author" content="Chris Cooley">`;
 
+// ---------- The footer site map ----------
+// Every indexable page, from the one route list scripts/site.mjs also writes sitemap.xml from (every
+// built page but the 404 and noindex pages such as the gallery archive). page() leaves a marker in
+// its footer; fillSiteMap() swaps it for the map once every page is built. A section claims routes
+// by path (its index page and everything under it), so a new page joins its section on the next
+// build; a page no section claims lands in "More", so none is ever dropped. Home is the brand link.
+const PROJECT = [
+  [REPO, "Source on GitHub"],
+  [`${REPO}/blob/main/CHANGELOG.md`, "Changelog"],
+  [`${REPO}/blob/main/LICENSE`, "MIT licence"],
+  [`${REPO}/blob/main/src/ui/BOARD-UI.md`, "Board UI spec"],
+  [ENGINE_PLAN, "Engine plan"],
+];
+const BUILT_ON = [[BLITZ, "Battlefield Blitz"], [BATTLEFIELD, "DOM Battlefield"], [HUB, "DOM VIRUS arcade"]];
+/** Columns of sections. `head`: the section's index page; `match`: a section with no page of its
+ *  own; `chips`: short labels in a wrapped grid; `fold`: children behind a disclosure; `links`: external. */
+export const SITE_MAP = [
+  ["Learn", [{ head: "docs/" }, { head: "guides/" }, { head: "examples/quick-start.html" }]],
+  ["Engine", [{ head: "bricks/", chips: true }, { label: "Demos", match: /^(demos|examples)\// }]],
+  ["Gallery", [{ head: "gallery/" }, { head: "heroes/" }, { head: "make/" }, { head: "contest/" }, { head: "people/" }]],
+  ["Notes", [{ head: "notes/" }, { head: "news/", chips: true, fold: "releases" }]],
+  ["Project", [{ label: "More", match: /./ }, { label: "Source", links: PROJECT }, { label: "Built on it", links: BUILT_ON }]],
+];
+
+/**
+ * The footer's site map for the page at `path` (`base`: the path back to the root). `routes`:
+ * [{ path, label }] in reading order, every indexable page ("" is home, linked by the brand).
+ */
+export function siteMap(routes, base, path) {
+  const claimed = new Set([""]);
+  const take = (test) => routes.filter((r) => !claimed.has(r.path) && test(r.path)).map((r) => (claimed.add(r.path), r));
+  const a = (r, cls = "") => `<a${cls} href="${base}${r.path}"${current(r.path, path)}>${esc(r.label)}</a>`;
+  const section = (s) => {
+    if (s.links) return `<li class="map-sec"><span class="map-label">${esc(s.label)}</span><ul>${s.links.map(([href, label]) => `<li><a href="${href}">${esc(label)} ↗</a></li>`).join("")}</ul></li>`;
+    const rs = take(s.head ? (p) => p === s.head || (s.head.endsWith("/") && p.startsWith(s.head)) : (p) => s.match.test(p));
+    const head = rs.find((r) => r.path === s.head), kids = rs.filter((r) => r !== head);
+    if (!head && !kids.length) return "";
+    let list = kids.length ? `<ul${s.chips ? ' class="map-chips"' : ""}>${kids.map((r) => `<li>${a(r)}</li>`).join("")}</ul>` : "";
+    if (s.fold && kids.length) list = `<details class="map-fold"${kids.some((r) => r.path === path) ? " open" : ""}><summary>All ${kids.length} ${s.fold}</summary>${list}</details>`;
+    return `<li class="map-sec">${head ? a(head, ' class="map-head"') : `<span class="map-label">${esc(s.label)}</span>`}${list}</li>`;
+  };
+  // Each column is a disclosure: always open above phone width (site.css shows its content), closed
+  // at phone width except the column holding the page you are on. No JS.
+  const cols = SITE_MAP.map(([name, sections]) => {
+    const list = sections.map(section).join("");
+    return `<details class="map-col"${/aria-current=/.test(list) ? " open" : ""}><summary><h2>${esc(name)}</h2></summary><ul>${list}</ul></details>`;
+  });
+  return `<nav class="foot-map" aria-label="Site map">${cols.join("")}</nav>`;
+}
+const MARKER = /<!--site-map (\S*) (\S*)-->/;
+/** Swap a built page's site-map marker for the map (a page without one comes back as is). */
+export const fillSiteMap = (html, routes) => html.replace(MARKER, (_, base, path) => siteMap(routes, base, path));
+
 /**
  * A full page. `base` is the path back to the site root ("./" for top-level pages, "../" one
  * level down, "/fizlet/" for the 404 page, which can be served at any depth).
@@ -136,7 +168,6 @@ export const social = ({ title, description, path }) => `<link rel="canonical" h
 export function page({ title, description, base, version, body, scripts = [], path = "", ld = [], noindex = false, nofollow = false }) {
   const home = base;
   const nav = navLinks(NAV, home, path).join("");
-  const list = (l) => navLinks(l, home, path).map((a) => `<li>${a}</li>`).join("\n        ");
   return `<!doctype html>
 <html lang="en" class="bui" data-theme="dark">
 <head>
@@ -179,55 +210,16 @@ ${body}
         <span class="brand-text"><small>DOM ENGINE</small><b>FIZLET</b></span>
       </a>
       <p>Tiny physics for your page. A micro game engine for the DOM by <a href="${AUTHOR}">Chris Cooley ↗</a>: the page is the board, and it always comes back.</p>
-    </div>
-    <div>
-      <h2>DOCS</h2>
-      <ul>
-        ${list(FOOT_DOCS)}
-      </ul>
-    </div>
-    <div>
-      <h2>ENGINE</h2>
-      <ul>
-        ${list(FOOT_ENGINE)}
-      </ul>
-    </div>
-    <div>
-      <h2>SITE</h2>
-      <ul>
-        ${list(FOOT_SITE)}
-      </ul>
-    </div>
-    <div>
-      <h2>DEMOS</h2>
-      <ul>
-        ${list(FOOT_DEMOS)}
-      </ul>
-    </div>
-    <div>
-      <h2>PROJECT</h2>
-      <ul>
-        <li><a href="${REPO}">Source on GitHub ↗</a></li>
-        <li><a href="${REPO}/blob/main/CHANGELOG.md">Changelog ↗</a></li>
-        <li><a href="${REPO}/blob/main/src/ui/BOARD-UI.md">Board UI spec ↗</a></li>
-        <li><a href="${ENGINE_PLAN}">Engine plan ↗</a></li>
-      </ul>
-    </div>
-    <div>
-      <h2>BUILT ON IT</h2>
-      <ul>
-        <li><a href="${BLITZ}">Battlefield Blitz ↗</a></li>
-        <li><a href="${BATTLEFIELD}">DOM Battlefield ↗</a></li>
-        <li><a href="${HUB}">DOM VIRUS arcade ↗</a></li>
-      </ul>
       <p class="foot-note">Fizlet is the engine; the games are on <a href="${HUB}">DOM VIRUS ↗</a>.</p>
     </div>
+    <!--site-map ${base} ${path}-->
   </div>
   <div class="foot-base">
-    <div class="wrap"><span>© 2026 coded.design · MIT licence · no runtime dependencies</span><span>By <a href="${AUTHOR}">Chris Cooley ↗</a> · coded.design</span></div>
+    <div class="wrap"><span>© 2026 coded.design · MIT licence · no runtime dependencies</span><button type="button" class="foot-cookies" data-cookie-settings hidden>Cookie settings</button><span>By <a href="${AUTHOR}">Chris Cooley ↗</a> · coded.design</span></div>
   </div>
 </footer>
 ${scripts.map((s) => `<script type="module" src="${base}${s}"></script>`).join("\n")}
+${analytics(base)}
 </body>
 </html>
 `;

@@ -7,7 +7,7 @@ import { gzipSync } from "node:zlib";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "./sizes.mjs";
 import { llmsFull } from "./llms-full.mjs";
-import { page, mark, SITE, ROOT, REPO, PERSON, ORG, WEBSITE } from "../site/layout.mjs";
+import { page, mark, fillSiteMap, SITE, ROOT, REPO, PERSON, ORG, WEBSITE, ANALYTICS } from "../site/layout.mjs";
 import { home } from "../site/pages/index.mjs";
 import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
@@ -20,9 +20,10 @@ import { playFigure } from "../site/pages/index.mjs";
 import { buildGallery, personPath } from "./gallery.mjs";
 import { buildMake, snippetFor, TABLE as MAKE_TABLE } from "./make.mjs";
 import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
-import { CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
+import { AGENT_NOTE, CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
+import { privacyPage, cookiesPage, analyticsNames } from "../site/pages/legal.mjs";
 import { BRICKS, PLANNED, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
@@ -42,6 +43,7 @@ mkdirSync(`${OUT}/examples`, { recursive: true });
 mkdirSync(`${OUT}/bricks`, { recursive: true });
 mkdirSync(`${OUT}/gallery`, { recursive: true });
 mkdirSync(`${OUT}/make`, { recursive: true });
+for (const d of ["privacy", "cookies"]) mkdirSync(`${OUT}/${d}`, { recursive: true });
 const NOTES = loadNotes();
 for (const n of NOTES) mkdirSync(`${OUT}/${notePath(n)}`, { recursive: true });
 const RELEASES = loadReleases();
@@ -82,7 +84,7 @@ const cardBuild = await build({
 });
 const cardSizes = {};
 for (const [file, o] of Object.entries(cardBuild.metafile.outputs)) {
-  const id = o.entryPoint?.match(/^site\/cards\/(\w+)\.ts$/)?.[1];
+  const id = o.entryPoint?.match(/^site\/cards\/([\w-]+)\.ts$/)?.[1];
   if (id) cardSizes[id] = { live: file.slice(OUT.length + 1), bytes: liveBytes(file) };
 }
 for (const id of Object.keys(CARDS)) if (!cardSizes[id]) throw new Error(`brick card ${id}: no built chunk`);
@@ -110,6 +112,8 @@ const { sizes: fizzSizes } = await import("../site/demos/fizz/build.mjs");
 const fizzFigure = readFileSync(`${OUT}/demos/fizz/index.html`, "utf8").match(/<figure class="ae-slot ae-slot--16x10" data-slot-target="fizz#hero"[\s\S]*?<\/figure>/)?.[0];
 if (!fizzFigure) throw new Error("demos/fizz/index.html: no fizz figure to embed");
 const fizz = { figure: fizzFigure, sizes: fizzSizes, live: "demos/fizz/scene.js" };
+// The interactive companion to the note "Before AI: 2015": the 2015 sprites beside two Fizlet rebuilds.
+await import("../site/demos/before-ai-2015/build.mjs");
 
 // The "how it works" labs (site/labs/, the scenes DOM VIRUS's Under the hood vendors): their
 // still posters are the gallery figures (each in its own accent), their sheet goes on the page.
@@ -236,6 +240,17 @@ const pages = [
     description: homeDescription,
     base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast }), scripts: ["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js"],
   })],
+  // Privacy and Cookies (pending legal review; site/pages/legal.mjs).
+  ["privacy/index.html", page({
+    title: "Privacy policy: analytics only with consent · Fizlet",
+    description: `What fizlet.com collects, why and for how long: ${analyticsNames(ANALYTICS) ? `consent-based ${analyticsNames(ANALYTICS)}` : "no analytics"}, hosting logs, and how to opt out. No ads, no selling data.`,
+    base: "../", version, path: "privacy/", body: privacyPage({ base: "../", analytics: ANALYTICS }), scripts: ["site.js"],
+  })],
+  ["cookies/index.html", page({
+    title: "Cookies and storage: none until you say yes · Fizlet",
+    description: "Every cookie and storage key fizlet.com may use, what each holds, how long it lasts, and how to change your choice or clear them.",
+    base: "../", version, path: "cookies/", body: cookiesPage({ base: "../", analytics: ANALYTICS }), scripts: ["site.js"],
+  })],
   ["examples/quick-start.html", page({
     title: "Quick start: ten lines to a blast · Fizlet",
     description: "Ten lines to a blast: the Fizlet quick start, running as is. Click the board; scroll it away and the engine pauses, switch tabs and it stops.",
@@ -276,17 +291,17 @@ const pages = [
     base: "../", version, path: "make/", body: makePage({ made: defaultSnippet, script: make.script, recipes: Object.keys(MAKE_TABLE.recipes), base: "../" }), scripts: ["site.js", "make/make.js"],
   })],
   ["people/index.html", page({
-    title: "People: the maker and the house personas · Fizlet",
-    description: `Who makes Fizlet animations: Chris Cooley, and ${PEOPLE.length - 1} house personas (Fizlet characters, not real people), with their entries and bytes.`,
+    title: "People: the maker, AI agents and studio crew · Fizlet",
+    description: `Who makes Fizlet animations: Chris Cooley, ${PEOPLE.filter((p) => p.kind === "persona").length} studio crew (Fizlet characters, not real people) and the team's AI agents, with their entries and bytes.`,
     base: "../", version, path: "people/", body: peopleIndex({ rows: people, base: "../" }), scripts: ["site.js"],
   })],
   ...people.map(({ person: p, stats }) => [`${personPath(p.id)}index.html`, page({
-    title: `${p.name}: ${p.kind === "owner" ? "maker of Fizlet" : "a house persona"} · Fizlet`,
+    title: `${p.name}: ${{ owner: "maker of Fizlet", persona: "studio crew", agent: "an AI agent on the team" }[p.kind]} · Fizlet`,
     description: p.description,
     base: "../../", version, path: personPath(p.id),
     ld: [{ "@type": "ProfilePage", "@id": `${SITE}${personPath(p.id)}#page`, url: SITE + personPath(p.id), name: p.name,
-      ...(p.kind === "owner" ? { mainEntity: { "@id": PERSON["@id"] } } : { about: { "@type": "Thing", name: p.name, description: `${PERSONA_NOTE}. ${p.bio}` } }) }],
-    body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners }), scripts: ["site.js"],
+      ...(p.kind === "owner" ? { mainEntity: { "@id": PERSON["@id"] } } : { about: { "@type": "Thing", name: p.name, description: `${p.kind === "agent" ? AGENT_NOTE : PERSONA_NOTE}. ${p.bio}` } }) }],
+    body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners, people: PEOPLE }), scripts: ["site.js"],
   })]),
   ["contest/index.html", page({
     title: "Weekly contest: small wins, one winner · Fizlet",
@@ -361,6 +376,25 @@ const indexable = readdirSync(OUT, { recursive: true }).map((f) => f.replace(/\\
   .sort((a, b) => (a.url < b.url ? -1 : 1))
   .filter((p) => !/<meta name="robots" content="[^"]*noindex/i.test(p.html));
 const unesc = (s) => s.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+const unescTitle = (html) => unesc(html.match(/<title>([^<]*)<\/title>/)?.[1] ?? "").split(/:| · /)[0];
+// The footer's site map, from the same list (site/layout.mjs siteMap): every page's footer marker
+// is filled once all pages exist, so a new page is in every footer on the next build. Order: the
+// order pages are built in above (docs in reading order, releases newest first), then the rest.
+// Labels: the short name a section's data gives a page, else its title up to the first ":" or " · ".
+const routeOf = (f) => f.replace(/(^|\/)index\.html$/, "$1");
+const LABEL = new Map([
+  ...DOCS.map((d) => [docPath(d), d.nav]), ...NOTES.map((n) => [notePath(n), n.title]), ...RELEASES.map((r) => [releasePath(r), r.version]),
+  ...bricks.map((b) => [brickPath(b), b.id]), ...gallery.pages.slice(1).map((p) => [p.path, `Page ${p.n}`]), ...PEOPLE.map((p) => [personPath(p.id), p.name]),
+  ["", "Home"], ["examples/quick-start.html", "Quick start"], ["privacy/", "Privacy"], ["cookies/", "Cookies"], ["demos/layers/", "The layers story"], ["demos/fizz/", "The fizz proof piece"], ["demos/before-ai-2015/", "Before AI: 2015, live"], ["examples/fizz/", "The fizz hero example"],
+]);
+const built = pages.map(([f]) => routeOf(f));
+const order = (r) => (built.includes(r) ? built.indexOf(r) : built.length);
+const routes = indexable.map((p) => ({ path: routeOf(p.f), label: LABEL.get(routeOf(p.f)) ?? unescTitle(p.html) }))
+  .sort((a, b) => order(a.path) - order(b.path));
+for (const f of readdirSync(OUT, { recursive: true }).map((x) => x.replace(/\\/g, "/")).filter((x) => x.endsWith(".html") && !x.startsWith("dist/"))) {
+  const html = readFileSync(`${OUT}/${f}`, "utf8"), filled = fillSiteMap(html, routes);
+  if (filled !== html) writeFileSync(`${OUT}/${f}`, filled);
+}
 const meta = (html, re) => unesc(html.match(re)?.[1] ?? "");
 writeFileSync(`${OUT}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexable.map((p) => `  <url><loc>${p.url}</loc></url>`).join("\n")}\n</urlset>\n`);
 const AI_CRAWLERS = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User", "anthropic-ai", "PerplexityBot", "Perplexity-User",

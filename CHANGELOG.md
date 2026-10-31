@@ -21,6 +21,374 @@
   9,706 B gzip (budget ≤ 9,728, unchanged); poster, controls and inline script 5,269 → 4,505 B.
   Measured (Chromium 153, 4× CPU throttle): script per frame 1.0 ms median, 3.0 ms p95; CLS 0;
   0 frames once settled; `npm run perf` unchanged against main (layerize 1.9 ms/frame).
+- **Website: the home reveals end at the foot of the page too** (`site/home-motion.ts`). The home
+  engine paused itself when `main` left the viewport (the kernel's off-screen rule), and at the very
+  bottom the footer can fill it: a reveal still playing froze mid-way (parts at opacity 0.5–0.999)
+  until the visitor scrolled back. Each new footer link brings that line closer, which is why PRs
+  that add pages failed "home rhythm: every part shown" on slower CI runners. The engine now skips
+  the off-screen pause (`pause: { offscreen: false }`); settle still stops every frame once the
+  reveals end. `tests/site.mjs` adds a jump to the foot of the page (1), which fails without the fix
+  once the footer outgrows the gap.
+
+- **Four more brick cards: hud, match, sound, presence.** hud: a high striker; tap fast to heat it
+  and ring the bell; its real DOM scoreboard (score, best, heat meter, HOT flag, a feed of strikes) is
+  bound with fizlet/hud and the readout counts DOM writes against frames. match: a ten-second round on
+  the headless phase machine (PRESS START, 3 · 2 · 1, catch eight falling bricks on a paddle, STAGE
+  CLEAR or GAME OVER, rematch). sound: a ball bounces down seven brick stairs and every landing emits
+  an event that fizlet/sound plays as that brick's cue (no audio files). presence: two seats a
+  100 ms in-memory link apart run one lockstep world; every brick lands on both boards on the same
+  frame and the readout shows both hashes equal. Card chunks (gzip, with the kernel, slot and frame):
+  hud 7,869 B, match 8,849, sound 6,984, presence 7,432; thirteen cards on the bricks page 38,696 B
+  in all, each loaded near the viewport. Allocation (best of 3, 6,000 frames): step 0 to 0.8 B a frame,
+  whole moving frame 35 to 270 B.
+- **Four more brick cards: pad, slot, board-page, ui.** pad: the Board UI kit's real on-screen pad
+  (stick, SHOVE, SWAP) drives a brick that pushes three crates onto docks; a crate shoved mid-dash
+  slides on its own, and SWAP turns the stick into a d-pad with the step reading the same intents.
+  slot: six real slot figures on a strip behind a small window; each loads only when the window shows
+  it, and at the end of the strip every slot is destroyed and each figure checked against its first
+  markup (the readout says EXACT 6). board-page: a tiny page of real text and buttons is the board;
+  each bite eats the letters it touches (they turn to 0s and 1s in the page's own Text nodes) and
+  bounces off the buttons. ui: a brick hops along four real kit arcade keys, pressing each one it lands
+  on; four in one run slams the kit's sticker. The frame gains `kit()`, a `.bui` layer whose `--u`
+  follows the card's height, so the kit's controls keep their proportions at 390 px. Card chunks
+  (gzip, with the kernel, slot and frame): pad 10,681 B, slot 8,117, board-page 11,250, ui 6,836.
+  Allocation (best of 3, 6,000 frames): step 0.0 B a frame for all four, whole moving frame 57 to
+  350 B. The alloc test and the site build accept card ids with a hyphen.
+- **Six more brick cards: rules, coach, perf, css-clock, touch, embed.** Each has its own tap idea.
+  rules: tap for a wave of supply crates (waves paces them, drops lets them fall, land and expire);
+  tap landed crates in a quick chain for a combo and level up (score); an expired crate ends the
+  streak, and between waves the wave clock comes off the engine so the card sleeps. coach: a
+  four-step tutorial for the card itself; the kit's coach card names a brick and rings that real DOM
+  brick; the right tap passes the step, a wrong one shakes and counts as a miss. perf: the higher you
+  tap, the longer the task a falling brick carries (16 to 52 ms of real work in the step it lands in);
+  fizlet/perf's own overlay in the card draws the late frame over its budget line and counts the
+  drops. css-clock: plain CSS keyframes (LEDs on steps(), a patrolling brick, a hopper, a pendulum)
+  on the kernel clock; tap anywhere to scrub the stylesheet's time along a ruler. touch: grab the
+  brick and throw it; it bounces off the walls and off the name brick's pedestal; `lockTouch` guards
+  the card and the readout counts the pinch events it cancelled. embed: a locked vault; embed stays
+  dormant until you double-tap the card or type BRICK anywhere, then mounts the game (coins burst out
+  to collect); Escape or a tap on the vault closes it and removes its host. Card chunks (gzip, with
+  the kernel, slot and frame): rules 7,539 B, coach 7,351, perf 7,648, css-clock 8,620, touch 6,248,
+  embed 8,137; all nineteen cards and the loader (2,499 B) come to 53,131 B unique, each card loaded
+  near the viewport. The card build and the allocation test now accept a card id with a hyphen
+  (`css-clock`), and the card test allows a card with a second canvas (perf's chart).
+- **Board UI: the shadow direction belongs to the domain (`--shadow-x`, `--shadow-y`,
+  `--shadow-color`).** No component hard-codes "straight below" now. A site sets its direction once
+  at `:root`, and every hard shadow in the kit and the bricks follows it: key bases, hover lifts,
+  presses, focus rings, call rings, hit areas, sticker slam, cards, dock, toast, stick, arcade card,
+  skirmish bar, perf overlay and embed toggle. So a key, card or cartridge moved to another site
+  takes that site's angle (BOARD-UI.md 4.1).
+  - The tokens are unitless (a direction per unit of depth), and each component keeps its own
+    depth: offset = `--py × --shadow-x / -y`. A pressed face travels the same vector. The fallbacks
+    are `0` / `1` / `var(--rim)`, so nothing changes until a site sets them. With no tokens set,
+    every computed shadow, transform and hit area is identical (`tests/shadow.mjs` against
+    `tests/fixtures/shadow-defaults.json`, captured from 0.20.0), and fizlet.com renders
+    byte-identical screenshots at 1440 and 390, in light and dark.
+  - Custom properties inherit across `:host`, so the arcade's shadow-DOM HUD and `mount()`ed boards
+    follow the page. `tests/shadow.mjs` checks this at 45°, at −1 / 0.5 and at 0.7071 / 0.7071. The
+    page-keys check (`tests/keys.mjs`) now reads the face drop and the base tap point along the
+    direction; it runs at three angles and on all 122 site keys.
+  - `launch()` sinks the key along its base; the kit's `.bui` root reads the tokens as `--bui-sx`,
+    `--bui-sy` and `--bui-shadow` (in `tokens.json` `shadow`, drift-checked).
+  - fizlet.com sets `:root { --shadow-x: 0; --shadow-y: 1; }` (straight below, as before), and
+    every hard base in `site.css` reads it. The labs (`site/labs/labs.css`, shared with the hub) now
+    take the domain's angle with their own depth (3px, 6px). On fizlet.com they change from the
+    hub's diagonal to straight below, and on the hub (1 / 1) they stay diagonal.
+  - Sizes (gzip): ui css 4,974 → 5,125 B (budget 5,120 → 5,136); arcade with `hud` omitted 18,348 →
+    18,363 B (budget 18,361 → 18,376); arcade 24,327 → 24,351 B; ui js 2,893 → 2,907 B; perf 1,958
+    → 1,981 B; embed 2,016 → 2,040 B. Every other brick is unchanged.
+- **Gallery: two pieces from domvirus.com, vendored at a pinned commit** (owner approved,
+  2026-10-30; numbers at land time). Both are DOM VIRUS micros and link back to domvirus.com.
+  - **your.page / under attack**: the domvirus.com home hero (dom-virus#20's Fizlet scene). The
+    kernel plays the intro and the 8 s loop over the card's own SVG, rests after three loops
+    (0 frames), and the first tap starts the mini-game. Live chunk 10,185 B gzip (kernel + slot +
+    the scene).
+  - **Squad tactics**: DOM Battlefield's display card (domvirus.com/games/battlefield/). Its own
+    `@keyframes` run on `fizlet/css-clock`: three 6 s plays, then frame one and settle. Live chunk
+    5,448 B gzip. dom-virus#23's per-element `animation` shorthands set the field running again
+    after it pauses them; the stage holds them paused on `--fz-t` until that is fixed upstream.
+  - **One source: `scripts/vendor-dom-virus.mjs`** builds each piece from dom-virus at `PIN`
+    (248d1e9, dom-virus#23's head: #20 + the Battlefield field on css-clock) into
+    `site/vendor/dom-virus/`: the scene's TypeScript as is (imports pointed at this repo's bricks),
+    and the markup plus every matching rule, the `@keyframes` they name (`dv-` prefix) and the
+    custom properties they read (dark), taken from dom-virus's built page in Chromium, wrapped in
+    `@scope`. Links become inert spans. `ORIGIN.json` records a sha256 per file; `npm test` fails
+    on a hand edit. A stage pulls a piece in with `<!-- vendor: dom-virus/<id> -->` (the heroes can
+    use the same files).
+  - Gallery entries take an optional `source: { url, label }`, shown as "See it on <label> ↗".
+  - Tests: `tests/dv-pieces.mjs` (in `test:browser`): plays, settles to 0 frames, a pointer wakes it,
+    the hero's tap starts the game and its pause key stops frames, Recall byte for byte, reduced
+    motion keeps the poster. `tests/vendor-dom-virus.test.mjs`. Both pass `npm run test:settle`.
+- **Gallery, labs and the vendored domvirus pieces: hard shadows follow the domain.** Every offset
+  `box-shadow` / `drop-shadow` (and the press travel that goes with it) keeps its depth and reads
+  the Board UI tokens (`--shadow-x`, `--shadow-y`, unitless; BOARD-UI.md §4.1, #136):
+  `calc(<depth> * var(--shadow-x, 0)) calc(<depth> * var(--shadow-y, 1))`. On fizlet.com (0 1)
+  the diagonal slabs that came from DOM VIRUS now drop straight below like the site's own keys;
+  moved back to a 1 1 domain they turn 45° again with no edit.
+  - Ported: the labs (`site/labs/labs.css`: stage card, keys and their press, the Macs, the parcel's
+    drop-shadow), the stages of #021, #026, SMASH, the hammer and the terminal virus, Big things,
+    small packages' card, and both domvirus pieces (by the vendor script, below).
+  - `scripts/shadow-tokens.mjs`: `tokenShadows(css)` rewrites a stylesheet (a shadow that is not one
+    depth along one direction, such as sideways or up, can't be expressed and is removed);
+    `hardShadows(text)` finds what is left. `scripts/vendor-dom-virus.mjs` runs `tokenShadows` on
+    every piece it vendors.
+  - **Check** (`tests/shadow-tokens.test.mjs`, in `npm test`): no file in `site/` or `src/ui/` may
+    hard-code an offset shadow. Rings, glows and inset bevels are fine. Still waiting, counted and
+    only allowed to go down: `site/site.css` (17), `src/ui/board-ui.css` (12, #136), the layers
+    demo (4).
+- **Board UI kit: a hidden `fizlet/coach` card is not drawn.** `card()` lays itself out inline
+  (`display: grid`), and an inline display beats the browser's `[hidden]` rule. So `hide()` (and
+  the card before its first `show`) left an empty card over the board, catching clicks: Battlefield
+  Blitz's HUD lost its double-click. The kit now carries `.bui .fizlet-coach[hidden] { display: none !important }`;
+  `el.hidden` stays the one switch. `tests/coach.mjs` checks the computed display before the first
+  show and after `hide()` (it fails without the rule). `fizlet/ui (css)` 4,988 / 5,120 B gzip.
+- **Gallery: Outbreak, act 1, three DOM Virus entries (pending owner approval).** These are famous
+  worms from public history. Each is a micro game whose mechanic is the worm's real spread, so you
+  learn how it spread by playing it. Each card shows the year, a one-line fact and, at the end, the
+  lesson. The pieces are hand-built on one shared core (`site/gallery/pieces/outbreak.ts`: engine,
+  canvas, taps, debris, end card). The worlds are real page elements whose state goes through the
+  ledger, so Recall gives the page back exactly. They have no gallery numbers; those are given at
+  land time.
+  - **ILOVEYOU (2000):** the love letter mails itself to every contact in the address book, and each
+    contact who opens it mails it on. Tap a letter in flight to delete it: the blast shreds the
+    letters beside it and knocks the rest tumbling. The end card names the hidden `.vbs`.
+  - **Slammer (2003):** 376-byte packets flood every port, and only UDP 1434 lets them in. Race to
+    close it, but close the wrong port and your own service goes down. The worm lived only in
+    memory, so you then reboot the infected servers.
+  - **WannaCry (2017):** the worm hops file to file and locks each one (`.WNCRY`). You can unplug
+    files so the hops bounce off. To stop it, find the kill-switch domain in the lookup log and
+    register it. New copies quit; locked files stay locked.
+  - Live chunk sizes (gzip, built the way the site builds them): ILOVEYOU 7,282 B, Slammer 7,802 B,
+    WannaCry 7,588 B. All three are under the 9,728 B cap.
+  - Each piece settles to 0 frames once still, has a reduced-motion poster, and allocates nothing in
+    step (typed arrays, the exact `hypot`). The intro beat is held with `engine.busy(sec)`.
+  - Tests: `tests/outbreak.mjs` (in `test:browser`) plays each piece in Chromium. The spread runs
+    on its own. Every tap has a consequence: a letter deleted, a wrong port down then back, 1434
+    closed and the rack rebooted clean, a file unplugged, the kill switch registered. The test also
+    checks the end card's lesson, settle to 0 frames, a tap replaying, `destroy()` mid-play giving
+    the page back byte for byte, and reduced motion loading nothing.
+- **Gallery: Outbreak, act 2, the white hats: "White hat: the edge filter" vs Slammer (pending
+  owner approval).** You beat the worm the way it was really done. The stage is a network map of
+  real elements: four segments of SQL hosts joined by six routers, two at the edge and four inside.
+  The flood pours in from the internet down the links, and an infected host fires at its neighbours
+  and down every link it has.
+  - Tap a router to filter UDP 1434 on that link: packets bounce off it (segmentation).
+  - Tap a host to reboot and patch it. The patch takes about a second, and a hit while it is
+    patching knocks it back. A patched host is a shield that packets die on. So the order is the
+    lesson: cut a segment off first, then patch it.
+  - You win when every segment is clean: no host infected or mid-patch, and every host either
+    patched or cut off from the internet. If you don't, the clock (20×) ends it at ten minutes.
+  - The end card states the facts: identified by a traffic spike on UDP 1434 within minutes; fixed
+    by filtering 1434 at network edges, then patching (MS02-039, out six months earlier). The lesson
+    is that a patch only works once it's installed.
+  - This is a different mechanic from act 1's Slammer, where you hunt for the port. Here you work a
+    topology: links, then hosts. It is built on the same shared core (`pieces/outbreak.ts`) and has
+    no gallery number.
+  - Live chunk: 8,186 B gzip (10,114 B with the loader). It settles to 0 frames once still and holds
+    the intro with `engine.busy(sec)`. It has a reduced-motion poster, Recall is exact, and step
+    allocates nothing (typed arrays, the exact `hypot`).
+  - Tests: `tests/outbreak.mjs` gets an `edge-filter` case. It filters both edges and checks the
+    flood bounces, then segments the inside, patches until clean, and checks the end card's facts.
+- **Train fix: the shadow check reads the kit's keys; the new cards and Outbreak stages (acts 1
+  and 2) are on the tokens.** `--bui-sx` / `--bui-sy` (board-ui.css: `var(--shadow-x, 0)` / `var(--shadow-y, 1)`) count
+  as the domain tokens, so the site chrome ported in the Board UI change leaves the pending list
+  (site.css 17 to 0, board-ui.css 12 to 1). The brick cards' and Outbreak stages' hard shadows go
+  through `tokenShadows()`; same look on fizlet.com (0 1).
+- **Website: a section the scroll jumps past still reveals** (`site/home-motion.ts`). The observer
+  only reports threshold crossings, so a jump (an anchor, a fling, a slow frame landing several
+  scrolls at once) could carry a waiting section from below the fold to above it with no callback,
+  and it stayed hidden; the read phase now plays in any waiting section above the reveal line. This
+  was the CI-only "home rhythm: every part shown" failure on PRs that lengthen the home page.
+  `tests/site.mjs` adds single jumps to 0.3–0.7 of the page (the old code left `profile` hidden at
+  0.3, 0.35 and 0.5 locally).
+
+- **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
+  first release tag after the owner adds the `NPM_TOKEN` repository secret; the release workflow
+  (`.github/workflows/release.yml`, `npm publish --provenance --access public`) checks, packs and
+  skips the publish with a warning until then. No version bump here.
+  - **API snapshots** (`npm run api:check` / `api:write`, `scripts/api-snapshot.mjs`, tested in
+    `tests/api-snapshot.test.mjs`): `api/<brick>.api.txt` holds the public types of each of the 15
+    COMPLETE bricks, from the built declarations with comments stripped, following their
+    re-exports and the BETA types they name (arcade → board-page). CI (`--base HEAD^`) fails when a
+    snapshot is stale, or when one changed and this section does not name the brick. The release
+    workflow checks they match the tag.
+    Taken on main after release train 2 (#166): the private fields it shortened in
+    `fizlet/collide` (`Grid`) and the Kernel (`Ledger`) show in the snapshots, the public API is
+    unchanged; `fizlet/board-page` gets its own snapshot now that it is COMPLETE, and
+    `fizlet/arcade`'s no longer repeats board-page's types.
+  - **Pack smoke** (`npm run test:pack`) now also proves: every built entry is in `exports`, with
+    `types` first next to its `.js`; the tarball holds every export target and nothing outside the
+    whitelist (no sources, no maps); every subpath typechecks under Bundler as well as NodeNext
+    resolution; importing any subpath adds no globals, and what a bundler keeps of a bare import
+    touches no page API, so `sideEffects: ["*.css"]` is right (and keeps
+    `fizlet/ui/board-ui.css`). Measured on 0.20.0 + Unreleased: 85 files, 176.6 kB packed, 27 JS
+    subpaths and 2 data subpaths.
+  - README "Install": the exact commands, the imports, and how to build from source until the
+    first publish.
+- **Tests: the evidence behind six COMPLETE flags** (daily audit 2026-10-30: 9 gaps). New Node
+  suites, each proving its brick's contract and zero allocation on the path it runs often, with a
+  self-check in the same harness that the GC counter does see an allocation (best of 3 windows,
+  `--test-concurrency=1`): `sound.test.mjs` (off, paused, disposed and destroyed are silent; the
+  synth waits for a trusted gesture, rate-limits a cue, caps 8 voices, and Recall closes its
+  AudioContext and listeners; reading the ring allocates nothing), `embed.test.mjs` (open now or
+  behind the toggle, Escape, a close that beats a late load, the Konami code ignoring fields and
+  slow sequences, double-tap / long-press / hold-tap / click triggers, Recall leaves no listener or
+  node; the dormant pointer path allocates nothing), `debug.test.mjs` (only the STEP phase counts,
+  per engine, the off switch and destroy stop it, reads return the real value; guarded steps and
+  reads allocate nothing), `slot.test.mjs` (lazy near the viewport then idle, the first tap as
+  numbers, reduced motion never loads and takes a running scene down, role=img until a scene is
+  accessible, Recall exact; taps on a running scene allocate nothing), `ui.test.mjs` (mount's
+  shared sheets, hex-only palette and its undo, readouts, press / pressCue / setting, launch under
+  reduced motion; the press paths allocate nothing) and `arcade.test.mjs` (the controller without a
+  page: idle snapshot, a start that fails mid-run leaves the page exactly as it was, destroy is
+  final; a run itself needs a real page and stays in the Chromium suites). `tests/fake-dom.mjs` is
+  the small shared page they run on. site/bricks.mjs lists them (and `sound.test.mjs`, which it
+  missed).
+- **sound: an event named like an Object.prototype key no longer allocates in render.** The render
+  loop looked the cue up with `o.cues[type]`, so an event typed "constructor" handed `play()` a
+  function, whose own-key check then turned the function's source into a string, every such
+  event (51 young GCs per 1M frames). It now reads own keys only. Sizes (gzip): sound 1,015 →
+  1,019 B; arcade 24,327 → 24,331 B; arcade with `hud` omitted 18,348 → 18,351 B. No budget moves.
+- **`fizlet/board-page`: BETA → COMPLETE (G19).** Its step queries now have a Node test and an
+  allocation test in this repo (`tests/board-page.test.mjs`), on a fake page whose layout is known
+  to the pixel: every glyph's rect and the targets; `near` / `nearAt` (rect distance, the edge
+  counts, `out` caps the answer); `hit` / `hitAt` (first glyph along the segment, the 2 px pad, `t`);
+  `consume` (outside a step it writes at once; from a step it is queued, written in render and
+  survives a rescan; spent glyphs leave `near` and `hit`; "erase" keeps `char()`); a host edit wins
+  and Recall gives the text back; the `still` and `reads` budgets; destroy. **0 young GCs over 300k
+  frames of `nearAt` + `hitAt`** (best of 3; the same test with one object allocated per query
+  fails). The status flag moves on that evidence; the released users
+  (Byte Runner, Sherman Bytes, Swarm Protocol 1.4, Null Invaders through `fizlet/arcade`) were
+  already listed. The `reads` getter gets its own JSDoc back (it sat above `scans`). 0 B: board-page
+  4,162 B gz, unchanged. README sizes regenerated (`npm run readme:sizes`: kernel 3,438 B, css-clock
+  5.2 KB).
+- **`fizlet/timeline`: `revert()` gives plain numbers back, and `done()` never hangs (audit P7).**
+  - `revert()` said "every property" but gave back only styles. A typed array slot or an object's
+    property kept the timeline's last value. Now each plain-number property keeps its value from
+    when its first track was added, and `revert()` writes it back in render (styles still go back
+    through the ledger, where a newer host edit wins).
+  - `done()` resolved only when the timeline ended. If the engine was destroyed first, the promise
+    never settled, and an `await tl.done()` hung for good. Now every wait resolves when the engine's
+    signal aborts, and a `done()` asked after that resolves at once.
+  - Tests (`tests/timeline.test.mjs`): "revert() gives plain numbers back too" and "done() settles
+    when the engine is destroyed first". Both fail on main (8.75 ≠ 5; "hung"), both pass now. The
+    zero-allocation test still passes; Chromium `tests/timeline.mjs` and `tests/css-clock.mjs` green.
+  - Size (gzip): timeline 2,060 → 2,114 B (budget 2,304); css-clock 5,375 → 5,393 B (budget 5,632).
+- **`fizlet/steer`: options are checked; `patrol()` with no waypoint stands still (audit P8).**
+  - steer was the one new brick without `need()`. `cap` was silently `max(1, cap | 0)` (so `cap: 0`,
+    `2.5` or a missing cap made one mover), and a NaN or string speed, turn, stop, near, slow, fast,
+    calm, far, every, jitter or area value turned every mover's position into NaN at the first step.
+    Now each throws a `RangeError` at setup that names the option. **API note (BETA):** `cap` is
+    required and must be a positive integer; a call that relied on the silent clamp now throws.
+  - `patrol(i, points)` with fewer than two numbers did `% 0` and wrote NaN into `x`, `y` and `a`
+    for good. Now the mover stands still (`moved[i] = 0`); one waypoint is a patrol of one.
+  - Tests (`tests/steer.test.mjs`): "options are checked at setup" and "patrol: no waypoints stands
+    still". Both fail on main (no exception; `[NaN, NaN, NaN, NaN]`), both pass now. Every
+    Blitz-parity test and the 1M-frame zero-allocation test still pass (3 of 3 runs).
+  - Size (gzip): steer 950 → 1,150 B (budget 1,280; the kernel's `need` is about 110 B of it and is
+    shared on a page that has the kernel). pad, board-page and arcade import only steer's `hypot`
+    and are unchanged (2,073 · 4,162 · 24,327 B).
+- **`fizlet/camera`: no DOM call in a step, and no layout read per frame while panning (audit P5, P6).**
+  - Reduced motion was read (`matchMedia(...).matches`) in every step while a move eased: a DOM
+    call in the step, up to 4 per frame. It is now read once per frame in the read phase, only
+    while moving, and kept in the camera's typed array for the step. A Node test counts where it is
+    read: 31 times in a step on main, 0 now.
+  - Every `pan()` / `to()` asked for a re-measure, so a drag pan did a `getBoundingClientRect()`
+    every frame, after the previous frame's transform write: a forced style and layout pass per
+    frame. The stage is now measured at setup, then again only when a `ResizeObserver` says it
+    resized (a transform never changes a layout size), or while its size is still unknown (hidden
+    at setup). Tests: Node "a pan or a move doesn't re-measure the stage" (62 extra reads on main,
+    0 now) and Chromium `tests/camera.mjs` (30 frames of drag pan: 30 layout reads on main, 0 now;
+    a stage resized to 450 px is measured again).
+  - Size (gzip): camera 1,385 → 1,475 B (budget 1,536).
+- **`fizlet/perf`: the overlay shows on a canvas root and sits in a static host's corner (audit P11).**
+  - The default host is the engine's root, and a game's root can be a `<canvas>` (or an `<svg>`).
+    Their HTML children never render, so the overlay was invisible. Such a host now puts the
+    overlay on `document.body`, fixed, as when there is no root.
+  - In a static host that is not the body, `position: absolute` placed the overlay against some
+    unrelated ancestor. While shown, a static host is now made `position: relative` through the
+    ledger; hiding the overlay, `destroy()` and Recall give it back. A host that is already
+    positioned is never touched.
+  - Tests (`tests/perf.test.mjs`): "a canvas or svg host puts the overlay on the page" and "a static
+    host is made relative while shown". Both fail on main, both pass now; the zero-allocation test
+    and the Chromium perf block in `tests/browser.mjs` are green.
+  - Size (gzip): perf 1,958 → 2,042 B (budget 2,048). The host test reads `getContext` /
+    `ownerSVGElement`; a tag-name list (img, video, iframe too) measured 2,057 B, over budget.
+- **`fizlet/grid`: the board's size is checked (audit P8, G18's missing tests).** `board(cols, rows,
+  { cell })` checked nothing: `cell: 0` made `at()` return NaN, a fractional or NaN `cols`/`rows`
+  sized the typed arrays wrong (or to nothing), and a string passed by coercion. Now `cols` and
+  `rows` must be positive integers and `cell` a finite number > 0, or the constructor throws a
+  `RangeError` (`fizlet/grid: cols …, rows …, cell …`). Test: "grid: options are checked at setup"
+  (fails on main: no exception; passes now). The zero-allocation search test still passes (3 of 3
+  runs). Size (gzip): grid 1,533 → 1,634 B; budget 1,536 → 1,637, raised by that delta
+  (`scripts/sizes.mjs` says why; an inline check, since the kernel's `need` would cost +181 B on a
+  brick that runs without the kernel). grid stays BETA: no released game runs on it yet.
+- **Size headroom: at least 32 B under every tight budget, no behaviour change, no budget raised.**
+  esbuild keeps property names, so the private fields that ship in every page and game are short
+  now (each named in a comment): the ledger's (`t`, `m`, `a`, `e`), grid's search buffers and
+  helpers, and collide `Grid`'s. The ledger's three copies of its "host changed this style" check
+  and two of its put-back share one helper each, restore's attribute put-back is one expression,
+  and slot's placeholder selector drops its spaces. gzip, measured with #174's start fix (+5 B):
+  page build 7,166 → 7,128 B (budget 7,168, fixed), grid 1,634 → 1,603 (1,637), board-page
+  4,162 → 4,136 (4,193), arcade card 18,350 → 18,296 (18,361), arcade 24,331 → 24,280, kernel
+  3,438 → 3,413, collide 1,293 → 1,265.
+- **timeline: an engine auto-pause no longer stops it for good** (found in dom-virus#33).
+  `pause()` is also the timeline's `System.pause` hook, so when the engine paused itself (off
+  screen, a hidden tab, `engine.stop()`) the timeline marked itself paused by you and never played
+  on when the engine resumed. Called by its engine, `pause()` now only suspends (no steps while the
+  engine is paused, as before); the timeline plays on from where it was on resume, unless you
+  paused it yourself (your pause holds through any engine pause and resume). Recall, `destroy()`
+  and zero allocation in the step are unchanged. Tests: off screen → back, hidden → visible,
+  `stop()` → `start()`, your pause held, Recall and destroy, zero allocation (Node), and off screen
+  and back with a real IntersectionObserver (Chromium). fizlet/timeline 2,060 → 2,067 B gz
+  (budget 2,304); fizlet/css-clock 5,375 → 5,383 B gz.
+- **Website: the people page as one illustrated set.** All six avatars (Chris, Quill, Pip, Frame
+  Zero, DJ Mempool, Hex Hazel) are redrawn in one style: a full bust in the 32 × 32 frame, a 1-px
+  rim outline, 2–3 shades per colour, a bright prop and sparkles on a dark ground. Each has 2 frames
+  (`avatars`, replacing `avatar`) that cross-fade every 4 s on the card and the profile; frames turn
+  only on screen and while the tab is visible, never under reduced motion (site.js +250 B gzip).
+  Cards: the title alone in mono caps, a tagline, "↳ reports to" its own linked line, stats as
+  chips. "House persona" is now **Studio crew** (`reportsTo: quill`); Quill and Pip report to
+  Chris. The long "not a real person" line is a sticker on the avatar's corner (AI AGENT,
+  CHARACTER, MAKER) whose accessible name keeps the honesty. Avatar colours are site.css `--av-*`
+  tokens: Board UI colours or a mix of two, fixed in both themes.
+- **Tests: the layers story's "play resumes" check counts frames, not wall time.** It failed under
+  CPU load: it passed 3 of 10 runs at load 42–72 (4 of 10 with the timeline pause fix, which the
+  layers scene doesn't use). Traced: play does resume (the key reads Pause and the story moves on);
+  under load the page's frames came 295–412 ms apart, so the old fixed 400 ms window held only two
+  to four of them. It now waits (up to 10 s) for six frames and the story moving past where it was
+  paused: 10 of 10 under the same load. A real stall still fails it (checked with a scene whose key
+  reads Pause but whose story never steps). Test only; no engine or size change.
+- **Website: a frame that keeps the page's scroll now says why.** Over a gallery piece, hero or brick demo that holds drags and taps (a clipping slot with the kit's `overscroll-behavior: none`, a `touch-action: none` game host), a wheel or a vertical swipe that moves nothing opens a short note on the frame's edge for 3 s (closes on pointer leave; once per frame every 20 s; announced once through a polite live region; no slide under reduced motion) and turns the frame's border and shadow `--frame-warn` (new token: the kit's red `--k-fire-ink`, themed; shadow direction from `--shadow-x` / `--shadow-y`, with fallbacks). The lock itself is unchanged, and a frame that lets the page scroll never shows it: the hint is measured (no scroll anywhere after the attempt), not guessed. Site layer only (`site/scroll-hint.ts`, `site.css`): no brick or kernel bytes, every budget unchanged. Test: `tests/scroll-hint.mjs` (in `test:site`).
+- **Site: one section rule, one section gap.** The home page's gradient dividers (inset, faded, drawn on a section's top edge right under the last section's keys) are now the footer's top border: a 2px `--line` rule, edge to edge, in the flow, with `--section-gap` on each side, so it never touches content. The closing band's dashed rule is the same rule. `--section-gap` (`clamp(70px, 10vw, 120px)`, the space the dashed rule had above it) is every section's top space and the space above the footer. Site CSS 10,422 → 10,407 B gzip (minified); no package size change.
+- **Website: Chris Cooley's avatar redrawn from his riding gear.** His pixel avatar on /people/ is
+  now a rider in a white moto helmet (peak, vents, pointed chin bar with side slots and a mesh
+  vent), red goggles with a chrome lens and a black jersey with red shoulders; no face shown, no
+  brand marks. Same 32 × 32 grid and Board UI tokens.
+- **fizlet/steer: `arriveGoal(i, dt)`**, `arrive` toward the goal the game writes in `gx[i]`, `gy[i]`.
+  A goal computed every frame (a wingman's slot behind its leader) passed to `arrive` as two numbers
+  is boxed whenever V8 doesn't inline the call: DOM Battlefield Blitz's platoons made 3 young GCs per
+  20k steps on Chrome 145. Written to the typed arrays, no double crosses a call. Same moves as
+  `arrive`, bit for bit (tested frame by frame); a zero-allocation test runs the platoon pattern
+  (bare 0, `arriveGoal` 0, `arrive(i, gx, gy)` 55 young GCs per 300k frames on Node 24). `arrive` is
+  unchanged. Steer 950 → 958 B gz (budget 1,280): the band moved into the shared `toward` (a pace below 0), so `arrive` has no extra call level either.
+- **Website: the team's AI agent on /people/.** Contributors get a third `kind`, `agent` (an AI
+  agent persona: a handle, no url, like a persona), and an optional `pronouns` string shown on the
+  profile. Every agent card and page says "AI agent — an AI agent persona on the Fizlet team, not a
+  real person" (`AGENT_NOTE`), its eyebrow reads AI AGENT and its JSON-LD stays a Thing, never a
+  Person. The index lists the maker, then the agents, then the house personas. First agent: Quill
+  (`site/contributors/quill.json`), the keeper, with an original pixel owl holding a quill. Chris
+  Cooley's role now reads "Chef Unicorn · creator of Fizlet". Tests: `tests/people.test.mjs`.
+- **Tests: `fizlet/css-clock` has its zero-allocation proof** (`tests/css-clock.test.mjs`): 200k steps while it plays and 200k whole frames at rest (held) each take ≤ 1 young-generation GC (best of 3 windows). Its tests never counted allocations (touch has no loop; arcade is covered by #144) (2026-10-30 code audit, `fe audit fizlet`). Tests only; no size change.
+- **Kernel fix: `start()` on a settled engine runs again.** It cleared the settled bit but not the
+  quiet time, so the first frame after it (0 s, no steps) found the engine still quiet and put it
+  back to sleep: `start()` woke a settled engine for one empty frame. It now does what `wake()` does
+  (the quiet time starts over, a hold still ahead stays), then clears the stop. Inert after
+  `destroy()`, as before. Found by the 2026-10-30 code audit.
+  - Sizes (gzip): kernel 3,438 → 3,439 B; page build (kernel + slot + input + fx) 7,166 → 7,167 B
+    (cap 7,168). No budget moves.
+  - Test: `tests/kernel.test.mjs` settle test: after `start()` a settled engine runs steps for a
+    full settle window, then settles again; `start()` after `destroy()` stays inert.
 - **Roadmap: E5 (docs for humans and AI) is done.** Docs, guides, release notes, the authoring
   guide with three recipes, the generated API reference with llms-full.txt, and live kernel stats on
   DOM VIRUS's Under the Hood (dom-virus#21). `site/roadmap.mjs` and the engine's ROADMAP.md agree

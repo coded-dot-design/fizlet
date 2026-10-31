@@ -1,0 +1,33 @@
+{
+  "id": "2015-coffee-steam",
+  "date": "2026-10-31",
+  "prompt": "a coffee cup Chris Cooley drew frame by frame in 2015 (kept by the Wayback Machine, 23 April 2015), rebuilt as an arcade toy in Fizlet from the same sprite sheet: tap and the pour streams in and splashes, steam curls off the full cup; tap again and it slurps and wobbles; mid-pour it turns back from the frame it is on",
+  "title": "The coffee cup pours, splashes, steams and slurps (2015, arcade)",
+  "kind": "micro",
+  "theme": "everyday",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 62,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": false,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 158.4
+    }
+  },
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/before-ai-2015.ts",
+  "export": "coffee",
+  "aspect": "16 / 9",
+  "link": "demos/before-ai-2015/"
+}

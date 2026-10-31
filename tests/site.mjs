@@ -18,7 +18,7 @@ import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
 import { entries as galleryEntries, isLive, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
 import { notes as siteNotes, notePath } from "../scripts/notes.mjs";
-import { PERSONA_NOTE, authorOf, contributors as profiles } from "../scripts/people.mjs";
+import { STICKER, authorOf, contributors as profiles } from "../scripts/people.mjs";
 import { gzipSync } from "node:zlib";
 import { checkKeys, checkTaps } from "./keys.mjs";
 import { snippetable, snippetFor, TABLE as MAKE_TABLE } from "../scripts/make.mjs";
@@ -162,6 +162,35 @@ try {
   // pages keep their own plain shell (the same ones the landmark gate lists).
   where = "site nav";
   assert.deepEqual(checkNav(PAGES.map((path) => ({ path, html: readFileSync(fileOf(path), "utf8") })), { site: SITE, standalone: Object.keys(KNOWN) }), [], "site nav rules");
+  // Footer site map (site/layout.mjs siteMap): on every page with the site footer, every route in
+  // sitemap.xml is linked exactly once (home by the brand link), no noindex page is, and the page
+  // itself is marked aria-current="page".
+  where = "footer site map";
+  {
+    const routes = [...sitemap.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1].slice(SITE.length));
+    const hidden = PAGES.filter((p) => !indexable.includes(p));
+    let footers = 0;
+    for (const path of PAGES) {
+      const foot = readFileSync(fileOf(path), "utf8").match(/<footer class="site-foot">([\s\S]*?)<\/footer>/)?.[1];
+      if (!foot) continue;
+      footers++;
+      assert.ok(foot.includes('<nav class="foot-map" aria-label="Site map">'), `${path || "index"}: footer has the site map nav`);
+      assert.ok(!foot.includes("<!--site-map"), `${path || "index"}: site map marker filled`);
+      const from = new URL(path, `http://x${BASE}`);
+      const hits = new Map();
+      for (const [, attrs] of foot.matchAll(/<a\s([^>]*)>/g)) {
+        const href = attrs.match(/href="([^"]*)"/)[1];
+        if (/^[a-z]+:/i.test(href) || href.includes("#")) continue;
+        const to = decodeURIComponent(new URL(href, from).pathname.slice(BASE.length)).replace(/(^|\/)index\.html$/, "$1");
+        hits.set(to, (hits.get(to) ?? 0) + 1);
+        if (to === path && path !== "") assert.match(attrs, /aria-current="page"/, `${path}: its own footer link is aria-current="page"`);
+      }
+      for (const r of routes) assert.equal(hits.get(r) ?? 0, 1, `${path || "index"}: footer links ${r || "home"} exactly once`);
+      for (const h of hidden) assert.ok(!hits.has(h), `${path || "index"}: footer does not link the hidden page ${h}`);
+      for (const to of hits.keys()) assert.ok(routes.includes(to), `${path || "index"}: footer links ${to}, which is not in the sitemap`);
+    }
+    assert.ok(footers > routes.length / 2, `the site footer is on most pages (${footers})`);
+  }
 
   // ---------- Brick pages: the sizes are the ones measured on this build ----------
   where = "brick sizes";
@@ -212,7 +241,7 @@ try {
         assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
         // Attribution: "by <name>", linked to the contributor's profile.
         const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</div>\n    </li>")[0]; // a card ends at its own </li> (a poster may hold lists)
-        assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
+        assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">studio crew</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
       }
     }
     // The generated index: every entry once, newest first, on the page that holds it, its sizes measured on this build.
@@ -251,7 +280,7 @@ try {
       const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
       const card = html.slice(html.indexOf(`id="hero-${e.id}"`)).split("</li>")[0];
       assert.ok(card.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `hero ${e.id}: its badge shows ${bytes} B`);
-      assert.ok(card.includes(`<p class="hero-by">by <a href="../${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `hero ${e.id}: by ${PEOPLE[e.author].name}, linked`);
+      assert.ok(card.includes(`<p class="hero-by">by <a href="../${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">studio crew</small>' : ""}</p>`), `hero ${e.id}: by ${PEOPLE[e.author].name}, linked`);
       assert.ok(!/data-slot-target/.test(card), `hero ${e.id}: no gallery slot wiring on its poster`);
     }
     assert.ok(PEOPLE["chris-cooley"], "the owner's profile");
@@ -307,7 +336,7 @@ try {
     }
   }
 
-  // ---------- People and the weekly contest: stats measured on this build, personas say so ----------
+  // ---------- People and the weekly contest: stats measured on this build, stickers say who is real ----------
   where = "people";
   {
     const people = profiles(), index = readFileSync(`${ROOT}/people/index.html`, "utf8");
@@ -318,7 +347,7 @@ try {
       const mine = GALLERY.filter((e) => authorOf(e) === p.id);
       const bytes = mine.reduce((n, e) => n + gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length, 0);
       assert.ok(html.includes(`data-stat="entries">${mine.length}</b>`) && html.includes(`data-stat="bytes">${bytes.toLocaleString("en-US")} B</b>`), `${p.id}: ${mine.length} entries, ${bytes} B, measured`);
-      assert.equal(html.includes(PERSONA_NOTE.replace(/ — /, "</b> — ")), p.kind === "persona", `${p.id}: the persona line`);
+      assert.ok(html.includes(`aria-label="${STICKER[p.kind].label}" title="${STICKER[p.kind].label}">${STICKER[p.kind].text}</span>`), `${p.id}: the ${STICKER[p.kind].text} sticker says what they are`);
       const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
       const profile = graph.find((x) => x["@type"] === "ProfilePage");
       assert.ok(p.kind === "owner" ? profile.mainEntity["@id"].endsWith("#author") : !profile.mainEntity && profile.about["@type"] !== "Person", `${p.id}: only the maker is a Person`);
@@ -538,6 +567,54 @@ try {
     const n = (await page.evaluate(() => window.__raf)) - n0;
     // fps: 30 means ~30 requestAnimationFrame calls a second, not one per vsync with frames skipped.
     assert.ok(n > 5 && n <= 33, `the fizz story asks for ${n} frames a second (cap 30)`);
+    await context.close();
+  }
+  // ---------- Before AI: 2015: the three columns play, then the page rests at 0 frames a second ----------
+  // The page says so (demos/before-ai-2015/): at rest it asks for no animation frames, and under
+  // reduced motion no column animates.
+  where = "before-ai-2015 settles";
+  for (const reducedMotion of ["no-preference", "reduce"]) {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 }, reducedMotion });
+    const page = await context.newPage();
+    await page.addInitScript(() => {
+      const raw = requestAnimationFrame.bind(window);
+      window.__raf = 0;
+      window.requestAnimationFrame = (cb) => (window.__raf++, raw(cb));
+    });
+    await page.goto(`${ORIGIN}${BASE}demos/before-ai-2015/`);
+    await page.locator(".bt-row").scrollIntoViewIfNeeded();
+    await page.waitForTimeout(2500);
+    const count = async () => { const n0 = await page.evaluate(() => window.__raf); await page.waitForTimeout(1000); return (await page.evaluate(() => window.__raf)) - n0; };
+    assert.equal(await count(), 0, `${where} (${reducedMotion}): no frames at rest after load`);
+    // A round in the arcade: slam the lid open and type, hit the cups (the music starts), fill the
+    // cup, then pause the music. Everything plays, then the column rests again: the steam (3 s on
+    // a full cup, its last puffs up to 1.9 s more) and the laptop's scroll run out (~6 s), the
+    // combo, the shake and every particle end.
+    const A = ".bt-arcade ";
+    await page.click(A + ".fz-keys");
+    await page.waitForTimeout(500);
+    for (let i = 0; i < 4; i++) await page.click(A + ".fz-keys"), await page.waitForTimeout(80);
+    for (let i = 0; i < 3; i++) await page.click(A + ".fz-cups"), await page.waitForTimeout(80);
+    await page.click(A + ".fz-coffee button");
+    if (reducedMotion === "no-preference") assert.ok((await count()) > 5, `${where}: the arcade plays`);
+    await page.click(A + ".fz-play");
+    assert.ok(Number(await page.textContent(A + ".fz-best")) >= 2, `${where} (${reducedMotion}): the HUD counts the combo`);
+    // Particles, squash and shake: what any canvas of the column has drawn, and the stage's styles.
+    const motion = () => page.evaluate(() => {
+      let ink = 0;
+      for (const c of document.querySelectorAll(".bt-arcade canvas")) {
+        const d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+        for (let i = 3; i < d.length; i += 4) if (d[i]) ink++;
+      }
+      const s = document.querySelector(".bt-arcade .bt-stage").style, b = document.querySelector(".bt-arcade .fz-beats").style;
+      return { ink, shake: s.translate, squash: b.scale };
+    });
+    if (reducedMotion === "reduce") assert.deepEqual(await motion(), { ink: 0, shake: "", squash: "" }, `${where}: reduced motion draws no particles, no squash, no shake`);
+    // (Reduced motion still counts the combo: its 1.1 s window, then the 0.5 s settle.)
+    await page.waitForTimeout(reducedMotion === "reduce" ? 2500 : 7500);
+    assert.equal(await count(), 0, `${where} (${reducedMotion}): rests after a round on all three`);
+    assert.deepEqual(await motion(), { ink: 0, shake: "", squash: "" }, `${where} (${reducedMotion}): at rest no particle, squash or shake is left`);
+    if (reducedMotion === "reduce") assert.equal(await page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length), 0, `${where}: no CSS animation runs under reduced motion`);
     await context.close();
   }
   // ---------- Gallery at phone width: a slot's CSS animation stops once it is off screen ----------
@@ -840,6 +917,22 @@ try {
         assert.ok(frames <= 2, `settled: ${frames} frames asked for in 1.2 s of stillness`);
       }
       assert.ok(await page.evaluate(() => window.__cls) < 0.01, "no layout shift from the reveals");
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
+    // One jump down the page (an anchor, a fling, or a slow runner landing several scrolls in one
+    // frame) can cross no observer threshold for a section it passes over: it still plays in.
+    // Whether a jump skips one depends on where the sections sit, so try a few depths. The foot of
+    // the page (1) is where the footer can fill the viewport: the reveals still end there.
+    const passed = () => [...document.querySelectorAll("section[data-reveal]")].filter((s) => s.getBoundingClientRect().top < innerHeight * 0.85)
+      .flatMap((s) => [...s.querySelectorAll("*")]).filter((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1")).map((el) => el.className || el.tagName);
+    for (const depth of [0.3, 0.4, 0.5, 0.6, 0.7, 1]) {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+      const { page, errors } = await open(context, "");
+      await page.waitForTimeout(300);
+      await page.evaluate((d) => scrollTo(0, Math.round(document.documentElement.scrollHeight * d)), depth);
+      await page.waitForFunction(`(${passed})().length === 0`, null, { polling: "raf", timeout: 15000 }).catch(() => {});
+      assert.deepEqual(await page.evaluate(`(${passed})()`), [], `a jump to ${depth} of the page: every section passed over is shown`);
       assert.deepEqual(errors, []);
       await context.close();
     }
