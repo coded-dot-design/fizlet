@@ -13,8 +13,13 @@ import { spriteURL } from "../../../src/sprite";
 import type { SlotScene, SlotTap } from "../../../src/slot";
 import type { HeroParams } from "./hero";
 import { BOO, GHOST, PAL } from "./art";
+import { aspect, mark } from "../../gallery/aspect";
 
 const ATTR = "data-fizlet-lit", HEADINGS = "h1,h2,h3,h4,h5,h6,[data-fizlet-heading]", M = 32, TRAIL = 5;
+// Its layout per stage aspect (wide, square, tall: ../../gallery/aspect): art rows the stage is tall
+// (fewer: a bigger ghost), then its figure of eight: x reach, x speed, y reach, y speed. Wide, it
+// sweeps side to side; on a phone's portrait stage it loops down the stacked headings instead.
+const LAY = [110, 0.4, 0.7, 0.3, 1.3, 100, 0.36, 0.7, 0.32, 1.3, 104, 0.3, 1.3, 0.36, 0.7];
 
 export function haunt(stage: HTMLElement, slot: HTMLElement, first: SlotTap | null, p: HeroParams) {
   const engine = createEngine({ root: stage, fps: 30, settle: 0.6 });
@@ -42,8 +47,9 @@ export function haunt(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     return c;
   });
   // State: ghost x, y, target x, y (art px), time, fade (0..1), scare (s), since a pointer (s),
-  // stage left, top (viewport px), measure, w, h, P, round left (s), BOO life, x, y, frames.
-  const G = new Float64Array([-12, 30, 0, 0, 0, 0, 0, 9, 0, 0, 1, 0, 0, 3, 0, 0, 0, 0, 0]);
+  // stage left, top (viewport px), measure, w, h, P, round left (s), BOO life, x, y, frames,
+  // layout row (aspect class × 5), the class marked.
+  const G = new Float64Array([-12, 30, 0, 0, 0, 0, 0, 9, 0, 0, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, -1]);
   const tx = new Float32Array(TRAIL), ty = new Float32Array(TRAIL), lit = new Float32Array(M), lv = new Uint8Array(M);
   const q = new Float64Array([0, 0, 0]); // pending input: kind (1 tap, 2 point), x, y (CSS px in the stage)
   const at = (ev: PointerEvent, k: number) => {
@@ -69,7 +75,7 @@ export function haunt(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     read() {
       if (!G[10]) return;
       G[10] = 0;
-      const r = stage.getBoundingClientRect(), P = Math.max(2, Math.round(r.height / 110)); // after a scroll or resize only
+      const r = stage.getBoundingClientRect(), l = (G[19] = aspect(r.width, r.height) * 5), P = Math.max(2, Math.round(r.height / LAY[l]!)); // after a scroll or resize only
       G[8] = r.left;
       G[9] = r.top;
       G[11] = canvas.width = Math.ceil(r.width / P);
@@ -89,7 +95,8 @@ export function haunt(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         q[0] = 0;
       }
       // Drift on a slow figure of eight unless a pointer called it in the last second.
-      if ((G[7] = G[7]! + dt) > 1) (G[2] = w * (0.5 + 0.4 * Math.sin(t * 0.7))), (G[3] = hh * (0.45 + 0.3 * Math.sin(t * 1.3)));
+      const l = G[19]!;
+      if ((G[7] = G[7]! + dt) > 1) (G[2] = w * (0.5 + LAY[l + 1]! * Math.sin(t * LAY[l + 2]!))), (G[3] = hh * (0.45 + LAY[l + 3]! * Math.sin(t * LAY[l + 4]!)));
       const k = Math.min(1, dt * (G[6]! > 0 ? 8 : 1.6));
       G[0] = G[0]! + (G[2]! - G[0]!) * k;
       G[1] = G[1]! + (G[3]! - G[1]!) * k;
@@ -116,6 +123,7 @@ export function haunt(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     },
     render() {
       const f = G[5]!, t = G[4]!, odd = G[18]! & 1;
+      if (G[19] !== G[20]) mark(L, stage, (G[20] = G[19]!) / 5);
       for (let i = 0; i < T.length && i < M; i++) {
         const l = lit[i]! > 0 ? Math.ceil(lit[i]! * 3) + odd * 4 : 0;
         if (l !== lv[i]) (lv[i] = l), L.attr(T[i]!.el as HTMLElement, ATTR, l ? LIT[l]! : null);
