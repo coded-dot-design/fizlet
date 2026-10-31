@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **Gallery: Tiny Byte Runner (pending owner review).** A ten-second taste of Byte Runner by Pip:
+  the round green frog chomps along crumb trails in a little web page's gutters, leaves them to eat
+  the page's letters (gone through the ledger till Recall) and dodges three flies (chaser,
+  interceptor, roamer) until a power square turns them blue and edible. Arrows/WASD, swipe or tap;
+  44 px mute key after a gesture. 9,241 B gzip live; zero-alloc step; settles; reduced motion keeps
+  the poster.
 - **Four more brick cards: hud, match, sound, presence.** hud: a high striker; tap fast to heat it
   and ring the bell; its real DOM scoreboard (score, best, heat meter, HOT flag, a feed of strikes) is
   bound with fizlet/hud and the readout counts DOM writes against frames. match: a ten-second round on
