@@ -13,6 +13,7 @@ export const CAPS = {
   LOBBY_SECONDS: [90, 2, 600], // a room that isn't full this long after its first seat is closed
   GATE_RATE: [30, 5, 300], // invite checks + joins per IP per minute, counted in each Worker isolate
   JOIN_RATE: [10, 2, 120], // joins per IP per minute into one room, counted by the room itself
+  RESUME_SECONDS: [20, 0, 120], // a dropped seat is held this long for its resume token (0: no resume)
 };
 export const MSG_BYTES = 12; // the only message size a room accepts (fizlet/presence wire format)
 
@@ -89,6 +90,39 @@ export function inviteFrom(req, url) {
   }
   const q = url.searchParams.get("invite") ?? url.searchParams.get("code");
   return q == null ? { code: null, via: "" } : { code: q, via: "url" };
+}
+
+/** The resume token a reconnect offers as the subprotocol `resume.<8 hex digits>` (from WELCOME), or 0. */
+export function resumeFrom(req) {
+  for (const p of (req.headers.get("sec-websocket-protocol") ?? "").split(",")) {
+    const m = /^resume\.([0-9a-f]{8})$/i.exec(p.trim());
+    if (m) return parseInt(m[1], 16) >>> 0;
+  }
+  return 0;
+}
+
+/**
+ * The first `max` bytes of a request body as text, or null when it is longer. Reads the stream and
+ * stops at `max` + 1 bytes (a chunked body has no content-length), so a huge body is never buffered.
+ */
+export async function bodyText(req, max) {
+  if (Number(req.headers.get("content-length") ?? 0) > max) return null;
+  if (!req.body) return "";
+  const reader = req.body.getReader(), parts = [];
+  let n = 0;
+  while (n <= max) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    parts.push(value);
+    n += value.byteLength;
+  }
+  if (n > max) {
+    reader.cancel().catch(() => {});
+    return null;
+  }
+  const all = new Uint8Array(n);
+  parts.reduce((at, p) => (all.set(p, at), at + p.byteLength), 0);
+  return new TextDecoder().decode(all);
 }
 
 /** The room number in /room/<n>, or -1 when it's not a room this deployment runs. */
