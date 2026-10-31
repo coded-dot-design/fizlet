@@ -68,7 +68,7 @@ export function applyPalette(root: HTMLElement, palette: Palette): () => void {
 }
 
 /** Readouts (BOARD-UI.md section 18): a `.bui-readouts` group of `[label, tone?]` items, appended to
- *  `parent`. Returns the value elements in order, for fzlt/hud (or your own change-only writes).
+ *  `parent`. Returns the value elements in order, for @fzlt/core/hud (or your own change-only writes).
  *  Text is set with textContent. The caller owns the group: add it through the engine's ledger. */
 export function readouts(parent: HTMLElement, items: [label: string, tone?: "team" | "enemy"][], onMap = false) {
   const group = parent.ownerDocument.createElement("div");
@@ -130,7 +130,7 @@ export const PERF_KEY = "dom-virus:perf";
  * in localStorage under `key` as "1" / "0". Storage that throws (private mode, blocked cookies,
  * a sandboxed frame) is ignored: the switch still works, it just forgets. `change` runs once
  * with the stored value and on every flip; `set(on)` flips it from code (a keyboard shortcut).
- * Example: `setting(btn, PERF_KEY, (on) => overlay.show(on), signal)` with `fzlt/perf`.
+ * Example: `setting(btn, PERF_KEY, (on) => overlay.show(on), signal)` with `@fzlt/core/perf`.
  */
 export function setting(button: HTMLElement, key: string, change: (on: boolean) => void, signal: AbortSignal, fallback = false) {
   let on = fallback;

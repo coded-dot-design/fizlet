@@ -4,7 +4,7 @@
 // shoulder early. Last ten seconds and the barrel spits you out in a blast of mist. Then the score
 // card, then it sleeps until the next press.
 // Bricks: the kernel (fixed step; settle; its ledger for every page write, so Recall gives the page
-// back byte for byte), fzlt/slot, fzlt/sound. The rig: kit.ts. The ride is `tubeTime()`, plain
+// back byte for byte), @fzlt/core/slot, @fzlt/core/sound. The rig: kit.ts. The ride is `tubeTime()`, plain
 // numbers, no DOM (tests/surf-sesh.test.mjs: zero allocation).
 import { createEngine } from "../../../../src/kernel/index";
 import { seeded } from "../../../../src/kernel/random";

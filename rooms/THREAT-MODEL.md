@@ -3,7 +3,7 @@
 fizlet-rooms is a **demo** room server. Its invite gate keeps strangers out and its caps keep the
 bill bounded. It is not a login, and it does not make a match cheat-proof. This page says what it
 protects, what it doesn't, and the limits. Code: `src/` here; the client side is
-[`fzlt/presence`](../src/presence.ts).
+[`@fzlt/core/presence`](../src/presence.ts).
 
 ## Who and what
 

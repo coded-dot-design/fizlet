@@ -1,5 +1,5 @@
 /**
- * fzlt/slot: mount a Fizlet scene into an astro-base-engine slot: the element carrying
+ * @fzlt/core/slot: mount a Fizlet scene into an astro-base-engine slot: the element carrying
  *   class="ae-slot" data-slot-target="<page>#<slot>" role="img" aria-label="…". Both shapes the engine
  *   has rendered are found: the figure itself (`<figure class="ae-slot">`), or a box inside one
  *   (`<figure class="ae-slot-figure"><div class="ae-slot">…</div><figcaption class="ae-slot__fallback">`,

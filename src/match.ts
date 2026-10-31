@@ -1,5 +1,5 @@
 /**
- * fzlt/match: the match flow every game shares, intro → count → play → paused → end, on the
+ * @fzlt/core/match: the match flow every game shares, intro → count → play → paused → end, on the
  * Board UI kit's overlay (grey dim, a sticker that slams, at most two sticker keys). One overlay is
  * built once; each phase only flips attributes, styles and text through the ledger, so destroy()
  * gives the page back exactly. Every transition is an event on the ring (`match:play`, …), so the
@@ -50,10 +50,10 @@ export interface MatchOptions {
   end?(r: MatchResult): Sticker | void;
   /** The clock ran out: did the player win? (default: no) */
   timeUp?(): boolean;
-  /** The kit's launch burst (`launch` from fzlt/ui) for PRESS START and SURRENDER. */
+  /** The kit's launch burst (`launch` from @fzlt/core/ui) for PRESS START and SURRENDER. */
   launch?(key: HTMLElement, action: () => void, o: { reduced?: boolean }): void;
   /** Each phase change, once it is painted (in the call that made it, or in the render of the frame
-   *  a step made it in): a host that owns more than the overlay (fzlt/arcade's skirmish preset)
+   *  a step made it in): a host that owns more than the overlay (@fzlt/core/arcade's skirmish preset)
    *  follows the phase here. Not called for the first intro. */
   on?(phase: Phase): void;
   /** Phases that show no overlay (the phase machine and its events still run), e.g. ["paused"]. */

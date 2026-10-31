@@ -1,5 +1,5 @@
 // The launch-day pieces' games (site/gallery/pieces/launch/), headless: they run on plain numbers,
-// so the rules and the zero-allocation step are checked here (node --expose-gc). npm i fzlt: the
+// so the rules and the zero-allocation step are checked here (node --expose-gc). npm i @fzlt/core: the
 // bricks an order needs snap in, one it doesn't bounces out, a full order ships and the next comes
 // in, and the belt coasts to a stop. Recall Party: confetti knocks letters loose onto the floor,
 // Recall brings every one home exactly, and the party settles. The numbers they show are measured
@@ -17,7 +17,7 @@ const orders = ORDERS.map(([, l]) => l.map((x) => LABELS.indexOf(x)));
 const noop = () => {};
 const run = (s, sec) => { let busy = false; for (let i = 0; i < sec * 60; i++) busy = s.step(1 / 60); return busy; };
 
-test("npm i fzlt: needed bricks snap in, others bounce, a full order ships, the belt stops", () => {
+test("npm i @fzlt/core: needed bricks snap in, others bounce, a full order ships, the belt stops", () => {
   const ev = [];
   const s = npmSim(LABELS.length, orders, seeded(7), (t) => ev.push(t));
   run(s, 1.6); // the intro's demo takes the kernel
@@ -44,7 +44,7 @@ test("npm i fzlt: needed bricks snap in, others bounce, a full order ships, the 
   assert.equal(s.S[MODE], IDLE);
 });
 
-test("npm i fzlt: zero allocation in its steps (belt, flying bricks, words, sparks)", async (t) => {
+test("npm i @fzlt/core: zero allocation in its steps (belt, flying bricks, words, sparks)", async (t) => {
   if (typeof gc !== "function") return t.skip("needs node --expose-gc");
   const s = npmSim(LABELS.length, orders, seeded(3), noop);
   const steps = (n) => { for (let i = 0; i < n; i++) { if (i % 20 === 0) s.tap(20 + (i % 120), 27); s.step(1 / 60); } };

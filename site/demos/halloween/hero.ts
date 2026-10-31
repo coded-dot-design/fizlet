@@ -3,8 +3,8 @@
 // over the page above it, taps and drags as numbers, pop words and the score in the pixel font
 // (./font), and the night backdrop baked once per size. Each game is a small module on top (bats,
 // smash, slice, cauldron; haunt, the page scene, stands alone) built from Fizlet bricks: the kernel
-// (settle + 30 fps cap: still means zero frames), fzlt/sprite (pixel art baked once), fzlt/fx.
-// Mounted through fzlt/slot: it loads near the viewport, never under reduced motion, and every
+// (settle + 30 fps cap: still means zero frames), @fzlt/core/sprite (pixel art baked once), @fzlt/core/fx.
+// Mounted through @fzlt/core/slot: it loads near the viewport, never under reduced motion, and every
 // node and style it adds goes through the engine's ledger, so Recall gives the page back.
 import { createEngine, type Engine } from "../../../src/kernel/index";
 import type { Effects } from "../../../src/fx";

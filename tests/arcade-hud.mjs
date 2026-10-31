@@ -1,9 +1,9 @@
-// fzlt/arcade's `hud` option in Chromium. Leaving `hud` out, or passing `arcadeHud()`, renders the
+// @fzlt/core/arcade's `hud` option in Chromium. Leaving `hud` out, or passing `arcadeHud()`, renders the
 // card byte for byte as it was before the option existed (tests/fixtures/arcade-card.json, captured
 // from 0.17.0's arcade). The `arcade` preset renders only the keys it names. The `skirmish` preset
 // renders its bar (readouts in their formats, the armor bar and its low state, aim toggles, counted
 // keys, and the Auto fire / Next gate / Restart / fold keys a game asks for), its feed and banner from
-// the event ring, and runs its flow on fzlt/match: the countdown on the flow's clock (the game's
+// the event ring, and runs its flow on @fzlt/core/match: the countdown on the flow's clock (the game's
 // engine waits), pause / surrender asked of match from P and the pause key, the result sticker
 // that outlives the game's engine until REMATCH or EXIT; it writes nothing on unchanged frames,
 // keeps the final numbers after the run, and Recall gives the page back exactly; phones get the pad with the aim toggles and the counts. Both presets
@@ -46,7 +46,7 @@ const open = async (ctx, which, set = {}) => {
 // Reads inside the scoreboard's shadow root.
 const sh = (p, fn, arg) => p.locator("[data-fizlet-host=test-game]").evaluate((h, [f, a]) => new Function("r", "a", `return (${f})(r, a)`)(h.shadowRoot, a), [fn.toString(), arg]);
 const text = (p, sel) => sh(p, (r, s) => r.querySelector(s)?.textContent ?? null, sel);
-// The flow's overlay keys (fzlt/match): the ones on show, and one by name.
+// The flow's overlay keys (@fzlt/core/match): the ones on show, and one by name.
 const shown = (p) => sh(p, (r) => [...r.querySelectorAll(".bui-overlay [data-k]")].filter((b) => b.style.display !== "none").map((b) => b.textContent));
 const press = (p, k) => sh(p, (r, k) => r.querySelector(`.bui-overlay [data-k=${k}]`).click(), k);
 const frames = (p, n = 3) => p.evaluate((n) => new Promise((ok) => { const f = () => (n-- ? requestAnimationFrame(f) : ok()); f(); }), n);
@@ -264,10 +264,10 @@ try {
   console.log(`# minor GCs over 200k HUD writes (best of 3): card unchanged ${gcs.cardSpy.still} · skirmish unchanged ${gcs.skirmish.still}, every value changing ${gcs.skirmish.moving}`);
   assert.ok(gcs.cardSpy.still <= 1, `card: ${gcs.cardSpy.still} minor GCs`);
   assert.ok(gcs.skirmish.still <= 1, `skirmish: ${gcs.skirmish.still} minor GCs`);
-  // Changing values reuse fzlt/hud's cached strings (0..1023).
+  // Changing values reuse @fzlt/core/hud's cached strings (0..1023).
   assert.ok(gcs.skirmish.moving <= 1, `skirmish, values changing: ${gcs.skirmish.moving} minor GCs`);
   await ctx.close();
-  console.log("arcade hud: card byte for byte (omitted and arcadeHud()), picked keys, skirmish bar / formats / armor bar / counts / aim / feed / banner, the flow on fzlt/match (countdown, pause, surrender, result that stays, REMATCH, EXIT), Auto fire / Next gate / Restart / fold, change-only, Recall exact, phone pad, zero allocation passed.");
+  console.log("arcade hud: card byte for byte (omitted and arcadeHud()), picked keys, skirmish bar / formats / armor bar / counts / aim / feed / banner, the flow on @fzlt/core/match (countdown, pause, surrender, result that stays, REMATCH, EXIT), Auto fire / Next gate / Restart / fold, change-only, Recall exact, phone pad, zero allocation passed.");
 } catch (err) {
   console.error(`arcade hud test failed at: ${where}`);
   throw err;

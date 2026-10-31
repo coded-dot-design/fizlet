@@ -40,6 +40,6 @@ test("package-lock.json version matches package.json", () => {
 
 test("every export has a size budget or is the root/ui/package entry or a data file", () => {
   const pkg = JSON.parse(text("package.json")), sizes = text("scripts/sizes.mjs");
-  const missing = Object.keys(pkg.exports).filter((k) => !["." , "./kernel", "./package.json", "./ui", "./ui/board-ui.css", "./ui/tokens.json"].includes(k) && !sizes.includes(`"fzlt/${k.slice(2)}"`));
+  const missing = Object.keys(pkg.exports).filter((k) => !["." , "./kernel", "./package.json", "./ui", "./ui/board-ui.css", "./ui/tokens.json"].includes(k) && !sizes.includes(`"@fzlt/core/${k.slice(2)}"`));
   assert.deepEqual(missing, []);
 });

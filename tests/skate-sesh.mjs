@@ -1,5 +1,5 @@
 // The skate-sesh minis (site/gallery/pieces/skate/pump-pipe.ts, rail-run.ts, hill-bomb.ts) in Chromium, each on its
-// own stage, mounted through fzlt/slot as the gallery does: it mounts (the poster steps aside),
+// own stage, mounted through @fzlt/core/slot as the gallery does: it mounts (the poster steps aside),
 // plays its attract run and settles to no frames with the page as it was; no audio exists before a
 // gesture; the keyboard rides it (Space on the ride key starts and holds a ride) and M mutes; both
 // keys are 44 px at 390 wide; Recall mid-ride gives the page back byte for byte; reduced motion

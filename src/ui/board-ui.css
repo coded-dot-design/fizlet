@@ -76,7 +76,7 @@
   --team: var(--team-b);
 }
 
-/* Touch (with fzlt/touch's lockTouch for pinch): a tap is a tap, never a double-tap zoom. Game
+/* Touch (with @fzlt/core/touch's lockTouch for pinch): a tap is a tap, never a double-tap zoom. Game
    surfaces take every gesture; animation slots let the page scroll up and down through them, but
    never pan sideways or zoom. */
 .bui {
@@ -523,7 +523,7 @@
 .bui .bui-overlay[hidden] {
   display: none;
 }
-/* fzlt/coach's card lays itself out inline (display: grid), which beats the browser's [hidden]. */
+/* @fzlt/core/coach's card lays itself out inline (display: grid), which beats the browser's [hidden]. */
 .bui .fizlet-coach[hidden] {
   display: none !important;
 }
@@ -773,7 +773,7 @@
   pointer-events: none;
 }
 
-/* ---------- 11. Pad (fzlt/pad): swappable touch controls ----------
+/* ---------- 11. Pad (@fzlt/core/pad): swappable touch controls ----------
    The move control (stick, d-pad or move keys) under one thumb, round arcade action keys under
    the other (right by default; data-hand="left" swaps). The first action is the big primary key.
    Stick and knob: Battlefield's cockpit stick; round keys: Blitz's pad. */
@@ -936,7 +936,7 @@
 /* ---------- 12. Readouts: DOM Battlefield's metrics (ARMOR, FRIENDLY, HOSTILE, ELAPSED) ----------
    A readout is not a key: flat, no hard shadow, never pressed. A muted caps label over a big value
    (tabular numbers so a ticking clock never jiggles); team and enemy tints come from the palette.
-   readouts() in board-ui.ts builds the markup; fzlt/hud writes the values. */
+   readouts() in board-ui.ts builds the markup; @fzlt/core/hud writes the values. */
 .bui .bui-readouts {
   display: flex;
   gap: calc(30 * var(--u));

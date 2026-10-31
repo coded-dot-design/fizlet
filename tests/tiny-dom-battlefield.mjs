@@ -1,5 +1,5 @@
 // Freeze, plan, radio (site/gallery/pieces/freeze-plan-radio-platoon.ts), DOM Battlefield's tiny
-// gallery game, in Chromium on its own stage, mounted through fzlt/slot as the gallery does, Math.random
+// gallery game, in Chromium on its own stage, mounted through @fzlt/core/slot as the gallery does, Math.random
 // seeded. Left alone it plays one attack (routes drawn for it, radioed leg by leg) to a result, then
 // freezes and sleeps with the page as it was. Then a player: a drag draws a route, RADIO runs time for
 // three seconds and the tank rolls it, time freezes by itself and the engine sleeps (frozen time costs no
@@ -177,7 +177,7 @@ try {
   assert.ok(step / FRAMES <= 16, `the step allocates (next to) nothing: ${(step / FRAMES).toFixed(1)} B a frame sampled, bar 16`);
 
   // Byte for byte but for the figure's attribute order: a scene with real buttons is `accessible`, so
-  // fzlt/slot drops role="img" while it runs and puts it back last (#215 puts it back in place).
+  // @fzlt/core/slot drops role="img" while it runs and puts it back last (#215 puts it back in place).
   const after = await p.evaluate(() => {
     h.destroy();
     const canon = (html) => {

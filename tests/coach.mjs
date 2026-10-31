@@ -1,4 +1,4 @@
-// fzlt/coach card in Chromium: hidden until shown, shows the step with DOM Battlefield's dashed
+// @fzlt/core/coach card in Chromium: hidden until shown, shows the step with DOM Battlefield's dashed
 // look on the kit tokens, writes nothing when the same card is shown again, rings the control it is
 // about, ends, and hide clears the ring.
 import assert from "node:assert/strict";

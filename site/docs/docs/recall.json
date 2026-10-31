@@ -24,7 +24,7 @@
       "items": [
         {
           "title": "`ledger.text(node, value)`",
-          "body": "A text node's value: the 0s and 1s a shot leaves in a word. `fzlt/board-page` writes into the page's own Text nodes this way, with no wrappers or clones."
+          "body": "A text node's value: the 0s and 1s a shot leaves in a word. `@fzlt/core/board-page` writes into the page's own Text nodes this way, with no wrappers or clones."
         },
         {
           "title": "`ledger.style(el, prop, value)` and `unstyle`",

@@ -1,8 +1,8 @@
 // The fight scene: two original pixel robots in a tiny one-on-one arcade bout (health bars, hit
 // sparks, pop words, a KO and a winner banner). A bout is data: a gag picks a script of beats
 // (time, move, who, how much) and the scene plays it once, then sleeps on the last frame; a tap
-// plays it again. Bricks: the kernel (settle + fps cap), fzlt/sprite (the fighters, baked once)
-// and fzlt/fx (sparks, pop words, the overflow blast, shake). Mounted through fzlt/slot: it
+// plays it again. Bricks: the kernel (settle + fps cap), @fzlt/core/sprite (the fighters, baked once)
+// and @fzlt/core/fx (sparks, pop words, the overflow blast, shake). Mounted through @fzlt/core/slot: it
 // loads near the viewport, never under reduced motion, and destroy() gives the page back.
 import { createEngine } from "../../../src/kernel/index";
 import { effects, emitter, SPARK } from "../../../src/fx";

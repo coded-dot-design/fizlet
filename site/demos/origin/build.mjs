@@ -1,5 +1,5 @@
 // Build the origin hero into site-dist/demos/origin/. Run by scripts/site.mjs (`npm run site`).
-// main.js (fzlt/slot: the loader) and scene.js (the live chunk: kernel + timeline + fx + sound +
+// main.js (@fzlt/core/slot: the loader) and scene.js (the live chunk: kernel + timeline + fx + sound +
 // input + sprite + the scene) are two files; the scene loads only once the slot asks. The brick
 // sizes on the "show bricks" labels are measured here (scripts/sizes.mjs), put in at build time.
 // Every number on the page is measured here, at build time.
@@ -14,7 +14,7 @@ const { version } = JSON.parse(readFileSync("package.json", "utf8"));
 mkdirSync(OUT, { recursive: true });
 
 // Each brick's own gzip bytes, as `npm run size` measures them.
-const NAMES = { "fzlt (kernel)": "kernel", "fzlt/timeline": "timeline", "fzlt/fx": "fx", "fzlt/sound": "sound", "fzlt/input": "input", "fzlt/sprite": "sprite", "fzlt/slot": "slot" };
+const NAMES = { "@fzlt/core (kernel)": "kernel", "@fzlt/core/timeline": "timeline", "@fzlt/core/fx": "fx", "@fzlt/core/sound": "sound", "@fzlt/core/input": "input", "@fzlt/core/sprite": "sprite", "@fzlt/core/slot": "slot" };
 export const bricks = {};
 for (const { name, gzip } of await measure()) if (NAMES[name]) bricks[NAMES[name]] = gzip;
 
@@ -35,8 +35,8 @@ export const poster = (cup = "coffee.png") => `<div class="ae-slot__placeholder 
 sizes.poster = gzipSync(poster()).length;
 
 const fmt = (n) => n.toLocaleString("en-US");
-const BRICK_ROWS = [["kernel", "fzlt (kernel)", "One loop at 30 fps; settles when nothing moves; the ledger gives the page back"], ["timeline", "fzlt/timeline", "The day and night cycle (sky, shade, sun, lamp); the wake, sleep and sip sequences"], ["fx", "fzlt/fx", "♪ notes, coffee steam, sparks of code (or swatch chips), the Zzz"], ["sound", "fzlt/sound", "The beat, key clicks, the sip; silent until your first tap or key"], ["input", "fzlt/input", "Taps on the laptop, cup, phone and headphones; the lid key"], ["sprite", "fzlt/sprite", "The pixel coder dancing on the phone"], ["slot", "fzlt/slot", "Loads the scene near the viewport, on an idle main thread (main.js)"]];
-const caption = [`Live chunk <b>${fmt(sizes.chunk)} B</b> gzip (six bricks + the scene)`, `loader <b>${fmt(sizes.loader)} B</b> (fzlt/slot)`, `poster <b>${fmt(sizes.poster)} B</b> inline`, `2015 coffee sheet <b>${fmt(sizes.cup)} B</b> PNG`].join(" · ");
+const BRICK_ROWS = [["kernel", "@fzlt/core (kernel)", "One loop at 30 fps; settles when nothing moves; the ledger gives the page back"], ["timeline", "@fzlt/core/timeline", "The day and night cycle (sky, shade, sun, lamp); the wake, sleep and sip sequences"], ["fx", "@fzlt/core/fx", "♪ notes, coffee steam, sparks of code (or swatch chips), the Zzz"], ["sound", "@fzlt/core/sound", "The beat, key clicks, the sip; silent until your first tap or key"], ["input", "@fzlt/core/input", "Taps on the laptop, cup, phone and headphones; the lid key"], ["sprite", "@fzlt/core/sprite", "The pixel coder dancing on the phone"], ["slot", "@fzlt/core/slot", "Loads the scene near the viewport, on an idle main thread (main.js)"]];
+const caption = [`Live chunk <b>${fmt(sizes.chunk)} B</b> gzip (six bricks + the scene)`, `loader <b>${fmt(sizes.loader)} B</b> (@fzlt/core/slot)`, `poster <b>${fmt(sizes.poster)} B</b> inline`, `2015 coffee sheet <b>${fmt(sizes.cup)} B</b> PNG`].join(" · ");
 
 const STYLE = `<style>
 ${CSS}

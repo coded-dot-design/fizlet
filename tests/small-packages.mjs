@@ -1,5 +1,5 @@
 // Gallery "Big things, small packages" (site/gallery/pieces/small-packages) in Chromium: it mounts
-// through fzlt/slot, dependencies keep arriving, real clicks cut every one (play to the end), the
+// through @fzlt/core/slot, dependencies keep arriving, real clicks cut every one (play to the end), the
 // crate shrinks to the Fizlet box with the kernel's gzip size measured on this build (and no number
 // without one), it settles to zero frames, a tap plays again, Recall gives the page back byte for
 // byte, the live chunk stays in its budget, and under reduced motion the poster is the joke and a
@@ -12,7 +12,7 @@ import { launchOptions } from "./chromium.mjs";
 import { measure } from "../scripts/sizes.mjs";
 
 const BUDGET = 9728;
-const kernel = (await measure()).find((s) => s.name === "fzlt (kernel)").gzip;
+const kernel = (await measure()).find((s) => s.name === "@fzlt/core (kernel)").gzip;
 // The live chunk, built as scripts/gallery.mjs builds it.
 const chunk = await build({ stdin: { contents: 'export { mount as mount } from "./pieces/small-packages/scene.ts";', resolveDir: "site/gallery", loader: "ts" },
   bundle: true, minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "silent", write: false });

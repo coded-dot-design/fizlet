@@ -1,5 +1,5 @@
 /**
- * fzlt/steer: how things move toward, away from and around a point, as DOM-free steering on
+ * @fzlt/core/steer: how things move toward, away from and around a point, as DOM-free steering on
  * typed arrays. Every mover has a position (`x`, `y`), a heading (`a`, radians) that turns at most
  * `turn` rad/s, and moves `speed × scale` px/s along it. Behaviours:
  * - `seek`: drive at a point, stop inside `stop`;

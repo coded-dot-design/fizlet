@@ -7,7 +7,7 @@
 // sleeps until the next press.
 // Chunky pixel art on one 160 × 90 canvas scaled up crisp; the caption font is pix.ts's 3 × 5.
 // Bricks: the kernel (fixed step; settle: it sleeps on the card and when idle; its ledger for every
-// page write, so Recall gives the page back byte for byte), fzlt/slot, fzlt/sound. The rig
+// page write, so Recall gives the page back byte for byte), @fzlt/core/slot, @fzlt/core/sound. The rig
 // (canvas, hold input, keys, synth, spray): kit.ts. The ride itself is `lipLine()`, plain numbers, no
 // DOM, so its step is tested headless (tests/surf-sesh.test.mjs: zero allocation).
 import { createEngine } from "../../../../src/kernel/index";

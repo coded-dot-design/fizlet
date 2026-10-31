@@ -13,7 +13,7 @@ By Chris Cooley.
 |---|---|
 | `section.mjs` | The section's HTML (the home page module calls `originSection()`) |
 | `contract.ts` | The mount contract, as types |
-| `main.ts` → `origin/main.js` | The loader: the switch, the Sound key, `fzlt/slot` |
+| `main.ts` → `origin/main.js` | The loader: the switch, the Sound key, `@fzlt/core/slot` |
 | `build.mjs` | Picks the scene, builds the loader, measures everything in gzip |
 | `scene.ts` → `origin/scene.js` | **The placeholder scene**, the fallback when the origin scene is missing from the tree |
 | `poster.mjs` | The placeholder's poster SVG |
@@ -33,12 +33,12 @@ The origin scene (`site/demos/origin/scene.ts`) shipped a richer API first. The 
 API**, and the placeholder (`scene.ts` here) has the same shape. The types are in `contract.ts`:
 
 ```ts
-// What the loader imports: fzlt/slot's mount, from demos/origin/scene.js (or origin/scene.js).
+// What the loader imports: @fzlt/core/slot's mount, from demos/origin/scene.js (or origin/scene.js).
 export const mountSlot: SlotMount; // (stage, figure, first) => OriginScene
 interface OriginScene {
   destroy(): void;                // Recall: the figure's outerHTML comes back byte for byte
   setMode(m: "code" | "design"): void;
-  setSound(on: boolean): void;    // arms sound; fzlt/sound still waits for a trusted gesture
+  setSound(on: boolean): void;    // arms sound; @fzlt/core/sound still waits for a trusted gesture
   pause(): void; play(): void;    // while paused: 0 requestAnimationFrame calls
   readonly state: { mode; open; bricks; sound; paused };
   accessible?: boolean;           // true when the scene has real buttons
@@ -47,8 +47,8 @@ interface OriginScene {
 
 | Brief | As built |
 |---|---|
-| `mount(figure, opts)` | `mountSlot(stage, figure)` through `fzlt/slot`. It reads `data-mode` and `data-sound` from the figure when it mounts |
-| `opts.sound: SoundGate` | `data-sound="0"/"1"` plus `setSound()`. The loader saves the choice in `localStorage` (`fizlet:origin-sound`, inside try/catch). `fzlt/sound` creates the AudioContext only on a trusted gesture. Sound is off by default |
+| `mount(figure, opts)` | `mountSlot(stage, figure)` through `@fzlt/core/slot`. It reads `data-mode` and `data-sound` from the figure when it mounts |
+| `opts.sound: SoundGate` | `data-sound="0"/"1"` plus `setSound()`. The loader saves the choice in `localStorage` (`fizlet:origin-sound`, inside try/catch). `@fzlt/core/sound` creates the AudioContext only on a trusted gesture. Sound is off by default |
 | `opts.reduced` | The loader never mounts the scene under reduced motion. The scene also checks for reduced motion itself (`reducedMotion`) |
 | `data-mode` on the figure | Kept. Mode changes go to `setMode()`. The scene reports its own changes with a bubbling `origin:state` event (`detail`: the state), and the section's keys follow it |
 | Settles: 0 rAF when idle or off screen | 0 rAF/s when off screen, when the tab is hidden, or after `pause()`. **On screen it plays a 24 s day loop at 30 fps**, because it is ambient, not idle. The placeholder settles after 4.5 s |

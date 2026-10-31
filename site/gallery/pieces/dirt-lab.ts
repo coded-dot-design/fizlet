@@ -8,7 +8,7 @@
 // Keys (focus in the stage): ← → pick a slot, 1-4 pick a piece, Enter drops it, R races; racing,
 // Space or ↑ is gas, ← leans back, → leans forward, Esc goes back to the builder; M mutes.
 // Bricks: the kernel (fixed step, settle: asleep in the builder; its ledger for the canvas and the
-// controls), fzlt/sound and fzlt/slot. The sim (`lab`) is plain numbers: no DOM, no allocation a step.
+// controls), @fzlt/core/sound and @fzlt/core/slot. The sim (`lab`) is plain numbers: no DOM, no allocation a step.
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../src/slot";
 import { controls, rig, BIKE, CMD, DIRT, DIRT2, GO, GOLD, H, HOT, INK, PAPER, W } from "./moto-kit";

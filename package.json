@@ -1,6 +1,6 @@
 {
-  "name": "fzlt",
-  "version": "0.21.1",
+  "name": "@fzlt/core",
+  "version": "0.21.2",
   "description": "Tiny physics for your page: a micro game and animation engine for the DOM, by Chris Cooley. One loop, bounded everything, and the page always comes back.",
   "license": "MIT",
   "author": "Chris Cooley <https://coded.design>",
@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/coded-dot-design/fizlet.git"
   },
-  "homepage": "https://coded-dot-design.github.io/fizlet/",
+  "homepage": "https://fzlt.dev",
   "type": "module",
   "sideEffects": [
     "*.css"
