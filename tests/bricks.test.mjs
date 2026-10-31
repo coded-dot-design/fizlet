@@ -508,6 +508,48 @@ test("fx: emitting kinds under gravity allocates nothing", async (t) => {
   assert.ok(minor <= 1, `young-generation GCs over 200k frames: ${minor}`);
 });
 
+test("fx: drawing a word spray allocates nothing (the font string is not rebuilt per particle)", async (t) => {
+  // fizlet#209: a word kind's draw built a new font string for every particle on every frame
+  // (1,409 B/frame on the 2015 headphones arcade). A canvas stand-in that keeps what it is given.
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  let sink = null, leak = false;
+  const ctx = {
+    font: "", textAlign: "", lineWidth: 1, strokeStyle: "", fillStyle: "", globalAlpha: 1, n: 0,
+    save() {}, restore() {}, translate() {}, rotate() {}, beginPath() {}, arc() {}, fill() {}, stroke() {}, fillRect() {}, strokeRect() {},
+    strokeText() {},
+    fillText() {
+      this.n++;
+      if (leak) sink = { n: this.n }; // the self-check: a draw that allocates
+    },
+  };
+  const fx = effects({ cap: 120, words: ["♪", "♫", "♬", "BOOM"] });
+  const { ids, emit } = emitter(fx, { note: { shape: "word", drag: 0.6, gravity: -0.4, angle: -1.5708, spread: 1.2, speed: [40, 90], size: [12, 30], life: [0.6, 1.4] } });
+  const s = new Int32Array(1);
+  const frame = () => {
+    const i = s[0]++;
+    if ((i & 3) === 0) emit(ids.note, (i * 7) % 320, 120, 4, i & 7, 2);
+    fx.step(1 / 60);
+    fx.draw(ctx);
+  };
+  for (let i = 0; i < 20000; i++) frame();
+  gc();
+  const minor = await minorGCs(() => {
+    for (let i = 0; i < 100000; i++) frame();
+  });
+  const live = fx.live, drawn = ctx.n;
+  leak = true;
+  for (let i = 0; i < 20000; i++) frame();
+  const control = await minorGCs(() => {
+    for (let i = 0; i < 100000; i++) frame();
+  });
+  console.log(`# fx word spray young GCs over 100k drawn frames (${live} live words): ${minor}; self-check, an allocating draw: ${control}`);
+  assert.ok(sink && drawn > 0);
+  assert.ok(live > 20, `populated (${live} live words)`);
+  assert.ok(ctx.font.startsWith("900 ") && ctx.font.endsWith("px ui-monospace, SFMono-Regular, monospace"), ctx.font);
+  assert.ok(control >= 5, `the method sees one object per drawn word: ${control}`);
+  assert.ok(minor <= 1, `young-generation GCs over 100k word-spray frames: ${minor}`);
+});
+
 test("K5: no plain-sqrt distance in a brick; the exact hypot (@fzlt/core/steer) is the one place", async () => {
   // Math.sqrt(x * x + y * y) differs from Math.hypot in the last bit for ~40% of inputs, and a
   // replay that keeps every bit needs the same distance everywhere (fizlet-engine context/06 K5).
