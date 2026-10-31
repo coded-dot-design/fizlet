@@ -6,7 +6,7 @@
  *     each a paused timeline scrubbed by `seek()` from where its section sits in the viewport.
  * The contract it keeps: one engine on the shared clock that settles (no frames once the scroll
  * stops); read measures (only after a resize), step samples typed arrays (no DOM, no allocation),
- * render writes change-only through the ledger. Only opacity, scale and translate move: no
+ * render writes change-only through the ledger. A section the scroll jumps past still plays in. Only opacity, scale and translate move: no
  * layout shift. Without JS, or with reduced motion, nothing is hidden and nothing moves (a switch
  * to reduced motion mid-visit destroys the engine: Recall gives every section back as it was).
  */
@@ -75,6 +75,7 @@ function run(main: HTMLElement) {
   // Cached geometry (page offsets), measured in read after a resize; the last progress sent.
   const top = new Float64Array(layers.length), h = new Float64Array(layers.length), sent = new Float64Array(layers.length).fill(-1);
   const g = new Float64Array(3); // scrollY, viewport height, geometry stale (1)
+  const secTop = new Float64Array(sections.length); // each section's page offset, with the layers'
   g[2] = 1;
   e.add({
     read() {
@@ -85,10 +86,17 @@ function run(main: HTMLElement) {
           top[i] = r.top + y;
           h[i] = r.height;
         }
+        for (let i = 0; i < sections.length; i++) secTop[i] = sections[i]!.getBoundingClientRect().top + y;
         g[1] = innerHeight;
         g[2] = 0;
       }
       g[0] = scrollY;
+      // The observer only reports threshold crossings, so a jump (End, an anchor, a fling, or a slow
+      // frame that lands several scrolls at once) can carry a waiting section from below the fold to
+      // above it with no callback, and it would wait hidden for good. Anything still waiting whose top
+      // has passed the reveal line plays in here instead.
+      for (let i = 0; i < sections.length; i++)
+        if (state[i] === 1 && secTop[i]! - g[0]! < g[1]! * 0.85) (state[i] = 2), reveals[i]!.play(), io.unobserve(sections[i]!);
       // Progress through the viewport: 0 as the host's top enters at the bottom, 1 as its bottom
       // leaves at the top (the hero starts at 0 at the top of the page). seek() only on a change.
       for (let i = 0; i < layers.length; i++) {
