@@ -117,6 +117,13 @@ try {
   // M mutes (aria-pressed on the mute key).
   await press(p, "KeyM");
   assert.equal(await p.evaluate(() => document.querySelector('[data-id="8"]').getAttribute("aria-pressed")), "true", "dirt-lab: M mutes");
+  // A tap on RACE hands the keys to the stage: Space is gas at once (the RACE key hides itself).
+  await p.click('[data-id="4"]');
+  await p.keyboard.down("Space");
+  await run(p, 0.5);
+  await p.keyboard.up("Space");
+  assert.ok((await st(p)).x > 15, "dirt-lab: after a tap on RACE, Space is gas");
+  await run(p, 20);
   await p.evaluate(() => scene.engine.start());
   await until(p, () => scene.engine.paused.includes("settled"), 900, "dirt-lab: sleeps in the builder");
 

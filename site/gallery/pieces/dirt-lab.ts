@@ -91,7 +91,10 @@ export function lab(emit: (type: string, v: number) => void) {
       if (!S[AIR]) {
         sz(S[X]!);
         const th = Z[1]!;
-        let sp = S[SPD]! + ((S[GAS] ? 90 : -14) + G * Math.sin(th)) * dt;
+        let sp = S[SPD]!;
+        // Gas pulls; off it, rolling resistance takes the bike toward a stop (never past it).
+        sp = S[GAS] ? sp + 90 * dt : sp > 0 ? Math.max(0, sp - 14 * dt) : Math.min(0, sp + 14 * dt);
+        sp += G * Math.sin(th) * dt;
         sp = sp > 66 ? 66 : sp < -20 ? -20 : sp;
         S[SPD] = sp;
         S[VX] = sp * Math.cos(th);
@@ -99,7 +102,7 @@ export function lab(emit: (type: string, v: number) => void) {
         const nx = S[X]! + S[VX]! * dt, ny = S[Y]! + S[VY]! * dt;
         hz(nx);
         const gy = GY - Z[0]!;
-        S[X] = nx;
+        S[X] = nx < 2 ? ((S[SPD] = 0), 2) : nx;
         if (gy > ny + 0.7) {
           // The ground falls away faster than the bike: it flies.
           S[AIR] = 1;
@@ -281,11 +284,14 @@ export function dirtLab(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
     if (S[BOT]) sim.stop();
     if (sim.race()) (writeHash(), say(4, 80, 30));
     showBar();
+    stage.focus({ preventScroll: true }); // racing keys (gas, lean) work straight away
   };
   const showBar = () => {
     const racing = S[MODE] !== BUILD && !S[BOT];
     for (let i = 0; i < 8; i++) B[i]!.hidden = (i < 5) === racing;
     for (let i = 0; i < 4; i++) B[i]!.setAttribute("aria-pressed", S[PICK] === i ? "true" : "false");
+    // A key that just hid itself (RACE, the palette) hands the focus to the stage, so keys keep working.
+    if ((document.activeElement as HTMLElement | null)?.hidden) stage.focus({ preventScroll: true });
   };
   showBar();
   // The stage is the game: focusable, labelled, it takes the keys while focus is in it.
@@ -438,7 +444,6 @@ export function dirtLab(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
       if (S[BEST]) k.word("BEST " + S[BEST]!.toFixed(2), 146, m === BUILD ? 9 : 17, 4, GOLD);
       if (m === BUILD) k.word("PICK · TAP A SLOT · RACE", 80, 9, 4, PAPER, 0.85);
       if (m === RACE && S[BOT]) k.word("DEMO · TAP TO BUILD", 80, 9, 4, PAPER, 0.85);
-      if (m === RACE && S[AIR] && !S[BOT]) k.word(S[LEAN]! < 0 ? "◀ BACK" : S[LEAN]! > 0 ? "FWD ▶" : "LEVEL IT!", S[X]!, S[Y]! - 22, 4, HOT, 0.9);
       if (WD[1]! < 1.2) {
         const u = WD[1]!, w = WD[0]!;
         k.word(WORDS[w]!, Math.max(18, Math.min(142, WD[2]!)), WD[3]! - u * 6, 8, w === 2 ? BIKE : w === 1 ? HOT : w === 3 ? GO : GOLD, Math.min(1, (1.2 - u) * 3), Math.sin(w * 2.1) * 0.12);
