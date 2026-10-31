@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Gallery: skate-sesh, three ten-second skate minis by Pip (pending owner review).** Pump Pipe:
+  a halfpipe under the lights; hold on the drops to pump speed (holding on the climbs bleeds it), get
+  over the coping and tap in the air to flip the board, land it under your feet or bail. Rail Run: a
+  night street line; press to ollie, hold to float, clear cones and gaps, land on rails to grind, a
+  clean line grows the multiplier. Hill Bomb: a hill road from above, faster every second; hold to
+  carve up, let go to drift down, thread the cones for close passes. Own stages, one shared rig
+  (`site/gallery/pieces/skate/kit.ts`): Space/Enter/↑ ride key, M mute, 44 px keys, no audio before a
+  gesture. Live (gzip): Pump Pipe 9,190 B, Rail Run 9,658 B, Hill Bomb 9,007 B. Steps allocate
+  nothing (`tests/skate-sesh.test.mjs`); mount, settle, keys, Recall and reduced motion in
+  `tests/skate-sesh.mjs`.
 - **Four more brick cards: hud, match, sound, presence.** hud: a high striker; tap fast to heat it
   and ring the bell; its real DOM scoreboard (score, best, heat meter, HOT flag, a feed of strikes) is
   bound with fizlet/hud and the readout counts DOM writes against frames. match: a ten-second round on

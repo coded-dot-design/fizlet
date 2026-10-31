@@ -1,0 +1,21 @@
+{
+  "id": "pump-pipe",
+  "date": "2026-10-31",
+  "prompt": "a halfpipe under the lights: hold to crouch on the drop and pump speed out of the wall, get over the coping and tap in the air to flip the board, land it back under your feet or bail",
+  "title": "Pump Pipe",
+  "kind": "micro",
+  "theme": "skate-sesh",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot",
+    "fizlet/sound"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/skate/pump-pipe.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
