@@ -40,6 +40,9 @@ export type { SkirmishOptions, SkirmishReadout } from "./arcade-skirmish";
  *  stick, 1 pointer), pointer x, y and on, move x, y (-1..1), fire, viewport width and height, and
  *  reduced motion (1/0). The game writes TARGET_HP: the full health of a target, for its paint. */
 export const MODE = 0, PX = 1, PY = 2, PON = 3, KX = 4, KY = 5, FIRE = 6, VW = 7, VH = 8, CALM = 9, TARGET_HP = 10;
+const enum Sv { MODE = 0, PX = 1, PY = 2, PON = 3, KX = 4, KY = 5, FIRE = 6, VW = 7, VH = 8, CALM = 9, TARGET_HP = 10 } // the same numbers, inlined by esbuild inside this file
+/** Slots of a run's pointer state `p`: position, on the page, held, last scroll. */
+const enum Ps { P_X, P_Y, P_ON, P_DOWN, SX, SY }
 
 /** One action key: the intent it drives, its keyboard code and its scoreboard text. */
 export interface ArcadeAction {
@@ -445,7 +448,7 @@ export function arcade<S>(def: ArcadeDef<S>, options: ArcadeOptions<S> = {}): Ar
 
       // Pointer, fire and the page's own clicks: while running, a click on the page fires instead
       // of following a link or pressing a button. The HUD, fields and opted-out parts keep theirs.
-      const p = new Float64Array(6), P_X = 0, P_Y = 1, P_ON = 2, P_DOWN = 3, SX = 4, SY = 5;
+      const p = new Float64Array(6);
       let mode = keyboard ? 0 : 1, auto = false, jump = 0, ending = 0;
       const live = () => status === "running";
       const guarded = (ev: Event) => ev.composedPath().some((n) => n === host || (n instanceof Element && n.matches(`${EDIT},${PROTECTED}`)));
@@ -456,14 +459,14 @@ export function arcade<S>(def: ArcadeDef<S>, options: ArcadeOptions<S> = {}): Ar
       e.ledger.style(doc.documentElement, "touch-action", "manipulation");
       doc.addEventListener("pointermove", (ev) => {
         if (!live() || ev.pointerType === "touch" || keyboard || guarded(ev)) return;
-        p[P_X] = ev.clientX; p[P_Y] = ev.clientY; p[P_ON] = 1; mode = 1;
+        p[Ps.P_X] = ev.clientX; p[Ps.P_Y] = ev.clientY; p[Ps.P_ON] = 1; mode = 1;
       }, { ...on, passive: true });
       doc.addEventListener("pointerdown", (ev) => {
         if (!live() || ev.button !== 0 || guarded(ev) || !def.fire) return;
-        p[P_DOWN] = 1;
+        p[Ps.P_DOWN] = 1;
         ev.preventDefault();
       }, on);
-      const up = () => (p[P_DOWN] = 0);
+      const up = () => (p[Ps.P_DOWN] = 0);
       doc.addEventListener("pointerup", up, on);
       doc.addEventListener("pointercancel", up, on);
       addEventListener("blur", up, { signal: e.signal });
@@ -508,7 +511,7 @@ export function arcade<S>(def: ArcadeDef<S>, options: ArcadeOptions<S> = {}): Ar
       const signal = (fill: number) => (fill > 60 ? def.color : fill > 25 ? "#cdde00" : "#ee6875");
       const painted = new Map<Element, number>();
       function paint() {
-        const max = ctl[TARGET_HP]! || 100;
+        const max = ctl[Sv.TARGET_HP]! || 100;
         for (const t of board.targets) {
           const fill = Math.round((Math.min(t.hp, max) / max) * 100);
           if (painted.get(t.el) === fill) continue;
@@ -522,24 +525,24 @@ export function arcade<S>(def: ArcadeDef<S>, options: ArcadeOptions<S> = {}): Ar
       const shell: System = {
         read() {
           // Size and scroll, once a frame (the read phase is the only place that touches layout).
-          if (ctl[VW] !== innerWidth || ctl[VH] !== innerHeight) {
-            ctl[VW] = innerWidth;
-            ctl[VH] = innerHeight;
+          if (ctl[Sv.VW] !== innerWidth || ctl[Sv.VH] !== innerHeight) {
+            ctl[Sv.VW] = innerWidth;
+            ctl[Sv.VH] = innerHeight;
             view[DPR] = Math.min(devicePixelRatio || 1, 1.5);
             canvas.width = Math.round(innerWidth * view[DPR]!);
             canvas.height = Math.round(innerHeight * view[DPR]!);
           }
-          const dx = scrollX - p[SX]!, dy = scrollY - p[SY]!;
-          if (dx || dy) (p[SX] = scrollX), (p[SY] = scrollY), game.scroll?.(dx, dy);
-          ctl[CALM] = reduced() ? 1 : 0;
-          ctl[KX] = input.axis("left", "right", 0);
-          ctl[KY] = input.axis("up", "down", 1);
-          if (ctl[KX] || ctl[KY]) mode = 0;
-          ctl[MODE] = mode;
-          ctl[PX] = p[P_X]!;
-          ctl[PY] = p[P_Y]!;
-          ctl[PON] = p[P_ON]!;
-          ctl[FIRE] = def.fire && (input.down("fire") || p[P_DOWN] || auto) ? 1 : 0;
+          const dx = scrollX - p[Ps.SX]!, dy = scrollY - p[Ps.SY]!;
+          if (dx || dy) (p[Ps.SX] = scrollX), (p[Ps.SY] = scrollY), game.scroll?.(dx, dy);
+          ctl[Sv.CALM] = reduced() ? 1 : 0;
+          ctl[Sv.KX] = input.axis("left", "right", 0);
+          ctl[Sv.KY] = input.axis("up", "down", 1);
+          if (ctl[Sv.KX] || ctl[Sv.KY]) mode = 0;
+          ctl[Sv.MODE] = mode;
+          ctl[Sv.PX] = p[Ps.P_X]!;
+          ctl[Sv.PY] = p[Ps.P_Y]!;
+          ctl[Sv.PON] = p[Ps.P_ON]!;
+          ctl[Sv.FIRE] = def.fire && (input.down("fire") || p[Ps.P_DOWN] || auto) ? 1 : 0;
         },
         render(eng) {
           const dt = eng.timing[0]!, r = reduced();
@@ -549,11 +552,11 @@ export function arcade<S>(def: ArcadeDef<S>, options: ArcadeOptions<S> = {}): Ar
           if (o && !ending) (ending = 1), queueMicrotask(() => flow(o === 2 ? "won" : "lost"));
           if (jump) (jump = 0), gate();
           if (def.paint !== false) paint();
-          const d = view[DPR]!, W = ctl[VW]!, H = ctl[VH]!;
+          const d = view[DPR]!, W = ctl[Sv.VW]!, H = ctl[Sv.VH]!;
           c2d.setTransform(d, 0, 0, d, 0, 0);
           c2d.clearRect(0, 0, W, H);
           // Target beacons: a ring that beats faster as the target weakens.
-          const max = ctl[TARGET_HP]! || 100;
+          const max = ctl[Sv.TARGET_HP]! || 100;
           c2d.lineWidth = 2;
           for (const g of board.targets) {
             if (!(g.w > 0 && g.hp > 0)) continue;
@@ -607,10 +610,10 @@ export function arcade<S>(def: ArcadeDef<S>, options: ArcadeOptions<S> = {}): Ar
       }
       // First frame: measure, then a fresh run.
       shell.read!(e);
-      p[SX] = scrollX;
-      p[SY] = scrollY;
-      p[P_X] = innerWidth / 2;
-      p[P_Y] = innerHeight * 0.65;
+      p[Ps.SX] = scrollX;
+      p[Ps.SY] = scrollY;
+      p[Ps.P_X] = innerWidth / 2;
+      p[Ps.P_Y] = innerHeight * 0.65;
       board.refresh();
       game.reset();
       return { engine: e as Engine, life, host, ui, view: hud, stats };

@@ -23,6 +23,9 @@ export interface CameraOptions {
   motion?: boolean;
 }
 
+// Slots of the camera state `s` (a const enum: esbuild inlines it; a local const after code stays a variable).
+const enum Sl { FX = 0, FY = 1, Z = 2, GX = 3, GY = 4, GZ = 5, PX = 6, PY = 7, W = 8, H = 9, RX = 10, RY = 11, RZ = 12, MOVE = 13, MEASURE = 14, CLIP = 15, JUMP = 16 }
+
 /** A camera on stage `el`: pan and zoom it with one `transform` written through the engine's ledger
  *  (so Recall gives it back). Moves ease and settle; `to()`, `pan()` and `home()` drive it. */
 export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOptions = {}) {
@@ -31,9 +34,8 @@ export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOp
   // FX FY Z current; GX GY GZ target; PX PY pin; W H stage size; RX RY RZ last written; flags; JUMP:
   // reduced motion, latched in read while moving (a step never calls into the DOM).
   const s = new Float64Array(17);
-  const FX = 0, FY = 1, Z = 2, GX = 3, GY = 4, GZ = 5, PX = 6, PY = 7, W = 8, H = 9, RX = 10, RY = 11, RZ = 12, MOVE = 13, MEASURE = 14, CLIP = 15, JUMP = 16;
-  s[Z] = s[GZ] = s[RZ] = 1;
-  s[MEASURE] = 1;
+  s[Sl.Z] = s[Sl.GZ] = s[Sl.RZ] = 1;
+  s[Sl.MEASURE] = 1;
   const mq = o.motion == null && typeof matchMedia === "function" ? matchMedia("(prefers-reduced-motion: reduce)") : null;
   const still = () => (mq ? mq.matches : o.motion === false);
   const parent = el.parentElement;
@@ -47,112 +49,112 @@ export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOp
   };
   // Move the pin without moving the picture: re-express the current focus about the new pin.
   const pin = (px: number, py: number) => {
-    const dx = px - s[PX]!, dy = py - s[PY]!;
-    s[FX] = s[FX]! + dx / s[Z]!;
-    s[FY] = s[FY]! + dy / s[Z]!;
-    s[GX] = s[GX]! + dx / s[GZ]!;
-    s[GY] = s[GY]! + dy / s[GZ]!;
-    s[PX] = px;
-    s[PY] = py;
+    const dx = px - s[Sl.PX]!, dy = py - s[Sl.PY]!;
+    s[Sl.FX] = s[Sl.FX]! + dx / s[Sl.Z]!;
+    s[Sl.FY] = s[Sl.FY]! + dy / s[Sl.Z]!;
+    s[Sl.GX] = s[Sl.GX]! + dx / s[Sl.GZ]!;
+    s[Sl.GY] = s[Sl.GY]! + dy / s[Sl.GZ]!;
+    s[Sl.PX] = px;
+    s[Sl.PY] = py;
   };
 
   const go = () => {
-    s[GX] = fit(s[GX]!, s[PX]!, s[GZ]!, s[W]!);
-    s[GY] = fit(s[GY]!, s[PY]!, s[GZ]!, s[H]!);
-    s[MOVE] = 1;
+    s[Sl.GX] = fit(s[Sl.GX]!, s[Sl.PX]!, s[Sl.GZ]!, s[Sl.W]!);
+    s[Sl.GY] = fit(s[Sl.GY]!, s[Sl.PY]!, s[Sl.GZ]!, s[Sl.H]!);
+    s[Sl.MOVE] = 1;
     // Size unknown (hidden at setup): measure in the next read. A known size is kept until the
     // stage resizes, so a drag pan reads no layout per frame.
-    if (!s[W]) s[MEASURE] = 1;
+    if (!s[Sl.W]) s[Sl.MEASURE] = 1;
     engine.wake();
   };
 
   // Layout reads happen here only: at setup, and in the read phase once the stage resized (or its
   // size is still unknown). A ResizeObserver says so; transforms never change a layout size.
   const measure = () => {
-    s[MEASURE] = 0;
+    s[Sl.MEASURE] = 0;
     const r = el.getBoundingClientRect();
-    s[W] = r.width / s[RZ]!;
-    s[H] = r.height / s[RZ]!;
-    s[GX] = fit(s[GX]!, s[PX]!, s[GZ]!, s[W]!);
-    s[GY] = fit(s[GY]!, s[PY]!, s[GZ]!, s[H]!);
-    if (box && parent && !s[CLIP]) s[CLIP] = getComputedStyle(parent).overflowX === "visible" ? 1 : 2;
+    s[Sl.W] = r.width / s[Sl.RZ]!;
+    s[Sl.H] = r.height / s[Sl.RZ]!;
+    s[Sl.GX] = fit(s[Sl.GX]!, s[Sl.PX]!, s[Sl.GZ]!, s[Sl.W]!);
+    s[Sl.GY] = fit(s[Sl.GY]!, s[Sl.PY]!, s[Sl.GZ]!, s[Sl.H]!);
+    if (box && parent && !s[Sl.CLIP]) s[Sl.CLIP] = getComputedStyle(parent).overflowX === "visible" ? 1 : 2;
   };
   measure();
   if (typeof ResizeObserver === "function") {
-    const ro = new ResizeObserver(() => (s[MEASURE] = 1));
+    const ro = new ResizeObserver(() => (s[Sl.MEASURE] = 1));
     ro.observe(el);
     engine.signal.addEventListener("abort", () => ro.disconnect());
   }
 
   const cam = {
     /** Show world point (x, y) at screen point (px, py) (default: the same point, a zoom about it). */
-    to(x: number, y: number, zoom = s[GZ]!, px = x, py = y) {
+    to(x: number, y: number, zoom = s[Sl.GZ]!, px = x, py = y) {
       if (!(x - x === 0 && y - y === 0 && zoom > 0 && px - px === 0 && py - py === 0)) return;
       pin(px, py);
-      s[GX] = x;
-      s[GY] = y;
-      s[GZ] = clampZ(zoom);
+      s[Sl.GX] = x;
+      s[Sl.GY] = y;
+      s[Sl.GZ] = clampZ(zoom);
       go();
     },
     /** Stage size in px (untransformed), as last measured. */
     get width() {
-      return s[W]!;
+      return s[Sl.W]!;
     },
     get height() {
-      return s[H]!;
+      return s[Sl.H]!;
     },
     /** Drag by a screen delta (px): follows at once, no easing. */
     pan(dx: number, dy: number) {
       if (!(dx - dx === 0 && dy - dy === 0)) return;
-      s[FX] = s[FX]! - dx / s[Z]!;
-      s[FY] = s[FY]! - dy / s[Z]!;
-      s[GX] = s[GX]! - dx / s[GZ]!;
-      s[GY] = s[GY]! - dy / s[GZ]!;
+      s[Sl.FX] = s[Sl.FX]! - dx / s[Sl.Z]!;
+      s[Sl.FY] = s[Sl.FY]! - dy / s[Sl.Z]!;
+      s[Sl.GX] = s[Sl.GX]! - dx / s[Sl.GZ]!;
+      s[Sl.GY] = s[Sl.GY]! - dy / s[Sl.GZ]!;
       go();
     },
     /** Back to the page as it is (zoom 1, no offset), eased. */
     home() {
-      s[GX] = s[PX]!;
-      s[GY] = s[PY]!;
-      s[GZ] = 1;
+      s[Sl.GX] = s[Sl.PX]!;
+      s[Sl.GY] = s[Sl.PY]!;
+      s[Sl.GZ] = 1;
       go();
     },
     /** Screen (stage box px) to world, into `out` (no allocation). */
     toWorld<T extends { [i: number]: number }>(x: number, y: number, out: T): T {
-      out[0] = s[FX]! + (x - s[PX]!) / s[Z]!;
-      out[1] = s[FY]! + (y - s[PY]!) / s[Z]!;
+      out[0] = s[Sl.FX]! + (x - s[Sl.PX]!) / s[Sl.Z]!;
+      out[1] = s[Sl.FY]! + (y - s[Sl.PY]!) / s[Sl.Z]!;
       return out;
     },
     get zoom() {
-      return s[Z]!;
+      return s[Sl.Z]!;
     },
     /** Still easing toward the target. */
     get moving() {
-      return s[MOVE]! > 0;
+      return s[Sl.MOVE]! > 0;
     },
     read() {
-      if (s[MEASURE]) measure();
-      if (s[MOVE]) s[JUMP] = +still();
+      if (s[Sl.MEASURE]) measure();
+      if (s[Sl.MOVE]) s[Sl.JUMP] = +still();
     },
     step(e: Engine, dt: number) {
-      if (!s[MOVE]) return;
-      const a = s[JUMP] ? 1 : 1 - Math.exp(-rate * dt);
-      s[Z] = s[Z]! + (s[GZ]! - s[Z]!) * a;
-      s[FX] = fit(s[FX]! + (s[GX]! - s[FX]!) * a, s[PX]!, s[Z]!, s[W]!);
-      s[FY] = fit(s[FY]! + (s[GY]! - s[FY]!) * a, s[PY]!, s[Z]!, s[H]!);
+      if (!s[Sl.MOVE]) return;
+      const a = s[Sl.JUMP] ? 1 : 1 - Math.exp(-rate * dt);
+      s[Sl.Z] = s[Sl.Z]! + (s[Sl.GZ]! - s[Sl.Z]!) * a;
+      s[Sl.FX] = fit(s[Sl.FX]! + (s[Sl.GX]! - s[Sl.FX]!) * a, s[Sl.PX]!, s[Sl.Z]!, s[Sl.W]!);
+      s[Sl.FY] = fit(s[Sl.FY]! + (s[Sl.GY]! - s[Sl.FY]!) * a, s[Sl.PY]!, s[Sl.Z]!, s[Sl.H]!);
       // Settled: within a 50th of a pixel and a 10,000th of a zoom step; land exactly on the target.
-      if (Math.abs(s[GZ]! - s[Z]!) < 1e-4 && Math.abs(s[GX]! - s[FX]!) * s[Z]! < 0.02 && Math.abs(s[GY]! - s[FY]!) * s[Z]! < 0.02)
-        (s[FX] = s[GX]!), (s[FY] = s[GY]!), (s[Z] = s[GZ]!), (s[MOVE] = 0);
+      if (Math.abs(s[Sl.GZ]! - s[Sl.Z]!) < 1e-4 && Math.abs(s[Sl.GX]! - s[Sl.FX]!) * s[Sl.Z]! < 0.02 && Math.abs(s[Sl.GY]! - s[Sl.FY]!) * s[Sl.Z]! < 0.02)
+        (s[Sl.FX] = s[Sl.GX]!), (s[Sl.FY] = s[Sl.GY]!), (s[Sl.Z] = s[Sl.GZ]!), (s[Sl.MOVE] = 0);
       e.busy();
     },
     render() {
-      const z = s[Z]!, x = s[PX]! - s[FX]! * z, y = s[PY]! - s[FY]! * z;
-      if (x === s[RX] && y === s[RY] && z === s[RZ]) return;
-      s[RX] = x;
-      s[RY] = y;
-      s[RZ] = z;
+      const z = s[Sl.Z]!, x = s[Sl.PX]! - s[Sl.FX]! * z, y = s[Sl.PY]! - s[Sl.FY]! * z;
+      if (x === s[Sl.RX] && y === s[Sl.RY] && z === s[Sl.RZ]) return;
+      s[Sl.RX] = x;
+      s[Sl.RY] = y;
+      s[Sl.RZ] = z;
       const L = engine.ledger, home = Math.abs(x) < 0.005 && Math.abs(y) < 0.005 && Math.abs(z - 1) < 1e-6;
-      if (s[CLIP] === 1 && !home) L.style(parent!, "overflow", "clip");
+      if (s[Sl.CLIP] === 1 && !home) L.style(parent!, "overflow", "clip");
       L.style(el, "transform-origin", home ? "" : "0 0");
       L.style(el, "transform", home ? "" : `translate(${x.toFixed(2)}px,${y.toFixed(2)}px) scale(${z.toFixed(4)})`);
       L.style(el, "will-change", home ? "" : "transform");

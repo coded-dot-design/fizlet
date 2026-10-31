@@ -70,7 +70,7 @@ const fmt = (i: number) => {
   return k >= 0 && k < 1024 ? (cache[t]![k] ??= t ? ((k / 10) | 0) + "." + (k % 10) : "" + k) : "" + Math.round(out[i]!);
 };
 // Running numbers in one typed array: updating them never boxes a number.
-const WT = 0, WN = 1, WS = 2, DROP = 3, FRAMES = 4;
+const enum Sl { WT = 0, WN = 1, WS = 2, DROP = 3, FRAMES = 4 }
 const LABELS = ["FPS", "MS", "DROP", "WORK", "LIVE", "MB"];
 // Board UI tokens: go / hurt / critical bars (under 1.25, 2 and over 2 budgets), the budget line.
 const VARS = ["--k-go", "--hurt", "--critical", "--line"], TONES = ["#39ffb0", "#ffc21a", "#f0506e", "#3b3170"];
@@ -99,11 +99,11 @@ export function perf(engine: Engine, o: PerfOptions = {}) {
   let on = false, dead = false;
 
   const write = () => {
-    const n = s[WN]!, heap = (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory;
-    out[0] = n ? (n * 1000) / s[WT]! : 0;
-    out[1] = n ? s[WT]! / n : 0;
-    out[2] = s[DROP]!;
-    out[3] = n ? s[WS]! / n : 0;
+    const n = s[Sl.WN]!, heap = (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory;
+    out[0] = n ? (n * 1000) / s[Sl.WT]! : 0;
+    out[1] = n ? s[Sl.WT]! / n : 0;
+    out[2] = s[Sl.DROP]!;
+    out[3] = n ? s[Sl.WS]! / n : 0;
     out[4] = engine.live;
     out[5] = heap ? heap.usedJSHeapSize / 1048576 : 0;
     for (let i = 0; i < 6; i++) L.text(texts[i]!, i < 5 || heap ? fmt(i) : "--");
@@ -127,14 +127,14 @@ export function perf(engine: Engine, o: PerfOptions = {}) {
       const d = clock[0]! * 1000, w = clock[1]!;
       if (!(d > 0)) return; // the first frame after a pause or a settle has no interval
       ring.push(d);
-      s[WT]! += d;
-      s[WN]!++;
-      s[WS]! += w;
-      s[DROP]! += missed(d, budget);
-      s[FRAMES]!++;
-      if (s[WT]! >= WINDOW) {
+      s[Sl.WT]! += d;
+      s[Sl.WN]!++;
+      s[Sl.WS]! += w;
+      s[Sl.DROP]! += missed(d, budget);
+      s[Sl.FRAMES]!++;
+      if (s[Sl.WT]! >= WINDOW) {
         if (on) write();
-        s[WT] = s[WN] = s[WS] = 0;
+        s[Sl.WT] = s[Sl.WN] = s[Sl.WS] = 0;
       }
       if (on) draw();
     },
@@ -180,11 +180,11 @@ export function perf(engine: Engine, o: PerfOptions = {}) {
     },
     /** Frames recorded (0-length frames after a pause are not frames). */
     get frames() {
-      return s[FRAMES]!;
+      return s[Sl.FRAMES]!;
     },
     /** Dropped frames so far. */
     get dropped() {
-      return s[DROP]!;
+      return s[Sl.DROP]!;
     },
     /** Remove the overlay, its key and its system; the engine keeps running. */
     destroy,

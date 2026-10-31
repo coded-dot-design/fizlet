@@ -3,12 +3,13 @@
  * offset/client/scroll sizes, computed style) made while the engine is in its STEP phase, the
  * contract's "no layout reads in the tick". Never ship this in a production build.
  */
-import { STEP, type Engine } from "./kernel/engine";
+import { type Engine } from "./kernel/engine";
+import { P } from "./kernel/phases";
 
 const guarded = new Set<Engine & { violations?: number }>();
 let patched = false;
 function hit() {
-  for (const e of guarded) if (e.phase === STEP) e.violations = (e.violations ?? 0) + 1;
+  for (const e of guarded) if (e.phase === P.STEP) e.violations = (e.violations ?? 0) + 1;
 }
 function patch() {
   if (patched || typeof Element !== "function") return;
