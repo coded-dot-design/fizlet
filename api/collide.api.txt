@@ -11,12 +11,12 @@ export declare class Grid {
     rows: number;
     readonly cap: number;
     readonly nodes: number;
-    private head;
-    private readonly next;
-    private readonly ids;
-    private readonly stamp;
-    private used;
-    private mark;
+    private h;
+    private readonly n;
+    private readonly d;
+    private readonly s;
+    private u;
+    private k;
     dropped: number;
     rejected: number;
     truncated: number;
@@ -24,13 +24,13 @@ export declare class Grid {
     constructor(cell: number, cap: number, w: number, h: number, nodes?: number);
     resize(w: number, h: number): void;
     clear(): void;
-    private readonly at;
+    private readonly a;
     insert(id: number, x: number, y: number, r: number): void;
-    private put;
+    private p;
     add(x: Nums, y: Nums, r: Nums, i: number): void;
     near(x: Nums, y: Nums, r: Nums, i: number, out: Int32Array, pad?: number): number;
     query(x: number, y: number, r: number, out: Int32Array): number;
-    private scan;
+    private q;
 }
 export declare const circles: (ax: number, ay: number, ar: number, bx: number, by: number, br: number) => boolean;
 export declare function overlap(x: Nums, y: Nums, r: Nums, i: number, j: number): boolean;

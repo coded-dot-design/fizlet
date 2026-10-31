@@ -7,11 +7,15 @@
   (`.github/workflows/release.yml`, `npm publish --provenance --access public`) checks, packs and
   skips the publish with a warning until then. No version bump here.
   - **API snapshots** (`npm run api:check` / `api:write`, `scripts/api-snapshot.mjs`, tested in
-    `tests/api-snapshot.test.mjs`): `api/<brick>.api.txt` holds the public types of each of the 14
+    `tests/api-snapshot.test.mjs`): `api/<brick>.api.txt` holds the public types of each of the 15
     COMPLETE bricks, from the built declarations with comments stripped, following their
     re-exports and the BETA types they name (arcade → board-page). CI (`--base HEAD^`) fails when a
     snapshot is stale, or when one changed and this section does not name the brick. The release
     workflow checks they match the tag.
+    Taken on main after release train 2 (#166): the private fields it shortened in
+    `fizlet/collide` (`Grid`) and the Kernel (`Ledger`) show in the snapshots, the public API is
+    unchanged; `fizlet/board-page` gets its own snapshot now that it is COMPLETE, and
+    `fizlet/arcade`'s no longer repeats board-page's types.
   - **Pack smoke** (`npm run test:pack`) now also proves: every built entry is in `exports`, with
     `types` first next to its `.js`; the tarball holds every export target and nothing outside the
     whitelist (no sources, no maps); every subpath typechecks under Bundler as well as NodeNext

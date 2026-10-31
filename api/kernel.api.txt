@@ -121,10 +121,10 @@ export declare class EventRing {
 ### dist/kernel/ledger.d.ts
 type El = HTMLElement | SVGElement;
 export declare class Ledger {
-    private readonly texts;
-    private readonly els;
-    private readonly added;
-    private entry;
+    private readonly t;
+    private readonly m;
+    private readonly a;
+    private e;
     text(node: CharacterData, value: string): boolean;
     style(el: El, prop: string, value: string, priority?: string): boolean;
     unstyle(el: El, prop: string): boolean;
