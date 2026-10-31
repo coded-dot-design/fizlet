@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Site and README: `@fzlt/core` is on npm (0.21.2, 2026-10-31), so the home quick start, the brick
+  pages and the docs drop "coming soon" / "not published yet", and the README's pre-publish note
+  says when it went out. Building from source stays as the no-npm option.
 - **Site: smaller gallery pages, same pixels** (size sprint, re-based #208). The gallery stages' inline
   PNG posters are packed losslessly (`scripts/png-pack.mjs`: an indexed PNG at the smallest bit depth,
   pixels compared after packing; kept as-is past 256 colours; `scripts/gallery-posters.mjs` packs what
