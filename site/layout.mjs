@@ -225,7 +225,7 @@ ${body}
     <div class="foot-brand">
       <a class="brand" href="${home}">
         <span class="brand-mark">${mark(40)}</span>
-        <span class="brand-text"><small>DOM ENGINE</small><b>FIZLET</b></span>
+        <span class="brand-text"><small>DOM ENGINE</small><b>FIZLET<i class="brand-fzlt">fzlt™</i></b></span>
       </a>
       <p>Tiny physics for your page. Fizlet™ is the building blocks for animation and games on the DOM, by <a href="${AUTHOR}">Chris Cooley ↗</a>. Bring the logic and style; the bricks do the rest, and the page always comes back.</p>
       <p class="foot-note"><a href="${HUB}">DOM VIRUS ↗</a> is one use of the bricks: its games run on Fizlet.</p>
