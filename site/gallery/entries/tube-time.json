@@ -1,0 +1,21 @@
+{
+  "id": "tube-time",
+  "date": "2026-10-31",
+  "prompt": "inside the barrel: hold to pump toward the light, let go and the wave drags you back toward the foam ball; ride the wandering green pocket for points and last ten seconds to get spat out in a blast of mist",
+  "title": "Tube Time",
+  "kind": "micro",
+  "theme": "surf-sesh",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot",
+    "fizlet/sound"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/surf/tube-time.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
