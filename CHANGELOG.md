@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Site footer: the family line.** The site map's "Built on it" list is now "DOM VIRUS family": the same four sites, in the same order, as every family footer: DOM VIRUS (domvirus.com), DOM Battlefield, Battlefield Blitz and Built with Fizlet (this site, no ↗). One source: `FAMILY_LINE` in `site/layout.mjs`. No other host goes into sitemap.xml. `test:site` checks the line on every page with the footer.
 - **Website: the FILET game factory, a full-screen hero at the top of /bricks/** (`site/factory/`).
   The real bricks (kernel, input, fx, sound, grid, steer, hud, timeline, sprite, collide, slot), each
   in its token with its size measured on this build, stand stacked, get knocked over, and go on a

@@ -13,7 +13,7 @@ import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
 import { checkHtml } from "../scripts/check-html.mjs";
 import { checkNav } from "../scripts/check-nav.mjs";
-import { SITE, ROOT as SITE_ROOT } from "../site/layout.mjs";
+import { FAMILY_LINE, SITE, ROOT as SITE_ROOT } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
 import { entries as galleryEntries, isLive, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
@@ -185,6 +185,9 @@ try {
         hits.set(to, (hits.get(to) ?? 0) + 1);
         if (to === path && path !== "") assert.match(attrs, /aria-current="page"/, `${path}: its own footer link is aria-current="page"`);
       }
+      // The family line (layout.mjs FAMILY_LINE): the four family sites, in order, ↗ on all but this one.
+      const family = foot.match(/<span class="map-label">DOM VIRUS family<\/span><ul>([\s\S]*?)<\/ul>/)?.[1] ?? "";
+      assert.deepEqual([...family.matchAll(/<a href="([^"]*)">([^<]*)<\/a>/g)].map((m) => [m[1], m[2]]), FAMILY_LINE.map(([href, label]) => [href, href === SITE ? label : `${label} ↗`]), `${path || "index"}: the family line`);
       for (const r of routes) assert.equal(hits.get(r) ?? 0, 1, `${path || "index"}: footer links ${r || "home"} exactly once`);
       for (const h of hidden) assert.ok(!hits.has(h), `${path || "index"}: footer does not link the hidden page ${h}`);
       for (const to of hits.keys()) assert.ok(routes.includes(to), `${path || "index"}: footer links ${to}, which is not in the sitemap`);
