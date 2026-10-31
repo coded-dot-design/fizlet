@@ -2901,12 +2901,91 @@ html.bui[data-theme="light"] .phases b {
   }
 }
 /* ---------- People (/people/) and the daily contest (/contest/): kit tokens, panels, stickers ---------- */
+/* Avatar tokens (scripts/people.mjs AVATAR_PALETTE): fixed Board UI colors and mixes of two, so a
+   sprite reads the same in both themes. Ramps run light, base, shadow; the ground is dark. */
+:root {
+  --av-bg: color-mix(in srgb, var(--k-cmd) 10%, var(--rim));
+  --av-k: var(--rim);
+  --av-w: var(--k-flag);
+  --av-e: color-mix(in srgb, var(--k-flag) 72%, var(--k-cmd));
+  --av-f: color-mix(in srgb, var(--k-cmd) 45%, var(--rim));
+  --av-C: color-mix(in srgb, var(--k-sys) 55%, var(--k-flag));
+  --av-c: var(--k-sys);
+  --av-s: color-mix(in srgb, var(--k-sys) 45%, var(--k-cmd));
+  --av-P: color-mix(in srgb, var(--k-cmd) 60%, var(--k-flag));
+  --av-p: var(--k-cmd);
+  --av-q: color-mix(in srgb, var(--k-cmd) 58%, var(--rim));
+  --av-R: var(--k-aim);
+  --av-r: var(--k-fire);
+  --av-d: color-mix(in srgb, var(--k-fire) 60%, var(--rim));
+  --av-M: color-mix(in srgb, var(--k-attack) 60%, var(--k-flag));
+  --av-m: var(--k-attack);
+  --av-n: color-mix(in srgb, var(--k-attack) 60%, var(--rim));
+  --av-O: color-mix(in srgb, var(--hurt) 50%, var(--k-advance));
+  --av-o: var(--k-advance);
+  --av-u: color-mix(in srgb, var(--k-advance) 62%, var(--rim));
+  --av-Y: color-mix(in srgb, var(--hurt) 50%, var(--k-flag));
+  --av-y: var(--hurt);
+  --av-t: color-mix(in srgb, var(--hurt) 35%, var(--k-advance));
+  --av-L: color-mix(in srgb, var(--k-fallin) 55%, var(--k-flag));
+  --av-l: var(--k-fallin);
+  --av-j: color-mix(in srgb, var(--k-fallin) 30%, var(--k-go));
+  --av-G: color-mix(in srgb, var(--k-go) 55%, var(--k-flag));
+  --av-g: var(--k-go);
+  --av-h: color-mix(in srgb, var(--k-go) 55%, var(--rim));
+  --av-a: color-mix(in srgb, var(--k-flag) 30%, var(--rim));
+  --av-i: color-mix(in srgb, var(--k-flag) 15%, var(--rim));
+  --av-b: color-mix(in srgb, var(--k-cmd) 20%, var(--rim));
+}
 .ppl-av {
   display: block;
+  grid-area: 1 / 1;
   image-rendering: pixelated;
+  transition: opacity 700ms ease-in-out;
+}
+/* Every frame stacked; the first shows. site/site.ts moves .on every ~4 s while the card is on
+   screen and the tab is visible; never under reduced motion. */
+.ppl-frame > .ppl-av:not(.on) {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ppl-av {
+    transition: none;
+  }
+}
+.ppl-av-wrap {
+  position: relative;
+  justify-self: start;
+  align-self: start;
+}
+/* The sticker on the avatar's corner, tilted, styled like the kit's slam sticker (.bui-sticker). */
+.ppl-sticker {
+  --tone: var(--k-cmd);
+  position: absolute;
+  right: -12px;
+  bottom: -8px;
+  padding: 4px 8px 3px;
+  font: 900 11px/1 var(--mono);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  color: var(--rim);
+  background: var(--tone);
+  border: 2.5px solid var(--rim);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--rim);
+  rotate: -6deg;
+}
+.ppl-sticker-agent {
+  --tone: var(--k-sys);
+}
+.ppl-sticker-persona {
+  --tone: var(--k-attack);
+}
+.ppl-sticker-owner {
+  --tone: var(--k-go);
 }
 .ppl-frame {
-  display: inline-block;
+  display: grid;
   padding: 6px;
   background: var(--rim);
   border: 2px solid var(--k-sys);
@@ -2935,11 +3014,27 @@ html.bui[data-theme="light"] .phases b {
 }
 .ppl-role {
   margin: 0;
-  font: 700 13px/1.5 var(--mono);
+  font: 700 12px/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-wrap: balance;
   color: var(--k-sys-ink);
 }
-.ppl-persona,
-.ppl-owner,
+.ppl-tagline {
+  margin: 0;
+  font-size: 15px;
+  font-style: italic;
+  color: var(--ink);
+}
+.ppl-reports {
+  margin: 0;
+  font: 12px/1.4 var(--mono);
+  color: var(--muted);
+}
+.ppl-reports a {
+  font-weight: 700;
+  color: var(--ink);
+}
 .ct-note {
   display: flex;
   flex-wrap: wrap;
@@ -2951,19 +3046,6 @@ html.bui[data-theme="light"] .phases b {
   color: var(--ink);
   border: 2px dashed var(--k-attack);
   border-radius: 8px;
-}
-.ppl-persona,
-.ppl-owner,
-.ppl-frame {
-  justify-self: start;
-}
-.ppl-persona,
-.ppl-owner {
-  display: block;
-}
-.ppl-owner {
-  border-color: var(--k-go);
-  border-style: solid;
 }
 .ct-note {
   border-color: var(--k-advance);
@@ -3073,17 +3155,19 @@ html.bui[data-theme="light"] .phases b {
 .ppl-tile {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 20px;
+  gap: 24px;
   align-items: start;
-  padding: 20px;
+  padding: 22px 22px 24px;
 }
-.ppl-tile > div {
+.ppl-tile-body {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
 }
 .ppl-tile h2 {
-  font-size: clamp(22px, 2.6vw, 30px);
+  margin: 0 0 2px;
+  font-size: clamp(24px, 2.6vw, 30px);
+  line-height: 1.1;
 }
 .ppl-tile h2 a {
   color: var(--ink);
@@ -3091,12 +3175,30 @@ html.bui[data-theme="light"] .phases b {
 .ppl-tile p {
   margin: 0;
 }
-.ppl-count {
-  font: 12px var(--mono);
+.ppl-tile .ppl-count {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.ppl-count span {
+  padding: 4px 9px;
+  font: 11px/1.4 var(--mono);
+  letter-spacing: 0.04em;
   color: var(--muted);
+  background: var(--raised);
+  border: 2px solid var(--line);
+  border-radius: 6px;
 }
 .ppl-count b {
+  font-size: 13px;
   color: var(--ink);
+}
+@media (max-width: 600px) {
+  .ppl-tile {
+    gap: 18px;
+    padding: 18px 18px 20px;
+  }
 }
 .win-badge {
   display: inline-flex;
