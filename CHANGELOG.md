@@ -177,11 +177,14 @@
   the box shape (`div.ae-slot`) the `aria-label` now sits on a role that takes a name. slot 1,819 →
   1,822 B gz, page build 7,128 → 7,131 B.
 - **`@fzlt/core/fx`: word particles no longer allocate per frame, and a word kind sprays a range**
-  (fizlet#209). `draw()` built a new font string for every word particle on every frame (1,409
-  B/frame on the 2015 headphones arcade); each pixel size's string is now built once and kept (a
-  word spray drawn for 100k frames: 0 young GCs, was 40). `emit()` takes an optional word range
-  `w, wn` after `scale`, like the colour range (it only ever sprayed `words[0]`). Additive; fx
-  2,797 → 2,823 B gz, page build 7,128 → 7,154 B (cap 7,168).
+  (fizlet#209, pending owner review). `draw()` built a new font string for every word particle on
+  every frame (1,409 B/frame on the 2015 headphones arcade); each pixel size's string is now built
+  once and kept. And `fillText`/`strokeText` box a fractional x, y in Chromium (12 B a call), so a
+  word now draws at 0, 0 after a `translate`, as a turned particle already did. A 60-word spray in
+  Chromium 153 (CDP heap sampling, as `measureAnim`): 3,833 → 0.6 B/frame; in Node, 100k drawn
+  frames: 40 → 0 young GCs. `emit()` takes an optional word range `w, wn` after `scale`, like the
+  colour range (it only ever sprayed `words[0]`). Additive. fx 2,797 → 2,829 B gz, page build
+  7,128 → 7,163 B (cap 7,168).
 
 ## 0.21.2
 
