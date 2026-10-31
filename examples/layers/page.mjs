@@ -9,8 +9,8 @@ const kb = (b) => `${(b / 1024).toFixed(1)} KB`;
 export function page({ figure, css, loader, measured: m, sizes }) {
   const caption = m
     ? `Live chunk ${kb(m.bytes.live)} gzip (slot + scene, one file), loaded only once the slot is near. Inline poster and loader ${kb(m.bytes.poster)}. ` +
-      `At 4× CPU throttle, script per frame ${m.frame.p50} ms median, ${m.frame.p95} ms p95, capped at ${m.frame.fps} fps. ` +
-      `Layout shift ${m.cls}. Settled: ${m.settledFrames} frames. Measured in Chromium ${m.chromium.split(".")[0]} on Fizlet ${m.version}.`
+      `At 4× CPU throttle, script per frame over one loop ${m.frame.p50} ms median, ${m.frame.p95} ms p95, capped at ${m.frame.fps} fps. ` +
+      `Layout shift ${m.cls}. Paused: ${m.settledFrames} frames. Measured in Chromium ${m.chromium.split(".")[0]} on Fizlet ${m.version}.`
     : "Not measured yet: run node site/demos/layers/measure.mjs.";
   return `<!doctype html>
 <html lang="en" class="bui" data-theme="dark">
@@ -37,7 +37,7 @@ ${css}
 <main>
 <p class="k">Layers</p>
 <h1>A game is a stack.<br><em>Each layer, one brick.</em></h1>
-<p>Scroll, and Battlefield Blitz turns sideways and lifts apart into its layers, one at a time, each labelled with the bytes its own code costs. One layer faults, a scan patches it, and the stack snaps back into the game. It follows your scroll and never holds it; focus it and the arrow keys step through the layers.</p>
+<p>Battlefield Blitz turns sideways and lifts apart into its layers, one at a time, each labelled with the bytes its own code costs. One layer faults, a scan patches it, and the stack snaps back into the game. It plays on its own; the play key pauses it. Scroll or swipe over it to fan the layers by hand (it holds the page while you do, like every demo here), or focus it and step through with the arrow keys.</p>
 ${figure}
 <p class="cap">${sizeBadge(sizes.live, "demos/layers/layers.js", "the layers scene, its live chunk")}</p>
 <p class="cap">${caption}</p>

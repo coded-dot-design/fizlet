@@ -23,6 +23,7 @@ npm i @fzlt/core
 
 Fizlet on npm is `@fzlt/core` (the `fzlt` org; npm refused `fizlet` and `fzlt` as too close to existing
 names). The project, repo and site are still Fizlet.
+Fizlet is not affiliated with the `figlet` or `flat` packages.
 
 ```ts
 import { createEngine } from "@fzlt/core"; // the kernel

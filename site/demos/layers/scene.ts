@@ -4,12 +4,11 @@
  * a scan patches it, it flashes green, and the stack snaps back into the game. Built on the kernel
  * (settle + fps cap) and @fzlt/core/sprite; mounted by @fzlt/core/slot (see entry.ts).
  *
- * Scroll-linked, never scroll-jacked: the story's position follows the figure's position in the
- * viewport (one getBoundingClientRect per frame in the read phase, frames only while it is on screen
- * and moving). The scroll and resize listeners are passive and only wake the engine: the page scrolls
- * as it always does. When the shown position reaches the scroll's, nothing is busy and the kernel
- * settles (no requestAnimationFrame at all). Keyboard: the figure takes focus; arrows (and Home/End)
- * step through the layers, one stop per label; a scroll hands it back to the scroll.
+ * It plays on its own, LOOPS times round, while the figure is on screen, then rests on the game frame
+ * and the kernel settles (off screen nothing runs either). The play key pauses and resumes it. A wheel or a vertical swipe over the figure steps
+ * the story by hand (the figure holds the page's scroll, like the site's other demo frames; the
+ * site's scroll-lock note says why) and pauses it; scrolling down fans the layers out. Keyboard: the
+ * figure takes focus; arrows (and Home/End) step through the layers, one stop per label.
  *
  * The game is a pure function of the story time: the tanks drive fixed loops, their shots are
  * worked out once at mount and a hit's blast is a ring sized by the time since it, so a scroll
@@ -21,8 +20,8 @@ import { spriteURL, type SpriteDef } from "../../../src/sprite";
 import type { SlotMount, SlotScene } from "../../../src/slot";
 import { FAULT, fit, COLS, ROWS, CELL, BW, BH, MAP, TILT, TURN } from "./data";
 
-// The story in seconds of story time; the scroll maps onto 0–END.
-const PLAY = 0.8, OPEN = 2.4, LIFT = 0.45, RISE = 0.7, FAULT_AT = 6.8, SCAN_AT = 7.5, SCAN_END = 8.9, OK_END = 9.6, FOLD_AT = 10, CLOSED = 11.4, END = 12.4;
+// The story in seconds of story time; it loops at END. WHEEL: wheel (or swipe) pixels per second of story.
+const PLAY = 0.8, OPEN = 2.4, LIFT = 0.45, RISE = 0.7, FAULT_AT = 6.8, SCAN_AT = 7.5, SCAN_END = 8.9, OK_END = 9.6, FOLD_AT = 10, CLOSED = 11.4, END = 12.4, WHEEL = 90, LOOPS = 3;
 /** Layer ids, bottom to top (data.ts LAYERS; the labels' text comes from the poster's own). */
 const IDS = "grid characters movement collision rules fx input hud".split(" ");
 const N = IDS.length, TANKS = 4, SHOTS = 40;
@@ -169,26 +168,39 @@ export function mount(stage: HTMLElement, fig: HTMLElement = stage): SlotScene {
       }
     }
 
-  // ---------- the story clock: shown time T[0] eases to the scroll's T[1] ----------
-  // T: shown, target, keyboard (1: the keys own the target until the next scroll), first read done.
-  const T = new Float64Array(4);
+  // ---------- the story clock ----------
+  // T: shown time, target time, playing (1/0), on screen (1/0), loops played.
+  const T = new Float64Array(5);
+  T[2] = 1;
+  const btn = fig.querySelector<HTMLElement>(".lyr__play");
+  const play = (on: boolean) => {
+    T[2] = +on;
+    if (on) T[4] = 0;
+    if (on && T[1]! >= END) T[0] = T[1] = 0;
+    if (btn) engine.ledger.attr(btn, "aria-label", on ? "Pause" : "Play");
+    engine.wake();
+  };
+  /** Step by hand (wheel, swipe, keys): pause, move the target, keep it in the story. */
+  const to = (t: number) => {
+    if (T[2]) play(false);
+    engine.ledger.attr(fig, "data-scrubbed", "");
+    T[1] = Math.min(END, Math.max(0, t));
+    engine.wake();
+  };
   const stop = (dir: number) => {
     let k = dir > 0 ? 0 : STOPS.length - 1;
     while (STOPS[k] !== undefined && (dir > 0 ? STOPS[k]! <= T[1]! + 0.01 : STOPS[k]! >= T[1]! - 0.01)) k += dir;
     return STOPS[k] ?? T[1]!;
   };
   engine.add({
-    read() {
-      if (T[2]) return;
-      // The figure's place in the viewport: the story starts as its middle rises past 85% of the
-      // viewport and ends as it reaches 25% (sooner if the page can't scroll that far). The story
-      // lasts at least 40% of a viewport of scrolling.
-      const r = fig.getBoundingClientRect(), y = scrollY, vh = innerHeight, mid = r.top + r.height / 2 + y;
-      const a = Math.max(0, mid - vh * 0.85), b = Math.min(Math.max(a + vh * 0.4, mid - vh * 0.25), document.documentElement.scrollHeight - vh);
-      T[1] = b - a > 40 ? Math.min(1, Math.max(0, (y - a) / (b - a))) * END : 0;
-      if (!T[3]) (T[3] = 1), (T[0] = T[1]!); // first frame: no story to play back from 0
-    },
     step(e, dt) {
+      if (T[2] && T[3]) {
+        // Playing: the story runs at real time and loops (the end and the start are both the game);
+        // after LOOPS it rests on the game frame, and play starts it again.
+        T[0] = T[1] = T[1]! + dt >= END ? 0 : T[1]! + dt;
+        if (T[1] === 0 && ++T[4]! >= LOOPS) return play(false);
+        return e.busy();
+      }
       const d = T[1]! - T[0]!;
       T[0] = Math.abs(d) < 0.004 ? T[1]! : T[0]! + d * Math.min(1, dt * 9);
       if (T[0] !== T[1]) e.busy();
@@ -261,19 +273,46 @@ export function mount(stage: HTMLElement, fig: HTMLElement = stage): SlotScene {
       if (hudB.textContent !== pb) hudB.textContent = pb;
     },
   });
-  // The scroll and resize only wake the engine (passive: the page scrolls as it always does); a scroll
-  // hands the story back from the keys.
-  const on = { passive: true, signal: engine.signal };
-  addEventListener("scroll", () => ((T[2] = 0), engine.wake()), on);
-  addEventListener("resize", () => engine.wake(), on);
+  // Frames only while the figure is on screen.
+  const io = new IntersectionObserver((es) => ((T[3] = +es[es.length - 1]!.isIntersecting), engine.wake()));
+  io.observe(fig);
+  engine.signal.addEventListener("abort", () => io.disconnect());
+  const on = { signal: engine.signal };
+  addEventListener("resize", () => engine.wake(), { passive: true, signal: engine.signal });
+  btn?.addEventListener("click", () => play(!T[2]), on);
+  // A wheel over the figure steps the story (down fans the layers out); the page stays put.
+  fig.addEventListener("wheel", (ev) => {
+    if (ev.ctrlKey) return; // a trackpad pinch
+    ev.preventDefault();
+    const d = ev.deltaY || ev.deltaX;
+    to(T[1]! + (d * (ev.deltaMode === 1 ? 16 : ev.deltaMode === 2 ? innerHeight : 1)) / WHEEL);
+  }, { passive: false, signal: engine.signal });
+  // A finger (or a mouse drag) over the figure: up fans the layers out, like a scroll.
+  let py = NaN;
+  fig.addEventListener("pointerdown", (ev) => {
+    if (btn?.contains(ev.target as Node)) return;
+    py = ev.clientY;
+    fig.setPointerCapture?.(ev.pointerId);
+  }, on);
+  fig.addEventListener("pointermove", (ev) => {
+    if (py !== py) return;
+    const d = py - ev.clientY;
+    if (Math.abs(d) < 2) return;
+    py = ev.clientY;
+    to(T[1]! + d / WHEEL);
+  }, on);
+  const up = () => (py = NaN);
+  fig.addEventListener("pointerup", up, on);
+  fig.addEventListener("pointercancel", up, on);
   // Keys on the focused figure: step to the next or previous stop (a label, the fault, the patch).
   fig.addEventListener("keydown", (ev) => {
+    if (ev.target !== fig) return; // the play key's own Space and Enter
     const k = ev.key, dir = /Right|Down/.test(k) ? 1 : /Left|Up/.test(k) ? -1 : 0;
     if (!dir && k !== "Home" && k !== "End") return;
     ev.preventDefault();
-    (T[2] = 1), (T[1] = dir ? stop(dir) : k === "End" ? END : 0);
-    engine.wake();
-  }, { signal: engine.signal });
+    to(dir ? stop(dir) : k === "End" ? END : 0);
+  }, on);
+  play(true);
   engine.start();
   return { destroy: () => engine.destroy() };
 }
