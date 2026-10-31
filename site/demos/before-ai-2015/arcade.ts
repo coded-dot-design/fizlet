@@ -17,6 +17,10 @@ import { hud } from "../../../src/hud";
 import { createEngine } from "../../../src/kernel/index";
 
 const still = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+/** Where the Sound key's choice is kept ("on" / "off"). */
+export const MUTE_KEY = "fizlet:before-ai-2015:sound";
+/** The brick chips the column lights, in kit order: fx, sound, hud. */
+const BRICKS = ["fx", "sound", "hud"];
 const go = (a: number, b: number, perFrame: number): Seg => ({ a, b, n: Math.abs(b - a), d: Math.abs(b - a) * perFrame });
 // Visual randomness without garbage: a private LCG (Math.random returns a fresh heap number per call).
 const seed = new Uint32Array([Math.random() * 4294967296]);
@@ -57,15 +61,38 @@ const solo = (): Kit => {
 
 /** The column's arcade layer on `stage`: score, combo and best on the HUD in `bar`, sound with its
  *  mute key, and the stage shake. Its own engine: it sleeps when the combo and the shake are over. */
-export function kit(stage: HTMLElement, bar: HTMLElement | null, mute: HTMLButtonElement | null) {
+export function kit(stage: HTMLElement, bar: HTMLElement | null, mute: HTMLButtonElement | null, chips: ParentNode | null = null) {
   const e = createEngine({ root: stage, settle: 0.5 });
   const st = new Float64Array(5); // 0 score, 1 combo, 2 combo time left, 3 shake (px), 4 best combo
   const snd = mute ? sound(e, { cues: {}, volume: 0.16 }) : null;
   let shaking = false;
-  if (mute && snd) mute.addEventListener("click", () => {
-    snd.on = !snd.on;
-    e.ledger.attr(mute, "aria-pressed", "" + snd.on);
-  }, { signal: e.signal });
+  // The Sound key: the synth stays silent until a press (fizlet/sound waits for a trusted gesture);
+  // muting is kept for the next visit. Storage can throw (private mode, blocked): then it is per visit.
+  if (mute && snd) {
+    let saved: string | null = null;
+    try { saved = localStorage.getItem(MUTE_KEY); } catch {}
+    if (saved === "off") (snd.on = false), e.ledger.attr(mute, "aria-pressed", "false");
+    mute.addEventListener("click", () => {
+      snd.on = !snd.on;
+      e.ledger.attr(mute, "aria-pressed", "" + snd.on);
+      try { localStorage.setItem(MUTE_KEY, snd.on ? "on" : "off"); } catch {}
+    }, { signal: e.signal });
+  }
+  // The brick chips over the column: each lights while its brick acts (seconds left: fx, sound, hud).
+  const chip = BRICKS.map((b) => chips?.querySelector<HTMLElement>(`[data-brick="${b}"]`) ?? null);
+  const lit = new Float64Array(3), shown = new Uint8Array(3);
+  const light = (i: number) => chip[i] && ((lit[i] = 0.45), e.wake());
+  e.add({
+    step(en, dt) {
+      for (let i = 0; i < 3; i++) if (lit[i]! > 0 && (lit[i]! -= dt) > 0) en.busy();
+    },
+    render(en) {
+      for (let i = 0; i < 3; i++) {
+        const on = lit[i]! > 0 ? 1 : 0;
+        if (on !== shown[i]) (shown[i] = on), en.ledger.cls(chip[i]!, "lit", !!on);
+      }
+    },
+  });
   if (bar) {
     const h = hud(e, bar);
     h.num(".fz-score", [st, 0]);
@@ -94,11 +121,14 @@ export function kit(stage: HTMLElement, bar: HTMLElement | null, mute: HTMLButto
       st[2] = 1.1;
       st[0]! += pts * st[1]!;
       st[4] = Math.max(st[4]!, st[1]!);
+      light(2);
+      if (!still()) light(0);
       k.cue(st[1]! % 10 ? cue : "win");
       return st[1]!;
     },
     cue(c) {
       e.wake();
+      if (snd?.on) light(1);
       snd?.play(c);
     },
     shake(px) {
@@ -362,6 +392,6 @@ export function laptop(comp: HTMLElement, k: Kit = solo()) {
 /** Start the arcade column inside `root`. → its kit and the three strips (destroy() each to recall). */
 export function arcade(root: HTMLElement) {
   const $ = (s: string) => root.querySelector<HTMLElement>(s)!;
-  const k = kit($(".bt-stage"), root.querySelector(".fz-hud"), root.querySelector(".fz-mute"));
+  const k = kit($(".bt-stage"), root.querySelector(".fz-hud"), root.querySelector(".fz-mute"), root);
   return { kit: k, strips: [headphones($(".fz-beats"), k), coffee($(".fz-coffee"), k), laptop($(".fz-comp"), k)] };
 }
