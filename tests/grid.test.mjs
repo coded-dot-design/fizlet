@@ -239,3 +239,37 @@ test("grid: options are checked at setup (a bad size throws with its name, never
   const b = board(4, 3, { cell: 0.5 });
   assert.deepEqual([b.cols, b.rows, b.cell, b.at(1.2, 0.7)], [4, 3, 0.5, 6]);
 });
+
+// The probes run in a child with a time limit: before the fix some never returned, and a test must
+// fail on that, not hang the suite. Each case prints its error (or "returned").
+import { spawnSync } from "node:child_process";
+const GRID = JSON.stringify(new URL("../src/grid.ts", import.meta.url).href);
+function probe(cases) {
+  const body = cases.map((c) => `try { ${c}; console.log("returned"); } catch (e) { console.log(String(e)); }`).join("\n");
+  const r = spawnSync(process.execPath, ["--import", "tsx", "--input-type=module", "-e", `const { board } = await import(${GRID});\n${body}`], { encoding: "utf8", timeout: 5000, killSignal: "SIGKILL" });
+  assert.notEqual(r.signal, "SIGKILL", "a call never returned (an infinite loop)");
+  return r.stdout.trim().split("\n");
+}
+
+test("grid: a cell id that is not an integer on the board throws a named error, never hangs (S6 P2-01)", () => {
+  const out = new Int32Array(64), cases = [
+    // wrong answers before the fix (no hang): path(-1, 5) gave 6, los(0, 999) true
+    "board(16, 12).path(-1, 5, new Int32Array(64))", "board(16, 12).path(0, 192, new Int32Array(64))", "board(16, 12).los(0, 999)", "board(16, 12).hit(0, 192)",
+    // never returned before the fix
+    "board(16, 12).path(NaN, 5, new Int32Array(64))", "board(16, 12).path(1.5, 5, new Int32Array(64))", "board(16, 12).path('5', 7, new Int32Array(64))",
+    "board(16, 12).path(0, Infinity, new Int32Array(64))", "board(16, 12).path(0, 1.5, new Int32Array(64))",
+    "board(16, 12).flood(NaN, 3, new Int32Array(64))", "board(16, 12).flood(-1, 3, new Int32Array(64))",
+    "board(16, 12).los(0, 1.5)", "board(16, 12).los(NaN, 4)", "board(16, 12).los(null, 4)", "board(16, 12).hit(0, -Infinity)",
+  ];
+  probe(cases).forEach((l, i) => assert.match(l, /^RangeError: fizlet\/grid: cell \S+ is not on the board$/, cases[i]));
+  // Good ids, -0 included (it is cell 0), still search as before.
+  const b = board(16, 12);
+  assert.deepEqual([b.path(-0, 2, out), b.los(-0, 15), b.hit(0, 191), b.flood(0, 1, out)], [2, true, -1, 3]);
+});
+
+test("grid: zero-size or invalid boards are refused at construction with a named error (S6 P2-02)", () => {
+  const bad = [[0, 12], [null, 12], [12, null], [-0, 12], [undefined, 3], [2.5, 3], ["4", 3], [-1, 3], [{}, 3], [true, 3]];
+  for (const [c, r] of bad) assert.throws(() => board(c, r), { name: "RangeError", message: /^fizlet\/grid: cols, rows must be positive integers and cell > 0/ }, `${c}, ${r}`);
+  // On main 0.20.0, Board(null, 12) and Board(0, 12) built a 0-cell board whose searches never ended.
+  for (const l of probe(["board(null, 12).flood(0, 3, new Int32Array(64))", "board(0, 12).path(0, 1, new Int32Array(64))"])) assert.match(l, /^RangeError: fizlet\/grid: cols/);
+});
