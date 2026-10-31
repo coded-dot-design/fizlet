@@ -24,7 +24,7 @@ import { controls } from "../../../src/input";
 import { spriteURL, type SpriteDef } from "../../../src/sprite";
 import type { SlotMount, SlotScene } from "../../../src/slot";
 import { ORIGIN_WHY, ORIGIN_WHY_BEATS } from "./copy";
-import { why, art, CSS, BOX, C, VB, head, headT, hands, cupT, phonesT, cord, screenT, coverT } from "./art";
+import { why, art, CSS, BOX, C, VB, head, headT, hands, cupT, LIQUID, brew, phonesT, cord, screenT, coverT } from "./art";
 
 declare const __ORIGIN_BRICKS__: Record<string, number> | undefined;
 /** Brick → gzip bytes, measured by the build (scripts/sizes.mjs); empty when bundled elsewhere. */
@@ -56,6 +56,8 @@ export interface OriginState {
   bricks: boolean;
   sound: boolean;
   paused: boolean;
+  /** He is awake (head up). */
+  awake: boolean;
 }
 export interface OriginScene extends SlotScene {
   setMode(mode: OriginMode): void;
@@ -67,6 +69,12 @@ export interface OriginScene extends SlotScene {
   pause(): void;
   play(): void;
   readonly state: OriginState;
+  /** He drinks (when awake). */
+  sip(): void;
+  /** Nudge him awake (when asleep). */
+  nudge(): void;
+  /** Live particles and Zs floated so far (tests, the debug HUD). */
+  stats(): { particles: number; zzz: number };
 }
 
 // The day, in seconds of a 24 s loop (one second an hour).
@@ -74,7 +82,7 @@ const DAY = 24, DAWN = 2.4, WAKE = 4.2, NOON = 9, DUSK = 15.4, SLEEP = 19.2, RES
 // Pose slots (the wake and sip timelines write these): awake, headphones on, lid open, hands on keys, sip.
 const AW = 0, PH = 1, LID = 2, HD = 3, SIP = 4;
 // fx colours and words.
-const COLORS = [C.cream, C.red, C.sun, C.tealL, C.ink, "#ffffff"];
+const COLORS = [C.cream, C.red, C.sun, C.tealL, C.ink, "#ffffff", "#5a3526", "#b98a66"];
 const WORDS = ["♪", "♫", "z", "Z", "{ }", "</>", ";", "=>", "#"];
 const WORD = 4; // fx's word-shaped part
 let uid = 0; // each mount's own SVG ids (a poster or a second scene on the page has its own)
@@ -109,7 +117,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const layer = wrap.querySelector<HTMLElement>(".og-l")!, svg = layer.querySelector("svg")!, cv = layer.querySelector("canvas")!;
   const q = <T extends Element = SVGElement>(s: string) => svg.querySelector<T>(s)!;
   const qa = (s: string) => [...svg.querySelectorAll<SVGElement>(s)];
-  const headEl = q(".og-head"), phonesEl = q(".og-phones"), cordEl = q(".og-cord"), cupEl = q(".og-cup"), cupImg = q<SVGSVGElement>(".og-cupi");
+  const headEl = q(".og-head"), phonesEl = q(".og-phones"), cordEl = q(".og-cord"), cupEl = q(".og-cup"), cupImg = q(".og-cupimg"), liquid = q(".og-liquid"), body = q(".og-body");
   const armL = q(".og-arm-l"), armR = q(".og-arm-r"), handL = q(".og-hand-l"), handR = q(".og-hand-r");
   const screen = q(".og-screen"), cover = q(".og-cover"), scrl = q(".og-scrl"), laptop = q(".og-laptop");
   const scroll = q(".og-scroll"), caret = q(".og-caret"), arrow = q(".og-arrow"), sel = q(".og-sel"), shape = q(".og-shape");
@@ -142,17 +150,34 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
 
   // ---------- fx: one pool on one canvas ----------
   const fx = effects({ cap: 220, colors: COLORS, words: WORDS, scorch: 0 });
-  const { ids: { puff, chip }, emit } = emitter(fx, {
+  const { ids: { puff, chip, bub, splash }, emit } = emitter(fx, {
     puff: { shape: "disc", drag: 0.7, gravity: 0, angle: -1.5708, spread: 0.6, speed: [12, 24], size: [3, 6], life: [1.3, 2.1] },
     chip: { shape: "square", drag: 1.6, gravity: 0, angle: -1.5708, spread: 1.4, speed: [30, 70], size: [3, 5], life: [0.6, 1] },
+    bub: { shape: "ring", drag: 3, gravity: 0, angle: -1.5708, spread: 6.28, speed: [1, 5], size: [1.2, 2.4], life: [0.35, 0.8] },
+    splash: { shape: "square", drag: 2.4, gravity: 0, angle: 0, spread: 6.28, speed: [30, 80], size: [1.5, 3], life: [0.3, 0.6] },
   });
 
   // ---------- sound: events → cues (silent until a gesture; the Sound key mutes) ----------
-  const snd = sound(engine, { cues: { beat: "hit", key: "click", slurp: "fire", wake: "ready", sleep: "end" }, on: o.sound ?? true, volume: 0.1 });
+  const snd = sound(engine, {
+    cues: { beat: "kick", key: "tick", slurp: "slurp", clink: "clink", wake: "yawn", sleep: "end", nudge: "nudge" }, on: o.sound ?? true, volume: 0.3,
+    notes: {
+      kick: [[150, 48, 0.2, 0, "sine", 0.9], [2400, 1800, 0.03, 0, "square", 0.04]],
+      tick: [[2200, 1500, 0.018, 0, "square", 0.12]],
+      slurp: [[260, 820, 0.16, 0, "sawtooth", 0.16], [820, 420, 0.12, 0.15, "triangle", 0.2], [500, 700, 0.08, 0.3, "sawtooth", 0.1]],
+      clink: [[2600, 2500, 0.12, 0, "triangle", 0.4], [3900, 3800, 0.08, 0.01, "sine", 0.25]],
+      yawn: [[380, 240, 0.55, 0, "sine", 0.5], [240, 300, 0.5, 0.5, "triangle", 0.35]],
+      nudge: [[300, 200, 0.1, 0, "triangle", 0.5]],
+    },
+  });
 
   // ---------- input: taps on the props, the lid key ----------
-  const ctl = controls(engine, { keys: { lid: [], sip: [], music: [] }, target: layer });
-  const LIDK = ctl.id("lid"), SIPK = ctl.id("sip"), MUSK = ctl.id("music");
+  const ctl = controls(engine, { keys: { lid: [], sip: [], music: [], nudge: [] }, target: layer });
+  const LIDK = ctl.id("lid"), SIPK = ctl.id("sip"), MUSK = ctl.id("music"), NUDK = ctl.id("nudge");
+  body.addEventListener("keydown", (ev) => {
+    if ((ev as KeyboardEvent).key !== "Enter" && (ev as KeyboardEvent).key !== " ") return;
+    ev.preventDefault();
+    ctl.press("nudge"), ctl.press("nudge", false);
+  }, { signal: engine.signal });
   laptop.addEventListener("keydown", (ev) => {
     if ((ev as KeyboardEvent).key !== "Enter" && (ev as KeyboardEvent).key !== " ") return;
     ev.preventDefault();
@@ -178,14 +203,16 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     .to(P, { [AW]: [0, 1] }, { at: 0, dur: 0.9, ...io }).to(P, { [PH]: [0, 1] }, { at: 0.7, dur: 1, ...io })
     .to(P, { [LID]: [0, 1] }, { at: 1.4, dur: 0.7 }).to(P, { [HD]: [0, 1] }, { at: 1.9, dur: 0.5, ...io });
   // The sip: cup to his mouth, a slurp, back.
-  const sip = timeline(engine, { rate: speed, motion: true }).to(P, { [SIP]: [0, 1, 1, 0] }, { dur: 2.4, ...io }).label("slurp", 1.1);
+  const sip = timeline(engine, { rate: speed, motion: true }).to(P, { [SIP]: [0, 1, 1, 0] }, { dur: 2.4, ...io }).label("slurp", 1.1).label("clink", 2.3);
 
   // ---------- state ----------
   // N: clocks and counters (typed: the step writes them every frame without boxing).
   // beat timer, beats, key timer, steam timer, zzz timer, cup level, scroll, design cursor time, held at night (1), clock on (1), wake dir.
-  const N = new Float64Array(12);
+  const N = new Float64Array(16);
+  const HEAT = 12, STIR = 13, ZN = 14, ZC = 15;
   const BEAT = 0, BEATS = 1, KEY = 2, STEAM = 3, ZZZ = 4, LEVEL = 5, SCROLL = 6, DES = 7, HOLD = 8, CLOCK = 9, WDIR = 10, TYPE = 11;
   N[LEVEL] = 0.15;
+  N[HEAT] = 0;
   const T = new Float64Array(2); // typing offsets for the two hands
   function goWake(d: number) {
     N[WDIR] = d;
@@ -228,7 +255,20 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
         const inBox = (b: readonly number[]) => x >= b[0]! && x <= b[0]! + b[2]! && y >= b[1]! && y <= b[1]! + b[3]!;
         if (inBox(BOX.laptop)) ctl.press("lid"), ctl.press("lid", false);
         else if (inBox(BOX.cup)) ctl.press("sip"), ctl.press("sip", false);
+        else if (inBox(BOX.person) && P[AW]! < 0.5) ctl.press("nudge"), ctl.press("nudge", false);
         else if (inBox(BOX.phone) || inBox(BOX.phones)) ctl.press("music"), ctl.press("music", false);
+      }
+      if (ctl.hit(NUDK) && P[AW]! < 0.5 && N[WDIR]! <= 0 && N[STIR]! <= 0) {
+        e.events.emit("nudge");
+        if (reduce) setLaptop(true);
+        else N[STIR] = 0.7;
+      }
+      if (N[STIR]! > 0 && (N[STIR]! -= dt) <= 0) {
+        // He stirs, then the day starts now.
+        N[HOLD] = 0;
+        day.seek(WAKE - 0.1);
+        day.play();
+        N[CLOCK] = 1;
       }
       if (ctl.hit(LIDK)) setLaptop(P[LID]! < 0.5 && N[WDIR]! <= 0);
       if (ctl.hit(MUSK)) music = !music;
@@ -269,14 +309,21 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       N[DES]! += dt * speed;
       // The coffee: filled at dawn, a little gone each sip; it steams while there is some.
       if (P[SIP]! > 0.6) N[LEVEL] = Math.max(0.18, N[LEVEL]! - dt * speed * 0.18);
-      if (N[LEVEL]! > 0.2 && (N[STEAM]! -= dt * speed) <= 0) {
+      N[HEAT] = Math.max(0, N[HEAT]! - (dt * speed) / 9);
+      if (N[HEAT]! > 0.5 && N[LEVEL]! > 0.3 && P[SIP]! < 0.05 && rand() < dt * 6 * N[HEAT]!) {
+        const a = rand() * 6.283, r = rand() * 13 * N[LEVEL]!;
+        emit(bub, 196 + 39 + Math.cos(a) * r, 268 + 43 + Math.sin(a) * r * 0.9, 1, 0, 1);
+      }
+      if (N[LEVEL]! > 0.2 && N[HEAT]! > 0.15 && (N[STEAM]! -= dt * speed * N[HEAT]!) <= 0) {
         N[STEAM] = 0.32;
         emit(puff, 196 + (324 - 196) * P[SIP]! + 39 + (rand() - 0.5) * 12, 268 + (366 - 268) * P[SIP]! + 30, 1, 0, 1);
       }
       // Asleep: Zzz.
-      if (P[AW]! < 0.05 && (N[ZZZ]! -= dt * speed) <= 0) {
-        N[ZZZ] = 1.3;
-        sfx(h.x + 34, h.y - 34, 2 + (N[BEATS]!++ & 1), 0, 16 + rand() * 6, -36);
+      if (P[AW]! < 0.05 && N[STIR]! <= 0 && (N[ZZZ]! -= dt * speed) <= 0) {
+        const k = N[ZN]!++ % 3; // z, z, Z, then a breath
+        N[ZZZ] = k === 2 ? 1.1 : 0.45;
+        N[ZC]!++;
+        fx.spawn(WORD, h.x + 30 + k * 6, h.y - 30, 6 + k * 4, -34, 12 + k * 5, 1.6, 0, 0.2, 0, k === 2 ? 3 : 2);
       }
       fx.step(dt);
       if (fx.live) e.busy();
@@ -285,7 +332,8 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       // Story beats from the timelines' labels (on the ring this frame).
       for (let i = 0; i < e.events.size; i++) {
         const ev = e.events.at(i)!;
-        if (ev.type === "dawn") N[LEVEL] = 1;
+        if (ev.type === "dawn") (N[LEVEL] = 1), (N[HEAT] = 1);
+        else if ((ev.type === "slurp" || ev.type === "clink") && !reduce) emit(splash, ev.type === "clink" ? 235 : 360, ev.type === "clink" ? 311 : 404, 5, 6, 2);
         else if (ev.type === "wake" && !N[HOLD]) goWake(1);
         else if (ev.type === "sleep") goWake(-1);
         else if (ev.type === "sip" && P[AW]! > 0.9 && !sip.playing) sip.play();
@@ -293,14 +341,17 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       if (resized) (fit(), (resized = false));
       const aw = P[AW]!, ph = P[PH]!, lid = P[LID]!, s = P[SIP]!, bob = aw > 0.9 && ph > 0.95 && music && !reduce ? Math.max(0, Math.cos((0.5 - N[BEAT]!) * Math.PI * 4)) * -2 : 0;
       const hn = hands(aw, P[HD]!, s, T[0]!, T[1]!);
-      set(headEl, "transform", headT(aw, s, bob));
+      set(headEl, "transform", N[STIR]! > 0 ? `${headT(aw, s, bob)} rotate(${(Math.sin(N[STIR]! * 40) * 6).toFixed(1)})` : headT(aw, s, bob));
       set(phonesEl, "transform", phonesT(ph, aw, s, bob));
       set(cordEl, "d", cord(ph, aw, s));
       set(cupEl, "transform", cupT(s));
       set(armL, "x2", `${hn.lx}`), set(armL, "y2", `${hn.ly}`), set(handL, "cx", `${hn.lx}`), set(handL, "cy", `${hn.ly}`);
       set(armR, "x2", `${hn.rx}`), set(armR, "y2", `${hn.ry}`), set(handR, "cx", `${hn.rx}`), set(handR, "cy", `${hn.ry}`);
       set(screen, "transform", screenT(lid)), set(scrl, "transform", screenT(lid)), set(cover, "transform", coverT(lid));
-      set(cupImg, "viewBox", `${Math.round(N[LEVEL]! * 11) * 84} ${mode === "design" ? 84 : 0} 84 84`);
+      const fr = Math.round(N[LEVEL]! * 11), lq = LIQUID[fr]!;
+      set(cupImg, "x", `${-fr * 84}`), set(cupImg, "y", mode === "design" ? "-84" : "0");
+      set(liquid, "cx", `${lq[0]}`), set(liquid, "cy", `${lq[1]}`), set(liquid, "rx", `${lq[2]}`), set(liquid, "ry", `${lq[3]}`);
+      set(liquid, "fill", brew(mode === "design", Math.round(N[HEAT]! * 20) / 20));
       // Screens.
       set(scroll, "transform", `translate(0 ${-((N[SCROLL]! % 112) | 0)})`);
       set(caret, "opacity", (N[DES]! * 2) % 2 < 1 ? "1" : "0");
@@ -311,6 +362,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       set(pix, "href", pixURL[aw < 0.5 ? 2 : reduce || !music || ph < 0.95 ? 0 : (N[BEATS]! & 1)]!);
       for (const c of codeEls) set(c, "style", mode === "code" ? "" : "display:none");
       for (const c of desEls) set(c, "style", mode === "design" ? "" : "display:none");
+      set(body, "aria-label", aw < 0.5 ? "Nudge him awake" : "He is working");
       set(laptop, "aria-label", lid > 0.5 ? "Close the laptop: he sleeps" : "Open the laptop: he wakes");
       // The why, one sentence per part of the day: before (night), in between (dawn), built (the
       // day's work), shared (afternoon into dusk). Calm: the whole line stays.
@@ -393,7 +445,16 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       engine.wake();
     },
     get state() {
-      return { mode, open: P[LID]! > 0.5, bricks: tags, sound: snd.on, paused };
+      return { mode, open: P[LID]! > 0.5, bricks: tags, sound: snd.on, paused, awake: P[AW]! > 0.5 };
+    },
+    sip() {
+      ctl.press("sip"), ctl.press("sip", false);
+    },
+    nudge() {
+      ctl.press("nudge"), ctl.press("nudge", false);
+    },
+    stats() {
+      return { particles: fx.live, zzz: N[ZC]! };
     },
   };
 
@@ -402,6 +463,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     day.seek(NOON);
     wake.seek(wake.duration);
     N[LEVEL] = 1;
+    N[HEAT] = 0.8;
   } else {
     day.seek(DAWN - 1.2);
     day.play();

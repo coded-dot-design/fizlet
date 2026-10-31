@@ -14,7 +14,7 @@ const bundle = (await build({
 
 // rAF calls and AudioContexts made, counted from the first script on.
 const PROBE = `<script>window.__raf=0;const r=requestAnimationFrame.bind(window);window.requestAnimationFrame=(cb)=>(window.__raf++,r(cb));
-window.__ac=0;const A=window.AudioContext;window.AudioContext=function(...a){window.__ac++;return new A(...a)};</script>`;
+window.__hz=[];const sv=AudioParam.prototype.setValueAtTime;AudioParam.prototype.setValueAtTime=function(v,t){window.__hz.push(v);return sv.call(this,v,t)};window.__ac=0;const A=window.AudioContext;window.AudioContext=function(...a){window.__ac++;return new A(...a)};</script>`;
 const PAGE = `<!doctype html><meta charset="utf-8">${PROBE}<body style="margin:0">
 <main id="page"><h1>Host page</h1><div id="root" class="hero" data-x="1" style="width:800px;height:500px"></div><div id="spacer" style="height:3000px"></div><p>After.</p></main>
 <script>${bundle}</script></body>`;
@@ -54,6 +54,12 @@ try {
     const n1 = await vars(p);
     assert.ok(n1.night < 0.1 && n1.sky !== n0.sky, `day: ${JSON.stringify(n1)}`);
     assert.ok(await rafPerSec(p) > 10, "frames while the day plays");
+    // No gesture yet: a sip makes no sound.
+    await p.waitForFunction(() => window.scene.state.awake, null, { timeout: 8000 });
+    await p.evaluate(() => window.scene.sip());
+    await p.waitForTimeout(1500);
+    assert.equal(await p.evaluate(() => window.__hz.length), 0, "no sound before a gesture, sip included");
+
     const beat = await p.evaluate(() => document.querySelector(".og-beat").textContent);
     assert.ok(beat.length > 10 && (await p.evaluate(() => og.ORIGIN_WHY)).includes(beat), "the caption shows a beat of the why");
 
@@ -79,8 +85,31 @@ try {
     assert.equal(await p.evaluate(() => window.__ac), 1, "the gesture unlocks sound");
     await p.waitForFunction(() => !window.scene.state.open, null, { timeout: 4000 });
     await p.waitForFunction(() => +getComputedStyle(document.querySelector(".og")).getPropertyValue("--night") > 0.5, null, { timeout: 8000 });
-    await p.evaluate(() => window.scene.setLaptop(true));
-    await p.waitForFunction(() => window.scene.state.open, null, { timeout: 8000 });
+    // Asleep: the Zzz floats up; awake it does not.
+    await p.waitForFunction(() => !window.scene.state.awake);
+    const z0 = await p.evaluate(() => window.scene.stats().zzz);
+    await p.waitForTimeout(1500);
+    assert.ok((await p.evaluate(() => window.scene.stats().zzz)) > z0, "Zzz while asleep");
+    // Nudge: a tap on the sleeper wakes him and the day starts.
+    const head = await p.evaluate(() => { const r = document.querySelector(".og-head").getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
+    await p.mouse.click(head.x, head.y);
+    await p.waitForFunction(() => window.scene.state.awake && window.scene.state.open, null, { timeout: 8000 });
+    const z1 = await p.evaluate(() => window.scene.stats().zzz);
+    await p.waitForTimeout(1200);
+    assert.equal(await p.evaluate(() => window.scene.stats().zzz), z1, "no Zzz while awake");
+    // The sip: the cup lifts, the saucer stays; the slurp (260 Hz sawtooth start) plays after the gesture above.
+    const fill0 = await p.evaluate(() => document.querySelector(".og-liquid").getAttribute("fill"));
+    const sau = () => p.evaluate(() => JSON.stringify(document.querySelector(".og-saucer").getBoundingClientRect()));
+    const s0 = await sau(), cup0 = await p.evaluate(() => JSON.stringify(document.querySelector(".og-cup").getBoundingClientRect()));
+    await p.evaluate(() => (window.__hz.length = 0, window.scene.sip()));
+    await p.waitForTimeout(500);
+    assert.equal(await sau(), s0, "the saucer does not move");
+    assert.notEqual(await p.evaluate(() => JSON.stringify(document.querySelector(".og-cup").getBoundingClientRect())), cup0, "the cup lifts");
+    await p.waitForTimeout(800);
+    assert.ok(await p.evaluate(() => window.__hz.includes(260)), "the slurp plays after a gesture");
+    // The coffee cools: its colour later in the day differs from the morning's.
+    await p.waitForTimeout(3000);
+    assert.notEqual(await p.evaluate(() => document.querySelector(".og-liquid").getAttribute("fill")), fill0, "the coffee cools");
     await p.waitForFunction(() => +getComputedStyle(document.querySelector(".og")).getPropertyValue("--night") < 0.1, null, { timeout: 8000 });
 
     // Mute key.
@@ -127,6 +156,9 @@ try {
     await p.waitForTimeout(800);
     assert.equal(await rafPerSec(p), 0, "settled at night");
     assert.ok(await blank(), "no particles at night either");
+    await p.evaluate(() => window.scene.nudge());
+    await p.waitForFunction(() => window.scene.state.open && window.scene.state.awake);
+    assert.equal(await p.evaluate(() => window.scene.stats().zzz), 0, "no Zzz under reduced motion; the nudge still wakes him");
     await p.evaluate(() => window.scene.destroy());
     assert.equal(await p.evaluate(() => document.body.innerHTML), before, "Recall under reduced motion");
     assert.deepEqual(errs, []);

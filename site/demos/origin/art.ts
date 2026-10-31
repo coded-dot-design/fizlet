@@ -11,7 +11,7 @@ export const C = { teal: "#65b9ad", tealD: "#4f9e93", tealL: "#8fd0c5", ink: "#4
 
 /** The scene's styles (the poster carries them too). Lighting is custom properties on .og. */
 export const CSS = `.og{position:absolute;inset:0;overflow:hidden;background:${C.teal};--sky:rgb(29,27,52);--night:.62;--lamp:0;--sun:0;--beam:0;--glow:0;font:600 10.5px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;-webkit-tap-highlight-color:transparent;user-select:none}
-.og-l{position:absolute;inset:0}.og-svg,.og canvas{position:absolute;inset:0;width:100%;height:100%;display:block}.og canvas{pointer-events:none}
+.og-l{position:absolute;inset:0}.og-svg,.og canvas{position:absolute;inset:0;width:100%;height:100%;display:block}.og canvas{pointer-events:none;filter:brightness(calc(1 - var(--night) * .8))}
 .og-night{opacity:var(--night);mix-blend-mode:multiply;pointer-events:none}
 .og-lampg{opacity:var(--lamp);mix-blend-mode:screen;pointer-events:none}
 .og-scrg{opacity:calc(var(--night) * var(--glow) * 1.3);mix-blend-mode:screen;pointer-events:none}
@@ -22,7 +22,7 @@ export const CSS = `.og{position:absolute;inset:0;overflow:hidden;background:${C
 .og-bulb{opacity:calc(.35 + var(--lamp) * .65)}
 .og-tag{opacity:0;transition:opacity .2s;pointer-events:none}.og-tag text{font:inherit}
 .og--tags .og-tag${["laptop", "phone", "cup", "phones", "lamp", "sky", "person"].map((p) => `,.og:has([data-p=${p}]:hover) [data-t=${p}]`).join("")}{opacity:1}
-[data-p=laptop],[data-p=phone],[data-p=cup],[data-p=phones]{cursor:pointer}
+[data-p=laptop],[data-p=phone],[data-p=cup],[data-p=phones],[data-p=person]{cursor:pointer}.og-body{outline:none}.og-body:focus-visible .og-head>circle:nth-child(3){stroke:#2f80ed;stroke-width:4}
 .og-laptop{outline:none}.og-laptop:focus-visible>rect:nth-child(2){stroke:#2f80ed;stroke-width:4}
 .og--reduce .og-night,.og--reduce .og-lampg,.og--reduce .og-scrg{transition:opacity 1.6s}
 .og-bar{position:absolute;right:10px;bottom:10px;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;z-index:2}
@@ -50,7 +50,7 @@ export const BOX = {
   phones: [540, 120, 130, 90],
   lamp: [50, 120, 110, 110],
   sky: [0, -200, 800, 296],
-  person: [300, 380, 200, 220],
+  person: [300, 340, 200, 260],
 } as const;
 
 const SH = { lx: 322, rx: 478, y: 492 };
@@ -73,7 +73,16 @@ export function hands(aw: number, hd: number, sip: number, tl: number, tr: numbe
   return { lx: mix(lx, 360, sip), ly: mix(ly, 404, sip), rx, ry };
 }
 /** The cup: on its saucer by the laptop, or in his hand at his mouth. */
-export const cupT = (sip: number) => `translate(${r1(mix(196, 324, sip))} ${r1(mix(268, 366, sip))}) rotate(${r1(sip * -18)} 39 39)`;
+export const cupT = (sip: number) => `translate(${r1(mix(196, 324, sip))} ${r1(mix(268, 366, sip))}) rotate(${r1(sip * -18)} 39 39) translate(39 39) scale(${r1(100 + sip * 9) / 100}) translate(-39 -39)`;
+/** The coffee's surface in each frame of the 2015 sheet (cx, cy, rx, ry in its 84 px frame), measured
+ *  from coffee.png: the scene paints its own liquid over it, so the colour can cool. */
+export const LIQUID = [[0, 0, 0, 0], [42, 48.5, 2.6, 2.1], [42, 49, 3.6, 3.6], [42, 49, 5.6, 4.6], [42, 48.5, 6.6, 6.1], [42, 48.5, 7.6, 7.1], [42, 49, 11.6, 10.6], [42, 49, 12.6, 11.6], [42, 48.5, 16.6, 15.1], [42, 47, 18.6, 16.6], [42, 45, 20.6, 18.6], [42, 43.5, 22.6, 20.1]];
+/** Coffee (code) or matcha (design), hot (h = 1) to cooled (h = 0). */
+export function brew(design: boolean, h: number) {
+  const a = design ? [47, 125, 109] : [70, 40, 30], b = design ? [150, 205, 185] : [182, 134, 100];
+  return `rgb(${Math.round(mix(b[0]!, a[0]!, h))},${Math.round(mix(b[1]!, a[1]!, h))},${Math.round(mix(b[2]!, a[2]!, h))})`;
+}
+const SAUCER = `<circle cx="43" cy="44.5" r="40" fill="${"#d9d1b3"}"/><circle cx="42" cy="42.5" r="40" fill="#f3eed5"/><circle cx="42" cy="43" r="30" fill="none" stroke="#e6dfc4" stroke-width="2"/>`;
 /** The headphones: on the desk by the phone, or on his head (they ride the head's tilt). */
 export function phonesT(ph: number, aw: number, sip: number, bob = 0) {
   const h = head(aw, sip), e = ph * ph * (3 - 2 * ph), lift = Math.sin(e * Math.PI) * 26;
@@ -138,6 +147,7 @@ export function art(p: { aw: number; ph: number; lid: number; hd: number }, mode
 <g data-p="lamp"><circle cx="104" cy="176" r="34" fill="${C.ink}" opacity=".18"/><circle cx="100" cy="172" r="32" fill="${C.cream}"/><path d="M100 172L132 214" stroke="${C.inkL}" stroke-width="6" stroke-linecap="round"/><circle cx="136" cy="218" r="22" fill="${C.red}"/><circle cx="136" cy="218" r="12" class="og-bulb" fill="${C.cream}"/></g>
 <g transform="rotate(-9 128 380)"><rect x="70" y="320" width="118" height="132" rx="4" fill="${C.cream}"/><rect x="70" y="320" width="12" height="132" fill="${C.creamD}"/><path d="M96 354h70M96 372h56M96 390h64" stroke="${C.creamD}" stroke-width="3" stroke-linecap="round"/><circle cx="148" cy="420" r="16" fill="none" stroke="${C.red}" stroke-width="3"/><rect x="176" y="340" width="7" height="92" rx="2" fill="${C.red}" transform="rotate(12 180 386)"/></g>
 <g transform="translate(724 210)"><circle r="30" fill="${C.cream}"/><ellipse rx="34" ry="13" fill="#3f8f6f" transform="rotate(30)"/><ellipse rx="34" ry="13" fill="#4ea27d" transform="rotate(-40)"/><ellipse rx="30" ry="11" fill="#5fb48c" transform="rotate(95)"/><circle r="6" fill="#3f8f6f"/></g>
+<svg class="og-saucer" x="196" y="268" width="78" height="78" viewBox="0 0 84 84" overflow="visible">${SAUCER}</svg>
 <g data-p="laptop" class="og-laptop" tabindex="0" role="button" aria-label="Close the laptop">
 <rect x="290" y="252" width="224" height="134" rx="10" fill="${C.ink}" opacity=".16"/>
 <rect x="286" y="248" width="228" height="134" rx="10" fill="${C.cream}"/>
@@ -165,8 +175,8 @@ export function art(p: { aw: number; ph: number; lid: number; hd: number }, mode
 </g>
 <rect x="-8" y="-54" width="16" height="3" rx="1.5" fill="${C.creamD}"/><circle cy="52" r="5" fill="${C.creamD}"/>
 </g>
-<g data-p="cup" class="og-cup" transform="${cupT(0)}"><svg class="og-cupi" width="78" height="78" viewBox="0 0 84 84"><image href="${cup}" width="1008" height="168"/></svg></g>
-<g class="og-body" data-p="person">
+<g data-p="cup" class="og-cup" transform="${cupT(0)}"><svg width="78" height="78" viewBox="0 0 84 84" overflow="visible"><clipPath id="${id}cupc"><circle cx="42" cy="43.5" r="27.6"/><rect x="3.5" y="35.5" width="20" height="13" rx="6.5"/></clipPath><g clip-path="url(#${id}cupc)"><image class="og-cupimg" href="${cup}" x="${-11 * 84}" y="${design ? -84 : 0}" width="1008" height="168"/></g><ellipse class="og-liquid" cx="42" cy="43.5" rx="22.6" ry="20.1" fill="${brew(design, 0.8)}"/></svg></g>
+<g class="og-body" data-p="person" tabindex="0" role="button" aria-label="Nudge him">
 <ellipse cx="400" cy="560" rx="132" ry="78" fill="${C.ink}" opacity=".16"/>
 <ellipse cx="400" cy="548" rx="128" ry="72" fill="${C.red}"/>
 <path d="M366 486q34 22 68 0" fill="none" stroke="${C.redD}" stroke-width="5" stroke-linecap="round"/>

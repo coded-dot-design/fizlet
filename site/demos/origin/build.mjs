@@ -31,7 +31,7 @@ const tmp = await build({ stdin: { contents: 'export * from "./art.ts"; export *
 const { art, CSS, why, ORIGIN_WHY, ORIGIN_TITLE } = await import("data:text/javascript;base64," + Buffer.from(tmp.outputFiles[0].text).toString("base64"));
 export const POSTER_CSS = CSS;
 export const poster = (cup = "coffee.png") => `<div class="ae-slot__placeholder og og-poster" aria-hidden="true" style="--sky:rgb(158,214,224);--night:0;--sun:.38;--beam:1;--glow:1">` +
-  art({ aw: 1, ph: 1, lid: 1, hd: 1 }, "code", cup, bricks, "ogp-").replace(' tabindex="0" role="button" aria-label="Close the laptop"', "").replace(/ role="group" aria-label="[^"]*"/, ' aria-hidden="true"').replace("<image href", '<image href').replace('viewBox="0 0 84 84"', 'viewBox="924 0 84 84"') + why(esc(ORIGIN_WHY), esc(ORIGIN_WHY), "WHY") + `</div>`;
+  art({ aw: 1, ph: 1, lid: 1, hd: 1 }, "code", cup, bricks, "ogp-").replace(' tabindex="0" role="button" aria-label="Close the laptop"', "").replace(' tabindex="0" role="button" aria-label="Nudge him"', "").replace(/ role="group" aria-label="[^"]*"/, ' aria-hidden="true"').replace("<image href", '<image href').replace('viewBox="0 0 84 84"', 'viewBox="924 0 84 84"') + why(esc(ORIGIN_WHY), esc(ORIGIN_WHY), "WHY") + `</div>`;
 sizes.poster = gzipSync(poster()).length;
 
 const fmt = (n) => n.toLocaleString("en-US");
