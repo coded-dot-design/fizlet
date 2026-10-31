@@ -18,7 +18,7 @@ export const MAX_BYTES_PER_FRAME = Number(process.env.ALLOC_MAX ?? 16);
 export const MAX_FRAME = Number(process.env.ALLOC_FRAME_MAX ?? 1024);
 
 const js = (await build({
-  stdin: { contents: IDS.map((id) => `import ${id} from "./site/cards/${id}.ts";`).join("") + `window.cards = { ${IDS.join(", ")} };`, resolveDir: process.cwd(), loader: "ts" },
+  stdin: { contents: IDS.map((id, i) => `import c${i} from "./site/cards/${id}.ts";`).join("") + `window.cards = { ${IDS.map((id, i) => `"${id}": c${i}`).join(", ")} };`, resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", minify: false, write: false, logLevel: "silent",
 })).outputFiles[0].text;
 

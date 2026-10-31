@@ -1,0 +1,71 @@
+/* Vendored from https://github.com/coded-dot-design/dom-virus @ 248d1e9 by scripts/vendor-dom-virus.mjs: your.page / under attack (the domvirus.com home hero). Do not edit; change it in dom-virus and vendor again. */
+[data-dv="under-attack"]{--surface:#1a112b;--muted:#cec0e0;--line:#49345e;--faint:#b39acd;--ink:#fff4ff;--hover:#79cddc;--accent:#f4457a;--accent-ink:#21051a;--mono:ui-monospace, SFMono-Regular, Consolas, monospace;--raised:#281b40}
+@scope ([data-dv="under-attack"]) {
+.hero-crossover[data-astro-cid-rcvlfm4x]{isolation:isolate;width:calc(100% - 48px);margin:42px 24px 24px;overflow:visible;transform:rotate(-2deg)}
+.try-me[data-astro-cid-rcvlfm4x]{z-index:6;max-width:min(270px,70%);font:600 11px/1.35 var(--mono);color:var(--ink);background:var(--surface);border:2px solid var(--ink);box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--ink);pointer-events:none;opacity:0;border-radius:10px;margin:0;padding:9px 12px 9px 34px;transition:opacity .25s,translate .3s cubic-bezier(.2,.8,.2,1);position:absolute;top:-22px;right:18px;translate:0 8px;rotate:3deg}
+.try-me[data-astro-cid-rcvlfm4x] span[data-astro-cid-rcvlfm4x]{color:var(--accent-text,var(--accent))}
+.try-me[data-astro-cid-rcvlfm4x] svg[data-astro-cid-rcvlfm4x]{fill:#f4457a;width:16px;height:16px;margin-top:-8px;position:absolute;top:50%;left:10px}
+.try-me[data-astro-cid-rcvlfm4x]:after{content:"";background:var(--surface);border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);width:14px;height:14px;position:absolute;bottom:-9px;left:26px;rotate:45deg}
+.hero-crossover[data-astro-cid-rcvlfm4x] .code-chrome[data-astro-cid-rcvlfm4x]{min-height:44px;padding:9px 14px}
+.hero-crossover[data-astro-cid-rcvlfm4x] .code-chrome[data-astro-cid-rcvlfm4x]>[data-astro-cid-rcvlfm4x]:nth-child(2){margin-inline:auto;font-size:9px}
+.promo-stage[data-astro-cid-rcvlfm4x]{aspect-ratio:500/360;cursor:pointer;position:relative;container-type:inline-size}
+.promo-page[data-astro-cid-rcvlfm4x]{padding:12% 10%;position:absolute;inset:0}
+.promo-title[data-astro-cid-rcvlfm4x]{font:700 10cqw/1.08 var(--mono);letter-spacing:-.5cqw;color:var(--ink)}
+.promo-title[data-astro-cid-rcvlfm4x]>span[data-astro-cid-rcvlfm4x]{color:var(--faint)}
+.promo-title[data-astro-cid-rcvlfm4x] .binary[data-astro-cid-rcvlfm4x]{color:var(--accent-text,var(--accent));display:inline-block;transform:rotate(-7deg)}
+.promo-lines[data-astro-cid-rcvlfm4x]{margin-top:5%}
+.promo-lines[data-astro-cid-rcvlfm4x] i[data-astro-cid-rcvlfm4x]{background:var(--line);width:40%;height:1cqw;margin:1.6cqw 0}
+.promo-lines[data-astro-cid-rcvlfm4x] i[data-astro-cid-rcvlfm4x]:last-child{width:29%}
+.hero-crossover[data-astro-cid-rcvlfm4x] .promo-button[data-astro-cid-rcvlfm4x]{z-index:2;background:var(--raised);min-height:30px;color:var(--ink);border-color:var(--ink);box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--ink);cursor:pointer;gap:3cqw;margin-top:8%;padding:2.4% 3.5%;font-size:clamp(7px,2cqw,10px);position:relative}
+.promo-action[data-astro-cid-rcvlfm4x]{pointer-events:none;z-index:3;width:100%;height:100%;position:absolute;inset:0;overflow:visible}
+.promo-status[data-astro-cid-rcvlfm4x]{font:8px var(--mono);color:var(--faint);align-items:center;gap:7px;display:flex;position:absolute;bottom:14px;right:16px}
+.hero-crossover[data-astro-cid-rcvlfm4x] :is(.promo-motion,.tank-hull){transform-box:fill-box;transform-origin:50%}
+.spawn-ring[data-astro-cid-rcvlfm4x]{opacity:0}
+@media (width<=760px){.hero-crossover[data-astro-cid-rcvlfm4x]{width:calc(100% - 40px);max-width:470px;margin:10px auto 24px}}
+@media (width<=760px){.promo-status[data-astro-cid-rcvlfm4x]{font-size:6px;bottom:10px;right:10px}}
+*{box-sizing:border-box}
+button{font:inherit;cursor:pointer}
+button,a{touch-action:manipulation}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:5px}
+::selection{background:var(--accent);color:var(--accent-ink)}
+[hidden]{display:none!important}
+h1,h2,h3,p{margin:0}
+p{color:var(--muted)}
+button{color:var(--ink)}
+.led{background:var(--accent);border-radius:50%;flex-shrink:0;width:6px;height:6px;display:inline-block}
+.hero-art{border:1px solid var(--line);background:var(--surface);border-radius:5px;position:relative;transform:rotate(-2deg)}
+.code-chrome{color:var(--faint);font:10px var(--mono);border-bottom:1px solid var(--line);justify-content:space-between;align-items:center;padding:13px 17px;display:flex}
+.code-chrome span:first-child{letter-spacing:3px;font-size:7px}
+.binary{color:var(--accent-text,var(--accent));letter-spacing:-2px;font-size:28px}
+.art-button{background:var(--raised);color:var(--ink);border:1px solid var(--line);font:10px var(--mono);border-radius:3px;justify-content:space-between;gap:35px;margin-top:19px;padding:10px 13px;display:flex}
+@media (width<=760px){.hero-art{width:100%;max-width:490px;margin:0 auto;transform:rotate(-1deg)}}
+@media (prefers-reduced-motion:reduce){*,:before,:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+.character-icon{overflow:visible}
+.hero-art{box-shadow:calc(7px * var(--shadow-x, 0)) calc(7px * var(--shadow-y, 1)) #f4457a}
+.art-button,.arena-targets button{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);--virus-power-color:var(--accent);--swarm-power-color:var(--accent)}
+.hero-art,.game-display{border-color:var(--ink)}
+.button,.art-button,.arena-targets button{border-color:var(--ink);box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--ink);transition:transform .14s cubic-bezier(.2,.8,.2,1),box-shadow .14s cubic-bezier(.2,.8,.2,1)}
+@media (hover:hover) and (pointer:fine){.button:hover,.art-button:hover,.arena-targets button:hover{box-shadow:calc(5px * var(--shadow-x, 0)) calc(5px * var(--shadow-y, 1)) 0 var(--ink);transform:translate(calc(-2px * var(--shadow-x, 0)), calc(-2px * var(--shadow-y, 1)))}}
+.button:active,.art-button:active,.arena-targets button:active{box-shadow:0 0 0 var(--ink);transition-duration:55ms;transform:translate(calc(3px * var(--shadow-x, 0)), calc(3px * var(--shadow-y, 1)))}
+.button:focus-visible,.art-button:focus-visible,.arena-targets button:focus-visible{outline:2px solid var(--ink);outline-offset:6px}
+@media (prefers-reduced-motion:reduce){.button,.art-button,.arena-targets button{transition:none}}
+:is(button,.button){--button-base:var(--surface);--button-ink:var(--ink);transition:transform .14s cubic-bezier(.2,.8,.2,1),box-shadow .14s cubic-bezier(.2,.8,.2,1),background-color .14s,color .14s,border-color .14s}
+.button.primary,.art-button,.game-display .arena-targets button{--button-base:var(--accent);--button-ink:#171022}
+@media (hover:hover) and (pointer:fine){:root :is(button,.button):not(:disabled):hover{background:var(--hover);color:#17202a;border-color:var(--ink);box-shadow:calc(5px * var(--shadow-x, 0)) calc(5px * var(--shadow-y, 1)) 0 var(--ink);filter:none;transform:translate(calc(-2px * var(--shadow-x, 0)), calc(-2px * var(--shadow-y, 1)))}}
+:root :is(button,.button):not(:disabled):active{background:color-mix(in srgb, var(--button-base) 90%, #222e56);color:var(--button-ink);box-shadow:0 0 0 var(--ink);transition-duration:55ms;transform:translate(calc(3px * var(--shadow-x, 0)), calc(3px * var(--shadow-y, 1)))}
+:root :is(button,.button)[aria-pressed=true]:not(:disabled,.motion-toggle,.code-heading button,.art-button:not(.promo-button)){box-shadow:0 0 0 var(--ink);transform:translate(calc(3px * var(--shadow-x, 0)), calc(3px * var(--shadow-y, 1)))}
+:root :is(.motion-toggle,.code-heading button,.art-button:not(.promo-button)):not(:disabled):is(:hover,:active){box-shadow:none;transform:none}
+@media (prefers-reduced-motion:reduce){:is(button,.button){transition:none}}
+.ui-icon{vertical-align:middle;flex-shrink:0;display:inline-block}
+.window-dots{align-items:center;gap:5px;display:inline-flex}
+.window-dots i{background:var(--faint);border-radius:50%;width:5px;height:5px}
+.window-dots i:first-child{background:#ed819d}
+.window-dots i:nth-child(2){background:#e7ba74}
+.window-dots i:nth-child(3){background:#74c9a0}
+.art-button{align-items:center;gap:16px;display:flex}
+.motion-toggle{border:1px solid var(--line);background:var(--surface);min-width:32px;height:32px;color:var(--muted);border-radius:4px;flex-shrink:0;place-items:center;margin-left:auto;padding:6px;display:grid}
+.motion-play{display:none}
+@media (prefers-reduced-motion:reduce){.motion-toggle{display:none}}
+@media (pointer:coarse){body,body *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}}
+}
+

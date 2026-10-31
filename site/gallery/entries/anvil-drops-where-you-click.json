@@ -1,0 +1,22 @@
+{
+  "id": "anvil-drops-where-you-click",
+  "date": "2026-10-30",
+  "prompt": "a toon strolls past the morning paper; click to drop an anvil where you click (double-click: a piano), flatten him or crater the text",
+  "title": "Look out below!",
+  "kind": "micro",
+  "theme": "cartoon-classics",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/anvil-drops-where-you-click.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "approved": "2026-10-30"
+}
