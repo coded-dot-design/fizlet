@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **`fizlet/sound`: your own synth cues.** `notes` (name → `Note[]` voices) adds cues to the built-in
+  synth, so a scene can have a slurp or a yawn without its own audio code; `cues` may map to those
+  names (`CueName`). Additive: every existing call types and plays as before. 1,019 → 1,042 B gzip.
+
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
   first release tag after the owner adds the `NPM_TOKEN` repository secret; the release workflow
   (`.github/workflows/release.yml`, `npm publish --provenance --access public`) checks, packs and
