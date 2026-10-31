@@ -63,8 +63,9 @@ export const ARIA =
   "and the stack snaps back into the game. Focused, the arrow keys step through it.";
 
 /** Width the labels take beside the exploded stack (screen px): the longest label, "Input intents ·
- *  2,627 B gz" (26 mono characters at 11px ≈ 172px), plus padding, border and the 10px margin. */
-export const LABEL_W = 204;
+ *  2,627 B gz" (26 mono characters at 12px, the phone size, ≈ 188px), plus padding, border and the
+ *  10px margin (the poster's own fit; the scene measures its labels). */
+export const LABEL_W = 222;
 /** Label pitch (screen px): one label is 21px tall (11px text, 3px padding, 2px border, each side);
  *  the exploded gap between layers widens so labels never sit closer than this. 28, not 22: the
  *  perspective draws the far (lower) layers a few % smaller, so their pitch shrinks a little too. */

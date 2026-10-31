@@ -29,4 +29,5 @@ export const SCENE_CSS = `.lz.lz--o .lz-l+.lz-l{border-color:var(--line);backgro
 .lz-hud b{color:var(--team-a)}.lz-hud i{font-style:normal;color:var(--team-b)}
 .lz-m{width:20px;height:20px;left:-10px;top:-10px;border-radius:50%;border:3px solid var(--k-fire);background:radial-gradient(var(--k-aim) 20%,color-mix(in srgb,var(--k-fire) 60%,transparent) 45%,transparent 70%)}
 .lz-tag{font-size:calc(11px / var(--se));border-width:calc(2px / var(--se))!important;padding:calc(3px / var(--se)) calc(7px / var(--se));margin:calc(-2px / var(--se)) 0 0 calc(10px / var(--se));border-radius:calc(5px / var(--se));left:100%;top:100%;white-space:nowrap;transform-origin:0 0;background:var(--card);border:2px solid var(--line);opacity:0}
-.lz-tag u{text-decoration:none;color:var(--muted)}`;
+.lz-tag u{text-decoration:none;color:var(--muted)}
+@container lyr (max-width:440px){.lz-tag,.lyr .lyr__t{font-size:calc(12px / var(--se))}}`;
