@@ -603,8 +603,10 @@
     one line in the footer saying the games live there. The roadmap ticks the docs, guides, release
     notes and the authoring guide under E5; the contract card no longer says every brick is 1.5 to
     5 KB (arcade's budget is 22 KB).
-  - The three launch notes (How small is small, Recall: the page always comes back, Lockstep
-    multiplayer in a few KB) are scheduled for 2026-10-31 09:00 New York and land in their own PR.
+  - Notes: the three launch posts, from the fizlet-engine content model (`fe content notes --site
+    fizlet --today 2026-10-31T09:00:00-05:00`): How small is small, Recall: the page always comes
+    back, Lockstep multiplayer in a few KB. Published 2026-10-31 09:00 Central; the multiplayer
+    guide and the budgets page link to them.
 - **Brick cards: a live toy per brick, built with that brick.** `site/cards/` holds one fizlet/slot
   scene per brick on one shared frame (`frame.ts`: a 320 × 200 stage whose backing store matches the
   slot in device pixels, so lines and labels stay sharp at any width and DPR; the brick drawn the
