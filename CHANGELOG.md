@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Website: a section the scroll jumps past still reveals** (`site/home-motion.ts`). The observer
+  only reports threshold crossings, so a jump (an anchor, a fling, a slow frame landing several
+  scrolls at once) could carry a waiting section from below the fold to above it with no callback,
+  and it stayed hidden; the read phase now plays in any waiting section above the reveal line. This
+  was the CI-only "home rhythm: every part shown" failure on PRs that lengthen the home page.
+  `tests/site.mjs` adds single jumps to 0.3–0.7 of the page (the old code left `profile` hidden at
+  0.3, 0.35 and 0.5 locally).
+
 - **Website: the bricks index has a live diagram** (roadmap E10's acceptance: an interactive diagram
   on a marketing page that settles to 0 frames). Every module and what it imports: 36 nodes and 49
   links, read from `src/` at build time (`site/brick-graph.mjs`). There are 25 runtime imports, 10
