@@ -180,7 +180,7 @@ import { slot } from "fizlet/slot";
 slot("home#hero", () => import("./hero-scene.js").then((m) => m.mount));
 
 // hero-scene.ts: build inside the stage; return destroy (and accessible: true only when the
-// scene renders real accessible content, which drops the slot's role="img").
+// scene renders real accessible content, which turns the slot's role="img" into role="figure").
 import { createEngine } from "fizlet";
 import { effects } from "fizlet/fx";
 import type { SlotTap } from "fizlet/slot";
@@ -208,7 +208,8 @@ export function mount(stage: HTMLElement, figure: HTMLElement, first: SlotTap | 
 - **Reduced motion:** with `prefers-reduced-motion: reduce` the scene never loads and the slot's
   placeholder and fallback stay; if the setting turns on mid-scene, the scene goes and they come back.
 - **Accessible:** `role="img"` and `aria-label` stay; the stage is `aria-hidden` until the scene
-  returns `accessible: true`.
+  returns `accessible: true`, which changes `role="img"` to `role="figure"` in place (Recall puts it
+  back byte for byte).
 - **Contained:** the scene gets its own stage (`position: absolute; inset: 0; contain: strict`)
   inside the slot. Every change goes through a ledger: `destroy()` puts the slot back exactly.
 - `findSlot("<page>#<slot>")` returns the figure; `slot(figure, load)` takes the element too. An

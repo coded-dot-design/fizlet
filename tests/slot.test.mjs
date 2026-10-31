@@ -92,14 +92,14 @@ test("slot: loads only near the viewport and once idle; builds a contained, aria
   }
 });
 
-test("slot: an accessible scene drops role=img; Recall puts it back", async () => {
+test("slot: an accessible scene swaps role=img for role=figure; Recall puts it back", async () => {
   const page = installPage();
   try {
     const { f } = figure(page);
     const h = slot(f, () => scene({ accessible: true }).mount, { idle: 0 });
     page.observers[0].fire(true);
     await settle();
-    assert.equal(f.getAttribute("role"), null);
+    assert.equal(f.getAttribute("role"), "figure", "the label stays on a role that takes one; the scene's content is reachable");
     h.destroy();
     assert.equal(f.getAttribute("role"), "img");
   } finally {
