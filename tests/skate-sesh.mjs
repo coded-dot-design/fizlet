@@ -32,7 +32,7 @@ const frames = (p, n = 20) => p.evaluate(async (n) => {
 const settle = (p, what) => p.waitForFunction(() => scene.engine.paused.includes("settled"), null, { timeout: 15000 }).catch(() => { throw new Error(`${what}: never settled`); });
 
 try {
-  for (const [id, make, HELD] of [["pump-pipe", "pipe", 13], ["rail-run", "rail", 18], ["hill-bomb", "bomb", 13]]) {
+  for (const [id, make, HELD] of [["pump-pipe", "pipe", 13], ["rail-run", "rail", 18], ["hill-bomb", "bomb", 12]]) {
     for (const w of [720, 358]) {
       const p = await browser.newPage({ viewport: { width: w + 40, height: 600 } });
       const errs = [];

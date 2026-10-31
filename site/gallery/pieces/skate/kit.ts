@@ -17,7 +17,7 @@ export const C = {
 };
 /** Score digits, made once. */
 export const NUM = Array.from({ length: 1000 }, (_, i) => String(i));
-export const FONT = Array.from({ length: 25 }, (_, i) => `900 ${i}px system-ui, sans-serif`);
+export const FONT = /* @__PURE__ */ Array.from({ length: 25 }, (_, i) => `900 ${i}px system-ui, sans-serif`);
 
 /** A hold-to-ride round's modes: the attract run, waiting, a ride, the score card. */
 export const DEMO = 0, IDLE = 1, PLAY = 2, DONE = 3;
@@ -87,12 +87,13 @@ export type Pad = Float64Array;
 
 /**
  * The rig on `stage`: canvas, colours, the hold input and keys, the synth. `label` names the ride
- * key for screen readers ("Hold to pump").
+ * key for screen readers ("Hold to pump"). `pixel`: a chunky one-pixel-per-art-unit canvas (160 × 90,
+ * scaled up crisp) in place of the smooth one.
  */
-export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Record<string, Cue>) {
+export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Record<string, Cue>, pixel = false) {
   const L = engine.ledger;
   const canvas = L.add(document.createElement("canvas"));
-  canvas.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none";
+  canvas.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none" + (pixel ? ";image-rendering:pixelated" : "");
   canvas.setAttribute("aria-hidden", "true");
   stage.append(canvas);
   const g = canvas.getContext("2d")!;
@@ -167,6 +168,7 @@ export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Rec
     read() {
       if (!V[2]) return;
       V[2] = 0;
+      if (pixel) return void ((canvas.width = W), (canvas.height = H), (V[1] = 1), (g.imageSmoothingEnabled = false));
       const r = stage.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1) * (V[3] || 1);
       canvas.width = Math.max(1, Math.round(r.width * dpr));
       canvas.height = Math.max(1, Math.round(r.height * dpr));

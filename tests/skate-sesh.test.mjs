@@ -2,8 +2,8 @@
 // the games in them are checked here. Pump Pipe: holding on the drops pumps you over the coping,
 // holding everywhere does not; a tap in the air flips the board, and a late flip bails. Rail Run: a
 // timed ollie clears cones and gaps and lands on rails to grind; rolling on into a cone or a gap
-// slams. Hill Bomb: steering round the cones scores close passes, riding
-// straight takes cones and curbs. All three settle, and their steps allocate nothing (young-generation GCs, node --expose-gc).
+// slams. Hill Bomb: carving the line shoots the fence gates, letting the
+// board drift runs onto the grass and into the boards. All three settle, and their steps allocate nothing (young-generation GCs, node --expose-gc).
 import test from "node:test";
 import assert from "node:assert/strict";
 import { minorGCs } from "./gc.mjs";
@@ -81,29 +81,29 @@ test("rail run: timed ollies clear, grind and score; rolling on slams; then it r
   assert.ok(S[11] >= 1, "never ollie: slams");
 });
 
-test("hill bomb: steering for the gaps passes close and clean; riding straight hits cones; then it rolls to a stop", () => {
+// Hill Bomb slots: 3 x, 4 vx, 5 camera (how far down), 7 score, 8 slams, 9 gates, 13 next fence, 14 on the grass.
+test("hill bomb: carving the line (the gates, a fork's branch, the path) shoots every gate clean; then it rolls to a stop", () => {
   let pad = new Float64Array(3), r = hillBomb(5, pad, false), S = r.S;
   pad[1] = 1;
-  run(r, 10.5, () => {
-    let want = (22 + 84) / 2;
-    for (let i = 0; i < 10; i++) if (r.CX[i] > 40 && r.CX[i] < 90 && Math.abs(r.CY[i] - S[3]) < 10) want = r.CY[i] > S[3] ? r.CY[i] - 13 : r.CY[i] + 13;
-    pad[0] = S[3] + S[4] * 0.15 > want ? 1 : 0;
-  });
+  let grass = 0;
+  run(r, 10.5, () => ((pad[0] = S[3] + S[4] * 0.25 < r.ghost() ? 1 : 0), (grass += S[14])));
   assert.equal(S[0], 3, "the run ends");
-  assert.ok(S[9] >= 2 && S[8] <= 1, `close passes ${S[9]}, hits ${S[8]}`);
-  assert.ok(S[7] > 40, `points: ${S[7]}`);
+  assert.ok(S[9] >= 3 && S[8] === 0, `gates ${S[9]}, slams ${S[8]}`);
+  assert.ok(S[7] > 60 && grass < 60, `points ${S[7]}, steps on the grass ${grass}`);
   assert.ok(settled(r), "rolls to a stop, still");
+  // Never steering (always carving left): off the path, slowed by the grass, into the fences.
   pad = new Float64Array(3), r = hillBomb(5, pad, false), S = r.S;
   pad[1] = 1;
-  run(r, 10, () => (pad[0] = S[3] > 53 ? 1 : 0));
-  assert.ok(S[8] >= 2, `riding the line: ${S[8]} hits`);
+  grass = 0;
+  run(r, 10, () => (grass += S[14]));
+  assert.ok(S[8] >= 1 && grass > 200 && S[9] === 0, `slams ${S[8]}, grass ${grass}, gates ${S[9]}`);
 });
 
 test("skate-sesh: zero allocation in the sessions' steps (all three, riding flat out)", async (t) => {
   if (typeof gc !== "function") return t.skip("needs node --expose-gc");
   for (const make of [pumpPipe, railRun, hillBomb]) {
     const pad = new Float64Array(3), r = make(11, pad, false), S = r.S;
-    const steps = (n) => { for (let i = 0; i < n; i++) { if (S[0] !== 2) (pad[1] = 1), (S[12] = 9), (S[14] = 9), (S[16] = 9); if ((i & 15) === 0) pad[1] = 1; pad[0] = (i >> 5) & 1; r.step(1 / 60); } };
+    const steps = (n) => { for (let i = 0; i < n; i++) { if (S[0] !== 2) (pad[1] = 1), (S[11] = 9), (S[12] = 9), (S[14] = 9), (S[16] = 9); if ((i & 15) === 0) pad[1] = 1; pad[0] = (i >> 5) & 1; r.step(1 / 60); } };
     steps(20000);
     gc();
     const n = await minorGCs(() => steps(200000));
