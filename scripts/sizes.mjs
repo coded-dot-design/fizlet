@@ -15,7 +15,9 @@ export const BUDGETS = [
   // (a canvas or svg host, a static host made relative); 2,064 B with #136's card base in the page's
   // shadow direction (--shadow-x/-y, --shadow-color: +22 B); budget raised from 2,048 by that need.
   // 2,016 B in 0.21.0 with its slots as literals and FrameRing's cap a plain field (−26 B, size/treeshake, no behaviour change).
-  ["@fzlt/core/perf", "src/perf.ts", 2064],
+  // −23 B more in S8 (no behaviour change: getComputedStyle?.(), the bar's slot read inline, x0 and the
+  // budget line from the canvas width and height).
+  ["@fzlt/core/perf", "src/perf.ts", 2022],
   ["@fzlt/core/input", "src/input.ts", 1536],
   // 1,995 B gz in 0.19.0; 2,073 B once stickAt/dpadAt/the drag use steer's exact `hypot` (+78 B, #118, K5:
   // `Math.hypot` boxes its arguments, 23 young GCs per 1M drags; now 0). Budget raised by that delta.
@@ -26,7 +28,10 @@ export const BUDGETS = [
   // (+101 B, brick audit P8: `cell: 0` made at() NaN, a fractional cols sized the arrays wrong). An
   // inline check, not the kernel's `need` (+181 B: grid runs without the kernel). Raised by that delta.
   // 1,603 B in train 0.21.0: the search's private members are one letter (−31 B, no behaviour change).
-  ["@fzlt/core/grid", "src/grid.ts", 1637],
+  // 1,652 B in S8 (+49 B, S6 P2-01/P2-02): path, flood, los and hit check their cell ids (a NaN, a
+  // fraction, a string or an id off the board looped forever) and the size error says "is not a board";
+  // the size check itself is shorter (−8 B). Budget raised by the need, with 12 B headroom.
+  ["@fzlt/core/grid", "src/grid.ts", 1664],
   // Whole module: effects() 2,1xx B + gravity, plus emitter() and KINDS (~0.6 KB), which tree-shake
   // away when unused (the page build below ships effects() alone).
   ["@fzlt/core/fx", "src/fx.ts", 3072],
@@ -102,6 +107,7 @@ export const BUDGETS = [
   // style checks, and collide Grid's one-letter private names.
   // 18,312 B with #136 (+10 B): the card's hard base reads the domain shadow tokens (BOARD-UI.md 4.1).
   // 18,113 B with size/treeshake in 0.21.0 (−182 B from 18,295; no behaviour change). Budget lowered by that delta.
+  // +44 B in S8: the ledger refuses writes after destroy (P2-03) and advance() checks sec (P2-04).
   ["@fzlt/core/arcade (hud omitted)", "scripts/arcade-card.ts", 18179],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
@@ -122,6 +128,10 @@ export const BUDGETS = [
   // (a const enum would inline too, but is not erasable syntax: games vendor src/ with
   // erasableSyntaxOnly), short private names in the ledger entry, ring and pool, fx's shape numbers
   // ahead of TAU. Budget 7,104 B: the 7 KB cap less the ≥ 64 B headroom S8 asked for, locked in.
+  // S8 (+39 B): the ledger closed by destroy() refuses writes and removes a late add() (+46 B, S6
+  // P2-03), advance() checks sec with the kernel's `need` (+9 B, P2-04), paid down by −16 B with no
+  // behaviour change (need's one Number.isFinite test, slot's one idle-callback test, fx's compound
+  // counter writes).
   ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7104],
   ["@fzlt/core/ui (js)", "src/ui/board-ui.ts", 3072],
   // 4,974 B on 0.20.0. 5,125 B with #136 (+151 B): every hard base, press, hover lift, focus ring,

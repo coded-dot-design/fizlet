@@ -18,6 +18,17 @@
   `enum`, a namespace or a parameter property fails CI instead of breaking games that vendor `src/`
   (byte-runner, null-invaders, sherman-bytes). `@fzlt/core/perf`'s `FrameRing` had a parameter property;
   `cap` is now a plain field (same API). The site's own tsconfig turns the flag off for gallery pieces.
+- **Hardening from the S6 pressure test (P2-01 to P2-04), pending owner review.** `@fzlt/core` (kernel):
+  `destroy()` closes the engine's ledger (`Ledger.restore(close?)`, new optional argument): a late
+  `text`/`style`/`attr`/`cls` write is refused (returns false, touches nothing) and a late `add()`d
+  node leaves when the caller's task ends, so Recall stays exact (P2-03); `advance(sec)` throws
+  `RangeError: fizlet: sec must be a finite number` on Infinity, NaN or a non-number instead of
+  stopping the engine for good (P2-04). `@fzlt/core/grid`: `path`, `flood`, `los` and `hit` throw
+  `fizlet/grid: cell … is not on the board` on an id that is not an integer on the board (they
+  looped forever, P2-01), and a bad size says "is not a board" (P2-02). Bytes: kernel 3,413 → 3,453,
+  page build 7,128 → 7,167 (+55 B for the fixes, −16 B paid down elsewhere), grid 1,603 → 1,652
+  (budget 1,664), perf 2,042 → 2,019 (−23 B, so #173's +22 B fits the 2,048 budget). The fuzz
+  (`npm run test:stress -- fuzz --fixed`) holds the four fixed cases.
 - **Gallery: the genre minis are playable: compact keys that never cover the action (pending owner
   review).** In Redline, Dirt Lab, Bag Beat and Toast Tell the keys were sized in container units on a
   figure that was no size container, so they grew with the window (GAS took half the stage), and the
