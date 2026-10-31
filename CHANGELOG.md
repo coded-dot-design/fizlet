@@ -353,6 +353,15 @@
   bottom edge (its box lets the pointer through, its content takes it back), and `.hero` is
   `overflow: clip`, so the parallaxed field never gives a focus or `scrollIntoView` a hidden
   scroll to move. The site test's `revealAll` and the home rhythm check wait on the reveals' state, not on time.
+- **Website: gallery, team and footer PRs that had no line here** (added at release):
+  - Gallery: SMASH and the hammer, a rage giant and a storm god, by hand (#89); Halloween ghosts,
+    three hand-built micro games, Smoosh, Wrangle and Overflow (#162); two Halloween fights, HUSH vs
+    SNOOZE and the last slice (#167); the owner approved the nine pending entries (#182); Pip's
+    Bubbles, Pip's debut piece (WIP, #185). Each with its own stage and a Chromium test in
+    `test:browser`.
+  - Team: Pip, keeper of Fizlet, an AI agent persona (`site/contributors/pip.json`, #179).
+  - Footer: a site map from the sitemap's route list, every indexable page linked once in five
+    columns that fold at phone width; `tests/site.mjs` checks it (#188).
 
 ## 0.20.0
 
@@ -1002,6 +1011,21 @@
 - **Website: the gallery theme filter follows the address.** A `#theme-` link to the page you are
   on (or back) now filters too, not only on arrival (`hashchange`); it showed once there were two
   themes.
+- **Perf: the demo's blasts are back to 60 fps at 4× CPU throttle** (30 fps since 0.10.1). Bisected
+  to 1337112 (the layers story in the home page hero): scrolled off screen, its scene kept about 50
+  composited 3D layers, and Chromium layerizes the whole document on every frame that repaints, so
+  each blast frame paid 8.4–11.7 ms of `Layerize` for a scene nobody could see. `fizlet/slot`'s
+  stage is now `content-visibility: auto` (a scene off screen is skipped for style, layout, paint and
+  layers), and so is the layers figure (its slider's eight 3D plates sit outside the stage).
+  Measured (`npm run perf`, Chromium 153, 4× throttle, 10 s, a busy 4-core Xeon): before p50
+  33.3–33.4 ms, 47–61% dropped, `Layerize` 10.6–11.4 ms per frame; after p50 16.7 ms, 24–32%
+  dropped, `Layerize` 1.6–1.7 ms (0.4.4: 1.5–1.8). Size: `fizlet/slot` 1,845 B gzip (budget
+  2,048); layers live chunk 9,720 B (≤ 9,728; the
+  13 B the slot adds are paid for in the scene, which now makes its fx canvas directly instead of
+  through a `canvas` branch in its element helper). The harness now reports `layerizeMs`, and
+  `tests/perf/budgets.json` fails the demo on this regression: p50 ≤ 25 ms, p95 ≤ 67, ≤ 45%
+  dropped, `layerizeMs` ≤ 4.
+  (#55, e78c501: shipped in 0.18.0; listed under 0.17.0 until 0.21.0.)
 
 ## 0.17.0
 
@@ -1054,20 +1078,6 @@
     attribution links, the filter and the search in a browser, the heroes row (centre plays alone,
     next / arrow keys, pause, full screen and the overlay with focus return, reduced motion
     posters and play on request) and the profiles; `tests/gallery.test.mjs` for the data model.
-- **Perf: the demo's blasts are back to 60 fps at 4× CPU throttle** (30 fps since 0.10.1). Bisected
-  to 1337112 (the layers story in the home page hero): scrolled off screen, its scene kept about 50
-  composited 3D layers, and Chromium layerizes the whole document on every frame that repaints, so
-  each blast frame paid 8.4–11.7 ms of `Layerize` for a scene nobody could see. `fizlet/slot`'s
-  stage is now `content-visibility: auto` (a scene off screen is skipped for style, layout, paint and
-  layers), and so is the layers figure (its slider's eight 3D plates sit outside the stage).
-  Measured (`npm run perf`, Chromium 153, 4× throttle, 10 s, a busy 4-core Xeon): before p50
-  33.3–33.4 ms, 47–61% dropped, `Layerize` 10.6–11.4 ms per frame; after p50 16.7 ms, 24–32%
-  dropped, `Layerize` 1.6–1.7 ms (0.4.4: 1.5–1.8). Size: `fizlet/slot` 1,845 B gzip (budget
-  2,048); layers live chunk 9,720 B (≤ 9,728; the
-  13 B the slot adds are paid for in the scene, which now makes its fx canvas directly instead of
-  through a `canvas` branch in its element helper). The harness now reports `layerizeMs`, and
-  `tests/perf/budgets.json` fails the demo on this regression: p50 ≤ 25 ms, p95 ≤ 67, ≤ 45%
-  dropped, `layerizeMs` ≤ 4.
 - **board-page runs in its root's own document and window.** `boardPage(e, { root })` now measures,
   observes and writes in `root.ownerDocument` (its viewport, `getComputedStyle`, observers, scroll
   and resize, highlights), so a board inside an iframe's page works. Before, it always used the
