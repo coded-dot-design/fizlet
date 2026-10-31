@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- **`fizlet/fx`: word particles no longer allocate per frame, and a word kind sprays a range**
+  (fizlet#209, pending owner review). `draw()` built a new font string for every word particle on
+  every frame (1,409 B/frame on the 2015 headphones arcade); each pixel size's string is now built
+  once and kept. And `fillText`/`strokeText` box a fractional x, y in Chromium (12 B a call), so a
+  word now draws at 0, 0 after a `translate`, as a turned particle already did. A 60-word spray in
+  Chromium 153 (CDP heap sampling, as `measureAnim`): 3,833 → 0.6 B/frame; in Node, 100k drawn
+  frames: 40 → 0 young GCs. `emit()` takes an optional word range `w, wn` after `scale`, like the
+  colour range (it only ever sprayed `words[0]`). Additive. fx 2,797 → 2,829 B gz, page build
+  7,128 → 7,163 B (cap 7,168).
+
 ## 0.21.0
 
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the

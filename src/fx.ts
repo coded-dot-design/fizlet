@@ -79,7 +79,7 @@ export function effects(o: FxOptions = {}) {
   const [X, Y, VX, VY, ROT, SPIN, SIZE, LIFE, MAX] = f as [Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array];
   const kind = new Uint8Array(cap), col = new Uint8Array(cap), word = new Uint8Array(cap);
   const SX = new Float32Array(sc), SY = new Float32Array(sc), SR = new Float32Array(sc), SL = new Float32Array(sc);
-  const U = new Float64Array(6);
+  const U = new Float64Array(6), FONT: string[] = [];
   const st = new Float64Array(5); // live count, next scorch, shake, dropped, gravity
   // The kind table: one row of numbers per kind (shape, drag, gravity share, then emitter() ranges),
   // read by id in the hot path. Ids 0-5 are the blast's own parts (its debris falls); emitter() adds 6+.
@@ -238,11 +238,13 @@ export function effects(o: FxOptions = {}) {
     /** Every live particle, on top of the actors. */
     draw(ctx: CanvasRenderingContext2D, light = false) {
       const n = st[0]!;
-      for (let i = 0; i < n; i++) {
+      for (let i = 0, z = 0; i < n; i++) {
         const k = LIFE[i]! / MAX[i]!, c = colors[col[i]!]!, s = SIZE[i]!, sh = K[kind[i]! * 11], a = ROT[i]!;
         let x = X[i]!, y = Y[i]!;
         // A turned particle draws about its own origin (one save/restore, only when it is turned).
-        if (a) ctx.save(), ctx.translate(x, y), ctx.rotate(a), (x = y = 0);
+        // So does a word: fillText and strokeText box fractional x, y (12 B a call in Chromium 153);
+        // 0, 0 after a translate allocates nothing.
+        if (a || sh === WORD) ctx.save(), ctx.translate(x, y), ctx.rotate(a), (x = y = 0);
         switch (sh) {
           case STREAK: {
             // A streak stretches with its speed (falling drips, sparks), square to the page.
@@ -282,7 +284,9 @@ export function effects(o: FxOptions = {}) {
           }
           case WORD:
             ctx.globalAlpha = Math.min(1, k * 2);
-            ctx.font = `900 ${Math.round(s * (1 + (1 - k) * 0.3))}px ui-monospace, SFMono-Regular, monospace`;
+            // One font string per pixel size, built once and kept (fizlet#209: a new string per
+            // word per frame was most of a page's allocation). The canvas skips an unchanged font.
+            ctx.font = FONT[z = Math.round(s * (1 + (1 - k) * 0.3))] ??= `900 ${z}px ui-monospace, SFMono-Regular, monospace`;
             ctx.textAlign = "center";
             ctx.lineWidth = 5;
             ctx.strokeStyle = light ? "#fff" : "#07060f";
@@ -290,7 +294,7 @@ export function effects(o: FxOptions = {}) {
             ctx.fillStyle = c;
             ctx.fillText(words[word[i]!]!, x, y);
         }
-        if (a) ctx.restore();
+        if (a || sh === WORD) ctx.restore();
       }
       ctx.globalAlpha = 1;
     },
@@ -312,7 +316,7 @@ export type Effects = ReturnType<typeof effects>;
  * At most 26 kinds per pool (ids 6-31); a second emitter on the same pool adds after the first.
  */
 export function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>) {
-  const { f, kind, col, word, st, K, cap, rnd } = fx.raw, U = new Float64Array(5);
+  const { f, kind, col, word, st, K, cap, rnd } = fx.raw, U = new Float64Array(6);
   const [X, Y, VX, VY, ROT, SPIN, SIZE, LIFE, MAX] = f as Float32Array[] as [Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array];
   const ids = {} as Record<N, number>;
   let nk = 6;
@@ -327,10 +331,11 @@ export function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>) {
     ids,
     /**
      * `n` particles of kind `k` from (x, y), as that kind's data says: direction, spread, speed, size
-     * and life (speed and size times `scale`). Colours are picked from `c`...`c + cn - 1`. Bounded: it
-     * stops at capacity and counts the rest in `dropped`. Writes the arrays directly: nothing boxes.
+     * and life (speed and size times `scale`). Colours are picked from `c`...`c + cn - 1`, and a word
+     * kind's words from `w`...`w + wn - 1` (indexes into the pool's `words`). Bounded: it stops at
+     * capacity and counts the rest in `dropped`. Writes the arrays directly: nothing boxes.
      */
-    emit(k: number, x: number, y: number, n: number, c = 0, cn = 1, scale = 1) {
+    emit(k: number, x: number, y: number, n: number, c = 0, cn = 1, scale = 1, w = 0, wn = 1) {
       if (!(k >= 6 && k < nk && finite(x) && finite(y) && finite(scale) && n < Infinity)) return void st[3]!++;
       const r = k * 11 + 1;
       for (let i = 0; i < n; i++) {
@@ -340,7 +345,7 @@ export function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>) {
           break;
         }
         st[0] = p + 1;
-        for (let q = 0; q < 5; q++) U[q] = rnd(0, 1);
+        for (let q = 0; q < 6; q++) U[q] = rnd(0, 1);
         const a = K[r + 2]! + (U[0]! - 0.5) * K[r + 3]!, v = (K[r + 4]! + U[1]! * (K[r + 5]! - K[r + 4]!)) * scale;
         kind[p] = k;
         X[p] = x;
@@ -351,7 +356,8 @@ export function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>) {
         LIFE[p] = MAX[p] = K[r + 8]! + U[3]! * (K[r + 9]! - K[r + 8]!);
         col[p] = c + ((U[4]! * cn) | 0);
         // Square to the page (pixel bubbles stay crisp): no rotation, no spin.
-        ROT[p] = SPIN[p] = word[p] = 0;
+        ROT[p] = SPIN[p] = 0;
+        word[p] = w + ((U[5]! * wn) | 0);
       }
     },
   };
