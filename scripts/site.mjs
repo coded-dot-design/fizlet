@@ -13,7 +13,6 @@ import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
 import { brickPage, bricksIndex } from "../site/pages/brick.mjs";
 import { archivePage, galleryPage } from "../site/pages/gallery.mjs";
-import { heroesPage } from "../site/pages/heroes.mjs";
 import { notePage, notesIndex, noteLd } from "../site/pages/notes.mjs";
 import { notes as loadNotes, notePath } from "./notes.mjs";
 import { playFigure } from "../site/pages/index.mjs";
@@ -144,10 +143,9 @@ const figures = {
 };
 
 // The gallery's pages sit at gallery/ and gallery/page/<n>/ (base: the path back to the root);
-// every entry's URL is on the page that holds it (the heroes and profile pages link there).
+// every entry's URL is on the page that holds it (the contest and profile pages link there).
 const GB = (p) => "../".repeat(p.path.split("/").length - 1);
 const urlOf = (id) => gallery.index.find((r) => r.id === id).url;
-const heroes = gallery.entries.filter((e) => e.kind === "hero");
 if (gallery.pending.length) console.log(`Gallery: ${gallery.pending.length} pending (not approved, not built): ${gallery.pending.join(", ")}`);
 for (const p of gallery.pages) mkdirSync(`${OUT}/${p.path}`, { recursive: true });
 mkdirSync(`${OUT}/gallery/archive`, { recursive: true });
@@ -248,12 +246,12 @@ const pages = [
   })],
   // The gallery: PAGE_SIZE entries a page (gallery/, gallery/page/2/, …), in theme sections.
   ...gallery.pages.map((p) => [`${p.path}index.html`, page({
-    title: p.n === 1 ? "Gallery: one prompt, one animation · Fizlet" : `Gallery, page ${p.n}: one prompt, one animation · Fizlet`,
+    title: p.n === 1 ? "Daily: tiny examples, made every day · Fizlet" : `Daily, page ${p.n}: tiny examples, made every day · Fizlet`,
     description: p.n === 1
-      ? `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by theme).`
-      : `Fizlet gallery page ${p.n} of ${gallery.pages.length}: older animations by theme, each with its prompt, its live demo and its size measured on this build.`,
+      ? `Tiny Fizlet examples, made every day to test the engine, now a contest: ${gallery.entries.length} so far, each live with its size measured on this build.`
+      : `Fizlet Daily page ${p.n} of ${gallery.pages.length}: older tiny examples by theme, each with its brief, its live demo and its size measured on this build.`,
     base: GB(p), version, path: p.path,
-    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length }),
+    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length, contributors: PEOPLE, week: now?.week }),
     scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
   })]),
   ["gallery/archive/index.html", page({
@@ -263,12 +261,13 @@ const pages = [
     body: `<style>${layers.css}</style>` + archivePage({ entries: gallery.archive.entries, themes: gallery.archive.themes, people: gallery.people, loader: gallery.loader, figures, base: "../../" }),
     scripts: ["site.js", "gallery/gallery.js"],
   })],
+  // /heroes/ is archived: it redirects to Daily (the gallery), where every hero is an entry.
   ["heroes/index.html", page({
-    title: "Heroes: the big animations, one at a time · Fizlet",
-    description: `The Fizlet hero animations, large: the one in the centre plays, the rest wait as posters. ${heroes.length} so far, each with its size measured on this build.`,
-    base: "../", version, path: "heroes/",
-    body: `<style>${layers.css}</style>` + heroesPage({ heroes, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, base: "../", urlOf }),
-    scripts: ["site.js", "gallery/heroes.js"],
+    title: "Heroes moved to Daily · Fizlet",
+    description: "The Fizlet heroes page has moved: every hero animation is an entry on Daily, the gallery, with its size measured on this build.",
+    base: "../", version, path: "heroes/", redirect: "gallery/",
+    body: `<section class="section"><div class="wrap"><div class="section-head"><h1>Heroes moved to <em>Daily</em>.</h1><p class="lead">Every hero is an entry on <a href="../gallery/">Daily, the gallery</a>. Taking you there now.</p></div></div></section>`,
+    scripts: ["site.js"],
   })],
   ["make/index.html", page({
     title: "Make one: a prompt in, a snippet out · Fizlet",
@@ -289,8 +288,8 @@ const pages = [
     body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners, people: PEOPLE }), scripts: ["site.js"],
   })]),
   ["contest/index.html", page({
-    title: "Weekly contest: small wins, one winner · Fizlet",
-    description: `The Fizlet weekly contest: a theme a week, one or two pieces a day, one winner a week; ${CONTEST.maxLive / 1024} KB gzip or less can win, bigger is too big to win.`,
+    title: "Daily contest: top picks, weekly winners · Fizlet",
+    description: `The Fizlet Daily contest: up to ${CONTEST.perDay} entries a day, the top ${CONTEST.picks[0]} to ${CONTEST.picks[1]} picked, a weekly and a monthly winner; over ${CONTEST.maxLive.toLocaleString("en-US")} B live can't win.`,
     base: "../", version, path: "contest/", body: contestPage({ now, weeks: WEEKS, people: PEOPLE, base: "../", urlOf }), scripts: ["site.js"],
   })],
   ["notes/index.html", page({

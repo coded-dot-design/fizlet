@@ -233,7 +233,7 @@ try {
       // The chips: All, then every theme that has entries (with its count), linking to its first section.
       const chips = [...html.matchAll(/data-theme-chip="([^"]+)"[^>]*>[^<]*<small>(\d+)<\/small>/g)].map((m) => [m[1], Number(m[2])]);
       assert.deepEqual(chips, [["all", GALLERY.length], ...THEMES.filter((t) => GALLERY.some((e) => e.theme === t.id)).map((t) => [t.id, GALLERY.filter((e) => e.theme === t.id).length])], `${gp.path}: theme chips and counts`);
-      if (GPAGES.length > 1) assert.match(html, /<nav class="gal-pages" aria-label="Gallery pages">/, `${gp.path}: page links`);
+      if (GPAGES.length > 1) assert.match(html, /<nav class="gal-pages" aria-label="Daily pages">/, `${gp.path}: page links`);
       for (const e of gp.entries) {
         const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
         assert.ok(html.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `${e.id}: its badge shows ${bytes} B`);
@@ -269,20 +269,20 @@ try {
     }
   }
 
-  // ---------- Heroes and people: every hero has a large card; every contributor a profile ----------
+  // ---------- Heroes and people: /heroes/ is archived (it redirects to Daily, where every hero is an
+  // entry); every contributor has a profile ----------
   where = "heroes and people";
   const HEROES = GALLERY.filter((e) => e.kind === "hero");
   {
     assert.ok(HEROES.length >= 2, "at least two heroes");
     const html = readFileSync(pageFile("heroes/"), "utf8");
-    assert.deepEqual([...html.matchAll(/<li class="hero-card panel" id="hero-([^"]+)"/g)].map((m) => m[1]), HEROES.map((e) => e.id), "heroes: every hero, newest first");
-    for (const e of HEROES) {
-      const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
-      const card = html.slice(html.indexOf(`id="hero-${e.id}"`)).split("</li>")[0];
-      assert.ok(card.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `hero ${e.id}: its badge shows ${bytes} B`);
-      assert.ok(card.includes(`<p class="hero-by">by <a href="../${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">studio crew</small>' : ""}</p>`), `hero ${e.id}: by ${PEOPLE[e.author].name}, linked`);
-      assert.ok(!/data-slot-target/.test(card), `hero ${e.id}: no gallery slot wiring on its poster`);
-    }
+    assert.match(html, /<meta http-equiv="refresh" content="0; url=\.\.\/gallery\/">/, "heroes/: redirects to Daily (meta refresh)");
+    assert.match(html, new RegExp(`<link rel="canonical" href="${SITE}gallery/">`), "heroes/: canonical is Daily");
+    assert.match(html, /<meta name="robots" content="noindex">/, "heroes/: noindex");
+    assert.ok(!readFileSync(`${ROOT}/sitemap.xml`, "utf8").includes(`${SITE}heroes/`), "heroes/: not in the sitemap");
+    assert.deepEqual(PAGES.filter((p) => /href="(\.\.\/|\.\/)*heroes\/"/.test(readFileSync(fileOf(p), "utf8"))), [], "no page links heroes/");
+    const daily = GPAGES.map((gp) => readFileSync(pageFile(gp.path), "utf8")).join("");
+    for (const e of HEROES) assert.ok(daily.includes(`<li class="panel gal-item" id="${e.id}"`), `hero ${e.id}: an entry on Daily`);
     assert.ok(PEOPLE["chris-cooley"], "the owner's profile");
     for (const person of Object.values(PEOPLE)) {
       assert.ok(PAGES.includes(personPath(person.id)), `${person.id}: a profile page`);
@@ -450,7 +450,7 @@ try {
 
   // ---------- Page keys: every in-page key presses (face drops) and clicks on face and base ----------
   let keyCount = 0;
-  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", "heroes/", "contest/", "make/", ...siteNotes().map(notePath)]) {
+  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", "contest/", "make/", ...siteNotes().map(notePath)]) {
     where = `page keys ${path || "index"}`;
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const { page, errors } = await open(context, path);
@@ -462,11 +462,7 @@ try {
     const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const tap = await open(phone, path);
     await revealAll(tap.page);
-    // Heroes: the skip below needs the centre card (aria-current), which an IntersectionObserver sets.
-    if (path === "heroes/") await tap.page.waitForSelector("[data-hero][aria-current]");
-    // Heroes: on a phone the other cards sit off to the side, and a scroll to one of their keys snaps the
-    // row to that card (the key moves under the tap); the centre card's keys are tapped.
-    await checkTaps(tap.page, `${where} (phone)`, { skip: path === "heroes/" ? "[data-hero]:not([aria-current])" : "" });
+    await checkTaps(tap.page, `${where} (phone)`);
     await phone.close();
   }
 
@@ -685,80 +681,6 @@ try {
     await q("zzqx nothing");
     assert.match(await page.textContent("[data-gal-found]"), /^0 matches/);
     assert.equal((await hits()).length, 0);
-    assert.deepEqual(errors, []);
-    await context.close();
-  }
-
-  // ---------- Heroes: the centre card plays, the rest are posters; keys move; full screen and back ----------
-  where = "heroes";
-  {
-    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
-    const { page, errors } = await open(context, "heroes/");
-    const playing = () => page.$$eval("[data-hero]", (l) => l.filter((c) => c.dataset.playing && c.querySelector("[data-fizlet-slot]")).map((c) => c.dataset.hero));
-    const centre = () => page.$eval("[data-hero-track]", (t) => t.querySelector("[aria-current]")?.dataset.hero ?? null);
-    await page.$eval("[data-hero-track]", (t) => t.scrollIntoView({ block: "center" }));
-    const box = await page.locator(".hero-stage figure").first().boundingBox();
-    assert.ok(box.width >= 300 && box.height >= 300, `hero cards are large (${box.width}×${box.height})`);
-    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[0].id, { timeout: 8000 });
-    assert.deepEqual(await playing(), [HEROES[0].id], "the first hero is in the centre and plays alone");
-    assert.equal(await page.getAttribute(`[data-hero="${HEROES[0].id}"] [data-hero-play]`, "aria-pressed"), "true");
-    assert.equal(await page.isDisabled("[data-hero-prev]"), true, "prev is off at the first card");
-    // Next: the second card comes to the centre and plays; the first goes back to its poster.
-    await page.click("[data-hero-next]");
-    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[1].id, { timeout: 8000 });
-    await page.waitForFunction((id) => !document.querySelector(`[data-hero="${id}"] [data-fizlet-slot]`), HEROES[0].id);
-    assert.equal(await centre(), HEROES[1].id);
-    assert.equal(await page.isVisible(`[data-hero="${HEROES[0].id}"] .ae-slot__placeholder, [data-hero="${HEROES[0].id}"] .fz-poster`), true, "the first is its poster again");
-    // Arrow keys on the row move a card.
-    await page.focus("[data-hero-track]");
-    await page.keyboard.press("ArrowLeft");
-    await page.waitForFunction((id) => document.querySelector(`[data-hero-track] [aria-current]`)?.dataset.hero === id, HEROES[0].id, { timeout: 4000 });
-    // Its Play key pauses it (and the centre does not restart it) and plays it again.
-    const key = `[data-hero="${HEROES[0].id}"] [data-hero-play]`;
-    await page.waitForFunction((k) => document.querySelector(k).getAttribute("aria-pressed") === "true", key);
-    await page.click(key);
-    assert.equal(await page.getAttribute(key, "aria-pressed"), "false");
-    await page.waitForTimeout(300);
-    assert.deepEqual(await playing(), [], "paused by hand: a poster");
-    await page.click(key);
-    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[0].id, { timeout: 8000 });
-    // Full screen (or the overlay), Esc closes, focus back on the key that opened it.
-    const openKey = `[data-hero="${HEROES[0].id}"] [data-hero-open]`;
-    await page.focus(openKey);
-    await page.keyboard.press("Enter");
-    await page.waitForFunction(() => document.fullscreenElement?.matches("[data-hero-stage]") || document.querySelector(".hero-stage.hero-full"), null, { timeout: 4000 });
-    assert.equal(await page.evaluate(() => document.activeElement?.matches("[data-hero-close]")), true, "focus on Close in full screen");
-    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[0].id, { timeout: 8000 });
-    await page.keyboard.press("Escape");
-    await page.waitForFunction(() => !document.fullscreenElement && !document.querySelector(".hero-full"), null, { timeout: 4000 });
-    await page.waitForFunction((k) => document.activeElement === document.querySelector(k), openKey, { timeout: 2000 }); // focus returns to the key that opened it
-    assert.equal(await page.isHidden(`[data-hero="${HEROES[0].id}"] [data-hero-close]`), true);
-    // The overlay, where the Fullscreen API is missing.
-    await page.evaluate(() => Object.defineProperty(Document.prototype, "fullscreenEnabled", { get: () => false }));
-    await page.click(openKey);
-    await page.waitForSelector(".hero-stage.hero-full[role=dialog][aria-modal=true]");
-    await page.keyboard.press("Tab");
-    assert.equal(await page.evaluate(() => document.activeElement?.matches("[data-hero-close]")), true, "the overlay keeps focus");
-    await page.keyboard.press("Escape");
-    await page.waitForFunction(() => !document.querySelector(".hero-full"));
-    await page.waitForFunction((k) => document.activeElement === document.querySelector(k), openKey, { timeout: 2000 }); // focus returns after the overlay
-    assert.deepEqual(errors, []);
-    await context.close();
-  }
-  where = "heroes, reduced motion";
-  {
-    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
-    const { page, errors } = await open(context, "heroes/");
-    const loaded = [];
-    page.on("request", (r) => /\/gallery\/[^/]+\.js$/.test(r.url()) && !r.url().endsWith("heroes.js") && loaded.push(r.url()));
-    await page.$eval("[data-hero-track]", (t) => t.scrollIntoView({ block: "center" }));
-    await page.waitForTimeout(500);
-    assert.deepEqual(loaded, [], "reduced motion: posters, nothing loads");
-    const box = await page.locator(".hero-stage figure").first().boundingBox();
-    assert.ok(box.width >= 300 && box.height >= 300, `hero cards stay large on a phone (${box.width}×${box.height})`);
-    await page.click(`[data-hero="${HEROES[0].id}"] [data-hero-play]`);
-    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[0].id, { timeout: 8000 });
-    assert.equal(loaded.length, 1, "Play loads that hero, on request");
     assert.deepEqual(errors, []);
     await context.close();
   }

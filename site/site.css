@@ -253,23 +253,99 @@ html.bui[data-theme="light"] .panel.lit {
   font-size: 19px;
   letter-spacing: 0.1em;
 }
+/* The header nav (layout.mjs navTree, site/nav.ts): top-level links and small click-to-open menus.
+   On a phone it is one full-width panel under the bar, behind the menu key; it overlays the page,
+   so opening it moves nothing (no layout shift), and it never slides. */
 .site-nav {
-  display: flex;
-  gap: 4px;
   margin-left: auto;
 }
-.site-nav a {
+.nav-list,
+.nav-menu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nav-list {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.nav-item {
+  position: relative;
+}
+/* The group buttons are nav text, not kit keys: flat, no base, no lift (board-ui.css styles every
+   .bui button as a key, so this outranks it); keyboard focus keeps a ring. */
+.site-nav a,
+.bui .site-head .site-nav .nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
   padding: 8px 12px;
   font: 700 11px var(--mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   text-decoration: none;
   color: var(--muted);
+  background: none;
+  border: 0;
   border-radius: 8px;
+  box-shadow: none;
+  transform: none;
+  transition: none;
+  cursor: pointer;
 }
-.site-nav a:hover {
+.site-nav a:hover,
+.bui .site-head .site-nav .nav-btn:is(:hover, [aria-expanded="true"]) {
   color: var(--ink);
   background: var(--surface);
+  transform: none;
+  box-shadow: none;
+}
+.bui .site-head .site-nav .nav-btn:focus-visible,
+.site-nav a:focus-visible {
+  outline: 3px solid var(--k-sys-ink);
+  outline-offset: 2px;
+}
+.site-nav .nav-chev {
+  width: 12px;
+  height: 12px;
+}
+.nav-btn[aria-expanded="true"] .nav-chev {
+  rotate: 180deg;
+}
+.bui .site-head .nav-item:has([aria-current]) > .nav-btn {
+  color: var(--ink);
+  box-shadow: inset 0 -2px 0 var(--k-sys);
+}
+.nav-label,
+.head-keys .menu-key,
+.nav-btn[aria-expanded="false"] ~ .nav-menu {
+  display: none;
+}
+.nav-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  min-width: 190px;
+  padding: 6px;
+  background: var(--bg);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 6px 0 var(--base);
+}
+.nav-menu a {
+  letter-spacing: 0.1em;
+}
+.menu-key svg + svg,
+.menu-open .menu-key svg:first-child {
+  display: none;
+}
+.menu-open .menu-key svg + svg {
+  display: block;
 }
 .head-keys {
   display: flex;
@@ -285,11 +361,65 @@ html.bui[data-theme="light"] .panel.lit {
   height: 20px;
 }
 @media (max-width: 960px) {
-  .site-nav {
-    display: none;
-  }
   .head-keys {
     margin-left: auto;
+  }
+  .head-keys .menu-key {
+    display: inline-grid;
+    place-items: center;
+    order: 9;
+  }
+  .site-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: calc(100dvh - 78px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 8px var(--gutter) 20px;
+    background: var(--bg);
+    border-bottom: 2px solid var(--line);
+    box-shadow: 0 6px 0 var(--base);
+  }
+  .menu-open .site-nav {
+    display: block;
+  }
+  .nav-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    align-items: start;
+    gap: 6px 18px;
+    max-width: var(--page);
+    margin: 0 auto;
+  }
+  .bui .site-head .site-nav .nav-btn {
+    display: none;
+  }
+  .nav-label {
+    display: block;
+    padding: 12px 12px 2px;
+    font: 700 10px var(--mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--k-sys-ink);
+  }
+  .site-nav .nav-btn ~ .nav-menu {
+    position: static;
+    display: grid;
+    min-width: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+  .site-nav a {
+    min-height: 44px;
+    font-size: 13px;
+  }
+  .nav-top {
+    margin-top: 26px;
   }
 }
 @media (max-width: 520px) {
@@ -2603,139 +2733,6 @@ html.bui[data-theme="light"] .phases b {
   color: var(--ink);
 }
 
-/* ---------- Heroes: a row of large cards; the centre one plays (site/gallery/heroes.ts) ---------- */
-/* --hero-w: the stage's width (≥ 300 px); a card is that plus its padding. */
-.hero-row {
-  --hero-w: clamp(300px, 62vw, 760px);
-  --hero-card: calc(var(--hero-w) + 32px); /* 14 px padding and the panel's 2 px border, each side */
-}
-.hero-nav {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-.hero-track {
-  display: flex;
-  gap: 22px;
-  margin: 0;
-  padding: 6px max(var(--gutter), calc((100% - var(--hero-card)) / 2)) 22px;
-  list-style: none;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  overscroll-behavior-x: contain;
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-track {
-    scroll-behavior: auto;
-  }
-}
-.hero-track:focus-visible {
-  outline: 2px solid var(--k-sys);
-  outline-offset: -2px;
-}
-.hero-card {
-  flex: 0 0 var(--hero-card);
-  min-width: 0;
-  display: grid;
-  gap: 14px;
-  padding: 14px;
-  scroll-snap-align: center;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-.hero-card[aria-current] {
-  opacity: 1;
-}
-.hero-stage {
-  position: relative;
-  min-width: 0;
-}
-.hero-stage figure.ae-slot {
-  position: relative;
-  margin: 0;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  min-height: 300px;
-  border: 2px solid var(--line);
-  border-radius: 10px;
-  overflow: hidden;
-  cursor: zoom-in;
-  background: var(--code-bg);
-}
-@media (min-width: 860px) {
-  .hero-stage figure.ae-slot {
-    aspect-ratio: 16 / 10;
-  }
-}
-.hero-stage .fz-poster {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.hero-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 2;
-}
-.hero-close[hidden] {
-  display: none;
-}
-/* Full screen: the Fullscreen API, or the overlay where it is missing. */
-.hero-stage:fullscreen,
-.hero-stage.hero-full {
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  background: var(--bg);
-  overscroll-behavior: none;
-}
-/* Full screen the hero is the whole screen: no gesture pans or zooms it. */
-:is(.hero-stage:fullscreen, .hero-stage.hero-full),
-:is(.hero-stage:fullscreen, .hero-stage.hero-full) figure.ae-slot {
-  touch-action: none;
-}
-.hero-stage.hero-full {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-}
-.hero-stage:fullscreen figure.ae-slot,
-.hero-stage.hero-full figure.ae-slot {
-  width: min(100%, calc((100vh - 32px) * 16 / 10));
-  aspect-ratio: 16 / 10;
-  cursor: auto;
-}
-.hero-lock {
-  overflow: hidden;
-}
-.hero-meta {
-  display: grid;
-  gap: 10px;
-  min-width: 0;
-}
-.hero-meta h2 {
-  margin: 0;
-  font-size: clamp(22px, 3vw, 34px);
-}
-.hero-meta p {
-  margin: 0;
-}
-.hero-size {
-  color: var(--muted);
-  font: 13px/1.6 var(--mono);
-}
-.hero-size b {
-  color: var(--ink);
-}
-.hero-keys-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
 /* ---------- People: a contributor's profile (site/pages/people.mjs) ---------- */
 .person-list {
   padding: 22px;
@@ -3067,6 +3064,19 @@ html.bui[data-theme="light"] .phases b {
   font-size: 30px;
 }
 .ppl-grid,
+/* Daily's contest panel (site/pages/gallery.mjs): the contest story and the enter key, under the head. */
+.gal-contest {
+  max-width: 860px;
+  margin-top: 22px;
+  padding: 18px 22px;
+}
+.gal-contest p {
+  margin: 0 0 14px;
+  color: var(--muted);
+}
+.gal-contest b {
+  color: var(--ink);
+}
 .ct-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

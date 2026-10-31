@@ -27,15 +27,16 @@ export const STICKER = {
 /** Contributor kinds, in page order: the one owner, the team's AI agents, the house personas. */
 export const KINDS = ["owner", "agent", "persona"];
 /**
- * Contest rules the data must keep (and the page states). One winner a week, picked from that
- * week's dailies (the gallery's new pieces dated inside the ISO week); no entry minimum. Size
- * decides, not the prompt: a piece whose live chunk (gzip bytes, measured at build: its size badge)
- * is at most `maxLive` can win; over it, it is posted and labelled too big to win, and the build
- * fails if it is a week's winner. 10,240 B is the budget a hero's live chunk already has
- * (scripts/sizes.mjs, page build: bricks ≤ 7 KB + scene ≥ 3 KB); every gallery entry measured so
- * far fits it.
+ * Contest rules the data must keep (and Daily and the contest page state, from here). Each day takes
+ * up to `perDay` entries; the voters pick the day's top `picks[0]` to `picks[1]`; the picks are all
+ * posted at the end of the week, then one weekly winner and one monthly winner are picked. When a day
+ * has too few entries, the team backfills it with its own pieces. Size decides, not the prompt: a
+ * piece whose live chunk (gzip bytes, measured at build: its size badge) is at most `maxLive` can
+ * win; over it, it is posted and labelled too big to win, and the build fails if it is a week's
+ * winner. 10,240 B is the budget a hero's live chunk already has (scripts/sizes.mjs, page build:
+ * bricks ≤ 7 KB + scene ≥ 3 KB). `voters`: contributor ids (site/contributors), in the order named.
  */
-export const CONTEST = { maxLive: 10240 };
+export const CONTEST = { maxLive: 10240, perDay: 40, picks: [1, 5], voters: ["frame-zero", "dj-mempool", "hex-hazel", "quill", "pip", "chris-cooley"] };
 /** Whether a measured gallery entry can win a contest week (its live bytes at or under the cap). */
 export const canWin = (e) => e.size <= CONTEST.maxLive;
 

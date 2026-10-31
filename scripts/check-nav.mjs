@@ -8,7 +8,8 @@
 //      Breadcrumb nav that ends on the page (aria-current="page");
 //   4. external links say so: their text ends in ↗, or (an icon key) an aria-label names the place;
 //   5. descriptive link text: no "here", "click here", "read more", "more", "link";
-//   6. no orphans: every page but the 404 is linked from at least one other page.
+//   6. no orphans: every page but the 404 is linked from at least one other page (a moved page,
+//      one that only redirects with a meta refresh, needs no inbound link: nothing should link it).
 // Standalone example pages (their own plain shell, no site layout) are exempt from 1 to 3.
 
 const VAGUE = /^(click here|here|read more|more|link|this|go)$/i;
@@ -33,12 +34,12 @@ export function checkNav(pages, { site, standalone = [] }) {
     const u = new URL(href, `http://x/${from}`);
     return decodeURIComponent(u.pathname.slice(1)).replace(/(^|\/)index\.html$/, "$1");
   };
-  const inbound = new Map(pages.map((p) => [p.path, 0]));
+  const inbound = new Map(pages.filter((p) => !/<meta http-equiv="refresh"/i.test(p.html)).map((p) => [p.path, 0]));
   let header = null;
   for (const { path, html } of pages) {
     const name = path || "index";
     const own = !standalone.includes(path);
-    const nav = html.match(/<nav class="site-nav" aria-label="Site">([\s\S]*?)<\/nav>/)?.[1];
+    const nav = html.match(/<nav class="site-nav" aria-label="Site"[^>]*>([\s\S]*?)<\/nav>/)?.[1];
     if (own && path !== "404.html") {
       // 1. The header, resolved to site paths (so "../bricks/" and "bricks/" compare equal).
       if (!nav) out.push(`${name}: no header nav`);
