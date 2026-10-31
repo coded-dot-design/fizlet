@@ -51,6 +51,12 @@ export const BUDGETS = [
   // A page's own CSS @keyframes on the kernel clock: 5,363 B gz with the kernel and timeline it
   // composes when added; its own code is 477 B (on a page the kernel and timeline are shared).
   ["fizlet/css-clock", "src/css-clock.ts", 5632],
+  // Force layout on typed arrays with a Barnes-Hut quadtree (takes an engine; steer's exact hypot
+  // included): 1,751 B gz when added (target 2,048).
+  ["fizlet/layout", "src/layout.ts", 2048],
+  // One DPR-correct overlay canvas with dirty-box redraw (no kernel code: it takes an engine):
+  // 936 B gz when added (target 1,229).
+  ["fizlet/view-canvas", "src/view-canvas.ts", 1229],
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, fizlet/hud included). The Board UI kit CSS is the game's (it bakes
@@ -108,12 +114,15 @@ export const BUDGETS = [
   ["fizlet/ui (css)", "src/ui/board-ui.css", 5152],
 ];
 
+/** esbuild options for a JS entry: what a consumer's minifier makes of it (also scripts/size-bakeoff.mjs). */
+export const ESBUILD_JS = { bundle: true, minify: true, logLevel: "silent", format: "esm", target: "es2022" };
+
 /** [{ name, entry, budget, gzip }] for every budgeted entry. */
 export async function measure() {
   const out = [];
   for (const [name, entry, budget] of BUDGETS) {
     const css = entry.endsWith(".css");
-    const res = await build({ entryPoints: [entry], bundle: true, minify: true, write: false, logLevel: "silent", ...(css ? {} : { format: "esm", target: "es2022" }) });
+    const res = await build({ entryPoints: [entry], write: false, ...(css ? { bundle: true, minify: true, logLevel: "silent" } : ESBUILD_JS) });
     out.push({ name, entry, budget, gzip: gzipSync(res.outputFiles[0].contents).length });
   }
   return out;

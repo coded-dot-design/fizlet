@@ -3,6 +3,7 @@
 // loads once its slot is near and the main thread is idle; reduced motion keeps every poster.
 import { slot } from "../../src/slot";
 import type { SlotMount } from "../../src/slot";
+import { shapes } from "./shape";
 
 const base = new URL(".", import.meta.url);
 for (const fig of document.querySelectorAll<HTMLElement>("figure.ae-slot[data-gallery]")) {
@@ -11,3 +12,4 @@ for (const fig of document.querySelectorAll<HTMLElement>("figure.ae-slot[data-ga
     return m.mount;
   }));
 }
+shapes();

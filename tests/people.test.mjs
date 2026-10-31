@@ -167,7 +167,8 @@ test("contest: a week's entries are its dailies (live, measured, dated inside it
 });
 
 test("contest: one winner a week, from its dailies, on a closed week, never over the size cap; no entry minimum", () => {
-  assert.deepEqual(CONTEST, { maxLive: 10240 });
+  assert.deepEqual(CONTEST, { maxLive: 10240, perDay: 40, picks: [1, 5], voters: ["frame-zero", "dj-mempool", "hex-hazel", "quill", "pip", "chris-cooley"] });
+  for (const id of CONTEST.voters) assert.ok(PEOPLE.some((p) => p.id === id), `voter ${id} is a contributor`);
   const three = [entry("e0", PEOPLE[0].id, { size: 9000, date: "2026-11-02" }), entry("e1", PEOPLE[1].id, { size: 4000, date: "2026-11-04" }), entry("e2", PEOPLE[2].id, { size: CONTEST.maxLive + 1, date: "2026-11-06" })];
   assert.throws(() => contestWeeks(three, PEOPLE, week({ winner: "nope", status: "closed" })), /not one of its dailies/);
   assert.throws(() => contestWeeks(three, PEOPLE, week({ winner: "e0" })), /only once the week is closed/);
@@ -184,7 +185,7 @@ test("contest: one winner a week, from its dailies, on a closed week, never over
   assert.match(li("e2"), /TOO BIG TO WIN/);
   assert.doesNotMatch(li("e0") + li("e1"), /TOO BIG TO WIN/);
   assert.ok(html.indexOf("#e1\"") < html.indexOf("#e0\"") && html.indexOf("#e0\"") < html.indexOf("#e2\""), "dailies listed smallest first");
-  assert.match(html, /2026-W45<\/span> Fall · 3 dailies/, "past winners by week");
+  assert.match(html, /2026-W45<\/span> Fall · 3 pieces/, "past winners by week");
   const [none] = contestWeeks([entry("x", PEOPLE[0].id, { size: CONTEST.maxLive + 5 })], PEOPLE, week());
   assert.equal(none.smallest, null, "no smallest when nothing can win");
 });
@@ -199,7 +200,10 @@ test("contest: the page leads with this week, else the next one, else the latest
   const shipped = contestWeeks([], PEOPLE);
   assert.ok(shipped.some((w) => w.week === "2026-W44" && w.theme === "Halloween"), "launch week: Halloween");
   const html = contestPage({ now: contestNow(shipped, "2026-10-31"), weeks: shipped, people: PEOPLE, base: "../", urlOf: (id) => `gallery/#${id}` });
-  for (const rule of ["weekly contest", "Small wins", "10 KB gzip or less", "10,240 B", "Too big to win", "Smallest", "One or two new pieces a day, at most", "approved by the owner", "One winner a week", "No daily winner", "Monday, October 26 to Sunday, November 1, 2026", "Winner badge", "Not live yet", "No winners yet"]) assert.ok(html.includes(rule), `the page says: ${rule}`);
+  for (const rule of ["Tiny examples, made every day. It's how we test the engine. We turned it into a contest.", "Small wins", "10 KB gzip or less", "10,240 B", "Too big to win", "Smallest",
+    "Up to 40 entries a day", "top 1 to 5", "posted at the end of the week", "weekly winner", "monthly winner", "backfills", "approved by the owner",
+    "Monday, October 26 to Sunday, November 1, 2026", "Winner badge", "Not live yet", "No winners yet", "issues/new?title=Contest%202026-W44%3A%20&amp;body="]) assert.ok(html.includes(rule), `the page says: ${rule}`);
+  for (const name of ["Frame Zero", "DJ Mempool", "Hex Hazel", "Quill", "Pip", "Chris Cooley"]) assert.ok(html.includes(`>${name}</a>`), `voter ${name} is named`);
 });
 
 test("stats: a contributor's entries and their measured bytes", () => {

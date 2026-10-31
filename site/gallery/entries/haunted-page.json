@@ -37,6 +37,7 @@
   "module": "anims/haunted-page.ts",
   "export": "mount",
   "aspect": "16 / 9",
+  "phone": "3 / 4",
   "stage": "page",
   "approved": "2026-10-30"
 }

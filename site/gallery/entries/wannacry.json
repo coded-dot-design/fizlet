@@ -1,4 +1,5 @@
 {
+  "no": 67,
   "id": "wannacry",
   "date": "2026-10-31",
   "prompt": "Outbreak, act 1 (2017): the worm hops file to file and locks each one, checking one nonsense domain first; unplug files to stop the hops, and find that domain in the lookup log to register the kill switch",

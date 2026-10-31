@@ -1,4 +1,5 @@
 {
+  "no": 66,
   "id": "slammer",
   "date": "2026-10-31",
   "prompt": "Outbreak, act 1 (2003): 376-byte packets flood every port of the firewall and only UDP 1434 lets them in; race to find and close it, then reboot the infected servers before they hit each other again",

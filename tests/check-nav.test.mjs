@@ -41,3 +41,13 @@ test("standalone pages skip the shell rules but not the link rules", () => {
   pages[0].html = pages[0].html.replace("</main>", '<a href="examples/fizz/">The fizz hero example</a></main>');
   assert.deepEqual(checkNav(pages, { site: SITE, standalone: ["examples/fizz/"] }), ['examples/fizz/: external link without ↗: "Chris Cooley" → https://coded.design/']);
 });
+
+test("a moved page (meta refresh) needs no inbound link; the header may carry more attributes", () => {
+  const pages = good();
+  pages[3].html = pages[3].html.replace('<a href="../notes/">', '<a href="../notes/" aria-current="page">');
+  for (const p of pages) p.html = p.html.replace('<nav class="site-nav" aria-label="Site">', '<nav class="site-nav" aria-label="Site" id="site-nav">');
+  pages.push({ path: "old/", html: shell("../", "old/", "").replace("</head>", '<meta http-equiv="refresh" content="0; url=../notes/"></head>') });
+  assert.deepEqual(checkNav(pages, { site: SITE }), []);
+  pages[4].html = pages[4].html.replace(/<meta http-equiv[^>]*>/, "");
+  assert.deepEqual(checkNav(pages, { site: SITE }), ["old/: orphan (no page links to it)"]);
+});

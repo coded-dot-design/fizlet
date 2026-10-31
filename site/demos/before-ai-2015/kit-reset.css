@@ -1,0 +1,5 @@
+/* The site's Board UI kit styles every button as a key; the sprite switches are invisible hit areas
+   over the art, so the kit is taken off them here (before the 2015 and Fizlet rules, which win ties). */
+.bui .bt-stage button { min-height: 0; padding: 0; border: 0; background: none; font: inherit; box-shadow: none; transform: none; transition: none; }
+.bui .bt-stage button:is(:hover, :active, .down, [aria-pressed="true"]) { transform: none; box-shadow: none; }
+.bui .bt-stage button svg { stroke: none; }

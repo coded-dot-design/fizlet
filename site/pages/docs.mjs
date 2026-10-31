@@ -4,6 +4,7 @@
 import { esc, icon } from "../layout.mjs";
 import { block, inline } from "./notes.mjs";
 import { sizeBadge } from "../size-badge.mjs";
+import { brickMini, brickOf } from "../brick-ui.mjs";
 import { CONTRACT } from "./index.mjs";
 import { SECTIONS, docPath } from "../../scripts/docs.mjs";
 
@@ -19,7 +20,7 @@ function docBlock(b, { base, sizes, bricks, recipes }) {
       <h2>${inline(b.heading, base)}${b.headingAccent ? `<br><em>${inline(b.headingAccent, base)}</em>` : ""}</h2>
       ${b.body.map((p) => `<p class="body">${inline(p, base)}</p>`).join("")}
       <figure class="panel lit recipe-live" data-demo-host data-recipe="${esc(b.id)}">
-        <div class="recipe-head"><span class="bui-label"><b>LIVE</b> · ${r.imports.map((m) => `<code>${esc(m)}</code>`).join(" + ")}</span>${sizeBadge(r.bytes, r.live, `this recipe, bundled and minified with ${r.imports.join(", ")}`)}</div>
+        <div class="recipe-head"><span class="bui-label recipe-bricks"><b>LIVE</b> · ${r.imports.map((m) => { const br = brickOf(bricks, m); return br ? brickMini({ brick: br, size: sizes.find((x) => x.name === br.sizes[0]), href: `${base}bricks/${br.id}.html` }) : `<code>${esc(m)}</code>`; }).join(" ")}</span>${sizeBadge(r.bytes, r.live, `this recipe, bundled and minified with ${r.imports.join(", ")}`)}</div>
         ${r.html}
         <figcaption class="bp-note">${inline(b.caption, base)}</figcaption>
       </figure>

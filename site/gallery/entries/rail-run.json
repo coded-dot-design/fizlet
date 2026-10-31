@@ -1,0 +1,23 @@
+{
+  "no": 79,
+  "id": "rail-run",
+  "date": "2026-10-31",
+  "prompt": "a night street line: tap to ollie, hold in the air to float longer; clear the cones, jump the gaps, land on a rail to grind it in a shower of sparks, and keep the line clean for the multiplier",
+  "title": "Rail Run",
+  "kind": "micro",
+  "theme": "skate-sesh",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot",
+    "fizlet/sound"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/skate/rail-run.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "approved": "2026-10-31"
+}
