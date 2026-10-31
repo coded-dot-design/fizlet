@@ -73,7 +73,7 @@
 .bt-note { margin: var(--bt-gap) 0 0; color: var(--muted); max-width: 900px; }
 .bt-note b { color: var(--ink); }
 .bt-recall-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 16px 0 0; font-size: 14px; color: var(--muted); }
-.bt-recall { min-height: 44px; min-width: 44px; }
+.bui .bt-recall { min-height: 44px; min-width: 44px; }
 /* 2015 had no reduced-motion rule: this wrapper holds its first frame. */
 @media (prefers-reduced-motion: reduce) {
   .bt-2015 .beats, .bt-2015 .coffee, .bt-2015 .comp { animation: none !important; }

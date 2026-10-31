@@ -16,3 +16,4 @@
 .fz-arcade .fz-play svg{width:14px;height:14px;fill:currentColor;display:block;margin:auto}
 .fz-arcade [aria-pressed=true] .fz-i-play,.fz-arcade [aria-pressed=false] .fz-i-pause{display:none}
 @media (prefers-reduced-motion:reduce){.fz-arcade .bt-stage .fz-play{transition:none}}
+.fz-arcade .bt-stage .fz-play::before{content:"";position:absolute;inset:-6px;border-radius:50%} /* a 44 px target around the 32 px key */
