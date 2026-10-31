@@ -114,6 +114,8 @@ if (!fizzFigure) throw new Error("demos/fizz/index.html: no fizz figure to embed
 const fizz = { figure: fizzFigure, sizes: fizzSizes, live: "demos/fizz/scene.js" };
 // The origin hero (Code. Sleep. Drink. Repeat.): its own page; its home page section is a separate change.
 await import("../site/demos/origin/build.mjs");
+// The interactive companion to the note "Before AI: 2015": the 2015 sprites beside two Fizlet rebuilds.
+await import("../site/demos/before-ai-2015/build.mjs");
 
 // The "how it works" labs (site/labs/, the scenes DOM VIRUS's Under the hood vendors): their
 // still posters are the gallery figures (each in its own accent), their sheet goes on the page.
@@ -385,7 +387,7 @@ const routeOf = (f) => f.replace(/(^|\/)index\.html$/, "$1");
 const LABEL = new Map([
   ...DOCS.map((d) => [docPath(d), d.nav]), ...NOTES.map((n) => [notePath(n), n.title]), ...RELEASES.map((r) => [releasePath(r), r.version]),
   ...bricks.map((b) => [brickPath(b), b.id]), ...gallery.pages.slice(1).map((p) => [p.path, `Page ${p.n}`]), ...PEOPLE.map((p) => [personPath(p.id), p.name]),
-  ["", "Home"], ["examples/quick-start.html", "Quick start"], ["privacy/", "Privacy"], ["cookies/", "Cookies"], ["demos/layers/", "The layers story"], ["demos/fizz/", "The fizz proof piece"], ["demos/origin/", "The origin hero"], ["examples/fizz/", "The fizz hero example"],
+  ["", "Home"], ["examples/quick-start.html", "Quick start"], ["privacy/", "Privacy"], ["cookies/", "Cookies"], ["demos/layers/", "The layers story"], ["demos/fizz/", "The fizz proof piece"], ["demos/before-ai-2015/", "Before AI: 2015, live"], ["demos/origin/", "The origin hero"], ["examples/fizz/", "The fizz hero example"],
 ]);
 const built = pages.map(([f]) => routeOf(f));
 const order = (r) => (built.includes(r) ? built.indexOf(r) : built.length);

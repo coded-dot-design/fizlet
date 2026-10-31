@@ -1,0 +1,18 @@
+/* Arcade: the 2015 boxes and sheets; real buttons over the art (SVG icons, no icon font); focus
+   rings; the column's HUD. Transforms (squash, wobble, shake) are written by the engines. */
+.fz-beats,.fz-coffee,.fz-comp{background-repeat:no-repeat;position:relative}
+.fz-beats{background-image:url(app-assets/images/animations/88597e86.beats.png);width:300px;height:300px;margin:0 auto;transform-origin:50% 62%}
+.fz-coffee{background-image:url(app-assets/images/animations/2deb5381.coffee.png);width:84px;height:84px}
+.fz-comp{background-image:url(app-assets/images/animations/136aceff.computer.svg);width:210px;height:210px;float:right;margin:-110px auto 0}
+.fz-arcade .bt-stage button{position:absolute;border:0;padding:0;background:0 0;cursor:pointer;color:#F4F2DB;z-index:1}
+.fz-arcade .bt-stage button:focus-visible{outline:3px solid #F4F2DB;outline-offset:3px}
+.fz-arcade .bt-stage button[hidden]{display:none}
+.fz-arcade .fz-cups{width:130px;height:132px;left:90px;top:48px;border-radius:44%}
+.fz-arcade .fz-coffee button{width:58%;height:58%;top:18px;left:21%;border-radius:50%}
+.fz-arcade .fz-keys{width:172px;height:114px;bottom:0;left:18px}
+.fz-arcade .fz-lid{width:182px;height:70px;left:14px;top:34px}
+.fz-arcade .bt-stage .fz-play{width:32px;height:32px;left:246px;top:174px;border-radius:50%;background:#E15E49;box-shadow:calc(4px * var(--shadow-x, 0)) calc(4px * var(--shadow-y, 1)) #ba341f;transition:transform .1s,box-shadow .1s}
+.fz-arcade .bt-stage .fz-play:hover,.fz-arcade .bt-stage .fz-play:active{transform:translateY(3px);box-shadow:calc(1px * var(--shadow-x, 0)) calc(1px * var(--shadow-y, 1)) #ba341f}
+.fz-arcade .fz-play svg{width:14px;height:14px;fill:currentColor;display:block;margin:auto}
+.fz-arcade [aria-pressed=true] .fz-i-play,.fz-arcade [aria-pressed=false] .fz-i-pause{display:none}
+@media (prefers-reduced-motion:reduce){.fz-arcade .bt-stage .fz-play{transition:none}}
