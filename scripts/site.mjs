@@ -112,6 +112,9 @@ if (!fizzFigure) throw new Error("demos/fizz/index.html: no fizz figure to embed
 const fizz = { figure: fizzFigure, sizes: fizzSizes, live: "demos/fizz/scene.js" };
 // The origin hero (Code. Sleep. Drink. Repeat.): its own page; its home page section is a separate change.
 await import("../site/demos/origin/build.mjs");
+// The Origin section (site/origin/): its loader and the scene the slot loads, measured by its build.
+const { sizes: originSizes } = await import("../site/origin/build.mjs");
+const originHero = { sizes: originSizes };
 
 // The "how it works" labs (site/labs/, the scenes DOM VIRUS's Under the hood vendors): their
 // still posters are the gallery figures (each in its own accent), their sheet goes on the page.
@@ -236,7 +239,7 @@ const pages = [
   ["index.html", page({
     title: "Fizlet · Tiny physics for your page",
     description: homeDescription,
-    base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast }), scripts: ["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js"],
+    base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast, origin: originHero }), scripts: ["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js", "origin/main.js"],
   })],
   ["examples/quick-start.html", page({
     title: "Quick start: ten lines to a blast · Fizlet",

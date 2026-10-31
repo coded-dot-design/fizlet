@@ -6,6 +6,7 @@ import { QUICK_START } from "./quick-start.mjs";
 import { BETA_LINE } from "../bricks.mjs";
 import { statusPill } from "./brick.mjs";
 import { LAUNCH_LAST, phases } from "../roadmap.mjs";
+import { originSection } from "../origin/section.mjs";
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
 
@@ -109,7 +110,7 @@ export function roadmapSection(all = phases()) {
 </section>`;
 }
 
-export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, blast }) {
+export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, blast, origin }) {
   const size = (name) => sizes.find((s) => s.name === name);
   const kernel = size("fizlet (kernel)");
   const css = size("fizlet/ui (css)");
@@ -146,7 +147,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 
   return `
 <!-- HERO: the headline, and a live board running on Fizlet itself -->
-<section class="hero" aria-labelledby="hero-title">
+<section class="hero has-grid" aria-labelledby="hero-title">
   <div class="hero-field" aria-hidden="true"></div>
   <div class="wrap hero-grid">
     <div class="hero-copy">
@@ -184,6 +185,8 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
     <span class="soon"><i></i><b>V${esc(version)}</b><small>MIT · OPEN SOURCE</small></span>
   </div>
 </section>
+
+${originSection(origin)}
 
 <!-- ON THIS PAGE: one jump per numbered section (the long page's own table of contents), then the weekly contest (its own page; it and Roadmap left the header) -->
 <nav class="page-toc" aria-label="On this page">
