@@ -499,10 +499,3 @@ test("fps cap: destroy() clears the pending wake-up timer (nothing outlives the 
     [globalThis.setTimeout, globalThis.clearTimeout] = real;
   }
 });
-
-test("phases: the bricks' const enum (src/kernel/phases.ts) matches the kernel's public IDLE/READ/STEP/RENDER", async () => {
-  const { P } = await import("../src/kernel/phases.ts");
-  const k = await import("../src/kernel/index.ts");
-  assert.deepEqual([P.IDLE, P.READ, P.STEP, P.RENDER], [k.IDLE, k.READ, k.STEP, k.RENDER]);
-  assert.deepEqual([k.IDLE, k.READ, k.STEP, k.RENDER], [0, 1, 2, 3]);
-});

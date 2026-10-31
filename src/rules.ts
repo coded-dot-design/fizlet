@@ -16,7 +16,7 @@ import type { Engine, System } from "./kernel/engine";
 /** Where the wave clock is: prepare (before a wave), assault (spawning) or rebuild (between waves). */
 export type WavePhase = "prepare" | "assault" | "rebuild";
 const PHASES: readonly WavePhase[] = ["prepare", "assault", "rebuild"];
-const enum Ph { PREPARE = 0, ASSAULT = 1, REBUILD = 2 }
+const PREPARE = 0, ASSAULT = 1, REBUILD = 2;
 
 /** Options for `waves()`: how many are alive now, the cap, the phase lengths and each wave's size,
  *  limit and spawn gap. */
@@ -45,22 +45,22 @@ export function waves(e: Engine, o: WaveOptions) {
   const gap = o.gap ?? ((w: number) => Math.max(0.7, 2.1 - w * 0.12));
   // wave, phase, left to spawn, countdown, time to the next spawn
   const s = new Float64Array(5);
-  const reset = () => void s.set([1, Ph.PREPARE, 0, prep, 0]);
+  const reset = () => void s.set([1, PREPARE, 0, prep, 0]);
   reset();
   const system: System = {
     step(_, dt) {
       s[4]! -= dt;
-      if (s[1] !== Ph.ASSAULT) {
+      if (s[1] !== ASSAULT) {
         s[3] = Math.max(0, s[3]! - dt);
         if (s[3] === 0) {
-          if (s[1] === Ph.REBUILD) s[0]!++;
-          s[1] = Ph.ASSAULT;
+          if (s[1] === REBUILD) s[0]!++;
+          s[1] = ASSAULT;
           s[2] = size(s[0]!);
           s[4] = 0;
           e.events.emit("wave:start", s[0], s[2]);
         }
       } else if (s[2] === 0 && o.alive() === 0) {
-        s[1] = Ph.REBUILD;
+        s[1] = REBUILD;
         s[3] = rest;
         e.events.emit("wave:clear", s[0]);
       }
@@ -78,7 +78,7 @@ export function waves(e: Engine, o: WaveOptions) {
     /** Most alive at once in this wave. */
     get limit() { return Math.min(cap, limit(s[0]!)); },
     /** Spawn one now? Assault, enemies left, the gap has passed and the board is under the limit. */
-    ready() { return s[1] === Ph.ASSAULT && s[2]! > 0 && s[4]! <= 0 && o.alive() < Math.min(cap, limit(s[0]!)); },
+    ready() { return s[1] === ASSAULT && s[2]! > 0 && s[4]! <= 0 && o.alive() < Math.min(cap, limit(s[0]!)); },
     /** One spawned: count it and wait the gap. */
     spawned() {
       if (s[2]! > 0) s[2]!--;

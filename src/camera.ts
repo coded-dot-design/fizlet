@@ -23,8 +23,8 @@ export interface CameraOptions {
   motion?: boolean;
 }
 
-// Slots of the camera state `s` (a const enum: esbuild inlines it; a local const after code stays a variable).
-const enum Sl { FX = 0, FY = 1, Z = 2, GX = 3, GY = 4, GZ = 5, PX = 6, PY = 7, W = 8, H = 9, RX = 10, RY = 11, RZ = 12, MOVE = 13, MEASURE = 14, CLIP = 15, JUMP = 16 }
+// Slots of the camera state `s`, as literals named in a comment (src/kernel/engine.ts says why): 0 FX,
+// 1 FY, 2 Z, 3 GX, 4 GY, 5 GZ, 6 PX, 7 PY, 8 W, 9 H, 10 RX, 11 RY, 12 RZ, 13 MOVE, 14 MEASURE, 15 CLIP, 16 JUMP.
 
 /** A camera on stage `el`: pan and zoom it with one `transform` written through the engine's ledger
  *  (so Recall gives it back). Moves ease and settle; `to()`, `pan()` and `home()` drive it. */
@@ -34,8 +34,8 @@ export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOp
   // FX FY Z current; GX GY GZ target; PX PY pin; W H stage size; RX RY RZ last written; flags; JUMP:
   // reduced motion, latched in read while moving (a step never calls into the DOM).
   const s = new Float64Array(17);
-  s[Sl.Z] = s[Sl.GZ] = s[Sl.RZ] = 1;
-  s[Sl.MEASURE] = 1;
+  s[2 /* Z */] = s[5 /* GZ */] = s[12 /* RZ */] = 1;
+  s[14 /* MEASURE */] = 1;
   const mq = o.motion == null && typeof matchMedia === "function" ? matchMedia("(prefers-reduced-motion: reduce)") : null;
   const still = () => (mq ? mq.matches : o.motion === false);
   const parent = el.parentElement;
@@ -49,112 +49,112 @@ export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOp
   };
   // Move the pin without moving the picture: re-express the current focus about the new pin.
   const pin = (px: number, py: number) => {
-    const dx = px - s[Sl.PX]!, dy = py - s[Sl.PY]!;
-    s[Sl.FX] = s[Sl.FX]! + dx / s[Sl.Z]!;
-    s[Sl.FY] = s[Sl.FY]! + dy / s[Sl.Z]!;
-    s[Sl.GX] = s[Sl.GX]! + dx / s[Sl.GZ]!;
-    s[Sl.GY] = s[Sl.GY]! + dy / s[Sl.GZ]!;
-    s[Sl.PX] = px;
-    s[Sl.PY] = py;
+    const dx = px - s[6 /* PX */]!, dy = py - s[7 /* PY */]!;
+    s[0 /* FX */] = s[0 /* FX */]! + dx / s[2 /* Z */]!;
+    s[1 /* FY */] = s[1 /* FY */]! + dy / s[2 /* Z */]!;
+    s[3 /* GX */] = s[3 /* GX */]! + dx / s[5 /* GZ */]!;
+    s[4 /* GY */] = s[4 /* GY */]! + dy / s[5 /* GZ */]!;
+    s[6 /* PX */] = px;
+    s[7 /* PY */] = py;
   };
 
   const go = () => {
-    s[Sl.GX] = fit(s[Sl.GX]!, s[Sl.PX]!, s[Sl.GZ]!, s[Sl.W]!);
-    s[Sl.GY] = fit(s[Sl.GY]!, s[Sl.PY]!, s[Sl.GZ]!, s[Sl.H]!);
-    s[Sl.MOVE] = 1;
+    s[3 /* GX */] = fit(s[3 /* GX */]!, s[6 /* PX */]!, s[5 /* GZ */]!, s[8 /* W */]!);
+    s[4 /* GY */] = fit(s[4 /* GY */]!, s[7 /* PY */]!, s[5 /* GZ */]!, s[9 /* H */]!);
+    s[13 /* MOVE */] = 1;
     // Size unknown (hidden at setup): measure in the next read. A known size is kept until the
     // stage resizes, so a drag pan reads no layout per frame.
-    if (!s[Sl.W]) s[Sl.MEASURE] = 1;
+    if (!s[8 /* W */]) s[14 /* MEASURE */] = 1;
     engine.wake();
   };
 
   // Layout reads happen here only: at setup, and in the read phase once the stage resized (or its
   // size is still unknown). A ResizeObserver says so; transforms never change a layout size.
   const measure = () => {
-    s[Sl.MEASURE] = 0;
+    s[14 /* MEASURE */] = 0;
     const r = el.getBoundingClientRect();
-    s[Sl.W] = r.width / s[Sl.RZ]!;
-    s[Sl.H] = r.height / s[Sl.RZ]!;
-    s[Sl.GX] = fit(s[Sl.GX]!, s[Sl.PX]!, s[Sl.GZ]!, s[Sl.W]!);
-    s[Sl.GY] = fit(s[Sl.GY]!, s[Sl.PY]!, s[Sl.GZ]!, s[Sl.H]!);
-    if (box && parent && !s[Sl.CLIP]) s[Sl.CLIP] = getComputedStyle(parent).overflowX === "visible" ? 1 : 2;
+    s[8 /* W */] = r.width / s[12 /* RZ */]!;
+    s[9 /* H */] = r.height / s[12 /* RZ */]!;
+    s[3 /* GX */] = fit(s[3 /* GX */]!, s[6 /* PX */]!, s[5 /* GZ */]!, s[8 /* W */]!);
+    s[4 /* GY */] = fit(s[4 /* GY */]!, s[7 /* PY */]!, s[5 /* GZ */]!, s[9 /* H */]!);
+    if (box && parent && !s[15 /* CLIP */]) s[15 /* CLIP */] = getComputedStyle(parent).overflowX === "visible" ? 1 : 2;
   };
   measure();
   if (typeof ResizeObserver === "function") {
-    const ro = new ResizeObserver(() => (s[Sl.MEASURE] = 1));
+    const ro = new ResizeObserver(() => (s[14 /* MEASURE */] = 1));
     ro.observe(el);
     engine.signal.addEventListener("abort", () => ro.disconnect());
   }
 
   const cam = {
     /** Show world point (x, y) at screen point (px, py) (default: the same point, a zoom about it). */
-    to(x: number, y: number, zoom = s[Sl.GZ]!, px = x, py = y) {
+    to(x: number, y: number, zoom = s[5 /* GZ */]!, px = x, py = y) {
       if (!(x - x === 0 && y - y === 0 && zoom > 0 && px - px === 0 && py - py === 0)) return;
       pin(px, py);
-      s[Sl.GX] = x;
-      s[Sl.GY] = y;
-      s[Sl.GZ] = clampZ(zoom);
+      s[3 /* GX */] = x;
+      s[4 /* GY */] = y;
+      s[5 /* GZ */] = clampZ(zoom);
       go();
     },
     /** Stage size in px (untransformed), as last measured. */
     get width() {
-      return s[Sl.W]!;
+      return s[8 /* W */]!;
     },
     get height() {
-      return s[Sl.H]!;
+      return s[9 /* H */]!;
     },
     /** Drag by a screen delta (px): follows at once, no easing. */
     pan(dx: number, dy: number) {
       if (!(dx - dx === 0 && dy - dy === 0)) return;
-      s[Sl.FX] = s[Sl.FX]! - dx / s[Sl.Z]!;
-      s[Sl.FY] = s[Sl.FY]! - dy / s[Sl.Z]!;
-      s[Sl.GX] = s[Sl.GX]! - dx / s[Sl.GZ]!;
-      s[Sl.GY] = s[Sl.GY]! - dy / s[Sl.GZ]!;
+      s[0 /* FX */] = s[0 /* FX */]! - dx / s[2 /* Z */]!;
+      s[1 /* FY */] = s[1 /* FY */]! - dy / s[2 /* Z */]!;
+      s[3 /* GX */] = s[3 /* GX */]! - dx / s[5 /* GZ */]!;
+      s[4 /* GY */] = s[4 /* GY */]! - dy / s[5 /* GZ */]!;
       go();
     },
     /** Back to the page as it is (zoom 1, no offset), eased. */
     home() {
-      s[Sl.GX] = s[Sl.PX]!;
-      s[Sl.GY] = s[Sl.PY]!;
-      s[Sl.GZ] = 1;
+      s[3 /* GX */] = s[6 /* PX */]!;
+      s[4 /* GY */] = s[7 /* PY */]!;
+      s[5 /* GZ */] = 1;
       go();
     },
     /** Screen (stage box px) to world, into `out` (no allocation). */
     toWorld<T extends { [i: number]: number }>(x: number, y: number, out: T): T {
-      out[0] = s[Sl.FX]! + (x - s[Sl.PX]!) / s[Sl.Z]!;
-      out[1] = s[Sl.FY]! + (y - s[Sl.PY]!) / s[Sl.Z]!;
+      out[0] = s[0 /* FX */]! + (x - s[6 /* PX */]!) / s[2 /* Z */]!;
+      out[1] = s[1 /* FY */]! + (y - s[7 /* PY */]!) / s[2 /* Z */]!;
       return out;
     },
     get zoom() {
-      return s[Sl.Z]!;
+      return s[2 /* Z */]!;
     },
     /** Still easing toward the target. */
     get moving() {
-      return s[Sl.MOVE]! > 0;
+      return s[13 /* MOVE */]! > 0;
     },
     read() {
-      if (s[Sl.MEASURE]) measure();
-      if (s[Sl.MOVE]) s[Sl.JUMP] = +still();
+      if (s[14 /* MEASURE */]) measure();
+      if (s[13 /* MOVE */]) s[16 /* JUMP */] = +still();
     },
     step(e: Engine, dt: number) {
-      if (!s[Sl.MOVE]) return;
-      const a = s[Sl.JUMP] ? 1 : 1 - Math.exp(-rate * dt);
-      s[Sl.Z] = s[Sl.Z]! + (s[Sl.GZ]! - s[Sl.Z]!) * a;
-      s[Sl.FX] = fit(s[Sl.FX]! + (s[Sl.GX]! - s[Sl.FX]!) * a, s[Sl.PX]!, s[Sl.Z]!, s[Sl.W]!);
-      s[Sl.FY] = fit(s[Sl.FY]! + (s[Sl.GY]! - s[Sl.FY]!) * a, s[Sl.PY]!, s[Sl.Z]!, s[Sl.H]!);
+      if (!s[13 /* MOVE */]) return;
+      const a = s[16 /* JUMP */] ? 1 : 1 - Math.exp(-rate * dt);
+      s[2 /* Z */] = s[2 /* Z */]! + (s[5 /* GZ */]! - s[2 /* Z */]!) * a;
+      s[0 /* FX */] = fit(s[0 /* FX */]! + (s[3 /* GX */]! - s[0 /* FX */]!) * a, s[6 /* PX */]!, s[2 /* Z */]!, s[8 /* W */]!);
+      s[1 /* FY */] = fit(s[1 /* FY */]! + (s[4 /* GY */]! - s[1 /* FY */]!) * a, s[7 /* PY */]!, s[2 /* Z */]!, s[9 /* H */]!);
       // Settled: within a 50th of a pixel and a 10,000th of a zoom step; land exactly on the target.
-      if (Math.abs(s[Sl.GZ]! - s[Sl.Z]!) < 1e-4 && Math.abs(s[Sl.GX]! - s[Sl.FX]!) * s[Sl.Z]! < 0.02 && Math.abs(s[Sl.GY]! - s[Sl.FY]!) * s[Sl.Z]! < 0.02)
-        (s[Sl.FX] = s[Sl.GX]!), (s[Sl.FY] = s[Sl.GY]!), (s[Sl.Z] = s[Sl.GZ]!), (s[Sl.MOVE] = 0);
+      if (Math.abs(s[5 /* GZ */]! - s[2 /* Z */]!) < 1e-4 && Math.abs(s[3 /* GX */]! - s[0 /* FX */]!) * s[2 /* Z */]! < 0.02 && Math.abs(s[4 /* GY */]! - s[1 /* FY */]!) * s[2 /* Z */]! < 0.02)
+        (s[0 /* FX */] = s[3 /* GX */]!), (s[1 /* FY */] = s[4 /* GY */]!), (s[2 /* Z */] = s[5 /* GZ */]!), (s[13 /* MOVE */] = 0);
       e.busy();
     },
     render() {
-      const z = s[Sl.Z]!, x = s[Sl.PX]! - s[Sl.FX]! * z, y = s[Sl.PY]! - s[Sl.FY]! * z;
-      if (x === s[Sl.RX] && y === s[Sl.RY] && z === s[Sl.RZ]) return;
-      s[Sl.RX] = x;
-      s[Sl.RY] = y;
-      s[Sl.RZ] = z;
+      const z = s[2 /* Z */]!, x = s[6 /* PX */]! - s[0 /* FX */]! * z, y = s[7 /* PY */]! - s[1 /* FY */]! * z;
+      if (x === s[10 /* RX */] && y === s[11 /* RY */] && z === s[12 /* RZ */]) return;
+      s[10 /* RX */] = x;
+      s[11 /* RY */] = y;
+      s[12 /* RZ */] = z;
       const L = engine.ledger, home = Math.abs(x) < 0.005 && Math.abs(y) < 0.005 && Math.abs(z - 1) < 1e-6;
-      if (s[Sl.CLIP] === 1 && !home) L.style(parent!, "overflow", "clip");
+      if (s[15 /* CLIP */] === 1 && !home) L.style(parent!, "overflow", "clip");
       L.style(el, "transform-origin", home ? "" : "0 0");
       L.style(el, "transform", home ? "" : `translate(${x.toFixed(2)}px,${y.toFixed(2)}px) scale(${z.toFixed(4)})`);
       L.style(el, "will-change", home ? "" : "transform");

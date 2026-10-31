@@ -9,7 +9,6 @@ import { seeded } from "./kernel/random";
 
 /** Wire kinds. Every message is 12 bytes: kind, slot, players, 0, u32 frame (or seed), u32 value. */
 export const INPUT = 1, HASH = 2, WELCOME = 3, LEAVE = 4;
-const enum Ty { INPUT = 1, HASH = 2, WELCOME = 3, LEAVE = 4 } // the same numbers, inlined by esbuild inside this file
 
 /** Moves 12-byte messages to the room (or the other peers) and back. */
 export interface Transport {
@@ -41,7 +40,7 @@ export interface PresenceOptions {
   hashEvery?: number;
 }
 
-const enum Ct { FRAME = 0, STALLS = 1, DROPPED = 2, DESYNC = 3, LOST = 4 }
+// Stats slots, literals named in a comment (src/kernel/engine.ts says why): 0 FRAME, 1 STALLS, 2 DROPPED, 3 DESYNC, 4 LOST. Message types: the exported INPUT…LEAVE.
 
 /** Lockstep multiplayer on engine `e`: each sim frame waits for every player's input (sent `delay`
  *  frames ahead), so peers never drift; state hashes are compared to catch a desync. Read `frame`,
@@ -55,7 +54,7 @@ export function presence(e: Engine, o: PresenceOptions) {
   const tag = new Int32Array(P * C).fill(-1), bits = new Uint32Array(P * C);
   const htag = new Int32Array(P * C).fill(-1), hval = new Uint32Array(P * C);
   const now = new Uint32Array(P), n = new Int32Array(5), out = new Uint8Array(12);
-  n[Ct.DESYNC] = -1;
+  n[3 /* DESYNC */] = -1;
   const put = (s: number, f: number, b: number) => ((tag[s * C + (f % C)] = f), (bits[s * C + (f % C)] = b));
   for (let s = 0; s < P; s++) for (let f = 0; f < D; f++) put(s, f, 0);
   const send = (k: number, f: number, v: number) => {
@@ -65,7 +64,7 @@ export function presence(e: Engine, o: PresenceOptions) {
   };
   const check = (s: number, f: number, h: number) => {
     const i = f % C;
-    for (let j = 0; j < P; j++) if (j !== s && htag[j * C + i] === f && hval[j * C + i] !== h >>> 0 && n[Ct.DESYNC]! < 0) n[Ct.DESYNC] = f;
+    for (let j = 0; j < P; j++) if (j !== s && htag[j * C + i] === f && hval[j * C + i] !== h >>> 0 && n[3 /* DESYNC */]! < 0) n[3 /* DESYNC */] = f;
     htag[s * C + i] = f;
     hval[s * C + i] = h;
   };
@@ -75,28 +74,28 @@ export function presence(e: Engine, o: PresenceOptions) {
     // First write wins: a second INPUT or HASH for a frame a seat already sent is dropped, so a
     // peer that sends two different inputs for one frame can't split the others' sims.
     const i = s * C + (f % C);
-    if (k === Ty.LEAVE) n[Ct.LOST]! |= 1 << s;
-    else if (k === Ty.INPUT && f >= n[Ct.FRAME]! && f < n[Ct.FRAME]! + C && tag[i] !== f) put(s, f, d[8]! | (d[9]! << 8) | (d[10]! << 16) | (d[11]! << 24));
-    else if (k === Ty.HASH && f > n[Ct.FRAME]! - C && f < n[Ct.FRAME]! + C && htag[i] !== f) check(s, f, d[8]! | (d[9]! << 8) | (d[10]! << 16) | (d[11]! << 24));
-    else n[Ct.DROPPED]!++;
+    if (k === 4 /* LEAVE */) n[4 /* LOST */]! |= 1 << s;
+    else if (k === 1 /* INPUT */ && f >= n[0 /* FRAME */]! && f < n[0 /* FRAME */]! + C && tag[i] !== f) put(s, f, d[8]! | (d[9]! << 8) | (d[10]! << 16) | (d[11]! << 24));
+    else if (k === 2 /* HASH */ && f > n[0 /* FRAME */]! - C && f < n[0 /* FRAME */]! + C && htag[i] !== f) check(s, f, d[8]! | (d[9]! << 8) | (d[10]! << 16) | (d[11]! << 24));
+    else n[2 /* DROPPED */]!++;
   };
   const system: System = {
     step(e) {
-      const f = n[Ct.FRAME]!;
+      const f = n[0 /* FRAME */]!;
       for (let s = 0; s < P; s++) {
         const i = s * C + (f % C);
-        if (tag[i] !== f) return void n[Ct.STALLS]!++; // lockstep: wait, never guess
+        if (tag[i] !== f) return void n[1 /* STALLS */]!++; // lockstep: wait, never guess
         now[s] = bits[i]!;
       }
       const b = o.input() >>> 0;
       put(me, f + D, b);
-      send(Ty.INPUT, f + D, b);
+      send(1 /* INPUT */, f + D, b);
       o.step(e, now, f);
-      n[Ct.FRAME] = f + 1;
+      n[0 /* FRAME */] = f + 1;
       if (o.hash && (f + 1) % every === 0) {
         const h = o.hash() >>> 0;
         check(me, f + 1, h);
-        send(Ty.HASH, f + 1, h);
+        send(2 /* HASH */, f + 1, h);
       }
     },
   };
@@ -108,23 +107,23 @@ export function presence(e: Engine, o: PresenceOptions) {
     system,
     /** Sim frames run so far (every peer passes the same frames, maybe at different times). */
     get frame() {
-      return n[Ct.FRAME]!;
+      return n[0 /* FRAME */]!;
     },
     /** Engine steps spent waiting for someone's input. */
     get stalls() {
-      return n[Ct.STALLS]!;
+      return n[1 /* STALLS */]!;
     },
     /** Messages refused (out of the window, bad seat, a second input or hash for one frame). */
     get dropped() {
-      return n[Ct.DROPPED]!;
+      return n[2 /* DROPPED */]!;
     },
     /** First frame whose state hash differed from a peer's, or -1. */
     get desync() {
-      return n[Ct.DESYNC]!;
+      return n[3 /* DESYNC */]!;
     },
     /** Bitmask of seats the room said left (their frames never arrive: the sim waits). */
     get lost() {
-      return n[Ct.LOST]!;
+      return n[4 /* LOST */]!;
     },
     /** The confirmed input of `slot` for `frame`, or -1 if it isn't known (yet, or any more). */
     confirmed(slot: number, frame: number) {
@@ -229,7 +228,7 @@ export function join(url: string, signal?: AbortSignal, protocols?: string | str
     ws.addEventListener("error", bye);
     signal?.addEventListener("abort", bye);
     t.listen((d) => {
-      if (d[0] !== Ty.WELCOME) return;
+      if (d[0] !== 3 /* WELCOME */) return;
       t.listen(null);
       ws.removeEventListener("close", bye);
       ws.removeEventListener("error", bye);

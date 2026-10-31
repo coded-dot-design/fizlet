@@ -4,12 +4,11 @@
  * contract's "no layout reads in the tick". Never ship this in a production build.
  */
 import { type Engine } from "./kernel/engine";
-import { P } from "./kernel/phases";
 
 const guarded = new Set<Engine & { violations?: number }>();
 let patched = false;
 function hit() {
-  for (const e of guarded) if (e.phase === P.STEP) e.violations = (e.violations ?? 0) + 1;
+  for (const e of guarded) if (e.phase === 2 /* STEP */) e.violations = (e.violations ?? 0) + 1;
 }
 function patch() {
   if (patched || typeof Element !== "function") return;

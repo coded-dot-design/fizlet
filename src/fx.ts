@@ -7,8 +7,10 @@
  * drip and debris (or your own) and sprays them; a page that never calls it never ships it. Visual only: its own random (seeded from Math.random), never the
  * simulation's seeded random.
  */
+// Shape numbers first: esbuild inlines a top-level const only while nothing that runs code (here
+// Math.PI) comes before it.
+const DEBRIS = 0, DISC = 1, RING = 2, SQUARE = 3, WORD = 4, SMOKE = 5, STREAK = 6;
 const TAU = Math.PI * 2;
-const enum Sh { DEBRIS = 0, DISC = 1, RING = 2, SQUARE = 3, WORD = 4, SMOKE = 5, STREAK = 6 }
 /** Shapes a kind can draw as (a streak trails its velocity: sparks, drips). */
 export const SHAPES = ["square", "disc", "ring", "frame", "word", "smoke", "streak"] as const;
 
@@ -39,7 +41,7 @@ export const DEBRIS_KIND: Kind = { shape: "square", drag: 2.6, gravity: 1, angle
 /** All four by name: `emitter(fx, KINDS)`, or pick some (`emitter(fx, { bubble: BUBBLE })`). */
 export const KINDS = { bubble: BUBBLE, spark: SPARK, drip: DRIP, debris: DEBRIS_KIND };
 // blast()'s five hero parts: flash, fireball, core, shock ring, spinning square ring.
-const HERO_KIND = [Sh.DISC, Sh.DISC, Sh.DISC, Sh.RING, Sh.SQUARE], HERO_SIZE = [26, 20, 14, 18, 24], HERO_LIFE = [0.28, 0.5, 0.42, 0.5, 0.6], HERO_COL = [0, 1, 2, 0, 3];
+const HERO_KIND = [DISC, DISC, DISC, RING, SQUARE], HERO_SIZE = [26, 20, 14, 18, 24], HERO_LIFE = [0.28, 0.5, 0.42, 0.5, 0.6], HERO_COL = [0, 1, 2, 0, 3];
 
 /** Options for `effects()`: the particle cap, the colour and word tables, scorch marks and gravity. */
 export interface FxOptions {
@@ -138,7 +140,7 @@ export function effects(o: FxOptions = {}) {
     },
     /** Pop word (index into `words`), drifting up. */
     word(x: number, y: number, w: number, c: number, size = 16) {
-      spawn(Sh.WORD, x, y, rnd(-14, 14), -70, size, 0.9, c, rnd(-0.18, 0.18), 0, w);
+      spawn(WORD, x, y, rnd(-14, 14), -70, size, 0.9, c, rnd(-0.18, 0.18), 0, w);
     },
     /** The hero explosion: flash, fireball, shock ring, spinning square ring, debris, smoke, scorch. */
     blast(x: number, y: number, power = 1, tint = 3) {
@@ -169,7 +171,7 @@ export function effects(o: FxOptions = {}) {
           if (i === 4) (ROT[p] = 0.3), (SPIN[p] = 1.6);
         } else if (i < n + 5) {
           const d = i - 5, a = (d / n) * TAU + U[0]! * 0.4 - 0.2, sp = (120 + U[1]! * 180) * k;
-          kind[p] = Sh.DEBRIS;
+          kind[p] = DEBRIS;
           VX[p] = Math.cos(a) * sp;
           VY[p] = Math.sin(a) * sp;
           SIZE[p] = (4 + U[2]! * 5) * k;
@@ -178,7 +180,7 @@ export function effects(o: FxOptions = {}) {
           ROT[p] = U[4]! * TAU;
           SPIN[p] = U[5]! * 18 - 9;
         } else {
-          kind[p] = Sh.SMOKE;
+          kind[p] = SMOKE;
           X[p] += U[0]! * 20 - 10;
           Y[p] += U[1]! * 20 - 10;
           VX[p] = U[2]! * 40 - 20;
@@ -244,7 +246,7 @@ export function effects(o: FxOptions = {}) {
         // A turned particle draws about its own origin (one save/restore, only when it is turned).
         if (a) ctx.save(), ctx.translate(x, y), ctx.rotate(a), (x = y = 0);
         switch (sh) {
-          case Sh.STREAK: {
+          case STREAK: {
             // A streak stretches with its speed (falling drips, sparks), square to the page.
             const l = Math.abs(VY[i]!) * 0.03 + s;
             ctx.globalAlpha = Math.min(1, k * 2);
@@ -252,14 +254,14 @@ export function effects(o: FxOptions = {}) {
             ctx.fillRect(x - s / 2, y - l, s, l);
             break;
           }
-          case Sh.DEBRIS:
+          case DEBRIS:
             ctx.globalAlpha = Math.min(1, k * 1.6);
             ctx.fillStyle = c;
             ctx.fillRect(x - s / 2, y - s / 2, s, s);
             break;
-          case Sh.DISC:
-          case Sh.SMOKE: {
-            const smoke = sh === Sh.SMOKE;
+          case DISC:
+          case SMOKE: {
+            const smoke = sh === SMOKE;
             ctx.globalAlpha = smoke ? k * (light ? 0.12 : 0.2) : k;
             ctx.fillStyle = smoke ? (light ? "#5d5684" : "#2a2150") : c;
             ctx.beginPath();
@@ -267,20 +269,20 @@ export function effects(o: FxOptions = {}) {
             ctx.fill();
             break;
           }
-          case Sh.RING:
-          case Sh.SQUARE: {
+          case RING:
+          case SQUARE: {
             ctx.globalAlpha = k;
             ctx.strokeStyle = c;
             ctx.lineWidth = 4 * k + 1;
-            const r = s * (0.5 + (1 - k) * (sh === Sh.RING ? 4.2 : 3));
-            if (sh === Sh.RING) {
+            const r = s * (0.5 + (1 - k) * (sh === RING ? 4.2 : 3));
+            if (sh === RING) {
               ctx.beginPath();
               ctx.arc(x, y, r, 0, TAU);
               ctx.stroke();
             } else ctx.strokeRect(x - r / 2, y - r / 2, r, r);
             break;
           }
-          case Sh.WORD:
+          case WORD:
             ctx.globalAlpha = Math.min(1, k * 2);
             ctx.font = `900 ${Math.round(s * (1 + (1 - k) * 0.3))}px ui-monospace, SFMono-Regular, monospace`;
             ctx.textAlign = "center";
