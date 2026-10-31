@@ -2479,6 +2479,14 @@ html.bui[data-theme="light"] .phases b {
 .gal-stage {
   min-width: 0;
 }
+/* Taps on a demo stage stay taps: no double-tap zoom (iOS) on the stages, pinch still works there and
+   the page keeps its own zoom (no maximum-scale in the viewport). Stricter rules (pan-y, none) win. */
+/* Zero specificity, so any piece's own pan-y/none rule wins. iOS checks the element that receives
+   the tap, so it covers every layer inside the stage (TAP TO PLAY, buttons, canvases) and the card. */
+:where(.gal-item, .gal-stage, .fizz-slot, .hero-stage) :where(figure.ae-slot, figure.ae-slot *),
+:where(.gal-item) {
+  touch-action: manipulation;
+}
 .gal-stage figure.ae-slot {
   position: relative;
   margin: 0;
@@ -2674,7 +2682,7 @@ html.bui[data-theme="light"] .phases b {
   border-radius: 8px;
   background: var(--code-bg);
   color: var(--ink);
-  font: 15px/1.4 var(--mono);
+  font: 16px/1.4 var(--mono); /* 16 px: iOS zooms the page on focusing smaller text */
 }
 .gal-search input:focus-visible {
   outline: 2px solid var(--k-sys);
