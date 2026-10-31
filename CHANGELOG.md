@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.21.0
 
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
   first release tag after the owner adds the `NPM_TOKEN` repository secret; the release workflow
