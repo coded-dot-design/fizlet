@@ -1,26 +1,27 @@
 {
   "id": "2015-laptop-types",
   "date": "2026-10-31",
-  "prompt": "a laptop Chris Cooley drew frame by frame in 2015 (kept by the Wayback Machine, 23 April 2015) opens when you tap the screen, types, scrolls the code three times, then rests; tap mid-move and it turns back from that frame; rebuilt in Fizlet from the same sprite sheet",
-  "title": "The laptop opens, types and scrolls (2015, rebuilt)",
+  "prompt": "a laptop Chris Cooley drew frame by frame in 2015 (kept by the Wayback Machine, 23 April 2015), rebuilt as an arcade toy in Fizlet from the same sprite sheet: tap and the lid slams open; every tap of the keys sprays code, lights the screen and scrolls the code on; the screen's button slams it shut",
+  "title": "The laptop slams open and sprays code as you type (2015, arcade)",
   "kind": "micro",
   "theme": "everyday",
   "author": "chris-cooley",
   "recipe": "hand-built",
   "bricks": [
     "fizlet/kernel",
+    "fizlet/fx",
     "fizlet/slot"
   ],
   "pageCost": {
     "settles": true,
     "measured": {
       "chromium": "153.0.8010.12",
-      "framesPlaying": 31,
+      "framesPlaying": 48,
       "framesSettled": 0,
       "framesOffscreen": 0,
       "recallExact": false,
       "reducedMotionStill": true,
-      "allocBytesPerFrame": 15.24
+      "allocBytesPerFrame": 628.76
     }
   },
   "fizlet": "0.20.0",

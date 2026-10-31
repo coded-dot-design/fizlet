@@ -83,3 +83,40 @@
 @media (prefers-reduced-motion: reduce) {
   .bt-portal::before { animation: none; opacity: .7; }
 }
+
+/* ---------- The three beats of the story (one line under each column's name) ---------- */
+.bt-beat { margin: 4px 16px 0; font: 700 13px/1.3 var(--mono); color: #11312c; letter-spacing: .02em; }
+.bt-arcade .bt-beat { color: #ffd400; text-shadow: 0 2px 0 #11312c; font-size: 15px; }
+/* The arcade column's HUD: score, combo, best, and the Sound key (a Board UI key). */
+.fz-hud { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 14px; margin: 10px 12px 0; padding: 6px 10px;
+  border-radius: 8px; background: #11312c; color: #F4F2DB; font: 700 12px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+.fz-hud b { color: #ffd400; font-size: 15px; font-variant-numeric: tabular-nums; }
+.fz-hud.hot b { color: #E15E49; }
+.fz-hud .fz-mute { min-height: 28px; padding: 2px 10px; font: 700 11px/1 var(--mono); }
+.fz-hud .fz-mute[aria-pressed="false"] { text-decoration: line-through; opacity: .75; }
+
+/* ---------- The dissection: three cards under the three columns ---------- */
+.bt-dis-row { display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+@media (max-width: 1000px) { .bt-dis-row { grid-template-columns: minmax(0, 1fr); } }
+.bt-dis { min-width: 0; border: 2px solid var(--line); border-radius: 10px; padding: 16px; background: var(--card, var(--bg)); }
+.bt-dis h3 { font: 600 15px/1.3 var(--sans); margin: 0; letter-spacing: .02em; }
+.bt-dis p { font-size: 14px; line-height: 1.55; color: var(--muted); }
+.bt-bricks { margin: 6px 0 12px; font: 700 13px/1.4 var(--mono); color: var(--ink) !important; }
+.bt-sizes { width: 100%; border-collapse: collapse; font-size: 13px; }
+.bt-sizes th, .bt-sizes td { padding: 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.bt-sizes th { text-align: left; font-weight: 400; color: var(--muted); padding-right: 12px; }
+.bt-sizes th small { display: block; font-size: 12px; opacity: .85; }
+.bt-sizes td { text-align: right; font: 13px/1.4 var(--mono); color: var(--ink); white-space: nowrap; }
+.bt-sheet { margin: 18px 0 0; }
+.bt-sheet figcaption { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.bt-sheet figcaption b { color: var(--ink); }
+.bt-film { overflow-x: auto; background: #65b9ad; border-radius: 6px; padding: 18px 8px 8px; }
+.bt-film:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.bt-reel { position: relative; background-repeat: no-repeat; }
+.bt-reel::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg, rgba(17, 49, 44, .55) 0 1px, transparent 1px var(--fw)); border-right: 1px solid rgba(17, 49, 44, .55); }
+.bt-reel span { position: absolute; top: -16px; font: 700 10px/14px var(--mono); color: #11312c; padding-left: 3px; }
+.bt-sheet pre, .bt-pre { overflow-x: auto; background: var(--code-bg); padding: 10px 12px; border-radius: 6px; font: 12px/1.6 var(--mono); margin: 8px 0 0; }
+.bt-swap { margin: 6px 0 0; font-size: 13px !important; }
+.bt-fine { margin: 14px 0 0; font-size: 13px; color: var(--muted); max-width: 900px; }
+.bt-arcade .bt-stage .desk { overflow: visible; } /* the code spray rises past the desk; the stage still clips */
