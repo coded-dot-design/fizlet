@@ -17,10 +17,12 @@
   - the figure's poster clips its own overflow (`overflow: clip`): the unexploded labels overflowed
     it, so an `overflow: hidden` host figure (the gallery's) was scrollable and `scrollIntoView` on
     a control scrolled the figure's insides, moving the controls under a tap.
-  One layout for every orientation also removed the landscape/portrait branches: live chunk 9,720 →
-  9,706 B gzip (budget ≤ 9,728, unchanged); poster, controls and inline script 5,269 → 4,505 B.
-  Measured (Chromium 153, 4× CPU throttle): script per frame 1.0 ms median, 3.0 ms p95; CLS 0;
-  0 frames once settled; `npm run perf` unchanged against main (layerize 1.9 ms/frame).
+  The thumb moves by `translate` and the fill by `clip-path`, so the story keeps main's zero layout
+  shift; phones still start paused. One layout for every orientation also removed the
+  landscape/portrait branches: live chunk 9,700 → 9,674 B gzip (budget ≤ 9,728, unchanged); poster,
+  controls and inline script 5,398 → 4,575 B. Measured (Chromium 153, 4× CPU throttle): script per
+  frame 1.5 ms median, 3.0 ms p95; CLS 0; 0 frames once settled; `npm run perf` within budget and
+  level with main (layerize ~2 ms/frame).
 - **Website: the home reveals end at the foot of the page too** (`site/home-motion.ts`). The home
   engine paused itself when `main` left the viewport (the kernel's off-screen rule), and at the very
   bottom the footer can fill it: a reveal still playing froze mid-way (parts at opacity 0.5–0.999)

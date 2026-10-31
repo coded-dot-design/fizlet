@@ -49,7 +49,7 @@ Optional data attributes on the figure: `data-loops` (cycles before it settles, 
   the inline controller moves the slider and the poster itself; once the scene is mounted it
   forwards input as a `lyr` event and the scene writes the controls through its ledger, so Recall
   gives them back exactly.
-- **Lazy:** no JS file loads up front. A ~770 B inline script (the controls' controller and loader) imports `layers.js` (`fizlet/slot`
+- **Lazy:** no JS file loads up front. An ~800 B inline script (the controls' controller and loader) imports `layers.js` (`fizlet/slot`
   and the scene, one file) when the slot comes within 200px or is tapped; the slot then waits for an
   idle main thread and mounts the scene. The tap that triggers the load is not replayed (the scene
   takes no tap input; a pointer only wakes a settled scene).
@@ -70,9 +70,9 @@ Optional data attributes on the figure: `data-loops` (cycles before it settles, 
 
 ## Measured
 
-See `site/demos/layers/measured.json`. On Fizlet 0.17.0, Chromium 153: live chunk 9,706 B gzip
+See `site/demos/layers/measured.json`. On Fizlet 0.20.0, Chromium 153: live chunk 9,674 B gzip
 (`fizlet/slot` + scene, loaded only once the slot is near); poster, controls and inline script
-4,505 B gzip (script 768 B); at 4× CPU throttle, script per frame 1.0 ms median, 3.0 ms p95, 6.0 ms
+4,575 B gzip (script 799 B); at 4× CPU throttle, script per frame 1.5 ms median, 3.0 ms p95, 6.1 ms
 max; layout shift 0; 0 frames once settled; 0 B of JS fetched before the slot nears the viewport.
 
 Against the hero budgets in fizlet-engine `docs/LAYERS.md`: live chunk ≥ 5% under 10 KB ✔, poster ≤ 6 KB ✔,
