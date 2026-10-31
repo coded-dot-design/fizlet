@@ -4,8 +4,9 @@ import { esc, icon, REPO, SITE, HUB, BATTLEFIELD, BLITZ, ENGINE_PLAN, AUTHOR } f
 import { sizeBadge } from "../size-badge.mjs";
 import { QUICK_START } from "./quick-start.mjs";
 import { BETA_LINE } from "../bricks.mjs";
-import { statusPill } from "./brick.mjs";
+import { brickCompact } from "../brick-ui.mjs";
 import { LAUNCH_LAST, phases } from "../roadmap.mjs";
+import { originSection } from "../origin/section.mjs";
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
 
@@ -109,22 +110,14 @@ export function roadmapSection(all = phases()) {
 </section>`;
 }
 
-export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, blast }) {
+export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, blast, origin }) {
   const size = (name) => sizes.find((s) => s.name === name);
   const kernel = size("fizlet (kernel)");
   const css = size("fizlet/ui (css)");
   const pageBuild = size("page build (kernel+slot+input+fx)");
-  const bricks = catalog.map((b, i) => {
-    const s = size(b.sizes[0]);
-    const extra = b.id === "ui" ? ` + ${kb(css.gzip)} KB css` : "";
-    // Compact on the home page: the snippet and the whole API live on each brick's own page.
-    return `<li class="panel brick${i === 0 ? " lit kernel" : ""}" style="--tone: var(--k-${b.role})">
-        <div class="brick-top"><span class="brick-tag">${b.tag}</span>${statusPill(b.status)}<span class="brick-size"><b>${kb(s.gzip)} KB</b>${extra}<small> / ${kb(s.budget)} KB gzip</small></span></div>
-        <h3><a href="bricks/${b.id}.html"><code>${b.name}</code></a></h3>
-        <p>${esc(b.summary)}</p>
-        <span class="meter" aria-hidden="true"><i style="--v:${(s.gzip / s.budget).toFixed(3)}"></i></span>
-      </li>`;
-  }).join("\n      ");
+  // Compact on the home page: the snippet and the whole API live on each brick's own page.
+  const bricks = catalog.map((b) => brickCompact({ brick: b, size: size(b.sizes[0]), href: `bricks/${b.id}.html`,
+    extra: b.id === "ui" ? `<li>+ <b>${kb(css.gzip)} KB</b> css</li>` : "" })).join("\n      ");
 
   const contract = CONTRACT.map(([t, b], i) => `<li class="panel rule"><b>${String(i + 1).padStart(2, "0")}</b><h3>${esc(t)}</h3><p>${esc(b)}</p></li>`).join("\n      ");
 
@@ -146,7 +139,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
 
   return `
 <!-- HERO: the headline, and a live board running on Fizlet itself -->
-<section class="hero" aria-labelledby="hero-title">
+<section class="hero has-grid" aria-labelledby="hero-title">
   <div class="hero-field" aria-hidden="true"></div>
   <div class="wrap hero-grid">
     <div class="hero-copy">
@@ -184,6 +177,8 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
     <span class="soon"><i></i><b>V${esc(version)}</b><small>MIT · OPEN SOURCE</small></span>
   </div>
 </section>
+
+${originSection(origin)}
 
 <!-- ON THIS PAGE: one jump per numbered section (the long page's own table of contents), then the weekly contest (its own page; it and Roadmap left the header) -->
 <nav class="page-toc" aria-label="On this page">

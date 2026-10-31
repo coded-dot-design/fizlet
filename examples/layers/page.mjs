@@ -23,7 +23,7 @@ export function page({ figure, css, loader, measured: m, sizes }) {
 <style>
 :root{color-scheme:dark;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,"SF Pro Display","Segoe UI",system-ui,-apple-system,Arial,sans-serif}
-main{max-width:1200px;margin:0 auto;padding:32px 16px 48px}
+main{max-width:1200px;margin:0 auto;padding:32px 16px 40vh}
 .k{font:700 11px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--k-sys-ink);margin:0}
 h1{font-weight:800;font-size:clamp(32px,4.4vw,54px);line-height:1.02;letter-spacing:-.035em;margin:8px 0 12px}
 h1 em{font-style:normal;color:var(--k-attack)}
@@ -37,11 +37,11 @@ ${css}
 <main>
 <p class="k">Layers</p>
 <h1>A game is a stack.<br><em>Each layer, one brick.</em></h1>
-<p>Battlefield Blitz turns sideways and fans out into its layers, each labelled with the bytes its own code costs. One layer faults, a scan patches it, and the stack folds back into the game. Pause it, or drag the slider to fan the layers out yourself.</p>
+<p>Scroll, and Battlefield Blitz turns sideways and lifts apart into its layers, one at a time, each labelled with the bytes its own code costs. One layer faults, a scan patches it, and the stack snaps back into the game. It follows your scroll and never holds it; focus it and the arrow keys step through the layers.</p>
 ${figure}
 <p class="cap">${sizeBadge(sizes.live, "demos/layers/layers.js", "the layers scene, its live chunk")}</p>
 <p class="cap">${caption}</p>
-<p class="cap">Layer bytes: Battlefield Blitz c8c8ca4, layer manifest (game code per layer, min + gzip; Effects is all brick, min). Built on fizlet, fizlet/slot, fizlet/sprite and fizlet/fx. By <a href="https://coded.design/">Chris Cooley ↗</a>.</p>
+<p class="cap">Layer bytes: Battlefield Blitz c8c8ca4, layer manifest (game code per layer, min + gzip; Effects is all brick, min). Built on fizlet, fizlet/slot and fizlet/sprite. By <a href="https://coded.design/">Chris Cooley ↗</a>.</p>
 </main>
 ${loader}
 </body>

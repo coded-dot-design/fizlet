@@ -122,3 +122,11 @@ test("checkHtml catches the basics", () => {
   has(good.replace("<main", "<div").replace("</main>", "</div>"), /<main>/);
   has(good.replace("<h2>Sub</h2>", '<p id="dup"></p><p id="dup"></p>'), /unique ids/);
 });
+
+test("checkHtml: a moved page (meta refresh) names its new home as canonical", () => {
+  const moved = page({ title: "Moved · Fizlet", description: "A page that moved, sending its visitors to the new address straight away.", base: "../", version: "1.0.0", path: "old/", redirect: "new/", body: "<section><h1>Moved</h1></section>" });
+  assert.match(moved, /<meta http-equiv="refresh" content="0; url=\.\.\/new\/">/);
+  assert.match(moved, /<meta name="robots" content="noindex">/);
+  assert.deepEqual(checkHtml(moved, "old/"), []);
+  assert.ok(checkHtml(moved.replace(/new\/">\n<meta name="robots"/, 'other/">\n<meta name="robots"'), "old/").some((p) => /canonical/.test(p)), "a canonical that is not the target fails");
+});

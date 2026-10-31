@@ -98,3 +98,18 @@ test("an own stage: its markup comes from site/gallery/stages/<id>.html, and is 
   writeFileSync(join(dir, `${e.id}.json`), JSON.stringify(e));
   assert.throws(() => entries({ dir, themeIds: ["everyday"] }), /stage "own" needs site\/gallery\/stages\/zz-own-stage-test\.html/);
 });
+
+test("card stickers: one status (NEW for a week from its date, then APPROVED), HERO, TOO BIG TO WIN, WINNER", async () => {
+  const { cardStickers, isNew, NEW_DAYS } = await import("../site/pages/gallery.mjs");
+  const e = { date: "2026-10-30", approved: "2026-10-30", kind: "micro", size: 10_934 };
+  const texts = (html) => [...html.matchAll(/class="gal-sticker gal-sticker-([a-z]+)"/g)].map((m) => m[1]);
+  assert.equal(NEW_DAYS, 7);
+  assert.ok(isNew(e, "2026-10-30") && isNew(e, "2026-11-05"), "new for its first week");
+  assert.ok(!isNew(e, "2026-11-06") && !isNew(e, "2026-10-29") && !isNew(e, undefined), "not before its date, after the week or without a build date");
+  assert.deepEqual(texts(cardStickers(e, { today: "2026-10-31" })), ["new"]);
+  assert.deepEqual(texts(cardStickers(e, { today: "2026-11-20" })), ["ok"]);
+  assert.match(cardStickers(e, { today: "2026-11-20" }), /aria-label="Approved: approved by the owner on 2026-10-30"/);
+  assert.deepEqual(texts(cardStickers({ ...e, kind: "hero" }, { today: "2026-10-31", winner: true, tooBig: true })), ["win", "new", "hero", "big"]);
+  assert.match(cardStickers(e, { tooBig: true }), /Too big to win: 10,934 B live, over the contest's 10,240 B cap/);
+  assert.equal(cardStickers({ ...e, approved: undefined, date: "2020-01-01" }, { today: "2026-10-31" }), "", "no approval, not new (an archived entry): no status sticker");
+});

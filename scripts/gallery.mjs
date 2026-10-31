@@ -68,6 +68,7 @@ export function entries({ dir = `${DIR}/entries`, what = "gallery/entries", them
     if (!people[e.author]) throw new Error(`${at}: author ${e.author} has no site/contributors/${e.author}.json`);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(e.date)) throw new Error(`${at}: date ${e.date}`);
     if (e.approved !== undefined && !(typeof e.approved === "string" && /^\d{4}-\d{2}-\d{2}$/.test(e.approved))) throw new Error(`${at}: approved is the date the owner approved it (YYYY-MM-DD), or unset while pending`);
+    if (e.phone !== undefined && !(/^\d+ \/ [1-9]\d*$/.test(e.phone) && e.phone.split(" / ").reduce((a, b) => a / b) <= 1.4)) throw new Error(`${at}: phone is the figure's square or portrait shape on a phone ("1 / 1", "3 / 4"), not ${e.phone}`);
     if (e.stage === "own") {
       const f = `${DIR}/stages/${e.id}.html`;
       if (!existsSync(f)) throw new Error(`${at}: stage "own" needs ${f}`);
@@ -149,7 +150,6 @@ export async function buildGallery(out) {
   const loader = await build({ ...common, entryPoints: [`${DIR}/gallery.ts`] });
   write(loader, join(out, "gallery", "gallery.js"));
   write(await build({ ...common, entryPoints: [`${DIR}/browse.ts`] }), join(out, "gallery", "browse.js"));
-  write(await build({ ...common, entryPoints: [`${DIR}/heroes.ts`] }), join(out, "gallery", "heroes.js"));
   const pages = paginate(live);
   const index = galleryIndex(live, { pages, people, themeList, loader: gz(loader) });
   writeFileSync(join(out, "gallery", "index.json"), JSON.stringify(index) + "\n");

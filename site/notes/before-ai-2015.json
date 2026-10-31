@@ -1,0 +1,183 @@
+{
+  "$comment": "Generated from the content model; do not edit by hand.",
+  "id": "blog-before-ai-2015",
+  "site": "fizlet",
+  "brand": "fizlet",
+  "games": [],
+  "type": "blog",
+  "slug": "before-ai-2015",
+  "title": "Before AI: 2015",
+  "subtitle": "Drawn by hand. Eleven years later: remade in minutes, then an arcade.",
+  "tags": [
+    "fizlet",
+    "origin",
+    "micro-animation",
+    "css",
+    "sprites"
+  ],
+  "date": "2026-10-31",
+  "status": "published",
+  "lead": [
+    "Fizlet started long before Fizlet. In 2015, years before AI coding tools, Chris Cooley drew three clickable micro animations by hand: headphones that plug in and play, a cup of coffee that fills, a laptop that opens and types. The Wayback Machine captured them on 23 April 2015. We pulled them out of the archive and played them three ways: as they were, remade in Fizlet, and as an arcade."
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "heading": "The artifact",
+      "body": [
+        {
+          "type": "p",
+          "text": "The original files were lost to new computers and dead drives. The [Wayback Machine capture of 23 April 2015 ↗](https://web.archive.org/web/20150423171151/http://chriscooley.me/projects/css-animations) kept them: the page, the CSS and every sprite sheet. Nobody can fake a capture date, so it is our proof that the micro animation idea is more than eleven years old."
+        },
+        {
+          "type": "p",
+          "text": "We restored the three exactly. The CSS on the companion page is the 2015 file, byte for byte. Angular is gone; four lines of plain JavaScript do what its clicks did."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "How it worked in 2015",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**One strip of frames.** Every frame drawn in Illustrator and laid side by side on one sheet, exactly one frame-width apart. Shift a frame by a pixel and the animation jumps.",
+            "**A window onto the strip.** A fixed box (the cup is 84 × 84 px) with the sheet as its background.",
+            "**`steps(n)` does the cutting.** The keyframes slide `background-position` from the first frame to the last, and `steps(n)` makes it jump frame to frame. The cup fills in `steps(11)`: 11 jumps of 84 px in 0.6 s.",
+            "**Stages chained by delay.** The laptop opens (`steps(13)`, 1.2 s), then types (`steps(8)`), then scrolls code forever (`steps(10)`, infinite).",
+            "**A class is the state.** A click adds or removes one class: `paused`, `close`, `drinkMe`. The class swaps the animation."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "It took about a week, as an experiment (Chris's estimate). Most of that week was drawing the frames."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "Same art. / *Three ways.*",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**2015 · CSS sprites.** The original, byte for byte. Oh, that's cool.",
+            "**Fizlet · remake.** The same frames, timings and clicks, rebuilt on the kernel in about six minutes of agent time.",
+            "**Fizlet · arcade.** The same frames, ×100. Hit the cups: bass, bounce, ♪ notes, an equaliser on the phone. Pour and sip: splash, steam, slurp. Open the lid and hammer the keys: clicks, a spray of code, a lit screen. Chain them for a combo."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Every effect in the arcade comes from a brick: `fizlet/fx` for the notes, splash, steam and code, `fizlet/sound` for the thump, clack and slurp, `fizlet/hud` for the score. Real buttons, keyboard, and still frames under reduced motion. When the round ends, it asks for no frames at all."
+        }
+      ]
+    },
+    {
+      "type": "stats",
+      "heading": "2015 vs Fizlet, measured",
+      "items": [
+        {
+          "value": "1,870 B",
+          "label": "2015, gzip: the original CSS plus a four-line script. Bricks: none"
+        },
+        {
+          "value": "4,025 B",
+          "label": "the remake's JS, gzip: the kernel (3,413 B) and the strip that plays the frames"
+        },
+        {
+          "value": "11,289 B",
+          "label": "the arcade's JS, gzip: kernel, `fizlet/fx`, `fizlet/sound` and `fizlet/hud`"
+        },
+        {
+          "value": "0",
+          "label": "animation frames a second the arcade asks for once a round is over"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "Bigger code, / *quieter page.*",
+      "body": [
+        {
+          "type": "p",
+          "text": "The bytes go up, and we say so. 2015 is pure CSS, so it ships the least code. The remake adds the kernel. The arcade adds the bricks that make the noise and the particles."
+        },
+        {
+          "type": "p",
+          "text": "What the bytes buy: a CSS sprite costs no JavaScript, but the browser recalculates style on every frame while one loops. In 2015 that was 60 times a second for as long as the laptop stayed open. Fizlet writes only when a frame changes, and once the arcade's round is over the page goes fully quiet."
+        },
+        {
+          "type": "p",
+          "text": "Time is not like for like either. 2015 was about a week, mostly drawing. The remake reused those drawings and took minutes of code. That is the point: eleven years of craft, now a few minutes of code."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "In Chris's words",
+      "body": [
+        {
+          "type": "p",
+          "text": "\"It's the origin of the passion that has not left, only got stronger. With the engine it means the sky's the limit: time and complexity are removed and I can create all the cool things I can think of. Just walking my dog I can chat into my phone and create a new game, all because of the power of Fizlet, which started from my passion to make the DOM more interesting. Even when it was hard I still had the passion, and it's just stronger now that we built such a strong tool.\""
+        },
+        {
+          "type": "p",
+          "text": "\"There were a lot of animations before Fizlet, and in between. We kept writing the same thing over and over, a little different each time for a slightly different use. So we built Fizlet to make it easier for us. Then we figured other people could get something out of it too, so we open-sourced it.\""
+        },
+        {
+          "type": "p",
+          "text": "In 2015 the DOM was harder to animate. Getting it fast meant knowing which properties were cheap to move and which made the browser work. Fizlet is that knowledge, written down once and tested."
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "q": "Is the 2015 version really the original code?",
+          "a": "The CSS is cut byte for byte from the stylesheet the Wayback Machine captured, and the sprite sheets are the archived files. Only Angular is replaced, by four lines of plain JavaScript that toggle the same classes."
+        },
+        {
+          "q": "Why are the Fizlet versions bigger?",
+          "a": "The remake ships the kernel. The arcade also ships `fizlet/fx`, `fizlet/sound` and `fizlet/hud` for the notes, the noise and the score. In return the page goes quiet when nothing moves, and `destroy()` restores it exactly."
+        },
+        {
+          "q": "Who made the art?",
+          "a": "Chris Cooley, by hand in Illustrator, in 2015. Every version on the companion page uses those same sheets."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "The only blocker",
+      "body": [
+        {
+          "type": "p",
+          "text": "\"Fizlet makes creativity the only blocker, and I have a lot of that!\" (Chris Cooley)"
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "Play all three: 2015, remake, arcade",
+          "href": "/demos/before-ai-2015/"
+        },
+        {
+          "label": "The 2015 capture on the Wayback Machine ↗",
+          "href": "https://web.archive.org/web/20150423171151/http://chriscooley.me/projects/css-animations"
+        },
+        {
+          "label": "The fx brick",
+          "href": "/bricks/fx.html"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Before AI: 2015, three micro animations · Fizlet",
+    "description": "Three CSS sprite micro animations Chris Cooley drew by hand in 2015, recovered from the Wayback Machine, remade in Fizlet, then turned into an arcade."
+  }
+}

@@ -40,7 +40,8 @@ const frames = (page) =>
     }),
   );
 
-async function open(opts, theme = "dark") {
+/** `mixed`: the first gallery page that has both a locking and a free frame (new pieces lock, so page 1 may hold only those). */
+async function open(opts, theme = "dark", mixed = false) {
   const ctx = await browser.newContext(opts);
   await ctx.addInitScript((t) => { try { localStorage.setItem("dom-virus:theme", t); } catch {} }, theme);
   const page = await ctx.newPage();
@@ -48,6 +49,13 @@ async function open(opts, theme = "dark") {
   page.on("pageerror", (e) => errs.push(e.message));
   await page.goto(URL_);
   await page.waitForTimeout(400);
+  for (let n = 2; mixed && n <= 20; n++) {
+    const all = await frames(page);
+    if (all.some((f) => f.locks) && all.some((f) => !f.locks)) break;
+    if (!existsSync(`${ROOT}/gallery/page/${n}/index.html`)) break;
+    await page.goto(`${URL_}page/${n}/`);
+    await page.waitForTimeout(400);
+  }
   return { ctx, page, errs };
 }
 /** Scroll a frame to the screen's upper middle (room below it for the note), wait for its piece, return its centre. */
@@ -74,7 +82,7 @@ async function test(name, fn) {
 }
 
 await test("desktop: a wheel over a scroll-locked frame shows the note and warns; the page stays put; a free frame shows nothing", async () => {
-  const { ctx, page, errs } = await open({ viewport: { width: 1440, height: 900 } });
+  const { ctx, page, errs } = await open({ viewport: { width: 1440, height: 900 } }, "dark", true);
   const all = await frames(page);
   const locked = all.find((f) => f.locks), free = all.find((f) => !f.locks);
   assert.ok(locked && free, `need one locking and one free gallery frame: ${JSON.stringify(all)}`);
@@ -143,7 +151,7 @@ await test("desktop: the note closes on its own after about 3 s; reduced motion 
 });
 
 await test("phone: a vertical swipe on a scroll-locked frame gets the touch copy; a free frame shows nothing", async () => {
-  const { ctx, page, errs } = await open({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }, "light");
+  const { ctx, page, errs } = await open({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }, "light", true);
   const cdp = await ctx.newCDPSession(page);
   const swipe = async ({ x, y }) => {
     await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y }] });

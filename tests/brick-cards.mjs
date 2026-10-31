@@ -114,6 +114,104 @@ try {
     assert.deepEqual(errors, []);
     await page.close();
   }
+  // ---------- The card frame (site/pages/brick.mjs brickTile): one 3D object, status as a sticker ----------
+  // No top bar and no stacked border; at rest the neutral card border, on hover and focus the
+  // brick's colour; the status is a sticker, never in the name; the kernel is its own, wide card.
+  {
+    const frame = (card) => card.evaluate((li) => {
+      const tok = (v) => { const p = document.createElement("i"); p.style.color = v; li.append(p); const c = getComputedStyle(p).color; p.remove(); return c; };
+      const cs = getComputedStyle(li), bar = getComputedStyle(li, "::before");
+      return {
+        border: cs.borderTopColor, sides: new Set([cs.borderTopColor, cs.borderRightColor, cs.borderBottomColor, cs.borderLeftColor]).size,
+        widths: new Set([cs.borderTopWidth, cs.borderRightWidth, cs.borderBottomWidth, cs.borderLeftWidth]).size,
+        bar: bar.content !== "none" && bar.content !== "normal", line: tok("var(--line)"), tone: tok("var(--tone)"),
+        name: li.querySelector(".brick-name")?.textContent ?? "", sticker: li.querySelector(".brick-stickers > .brick-sticker[data-flag]")?.textContent ?? "",
+        pill: li.querySelectorAll(".status-pill, .brick-top, .brick-tag").length, lift: cs.transform,
+      };
+    });
+    for (const [path, reduce] of [["bricks/", false], ["", false], ["bricks/", true]]) {
+      const { page, errors } = await open(path, reduce ? { reducedMotion: "reduce" } : {});
+      await page.addStyleTag({ content: "[data-reveal]{opacity:1!important;transform:none!important}" });
+      const cards = page.locator("ul.bricks:not(.planned) > li.brick");
+      const n = await cards.count();
+      assert.ok(n >= IDS.length, `${path || "home"}: brick cards (${n})`);
+      for (let i = 0; i < n; i++) {
+        const f = await frame(cards.nth(i));
+        assert.equal(f.bar, false, `${path || "home"} card ${i}: no top bar`);
+        assert.equal(f.sides, 1, `card ${i}: one border colour all round (no stacked border)`);
+        assert.equal(f.widths, 1, `card ${i}: one border width all round`);
+        assert.equal(f.border, f.line, `card ${i}: at rest, the neutral card border`);
+        assert.equal(f.pill, 0, `card ${i}: no pill or top row`);
+        assert.match(f.sticker, /^(COMPLETE|BETA|EXPERIMENTAL|DEPRECATED)$/, `card ${i}: the status is a sticker`);
+        assert.ok(!f.name.includes(f.sticker), `card ${i}: the status is not in the name`);
+      }
+      // Hover and focus: the brick's colour on the border (and its shadow); reduced motion: no lift.
+      for (const i of [0, 1, 2]) {
+        const c = cards.nth(i);
+        await c.scrollIntoViewIfNeeded();
+        await c.hover({ position: { x: 8, y: 8 } });
+        await sleep(250);
+        let f = await frame(c);
+        assert.equal(f.border, f.tone, `card ${i}: on hover, the brick's colour`);
+        assert.equal(f.lift, reduce ? "none" : "matrix(1, 0, 0, 1, 0, -2)", `card ${i}: ${reduce ? "no movement under reduced motion" : "lifts on hover"}`);
+        await page.mouse.move(0, 0);
+        await c.locator(".brick-name a").focus();
+        await sleep(250);
+        f = await frame(c);
+        assert.equal(f.border, f.tone, `card ${i}: on focus, the brick's colour`);
+        await page.evaluate(() => document.activeElement.blur());
+      }
+      // The kernel: first, wide, a KERNEL sticker, its measured size against its budget.
+      const k = cards.first();
+      assert.match(await k.getAttribute("class"), /\bbrick-kernel\b/, "the first card is the kernel card");
+      assert.equal(await page.locator("li.brick-kernel").count(), 1, "one kernel card");
+      assert.equal(await k.locator(".brick-sticker-kernel").textContent(), "KERNEL");
+      assert.match(await k.locator("[data-size]").textContent(), /^[\d,]+ B$/, "the kernel shows its measured bytes");
+      assert.match(await k.textContent(), /of (a )?4,096 B/, "against its budget");
+      assert.match(await k.getAttribute("class"), path ? /\bbrick-full\b/ : /\bbrick-compact\b/, path ? "full cards on the bricks index" : "compact cards on the home page");
+      const [kw, rest] = await page.evaluate(() => { const l = document.querySelectorAll("ul.bricks:not(.planned) > li.brick"); return [l[0].offsetWidth, l[1].offsetWidth]; });
+      assert.ok(kw > rest * 1.5, `the kernel card is wider than a brick (${kw} vs ${rest})`);
+      assert.deepEqual(errors, []);
+      await page.close();
+    }
+  }
+  // ---------- Tokens only: the brick component's CSS block names no colour of its own ----------
+  {
+    const css = readFileSync("site/site.css", "utf8");
+    const start = css.indexOf("/* ---------- Brick component (site/brick-ui.mjs)"), end = css.indexOf("/* 03 phases */", start);
+    assert.ok(start > 0 && end > start, "the brick component's CSS block");
+    assert.doesNotMatch(css.slice(start, end), /#[0-9a-f]{3,8}\b|\b(rgb|hsl)a?\(/i, "brick component CSS: tokens only");
+  }
+  // ---------- Mini chips (docs recipes, roadmap needs): ≤ 28 px, neutral at rest, colour on focus ----------
+  {
+    for (const path of ["bricks/", "docs/authoring/"]) {
+      const { page, errors } = await open(path);
+      const minis = page.locator("a.brick-mini");
+      const n = await minis.count();
+      assert.ok(n > 0, `${path}: mini chips (${n})`);
+      for (let i = 0; i < n; i++) {
+        const m = minis.nth(i);
+        const f = await m.evaluate((a) => {
+          const tok = (v) => { const p = document.createElement("i"); p.style.color = v; a.append(p); const c = getComputedStyle(p).color; p.remove(); return c; };
+          const cs = getComputedStyle(a), bar = getComputedStyle(a, "::before");
+          return { h: a.getBoundingClientRect().height, bar: bar.content !== "none" && bar.content !== "normal", border: cs.borderTopColor, line: tok("var(--line)"), dot: !!a.querySelector(".brick-dot"), flag: a.querySelector(".brick-flag")?.dataset.flag, shadow: cs.boxShadow, kernel: a.classList.contains("brick-kernel") };
+        });
+        assert.ok(f.h <= 28, `${path} mini ${i}: ${f.h} px tall (≤ 28)`);
+        assert.equal(f.bar, false, `mini ${i}: no top bar`);
+        assert.equal(f.border, f.line, `mini ${i}: neutral at rest`);
+        assert.ok(f.dot && f.flag, `mini ${i}: colour dot and status dot`);
+        if (f.kernel) assert.equal(f.shadow.split("rgb").length - 1, 2, "the kernel mini: a double hard shadow");
+        else assert.equal(f.shadow.split("rgb").length - 1, 1, `mini ${i}: one hard shadow`);
+      }
+      const m = minis.first();
+      await m.focus();
+      await sleep(250);
+      assert.equal(...(await m.evaluate((a) => { const p = document.createElement("i"); p.style.color = "var(--tone)"; a.append(p); const c = getComputedStyle(p).color; p.remove(); return [getComputedStyle(a).borderTopColor, c]; })), "mini: the brick's colour on focus");
+      if (path === "bricks/") assert.ok(await page.locator("a.brick-mini.brick-kernel").count() > 0, "a kernel mini on the roadmap's needs");
+      assert.deepEqual(errors, []);
+      await page.close();
+    }
+  }
   // ---------- Screenshots (SHOTS=<dir>): 1440 and 390, light and dark, after a tap ----------
   if (process.env.SHOTS) {
     mkdirSync(process.env.SHOTS, { recursive: true });
