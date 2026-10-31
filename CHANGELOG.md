@@ -33,6 +33,9 @@
   page build 7,128 → 7,167 (+55 B for the fixes, −16 B paid down elsewhere), grid 1,603 → 1,652
   (budget 1,664), perf 2,042 → 2,019 (−23 B, so #173's +22 B fits the 2,048 budget). The fuzz
   (`npm run test:stress -- fuzz --fixed`) holds the four fixed cases.
+- **`fizlet/sound`: your own synth cues.** `notes` (name → `Note[]` voices) adds cues to the built-in
+  synth, so a scene can have a slurp or a yawn without its own audio code; `cues` may map to those
+  names (`CueName`). Additive: every existing call types and plays as before. 1,019 → 1,042 B gzip.
 
 ## 0.21.0
 
