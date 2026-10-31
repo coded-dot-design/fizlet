@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **Site: the Origin section on the home page, and the grid on every hero.** After the hero band:
+  "Code. Sleep. Drink. Repeat." with a 44 px Code/Design switch (drives the scene's mode), a Sound
+  key (off until pressed, silent until a gesture, remembered), the origin scene (fizlet#218) loaded
+  by fizlet/slot near the viewport (placeholder fallback in `site/origin/`), 2015 by hand vs Fizlet
+  from the Before AI: 2015 note, and Chris's why line. `.has-grid` + `--grid-*` tokens in
+  `site/site.css`, on every page's hero; exported as `grid` in `src/ui/tokens.json`.
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
   first release tag after the owner adds the `NPM_TOKEN` repository secret; the release workflow
   (`.github/workflows/release.yml`, `npm publish --provenance --access public`) checks, packs and
