@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- **`fizlet/slot`: Recall is byte-exact for accessible scenes** (pending owner review). For a scene
+  with `accessible: true` the slot removed `role="img"` and the ledger set it again on `destroy()`,
+  so it came back last and the attribute order differed (the 3 pending 2015 gallery entries
+  reported `recallExact: false`). It now changes `role="img"` to `role="figure"` in place, through
+  the ledger, and Recall puts `"img"` back in the same spot: `outerHTML` is identical. `figure` is
+  a `<figure>`'s own role, so assistive tech gets the same thing on the engine's figure shape, and on
+  the box shape (`div.ae-slot`) the `aria-label` now sits on a role that takes a name. slot 1,819 →
+  1,822 B gz, page build 7,128 → 7,131 B.
+
 ## 0.21.0
 
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
