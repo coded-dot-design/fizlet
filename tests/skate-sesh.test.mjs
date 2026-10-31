@@ -14,7 +14,8 @@ const { hillBomb } = await import("../site/gallery/pieces/skate/hill-bomb.ts");
 
 const run = (r, sec, each) => { for (let i = 0; i < Math.round(sec * 60); i++) (each?.(), r.step(1 / 60)); };
 const settled = (r) => { for (let i = 0; i < 1200; i++) if (!r.step(1 / 60)) return true; return false; };
-// Pump Pipe slots: 3 u, 4 v, 5 air, 7 vz, 9 spin, 10 flips, 11 score, 15 tricks, 16 bails, 18 peak.
+// Pump Pipe slots: 3 u, 4 v, 5 air, 7 vz, 9 spin, 10 flips, 11 score, 15 tricks, 16 bails, 18 peak,
+// 21 tries left, 22 best air.
 const ARC = (Math.PI / 2) * 30, FLAT = 48;
 const descending = (S) => { const th = S[3] < ARC ? 1 : S[3] > ARC + FLAT ? -1 : 0; return th !== 0 && S[4] * th > 0; };
 
@@ -48,6 +49,8 @@ test("pump pipe: pumping the drops builds air, holding the climbs bleeds it; fli
   });
   assert.ok(S[15] >= 1, `flips landed: ${S[15]}`);
   assert.ok(S[16] >= 1, `a late flip bails: ${S[16]}`);
+  assert.ok(S[21] === 3 - S[16], `each bail costs a try: ${S[21]} left`);
+  assert.ok(S[22] > 5, `the meter keeps the best air: ${S[22]}`);
   assert.ok(S[11] > 0, "points");
   run(r, 3);
   assert.equal(S[0], 3, "the session ends");

@@ -16,7 +16,7 @@ export const ROUND = 10;
 const RAD = 30, FLAT = 48, CX0 = 80 - FLAT / 2, CX1 = 80 + FLAT / 2, CY = 46, FLOOR = CY + RAD;
 const ARC = (Math.PI / 2) * RAD, LEN = ARC * 2 + FLAT, G = 200, VMAX = 150, FLIP = 0.42;
 // State slots.
-const MODE = 0, T = 1, LEFT = 2, U = 3, V = 4, AIR = 5, Z = 6, VZ = 7, SIDE = 8, SPIN = 9, FLIPS = 10, SCORE = 11, BAIL = 12, HELD = 13, CARD = 14, TRICKS = 15, BAILS = 16, BEST = 17, PEAK = 18, QUEUE = 19, LIGHTS = 20;
+const MODE = 0, T = 1, LEFT = 2, U = 3, V = 4, AIR = 5, Z = 6, VZ = 7, SIDE = 8, SPIN = 9, FLIPS = 10, SCORE = 11, BAIL = 12, HELD = 13, CARD = 14, TRICKS = 15, BAILS = 16, BEST = 17, PEAK = 18, QUEUE = 19, LIGHTS = 20, TRIES = 21, HIGH = 22, CHEER = 23;
 /** Events this step: start, launch, a trick landed, a bail, the end. */
 export const EV_START = 0, EV_AIR = 1, EV_LAND = 2, EV_BAIL = 3, EV_END = 4;
 const WORDS = ["FLIP!", "DOUBLE FLIP!", "TRIPLE!", "BAIL!", "AIR", "SESSION!"];
@@ -43,7 +43,7 @@ export function pumpPipe(seed: number, pad: Pad, demo: boolean) {
   S[MODE] = demo ? DEMO : IDLE;
   (S[U] = demo ? 0.5 : ARC + FLAT / 2), (S[V] = demo ? 30 : 0), (S[LIGHTS] = demo ? 0 : 1);
   function start() {
-    (S[MODE] = PLAY), (S[T] = 0), (S[LEFT] = ROUND), (S[SCORE] = 0), (S[TRICKS] = 0), (S[BAILS] = 0), (S[BEST] = 0), (S[BAIL] = 0);
+    (S[MODE] = PLAY), (S[T] = 0), (S[LEFT] = ROUND), (S[SCORE] = 0), (S[TRICKS] = 0), (S[BAILS] = 0), (S[BEST] = 0), (S[BAIL] = 0), (S[TRIES] = 3), (S[HIGH] = 0);
     if (!S[AIR] && Math.abs(S[V]!) < 90) S[V] = (S[V]! < 0 ? -1 : 1) * 112; // a kick push
     ev[EV_START] = 1;
   }
@@ -53,7 +53,7 @@ export function pumpPipe(seed: number, pad: Pad, demo: boolean) {
     at(left ? 0.01 : LEN - 0.01, P);
     if (S[SPIN]! > 0 && frac > 0.18 && frac < 0.82) {
       // Board not back under the feet: bail. Slide down slow.
-      (S[BAIL] = 0.8), (S[V] = (left ? 1 : -1) * 40), (S[BAILS] = S[BAILS]! + 1);
+      (S[BAIL] = 0.8), (S[V] = (left ? 1 : -1) * 40), (S[BAILS] = S[BAILS]! + 1), (S[TRIES] = Math.max(0, S[TRIES]! - 1));
       wd.say(3, P[0]!, P[1]! - 18, 2);
       sp.burst(P[0]!, P[1]!, 14, 50, -1.5708, 2.6, 1.4, CHIP);
       ev[EV_BAIL] = 1;
@@ -66,7 +66,9 @@ export function pumpPipe(seed: number, pad: Pad, demo: boolean) {
         S[SCORE] = S[SCORE]! + (n ? 10 * n * n * (1 + air) : 2 + air * 3);
         S[TRICKS] = S[TRICKS]! + n;
         S[BEST] = Math.max(S[BEST]!, n);
+        S[HIGH] = Math.max(S[HIGH]!, S[PEAK]!);
       }
+      if (n) S[CHEER] = 1.2;
       if (n) wd.say(n >= 3 ? 2 : n === 2 ? 1 : 0, 80, 30, n >= 2 ? 1 : 0);
       else wd.say(4, P[0]! + (left ? 12 : -12), P[1]! - 16, 0);
       sp.burst(P[0]!, P[1]!, 10, 60, left ? -0.6 : -2.5, 1.2, 1, SPARK);
@@ -123,13 +125,14 @@ export function pumpPipe(seed: number, pad: Pad, demo: boolean) {
     }
     if (mode === PLAY) {
       S[LEFT] = Math.max(0, S[LEFT]! - dt);
-      if (S[LEFT] === 0 && !S[AIR]) (S[MODE] = DONE), (S[CARD] = 0), (ev[EV_END] = 1), wd.say(5, 80, 30, 1);
+      if ((S[LEFT] === 0 || S[TRIES] === 0) && !S[AIR]) (S[MODE] = DONE), (S[CARD] = 0), (ev[EV_END] = 1), wd.say(5, 80, 30, 1);
     } else if (mode === DEMO && S[T]! > 4.2 && !S[AIR]) (S[MODE] = IDLE), (S[SCORE] = 0);
     else if (mode === DONE) S[CARD] = S[CARD]! + dt;
     // Off the clock: roll to a stop on the flat.
     if ((S[MODE] === IDLE || S[MODE] === DONE) && !S[AIR] && Math.abs(S[V]!) < 1.5 && S[U]! > ARC - 2 && S[U]! < ARC + FLAT + 2) S[V] = 0;
     const moving = sp.step(dt, 120) + wd.step(dt);
-    return riding || S[AIR] === 1 || S[V] !== 0 || moving > 0 || S[BAIL]! > 0 || S[LIGHTS]! < 1 || (S[MODE] === DONE && S[CARD]! < 1.4);
+    S[CHEER] = Math.max(0, S[CHEER]! - dt);
+    return riding || S[CHEER]! > 0 || S[AIR] === 1 || S[V] !== 0 || moving > 0 || S[BAIL]! > 0 || S[LIGHTS]! < 1 || (S[MODE] === DONE && S[CARD]! < 1.4);
   }
   return { S, ev, sp, wd, step, P };
 }
@@ -145,7 +148,7 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
   const S = ride.S, Q = new Float64Array(3);
   if (first) r.pad[1] = 1;
   const DEBRIS = [C.hurt, "rgba(174,164,214,.6)", C.advance];
-  const WCOL = [C.ink, C.hurt, C.attack];
+  const WCOL = [C.ink, C.hurt, C.attack], CROWD = [C.attack, C.sys, C.hurt, C.go, C.ink];
   let sky: CanvasGradient | string = C.surface, wood: CanvasGradient | string = C.advance;
   engine.add({
     read() {
@@ -172,6 +175,34 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
       const mode = S[MODE]!, t = S[T]!, lit = S[LIGHTS]!;
       g.fillStyle = sky;
       g.fillRect(0, 0, W, H);
+      // Pixel clouds, palms beyond the decks, the stand of the crowd behind the pipe (they jump
+      // when you land a trick).
+      g.fillStyle = C.line;
+      for (let k = 0; k < 3; k++) {
+        const x = ((k * 57 + t * 2) % 190) - 15, y = 6 + k * 5;
+        g.fillRect(x, y, 16, 3), g.fillRect(x + 4, y - 2, 8, 2);
+      }
+      g.strokeStyle = C.rim;
+      g.lineWidth = 1.4;
+      g.beginPath();
+      for (let k = 0; k < 2; k++) {
+        const x = k ? 151 : 8, s = k ? -1 : 1;
+        g.moveTo(x, CY), g.quadraticCurveTo(x + s * 3, CY - 12, x + s * 1, CY - 22);
+        for (let f = -2; f <= 2; f++) g.moveTo(x + s, CY - 22), g.quadraticCurveTo(x + s + f * 4, CY - 26, x + s + f * 7, CY - 19 + Math.abs(f));
+      }
+      g.stroke();
+      const jump = S[CHEER]! > 0 ? Math.abs(Math.sin(S[CHEER]! * 14)) * 1.5 : 0;
+      g.globalAlpha = 0.5;
+      for (let row = 0; row < 4; row++) {
+        const y = 52 + row * 6;
+        g.fillStyle = C.line;
+        g.fillRect(28, y + 2, 104, 3);
+        for (let k = 0; k < 26; k++) {
+          g.fillStyle = CROWD[(k * 7 + row * 3) % 5]!;
+          g.fillRect(30 + k * 4 + (row & 1) * 2, y - 1 - ((k + row) & 1 ? jump : 0), 2, 3);
+        }
+      }
+      g.globalAlpha = 1;
       // Two light towers and their cones over the pipe.
       for (let k = 0; k < 2; k++) {
         const x = k ? 146 : 14;
@@ -189,13 +220,13 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
       // The pipe: plywood walls in the light, the flat, steel coping and the decks.
       g.fillStyle = wood;
       g.beginPath();
-      g.moveTo(CX0 - RAD - 12, CY);
+      g.moveTo(0, CY);
       g.lineTo(CX0 - RAD, CY);
       g.arc(CX0, CY, RAD, Math.PI, Math.PI / 2, true);
       g.lineTo(CX1, FLOOR);
       g.arc(CX1, CY, RAD, Math.PI / 2, 0, true);
-      g.lineTo(CX1 + RAD + 12, CY);
-      g.lineTo(CX1 + RAD + 12, H), g.lineTo(CX0 - RAD - 12, H);
+      g.lineTo(W, CY);
+      g.lineTo(W, H), g.lineTo(0, H);
       g.fill();
       g.save();
       g.clip();
@@ -209,8 +240,8 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
       g.restore();
       g.globalAlpha = 1;
       g.fillStyle = C.raised;
-      g.fillRect(CX0 - RAD - 12, CY - 2, 12, 2.4);
-      g.fillRect(CX1 + RAD, CY - 2, 12, 2.4);
+      g.fillRect(0, CY - 2, CX0 - RAD, 2.4);
+      g.fillRect(CX1 + RAD, CY - 2, W, 2.4);
       g.fillStyle = C.ink;
       g.beginPath();
       g.arc(CX0 - RAD, CY - 0.6, 1.3, 0, TAU);
@@ -222,8 +253,52 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
       g.font = "900 6px system-ui, sans-serif";
       g.textAlign = "center";
       g.textBaseline = "middle";
-      g.fillText("PUMP", 80, FLOOR + 7);
+      g.fillText("PUMP", 80, FLOOR + 3.5);
       g.globalAlpha = 1;
+      // Flags on poles at the deck ends; a skater waiting a turn on the left deck.
+      for (let k = 0; k < 2; k++) {
+        const x = k ? 141 : 19;
+        g.fillStyle = C.ink;
+        g.fillRect(x, CY - 20, 0.8, 18);
+        g.fillStyle = k ? C.sys : C.attack;
+        g.beginPath();
+        g.moveTo(x + 0.8, CY - 20), g.lineTo(x + 7, CY - 18 + Math.sin(t * 6 + k) * 1.2), g.lineTo(x + 0.8, CY - 15);
+        g.fill();
+      }
+      g.strokeStyle = C.ink;
+      g.lineWidth = 1.4;
+      g.beginPath();
+      g.moveTo(11, CY - 2), g.lineTo(12, CY - 6), g.lineTo(13, CY - 2), g.moveTo(12, CY - 6), g.lineTo(12, CY - 10);
+      g.stroke();
+      g.fillStyle = C.ink;
+      g.fillRect(11, CY - 13, 2.4, 2.4);
+      g.fillStyle = C.go;
+      g.fillRect(14, CY - 11, 1.2, 9); // the board under an arm
+      // The height meter (right): how high this air goes, a tick at the best one.
+      g.fillStyle = C.line;
+      g.fillRect(155, 16, 3, CY - 16);
+      g.fillStyle = C.hurt;
+      const z = S[AIR] ? S[Z]! : 0;
+      g.fillRect(155.5, CY - z, 2, z);
+      g.fillStyle = C.attack;
+      g.fillRect(154, CY - S[HIGH]! - 0.5, 5, 1);
+      // Our bottom bar: tries left (boards), the best air, the score.
+      g.fillStyle = C.rim;
+      g.globalAlpha = 0.8;
+      g.fillRect(0, H - 7, W, 7);
+      g.globalAlpha = 1;
+      for (let k = 0; k < 3; k++) {
+        g.fillStyle = k < (mode === PLAY || mode === DONE ? S[TRIES]! : 3) ? C.attack : C.line;
+        g.fillRect(4 + k * 6, H - 4.5, 4.5, 1.6);
+      }
+      g.font = "900 5px system-ui, sans-serif";
+      g.textAlign = "center";
+      g.fillStyle = C.ink;
+      g.fillText("BEST AIR", 120, H - 3.5);
+      g.fillStyle = C.hurt;
+      g.fillText(NUM[S[HIGH]! | 0]!, 142, H - 3.5);
+      g.fillStyle = C.ink;
+      g.fillText("TRIES", 36, H - 3.5);
       // The skater.
       if (S[AIR]) {
         const left = S[SIDE]! < 0, z = S[Z]!, up = S[VZ]! > 0;
