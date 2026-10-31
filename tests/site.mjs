@@ -64,7 +64,7 @@ for (const b of BRICKS) assert.ok(PAGES.includes(`bricks/${b.id}.html`), `a page
 // What counts as a live demo: the home blast board, slot scenes (layers, fizz), brick demos and the
 // quick start's canvas. The demos' own standalone pages (built by site/demos/*) have no badge yet.
 const DEMOS = "[data-demo], figure.ae-slot, [data-brick-demo], figure[data-recipe], canvas.qs-canvas";
-const NO_BADGE = { "demos/fizz/": 1, "demos/layers/": 1, "examples/fizz/": 1 };
+const NO_BADGE = { "demos/fizz/": 1, "demos/origin/": 1, "demos/layers/": 1, "examples/fizz/": 1 };
 let badges = 0, sizeCache = null;
 const measured = async () => (sizeCache ??= await measure());
 const browser = await chromium.launch(launchOptions());
