@@ -3,7 +3,7 @@
   "entries": [
     { "date": "2014-12", "label": "chriscooley.me started", "source": "Chris", "confirmed": true },
     { "date": "2015-04-23", "label": "The Wayback Machine captures the three micro animations", "source": "Wayback capture 20150423171151", "href": "https://web.archive.org/web/20150423171151/http://chriscooley.me/projects/css-animations", "confirmed": true },
-    { "date": "2026-04", "label": "The Fizlet concept", "source": "to confirm with Chris", "confirmed": false },
+    { "date": "2026-04-04", "label": "The Fizlet concept", "source": "Chris", "confirmed": true },
     { "date": "2026-06", "label": "The open-source decision (June/July)", "source": "to confirm with Chris", "confirmed": false },
     { "date": "2026-10-28", "label": "Named Fizlet; Battlefield Blitz is the first game on it", "source": "git history", "confirmed": true },
     { "date": "2026-10-31T09:00-05:00", "zone": "Central", "label": "Fizlet launches", "source": "launch plan", "confirmed": true }
