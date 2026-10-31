@@ -779,9 +779,8 @@ a.bui-sticker-key {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background:
-    linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 44px 44px,
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 44px 44px;
+  /* the shared grid (GRID block below), on its own layer here so home-motion can parallax it */
+  background: var(--grid-bg);
   mask-image: radial-gradient(ellipse 100% 90% at 60% 50%, #000 40%, transparent 100%);
 }
 .hero-grid {
@@ -4209,3 +4208,427 @@ html.bui[data-theme="light"] .phases b {
   color: inherit;
   min-height: 24px;
 }
+
+/* ======================================================================
+   GRID: the shared hero grid (site/origin PR). One treatment, every hero.
+   The tokens are exported for the games in src/ui/tokens.json ("grid").
+   layout.mjs page() puts .has-grid on each page's first section or
+   article (its hero); the home page marks its hero and Origin itself.
+   ====================================================================== */
+:root {
+  --grid-size: 44px;
+  --grid-line: 1px;
+  --grid-ink: var(--grid);
+  /* how tall the grid band is before it fades out (a long first section keeps it to its head) */
+  --grid-band: 560px;
+  --grid-bg:
+    linear-gradient(var(--grid-ink) var(--grid-line), transparent var(--grid-line)) 0 0 / var(--grid-size) var(--grid-size),
+    linear-gradient(90deg, var(--grid-ink) var(--grid-line), transparent var(--grid-line)) 0 0 / var(--grid-size) var(--grid-size);
+  --grid-fade: linear-gradient(#000 35%, transparent);
+}
+.has-grid {
+  position: relative;
+}
+.has-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: min(100%, var(--grid-band));
+  z-index: -1;
+  pointer-events: none;
+  background: var(--grid-bg);
+  -webkit-mask-image: var(--grid-fade);
+  mask-image: var(--grid-fade);
+}
+/* The home hero draws it on .hero-field (parallax), so not twice. */
+.hero.has-grid::before {
+  content: none;
+}
+/* ====================== END GRID ====================== */
+
+/* ======================================================================
+   ORIGIN: the home page's Origin section (site/origin/). Tokens only.
+   ====================================================================== */
+.origin {
+  --grid-band: 900px;
+  --grid-fade: radial-gradient(ellipse 90% 80% at 50% 35%, #000 40%, transparent 100%);
+}
+.ogs-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 28px;
+  align-items: end;
+  margin-bottom: 30px;
+}
+.ogs-head .eyebrow,
+.ogs-head .lead {
+  grid-column: 1 / -1;
+}
+.ogs-head .lead {
+  max-width: 760px;
+  margin-top: 18px;
+}
+.ogs-title {
+  margin: 16px 0 0;
+  font-size: clamp(46px, 8.6vw, 128px);
+  line-height: 0.9;
+  letter-spacing: -0.055em;
+}
+.ogs-title em {
+  font-style: normal;
+  color: var(--k-attack);
+  text-shadow: 0 0 40px color-mix(in srgb, var(--k-attack) 35%, transparent);
+}
+html.bui[data-theme="light"] .ogs-title em {
+  color: color-mix(in srgb, var(--k-attack) 60%, var(--ink));
+  text-shadow: none;
+}
+.ogs-word {
+  color: var(--k-sys-ink);
+}
+.origin[data-mode="design"] .ogs-word {
+  color: var(--k-go);
+}
+html.bui[data-theme="light"] .origin[data-mode="design"] .ogs-word {
+  color: var(--hl);
+}
+.ogs-loop {
+  display: inline-block;
+  margin-left: 0.12em;
+  font-size: 0.42em;
+  vertical-align: 0.9em;
+  color: var(--k-sys-ink);
+}
+.ogs-keys {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 14px;
+  padding-bottom: 6px;
+}
+/* The title toggle: a real switch, 44 px tall, two labelled sides and a knob. */
+.ogs-mode {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 44px;
+  min-width: 188px;
+  padding: 4px;
+  font: 800 12px var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  box-shadow: calc(4px * var(--shadow-x, 0)) calc(4px * var(--shadow-y, 1)) 0 var(--base);
+  cursor: pointer;
+}
+.ogs-mode i {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  background: var(--k-sys);
+  border: 2px solid var(--rim);
+  border-radius: 8px;
+  transition: translate 0.2s var(--bui-out, ease-out), background-color 0.2s;
+}
+.ogs-mode[aria-checked="true"] i {
+  translate: 100% 0;
+  background: var(--k-go);
+}
+.ogs-opt {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  padding: 0 12px;
+  transition: color 0.2s;
+}
+.ogs-mode[aria-checked="false"] .ogs-opt:first-of-type,
+.ogs-mode[aria-checked="true"] .ogs-opt:last-of-type {
+  color: var(--rim);
+}
+.ogs-mode:focus-visible {
+  outline: 3px solid var(--k-sys-ink);
+  outline-offset: 3px;
+}
+.ogs-sound {
+  min-width: 44px;
+  min-height: 44px;
+}
+.ogs-sound[aria-pressed="false"] .snd-on,
+.ogs-sound[aria-pressed="true"] .snd-off {
+  display: none;
+}
+.ogs-meta {
+  color: var(--muted);
+}
+/* The stage: big, sharp, its space reserved (aspect-ratio: no layout shift when the scene mounts). */
+.ogs-stage {
+  padding: 14px;
+}
+.ogs-chrome {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding-right: 92px;
+}
+.ogs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  font: 800 11px/1.3 var(--mono);
+  letter-spacing: 0.12em;
+  color: var(--rim);
+  background: var(--k-sys);
+  border: 2px solid var(--rim);
+  border-radius: 6px;
+}
+.ogs-chip.alt {
+  background: var(--k-attack);
+}
+.ogs-chip.ghost {
+  color: var(--muted);
+  background: transparent;
+  border-color: var(--line);
+}
+.ogs-chip.ghost b {
+  color: var(--ink);
+}
+.origin[data-mode="code"] .ogs-m-design,
+.origin[data-mode="design"] .ogs-m-code {
+  display: none;
+}
+.ogs-fig {
+  position: relative;
+  margin: 0;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  background: radial-gradient(ellipse 60% 60% at 50% 55%, color-mix(in srgb, var(--k-cmd) 28%, #0b0918), #07060f);
+}
+.ogs-fig > svg {
+  width: 100%;
+  height: 100%;
+}
+@media (max-width: 600px) {
+  .ogs-fig {
+    aspect-ratio: 1 / 1;
+  }
+}
+/* The origin scene (site/demos/origin/): drawn for 16:10, cropped to 4:5 on phones. */
+.ogs-fig--real {
+  aspect-ratio: 16 / 10;
+}
+@media (max-width: 600px) {
+  .ogs-fig--real {
+    aspect-ratio: 4 / 5;
+  }
+}
+.ogs-stage .hero-cap {
+  margin: 12px 0 0;
+}
+/* The poster's paint: Board UI tokens on a night that stays night in both themes. */
+.ogs-poster .f-sys { fill: var(--k-sys); }
+.ogs-poster .f-cmd { fill: var(--k-cmd); }
+.ogs-poster .f-go { fill: var(--k-go); }
+.ogs-poster .f-aim { fill: var(--k-aim); }
+.ogs-poster .f-attack { fill: var(--k-attack); }
+.ogs-poster .f-advance { fill: var(--k-advance); }
+.ogs-poster .f-flag { fill: var(--k-flag); }
+.ogs-poster .ogs-night { fill: color-mix(in srgb, var(--k-cmd) 18%, #0b0918); }
+.ogs-poster .ogs-frame { fill: color-mix(in srgb, var(--k-cmd) 14%, #0b0918); stroke: var(--k-cmd); stroke-width: 6; }
+.ogs-poster .ogs-mull { stroke: var(--k-cmd); stroke-width: 6; }
+.ogs-poster .ogs-glow { fill: var(--k-sys); opacity: 0.08; }
+.ogs-poster .ogs-desk { fill: color-mix(in srgb, var(--k-cmd) 22%, #07060f); }
+.ogs-poster .ogs-band { fill: none; stroke: var(--k-attack); stroke-width: 16; stroke-linecap: round; }
+.ogs-poster .ogs-cup { fill: #07060f; }
+.ogs-poster .ogs-cable { fill: none; stroke: var(--k-cmd); stroke-width: 4; }
+.ogs-poster .ogs-note { font: 800 54px var(--sans); fill: var(--k-aim); }
+.ogs-poster .ogs-lid { fill: #07060f; stroke: var(--k-sys); stroke-width: 5; }
+.ogs-poster .ogs-screen { fill: #0b0918; }
+.ogs-poster .ogs-base { fill: color-mix(in srgb, var(--k-sys) 22%, #07060f); stroke: var(--k-sys); stroke-width: 5; stroke-linejoin: round; }
+.ogs-poster .ogs-pad { fill: color-mix(in srgb, var(--k-sys) 45%, #07060f); }
+.ogs-poster .ogs-wire { fill: none; stroke: var(--k-sys); stroke-width: 3; stroke-dasharray: 8 6; }
+.ogs-poster .ogs-pen { fill: none; stroke: var(--k-go); stroke-width: 5; }
+.ogs-poster .ogs-handle { fill: none; stroke: var(--k-flag); stroke-width: 2; }
+.ogs-poster .ogs-steam { fill: none; stroke: var(--k-flag); stroke-width: 5; stroke-linecap: round; }
+.ogs-poster .ogs-handle-mug { fill: none; stroke: var(--k-advance); stroke-width: 12; }
+.ogs-poster .ogs-coffee { fill: #07060f; }
+.ogs-poster .ogs-stripe { fill: #07060f; opacity: 0.35; }
+.ogs-poster .ogs-star { opacity: 0.8; }
+[data-mode="code"] .ogs-poster .ogs-design,
+[data-mode="design"] .ogs-poster .ogs-code {
+  display: none;
+}
+/* Below the stage: 2015 by hand against Fizlet, the measured numbers, Chris's line, the links. */
+.ogs-below {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+  margin-top: 44px;
+}
+.ogs-card {
+  padding: 22px 22px 20px;
+}
+.ogs-card h3 {
+  margin: 14px 0 12px;
+  font-size: clamp(24px, 2.6vw, 32px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+.ogs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.ogs-list li {
+  display: grid;
+  gap: 2px;
+}
+.ogs-list b {
+  font: 800 11px var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--k-sys-ink);
+}
+.ogs-list span {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+.ogs-stat {
+  display: grid;
+  margin: 18px 0 0;
+  padding-top: 14px;
+  border-top: 1.5px dashed var(--line);
+}
+.ogs-stat b {
+  font-size: clamp(28px, 3.4vw, 40px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+.ogs-new .ogs-stat b {
+  color: var(--k-go);
+}
+html.bui[data-theme="light"] .ogs-new .ogs-stat b {
+  color: var(--hl);
+}
+.ogs-stat small {
+  margin-top: 6px;
+  font: 700 11px/1.5 var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.ogs-vs {
+  align-self: center;
+  padding: 8px 10px;
+  font: 900 14px var(--mono);
+  letter-spacing: 0.14em;
+  color: var(--rim);
+  background: var(--k-flag);
+  border: 2px solid var(--rim);
+  border-radius: 8px;
+  rotate: -6deg;
+}
+html.bui[data-theme="light"] .ogs-vs {
+  background: var(--k-advance);
+}
+.ogs-nums {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.ogs-nums li {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+}
+.ogs-nums b {
+  font: 800 22px var(--mono);
+}
+.ogs-nums small {
+  font: 700 10px/1.5 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ogs-why {
+  margin: 26px 0 0;
+  padding: 22px 24px;
+}
+.ogs-why blockquote {
+  margin: 14px 0 0;
+  max-width: 900px;
+  font-size: clamp(17px, 1.7vw, 21px);
+  line-height: 1.6;
+  color: var(--ink);
+}
+.ogs-why figcaption {
+  margin-top: 12px;
+}
+.ogs-quote {
+  margin: 34px 0 0;
+}
+.ogs-quote blockquote {
+  margin: 0;
+  max-width: 880px;
+  font-size: clamp(24px, 3.2vw, 40px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+.ogs-quote figcaption {
+  margin-top: 12px;
+}
+.ogs-links {
+  align-items: center;
+}
+.ogs-wayback {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font: 800 12px var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--k-sys-ink);
+}
+@media (max-width: 860px) {
+  .ogs-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ogs-keys {
+    margin-top: 18px;
+  }
+  .ogs-below {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ogs-vs {
+    justify-self: center;
+  }
+  .ogs-nums {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ogs-mode i,
+  .ogs-opt {
+    transition: none;
+  }
+}
+/* ====================== END ORIGIN ====================== */

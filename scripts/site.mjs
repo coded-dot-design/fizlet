@@ -117,6 +117,8 @@ const fizz = { figure: fizzFigure, sizes: fizzSizes, live: "demos/fizz/scene.js"
 await import("../site/demos/origin/build.mjs");
 // The interactive companion to the note "Before AI: 2015": the 2015 sprites beside two Fizlet rebuilds.
 await import("../site/demos/before-ai-2015/build.mjs");
+// The Origin section (site/origin/): its loader and the scene the slot loads, measured by its build.
+const { origin: originHero } = await import("../site/origin/build.mjs");
 
 // The "how it works" labs (site/labs/, the scenes DOM VIRUS's Under the hood vendors): their
 // still posters are the gallery figures (each in its own accent), their sheet goes on the page.
@@ -246,7 +248,7 @@ const pages = [
   ["index.html", page({
     title: "Fizlet · Tiny physics for your page",
     description: homeDescription,
-    base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast }), scripts: ["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js"],
+    base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast, origin: originHero }), scripts: ["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js", "origin/main.js"],
   })],
   // Privacy and Cookies (pending legal review; site/pages/legal.mjs).
   ["privacy/index.html", page({
