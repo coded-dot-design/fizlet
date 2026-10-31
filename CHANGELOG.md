@@ -6,7 +6,8 @@
   building blocks for animation and games on the DOM, each brick a task written hundreds of times,
   so a piece boils down to logic and style. New hero ("Logic and style. / *The bricks do the
   rest.*"), final call, section 03 ("One frame, three phases"), footer, social card text, the home,
-  docs, notes and gallery intros and descriptions. "The page is the board" is credited to DOM VIRUS
+  docs, notes and gallery intros and descriptions. The old "Tiny physics for your page" tagline is gone from the footer,
+  the home title and the README. "The page is the board" is credited to DOM VIRUS
   as its approach, one use of Fizlet. Fizlet™ on first prominent use (home hero, footer, README
   title), the footer lockup shows the short mark `fzlt™` beside FIZLET, and the footer says "Fizlet and
   fzlt are trademarks of Chris Cooley." The footer copyright

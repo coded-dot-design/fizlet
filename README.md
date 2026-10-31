@@ -1,7 +1,7 @@
 # Fizlet™
 
-By [Chris Cooley](https://coded.design/). **Tiny physics for your page.** Fizlet is the building blocks
-for animation and games on the DOM. Each brick is a task we wrote hundreds of times over two decades,
+By [Chris Cooley](https://coded.design/). **Fizlet is the building blocks for animation and games
+on the DOM.** Each brick is a task we wrote hundreds of times over two decades,
 now kept by AI and human developers who chase performance at all costs. You bring the logic and
 style, even from a prompt. One shared loop, bounded everything, zero allocation in the steady state,
 and the page always comes back exactly as it was. No runtime dependencies, ever.

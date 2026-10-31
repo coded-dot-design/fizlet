@@ -247,7 +247,7 @@ const brickDescription = (b, max = 155) => {
 };
 const pages = [
   ["index.html", page({
-    title: "Fizlet · Tiny physics for your page",
+    title: "Fizlet · Building blocks for DOM animation and games",
     description: homeDescription,
     base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast, origin: originHero }), scripts: ["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js", "origin/main.js"],
   })],
