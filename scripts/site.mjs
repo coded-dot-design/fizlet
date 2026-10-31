@@ -23,6 +23,7 @@ import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
 import { AGENT_NOTE, CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
+import { privacyPage, cookiesPage } from "../site/pages/legal.mjs";
 import { BRICKS, PLANNED, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
@@ -42,6 +43,7 @@ mkdirSync(`${OUT}/examples`, { recursive: true });
 mkdirSync(`${OUT}/bricks`, { recursive: true });
 mkdirSync(`${OUT}/gallery`, { recursive: true });
 mkdirSync(`${OUT}/make`, { recursive: true });
+for (const d of ["privacy", "cookies"]) mkdirSync(`${OUT}/${d}`, { recursive: true });
 const NOTES = loadNotes();
 for (const n of NOTES) mkdirSync(`${OUT}/${notePath(n)}`, { recursive: true });
 const RELEASES = loadReleases();
@@ -238,6 +240,17 @@ const pages = [
     description: homeDescription,
     base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast }), scripts: ["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js"],
   })],
+  // Privacy and Cookies (pending legal review; site/pages/legal.mjs).
+  ["privacy/index.html", page({
+    title: "Privacy policy: analytics only with consent · Fizlet",
+    description: "What fizlet.com collects, why and for how long: consent-based Google Analytics and PostHog, hosting logs, and how to opt out. No ads, no selling data.",
+    base: "../", version, path: "privacy/", body: privacyPage({ base: "../" }), scripts: ["site.js"],
+  })],
+  ["cookies/index.html", page({
+    title: "Cookies and storage: none until you say yes · Fizlet",
+    description: "Every cookie and storage key fizlet.com may use, what each holds, how long it lasts, and how to change your choice or clear them.",
+    base: "../", version, path: "cookies/", body: cookiesPage({ base: "../" }), scripts: ["site.js"],
+  })],
   ["examples/quick-start.html", page({
     title: "Quick start: ten lines to a blast · Fizlet",
     description: "Ten lines to a blast: the Fizlet quick start, running as is. Click the board; scroll it away and the engine pauses, switch tabs and it stops.",
@@ -372,7 +385,7 @@ const routeOf = (f) => f.replace(/(^|\/)index\.html$/, "$1");
 const LABEL = new Map([
   ...DOCS.map((d) => [docPath(d), d.nav]), ...NOTES.map((n) => [notePath(n), n.title]), ...RELEASES.map((r) => [releasePath(r), r.version]),
   ...bricks.map((b) => [brickPath(b), b.id]), ...gallery.pages.slice(1).map((p) => [p.path, `Page ${p.n}`]), ...PEOPLE.map((p) => [personPath(p.id), p.name]),
-  ["", "Home"], ["examples/quick-start.html", "Quick start"], ["demos/layers/", "The layers story"], ["demos/fizz/", "The fizz proof piece"], ["examples/fizz/", "The fizz hero example"], ["demos/before-ai-2015/", "Before AI: 2015, live"],
+  ["", "Home"], ["examples/quick-start.html", "Quick start"], ["privacy/", "Privacy"], ["cookies/", "Cookies"], ["demos/layers/", "The layers story"], ["demos/fizz/", "The fizz proof piece"], ["demos/before-ai-2015/", "Before AI: 2015, live"], ["examples/fizz/", "The fizz hero example"],
 ]);
 const built = pages.map(([f]) => routeOf(f));
 const order = (r) => (built.includes(r) ? built.indexOf(r) : built.length);

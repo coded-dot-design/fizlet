@@ -149,7 +149,7 @@
     "api:check": "node scripts/api-snapshot.mjs check",
     "api:write": "node scripts/api-snapshot.mjs write",
     "site": "npm run build && node scripts/site.mjs",
-    "test:site": "node tests/site.mjs && node tests/brick-cards.mjs && node tests/scroll-hint.mjs && node tests/stage-touch.mjs",
+    "test:site": "node tests/site.mjs && node tests/site-analytics.mjs && node tests/brick-cards.mjs && node tests/scroll-hint.mjs && node tests/stage-touch.mjs",
     "test:settle": "node tests/settle-guard.mjs",
     "prepack": "npm run build",
     "perf": "npm run site && node tests/perf/run.mjs",

@@ -3,6 +3,9 @@
 // match the DOM Battlefield site, so the two read as siblings. Dark by default; the theme is shared
 // with DOM VIRUS and Battlefield (localStorage "dom-virus:theme").
 
+import { resolveAnalytics } from "./analytics/config.mjs";
+import { analyticsSnippet } from "./analytics/snippet.mjs";
+
 export const REPO = "https://github.com/coded-dot-design/fizlet";
 // The production host: canonical, og:url, sitemap, llms.txt and the hosted script URLs all use it.
 // FIZLET_SITE overrides it for a preview build on another host (e.g. the GitHub Pages address).
@@ -22,6 +25,13 @@ export const WEBSITE = { "@type": "WebSite", "@id": `${SITE}#website`, name: "Fi
 
 /** Escape text for HTML. */
 export const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+// GA4 + PostHog, consent first (site/analytics, from astro-engine kit/src/lib/analytics): only when
+// PUBLIC_GA4_ID or PUBLIC_POSTHOG_KEY is set at build time (repository Variables); otherwise no
+// analytics code ships. Never in src/: the engine (kernel and bricks) stays analytics-free.
+const ANALYTICS = resolveAnalytics(process.env);
+const analytics = (base) =>
+  analyticsSnippet(ANALYTICS, { privacyUrl: `${base}privacy/`, cookiesUrl: `${base}cookies/`, storageKey: "fizlet:consent" });
 
 // Line icons on a 20px grid (the Battlefield site's stroke style).
 const PATHS = {
@@ -205,10 +215,11 @@ ${body}
     <!--site-map ${base} ${path}-->
   </div>
   <div class="foot-base">
-    <div class="wrap"><span>© 2026 coded.design · MIT licence · no runtime dependencies</span><span>By <a href="${AUTHOR}">Chris Cooley ↗</a> · coded.design</span></div>
+    <div class="wrap"><span>© 2026 coded.design · MIT licence · no runtime dependencies</span><button type="button" class="foot-cookies" data-cookie-settings hidden>Cookie settings</button><span>By <a href="${AUTHOR}">Chris Cooley ↗</a> · coded.design</span></div>
   </div>
 </footer>
 ${scripts.map((s) => `<script type="module" src="${base}${s}"></script>`).join("\n")}
+${analytics(base)}
 </body>
 </html>
 `;
