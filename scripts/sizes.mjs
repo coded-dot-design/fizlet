@@ -9,8 +9,9 @@ export const BUDGETS = [
   // The player-facing performance overlay (off by default). Logic ~1.5 KB gz; its look is inline
   // on the kit tokens (~0.45 KB) so it works on pages without board-ui.css. 2,042 B in train 0.21.0;
   // 2,019 B in S8 (−23 B, no behaviour change: getComputedStyle?.(), the bar's slot read inline, x0
-  // and the budget line from the canvas width and height), so #173's shadow direction (+22 B) fits
-  // under 2,048 (2,042 B measured with it) and the budget stays 2,048.
+  // and the budget line from the canvas width and height). Train 4 (#216) adds #136's card base in
+  // the page's shadow direction (+22 B, 2,064 B there with its budget raised to 2,064); merged with
+  // this, 2,042 B measured, so the budget goes back to 2,048 (6 B headroom).
   ["fizlet/perf", "src/perf.ts", 2048],
   ["fizlet/input", "src/input.ts", 1536],
   // 1,995 B gz in 0.19.0; 2,073 B once stickAt/dpadAt/the drag use steer's exact `hypot` (+78 B, #118, K5:
