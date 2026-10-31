@@ -1,10 +1,11 @@
-// Browser test for the layers story (site/demos/layers): it mounts through fzlt/slot and follows
-// the page's scroll. Its progress is a pure function of the scroll position (the same frame however
-// the page got there), it never captures the scroll (a wheel over it moves the page by the full
-// amount), it settles (no requestAnimationFrame at all) once the scroll stops, the labels arrive one
-// by one with their layers and never overlap, clip or smear, the arrow keys step through it, Recall
-// gives the page back byte for byte, reduced motion keeps the still exploded poster, and the inline
-// loader fetches no JS until the slot nears the viewport. Waits are on frames and state, not time.
+// Browser test for the layers story (site/demos/layers): it mounts through fzlt/slot and plays on its
+// own, looping, while it is on screen (off screen it settles: no requestAnimationFrame at all). The
+// play key pauses and resumes it. The figure holds the page's scroll like the site's other demo
+// frames: a wheel or a swipe over it steps the story (down fans the layers out) and the page stays
+// put; outside it the page scrolls as ever. The labels arrive one by one with their layers and never
+// overlap, clip or smear, the arrow keys step through it, Recall gives the page back byte for byte,
+// reduced motion keeps the still exploded poster (no lock, no controls), and the inline loader
+// fetches no JS until the slot nears the viewport. Waits are on frames and state, not time.
 // Run: node tests/layers.mjs (set CHROMIUM_PATH to use a preinstalled Chromium).
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -24,7 +25,7 @@ const bundle = (await build({
 // The built page, with room to scroll the figure all the way through. Its inline loader does not
 // import the chunk: the test's own script mounts the scene through fzlt/slot and keeps the handle.
 const PAGE = html
-  .replace('import("./layers.js")', "0")
+  .replace('import("./layers.js");import("./hint.js")', "0")
   .replace('<link rel="stylesheet" href="board-ui.css">', `<style>${readFileSync("src/ui/board-ui.css", "utf8")}</style>`)
   .replace("</main>", '</main><div style="height:150vh"></div>')
   .replace("</body>", () => `<script>${bundle}
@@ -73,12 +74,6 @@ const still = (page) => page.evaluate(async () => {
   for (let k = 0; k < 900 && same < 10; k++) (await new Promise(window.raf0), (same = scrollY === last ? same + 1 : 0), (last = scrollY));
   return scrollY;
 });
-// The scroll range the story spans (the scene's own rule: its middle from 85% to 25% of the viewport).
-const span = (page) => page.evaluate(() => {
-  const r = document.querySelector("figure.lyr").getBoundingClientRect(), vh = innerHeight, mid = r.top + r.height / 2 + scrollY;
-  const a = Math.max(0, mid - vh * 0.85), b = Math.min(Math.max(a + vh * 0.4, mid - vh * 0.25), document.documentElement.scrollHeight - vh);
-  return [a, b];
-});
 // What the scene shows right now: progress, pose, every tank and shell, the HUD, the labels.
 const frameOf = (page) => page.evaluate(() => ({
   p: +document.querySelector(".lz").dataset.p,
@@ -89,19 +84,34 @@ const frameOf = (page) => page.evaluate(() => ({
   tags: [...document.querySelectorAll(".lz-tag")].map((t) => t.style.opacity).join(","),
   state: document.querySelector('[data-layer="collision"] .lz-tag').dataset.state,
 }));
-// Counts every wheel, touch or scroll listener the slot and the scene add without { passive: true }
-// (it could block the scroll).
-const PASSIVE = `<script>window.blocked_ = 0; { const add = EventTarget.prototype.addEventListener;
-  EventTarget.prototype.addEventListener = function (type, fn, o) {
-    if (window.watch_ && /wheel|touch|scroll/.test(type) && !(o && o.passive) && !/InjectedScript/.test(new Error().stack)) window.blocked_++;
-    return add.call(this, type, fn, o);
-  }; }</script>`;
 const open = async (page) => {
-  await page.setContent(PAGE.replace("<head>", "<head>" + PASSIVE));
+  await page.setContent(PAGE);
   await page.waitForFunction(() => window.handle.mounted && document.querySelector(".lz")?.dataset.p != null, null, { timeout: 30000 });
 };
 
-await test("mounts, rests on the game frame, settles with no scroll; no layout shift; Recall is exact", async () => {
+const WHEEL = 90, END = 12.4; // scene.ts: wheel pixels per story second; the story's length
+const label = (page) => page.evaluate(() => document.querySelector(".lyr__play").getAttribute("aria-label"));
+/** Pause with the play key (the story autoplays), then settle. */
+const pause = async (page) => {
+  if ((await label(page)) === "Pause") await page.click(".lyr__play");
+  assert.equal(await label(page), "Play");
+  assert.ok(await settled(page), "settles when paused");
+};
+/** The mouse over the figure's middle (inside the viewport). */
+const over = async (page) => {
+  const box = await page.locator("figure.lyr").boundingBox();
+  await page.mouse.move(box.x + box.width / 2, Math.min(box.y + box.height / 2, (page.viewportSize().height) - 40));
+};
+/** Paused at story time t: Home on the focused figure, then the wheel down to t. */
+const goTo = async (page, t) => {
+  await page.focus("figure.lyr");
+  await page.keyboard.press("Home");
+  await over(page);
+  if (t > 0) await page.mouse.wheel(0, t * WHEEL);
+  assert.ok(await settled(page));
+};
+
+await test("mounts and plays on its own; the play key pauses and resumes it; no layout shift; Recall is exact", async () => {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
@@ -112,138 +122,137 @@ await test("mounts, rests on the game frame, settles with no scroll; no layout s
     hidden: document.querySelector("[data-fizlet-slot]").getAttribute("aria-hidden"),
     label: document.querySelector("figure.lyr").getAttribute("aria-label"),
     desc: document.getElementById(document.querySelector("figure.lyr").getAttribute("aria-describedby")).textContent,
-    controls: document.querySelectorAll("figure.lyr button,figure.lyr [role=slider]").length,
+    sliders: document.querySelectorAll("figure.lyr [role=slider]").length,
+    cue: document.querySelector(".lyr__cue").innerText.trim().toLowerCase(),
   }));
   assert.deepEqual(m.layers, ["grid", "characters", "movement", "collision", "rules", "fx", "input", "hud"]);
   assert.equal(m.hidden, "true");
-  assert.equal(m.controls, 0, "no play key, no slider");
-  // The Board UI kit styles it: the fire key is the kit's arcade key in the fire colour.
+  assert.equal(m.sliders, 0, "no slider");
+  assert.equal(m.cue, "↕ scroll me to fan the layers");
   assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector(".lz-fire")).backgroundColor), "rgb(255, 43, 78)");
   assert.equal(m.label, "The layers story");
-  assert.match(m.desc, /scroll past it.*lift off one by one.*collision layer turns red.*snaps back.*arrow keys/);
-  assert.ok(await settled(page), "settles with no scroll");
+  assert.match(m.desc, /plays on its own, three times round.*play key pauses and replays it.*scrolling or swiping over it.*arrow keys/);
+  // Autoplay: the play key says Pause and the story moves on by itself.
+  await page.waitForFunction(() => document.querySelector(".lyr__play").getAttribute("aria-label") === "Pause");
+  const p0 = (await frameOf(page)).p;
+  await frames(page, 20);
+  assert.ok((await frameOf(page)).p > p0, "it plays");
+  // The play key: pause holds the frame and settles; play moves on from there.
+  await pause(page);
   const f = await frameOf(page);
-  assert.equal(f.p, 0);
-  assert.match(f.pose, /rotateX\(0deg\)/, "rests in game mode");
-  // Scroll through the story and back: transforms only.
-  const [a, b] = await span(page);
-  for (let k = 0; k <= 10; k++) (await page.evaluate((y) => scrollTo(0, y), a + ((b - a) * k) / 10), await frames(page, 3));
-  await page.evaluate(() => scrollTo(0, 0));
-  assert.ok(await settled(page));
-  assert.equal(await page.evaluate(() => window.cls_), 0, "no layout shift over the story");
+  await frames(page, 20);
+  assert.deepEqual(await frameOf(page), f, "paused: the same frame");
+  await page.click(".lyr__play");
+  assert.equal(await label(page), "Pause");
+  await frames(page, 20);
+  assert.ok((await frameOf(page)).p > f.p, "resumes from the paused frame");
+  // A whole loop: back to the game frame at the start, transforms only.
+  await page.waitForFunction(() => +document.querySelector(".lz").dataset.p < 0.05 && window.frames_ > 0, null, { timeout: 30000, polling: "raf" });
+  assert.equal(await page.evaluate(() => window.cls_), 0, "no layout shift over a loop");
   const [now, was] = await page.evaluate(() => (window.handle.destroy(), [document.body.innerHTML.trimEnd(), window.before.trimEnd()]));
   if (now !== was) { let i = 0; while (now[i] === was[i]) i++; console.log("DIFF at", i, JSON.stringify(was.slice(i - 60, i + 80)), "\nnow", JSON.stringify(now.slice(i - 60, i + 80))); }
-  assert.ok(now === was, "destroy() gives the page back exactly");
+  assert.ok(now === was, "destroy() gives the page back exactly (the play key back to Play)");
   assert.deepEqual(errs, []);
   await page.close();
 });
 
-for (const [w, h] of [[1440, 900], [390, 844]])
-  await test(`progress follows the scroll position, the same frame whichever way it got there; it settles (${w}px)`, async () => {
-    const page = await browser.newPage({ viewport: { width: w, height: h } });
-    await open(page);
-    const [a, b] = await span(page);
-    assert.ok(b - a > 200, `the story spans ${b - a}px of scroll`);
-    const seen = [];
-    for (const q of [0.25, 0.5, 0.62, 0.8, 1]) {
-      const y = Math.round(a + (b - a) * q);
-      await page.evaluate((y) => scrollTo(0, y), y);
-      assert.ok(await settled(page), `settles at ${q}`);
-      const f = await frameOf(page), want = (await page.evaluate(() => scrollY) - a) / (b - a);
-      assert.ok(Math.abs(f.p - want) <= 0.002, `at ${q}: shows ${f.p}, scroll says ${want.toFixed(3)}`);
-      seen.push([y, f]);
-    }
-    // Back to each position by another way (from the far end, then a stop past it): the same frame.
-    for (const [y, f] of seen.reverse()) {
-      await page.evaluate((y) => scrollTo(0, y + 120), y);
-      await frames(page, 4);
-      await page.evaluate((y) => scrollTo(0, y), y);
-      assert.ok(await settled(page));
-      assert.deepEqual(await frameOf(page), f, `the frame at scroll ${y} is the same`);
-    }
-    await page.close();
-  });
-
-await test("the story: the fault is found, scanned and patched as the page scrolls; it snaps back to the game", async () => {
+await test("off screen it stops (no frames at all); back on screen it plays on", async () => {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   await open(page);
-  const [a, b] = await span(page);
-  // A stop inside each state's window (story seconds of the scene's 12.4: fault 6.8–7.5, scan
-  // 7.5–8.9, patched 8.9–9.6), each settled: state, not samples taken while the story eases there.
-  for (const [at, want] of [[7.15, "FAULT"], [8.2, "SCANNING"], [9.25, "PATCHED"], [12.4, ""]]) {
-    await page.evaluate((y) => scrollTo(0, y), Math.round(a + ((b - a) * at) / 12.4));
+  await page.waitForFunction(() => document.querySelector(".lyr__play").getAttribute("aria-label") === "Pause");
+  await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+  assert.ok(await page.evaluate(() => document.querySelector("figure.lyr").getBoundingClientRect().bottom < 0), "scrolled past it");
+  assert.ok(await settled(page), "settles off screen");
+  const p = (await frameOf(page)).p;
+  await page.evaluate(() => scrollTo(0, 0));
+  await frames(page, 20);
+  assert.ok((await frameOf(page)).p > p, "plays again on screen");
+  await page.close();
+});
+
+// The lock: a wheel over the figure steps the story and the page stays put; down fans the layers out,
+// up folds them back; it pauses the autoplay and the cue goes. A wheel off the figure scrolls the page.
+await test("scroll lock: a wheel over the figure steps the story, never the page; off it, the page scrolls", async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await open(page);
+  await page.waitForFunction(() => document.querySelector(".lyr__play").getAttribute("aria-label") === "Pause");
+  await page.evaluate(() => scrollTo(0, 40));
+  await over(page);
+  await page.mouse.wheel(0, 1);
+  assert.equal(await label(page), "Play", "a wheel pauses the autoplay");
+  assert.ok(await page.evaluate(() => getComputedStyle(document.querySelector(".lyr__cue")).display === "none"), "the cue goes once used");
+  await goTo(page, 0);
+  const y0 = await still(page);
+  for (const [dy, want] of [[180, 2], [360, 6], [-90, 5]]) {
+    const t0 = (await frameOf(page)).p * END;
+    await page.mouse.wheel(0, dy);
     assert.ok(await settled(page));
+    const t = (await frameOf(page)).p * END;
+    assert.ok(Math.abs(t - t0 - dy / WHEEL) < 0.02, `wheel ${dy}: the story moved ${(t - t0).toFixed(2)} s`);
+    assert.ok(Math.abs(t - want) < 0.02, `at ${want} s`);
+    assert.equal(await still(page), y0, `wheel ${dy}: the page did not move`);
+  }
+  assert.match((await frameOf(page)).pose, /rotateX\(56deg\)/, "scrolling down fanned the layers out");
+  // Off the figure: the page scrolls as ever.
+  const box = await page.locator("figure.lyr").boundingBox();
+  await page.mouse.move(box.x - 60, 400);
+  await page.mouse.wheel(0, 200);
+  assert.equal((await still(page)) - y0, 200, "off the figure the page scrolls");
+  await page.close();
+});
+
+// A phone: a swipe up over the figure steps the story on and the page stays put.
+await test("phone: a swipe over the figure steps the story; the page stays put", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  const page = await ctx.newPage();
+  await open(page);
+  await page.waitForFunction(() => document.querySelector(".lyr__play").getAttribute("aria-label") === "Pause");
+  assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector("figure.lyr")).touchAction), "none");
+  assert.equal(await page.evaluate(() => document.querySelector(".lyr__cue").innerText.trim().toLowerCase()), "↕ swipe me to fan the layers");
+  await page.click(".lyr__play"); // pause (a tap)
+  assert.ok(await settled(page));
+  const cdp = await ctx.newCDPSession(page);
+  const box = await page.locator("figure.lyr").boundingBox();
+  const y0 = await page.evaluate(() => scrollY), p0 = (await frameOf(page)).p;
+  const T = (type, y) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: type === "touchEnd" ? [] : [{ x: 195, y }] });
+  const from = Math.min(700, box.y + box.height / 2);
+  await T("touchStart", from);
+  for (let k = 1; k <= 20; k++) await T("touchMove", from - k * 9);
+  await T("touchEnd");
+  assert.ok(await settled(page));
+  assert.equal(await still(page), y0, "the page did not move");
+  const dp = (await frameOf(page)).p - p0;
+  assert.ok(Math.abs(dp * END - 180 / WHEEL) < 0.15, `a 180px swipe up moved the story ${(dp * END).toFixed(2)} s`);
+  await ctx.close();
+});
+
+await test("the story: the fault is found, scanned and patched; it snaps back to the game", async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await open(page);
+  await pause(page);
+  for (const [at, want] of [[7.15, "FAULT"], [8.2, "SCANNING"], [9.25, "PATCHED"], [12.4, ""]]) {
+    await goTo(page, at);
     assert.equal((await frameOf(page)).state, want, `at ${at} s`);
   }
-  assert.ok(await settled(page));
   const f = await frameOf(page);
   assert.equal(f.p, 1);
   assert.match(f.pose, /rotateX\(0deg\)/, "back in game mode");
-  assert.match(f.hud, /GREEN \d+VSPINK \d+/);
   assert.notEqual(f.hud, "GREEN 0VSPINK 0", "the game scored on the way");
   await page.close();
 });
 
-// No scroll capture: a wheel over the figure and a swipe-sized scroll move the page by the full
-// amount, every listener the scene adds is passive (it never calls preventDefault), nothing locks.
-await test("no scroll-jacking: a wheel over the figure scrolls the page by exactly its amount", async () => {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-  await open(page);
-  const box = await page.locator("figure.lyr").boundingBox();
-  await page.mouse.move(box.x + box.width / 2, Math.min(box.y + box.height / 2, 860));
-  for (const dy of [120, 120, 240, -120]) {
-    const y0 = await page.evaluate(() => scrollY);
-    await page.mouse.wheel(0, dy);
-    assert.equal((await still(page)) - y0, dy, `wheel ${dy}: the page moved by ${dy}`);
-  }
-  assert.ok(await settled(page));
-  const r = await page.evaluate(() => ({ blocked: window.blocked_, over: [getComputedStyle(document.documentElement).overflow, getComputedStyle(document.body).overflow, document.body.style.cssText] }));
-  assert.equal(r.blocked, 0, "no non-passive wheel, touch or scroll listener (Playwright's own aside)");
-  assert.deepEqual(r.over, ["visible", "visible", ""], "no scroll lock");
-  await page.close();
-});
-
-// A phone: a touch swipe up over the figure scrolls the page by the swipe (nothing holds it) and plays
-// the story along with it.
-await test("phone: a swipe up over the figure scrolls the page and plays the story", async () => {
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
-  const page = await ctx.newPage();
-  await open(page);
-  const cdp = await ctx.newCDPSession(page);
-  const box = await page.locator("figure.lyr").boundingBox();
-  const [a] = await span(page);
-  await page.evaluate((y) => scrollTo(0, y), Math.ceil(a));
-  assert.ok(await settled(page));
-  const p0 = (await frameOf(page)).p, y0 = await page.evaluate(() => scrollY);
-  // A finger down on the figure's middle, 20 moves of 10px up, lifted.
-  const T = (type, y) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: type === "touchEnd" ? [] : [{ x: 195, y }] });
-  const from = Math.min(780, box.y - y0 + box.height / 2 + 100);
-  await T("touchStart", from);
-  for (let k = 1; k <= 20; k++) await T("touchMove", from - k * 10);
-  await T("touchEnd");
-  const dy = (await still(page)) - y0;
-  assert.ok(await settled(page));
-  // The finger moved 200px (less the touch slop, plus any fling): the page went with it, and the
-  // story moved by exactly that much scroll.
-  assert.ok(dy >= 100, `the swipe moved the page ${dy}px (a 200px swipe)`);
-  const [, b] = await span(page);
-  const want = Math.min(1, (y0 + dy - a) / (b - a));
-  assert.ok((await frameOf(page)).p > p0, "the story moved on");
-  assert.ok(Math.abs((await frameOf(page)).p - want) <= 0.002, `the story followed: ${(await frameOf(page)).p} vs ${want.toFixed(3)}`);
-  await ctx.close();
-});
-
-// Labels over a scroll through the story: every visible label faces the screen (not smeared into its
+// Labels over the story, stepped by the wheel: every visible label faces the screen (not smeared into its
 // layer's plane), sits inside the figure, overlaps no other label, and they arrive one at a time,
 // bottom to top, each with its layer. Readable on a phone: 11px text at least.
 for (const [w, h] of [[390, 844], [1440, 900]])
   await test(`labels arrive in sequence with their layers, never overlap, clip or smear (${w}px)`, async () => {
     const page = await browser.newPage({ viewport: { width: w, height: h } });
     await open(page);
-    const [a, b] = await span(page);
+    await pause(page);
+    await goTo(page, 0);
     const bad = new Set(), order = [];
     for (let k = 0; k <= 80; k++) {
-      await page.evaluate((y) => scrollTo(0, y), a + ((b - a) * k) / 80);
+      if (k) await page.mouse.wheel(0, (END * WHEEL) / 80);
       await frames(page, 2);
       const r = await page.evaluate(() => {
         const f = document.querySelector("figure.lyr").getBoundingClientRect();
@@ -270,12 +279,12 @@ for (const [w, h] of [[390, 844], [1440, 900]])
   });
 
 // Keyboard: the figure takes focus; the arrows step one stop at a time (each a label, then the fault,
-// scan and patch), Home and End go to the ends, and the page does not scroll under the keys. A scroll
-// hands it back to the scroll position.
-await test("keyboard: arrows step through the layers one label at a time; Home/End; a scroll takes over", async () => {
+// scan and patch), Home and End go to the ends, and the page does not scroll under the keys.
+await test("keyboard: arrows step through the layers one label at a time; Home/End; Tab reaches the play key", async () => {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   await open(page);
   await page.keyboard.press("Tab");
+  await page.keyboard.press("Home"); // the autoplay stops at the first key: from the start
   assert.equal(await page.evaluate(() => document.activeElement === document.querySelector("figure.lyr")), true, "Tab focuses the figure");
   assert.match(await page.evaluate(() => getComputedStyle(document.querySelector("figure.lyr")).outlineStyle), /solid/, "focus is visible");
   const y0 = await page.evaluate(() => scrollY);
@@ -308,19 +317,18 @@ await test("keyboard: arrows step through the layers one label at a time; Home/E
   assert.ok(await settled(page));
   assert.equal((await frameOf(page)).p, 0);
   assert.equal(await page.evaluate(() => scrollY), y0, "the keys did not scroll the page");
-  await page.keyboard.press("End");
-  assert.ok(await settled(page));
-  const [a, b] = await span(page);
-  await page.evaluate((y) => scrollTo(0, y), Math.round((a + b) / 2));
-  assert.ok(await settled(page));
-  const want = ((await page.evaluate(() => scrollY)) - a) / (b - a);
-  assert.ok(Math.abs((await frameOf(page)).p - want) <= 0.002, "a scroll takes it back");
+  await page.keyboard.press("Tab");
+  assert.equal(await page.evaluate(() => document.activeElement.className.includes("lyr__play")), true, "Tab: the play key");
+  await page.keyboard.press("Space");
+  assert.equal(await label(page), "Pause", "Space plays");
+  await page.keyboard.press("Enter");
+  assert.equal(await label(page), "Play", "Enter pauses");
   const same = await page.evaluate(() => (window.handle.destroy(), document.body.innerHTML.trimEnd() === window.before.trimEnd()));
-  assert.ok(same, "Recall exact after keys and scroll");
+  assert.ok(same, "Recall exact after keys");
   await page.close();
 });
 
-await test("reduced motion: the scene never loads; the still exploded frame shows every label", async () => {
+await test("reduced motion: the scene never loads; the still exploded frame shows every label; no lock, no controls", async () => {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
   await page.setContent(PAGE);
   await frames(page, 20);
@@ -331,6 +339,8 @@ await test("reduced motion: the scene never loads; the still exploded frame show
     labels: [...document.querySelectorAll(".lyr__t")].filter((t) => +getComputedStyle(t).opacity > 0.99).map((t) => t.textContent),
     flat: !getComputedStyle(document.querySelector(".lyr__s")).transform.startsWith("matrix3d"),
     overflow: document.documentElement.scrollWidth > innerWidth,
+    ui: getComputedStyle(document.querySelector(".lyr__ui")).display,
+    touch: getComputedStyle(document.querySelector("figure.lyr")).touchAction,
     frames: window.frames_,
   }));
   assert.equal(r.stage, false);
@@ -338,6 +348,13 @@ await test("reduced motion: the scene never loads; the still exploded frame show
   assert.equal(r.flat, false, "exploded");
   assert.match(r.labels[0], /^Board: grid · 630 B gz$/);
   assert.equal(r.overflow, false);
+  assert.equal(r.ui, "none", "no play key or cue");
+  assert.equal(r.touch, "pan-y", "a swipe scrolls the page");
+  await page.evaluate(() => scrollTo(0, 0));
+  const box = await page.locator("figure.lyr").boundingBox();
+  await page.mouse.move(box.x + box.width / 2, Math.min(box.y + box.height / 2, 800));
+  await page.mouse.wheel(0, 100);
+  assert.equal(await still(page), 100, "a wheel over it scrolls the page");
   await page.close();
 });
 
@@ -354,9 +371,20 @@ await test("the inline loader: no JS until the slot is near; then the live chunk
     await page.goto(srv.url);
     await frames(page, 30);
     assert.deepEqual(js, [], "no JS while the slot is far");
+    // A wheel over the figure before the chunk is there: held (the page stays), and it loads the chunk.
     await page.evaluate(() => document.querySelector("figure.lyr").scrollIntoView());
+    await frames(page, 2);
+    const y0 = await page.evaluate(() => scrollY);
+    await over(page);
+    await page.mouse.wheel(0, 120);
+    await frames(page, 20);
+    assert.equal(await page.evaluate(() => scrollY), y0, "held before the scene is there");
     await page.waitForSelector("[data-fizlet-slot] .lz", { timeout: 10000 });
-    assert.deepEqual(js, ["layers.js"]);
+    assert.deepEqual(js.sort(), ["hint.js", "layers.js"], "the scene, and the scroll-lock note (no site script here)");
+    // The site's scroll-lock note: the wheel above was held, so it opens on the frame's edge.
+    await page.mouse.wheel(0, 120);
+    await page.waitForSelector(".scroll-hint[data-open]", { timeout: 5000 });
+    assert.ok(await page.evaluate(() => document.querySelector("figure.lyr").hasAttribute("data-scroll-warn")), "the frame warns");
     await page.close();
     const rm = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
     const js2 = [];

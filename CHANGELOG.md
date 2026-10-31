@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- **Layers story: it holds the scroll like every other demo frame, plays on its own, and scrolling
+  over it fans the layers.** A wheel or a vertical swipe over the figure steps the story (down fans
+  the layers out, up folds them back) instead of moving the page, and the site's scroll-lock note
+  turns the frame red and says why. It used to follow the page's scroll and never hold it, so a
+  scroll over it moved the page. It now autoplays (three loops while on screen, then it rests on the
+  game frame and settles) with the kit's play/pause key, and a cue under the stack says "Scroll me to fan the layers" ("Swipe…" on touch)
+  until it is used. The standalone layers page loads the note's own chunk (`hint.js`) with the scene.
+  Reduced motion: no lock, no controls, the still exploded view. Measured (Chromium 153, 4× CPU
+  throttle, one loop): live chunk 7,787 → 8,060 B gzip (budget 9,728), inline 3,438 → 4,057 B
+  (budget 6 KB), script per frame 1.2 ms median, 3.3 ms p95; CLS 0; 0 frames paused.
+
 ## 0.21.1
 
 - 0.21.1 — first npm release, published as `fzlt` (npm refused `fizlet` as too similar to `figlet`). Same code as 0.21.0.
