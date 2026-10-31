@@ -356,15 +356,22 @@ try {
     assert.match(contest, /10 KB gzip or less/);
     assert.match(contest, /Too big to win/);
     assert.doesNotMatch(contest, /characters or fewer/, "the prompt length is not a rule");
-    assert.match(contest, /One winner a week/);
-    assert.match(contest, /Not live yet/, "open prompts are planned, not live");
+    assert.match(contest, /One weekly winner/);
+    assert.match(contest, /one monthly winner/);
+    assert.match(contest, /Not live yet/, "an entry form is planned, not live");
+    // Daily says the same story, with the same prefilled entry link.
+    const daily = readFileSync(`${ROOT}/gallery/index.html`, "utf8");
+    for (const html of [contest, daily]) for (const rule of ["Up to <b>40 entries a day</b>", "<b>top 1 to 5</b>", "<b>posted at the end of the week</b>", "<b>monthly winner</b>", "backfills", "10,240 B live, a piece can't win"]) assert.ok(html.includes(rule), `contest story: ${rule}`);
+    assert.match(daily, /<title>Daily: tiny examples, made every day · Fizlet<\/title>/);
+    assert.match(daily, /<h1 id="gal-title">Daily\.<br><em>Tiny examples, made every day\.<\/em><\/h1>/);
   }
 
   // ---------- Every page, desktop and phone: errors, links, overflow ----------
   const checked = new Set();
   for (const [label, viewport] of [["desktop", { width: 1280, height: 860 }], ["phone", { width: 360, height: 740 }]]) {
     const context = await browser.newContext({ viewport });
-    for (const path of PAGES) {
+    // A moved page (heroes/) leaves at once: tests/site-nav.mjs follows its redirect.
+    for (const path of PAGES.filter((p) => !/<meta http-equiv="refresh"/.test(readFileSync(fileOf(p), "utf8")))) {
       where = `${label} ${path || "index"}`;
       const { page, errors } = await open(context, path);
       await page.waitForTimeout(300);

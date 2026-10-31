@@ -28,7 +28,7 @@ export function siteNav(head: HTMLElement): void {
       const b = btns.find(isOpen);
       if (b) set(b, false), b.focus();
     } else if (e.key == "Tab" && isOpen(key)) {
-      const f = [key, ...panel.querySelectorAll("a")];
+      const f: HTMLElement[] = [key, ...panel.querySelectorAll("a")];
       const i = f.indexOf(document.activeElement as HTMLElement);
       if (e.shiftKey ? i < 1 : i < 0 || i == f.length - 1) e.preventDefault(), f[e.shiftKey ? f.length - 1 : 0]!.focus();
     }
