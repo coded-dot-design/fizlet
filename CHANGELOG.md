@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- **Gallery: Launch day, two tiny games by Pip (pending owner review).** A new theme, `launch-day`.
+  *npm i fizlet*: bricks ride a belt and an order card says what the thing needs (a blaster: kernel,
+  input, fx, sound). Tap a brick, or press Space for the one over the chute: one the order needs
+  snaps into the box, and one it doesn't bounces back out with its real size ("+1,265 B you don't
+  need"). The order card is a terminal (the command types in, the bricks tick off). A full order gets its lid shut and a "0 deps" sticker stamped on, and the bundle counts up to its measured size; clean orders build a streak. *Recall Party*: tap and a party popper
+  fires confetti that knocks the headline's real letters into a heap on the floor. Press Recall (R)
+  and every letter flies home, and the scene measures each letter's box against where it started
+  before it says "back to the pixel". No number is typed: `scripts/launch-facts.mjs` measures the
+  brick and order bundle gzip sizes (the way `scripts/sizes.mjs` does), the packed tarball
+  (`npm pack --dry-run --json`) and the runtime dependency count (`package.json`), and the site fills
+  them into the stages' `{{…}}` slots. Each piece has a zero-allocation step (GC harness:
+  `tests/launch-day.test.mjs`), settles to 0 frames and draws none off screen, keeps sound off until a
+  gesture (M mutes, 44 px button), is keyboard playable, and gives the page back byte for byte
+  (`tests/launch-day.mjs`).
 - **Gallery: skate-sesh, three ten-second skate minis by Pip (pending owner review).** Pump Pipe:
   a stadium halfpipe under the lights (decks, flags, palms, a crowd stand that jumps for a landed
   trick, a skater waiting a turn); hold on the drops to pump speed (holding on the climbs bleeds
