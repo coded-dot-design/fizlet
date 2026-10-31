@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Website: a section the scroll jumps past still reveals** (`site/home-motion.ts`). The observer
+  only reports threshold crossings, so a jump (an anchor, a fling, a slow frame landing several
+  scrolls at once) could carry a waiting section from below the fold to above it with no callback,
+  and it stayed hidden; the read phase now plays in any waiting section above the reveal line. This
+  was the CI-only "home rhythm: every part shown" failure on PRs that lengthen the home page.
+  `tests/site.mjs` adds single jumps to 0.3–0.7 of the page (the old code left `profile` hidden at
+  0.3, 0.35 and 0.5 locally).
+
 - **`fizlet/layout`** (new brick, EXPERIMENTAL, 1,751 B gz, budget 2,048; roadmap E10):
   force-directed layout on typed arrays with a Barnes-Hut pass, for diagrams and graphs that settle.
   `layout(engine, { cap, links, charge, distance, gravity, cx, cy, theta, keep, ticks, still, motion })`
