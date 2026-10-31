@@ -904,7 +904,13 @@ try {
       // the last reveals can take longer than any fixed wait. A part that never shows still fails.
       await page.waitForFunction(() => ![...document.querySelectorAll("section[data-reveal] *")]
         .some((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1")), null, { polling: "raf", timeout: 15000 }).catch(() => {});
-      assert.deepEqual(await moved(page), [], `${reducedMotion}: every part shown once the reveals end`);
+      // Name what is still hidden (section id, class, opacity) in the message: CI shows only the first
+      // lines of a failure, so a bare deepEqual diff never reached the annotations.
+      const left = await page.evaluate(() => [...document.querySelectorAll("section[data-reveal] *, .hero-field")]
+        .filter((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1"))
+        .map((el) => `${el.closest("section")?.id || "-"}:${el.className || el.tagName}@${el.style.opacity}`));
+      if (left.length) console.log(`home rhythm actual hidden (${reducedMotion}): ${left.join(" | ")}`);
+      assert.deepEqual(left, [], `${reducedMotion}: every part shown once the reveals end (${left.length} hidden: ${left.slice(0, 12).join(" | ")})`);
       if (reducedMotion === "reduce") {
         assert.equal(await page.evaluate(() => document.querySelector(".sec-num").style.translate), "", "reduced motion: no parallax");
       } else {

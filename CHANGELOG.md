@@ -186,6 +186,23 @@
   `tests/site.mjs` adds single jumps to 0.3–0.7 of the page (the old code left `profile` hidden at
   0.3, 0.35 and 0.5 locally).
 
+- **`fizlet/view-canvas`** (new brick, EXPERIMENTAL, 936 B gz, budget 1,229; roadmap E10): one
+  overlay canvas per root, sized for the screen's pixel density and redrawn only where something
+  changed. `viewCanvas(engine, root, { draw, maxDpr, label })` → `{ canvas, ctx, width, height, dpr,
+  dirty }`. The backing store is the CSS size × devicePixelRatio (capped at `maxDpr`, default 2) and
+  drawing is in CSS px; `dirty([x, y, w, h])` grows one box (no box: the whole canvas), and the
+  render phase clears and clips that box in whole device pixels and calls `draw` once. Nothing
+  dirty, no canvas work. It never keeps the engine awake (`dirty()` wakes a settled engine for one
+  redraw); layout reads only in the read phase after a ResizeObserver or zoom; Recall removes the
+  canvas and gives the root's `position` back. The box comes in an array because four doubles passed
+  to a call are boxed: a first version taking `dirty(x, y, w, h)` and clearing in CSS px cost 10
+  young GCs per 1M frames on Node 24; now 0 (bare engine 0).
+  - Tests: `tests/view-canvas.test.mjs` (density and cap, snapping and union, resize and zoom,
+    settle and wake, Recall, zero allocation over 1M frames, no `Math.hypot`) and
+    `tests/view-canvas.mjs` in Chromium at 2× and 1× (a dirty box repaints only its own pixels,
+    resize, settled at 0 frames, Recall byte for byte).
+  - Status: EXPERIMENTAL in `site/bricks.mjs` (since 0.21.0), a README row and a generated brick
+    page; off the ROADMAP list.
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
   first release tag after the owner adds the `NPM_TOKEN` repository secret; the release workflow
   (`.github/workflows/release.yml`, `npm publish --provenance --access public`) checks, packs and

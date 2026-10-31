@@ -133,6 +133,11 @@ lockTouch(document, null); // a full-screen board: the whole page` },
 
 const c = cssClock(diagram, { span: 6, loops: 3 }); // rests on frame one, settles
 pauseButton.onclick = () => c.hold(!held); // c.destroy() gives the page back` },
+  { id: "view-canvas", status: "experimental", since: "0.21.0", tests: ["view-canvas.test.mjs", "view-canvas.mjs"], used: [], why: "New in E10 (diagrams): the first diagram on fizlet.com is next to ship on it; its API may still change.",
+    tag: "VIEW CANVAS", role: "aim", modules: [mod("fizlet/view-canvas", "view-canvas")],
+    snippet: `const v = viewCanvas(e, diagram, { label: "Brick graph", draw(ctx, box) { paint(ctx); } });
+box.set([x - 12, y - 12, 24, 24]); // a node moved: [x, y, w, h], CSS px
+v.dirty(box); // only those device pixels are cleared and redrawn; v.dirty() is all of it` },
   { id: "arcade", status: "complete", since: "0.11.0", tests: ["arcade.test.mjs", "arcade.mjs", "arcade-game.mjs", "arcade-hud.mjs"], used: ["Null Invaders 1.0", "Byte Runner 1.0", "Sherman Bytes 1.0"],
     tag: "ARCADE", role: "go", modules: [mod("fizlet/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
@@ -156,7 +161,6 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
  */
 export const PLANNED = [
   { name: "fizlet/layout", phase: "E10", purpose: "Force-directed layout on typed arrays with a Barnes-Hut pass: diagrams and graphs that settle.", target: 2048, needs: ["fizlet", "fizlet/camera"] },
-  { name: "fizlet/view-canvas", phase: "E10", purpose: "One overlay canvas per root, sized for the screen's pixel density, redrawn only where something changed.", target: 1229, needs: ["fizlet"] },
   { name: "fizlet/actor", phase: "E11", purpose: "Entities on typed arrays: spawn, kill, side, health and tags, with fixed capacity.", target: 1229, needs: ["fizlet"] },
   { name: "fizlet/aim", phase: "E11", purpose: "Lead targeting, firing cones and line of sight for bots and turrets.", target: 1024, needs: ["fizlet/steer", "fizlet/grid"] },
   { name: "fizlet/view-dom", phase: "E11", purpose: "Pooled DOM nodes bound to actors, written change-only through the ledger.", target: 1536, needs: ["fizlet/actor"] },
