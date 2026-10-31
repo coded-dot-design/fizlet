@@ -9,6 +9,7 @@ import { crumbs, esc, icon } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { sections } from "../../scripts/gallery.mjs";
 import { CONTEST } from "../../scripts/people.mjs";
+import { contestStory, enterKey } from "./contest.mjs";
 
 const fmt = (n) => n.toLocaleString("en-US");
 
@@ -118,7 +119,7 @@ const card = (e, { loader, figures, base, people, themeTitle, winners, tooBig = 
  * `tooBig`: ids of contest entries over the size cap, which wear the Too big to win sticker;
  * `today`: the build's date (YYYY-MM-DD), for the NEW sticker.
  */
-export function galleryPage({ page, pages, all, themes, people, loader, figures, snippets = {}, base, winners = new Set(), tooBig = new Set(), archived = 0, today }) {
+export function galleryPage({ page, pages, all, themes, people, loader, figures, snippets = {}, base, winners = new Set(), tooBig = new Set(), archived = 0, contributors = [], week, today }) {
   const firstPage = Object.fromEntries(themes.map((t) => [t.id, pages.find((p) => p.entries.some((e) => e.theme === t.id))]));
   const used = themes.filter((t) => firstPage[t.id]);
   const chips = [`<a class="bui-key gal-chip" href="${base}gallery/" data-theme-chip="all"${page.n === 1 ? ' aria-current="true"' : ""}>All <small>${all.length}</small></a>`,
@@ -130,18 +131,18 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
     ${entries.map((e) => card(e, { loader, figures, base, people, themeTitle: title[e.theme], winners, tooBig, snippets, today })).join("\n    ")}
     </ol>
   </section>`).join("\n  ");
-  const nav = pages.length > 1 ? `<nav class="gal-pages" aria-label="Gallery pages">${pages.map((p) => p.n === page.n
+  const nav = pages.length > 1 ? `<nav class="gal-pages" aria-label="Daily pages">${pages.map((p) => p.n === page.n
     ? `<span class="gal-page-now" aria-current="page">${p.n}</span>`
-    : `<a class="bui-key" href="${base}${p.path}"${p.n === page.n - 1 ? ' rel="prev"' : p.n === page.n + 1 ? ' rel="next"' : ""} aria-label="Gallery page ${p.n}">${p.n}</a>`).join("")}</nav>` : "";
-  const heroes = all.filter((e) => e.kind === "hero").length;
+    : `<a class="bui-key" href="${base}${p.path}"${p.n === page.n - 1 ? ' rel="prev"' : p.n === page.n + 1 ? ' rel="next"' : ""} aria-label="Daily page ${p.n}">${p.n}</a>`).join("")}</nav>` : "";
   return `
 <section class="section" aria-labelledby="gal-title">
   <div class="wrap">
-    ${page.n > 1 ? crumbs(base, [["gallery/", "Gallery"]], `Page ${page.n}`) : ""}
+    ${page.n > 1 ? crumbs(base, [["gallery/", "Daily"]], `Page ${page.n}`) : ""}
     <div class="section-head">
-      <p class="eyebrow"><span class="index">${all.length}</span> ANIMATIONS · NEWEST FIRST${pages.length > 1 ? ` · PAGE ${page.n} OF ${pages.length}` : ""}</p>
-      <h1 id="gal-title">One prompt.<br><em>One animation.</em></h1>
-      <p class="lead">A new animation from a simple prompt, made from Fizlet bricks. Each one shows the prompt it was made from, runs live once it nears the screen, and wears its size, measured on this build. Still once it settles, asleep off screen, and the page always comes back. Take any made from a prompt home as one file, or <a href="${base}make/">make your own</a>. By <a href="https://coded.design/">Chris Cooley ↗</a>${heroes ? ` · <a href="${base}heroes/">the ${heroes} heroes, big</a>` : ""}.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/" rel="nofollow">the archive</a>.` : ""}</p>
+      <p class="eyebrow"><span class="index">${all.length}</span> PIECES · NEWEST FIRST${pages.length > 1 ? ` · PAGE ${page.n} OF ${pages.length}` : ""}</p>
+      <h1 id="gal-title">Daily.<br><em>Tiny examples, made every day.</em></h1>
+      <p class="lead">It's how we test the engine. We turned it into a contest. Each piece is made from Fizlet bricks, runs live once it nears the screen and wears its size, measured on this build: still once it settles, asleep off screen, and the page always comes back. Take any made from a prompt home as one file, or <a href="${base}make/">make your own</a>. By <a href="https://coded.design/">Chris Cooley ↗</a>.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/" rel="nofollow">the archive</a>.` : ""}</p>
+      ${page.n === 1 ? `<div class="panel gal-contest"><p>${contestStory(contributors, base)}</p><div class="split-keys">${enterKey(week)}<a class="bui-key bui-arcade bui-sys" href="${base}contest/">${icon("book", 16)}Contest rules</a></div></div>` : ""}
     </div>
     <nav class="gal-themes" aria-label="Themes">${chips}</nav>
     <form class="gal-search" role="search" data-gal-search data-base="${base}" hidden>
@@ -173,11 +174,11 @@ export function archivePage({ entries, themes, people, loader, figures, base }) 
   return `
 <section class="section" aria-labelledby="gal-title">
   <div class="wrap">
-    ${crumbs(base, [["gallery/", "Gallery"]], "Archive")}
+    ${crumbs(base, [["gallery/", "Daily"]], "Archive")}
     <div class="section-head">
       <p class="eyebrow"><span class="index">${entries.length}</span> ARCHIVED · NOT IN THE GALLERY</p>
       <h1 id="gal-title">The archive.</h1>
-      <p class="lead">Earlier factory runs, taken off <a href="${base}gallery/">the gallery</a> to keep it to the good ones. Kept here to revisit: each still runs live and wears its size, measured on this build.</p>
+      <p class="lead">Earlier factory runs, taken off <a href="${base}gallery/">Daily</a> to keep it to the good ones. Kept here to revisit: each still runs live and wears its size, measured on this build.</p>
     </div>
   </div>
   <div class="wrap gal-sections">

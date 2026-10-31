@@ -150,7 +150,6 @@ export async function buildGallery(out) {
   const loader = await build({ ...common, entryPoints: [`${DIR}/gallery.ts`] });
   write(loader, join(out, "gallery", "gallery.js"));
   write(await build({ ...common, entryPoints: [`${DIR}/browse.ts`] }), join(out, "gallery", "browse.js"));
-  write(await build({ ...common, entryPoints: [`${DIR}/heroes.ts`] }), join(out, "gallery", "heroes.js"));
   const pages = paginate(live);
   const index = galleryIndex(live, { pages, people, themeList, loader: gz(loader) });
   writeFileSync(join(out, "gallery", "index.json"), JSON.stringify(index) + "\n");
