@@ -38,6 +38,23 @@
     resize, settled at 0 frames, Recall byte for byte).
   - Status: EXPERIMENTAL in `site/bricks.mjs` (since 0.21.0), a README row and a generated brick
     page; off the ROADMAP list.
+- **Website: the people page as one illustrated set.** All six avatars (Chris, Quill, Pip, Frame
+  Zero, DJ Mempool, Hex Hazel) are redrawn in one style: a full bust in the 32 × 32 frame, a 1-px
+  rim outline, 2–3 shades per colour, a bright prop and sparkles on a dark ground. Each has 2 frames
+  (`avatars`, replacing `avatar`) that cross-fade every 4 s on the card and the profile; frames turn
+  only on screen and while the tab is visible, never under reduced motion (site.js +250 B gzip).
+  Cards: the title alone in mono caps, a tagline, "↳ reports to" its own linked line, stats as
+  chips. "House persona" is now **Studio crew** (`reportsTo: quill`); Quill and Pip report to
+  Chris. The long "not a real person" line is a sticker on the avatar's corner (AI AGENT,
+  CHARACTER, MAKER) whose accessible name keeps the honesty. Avatar colours are site.css `--av-*`
+  tokens: Board UI colours or a mix of two, fixed in both themes.
+- **Tests: the layers story's "play resumes" check counts frames, not wall time.** It failed under
+  CPU load: it passed 3 of 10 runs at load 42–72 (4 of 10 with the timeline pause fix, which the
+  layers scene doesn't use). Traced: play does resume (the key reads Pause and the story moves on);
+  under load the page's frames came 295–412 ms apart, so the old fixed 400 ms window held only two
+  to four of them. It now waits (up to 10 s) for six frames and the story moving past where it was
+  paused: 10 of 10 under the same load. A real stall still fails it (checked with a scene whose key
+  reads Pause but whose story never steps). Test only; no engine or size change.
 - **Website: a frame that keeps the page's scroll now says why.** Over a gallery piece, hero or brick demo that holds drags and taps (a clipping slot with the kit's `overscroll-behavior: none`, a `touch-action: none` game host), a wheel or a vertical swipe that moves nothing opens a short note on the frame's edge for 3 s (closes on pointer leave; once per frame every 20 s; announced once through a polite live region; no slide under reduced motion) and turns the frame's border and shadow `--frame-warn` (new token: the kit's red `--k-fire-ink`, themed; shadow direction from `--shadow-x` / `--shadow-y`, with fallbacks). The lock itself is unchanged, and a frame that lets the page scroll never shows it: the hint is measured (no scroll anywhere after the attempt), not guessed. Site layer only (`site/scroll-hint.ts`, `site.css`): no brick or kernel bytes, every budget unchanged. Test: `tests/scroll-hint.mjs` (in `test:site`).
 - **Site: one section rule, one section gap.** The home page's gradient dividers (inset, faded, drawn on a section's top edge right under the last section's keys) are now the footer's top border: a 2px `--line` rule, edge to edge, in the flow, with `--section-gap` on each side, so it never touches content. The closing band's dashed rule is the same rule. `--section-gap` (`clamp(70px, 10vw, 120px)`, the space the dashed rule had above it) is every section's top space and the space above the footer. Site CSS 10,422 → 10,407 B gzip (minified); no package size change.
 - **Website: Chris Cooley's avatar redrawn from his riding gear.** His pixel avatar on /people/ is
