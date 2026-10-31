@@ -1,0 +1,33 @@
+{
+  "id": "2015-coffee-steam",
+  "date": "2026-10-31",
+  "prompt": "a coffee cup Chris Cooley drew frame by frame in 2015 (kept by the Wayback Machine, 23 April 2015) fills when you tap it and steams while it is full; tap again mid-pour and it turns back from the frame it is on; rebuilt in Fizlet from the same sprite sheet",
+  "title": "The coffee cup fills, steams and turns back (2015, rebuilt)",
+  "kind": "micro",
+  "theme": "everyday",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": false,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 43.18
+    }
+  },
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/before-ai-2015.ts",
+  "export": "coffee",
+  "aspect": "16 / 9",
+  "link": "demos/before-ai-2015/"
+}

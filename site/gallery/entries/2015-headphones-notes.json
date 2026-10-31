@@ -1,0 +1,33 @@
+{
+  "id": "2015-headphones-notes",
+  "date": "2026-10-31",
+  "prompt": "headphones Chris Cooley drew frame by frame in 2015 (kept by the Wayback Machine, 23 April 2015) plug into the phone; press play and ♪ notes rise out of the earcups while the music plays, press pause and they stop; rebuilt in Fizlet from the same sprite sheet",
+  "title": "Headphones plug in and the notes rise (2015, rebuilt)",
+  "kind": "micro",
+  "theme": "everyday",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/fx",
+    "fizlet/slot"
+  ],
+  "pageCost": {
+    "settles": true,
+    "measured": {
+      "chromium": "153.0.8010.12",
+      "framesPlaying": 31,
+      "framesSettled": 0,
+      "framesOffscreen": 0,
+      "recallExact": false,
+      "reducedMotionStill": true,
+      "allocBytesPerFrame": 147.49
+    }
+  },
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/before-ai-2015.ts",
+  "export": "headphones",
+  "aspect": "16 / 9",
+  "link": "demos/before-ai-2015/"
+}

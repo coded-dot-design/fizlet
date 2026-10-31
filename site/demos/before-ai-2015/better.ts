@@ -38,11 +38,10 @@ function layer(s: Strip, host: HTMLElement, w: number, h: number, up: number, co
   return fx;
 }
 
-/** Start the "better" column inside `root`. → the three strips (destroy() each to recall). */
-export function better(root: HTMLElement) {
-  const $ = (s: string) => root.querySelector<HTMLElement>(s)!;
-  // Headphones: plug in, then the beat loop (the 2015 frames and timings); notes ride the loop.
-  const beats = $(".fz-beats"), play = beats.querySelector("button")!;
+/** Headphones in `beats` (a .fz-beats box with its play/pause <button>): plug in, then the beat
+ *  loop (the 2015 frames and timings); notes ride the loop. → the strip (destroy() to recall). */
+export function headphones(beats: HTMLElement) {
+  const play = beats.querySelector("button")!;
   const hp = strip(beats, 300);
   const notes = layer(hp, beats, 300, 300, 140, [CREAM, CORAL, RED], ["♪", "♫"]);
   const PLAY: Clip = { segs: [{ a: 0, b: 13, n: 13, d: 1.4 }, { a: 14, b: 28, n: 14, d: 0.33 }, { a: 28, b: 14, n: 14, d: 0.67 }], loop: 1 };
@@ -66,9 +65,13 @@ export function better(root: HTMLElement) {
     if (!started) (started = true), hp.play(PLAY);
     else hp.hold(!on);
   });
+  return hp;
+}
 
-  // Coffee: the pour and the sip turn back from wherever they are; steam rises while it is full.
-  const cup = $(".fz-coffee"), cupB = cup.querySelector("button")!;
+/** Coffee in `cup` (a .fz-coffee box with its <button>): the pour and the sip turn back from
+ *  wherever they are; steam rises while it is full. → the strip (destroy() to recall). */
+export function coffee(cup: HTMLElement) {
+  const cupB = cup.querySelector("button")!;
   const cf = strip(cup, 84, 11, { fps: 30 });
   const steam = layer(cf, cup, 84, 84, 70, [CREAM]);
   const { ids: { puff }, emit } = emitter(steam, { puff: { shape: "disc", drag: 0.8, gravity: 0, angle: -1.5708, spread: 0.5, speed: [16, 30], size: [2.5, 4.5], life: [1.1, 1.8] } });
@@ -90,9 +93,13 @@ export function better(root: HTMLElement) {
   };
   cupB.addEventListener("click", () => ((full = !full), pour()));
   pour(); // the 2015 intro: the cup drains on load (no .2 s wait)
+  return cf;
+}
 
-  // Laptop: opens to the code, types, scrolls 3 times, rests; open/close turn back from any frame.
-  const comp = $(".fz-comp"), lid = comp.querySelector("button")!;
+/** Laptop in `comp` (a .fz-comp box with its <button>): opens to the code, types, scrolls 3 times,
+ *  rests; open/close turn back from any frame. → the strip (destroy() to recall). */
+export function laptop(comp: HTMLElement) {
+  const lid = comp.querySelector("button")!;
   const lp = strip(comp, 210, 15, { fps: 30 });
   const TYPE: Seg = { a: 12, b: 20, n: 8, d: 0.8 }, SCROLL: Seg = { a: 20, b: 30, n: 10, d: 1.2 };
   let open = false;
@@ -106,6 +113,11 @@ export function better(root: HTMLElement) {
   };
   lid.addEventListener("click", () => ((open = !open), flip()));
   flip(); // the 2015 intro: the lid closes on load
+  return lp;
+}
 
-  return [hp, cf, lp];
+/** Start the "better" column inside `root`. → the three strips (destroy() each to recall). */
+export function better(root: HTMLElement) {
+  const $ = (s: string) => root.querySelector<HTMLElement>(s)!;
+  return [headphones($(".fz-beats")), coffee($(".fz-coffee")), laptop($(".fz-comp"))];
 }
