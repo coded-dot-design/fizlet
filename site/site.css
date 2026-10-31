@@ -2342,12 +2342,19 @@ html.bui[data-theme="light"] .phases b {
   gap: 24px;
   grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   align-items: start;
+  position: relative;
   padding: 18px;
   scroll-margin-top: 96px;
 }
 @media (max-width: 860px) {
   .gal-item {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .gal-item {
+    gap: 18px;
+    padding: 14px 14px 18px;
   }
 }
 .gal-stage {
@@ -2425,16 +2432,32 @@ html.bui[data-theme="light"] .phases b {
   font: 700 15px/1.5 var(--mono);
   color: var(--muted);
 }
+/* The card's words, people-page hierarchy: a mono meta line, a display title, the byline, the
+   quoted prompt or brief, then the stat chips (.ppl-count) and the bricks as chips. */
 .gal-meta {
   min-width: 0;
   display: grid;
   gap: 12px;
+  align-content: start;
 }
 .gal-meta h2 {
   font-size: clamp(24px, 3vw, 34px);
 }
-.gal-meta p {
+.gal-meta p,
+.gal-meta ul {
   margin: 0;
+}
+.gal-meta .gal-line {
+  gap: 6px 10px;
+  letter-spacing: 0.12em;
+}
+.gal-meta .gal-title {
+  font-size: clamp(28px, 3.2vw, 40px);
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 .gal-prompt {
   font-size: 18px;
@@ -2444,22 +2467,87 @@ html.bui[data-theme="light"] .phases b {
 .gal-prompt .bui-label {
   margin-right: 6px;
 }
-.gal-cost {
-  display: grid;
-  gap: 8px;
-  margin: 0;
+.gal-meta .gal-prompt {
+  padding: 2px 0 2px 14px;
+  font-size: 17px;
+  line-height: 1.5;
+  text-wrap: pretty;
+  border-left: 3px solid var(--k-cmd);
+}
+.gal-meta .gal-prompt .bui-label {
+  display: block;
+  margin: 0 0 4px;
+}
+.gal-count {
+  margin-top: 2px;
+}
+.gal-count > .gal-badge {
   padding: 0;
-  list-style: none;
+  background: none;
+  border: 0;
+}
+.gal-count > .gal-over {
+  color: var(--ink);
+  border: 2px dashed var(--k-fire-ink);
+}
+.gal-count b {
+  font-size: 13px;
+  color: var(--ink);
+}
+.gal-cost {
   color: var(--muted);
-  font: 13px/1.6 var(--mono);
+  font: 12px/1.6 var(--mono);
 }
 .gal-cost b {
   color: var(--ink);
 }
-.gal-bricks {
+.gal-bricks > li {
+  padding: 2px 7px;
+  background: none;
+  border-style: dashed;
+}
+.gal-bricks code {
+  font: 11px/1.4 var(--mono);
+  color: var(--k-sys-ink);
+}
+/* Status stickers on the card's top corner (no layout: they never move the card or its stage). */
+.gal-stickers {
+  position: absolute;
+  top: -12px;
+  right: -8px;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 6px;
+  max-width: calc(100% - 24px);
+  pointer-events: none;
+}
+.gal-sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.gal-stickers .gal-sticker:nth-child(2n) {
+  rotate: 4deg;
+}
+.gal-stickers .gal-sticker:nth-child(3n) {
+  rotate: -2deg;
+}
+.gal-stickers .gal-sticker-new {
+  --tone: var(--k-fallin);
+}
+.gal-stickers .gal-sticker-ok {
+  --tone: var(--k-go);
+}
+.gal-stickers .gal-sticker-hero {
+  --tone: var(--k-sys);
+}
+.gal-stickers .gal-sticker-big {
+  --tone: var(--k-fire);
+}
+.gal-stickers .gal-sticker-win {
+  --tone: var(--hurt);
 }
 .gal-link {
   display: inline-flex;
@@ -2508,9 +2596,6 @@ html.bui[data-theme="light"] .phases b {
   text-align: left;
   font: 11px/1.4 var(--mono);
   color: var(--muted);
-}
-.gal-total {
-  margin-left: 8px;
 }
 /* The stage aspect contract (site/gallery/aspect.ts): a piece that lays itself out per aspect
    (gal-re) is a size container (its stage DOM uses container queries on "stage"), and on a phone held
@@ -2644,10 +2729,6 @@ html.bui[data-theme="light"] .phases b {
 }
 .gal-theme .gal {
   margin-top: 22px;
-}
-.gal-meta h3 {
-  margin: 0;
-  font-size: clamp(22px, 2.6vw, 30px);
 }
 .gal-by,
 .hero-by {
@@ -3023,12 +3104,11 @@ html.bui[data-theme="light"] .phases b {
   justify-self: start;
   align-self: start;
 }
-/* The sticker on the avatar's corner, tilted, styled like the kit's slam sticker (.bui-sticker). */
-.ppl-sticker {
+/* The sticker on the avatar's corner, tilted, styled like the kit's slam sticker (.bui-sticker).
+   One look for every sticker: the avatar's and the gallery card's status stickers. */
+.ppl-sticker,
+.gal-sticker {
   --tone: var(--k-cmd);
-  position: absolute;
-  right: -12px;
-  bottom: -8px;
   padding: 4px 8px 3px;
   font: 900 11px/1 var(--mono);
   letter-spacing: 0.1em;
@@ -3039,6 +3119,11 @@ html.bui[data-theme="light"] .phases b {
   border-radius: 6px;
   box-shadow: calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--rim);
   rotate: -6deg;
+}
+.ppl-sticker {
+  position: absolute;
+  right: -12px;
+  bottom: -8px;
 }
 .ppl-sticker-agent {
   --tone: var(--k-sys);
@@ -3240,13 +3325,19 @@ html.bui[data-theme="light"] .phases b {
 .ppl-tile p {
   margin: 0;
 }
-.ppl-tile .ppl-count {
+/* Stat chips: a person's entries and bytes; a gallery card's sizes and bricks. */
+.ppl-count {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+.ppl-tile .ppl-count {
   margin-top: 10px;
 }
-.ppl-count span {
+.ppl-count > * {
   padding: 4px 9px;
   font: 11px/1.4 var(--mono);
   letter-spacing: 0.04em;

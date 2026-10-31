@@ -167,7 +167,8 @@ const winners = new Set(WEEKS.map((w) => w.winner).filter(Boolean));
 const tooBig = new Set(WEEKS.flatMap((w) => w.entries.filter((e) => !canWin(e)).map((e) => e.id)));
 const people = PEOPLE.map((p) => ({ person: p, stats: statsOf(p, gallery.entries) }));
 // "Today" for the contest page: the build's UTC date (FIZLET_TODAY pins it for a preview or a test).
-const now = contestNow(WEEKS, process.env.FIZLET_TODAY);
+const TODAY = process.env.FIZLET_TODAY ?? new Date().toISOString().slice(0, 10);
+const now = contestNow(WEEKS, TODAY);
 for (const p of PEOPLE) mkdirSync(`${OUT}/${personPath(p.id)}`, { recursive: true });
 mkdirSync(`${OUT}/contest`, { recursive: true });
 
@@ -268,7 +269,7 @@ const pages = [
       ? `Every Fizlet animation, newest first: the prompt it was made from, the live demo and its size measured on this build (${gallery.entries.length} so far, by theme).`
       : `Fizlet gallery page ${p.n} of ${gallery.pages.length}: older animations by theme, each with its prompt, its live demo and its size measured on this build.`,
     base: GB(p), version, path: p.path,
-    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length }),
+    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length, today: TODAY }),
     scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
   })]),
   ["gallery/archive/index.html", page({
