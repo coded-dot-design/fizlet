@@ -147,7 +147,7 @@ export function invaders(seed = 1) {
         let left = -1;
         for (let i = 0; i < n.letters && left < 0; i++) if (LS[i]) left = i;
         if (left >= 0 && S[BACK]! >= 0.04) (S[BACK] = 1e-9), (LS[left] = 0), (LF[left] = 0.3), spark(LX[left]! + LW[left]! / 2, LY[left]! + LH[left]! / 2, 2, 20, 0);
-        else if (left < 0 && S[END]! > 2.2) S[MODE] = IDLE;
+        else if (left < 0 && S[END]! > 2.2) (S[MODE] = IDLE), (S[GUN] = 0), (S[XP] = 0);
       }
     }
     // Shots: letters turn to binary, factories drain, aliens pop.
