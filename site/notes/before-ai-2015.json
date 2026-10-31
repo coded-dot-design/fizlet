@@ -7,7 +7,7 @@
   "type": "blog",
   "slug": "before-ai-2015",
   "title": "Before AI: 2015",
-  "subtitle": "Three micro animations, drawn by hand. Eleven years later, rebuilt in Fizlet.",
+  "subtitle": "Drawn by hand. Eleven years later: remade in minutes, then an arcade.",
   "tags": [
     "fizlet",
     "origin",
@@ -18,7 +18,7 @@
   "date": "2026-11-01",
   "status": "scheduled",
   "lead": [
-    "Fizlet started long before Fizlet. In 2015, years before AI coding tools, Chris Cooley drew three clickable micro animations by hand: headphones that plug in and play, a cup of coffee that fills, a laptop that opens and types. The Wayback Machine captured them on 23 April 2015. We pulled them out of the archive, took them apart, and rebuilt them in Fizlet."
+    "Fizlet started long before Fizlet. In 2015, years before AI coding tools, Chris Cooley drew three clickable micro animations by hand: headphones that plug in and play, a cup of coffee that fills, a laptop that opens and types. The Wayback Machine captured them on 23 April 2015. We pulled them out of the archive and played them three ways: as they were, remade in Fizlet, and as an arcade."
   ],
   "blocks": [
     {
@@ -57,11 +57,19 @@
     },
     {
       "type": "text",
-      "heading": "Same art. / *New engine.*",
+      "heading": "Same art. / *Three ways.*",
       "body": [
         {
+          "type": "ul",
+          "items": [
+            "**2015 · CSS sprites.** The original, byte for byte. Oh, that's cool.",
+            "**Fizlet · remake.** The same frames, timings and clicks, rebuilt on the kernel in about six minutes of agent time.",
+            "**Fizlet · arcade.** The same frames, ×100. Hit the cups: bass, bounce, ♪ notes, an equaliser on the phone. Pour and sip: splash, steam, slurp. Open the lid and hammer the keys: clicks, a spray of code, a lit screen. Chain them for a combo."
+          ]
+        },
+        {
           "type": "p",
-          "text": "We rebuilt each one twice on the same hand-drawn sheets. **Same behaviour** copies 2015 exactly, so the comparison is fair. **Better** adds what we know now: ♪ notes rise out of the headphones while the music plays (`fizlet/fx`), steam lifts off the full cup, and a click mid-move turns the laptop or the cup back from the frame it is on. Real buttons, keyboard, and a still frame under reduced motion. `destroy()` gives the page back exactly as it was."
+          "text": "Every effect in the arcade comes from a brick: `fizlet/fx` for the notes, splash, steam and code, `fizlet/sound` for the thump, clack and slurp, `fizlet/hud` for the score. Real buttons, keyboard, and still frames under reduced motion. When the round ends, it asks for no frames at all."
         }
       ]
     },
@@ -70,20 +78,20 @@
       "heading": "2015 vs Fizlet, measured",
       "items": [
         {
-          "value": "60 → 0",
-          "label": "style recalculations a second with the music paused and the lid left open: the 2015 loop never stops, Fizlet better goes fully idle"
+          "value": "1,870 B",
+          "label": "2015, gzip: the original CSS plus a four-line script. Bricks: none"
         },
         {
-          "value": "1,895 B",
-          "label": "the 2015 code, gzip: CSS plus a four-line script"
+          "value": "4,025 B",
+          "label": "the remake's JS, gzip: the kernel (3,413 B) and the strip that plays the frames"
         },
         {
-          "value": "8,004 B",
-          "label": "Fizlet better, gzip: the kernel and `fizlet/fx` are most of it"
+          "value": "11,289 B",
+          "label": "the arcade's JS, gzip: kernel, `fizlet/fx`, `fizlet/sound` and `fizlet/hud`"
         },
         {
           "value": "0",
-          "label": "requestAnimationFrame calls a second at rest, in all three versions"
+          "label": "animation frames a second the arcade asks for once a round is over"
         }
       ]
     },
@@ -93,15 +101,15 @@
       "body": [
         {
           "type": "p",
-          "text": "The bytes go the other way, and we say so. 2015 is pure CSS, so it ships the least code. Fizlet ships its kernel, and the better version adds the particle pool for the notes and the steam."
+          "text": "The bytes go up, and we say so. 2015 is pure CSS, so it ships the least code. The remake adds the kernel. The arcade adds the bricks that make the noise and the particles."
         },
         {
           "type": "p",
-          "text": "What the bytes buy: CSS sprite animations cost no JavaScript, but the browser recalculates style on every frame while one loops. In 2015 that meant 60 times a second for as long as the laptop stayed open. Fizlet writes only when a frame changes and stops completely when nothing moves. The same-behaviour rebuild keeps the endless loop on purpose, because 2015 had it; the quiet page comes with the better version."
+          "text": "What the bytes buy: a CSS sprite costs no JavaScript, but the browser recalculates style on every frame while one loops. In 2015 that was 60 times a second for as long as the laptop stayed open. Fizlet writes only when a frame changes, and once the arcade's round is over the page goes fully quiet."
         },
         {
           "type": "p",
-          "text": "Time is not like for like either. 2015 was about a week, mostly drawing. The rebuild reused those drawings and took minutes of code. That is the point: eleven years of craft, now a few minutes of code."
+          "text": "Time is not like for like either. 2015 was about a week, mostly drawing. The remake reused those drawings and took minutes of code. That is the point: eleven years of craft, now a few minutes of code."
         }
       ]
     },
@@ -127,8 +135,8 @@
           "a": "The CSS is cut byte for byte from the stylesheet the Wayback Machine captured, and the sprite sheets are the archived files. Only Angular is replaced, by four lines of plain JavaScript that toggle the same classes."
         },
         {
-          "q": "Why is the Fizlet version bigger?",
-          "a": "It ships the kernel, and the better version ships `fizlet/fx` for the notes and the steam. In return the page goes fully idle when nothing moves, and `destroy()` restores it exactly."
+          "q": "Why are the Fizlet versions bigger?",
+          "a": "The remake ships the kernel. The arcade also ships `fizlet/fx`, `fizlet/sound` and `fizlet/hud` for the notes, the noise and the score. In return the page goes quiet when nothing moves, and `destroy()` restores it exactly."
         },
         {
           "q": "Who made the art?",
@@ -150,7 +158,7 @@
       "type": "cta",
       "links": [
         {
-          "label": "Play all three, 2015 vs Fizlet",
+          "label": "Play all three: 2015, remake, arcade",
           "href": "/demos/before-ai-2015/"
         },
         {
@@ -166,7 +174,7 @@
   ],
   "seo": {
     "title": "Before AI: 2015, three micro animations · Fizlet",
-    "description": "Three CSS sprite micro animations Chris Cooley drew by hand in 2015, recovered from the Wayback Machine and rebuilt in Fizlet. Measured side by side."
+    "description": "Three CSS sprite micro animations Chris Cooley drew by hand in 2015, recovered from the Wayback Machine, remade in Fizlet, then turned into an arcade."
   },
   "publishAt": "2026-11-01"
 }
