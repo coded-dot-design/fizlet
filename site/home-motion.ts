@@ -18,7 +18,9 @@ const still = matchMedia("(prefers-reduced-motion: reduce)");
 if (main && !still.matches && typeof IntersectionObserver === "function") run(main);
 
 function run(main: HTMLElement) {
-  const e = createEngine({ root: main, settle: 0.4 });
+  // No off-screen pause: at the foot of the page the footer can fill the viewport, and pausing then
+  // froze reveals mid-play. Settle already stops every frame once the reveals end and the scroll stops.
+  const e = createEngine({ root: main, settle: 0.4, pause: { offscreen: false } });
   // Lists of panels stagger card by card; anything else in a section's .wrap moves as one part.
   const LIVE = "[data-demo], [data-demo-host], figure.ae-slot";
   const LISTS = ".rules, .bricks, .spec-grid, .roadmap, .games, .pipeline, .start-code";
