@@ -186,6 +186,36 @@
   `tests/site.mjs` adds single jumps to 0.3–0.7 of the page (the old code left `profile` hidden at
   0.3, 0.35 and 0.5 locally).
 
+- **Website: the bricks index has a live diagram** (roadmap E10's acceptance: an interactive diagram
+  on a marketing page that settles to 0 frames). Every module and what it imports: 36 nodes and 49
+  links, read from `src/` at build time (`site/brick-graph.mjs`). There are 25 runtime imports, 10
+  type-only ones (a brick that takes an engine but bundles none of it) and 14 planned `needs`; a new
+  import is a new edge on the next build. It is laid out by `fizlet/layout` and drawn by
+  `fizlet/view-canvas`; drag a brick and the rest flows round it, hover one for its links.
+  `brick-graph.js` is 7,104 B gzip with the kernel, loaded on bricks/index.html only. Measured in
+  Chromium on the built page (every requestAnimationFrame counted from before its scripts run): it
+  settles in ~6 s, then **0 frames a second** still and **0 off screen**; a drag wakes it and it
+  settles again to 0; with reduced motion it settles in ~1 s; Recall is exact.
+  `tests/brick-graph.mjs` runs with `npm run test:site`.
+- **`fizlet/layout`** (new brick, EXPERIMENTAL, 1,751 B gz, budget 2,048; roadmap E10):
+  force-directed layout on typed arrays with a Barnes-Hut pass, for diagrams and graphs that settle.
+  `layout(engine, { cap, links, charge, distance, gravity, cx, cy, theta, keep, ticks, still, motion })`
+  → `{ x, y, vx, vy, size, links, alpha, resting, add, link, pin, free, heat, nearest, bounds }`.
+  Nodes repel through a quadtree rebuilt each step (fixed 8 × cap + 64 cells; far cells count as
+  one mass when size / distance < theta), links pull toward their length (split by degree), and a
+  weak pull holds the centre. One tick per fixed step: `alpha` cools over `ticks` steps (default
+  300), and when it is spent, or no node moved more than `still` px, the layout rests and stops
+  calling `busy()`, so the engine settles. `add`, `link`, `pin` and `heat` wake it. Reduced motion
+  runs the whole cooling in one step and lands exactly where the animated run rests (same ticks, bit
+  for bit). DOM-free; `bounds` frames it with `fizlet/camera`; distances use steer's exact `hypot`.
+  - Measured (Node 24): at theta 0 a tick matches the brute-force pairwise sum (worst 1.6e-14 px);
+    at 0.9 it is 1.85% off; a 30-node, 35-link graph rests after 190 steps; 0 young GCs over 100k
+    hot steps (48 nodes, 60 links, kept warm; bare 0). Chromium, drawn with view-canvas: at rest
+    after 190 steps, then 0 frames; after a drag it settles again to 0 frames; with reduced motion
+    it rests after 1 step.
+  - Tests: `tests/layout.test.mjs` and `tests/layout.mjs` (Chromium, both motion settings, Recall).
+  - Status: EXPERIMENTAL in `site/bricks.mjs` (since 0.21.0), a README row and a generated brick
+    page; off the ROADMAP list.
 - **`fizlet/view-canvas`** (new brick, EXPERIMENTAL, 936 B gz, budget 1,229; roadmap E10): one
   overlay canvas per root, sized for the screen's pixel density and redrawn only where something
   changed. `viewCanvas(engine, root, { draw, maxDpr, label })` → `{ canvas, ctx, width, height, dpr,
