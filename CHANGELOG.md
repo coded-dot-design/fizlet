@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- **Site: smaller gallery pages, same pixels** (size sprint). The gallery stages' inline PNG posters
+  are packed losslessly (`scripts/png-pack.mjs`: an indexed PNG at the smallest bit depth, pixels
+  compared after packing; `scripts/gallery-posters.mjs` packs what it writes; a test keeps every
+  stage packed): 37,896 → 12,580 base64 chars. The pages' inline `<style>` blocks are minified at
+  build like site.css. Gallery page 1 first load 79,089 → 64,833 B gzip; all HTML 782,553 →
+  759,776 B gzip. No JS changes; every live chunk is byte-identical.
+
 ## 0.21.0
 
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
