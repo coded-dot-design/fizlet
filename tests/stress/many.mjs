@@ -4,7 +4,7 @@
 //
 //   npm run site && npm run test:stress -- many [--counts 1,8,32,64] [--mode same,mixed]
 //     [--piece gold-stars-pop-twinkle-tap] [--throttle 4] [--seconds 5] [--settle 8] [--gallery]
-//     [--sweep [--cap 30]] [--out many.json] [--self-test]   (--counts 0: skip the fixture pages)
+//     [--sweep [<id,...>] [--cap 30]] [--bare] [--out many.json] [--self-test]   (--counts 0: skip the fixture pages)
 //
 // Per page (N figures in a grid that fits the 1280×800 viewport, then a tall spacer):
 //   mount     every figure goes live (data-live="1")
@@ -17,7 +17,9 @@
 // --gallery also loads the real gallery pages (/gallery/, page/2/, archive/): scrolls each through so
 // every slot mounts, records frames while scrolling, then idle calls at the top and after a GC heap.
 // Pass: every figure mounts, idle and off-screen engines make 0 calls, main-thread work per engine
-// doesn't grow with N (linear or better), no page errors. --self-test adds a fixture piece whose loop
+// doesn't grow with N on `same` pages (linear or better), no page errors. Idle waits --settle s
+// (default 8): the longest gallery stories run 20-40 s before they settle (see --sweep), so a `mixed`
+// page needs --settle 45 or more. --self-test adds a fixture piece whose loop
 // never settles and ignores off screen; the run must fail on it. Seeded taps (seed printed).
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { launch, serve, frameStats } from "../perf/harness.mjs";
@@ -32,6 +34,29 @@ if (!existsSync(`${SITE}/index.html`)) throw new Error(`${SITE}/ is missing: run
 // Every gallery chunk (live and archived entries): the gallery/*.js files that export a slot mount.
 const ids = readdirSync(`${SITE}/gallery`).filter((f) => f.endsWith(".js") && /\bas mount\b/.test(readFileSync(`${SITE}/gallery/${f}`, "utf8"))).map((f) => f.slice(0, -3)).sort();
 if (!ids.includes(piece)) throw new Error(`no gallery entry ${piece}`);
+
+// Each entry's real figure (the markup inside it is what some pieces read: a board, letters, a
+// template), from the built gallery pages; an entry on no page gets a bare slot figure, and so does
+// every entry with --bare (a chunk reused outside its gallery figure).
+const FIGURES = new Map();
+for (const file of ["index.html", "page/2/index.html", "page/3/index.html", "archive/index.html"].map((p) => `${SITE}/gallery/${p}`).filter(existsSync)) {
+  const html = readFileSync(file, "utf8"), open = /<figure\b[^>]*\bdata-gallery="([^"]+)"/g;
+  for (let m; (m = open.exec(html)); ) {
+    if (FIGURES.has(m[1])) continue;
+    let depth = 0, i = m.index;
+    const tag = /<(\/?)figure\b/g;
+    tag.lastIndex = i;
+    for (let t; (t = tag.exec(html)); ) {
+      depth += t[1] ? -1 : 1;
+      if (!depth) {
+        FIGURES.set(m[1], html.slice(i, html.indexOf(">", t.index) + 1));
+        break;
+      }
+    }
+  }
+}
+const figure = (id, i) =>
+  ((!f.bare && FIGURES.get(id)) || `<figure class="ae-slot" data-gallery="${id}" data-slot-target="gallery#${id}" role="img" aria-label="${id}"></figure>`).replace(/data-slot-target="[^"]*"/, `data-slot-target="stress#${i}"`);
 
 // Init script: counts the page's requestAnimationFrame and setTimeout calls (window.__calls), and a
 // frame recorder on the native rAF that is off unless started (it never shows up in the counts).
@@ -53,11 +78,12 @@ function fixture(n, mode, selfTest, only = null) {
   const w = Math.floor((1260 - (cols - 1) * 4) / cols), h = Math.max(40, Math.floor((780 - (rows - 1) * 4) / rows));
   const figs = Array.from({ length: n }, (_, i) => {
     const id = only ?? (selfTest && i === 0 ? "__never" : mode === "same" ? piece : ids[i % ids.length]);
-    return `<figure class="ae-slot" data-gallery="${id}" data-slot-target="stress#${i}" role="img" aria-label="${id}"></figure>`;
+    return figure(id, i);
   }).join("");
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>many ${n}</title><style>
-body{margin:0;padding:10px;background:#0b0b12}.grid{display:grid;grid-template-columns:repeat(${cols},${w}px);grid-auto-rows:${h}px;gap:4px}
-figure{margin:0;position:relative;background:#16162a}.spacer{height:6000px}</style></head>
+  return `<!doctype html><html lang="en" class="bui" data-theme="dark"><head><meta charset="utf-8"><title>many ${n}</title>
+<link rel="stylesheet" href="/fizlet/board-ui.css"><link rel="stylesheet" href="/fizlet/site.css"><style>
+body{margin:0;padding:10px}.grid{display:grid;grid-template-columns:repeat(${cols},${w}px);grid-auto-rows:${h}px;gap:4px}
+.grid>figure{margin:0;position:relative;width:auto;height:auto;aspect-ratio:auto;overflow:hidden}.spacer{height:6000px}</style></head>
 <body><div class="grid">${figs}</div><div class="spacer"></div><script type="module" src="/fizlet/gallery/gallery.js"></script></body></html>`;
 }
 
@@ -222,7 +248,9 @@ function check(row, prev) {
   if (row.errors.length) fail.push(`${at}: page errors: ${row.errors.join("; ")}`);
   // Linear or better: busy main-thread ms a second per engine may not grow over the smaller N
   // (25% slack for a shared machine). A saturated main thread (> 900 ms/s) is reported, not judged.
-  if (prev && row.active.busyMsPerSec < 900) {
+  // Judged on `same` pages only: a `mixed` page of N is the first N chunks, so a bigger N is a
+  // different mix of pieces, not more of the same (its numbers are reported as they are).
+  if (prev && row.mode === "same" && row.active.busyMsPerSec < 900) {
     const per = row.active.busyMsPerSec / row.n, before = prev.active.busyMsPerSec / prev.n;
     if (per > before * 1.25) fail.push(`${at}: ${r2(per)} busy ms/s per engine > ${r2(before)} at N=${prev.n} (superlinear)`);
   }
@@ -244,7 +272,7 @@ try {
     }
   }
   if (f.sweep) {
-    const cap = Number(f.cap ?? 30), todo = ids.slice();
+    const cap = Number(f.cap ?? 30), todo = f.sweep === true ? ids.slice() : list(f.sweep).filter((id) => ids.includes(id));
     const work = async () => { for (let id; (id = todo.shift()); ) sweep.push(await sweepOne(id, cap)); };
     await Promise.all([work(), work(), work(), work()]);
     sweep.sort((a, b) => a.id.localeCompare(b.id));
