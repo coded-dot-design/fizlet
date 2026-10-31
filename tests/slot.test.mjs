@@ -107,6 +107,28 @@ test("slot: an accessible scene drops role=img; Recall puts it back", async () =
   }
 });
 
+test("slot: Recall after an accessible scene is byte-exact: role=img goes back in its place", async () => {
+  // A removed attribute set again goes last; the 2015 gallery entries reported recallExact: false.
+  const page = installPage();
+  try {
+    const { f } = figure(page);
+    f.setAttribute("data-slot", "animation"); // after aria-label, like any later attribute
+    const names = f.getAttributeNames(), values = names.map((n) => f.getAttribute(n));
+    assert.deepEqual(names, ["class", "data-slot-target", "role", "aria-label", "data-slot"]);
+    for (const accessible of [true, false, true]) {
+      const h = slot(f, () => scene({ accessible }).mount, { idle: 0 });
+      page.observers.at(-1).fire(true);
+      await settle();
+      assert.equal(f.getAttribute("role") === "img", !accessible, "role=img goes only for accessible content");
+      h.destroy();
+      assert.deepEqual(f.getAttributeNames(), names, "the same attributes, in the same order");
+      assert.deepEqual(names.map((n) => f.getAttribute(n)), values);
+    }
+  } finally {
+    page.restore();
+  }
+});
+
 test("slot: a first tap loads at once and reaches the scene as numbers, not as the event", async () => {
   const page = installPage();
   try {
