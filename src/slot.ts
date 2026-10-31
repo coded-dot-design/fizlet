@@ -79,10 +79,11 @@ export function slot(target: string | HTMLElement, load: () => Promise<SlotMount
     const id = ++run;
     if (wait > 0 && !first)
       await new Promise<void>((done) => {
-        const t = typeof requestIdleCallback === "function" ? requestIdleCallback(() => go?.(), { timeout: wait }) : setTimeout(() => go?.(), 1);
+        // One test for the pair: a page with requestIdleCallback has cancelIdleCallback.
+        const idle = typeof requestIdleCallback === "function", t = idle ? requestIdleCallback(() => go?.(), { timeout: wait }) : setTimeout(() => go?.(), 1);
         go = () => {
           go = null;
-          typeof cancelIdleCallback === "function" ? cancelIdleCallback(t) : clearTimeout(t);
+          idle ? cancelIdleCallback(t) : clearTimeout(t);
           done();
         };
         ctl.signal.addEventListener("abort", go, { once: true });
