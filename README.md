@@ -68,7 +68,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
    `contain: style` (it is static, so layout or paint containment could move or clip a board's own
    layers). `hud` and `board-page` own no box: they write into the host's markup and never add
    containment to it.
-9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,443 bytes); each brick has its own budget,
+9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,438 bytes); each brick has its own budget,
    1.5 to 5 KB, and a page build (kernel + slot + input + fx) ≤ 7 KB (`scripts/sizes.mjs`); over
    budget, the build fails.
 
@@ -97,12 +97,12 @@ in included, 1 KB = 1024 bytes.
 | `fizlet/hud` | BETA | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | 1.3 KB |
 | `fizlet/match` | BETA | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.6 KB |
 | `fizlet/rules` | COMPLETE | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
-| `fizlet/steer` | BETA | `steer({ cap, speed, turn, blocked, random })`: movers on typed arrays (`x`, `y`, heading `a`) with `seek`, `flee`, `arrive`, `wander` and `patrol`; a turn-rate-limited heading and per-axis wall slide (Blitz's tank drive); DOM-free, zero allocation | 0.9 KB |
+| `fizlet/steer` | BETA | `steer({ cap, speed, turn, blocked, random })`: movers on typed arrays (`x`, `y`, heading `a`) with `seek`, `flee`, `arrive` (or `arriveGoal`, the goal in `gx`/`gy`), `wander` and `patrol`; a turn-rate-limited heading and per-axis wall slide (Blitz's tank drive); DOM-free, zero allocation | 0.9 KB |
 | `fizlet/coach` | BETA | `flag(key)` (a localStorage switch that never throws), `tour(engine, { steps, tips, every })` (tutorial steps, then tips in turn; `coach:step` on the ring; zero allocation) and `card(host, { onEnd })` (the Board UI coach card, rings the control it is about) | 1.2 KB |
 | `fizlet/touch` | BETA | `lockTouch(doc, sel)`: a pinch (iOS gesture events, multi-touch) on a slot, a game host, the pad or `[data-touch-lock]` never zooms the page; one finger untouched; `null` locks the whole page; returns `release()`. The kit CSS adds `touch-action` (no double-tap zoom) | 0.3 KB |
 | `fizlet/timeline` | BETA | `timeline(engine, { repeat, yoyo, rate, motion })`: DOM choreography on the kernel clock. `to(targets, values, { dur, delay, ease, stagger, at })` keyframe tracks on CSS values (transform, opacity, clip-path, custom properties: the numbers change, the words stay) or typed-array numbers; `label`, `play`, `reverse`, `pause`, `seek`, `finish`, `revert`, `done()`; events on the ring; change-only writes through the ledger (Recall exact), settles when done, jumps to the end with reduced motion, no allocation per step | 2.0 KB |
-| `fizlet/css-clock` | BETA | `cssClock(root, { span, loops, prop, fps, motion, signal })`: a page's own CSS `@keyframes` on the kernel clock. Each animation stays in the stylesheet, `paused`, and reads its time from `--fz-t`; a timeline moves that one property through the ledger. One shared frame loop, no frames off screen, rests on frame one after `loops` plays and settles, reduced motion lands on the rest frame, `destroy()` is Recall | 5.3 KB |
-| `fizlet/board-page` | BETA | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 4.1 KB |
+| `fizlet/css-clock` | BETA | `cssClock(root, { span, loops, prop, fps, motion, signal })`: a page's own CSS `@keyframes` on the kernel clock. Each animation stays in the stylesheet, `paused`, and reads its time from `--fz-t`; a timeline moves that one property through the ledger. One shared frame loop, no frames off screen, rests on frame one after `loops` plays and settles, reduced motion lands on the rest frame, `destroy()` is Recall | 5.2 KB |
+| `fizlet/board-page` | COMPLETE | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 4.1 KB |
 | `fizlet/arcade` | COMPLETE | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard chosen per game with `hud` (`arcadeHud()`: the card, the default; `skirmishHud()`: Blitz's bar with clock, rank, armor bar, feed, banner, its flow on `fizlet/match`, aim toggles, counted keys), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 17.9 KB for a card game with every brick it composes; 23.8 KB with `skirmishHud` (in-page art via `ctx.attach`) |
 | `fizlet/ui` + `fizlet/ui/board-ui.css` | COMPLETE | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.8 KB + 4.9 KB css |
 | `fizlet/ui/tokens.json` | COMPLETE | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
@@ -528,6 +528,8 @@ engine.add({ step(_, dt) {
   m.seek(0, player.x, player.y, dt);    // stops inside `stop` (16 px)
   m.flee(1, bomb.x, bomb.y, dt);        // until `far` (240 px)
   m.arrive(2, slot.x, slot.y, dt);      // slows inside `slow` (140), stops inside `near` (14)
+  m.gx[5] = lead.x - 40; m.gy[5] = lead.y;  // a goal that moves every frame: write it, then
+  m.arriveGoal(5, dt);                  // arrive there (two fresh numbers as arguments get boxed)
   m.wander(3, dt, 0.55);                // a pace scales dt, so the turn slows too
   m.patrol(4, ROUTE, dt);               // ROUTE = new Float64Array([x0, y0, x1, y1, …])
 } });

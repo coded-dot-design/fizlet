@@ -450,6 +450,7 @@ ${roadmapSection()}
 
 <!-- FINAL -->
 <section class="section final" data-reveal aria-labelledby="final-title">
+  <span class="sec-rule" aria-hidden="true"></span>
   <div class="wrap final-inner">
     <p class="eyebrow">MIT · NO DEPENDENCIES · V${esc(version)}</p>
     <h2 id="final-title">Make the page play.</h2>

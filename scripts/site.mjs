@@ -6,7 +6,8 @@ import { build, transform } from "esbuild";
 import { gzipSync } from "node:zlib";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "./sizes.mjs";
-import { page, mark, SITE, ROOT, REPO, PERSON, ORG, WEBSITE } from "../site/layout.mjs";
+import { llmsFull } from "./llms-full.mjs";
+import { page, mark, fillSiteMap, SITE, ROOT, REPO, PERSON, ORG, WEBSITE } from "../site/layout.mjs";
 import { home } from "../site/pages/index.mjs";
 import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
@@ -19,7 +20,7 @@ import { playFigure } from "../site/pages/index.mjs";
 import { buildGallery, personPath } from "./gallery.mjs";
 import { buildMake, snippetFor, TABLE as MAKE_TABLE } from "./make.mjs";
 import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
-import { CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
+import { AGENT_NOTE, CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
 import { BRICKS, PLANNED, brickPath } from "../site/bricks.mjs";
@@ -30,6 +31,7 @@ import { docs as loadDocs, docPath, fill } from "./docs.mjs";
 import { docPage, docLd, sectionIndex } from "../site/pages/docs.mjs";
 import { releases as loadReleases, releasePath, parse as parseRelease, releaseDescription } from "./releases.mjs";
 import { newsIndex, releasePage, releaseLd } from "../site/pages/news.mjs";
+import { brickCard, CARDS } from "../site/brick-cards.mjs";
 
 const OUT = "site-dist";
 const { version } = JSON.parse(readFileSync("package.json", "utf8"));
@@ -73,6 +75,17 @@ for (const [file, o] of Object.entries(demos.metafile.outputs)) {
   if (id) demoSizes[id] = { live: file.slice(OUT.length + 1), bytes: liveBytes(file) };
 }
 for (const b of BRICKS) if (b.demo && !demoSizes[b.demo]) throw new Error(`brick ${b.id}: no built chunk for demo "${b.demo}"`);
+// The brick cards: one loader, one chunk per card (site/cards/), each measured for its badge.
+const cardBuild = await build({
+  entryPoints: { "brick-cards": "site/brick-cards.ts" }, metafile: true,
+  outdir: OUT, bundle: true, splitting: true, chunkNames: "chunks/[name]-[hash]", minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning",
+});
+const cardSizes = {};
+for (const [file, o] of Object.entries(cardBuild.metafile.outputs)) {
+  const id = o.entryPoint?.match(/^site\/cards\/(\w+)\.ts$/)?.[1];
+  if (id) cardSizes[id] = { live: file.slice(OUT.length + 1), bytes: liveBytes(file) };
+}
+for (const id of Object.keys(CARDS)) if (!cardSizes[id]) throw new Error(`brick card ${id}: no built chunk`);
 // The home page's blast demo and the quick start (the one-file build).
 const blast = { live: "demo.js", bytes: liveBytes(`${OUT}/demo.js`) };
 const quick = { live: "fizlet.js", bytes: liveBytes(`${OUT}/fizlet.js`) };
@@ -179,12 +192,13 @@ for (const s of ["docs", "guides"]) mkdirSync(`${OUT}/${s}`, { recursive: true }
 const spMod = await build({ entryPoints: ["site/gallery/pieces/small-packages/poster.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
 const SP = await import("data:text/javascript;base64," + Buffer.from(spMod.outputFiles[0].text).toString("base64"));
 for (const e of gallery.entries.filter((x) => x.module === "pieces/small-packages/scene.ts")) figures[e.figure] = SP.figure(e, sizes.find((s) => s.name === "fizlet (kernel)").gzip);
-// Every brick's API, from its source comment and its built declarations.
+// Every brick's API, from its source comment and its built declarations; its card, when it has one.
 // A brick with no "In short" snippet gets its typechecked example (site/brick-examples/<id>.ts).
 const exampleOf = (id) => existsSync(`site/brick-examples/${id}.ts`) ? readFileSync(`site/brick-examples/${id}.ts`, "utf8").split("// ---\n")[1]?.trim() : undefined;
 const bricks = BRICKS.map((b) => {
   const mods = b.modules.map((m) => ({ ...m, ...api(m) }));
-  return { ...b, mods, example: b.snippet ? undefined : exampleOf(b.id), summary: mods[0].summary.match(/^.*?\.(?=\s|$)/)?.[0] ?? mods[0].summary };
+  const card = (where) => (CARDS[b.id] ? brickCard({ brick: b, bytes: sizes.find((s) => s.name === b.sizes[0]).gzip, card: cardSizes[b.id], where }) : "");
+  return { ...b, mods, card, example: b.snippet ? undefined : exampleOf(b.id), summary: mods[0].summary.match(/^.*?\.(?=\s|$)/)?.[0] ?? mods[0].summary };
 });
 // JSON-LD: the engine's source code (home), each brick as a part of it. Facts from the page only.
 const CODE = `${SITE}#code`;
@@ -230,7 +244,7 @@ const pages = [
   ["bricks/index.html", page({
     title: "Kernel and bricks: every module and its size · Fizlet",
     description: `Every Fizlet module with its API and its measured size: the kernel is ${(kernel.gzip / 1024).toFixed(1)} KB gzip, each brick its own import.`,
-    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version, planned: PLANNED }), scripts: ["site.js"],
+    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version, planned: PLANNED }), scripts: ["site.js", "brick-cards.js"],
   })],
   // The gallery: PAGE_SIZE entries a page (gallery/, gallery/page/2/, …), in theme sections.
   ...gallery.pages.map((p) => [`${p.path}index.html`, page({
@@ -262,17 +276,17 @@ const pages = [
     base: "../", version, path: "make/", body: makePage({ made: defaultSnippet, script: make.script, recipes: Object.keys(MAKE_TABLE.recipes), base: "../" }), scripts: ["site.js", "make/make.js"],
   })],
   ["people/index.html", page({
-    title: "People: the maker and the house personas · Fizlet",
-    description: `Who makes Fizlet animations: Chris Cooley, and ${PEOPLE.length - 1} house personas (Fizlet characters, not real people), with their entries and bytes.`,
+    title: "People: the maker, AI agents and studio crew · Fizlet",
+    description: `Who makes Fizlet animations: Chris Cooley, ${PEOPLE.filter((p) => p.kind === "persona").length} studio crew (Fizlet characters, not real people) and the team's AI agents, with their entries and bytes.`,
     base: "../", version, path: "people/", body: peopleIndex({ rows: people, base: "../" }), scripts: ["site.js"],
   })],
   ...people.map(({ person: p, stats }) => [`${personPath(p.id)}index.html`, page({
-    title: `${p.name}: ${p.kind === "owner" ? "maker of Fizlet" : "a house persona"} · Fizlet`,
+    title: `${p.name}: ${{ owner: "maker of Fizlet", persona: "studio crew", agent: "an AI agent on the team" }[p.kind]} · Fizlet`,
     description: p.description,
     base: "../../", version, path: personPath(p.id),
     ld: [{ "@type": "ProfilePage", "@id": `${SITE}${personPath(p.id)}#page`, url: SITE + personPath(p.id), name: p.name,
-      ...(p.kind === "owner" ? { mainEntity: { "@id": PERSON["@id"] } } : { about: { "@type": "Thing", name: p.name, description: `${PERSONA_NOTE}. ${p.bio}` } }) }],
-    body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners }), scripts: ["site.js"],
+      ...(p.kind === "owner" ? { mainEntity: { "@id": PERSON["@id"] } } : { about: { "@type": "Thing", name: p.name, description: `${p.kind === "agent" ? AGENT_NOTE : PERSONA_NOTE}. ${p.bio}` } }) }],
+    body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners, people: PEOPLE }), scripts: ["site.js"],
   })]),
   ["contest/index.html", page({
     title: "Weekly contest: small wins, one winner · Fizlet",
@@ -329,7 +343,7 @@ const pages = [
     ld: [{ "@type": "SoftwareSourceCode", "@id": `${SITE}${brickPath(b)}#code`, name: b.name, description: b.summary, url: SITE + brickPath(b),
       codeRepository: REPO, isPartOf: { "@id": CODE }, author: { "@id": PERSON["@id"] } }],
     body: brickPage({ brick: b, mods: b.mods, sizes, version, prev: bricks[i - 1], next: bricks[i + 1], demoSize: b.demo && demoSizes[b.demo] }),
-    scripts: b.demo ? ["site.js", "brick-demo.js"] : ["site.js"],
+    scripts: ["site.js", ...(b.demo ? ["brick-demo.js"] : []), ...(CARDS[b.id] ? ["brick-cards.js"] : [])],
   })]),
   ["404.html", page({
     title: "Not found: this square is off the board · Fizlet",
@@ -347,6 +361,25 @@ const indexable = readdirSync(OUT, { recursive: true }).map((f) => f.replace(/\\
   .sort((a, b) => (a.url < b.url ? -1 : 1))
   .filter((p) => !/<meta name="robots" content="[^"]*noindex/i.test(p.html));
 const unesc = (s) => s.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+const unescTitle = (html) => unesc(html.match(/<title>([^<]*)<\/title>/)?.[1] ?? "").split(/:| · /)[0];
+// The footer's site map, from the same list (site/layout.mjs siteMap): every page's footer marker
+// is filled once all pages exist, so a new page is in every footer on the next build. Order: the
+// order pages are built in above (docs in reading order, releases newest first), then the rest.
+// Labels: the short name a section's data gives a page, else its title up to the first ":" or " · ".
+const routeOf = (f) => f.replace(/(^|\/)index\.html$/, "$1");
+const LABEL = new Map([
+  ...DOCS.map((d) => [docPath(d), d.nav]), ...NOTES.map((n) => [notePath(n), n.title]), ...RELEASES.map((r) => [releasePath(r), r.version]),
+  ...bricks.map((b) => [brickPath(b), b.id]), ...gallery.pages.slice(1).map((p) => [p.path, `Page ${p.n}`]), ...PEOPLE.map((p) => [personPath(p.id), p.name]),
+  ["", "Home"], ["examples/quick-start.html", "Quick start"], ["demos/layers/", "The layers story"], ["demos/fizz/", "The fizz proof piece"], ["examples/fizz/", "The fizz hero example"],
+]);
+const built = pages.map(([f]) => routeOf(f));
+const order = (r) => (built.includes(r) ? built.indexOf(r) : built.length);
+const routes = indexable.map((p) => ({ path: routeOf(p.f), label: LABEL.get(routeOf(p.f)) ?? unescTitle(p.html) }))
+  .sort((a, b) => order(a.path) - order(b.path));
+for (const f of readdirSync(OUT, { recursive: true }).map((x) => x.replace(/\\/g, "/")).filter((x) => x.endsWith(".html") && !x.startsWith("dist/"))) {
+  const html = readFileSync(`${OUT}/${f}`, "utf8"), filled = fillSiteMap(html, routes);
+  if (filled !== html) writeFileSync(`${OUT}/${f}`, filled);
+}
 const meta = (html, re) => unesc(html.match(re)?.[1] ?? "");
 writeFileSync(`${OUT}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexable.map((p) => `  <url><loc>${p.url}</loc></url>`).join("\n")}\n</urlset>\n`);
 const AI_CRAWLERS = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User", "anthropic-ai", "PerplexityBot", "Perplexity-User",
@@ -364,5 +397,9 @@ for (const g of ["Pages", ...GROUPS.map(([g]) => g)]) {
     llms.push(`- [${meta(p.html, /<title>([^<]*)<\/title>/)}](${p.url}): ${meta(p.html, /<meta name="description" content="([^"]*)"/)}`);
   llms.push("");
 }
+// llms-full.txt: the whole API in plain text, from the declarations the brick pages use; llms.txt
+// points to it in its opening text (its link lists are the indexable pages only).
+writeFileSync(`${OUT}/llms-full.txt`, llmsFull({ bricks, sizes, version, site: SITE, description: JSON.parse(readFileSync("package.json", "utf8")).description }));
+llms.splice(llms.findIndex((l) => l.startsWith("## ")), 0, `The whole API, every export of every brick with its signature, doc comment and status, in plain text: [llms-full.txt](${SITE}llms-full.txt)`, "");
 writeFileSync(`${OUT}/llms.txt`, llms.join("\n").trimEnd() + "\n");
 console.log(`Built ${OUT}/: ${pages.length} pages, fizlet.js ${bundle} B gzip, kernel ${kernel.gzip} B gzip`);

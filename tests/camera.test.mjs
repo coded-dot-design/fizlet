@@ -5,7 +5,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { minorGCs } from "./gc.mjs";
 
-const { createEngine } = await import("../src/kernel/index.ts");
+const { createEngine, STEP } = await import("../src/kernel/index.ts");
 const { camera, zoomAt, flyTo, fit, toScreen } = await import("../src/camera.ts");
 
 // Just enough of an element for the ledger: inline style properties and attributes.
@@ -111,4 +111,46 @@ test("camera: zero allocation while it eases", async (t) => {
   gc();
   const minor = await minorGCs(() => work(200000));
   assert.ok(minor <= 1, `young-generation GCs over 200k camera steps: ${minor}`);
+});
+
+test("camera: reduced motion is read in the read phase, never in a step (P5)", () => {
+  // A prefers-reduced-motion query that counts where it is read from.
+  const where = [];
+  let e;
+  const saved = globalThis.matchMedia;
+  globalThis.matchMedia = () => ({
+    get matches() {
+      where.push(e.phase);
+      return false;
+    },
+  });
+  try {
+    e = createEngine();
+    const cam = camera(e, stage());
+    zoomAt(cam, 200, 100, 2);
+    run(e, 0.5);
+    assert.ok(cam.zoom > 1, "it eased");
+    assert.ok(where.length > 0, "the setting is read");
+    const inStep = where.filter((p) => p === STEP).length;
+    assert.equal(inStep, 0, `read in a step ${inStep} times`);
+  } finally {
+    globalThis.matchMedia = saved;
+  }
+});
+
+test("camera: a pan or a move doesn't re-measure the stage (P6)", () => {
+  const el = stage();
+  let reads = 0;
+  const box = el.getBoundingClientRect;
+  el.getBoundingClientRect = () => (reads++, box());
+  const e = createEngine(), cam = camera(e, el);
+  assert.equal(reads, 1, "measured once at setup");
+  zoomAt(cam, 400, 200, 2);
+  run(e, 0.2);
+  // A drag: one pan per frame.
+  for (let f = 0; f < 60; f++) cam.pan(3, 1), e.advance(1 / 60);
+  flyTo(cam, 100, 100, 3);
+  run(e, 1);
+  assert.equal(reads, 1, `layout read ${reads - 1} more times while panning and moving`);
+  assert.equal(cam.width, 800);
 });
