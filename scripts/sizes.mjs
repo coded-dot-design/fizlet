@@ -4,15 +4,19 @@ import { build } from "esbuild";
 import { gzipSync } from "node:zlib";
 
 export const BUDGETS = [
+  // 3,413 B gz in 0.21.0; 3,349 B once the engine's numbers are const enums (−64 B, size/treeshake: esbuild
+  // keeps a plain `const` as a variable in a file with imports, or after other code; it inlines an enum).
   ["fizlet (kernel)", "src/index.ts", 4096],
   ["fizlet/debug", "src/debug.ts", 1536],
   // The player-facing performance overlay (off by default). Logic ~1.5 KB gz; its look is inline
   // on the kit tokens (~0.45 KB) so it works on pages without board-ui.css.
-  ["fizlet/perf", "src/perf.ts", 2048],
+  // 2,042 B in 0.21.0; 2,024 B with its slots as a const enum (−18 B, size/treeshake). Budget lowered by that delta.
+  ["fizlet/perf", "src/perf.ts", 2030],
   ["fizlet/input", "src/input.ts", 1536],
   // 1,995 B gz in 0.19.0; 2,073 B once stickAt/dpadAt/the drag use steer's exact `hypot` (+78 B, #118, K5:
   // `Math.hypot` boxes its arguments, 23 young GCs per 1M drags; now 0). Budget raised by that delta.
-  ["fizlet/pad", "src/pad.ts", 2126],
+  // 2,068 B with its dead zones as a const enum (−6 B, size/treeshake). Budget lowered by that delta.
+  ["fizlet/pad", "src/pad.ts", 2120],
   ["fizlet/collide", "src/collide.ts", 1536],
   // 1,533 B gz in 0.19.0 (3 B under 1,536); 1,634 B once the constructor checks cols, rows and cell
   // (+101 B, brick audit P8: `cell: 0` made at() NaN, a fractional cols sized the arrays wrong). An
@@ -23,6 +27,7 @@ export const BUDGETS = [
   // away when unused (the page build below ships effects() alone).
   ["fizlet/fx", "src/fx.ts", 3072],
   // Pan/zoom of a DOM stage through the ledger (fizlet-engine docs/LAYERS.md: camera ≈ 1.5 KB).
+  // 1,475 B in 0.21.0; 1,412 B with its state slots as a module-level const enum (−63 B, size/treeshake).
   ["fizlet/camera", "src/camera.ts", 1536],
   ["fizlet/sprite", "src/sprite.ts", 1536],
   ["fizlet/sound", "src/sound.ts", 1536],
@@ -63,7 +68,9 @@ export const BUDGETS = [
   //   boxes its arguments); the second shares the first's code, so together +73 B, not +135.
   // +57 B #120: input resolves intents once and gives steps `id()` handles.
   // +3 B #122: the fps cap counts its slot from the frame's start (kernel).
-  ["fizlet/arcade", "src/arcade.ts", 24399],
+  // 24,280 B in 0.21.0; 24,054 B with const enums in the kernel and the bricks it composes (−226 B,
+  // size/treeshake, no behaviour change). Budget lowered by that delta.
+  ["fizlet/arcade", "src/arcade.ts", 24173],
   // A card game (`hud` left out): the shell and the `arcade` preset, skirmish tree-shaken away.
   // 17,622 B gz with the `hud` option (+311 B: the preset contract, header and nav choice); 17,311
   // in 0.17.0, 17,206 in 0.14.0 (17,081 in 0.13.0, 16,960 in 0.12.1, 16,946 in 0.12.0, 16,731 in
@@ -80,21 +87,24 @@ export const BUDGETS = [
   // +3 B #122: the fps cap counts from the frame's start.
   // 18,302 B in train 0.21.0 (headroom, no behaviour change): the ledger's private names and shared
   // style checks, and collide Grid's one-letter private names.
-  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18361],
+  // 18,131 B with const enums in the kernel and the bricks (−164 B, size/treeshake). Lowered by that delta.
+  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18197],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
   // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B). 4,162 B
   // (+65 B, #119) when `hit`'s query radius took steer's exact `hypot` (K5, not a plain sqrt); budget
   // raised by that delta from 4,128. 4,136 B in train 0.21.0: collide Grid's one-letter private names
   // (−26 B, no behaviour change).
-  ["fizlet/board-page", "src/board-page.ts", 4193],
+  // 4,103 B with its slots and the frame phases as const enums (−33 B, size/treeshake). Lowered by that delta.
+  ["fizlet/board-page", "src/board-page.ts", 4160],
   // A hero's live chunk is ≤ 10 KB gz (fizlet-engine docs/LAYERS.md); the bricks take ≤ 7 KB, the scene
   // ≥ 3 KB (tests/page.test.mjs holds the budget there, so it never rises). 7,129 B before release
   // train 0.20.0, 7,164 B after: +35 B #120 (input's intents resolved once), +0 B #122 (its fps-cap
   // nap leaves the clamp to setTimeout; with Math.max the two together were 7,169, 1 B over).
   // 7,128 B in train 0.21.0 (7,166 on main, 7,171 with #174's start fix; no behaviour change): slot's
   // selector without spaces −3 B, the ledger's short private names −20 B, one shared style check and
-  // put-back −12 B, restore's attribute put-back as one expression −8 B.
+  // put-back −12 B, restore's attribute put-back as one expression −8 B. 7,031 B with the engine's numbers
+  // as const enums (−97 B: −66 B the engine, −31 B fx's shapes; size/treeshake): 137 B of headroom.
   ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7168],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
   ["fizlet/ui (css)", "src/ui/board-ui.css", 5120],

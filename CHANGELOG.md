@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- **Size: numbers as const enums, so esbuild inlines them** (size/treeshake, no behaviour change).
+  esbuild keeps a plain `const` as a variable in any file with imports, or after other code; a
+  `const enum` it inlines, in the minified build and in the unminified `dist/` consumers bundle.
+  The engine's phases, pause bits and number slots, and the slots and kinds in fx, hud, match, pad,
+  perf, presence, rules, camera, board-page and arcade (exported values unchanged; the bricks share
+  the phases through `src/kernel/phases.ts`, held equal to `IDLE`…`RENDER` by a test). Measured gz:
+  kernel 3,413 → 3,349 B, page build 7,128 → 7,031 B (137 B of headroom under 7,168), arcade
+  24,280 → 24,054 B, arcade card 18,295 → 18,131 B, presence/check −156 B, camera −63 B; budgets of
+  perf, pad, arcade, arcade card and board-page lowered by their deltas.
+
 ## 0.21.0
 
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
