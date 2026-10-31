@@ -1,16 +1,20 @@
 /* The Fizlet site. The page itself is a Board UI root (<html class="bui">), so every colour, key,
-   sticker and card is the Battlefield design system's own (src/ui/board-ui.css): vertical hard
-   bases, ink rims, neon faces. This file only adds page furniture on top, matching the DOM
+   sticker and card is the Battlefield design system's own (src/ui/board-ui.css): hard bases in
+   the domain's shadow direction (set below: straight down), ink rims, neon faces. This file only adds page furniture on top, matching the DOM
    Battlefield site's header, footer, section heads and panels so the two read as siblings. */
 :root {
   --sans: Inter, "SF Pro Display", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* fizlet.com's shadow direction (BOARD-UI.md 4.1): straight below. Every hard base on the site,
+     and any component vendored in (keys, cards, the console and cartridges), takes it from here. */
+  --shadow-x: 0;
+  --shadow-y: 1;
   --page: 1200px;
   --gutter: 30px;
   /* The least block space a section gets, and what sits on each side of a section rule (the
      space the closing band's rule had above it). */
   --section-gap: clamp(70px, 10vw, 120px);
-  /* A panel's base: the card colour pushed into the rim, straight below (never to the side). */
+  /* A panel's base: the card colour pushed into the rim, in the site's shadow direction. */
   --base: color-mix(in srgb, var(--k-cmd) 38%, var(--rim));
   --grid: color-mix(in srgb, var(--k-sys) 9%, transparent);
   --code-bg: #0b0918;
@@ -125,7 +129,7 @@ code {
   background: var(--k-sys);
   border: 2px solid var(--rim);
   border-radius: 5px;
-  box-shadow: 0 3px 0 var(--rim);
+  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--bui-shadow);
   rotate: -4deg;
   letter-spacing: 0.08em;
 }
@@ -187,14 +191,14 @@ h2 em {
   background: var(--card);
   border: 2px solid var(--line);
   border-radius: 14px;
-  box-shadow: 0 6px 0 var(--base);
+  box-shadow: calc(6px * var(--bui-sx)) calc(6px * var(--bui-sy)) 0 var(--base);
 }
 .panel.lit {
   border-color: var(--k-cmd);
-  box-shadow: 0 6px 0 color-mix(in srgb, var(--k-cmd) 55%, var(--rim)), 0 0 28px color-mix(in srgb, var(--k-cmd) 22%, transparent);
+  box-shadow: calc(6px * var(--bui-sx)) calc(6px * var(--bui-sy)) 0 color-mix(in srgb, var(--k-cmd) 55%, var(--bui-shadow)), 0 0 28px color-mix(in srgb, var(--k-cmd) 22%, transparent);
 }
 html.bui[data-theme="light"] .panel.lit {
-  box-shadow: 0 6px 0 color-mix(in srgb, var(--k-cmd) 55%, var(--line));
+  box-shadow: calc(6px * var(--bui-sx)) calc(6px * var(--bui-sy)) 0 color-mix(in srgb, var(--k-cmd) 55%, var(--line));
 }
 
 /* ---------- Header ---------- */
@@ -698,7 +702,7 @@ html.bui[data-theme="light"] .hero h1 em {
   background: color-mix(in srgb, var(--surface) 80%, transparent);
   border: 2px solid var(--line);
   border-radius: 12px;
-  box-shadow: 0 4px 0 var(--base);
+  box-shadow: calc(4px * var(--bui-sx)) calc(4px * var(--bui-sy)) 0 var(--base);
 }
 .hero-install .code {
   padding: 10px 12px;
@@ -817,7 +821,7 @@ html.bui[data-theme="light"] .dl.hot {
   background: var(--k-sys);
   border: 2px solid var(--rim);
   border-radius: 8px;
-  box-shadow: 0 4px 0 color-mix(in srgb, var(--k-sys) 45%, var(--rim));
+  box-shadow: calc(4px * var(--bui-sx)) calc(4px * var(--bui-sy)) 0 color-mix(in srgb, var(--k-sys) 45%, var(--bui-shadow));
 }
 .demo-chip {
   padding: 4px 9px;
@@ -1170,7 +1174,7 @@ html.bui[data-theme="light"] .dl.hot {
   background: var(--tone);
   border: 2px solid var(--rim);
   border-radius: 6px;
-  box-shadow: 0 3px 0 var(--rim);
+  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--bui-shadow);
 }
 .brick-size {
   font: 12px var(--mono);
@@ -1227,7 +1231,7 @@ html.bui[data-theme="light"] .dl.hot {
   border: 2px solid var(--rim);
   border-left: 6px solid var(--tone);
   border-radius: 10px;
-  box-shadow: 0 4px 0 color-mix(in srgb, var(--tone) 45%, var(--rim));
+  box-shadow: calc(4px * var(--bui-sx)) calc(4px * var(--bui-sy)) 0 color-mix(in srgb, var(--tone) 45%, var(--bui-shadow));
 }
 .phases li + li::before {
   content: "";
@@ -1290,11 +1294,11 @@ html.bui[data-theme="light"] .phases b {
   background: var(--k-sys);
   border: 2px solid var(--rim);
   border-radius: 4px;
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--k-sys) 45%, var(--rim));
+  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 color-mix(in srgb, var(--k-sys) 45%, var(--bui-shadow));
 }
 .raf i.long {
   background: var(--hurt);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--hurt) 45%, var(--rim));
+  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 color-mix(in srgb, var(--hurt) 45%, var(--bui-shadow));
 }
 .engines {
   display: grid;
@@ -1472,7 +1476,7 @@ html.bui[data-theme="light"] .phases b {
   background: var(--surface);
   border: 2px solid var(--line);
   border-radius: 8px;
-  box-shadow: 0 3px 0 var(--base);
+  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--base);
 }
 .size-chips li i {
   position: absolute;
@@ -1512,7 +1516,7 @@ html.bui[data-theme="light"] .phases b {
   background: var(--card);
   border: 2px solid var(--line);
   border-radius: 12px;
-  box-shadow: 0 5px 0 var(--base);
+  box-shadow: calc(5px * var(--bui-sx)) calc(5px * var(--bui-sy)) 0 var(--base);
 }
 .pipeline li + li::before {
   content: "";
@@ -1736,7 +1740,7 @@ html.bui[data-theme="light"] .phases b {
   background: var(--card);
   border: 2px solid var(--line);
   border-radius: 12px;
-  box-shadow: 0 5px 0 var(--base);
+  box-shadow: calc(5px * var(--bui-sx)) calc(5px * var(--bui-sy)) 0 var(--base);
 }
 .start-steps li::before {
   content: "0" counter(s);
@@ -1829,7 +1833,7 @@ html.bui[data-theme="light"] .phases b {
     linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 22px 22px,
     linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 22px 22px,
     var(--card);
-  box-shadow: 0 6px 0 var(--base);
+  box-shadow: calc(6px * var(--bui-sx)) calc(6px * var(--bui-sy)) 0 var(--base);
 }
 .lost-board {
   margin-bottom: 18px;
@@ -2776,7 +2780,7 @@ html.bui[data-theme="light"] .phases b {
   background: var(--surface);
   border: 2px solid var(--k-go);
   border-radius: 6px;
-  box-shadow: 0 2px 0 var(--rim);
+  box-shadow: calc(2px * var(--bui-sx)) calc(2px * var(--bui-sy)) 0 var(--bui-shadow);
 }
 .size-badge b {
   font-size: 12px;
@@ -2980,7 +2984,7 @@ html.bui[data-theme="light"] .phases b {
   background: var(--tone);
   border: 2.5px solid var(--rim);
   border-radius: 6px;
-  box-shadow: 0 3px 0 var(--rim);
+  box-shadow: calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--rim);
   rotate: -6deg;
 }
 .ppl-sticker-agent {
@@ -2998,7 +3002,7 @@ html.bui[data-theme="light"] .phases b {
   background: var(--rim);
   border: 2px solid var(--k-sys);
   border-radius: 8px;
-  box-shadow: 0 6px 0 color-mix(in srgb, var(--k-sys) 45%, var(--rim));
+  box-shadow: calc(6px * var(--bui-sx)) calc(6px * var(--bui-sy)) 0 color-mix(in srgb, var(--k-sys) 45%, var(--bui-shadow));
   line-height: 0;
 }
 .ppl-head {
@@ -3219,7 +3223,7 @@ html.bui[data-theme="light"] .phases b {
   background: var(--hurt);
   border: 2px solid var(--rim);
   border-radius: 5px;
-  box-shadow: 0 3px 0 var(--rim);
+  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--bui-shadow);
   rotate: -3deg;
   vertical-align: middle;
 }
@@ -3672,7 +3676,7 @@ html.bui[data-theme="light"] .phases b {
   background: color-mix(in srgb, var(--tone) 6%, var(--bg));
   border: 2px solid var(--rim);
   border-radius: 10px;
-  box-shadow: 0 4px 0 var(--rim);
+  box-shadow: calc(4px * var(--shadow-x, 0)) calc(4px * var(--shadow-y, 1)) 0 var(--rim);
 }
 .bc-poster {
   position: absolute;
@@ -3689,7 +3693,7 @@ html.bui[data-theme="light"] .phases b {
   background: var(--tone);
   border: 2px solid #07060f;
   border-radius: 3px;
-  box-shadow: 0 3px 0 #07060f;
+  box-shadow: calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 #07060f;
 }
 .bc-floor {
   position: absolute;
@@ -3831,4 +3835,18 @@ html.bui[data-theme="light"] .phases b {
   .scroll-hint > p {
     transition: none;
   }
+}
+/* Consent banner + footer "Cookie settings" (site/analytics/runtime.mjs): the Board UI tokens. */
+:root {
+  --cc-bg: var(--surface);
+  --cc-fg: var(--ink);
+  --cc-accent: var(--k-go);
+  --cc-accent-fg: var(--rim);
+  --cc-border: 1px solid var(--line);
+  --cc-btn-border: 1px solid var(--line);
+  --cc-focus: var(--k-sys);
+}
+.foot-base .foot-cookies {
+  color: inherit;
+  min-height: 24px;
 }

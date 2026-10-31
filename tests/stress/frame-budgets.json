@@ -1,0 +1,9 @@
+{
+  "_note": "Proposed budgets (S6 P3, 2026-10-31) for `npm run test:stress -- frame`, checked on the median of --runs (5). Not the CI gate: tests/perf/budgets.json stays provisional until S8 decides. Set from fizlet main 68b138a on a 4-core Xeon 2.1 GHz, Chromium 153.0.8010.12, 10 s windows, a seeded click every 250 ms, load average 3-6 (shared box): demo 4x p50 16.7, p95 16.8, p99 33.4, dropped 4.8% (2.3-13.2), layerize 1.76 ms/frame; gallery pieces 4x p50 16.7, p95 16.8, p99 16.8-33.4, dropped 0-3.6%, layerize 0.03-1.71. 6x set from the calmer rerun (see docs/audits/2026-10-31-pressure/p3-p4.md in fizlet-engine). v0.16.0 (the 30 fps regression) fails demo@4x on p50, p95, droppedPct and layerizeMs; the --self-test stall fails on all frame numbers.",
+  "demo@4x": { "p50": 16.8, "p95": 33.4, "p99": 67, "droppedPct": 20, "layerizeMs": 3, "heapMB": 8, "minorGC": 10 },
+  "fizz@4x": { "p50": 16.8, "p95": 33.4, "p99": 67, "droppedPct": 20, "layerizeMs": 3, "heapMB": 8, "minorGC": 10 },
+  "gallery@4x": { "p50": 16.8, "p95": 33.4, "p99": 67, "droppedPct": 15, "layerizeMs": 3, "heapMB": 8, "minorGC": 10 },
+  "demo@6x": { "p50": 33.4, "p95": 100, "p99": 150, "droppedPct": 55, "layerizeMs": 4.5, "heapMB": 8, "minorGC": 10 },
+  "fizz@6x": { "p50": 33.4, "p95": 100, "p99": 150, "droppedPct": 55, "layerizeMs": 4.5, "heapMB": 8, "minorGC": 10 },
+  "gallery@6x": { "p50": 16.8, "p95": 67, "p99": 133.4, "droppedPct": 35, "layerizeMs": 4.5, "heapMB": 8, "minorGC": 10 }
+}

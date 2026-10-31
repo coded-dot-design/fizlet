@@ -1,0 +1,17 @@
+/* Same behaviour: the 2015 boxes, sheets and switches; no @keyframes (Fizlet owns the time). */
+@font-face{font-family:chriscooley;src:url(app-assets/fonts/77bdc9dc.chriscooley.woff) format("woff")}
+.fz-same .switch{display:inline-block;border:0;background:0 0;outline:0;cursor:pointer;padding:0}
+.fz-beats,.fz-coffee,.fz-comp{background-repeat:no-repeat}
+.fz-beats{background-image:url(app-assets/images/animations/88597e86.beats.png);width:300px;height:300px;margin:0 auto;position:relative}
+.fz-same .fz-beats{left:-2%} /* 2015: .beats{left:-2%} */
+.fz-coffee{background-image:url(app-assets/images/animations/2deb5381.coffee.png);width:84px;height:84px}
+.fz-comp{background-image:url(app-assets/images/animations/136aceff.computer.svg);width:210px;height:210px;float:right;margin:-110px auto 0;position:relative}
+.fz-coffee .switch{width:58%;height:58%;top:18px;position:relative;border-radius:50%}
+.fz-comp .switch{position:absolute;width:172px;height:114px;bottom:0;left:18px}
+/* The play switch, declaration for declaration from 2015's .beats .switch rules (sprites.css). */
+.fz-same .fz-beats .switch{font-family:chriscooley;speak:none;font-style:normal;font-weight:400;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;width:46px;height:68px;bottom:67px;left:239px;position:absolute;cursor:pointer}
+.fz-beats .switch:after,.fz-beats .switch:before{display:block;position:absolute;width:70%;padding:6% 0 64%;height:0;top:26%;left:15%;background:#ba341f;border-radius:50%;font-size:19.2px;color:#F4F2DB;text-align:center;content:""}
+@media screen and (min-width:41.7rem){.fz-beats .switch:after,.fz-beats .switch:before{font-size:24px}} /* 2015: 1.5rem on its 1em (0.8em below 41.7rem) root */
+.fz-same .fz-beats .switch:after{background:#E15E49;top:20%;content:"\e615";transition:top ease}
+@media screen and (min-device-width:41.7rem){.fz-same .fz-beats .switch:hover:after{top:26%}}
+.fz-same .fz-beats.paused .switch:after{content:"\e616"}

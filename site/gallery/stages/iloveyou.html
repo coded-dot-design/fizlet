@@ -1,0 +1,36 @@
+<style>
+/* Outbreak · ILOVEYOU (site/gallery/pieces/iloveyou.ts). The inbox and the address book are real
+   elements: an opened contact gets data-ly="open" through the ledger, and its count is its own text.
+   The site's TAP TO PLAY label sits in the bottom padding. The .ob base is the Outbreak series' (one copy per stage: a stage is self-contained). cqw units:
+   390 and 1440 are the same picture. */
+.ob-box { position: absolute; inset: 0; container-type: size; }
+.ob { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 1.8cqw; padding: 2.6cqw 3cqw calc(1.2cqw + 17px); background: var(--ob-bg); color: var(--ob-ink); font: 600 2.3cqw/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --ob-bg: var(--bg, #07060f); --ob-surface: var(--surface, #110d22); --ob-ink: var(--ink, #f6f3ff); --ob-muted: var(--muted, #aea4d6); --ob-line: var(--line, #3b3170); --ob-bug: #ff2e88; --ob-bug2: #ff7389; --ob-heal: #39ffb0; --ob-glow: #19f0ff; --ob-gold: #ffc21a; }
+html[data-theme="light"] .ob { --ob-bug: #e0006e; --ob-bug2: #ff5c8f; --ob-heal: #0b7a54; --ob-glow: #006e91; --ob-gold: #b07800; }
+.ob-head { display: flex; align-items: center; gap: 1.6cqw; margin: 0; white-space: nowrap; overflow: hidden; }
+.ob-head b { font: 900 4.6cqw/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--ob-bug); letter-spacing: -0.02em; }
+.ob-head span { padding: 0.4cqw 1cqw; border-radius: 0.6cqw; background: var(--ob-gold); color: #07060f; font-weight: 900; }
+.ob-head em { font-style: normal; color: var(--ob-muted); overflow: hidden; text-overflow: ellipsis; }
+.ob-end { display: none; position: absolute; left: 3cqw; right: 3cqw; bottom: calc(1.2cqw + 17px); margin: 0; padding: 1.6cqw 2.2cqw; background: var(--ob-surface); color: var(--ob-ink); border: 0.35cqw solid var(--ob-bug); border-radius: 1cqw; box-shadow: calc(0.8cqw * var(--shadow-x, 0)) calc(0.8cqw * var(--shadow-y, 1)) 0 var(--ob-bug); font-size: 2.6cqw; font-weight: 700; }
+.ob[data-ob-state="end"] .ob-end { display: block; }
+.ob-poster { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* ILOVEYOU */
+.ly { flex: 1; min-height: 0; display: grid; grid-template-columns: 38% 1fr; gap: 2.4cqw; }
+.ly-mail, .ly-book { min-width: 0; display: flex; flex-direction: column; background: var(--ob-surface); border: 0.3cqw solid var(--ob-line); border-radius: 1.2cqw; overflow: hidden; }
+.ly-bar { margin: 0; padding: 0.9cqw 1.4cqw; font-size: 2cqw; overflow: hidden; border-bottom: 0.3cqw solid var(--ob-line); color: var(--ob-muted); white-space: nowrap; }
+.ly-bar b { color: var(--ob-bug); }
+.ly-msg { margin: 0; padding: 1.2cqw 1.4cqw 0; color: var(--ob-muted); }
+.ly-msg b { color: var(--ob-ink); }
+.ly-msg strong { color: var(--ob-bug); font-weight: 900; }
+.ly-body { margin: 0; padding: 1.2cqw 1.4cqw; color: var(--ob-ink); font-weight: 500; }
+.ly-att { align-self: flex-start; margin: auto 1.4cqw 1.4cqw; padding: 0.7cqw 1.1cqw; border: 0.3cqw dashed var(--ob-muted); border-radius: 0.8cqw; font-size: 1.95cqw; white-space: nowrap; }
+.ly-att i { font-style: normal; visibility: hidden; color: var(--ob-bg); background: var(--ob-bug); padding: 0 0.3cqw; }
+.ob:is([data-ob-state="spread"], [data-ob-state="end"]) .ly-att { border-color: var(--ob-bug); border-style: solid; }
+.ob:is([data-ob-state="spread"], [data-ob-state="end"]) .ly-att i { visibility: visible; }
+.ly-grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 0.9cqw 1.2cqw; padding: 1.2cqw 1.4cqw; }
+.ly-c { position: relative; display: flex; align-items: center; gap: 0.7cqw; min-width: 0; padding: 0 0.8cqw; font-size: 1.85cqw; border: 0.3cqw solid var(--ob-line); border-radius: 0.9cqw; color: var(--ob-ink); white-space: nowrap; overflow: hidden; }
+.ly-c i { flex: none; display: grid; place-items: center; width: 2.9cqw; height: 2.9cqw; border-radius: 50%; background: var(--ob-line); color: var(--ob-ink); font-style: normal; font-weight: 900; }
+.ly-c b { position: absolute; right: 0.7cqw; top: 0.4cqw; font-size: 1.6cqw; color: var(--ob-bg); }
+.ly-c[data-ly="open"] { background: var(--ob-bug); border-color: var(--ob-bug); color: var(--ob-bg); }
+.ly-c[data-ly="open"] i { background: var(--ob-bg); color: var(--ob-bug); }
+.ly-stat { margin: 0; padding: 0 1.4cqw 1.2cqw; color: var(--ob-muted); white-space: nowrap; }
+</style><div class="ob-box"><div class="ob" data-ob><p class="ob-head"><b>ILOVEYOU</b><span>2000</span><em>Mailed itself to your whole address book.</em></p><div class="ly"><div class="ly-mail"><p class="ly-bar">Inbox · <b>1 new</b></p><p class="ly-msg"><b>Subject</b> <strong>ILOVEYOU</strong></p><p class="ly-body">kindly check the attached LOVELETTER coming from me.</p><span class="ly-att" data-ly-att>LOVE-LETTER-FOR-YOU.TXT<i>.vbs</i></span></div><div class="ly-book"><p class="ly-bar">Address book · tap a letter to delete it</p><div class="ly-grid"><span class="ly-c" data-ly-c><i>M</i>mom<b></b></span><span class="ly-c" data-ly-c><i>B</i>boss<b></b></span><span class="ly-c" data-ly-c><i>P</i>payroll<b></b></span><span class="ly-c" data-ly-c><i>T</i>team<b></b></span><span class="ly-c" data-ly-c><i>S</i>sis<b></b></span><span class="ly-c" data-ly-c><i>I</i>it desk<b></b></span><span class="ly-c" data-ly-c><i>C</i>coach<b></b></span><span class="ly-c" data-ly-c><i>N</i>neighbor<b></b></span><span class="ly-c" data-ly-c><i>D</i>dentist<b></b></span><span class="ly-c" data-ly-c><i>L</i>landlord<b></b></span><span class="ly-c" data-ly-c><i>C</i>club<b></b></span><span class="ly-c" data-ly-c><i>G</i>grandpa<b></b></span></div><p class="ly-stat" data-ly-stat>sent 0 · opened 0/12 · deleted 0</p></div></div><p class="ob-end" data-ob-end>LOVE-LETTER-FOR-YOU.TXT.vbs was a script: Windows hid the .vbs, so it looked like a letter.</p></div></div><svg class="ae-slot__placeholder ob-poster" viewBox="0 0 160 90" aria-hidden="true"><g transform="translate(70 40) rotate(-12)"><rect x="1" y="1" width="12" height="8" fill="#ff2e88"/><rect width="12" height="8" fill="#f6f3ff"/><path d="M0 0 L6 4 L12 0" fill="none" stroke="#07060f" stroke-width="0.6"/><rect x="5" y="4" width="2" height="1.6" fill="#ff2e88"/></g><g transform="translate(96 30) rotate(10)"><rect x="1" y="1" width="10" height="7" fill="#ff2e88"/><rect width="10" height="7" fill="#f6f3ff"/><path d="M0 0 L5 3.5 L10 0" fill="none" stroke="#07060f" stroke-width="0.6"/><rect x="4" y="3.4" width="2" height="1.5" fill="#ff2e88"/></g></svg>

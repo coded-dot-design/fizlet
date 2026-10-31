@@ -42,6 +42,7 @@ export function checkTokens({ tokens, css, ts }) {
   want.set("--u", { dark: tokens.units.u.desktop, light: tokens.units.u.desktop });
   want.set("--bui-spring", { dark: tokens.motion.spring, light: tokens.motion.spring });
   want.set("--bui-out", { dark: tokens.motion.out, light: tokens.motion.out });
+  for (const [k, v] of Object.entries(tokens.shadow.aliases)) want.set(k, { dark: v, light: v });
 
   for (const [name, w] of want) {
     const d = dark.get(name), l = light.get(name) ?? d;
