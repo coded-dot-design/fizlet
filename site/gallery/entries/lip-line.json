@@ -1,0 +1,21 @@
+{
+  "id": "lip-line",
+  "date": "2026-10-31",
+  "prompt": "carve up and down a rolling wave at dusk: hold to climb the face, let go to drop; meet the curl at the lip as it passes to snap off it, chain snaps for more, hit the lip anywhere else and you chop",
+  "title": "Lip Line",
+  "kind": "micro",
+  "theme": "surf-sesh",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot",
+    "fizlet/sound"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/surf/lip-line.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
