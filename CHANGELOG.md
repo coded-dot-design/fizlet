@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Gallery, Motocross (pending owner review): Dirt Lab.** Build an eight-slot track from ramps,
+  bumps and gaps, then race it: hold gas, lean in the air, land flat or go over the bars. The track
+  rides in the address as `#t=` (eight known letters, refused whole otherwise; no server). Keyboard
+  and 44 px buttons, M mutes, settles in the builder. 10,201 B gzip live. Tests: tests/dirt-lab.mjs,
+  tests/dirt-lab.test.mjs.
 - **Four more brick cards: hud, match, sound, presence.** hud: a high striker; tap fast to heat it
   and ring the bell; its real DOM scoreboard (score, best, heat meter, HOT flag, a feed of strikes) is
   bound with fizlet/hud and the readout counts DOM writes against frames. match: a ten-second round on

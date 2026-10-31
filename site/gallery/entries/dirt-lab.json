@@ -1,0 +1,21 @@
+{
+  "id": "dirt-lab",
+  "date": "2026-10-31",
+  "prompt": "build a tiny motocross track from ramps, bumps and gaps, then race it: hold gas, lean in the air, land flat or go over the bars; the track rides in the link as #t=, no server",
+  "title": "Dirt Lab",
+  "kind": "micro",
+  "theme": "motocross",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sound",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/dirt-lab.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
