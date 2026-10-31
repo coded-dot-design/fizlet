@@ -149,6 +149,7 @@
     "site": "npm run build && node scripts/site.mjs",
     "test:site": "node tests/site.mjs && node tests/brick-cards.mjs",
     "test:settle": "node tests/settle-guard.mjs",
+    "test:stress": "node tests/stress/run.mjs",
     "prepack": "npm run build",
     "perf": "npm run site && node tests/perf/run.mjs",
     "test:alloc": "node tests/perf/alloc.mjs",
