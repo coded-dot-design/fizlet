@@ -100,7 +100,10 @@ async function open(context, path) {
   const errors = [];
   page.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));
   page.on("console", (m) => m.type() === "error" && !m.text().includes("404 (Not Found)") && errors.push(`console: ${m.text()}`));
-  page.on("requestfailed", (r) => r.url().startsWith(ORIGIN) && errors.push(`requestfailed: ${r.url()}`));
+  // A request the page itself abandoned (closed or navigated away while a lazy chunk such as
+  // demos/origin/scene.js was still loading) is not a broken URL: ERR_ABORTED is skipped, every
+  // other network failure still counts.
+  page.on("requestfailed", (r) => r.url().startsWith(ORIGIN) && !/ERR_ABORTED|NS_BINDING_ABORTED/.test(r.failure()?.errorText ?? "") && errors.push(`requestfailed: ${r.url()} (${r.failure()?.errorText})`));
   page.on("response", (r) => r.url().startsWith(ORIGIN) && r.status() >= 400 && !r.url().endsWith("/missing/page") && errors.push(`${r.status()}: ${r.url()}`));
   await page.goto(ORIGIN + BASE + path, { waitUntil: "load" });
   return { page, errors };
