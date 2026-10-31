@@ -7,8 +7,11 @@
 .fz-comp{background-image:url(app-assets/images/animations/136aceff.computer.svg);width:210px;height:210px;float:right;margin:-110px auto 0;position:relative}
 .fz-coffee .switch{width:58%;height:58%;top:18px;position:relative;border-radius:50%}
 .fz-comp .switch{position:absolute;width:172px;height:114px;bottom:0;left:18px}
-.fz-same .fz-beats .switch{font-family:chriscooley;width:46px;height:68px;bottom:67px;left:239px;position:absolute}
+/* The 2015 box sits 2% left of centre (.beats{left:-2%}), and its switch carries the icon font's
+   reset (line-height:1 puts the glyph where 2015 drew it). */
+.fz-same .fz-beats{left:-2%}
+.fz-same .fz-beats .switch{font-family:chriscooley;speak:none;font-style:normal;font-weight:400;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;max-width:100%;width:46px;height:68px;bottom:67px;left:239px;position:absolute}
 .fz-beats .switch:after,.fz-beats .switch:before{display:block;position:absolute;width:70%;padding:6% 0 64%;height:0;top:26%;left:15%;background:#ba341f;border-radius:50%;font-size:1.5rem;color:#F4F2DB;text-align:center;content:""}
-.fz-same .fz-beats .switch:after{background:#E15E49;top:20%;content:"\e615"}
-.fz-same .fz-beats .switch:hover:after{top:26%}
+.fz-same .fz-beats .switch:after{background:#E15E49;top:20%;content:"\e615";transition:top ease}
+@media screen and (min-device-width:41.7rem){.fz-same .fz-beats .switch:hover:after{top:26%}}
 .fz-same .fz-beats.paused .switch:after{content:"\e616"}
