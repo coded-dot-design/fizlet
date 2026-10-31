@@ -8,7 +8,7 @@
  *    ad_user_data, ad_personalization) and NO vendor script is requested — no googletagmanager,
  *    google-analytics or posthog request, no `_ga` / `ph_` cookie.
  *  - Accept → GA4 (gtag.js, analytics_storage granted; the three ad signals stay denied for good,
- *    Google signals + ad personalisation off) and PostHog (no autocapture, no session recording,
+ *    Google signals + ad personalisation off) and PostHog (no autocapture, no heatmaps, no session recording,
  *    respect_dnt, cookie persistence) load once. Page views are the defaults of both.
  *  - Reject is one click, like Accept, and the three buttons look the same (equal prominence; a site may
  *    still style .cc-btn--solid on Accept); the choice is remembered (localStorage, `storageKey`). Rejecting
@@ -91,6 +91,7 @@ export function analyticsRuntime(cfg) {
       api_host: cfg.posthogHost,
       persistence: 'localStorage+cookie', // consent is granted: only now may PostHog store an id
       autocapture: false,
+      enable_heatmaps: false, // explicit, so a PostHog project setting cannot turn heatmaps on (keep the page light)
       capture_pageview: true,
       capture_pageleave: true,
       disable_session_recording: true,
@@ -164,8 +165,10 @@ export function analyticsRuntime(cfg) {
       'button[data-cookie-settings]{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}';
     d.head.appendChild(css);
     banner = el('section', { class: 'cc-banner', role: 'region', 'aria-label': 'Cookie choices', 'data-consent-banner': '', hidden: '' });
+    // Name only the tools this build configured (an unset id ships no code and is never named).
+    var names = [cfg.ga4Id ? 'Google Analytics' : '', cfg.posthogKey ? 'PostHog' : ''].filter(Boolean);
     var text = el('p', { class: 'cc-banner__text' },
-      (cfg.text || 'With your OK we use Google Analytics and PostHog to count visits and see how the site is used. No ads, no selling data.') + ' ');
+      (cfg.text || 'With your OK we use ' + names.join(' and ') + ' to count visits and see how the site is used. No ads, no selling data.') + ' ');
     if (cfg.privacyUrl) text.appendChild(el('a', { href: cfg.privacyUrl }, 'Privacy'));
     if (cfg.privacyUrl && cfg.cookiesUrl) text.appendChild(d.createTextNode(' · '));
     if (cfg.cookiesUrl) text.appendChild(el('a', { href: cfg.cookiesUrl }, 'Cookies'));
@@ -173,7 +176,7 @@ export function analyticsRuntime(cfg) {
     var label = el('label', {});
     var box = el('input', { type: 'checkbox', 'data-cc-analytics': '' });
     label.appendChild(box);
-    label.appendChild(d.createTextNode('Analytics (Google Analytics, PostHog)'));
+    label.appendChild(d.createTextNode('Analytics (' + names.join(', ') + ')'));
     settings.appendChild(label);
     var actions = el('div', { class: 'cc-banner__actions' });
     var reject = el('button', { type: 'button', class: 'cc-btn', 'data-cc': 'reject' }, 'Reject');

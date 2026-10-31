@@ -7,7 +7,7 @@ import { gzipSync } from "node:zlib";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "./sizes.mjs";
 import { llmsFull } from "./llms-full.mjs";
-import { page, mark, fillSiteMap, SITE, ROOT, REPO, PERSON, ORG, WEBSITE } from "../site/layout.mjs";
+import { page, mark, fillSiteMap, SITE, ROOT, REPO, PERSON, ORG, WEBSITE, ANALYTICS } from "../site/layout.mjs";
 import { home } from "../site/pages/index.mjs";
 import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
@@ -23,7 +23,7 @@ import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
 import { AGENT_NOTE, CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
-import { privacyPage, cookiesPage } from "../site/pages/legal.mjs";
+import { privacyPage, cookiesPage, analyticsNames } from "../site/pages/legal.mjs";
 import { BRICKS, PLANNED, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
@@ -243,13 +243,13 @@ const pages = [
   // Privacy and Cookies (pending legal review; site/pages/legal.mjs).
   ["privacy/index.html", page({
     title: "Privacy policy: analytics only with consent · Fizlet",
-    description: "What fizlet.com collects, why and for how long: consent-based Google Analytics and PostHog, hosting logs, and how to opt out. No ads, no selling data.",
-    base: "../", version, path: "privacy/", body: privacyPage({ base: "../" }), scripts: ["site.js"],
+    description: `What fizlet.com collects, why and for how long: ${analyticsNames(ANALYTICS) ? `consent-based ${analyticsNames(ANALYTICS)}` : "no analytics"}, hosting logs, and how to opt out. No ads, no selling data.`,
+    base: "../", version, path: "privacy/", body: privacyPage({ base: "../", analytics: ANALYTICS }), scripts: ["site.js"],
   })],
   ["cookies/index.html", page({
     title: "Cookies and storage: none until you say yes · Fizlet",
     description: "Every cookie and storage key fizlet.com may use, what each holds, how long it lasts, and how to change your choice or clear them.",
-    base: "../", version, path: "cookies/", body: cookiesPage({ base: "../" }), scripts: ["site.js"],
+    base: "../", version, path: "cookies/", body: cookiesPage({ base: "../", analytics: ANALYTICS }), scripts: ["site.js"],
   })],
   ["examples/quick-start.html", page({
     title: "Quick start: ten lines to a blast · Fizlet",
