@@ -32,6 +32,7 @@ import { docPage, docLd, sectionIndex } from "../site/pages/docs.mjs";
 import { releases as loadReleases, releasePath, parse as parseRelease, releaseDescription } from "./releases.mjs";
 import { newsIndex, releasePage, releaseLd } from "../site/pages/news.mjs";
 import { brickCard, CARDS } from "../site/brick-cards.mjs";
+import { buildFactory } from "../site/factory/build.mjs";
 
 const OUT = "site-dist";
 const { version } = JSON.parse(readFileSync("package.json", "utf8"));
@@ -200,6 +201,8 @@ const bricks = BRICKS.map((b) => {
   const card = (where) => (CARDS[b.id] ? brickCard({ brick: b, bytes: sizes.find((s) => s.name === b.sizes[0]).gzip, card: cardSizes[b.id], where }) : "");
   return { ...b, mods, card, example: b.snippet ? undefined : exampleOf(b.id), summary: mods[0].summary.match(/^.*?\.(?=\s|$)/)?.[0] ?? mods[0].summary };
 });
+// The FILET factory hero at the top of /bricks/ (site/factory/): its bricks' sizes from this build.
+const factory = await buildFactory({ out: OUT, base: "../", bricks: BRICKS, sizes, version });
 // JSON-LD: the engine's source code (home), each brick as a part of it. Facts from the page only.
 const CODE = `${SITE}#code`;
 const homeDescription = `A micro game engine for the DOM: one shared loop, bounded everything, and the page always comes back. Kernel ${(kernel.gzip / 1024).toFixed(1)} KB gzip, no dependencies.`;
@@ -244,7 +247,7 @@ const pages = [
   ["bricks/index.html", page({
     title: "Kernel and bricks: every module and its size · Fizlet",
     description: `Every Fizlet module with its API and its measured size: the kernel is ${(kernel.gzip / 1024).toFixed(1)} KB gzip, each brick its own import.`,
-    base: "../", version, path: "bricks/", body: bricksIndex({ bricks, sizes, version, planned: PLANNED }), scripts: ["site.js", "brick-cards.js"],
+    base: "../", version, path: "bricks/", body: `<style>${factory.css}</style>${factory.html}` + bricksIndex({ bricks, sizes, version, planned: PLANNED }), scripts: ["site.js", "brick-cards.js"],
   })],
   // The gallery: PAGE_SIZE entries a page (gallery/, gallery/page/2/, …), in theme sections.
   ...gallery.pages.map((p) => [`${p.path}index.html`, page({
