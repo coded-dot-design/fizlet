@@ -8,6 +8,8 @@
  *   settles (0 frames). Off screen or in a hidden tab the kernel pauses it.
  * - The Replay key (a real Board UI key) plays it again from the start.
  * - Reduced motion: @fzlt/core/slot never loads it; the poster is the final lockup, still.
+ * - Fit: the head (lockup and caption) is measured once at mount, and on a resize, and scaled
+ *   down to the frame's width if it would overflow.
  * - Recall: the clone and the key are ledger nodes and every write goes through the ledger, so
  *   destroy() gives the page back byte for byte.
  */
@@ -29,6 +31,16 @@ export const mount: SlotMount = (stage, fig) => {
   key.textContent = "↻ Replay";
   key.setAttribute("aria-label", "Replay the name shift");
   stage.append(root);
+  // Fit to the box: the lockup and caption at their natural size, measured once at layout (and on a
+  // resize), against the frame's width; the head scales down if they would not fit (wide fonts).
+  const head = root.querySelector<HTMLElement>(".ns-head")!;
+  const fit = () => {
+    let w = 0;
+    for (const el of head.children) w = Math.max(w, (el as HTMLElement).offsetWidth);
+    engine.ledger.style(root, "--fit", `${Math.min(1, (root.clientWidth - 24) / (w || 1))}`);
+  };
+  fit();
+  addEventListener("resize", fit, { passive: true, signal: engine.signal });
 
   // The story, in seconds. Each property goes 0 → 1 (the ram and the stack screen go and come back).
   const tl = timeline(engine);

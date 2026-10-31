@@ -14,6 +14,8 @@
  * @fzlt/core/timeline, through the engine's ledger. Geometry is in kit px of one design box (`--u`
  * is a kit px, from the frame's size: container queries), so the kit's own keys scale with it.
  * Two layouts: wide (the lockup over the floor) and square or tall (a bigger lockup, same floor).
+ * The lockup's size is capped by the frame's width (room for the widest fallback fonts, so the
+ * poster fits without script); the live scene measures it once and scales the head to fit (`--fit`).
  * Colours are the Board UI kit's tokens only, so the page's theme picks light or dark.
  */
 
@@ -42,9 +44,9 @@ background:linear-gradient(color-mix(in srgb,var(--line) 40%,transparent) 1px,tr
 color:var(--ink);user-select:none}
 @container (max-aspect-ratio:6/5){.ns-w{--u:min(calc(100cqw / 750), calc(100cqh / 640));--hs:1.3;--cs:1.25}}
 .ns *{box-sizing:border-box}
-.ns-head{display:grid;justify-items:center;gap:${u(12)};text-align:center}
-.ns-lock{margin:0;white-space:nowrap;line-height:1;font:800 calc(84 * var(--hs) * var(--u))/1 var(--sans,system-ui,sans-serif);letter-spacing:-.035em;opacity:clamp(0,var(--l) * 3,1);scale:calc(1.3 - .3 * var(--l))}
-.ns-lock span{font:600 calc(56 * var(--hs) * var(--u))/1 var(--mono,ui-monospace,monospace);letter-spacing:0;color:var(--muted)}
+.ns-head{display:grid;justify-items:center;gap:${u(12)};text-align:center;scale:var(--fit,1)}
+.ns-lock{margin:0;white-space:nowrap;line-height:1;font:800 min(calc(84 * var(--hs) * var(--u)), calc(100cqw / 7.4))/1 var(--sans,system-ui,sans-serif);letter-spacing:-.035em;opacity:clamp(0,var(--l) * 3,1);scale:calc(1.3 - .3 * var(--l))}
+.ns-lock span{font:600 calc(2em / 3)/1 var(--mono,ui-monospace,monospace);letter-spacing:0;color:var(--muted)}
 .ns-cap{margin:0;font:600 calc(20 * var(--cs) * var(--u))/1.3 var(--mono,ui-monospace,monospace);color:var(--muted);opacity:var(--m);translate:0 calc((1 - var(--m)) * 12 * var(--u))}
 .ns-act{position:relative;width:${u(720)};height:${u(300)};pointer-events:none}
 .ns-act>*{position:absolute}

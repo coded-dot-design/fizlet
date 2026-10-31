@@ -9,7 +9,9 @@
   its own full-screen page, `demos/name-shift/`. Kernel + `@fzlt/core/timeline`, one timeline moving a
   few custom properties through the ledger; it plays once in view, settles to 0 rAF, and the Replay
   key plays it again. Reduced motion: the final lockup, still (the poster). Recall exact. Embeddable
-  in any slot. Live chunk 5,625 B gzip, 7,840 B with the gallery loader (budget 9,728 B). Test:
+  in any slot. The lockup fits its frame with any fonts: capped by the frame's width in CSS (the
+  poster), and measured once at layout and scaled down to fit in the live scene. Live chunk 5,729 B
+  gzip, 7,944 B with the gallery loader (budget 9,728 B). Test:
   `tests/name-shift.mjs` (in `npm run test:browser`).
 
 ## 0.21.2

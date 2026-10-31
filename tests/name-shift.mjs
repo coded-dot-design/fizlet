@@ -32,7 +32,10 @@ const RAF = () => {
   window.requestAnimationFrame = (cb) => (window.__raf++, raf(cb));
 };
 // `gap`: room above the figure, so it mounts (within the slot's 200 px) still off screen.
-const page = (w, theme = "dark", gap = 0) => `<!doctype html><html class="bui" data-theme="${theme}"><meta charset="utf-8"><style>${kit}body{margin:0;background:var(--bg)}</style><script>(${RAF})()</script><body>
+// `wide`: the widest common fallback fonts (DejaVu, what a bare Linux CI has for system-ui and
+// ui-monospace), so the lockup is checked where it is tightest.
+const WIDE = ':root{--sans:"DejaVu Sans",sans-serif;--mono:"DejaVu Sans Mono",monospace}';
+const page = (w, theme = "dark", gap = 0, wide = false) => `<!doctype html><html class="bui" data-theme="${theme}"><meta charset="utf-8"><style>${kit}body{margin:0;background:var(--bg)}${wide ? WIDE : ""}</style><script>(${RAF})()</script><body>
 <main id="page"><h1>Host page</h1><div style="height:${gap}px"></div><div style="width:${w}px;max-width:100%;aspect-ratio:${w > 600 ? "16 / 9" : "1 / 1"};position:relative">${A.figure("test#name-shift", { style: "position:absolute;inset:0;margin:0" })}</div><p>Copy after.</p><div style="height:2400px"></div></main>
 <script>${bundle}</script></body></html>`;
 const FINAL = { "--a": 1, "--b": 1, "--r": 0, "--e": 1, "--o": 1, "--j": 1, "--i": 1, "--f": 1, "--g": 1, "--k1": 1, "--k2": 1, "--k3": 1, "--k4": 1, "--k5": 1, "--sb": 0, "--l": 1, "--m": 1 };
@@ -40,12 +43,12 @@ const FINAL = { "--a": 1, "--b": 1, "--r": 0, "--e": 1, "--o": 1, "--j": 1, "--i
 const browser = await chromium.launch(launchOptions());
 const chromiumVersion = browser.version();
 try {
-  for (const [w, h] of [[1100, 800], [390, 844]]) {
+  for (const [w, h, wide] of [[1100, 800, false], [390, 844, false], [390, 844, true], [320, 640, true]]) {
     const p = await browser.newPage({ viewport: { width: w, height: h } });
     const errs = [];
     p.on("pageerror", (e) => errs.push(e.message));
     p.on("console", (m) => m.type() === "error" && errs.push(m.text()));
-    await p.setContent(page(w, "dark", h));
+    await p.setContent(page(w, "dark", h, wide));
     // Just below the fold first: it mounts posed and waits (it plays once it is in view).
     await p.evaluate(() => {
       window.before = document.body.innerHTML;
@@ -91,10 +94,11 @@ try {
     }, FINAL);
     assert.deepEqual(end, [], `@${w}: the end frame is the poster's (the lockup)`);
     const lock = await p.evaluate(() => {
-      const l = document.querySelector("[data-fizlet-slot] .ns-lock"), f = document.querySelector("figure").getBoundingClientRect(), b = l.getBoundingClientRect();
-      return { text: l.textContent, op: getComputedStyle(l).opacity, inside: b.left >= f.left - 0.5 && b.right <= f.right + 0.5 };
+      const l = document.querySelector("[data-fizlet-slot] .ns-lock"), c = document.querySelector("[data-fizlet-slot] .ns-cap"), f = document.querySelector("figure").getBoundingClientRect();
+      const inside = (el) => { const b = el.getBoundingClientRect(); return b.left >= f.left - 0.5 && b.right <= f.right + 0.5; };
+      return { text: l.textContent, op: getComputedStyle(l).opacity, inside: inside(l) && inside(c) };
     });
-    assert.deepEqual(lock, { text: "Fizlet™ · fzlt™", op: "1", inside: true }, `@${w}: the lockup Fizlet™ · fzlt™, whole, inside the frame`);
+    assert.deepEqual(lock, { text: "Fizlet™ · fzlt™", op: "1", inside: true }, `@${w}: the lockup Fizlet™ · fzlt™ and its caption, whole, inside the frame${wide ? " (wide fonts)" : ""}`);
     assert.equal(await p.evaluate(() => document.documentElement.scrollWidth), w, `@${w}: no sideways scroll`);
 
     // Replay: the key plays it from the start again.
@@ -120,7 +124,7 @@ try {
     const p = await ctx.newPage();
     const errs = [];
     p.on("pageerror", (e) => errs.push(e.message));
-    await p.setContent(page(390, theme));
+    await p.setContent(page(390, theme, 0, theme === "light"));
     await p.evaluate(() => {
       window.made = 0;
       window.slotted = ns.slot(document.querySelector("figure.ae-slot"), () => (window.made++, ns.mount), { idle: 0 });
@@ -128,9 +132,10 @@ try {
     await p.waitForTimeout(1200);
     const still = await p.evaluate(() => {
       const ph = document.querySelector(".ae-slot__placeholder"), l = ph.querySelector(".ns-lock"), b = ph.querySelector(".ns-b5");
-      return { made: window.made, mounted: window.slotted.mounted, poster: getComputedStyle(ph).display !== "none", lock: getComputedStyle(l).opacity, brick: getComputedStyle(b).opacity, role: document.querySelector("figure").getAttribute("role") };
+      const f = document.querySelector("figure").getBoundingClientRect(), r = l.getBoundingClientRect();
+      return { made: window.made, mounted: window.slotted.mounted, poster: getComputedStyle(ph).display !== "none", lock: getComputedStyle(l).opacity, inside: r.left >= f.left - 0.5 && r.right <= f.right + 0.5, brick: getComputedStyle(b).opacity, role: document.querySelector("figure").getAttribute("role") };
     });
-    assert.deepEqual(still, { made: 0, mounted: false, poster: true, lock: "1", brick: "1", role: "img" }, `reduced motion (${theme}): the still lockup`);
+    assert.deepEqual(still, { made: 0, mounted: false, poster: true, lock: "1", inside: true, brick: "1", role: "img" }, `reduced motion (${theme}${theme === "light" ? ", wide fonts" : ""}): the still lockup, inside the frame`);
     const r0 = await p.evaluate(() => window.__raf);
     await p.waitForTimeout(1000);
     assert.equal(await p.evaluate(() => window.__raf) - r0, 0, `reduced motion (${theme}): no frames`);
