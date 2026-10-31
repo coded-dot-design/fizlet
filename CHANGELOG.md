@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Gallery: Freeze, plan, radio (DOM Battlefield in ten seconds), pending owner review.** Time is
+  frozen and so is the engine (no frames): drag a route for each of three tanks round the walls,
+  RADIO the platoon and time runs for three seconds while turrets find targets in sight and the coral
+  platoon fires back; it freezes again for the next leg. Take the HQ flag or knock out their tanks in
+  six legs. Keyboard: 1–3, arrows, Enter. Hand-built on the kernel and fizlet/sound (the sound key
+  shows after a gesture); 10,211 B gzip live; the step allocates ~5 B a frame; Recall exact;
+  reduced motion is the poster. `author: pip`, pending (no `approved`); `teaser` links to
+  battlefield.domvirus.com.
 - **Before AI: 2015 page redesign** (`demos/before-ai-2015/`, pending owner review): the people
   page's language (stickers, mono meta, brick chips with measured sizes, panels), on-this-page
   chips and a stat strip; the story told by the scroll (2015 → remake → arcade, scrubbed reveals
