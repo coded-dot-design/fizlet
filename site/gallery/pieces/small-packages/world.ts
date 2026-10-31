@@ -47,7 +47,7 @@ export const SAY = [
 ];
 /** The caption's look (the live scene's inline style and the posters' rule; Board UI tokens). */
 export const CAPTION = "position:absolute;left:3%;top:5%;max-width:46%;margin:0;padding:.45em .65em;border:2px solid var(--rim,#07060f);border-radius:8px;" +
-  "box-shadow:0 3px 0 var(--rim,#07060f);background:var(--surface,#110d22);color:var(--ink,#f6f3ff);font:700 1em/1.25 var(--sans,system-ui,sans-serif);pointer-events:none";
+  "box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--rim,#07060f);background:var(--surface,#110d22);color:var(--ink,#f6f3ff);font:700 1em/1.25 var(--sans,system-ui,sans-serif);pointer-events:none";
 export const CAPTION_SMALL = "display:block;margin-top:.35em;font:700 .8em/1.3 var(--mono,monospace);color:var(--k-sys-ink,#19f0ff)";
 /** The still's caption: the setup in one line. */
 export const SETUP = "Some people say size doesn’t matter, but those people are usually dragging around a huge package.json…";
