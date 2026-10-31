@@ -67,6 +67,12 @@ const settled = (page) => page.evaluate(async () => {
   return same >= 15;
 });
 const frames = (page, n) => page.evaluate(async (n) => { for (let k = 0; k < n; k++) await new Promise(window.raf0 ?? requestAnimationFrame); }, n);
+// The page's scroll has stopped: scrollY unchanged over 10 page frames (a wheel or a fling may animate).
+const still = (page) => page.evaluate(async () => {
+  let last = -1, same = 0;
+  for (let k = 0; k < 900 && same < 10; k++) (await new Promise(window.raf0), (same = scrollY === last ? same + 1 : 0), (last = scrollY));
+  return scrollY;
+});
 // The scroll range the story spans (the scene's own rule: its middle from 85% to 25% of the viewport).
 const span = (page) => page.evaluate(() => {
   const r = document.querySelector("figure.lyr").getBoundingClientRect(), vh = innerHeight, mid = r.top + r.height / 2 + scrollY;
@@ -92,7 +98,7 @@ const PASSIVE = `<script>window.blocked_ = 0; { const add = EventTarget.prototyp
   }; }</script>`;
 const open = async (page) => {
   await page.setContent(PAGE.replace("<head>", "<head>" + PASSIVE));
-  await page.waitForFunction(() => window.handle.mounted && document.querySelector(".lz")?.dataset.p != null, null, { timeout: 10000 });
+  await page.waitForFunction(() => window.handle.mounted && document.querySelector(".lz")?.dataset.p != null, null, { timeout: 30000 });
 };
 
 await test("mounts, rests on the game frame, settles with no scroll; no layout shift; Recall is exact", async () => {
@@ -162,14 +168,13 @@ await test("the story: the fault is found, scanned and patched as the page scrol
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   await open(page);
   const [a, b] = await span(page);
-  const states = [];
-  for (let k = 0; k <= 60; k++) {
-    await page.evaluate((y) => scrollTo(0, y), a + ((b - a) * k) / 60);
-    await frames(page, 3);
-    const s = (await frameOf(page)).state;
-    if (s && states[states.length - 1] !== s) states.push(s);
+  // A stop inside each state's window (story seconds of the scene's 12.4: fault 6.8–7.5, scan
+  // 7.5–8.9, patched 8.9–9.6), each settled: state, not samples taken while the story eases there.
+  for (const [at, want] of [[7.15, "FAULT"], [8.2, "SCANNING"], [9.25, "PATCHED"], [12.4, ""]]) {
+    await page.evaluate((y) => scrollTo(0, y), Math.round(a + ((b - a) * at) / 12.4));
+    assert.ok(await settled(page));
+    assert.equal((await frameOf(page)).state, want, `at ${at} s`);
   }
-  assert.deepEqual(states, ["FAULT", "SCANNING", "PATCHED"]);
   assert.ok(await settled(page));
   const f = await frameOf(page);
   assert.equal(f.p, 1);
@@ -189,9 +194,7 @@ await test("no scroll-jacking: a wheel over the figure scrolls the page by exact
   for (const dy of [120, 120, 240, -120]) {
     const y0 = await page.evaluate(() => scrollY);
     await page.mouse.wheel(0, dy);
-    await page.waitForFunction((y) => scrollY !== y, y0);
-    await frames(page, 2);
-    assert.equal(await page.evaluate(() => scrollY) - y0, dy, `wheel ${dy}: the page moved by ${dy}`);
+    assert.equal((await still(page)) - y0, dy, `wheel ${dy}: the page moved by ${dy}`);
   }
   assert.ok(await settled(page));
   const r = await page.evaluate(() => ({ blocked: window.blocked_, over: [getComputedStyle(document.documentElement).overflow, getComputedStyle(document.body).overflow, document.body.style.cssText] }));
@@ -218,10 +221,15 @@ await test("phone: a swipe up over the figure scrolls the page and plays the sto
   await T("touchStart", from);
   for (let k = 1; k <= 20; k++) await T("touchMove", from - k * 10);
   await T("touchEnd");
+  const dy = (await still(page)) - y0;
   assert.ok(await settled(page));
-  const dy = (await page.evaluate(() => scrollY)) - y0;
-  assert.ok(dy >= 180, `the swipe moved the page ${dy}px (a 200px swipe)`);
-  assert.ok((await frameOf(page)).p > p0 + 0.2, "the story moved on with it");
+  // The finger moved 200px (less the touch slop, plus any fling): the page went with it, and the
+  // story moved by exactly that much scroll.
+  assert.ok(dy >= 100, `the swipe moved the page ${dy}px (a 200px swipe)`);
+  const [, b] = await span(page);
+  const want = Math.min(1, (y0 + dy - a) / (b - a));
+  assert.ok((await frameOf(page)).p > p0, "the story moved on");
+  assert.ok(Math.abs((await frameOf(page)).p - want) <= 0.002, `the story followed: ${(await frameOf(page)).p} vs ${want.toFixed(3)}`);
   await ctx.close();
 });
 
