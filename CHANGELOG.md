@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- **Site: the launch logo animation, Fizlet → fzlt (the name shift).** Two Board UI keys, FIZ and LET,
+  read FIZLET, ride into a press and come out as fiz + lt; the E and the i drop out on the floor and
+  the pair reads fzlt; the press stacks it on a wall of bricks (input, collide, sprite, timeline, fx)
+  and it ends on the lockup Fizlet™ · fzlt™, with one caption line. A gallery hero (launch day) with
+  its own full-screen page, `demos/name-shift/`. Kernel + `@fzlt/core/timeline`, one timeline moving a
+  few custom properties through the ledger; it plays once in view, settles to 0 rAF, and the Replay
+  key plays it again. Reduced motion: the final lockup, still (the poster). Recall exact. Embeddable
+  in any slot. Live chunk 5,625 B gzip, 7,840 B with the gallery loader (budget 9,728 B). Test:
+  `tests/name-shift.mjs` (in `npm run test:browser`).
+
 ## 0.21.2
 
 - 0.21.2 — first npm release, published as `@fzlt/core` (npm refused `fizlet` and `fzlt` as too similar to
