@@ -9,7 +9,7 @@
 import { createEngine } from "../../../../src/kernel/index";
 import { seeded } from "../../../../src/kernel/random";
 import type { SlotScene, SlotTap } from "../../../../src/slot";
-import { C, DEMO, DONE, H, IDLE, NUM, PLAY, TAU, W, rig, spray, words, type Pad } from "./kit";
+import { C, caption, drawWords, hud, DEMO, DONE, H, IDLE, NUM, PLAY, TAU, W, rig, spray, words, type Pad } from "./kit";
 
 export const ROUND = 10;
 const X0 = 26, X1 = 134, FLOOR = 70;
@@ -205,17 +205,17 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
       }
       g.globalAlpha = 1;
       r.drawSpray(ride.sp, SPRAY);
-      r.drawWords(ride.wd, WCOL);
-      r.hud(S[SCORE]!, S[LEFT]!, ROUND, mode === PLAY, C.go);
-      if (mode === IDLE || (mode === DEMO && S[T]! > 2.2)) r.caption("HOLD TO PUMP · STAY IN THE GLOW", 84, 6, C.ink);
+      drawWords(r, ride.wd, WCOL);
+      hud(r, S[SCORE]!, S[LEFT]!, ROUND, mode === PLAY, C.go);
+      if (mode === IDLE || (mode === DEMO && S[T]! > 2.2)) caption(r, "HOLD TO PUMP · STAY IN THE GLOW", 84, 6, C.ink);
       if (mode === DONE && S[CARD]! > 0.5) {
         g.fillStyle = "rgba(7,6,15,.65)";
         g.beginPath();
         g.roundRect(40, 30, 80, 34, 6);
         g.fill();
-        r.caption(NUM[Math.min(999, S[SCORE]! | 0)]!, 42, 14, C.go);
-        r.caption(S[END] === SPIT ? "SPAT OUT CLEAN" : S[END] === WORKED ? "THE FOAM GOT YOU" : "OUT TOO EARLY", 53, 6, C.ink);
-        if (S[CARD]! > 0.8) r.caption("HOLD TO GO AGAIN", 60, 5, C.muted);
+        caption(r, NUM[Math.min(999, S[SCORE]! | 0)]!, 42, 14, C.go);
+        caption(r, S[END] === SPIT ? "SPAT OUT CLEAN" : S[END] === WORKED ? "THE FOAM GOT YOU" : "OUT TOO EARLY", 53, 6, C.ink);
+        if (S[CARD]! > 0.8) caption(r, "HOLD TO GO AGAIN", 60, 5, C.muted);
       }
     },
   });

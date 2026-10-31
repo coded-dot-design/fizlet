@@ -9,7 +9,7 @@
 import { createEngine } from "../../../../src/kernel/index";
 import { seeded } from "../../../../src/kernel/random";
 import type { SlotScene, SlotTap } from "../../../../src/slot";
-import { C, DEMO, DONE, H, IDLE, NUM, PLAY, TAU, W, rig, spray, words, type Pad } from "./kit";
+import { C, caption, drawWords, hud, DEMO, DONE, H, IDLE, NUM, PLAY, TAU, W, rig, spray, words, type Pad } from "./kit";
 
 export const ROUND = 10;
 const SX = 56, SEA = 46, GOAL = 100, PADDLE = 14, N = 3, WAVE_V = 52;
@@ -226,8 +226,8 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
       // The paddler.
       paddler(SX, SEA + S[DEPTH]! * 15, S[DEPTH]!, S[STROKE]!, S[WASH]!);
       r.drawSpray(ride.sp, SPRAY);
-      r.drawWords(ride.wd, WCOL);
-      r.hud(S[SCORE]!, S[LEFT]!, ROUND, mode === PLAY, C.sys);
+      drawWords(r, ride.wd, WCOL);
+      hud(r, S[SCORE]!, S[LEFT]!, ROUND, mode === PLAY, C.sys);
       // How far out (a line to the lineup), and breath.
       g.fillStyle = "rgba(7,6,15,.55)";
       g.fillRect(48, 8, 56, 3);
@@ -241,15 +241,15 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
         g.fillStyle = S[AIR]! < 0.3 ? C.attack : C.sys;
         g.fillRect(SX - 7, SEA + 26, 14 * S[AIR]!, 2);
       }
-      if (mode === IDLE || (mode === DEMO && t > 2.8)) r.caption("HOLD TO DUCK-DIVE · LET GO TO PADDLE", 80, 6, C.ink);
+      if (mode === IDLE || (mode === DEMO && t > 2.8)) caption(r, "HOLD TO DUCK-DIVE · LET GO TO PADDLE", 80, 6, C.ink);
       if (mode === DONE && S[CARD]! > 0.5) {
         g.fillStyle = "rgba(7,6,15,.65)";
         g.beginPath();
         g.roundRect(40, 18, 80, 32, 6);
         g.fill();
-        r.caption(NUM[Math.min(999, S[SCORE]! | 0)]!, 29, 14, C.sys);
-        r.caption(S[OUT] ? (S[WASHES] ? "MADE IT OUT" : "MADE IT OUT, DRY HAIR") : "STILL IN THE IMPACT ZONE", 40, 6, C.ink);
-        if (S[CARD]! > 0.8) r.caption("HOLD TO PADDLE AGAIN", 46.5, 5, C.muted);
+        caption(r, NUM[Math.min(999, S[SCORE]! | 0)]!, 29, 14, C.sys);
+        caption(r, S[OUT] ? (S[WASHES] ? "MADE IT OUT" : "MADE IT OUT, DRY HAIR") : "STILL IN THE IMPACT ZONE", 40, 6, C.ink);
+        if (S[CARD]! > 0.8) caption(r, "HOLD TO PADDLE AGAIN", 46.5, 5, C.muted);
       }
     },
   });

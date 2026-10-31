@@ -87,12 +87,13 @@ export type Pad = Float64Array;
 
 /**
  * The rig on `stage`: canvas, colours, the hold input and keys, the synth. `label` names the ride
- * key for screen readers ("Hold to carve").
+ * key for screen readers ("Hold to carve"). `pixel`: a chunky one-pixel-per-art-unit canvas (160 × 90,
+ * scaled up crisp) in place of the smooth one.
  */
-export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Record<string, Cue>) {
+export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Record<string, Cue>, pixel = false) {
   const L = engine.ledger;
   const canvas = L.add(document.createElement("canvas"));
-  canvas.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none";
+  canvas.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none" + (pixel ? ";image-rendering:pixelated" : "");
   canvas.setAttribute("aria-hidden", "true");
   stage.append(canvas);
   const g = canvas.getContext("2d")!;
@@ -167,6 +168,7 @@ export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Rec
     read() {
       if (!V[2]) return;
       V[2] = 0;
+      if (pixel) return void ((canvas.width = W), (canvas.height = H), (V[1] = 1), (g.imageSmoothingEnabled = false));
       const r = stage.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1) * (V[3] || 1);
       canvas.width = Math.max(1, Math.round(r.width * dpr));
       canvas.height = Math.max(1, Math.round(r.height * dpr));
@@ -194,65 +196,69 @@ export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Rec
       }
       g.globalAlpha = 1;
     },
-    /** Draw the pop words; `cols` maps their colour slots. */
-    drawWords(w: Words, cols: readonly string[]) {
-      g.textAlign = "center";
-      g.textBaseline = "middle";
-      for (let i = 0; i < w.N; i++) {
-        const t = w.T[i]!;
-        if (t >= 1.1) continue;
-        const pop = t < 0.12 ? 0.6 + (t / 0.12) * 0.6 : t < 0.2 ? 1.2 - ((t - 0.12) / 0.08) * 0.2 : 1;
-        g.globalAlpha = t > 0.8 ? (1.1 - t) / 0.3 : 1;
-        g.save();
-        g.translate(w.X[i]!, w.Y[i]! - t * 8);
-        g.scale(pop, pop);
-        g.rotate(-0.08);
-        g.font = FONT[10]!;
-        g.lineWidth = 3;
-        g.strokeStyle = C.rim;
-        g.lineJoin = "round";
-        g.strokeText(w.list[w.I[i]!]!, 0, 0);
-        g.fillStyle = cols[w.K[i]!]!;
-        g.fillText(w.list[w.I[i]!]!, 0, 0);
-        g.restore();
-      }
-      g.globalAlpha = 1;
-    },
-    /** The score and the clock (top left), in the theme's chip. */
-    hud(score: number, left: number, round: number, playing: boolean, accent: string) {
-      g.fillStyle = "rgba(7,6,15,.55)";
-      g.beginPath();
-      g.roundRect(4, 4, 38, 11, 5.5);
-      g.fill();
-      g.fillStyle = accent;
-      g.font = FONT[8]!;
-      g.textAlign = "left";
-      g.textBaseline = "middle";
-      g.fillText(NUM[Math.min(999, score | 0)]!, 15, 9.8);
-      // The clock: a ring that empties over the ride.
-      const f = playing ? left / round : 1;
-      g.strokeStyle = C.line;
-      g.lineWidth = 1.6;
-      g.beginPath();
-      g.arc(9.5, 9.5, 3.2, 0, TAU);
-      g.stroke();
-      g.strokeStyle = playing && left < 3 ? C.attack : accent;
-      g.beginPath();
-      g.arc(9.5, 9.5, 3.2, -1.5708, -1.5708 + TAU * f);
-      g.stroke();
-    },
-    /** A centred caption (the hint, the card). */
-    caption(s: string, y: number, size: number, fill: string) {
-      g.textAlign = "center";
-      g.textBaseline = "middle";
-      g.font = FONT[size]!;
-      g.lineWidth = 3;
-      g.lineJoin = "round";
-      g.strokeStyle = C.rim;
-      g.strokeText(s, W / 2, y);
-      g.fillStyle = fill;
-      g.fillText(s, W / 2, y);
-    },
   };
 }
 export type Rig = ReturnType<typeof rig>;
+
+/** Draw the pop words; `cols` maps their colour slots. */
+export function drawWords(r: Rig, w: Words, cols: readonly string[]) {
+  const g = r.g;
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  for (let i = 0; i < w.N; i++) {
+    const t = w.T[i]!;
+    if (t >= 1.1) continue;
+    const pop = t < 0.12 ? 0.6 + (t / 0.12) * 0.6 : t < 0.2 ? 1.2 - ((t - 0.12) / 0.08) * 0.2 : 1;
+    g.globalAlpha = t > 0.8 ? (1.1 - t) / 0.3 : 1;
+    g.save();
+    g.translate(w.X[i]!, w.Y[i]! - t * 8);
+    g.scale(pop, pop);
+    g.rotate(-0.08);
+    g.font = FONT[10]!;
+    g.lineWidth = 3;
+    g.strokeStyle = C.rim;
+    g.lineJoin = "round";
+    g.strokeText(w.list[w.I[i]!]!, 0, 0);
+    g.fillStyle = cols[w.K[i]!]!;
+    g.fillText(w.list[w.I[i]!]!, 0, 0);
+    g.restore();
+  }
+  g.globalAlpha = 1;
+}
+/** The score and the clock (top left), in the theme's chip. */
+export function hud(r: Rig, score: number, left: number, round: number, playing: boolean, accent: string) {
+  const g = r.g;
+  g.fillStyle = "rgba(7,6,15,.55)";
+  g.beginPath();
+  g.roundRect(4, 4, 38, 11, 5.5);
+  g.fill();
+  g.fillStyle = accent;
+  g.font = FONT[8]!;
+  g.textAlign = "left";
+  g.textBaseline = "middle";
+  g.fillText(NUM[Math.min(999, score | 0)]!, 15, 9.8);
+  // The clock: a ring that empties over the ride.
+  const f = playing ? left / round : 1;
+  g.strokeStyle = C.line;
+  g.lineWidth = 1.6;
+  g.beginPath();
+  g.arc(9.5, 9.5, 3.2, 0, TAU);
+  g.stroke();
+  g.strokeStyle = playing && left < 3 ? C.attack : accent;
+  g.beginPath();
+  g.arc(9.5, 9.5, 3.2, -1.5708, -1.5708 + TAU * f);
+  g.stroke();
+}
+/** A centred caption (the hint, the card). */
+export function caption(r: Rig, s: string, y: number, size: number, fill: string) {
+  const g = r.g;
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  g.font = FONT[size]!;
+  g.lineWidth = 3;
+  g.lineJoin = "round";
+  g.strokeStyle = C.rim;
+  g.strokeText(s, W / 2, y);
+  g.fillStyle = fill;
+  g.fillText(s, W / 2, y);
+}
