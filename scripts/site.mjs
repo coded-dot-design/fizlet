@@ -7,7 +7,7 @@ import { gzipSync } from "node:zlib";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "./sizes.mjs";
 import { llmsFull } from "./llms-full.mjs";
-import { page, mark, fillSiteMap, SITE, ROOT, REPO, PERSON, ORG, WEBSITE } from "../site/layout.mjs";
+import { page, mark, fillSiteMap, SITE, ROOT, REPO, PERSON, ORG, WEBSITE, ANALYTICS } from "../site/layout.mjs";
 import { home } from "../site/pages/index.mjs";
 import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
@@ -23,6 +23,7 @@ import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
 import { AGENT_NOTE, CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
+import { privacyPage, cookiesPage, analyticsNames } from "../site/pages/legal.mjs";
 import { BRICKS, PLANNED, brickPath } from "../site/bricks.mjs";
 import { api } from "./api.mjs";
 import { ogImage } from "./og.mjs";
@@ -42,6 +43,7 @@ mkdirSync(`${OUT}/examples`, { recursive: true });
 mkdirSync(`${OUT}/bricks`, { recursive: true });
 mkdirSync(`${OUT}/gallery`, { recursive: true });
 mkdirSync(`${OUT}/make`, { recursive: true });
+for (const d of ["privacy", "cookies"]) mkdirSync(`${OUT}/${d}`, { recursive: true });
 const NOTES = loadNotes();
 for (const n of NOTES) mkdirSync(`${OUT}/${notePath(n)}`, { recursive: true });
 const RELEASES = loadReleases();
@@ -118,6 +120,8 @@ const { sizes: fizzSizes } = await import("../site/demos/fizz/build.mjs");
 const fizzFigure = readFileSync(`${OUT}/demos/fizz/index.html`, "utf8").match(/<figure class="ae-slot ae-slot--16x10" data-slot-target="fizz#hero"[\s\S]*?<\/figure>/)?.[0];
 if (!fizzFigure) throw new Error("demos/fizz/index.html: no fizz figure to embed");
 const fizz = { figure: fizzFigure, sizes: fizzSizes, live: "demos/fizz/scene.js" };
+// The interactive companion to the note "Before AI: 2015": the 2015 sprites beside two Fizlet rebuilds.
+await import("../site/demos/before-ai-2015/build.mjs");
 
 // The "how it works" labs (site/labs/, the scenes DOM VIRUS's Under the hood vendors): their
 // still posters are the gallery figures (each in its own accent), their sheet goes on the page.
@@ -243,6 +247,17 @@ const pages = [
     title: "Fizlet · Tiny physics for your page",
     description: homeDescription,
     base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast }), scripts: ["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js"],
+  })],
+  // Privacy and Cookies (pending legal review; site/pages/legal.mjs).
+  ["privacy/index.html", page({
+    title: "Privacy policy: analytics only with consent · Fizlet",
+    description: `What fizlet.com collects, why and for how long: ${analyticsNames(ANALYTICS) ? `consent-based ${analyticsNames(ANALYTICS)}` : "no analytics"}, hosting logs, and how to opt out. No ads, no selling data.`,
+    base: "../", version, path: "privacy/", body: privacyPage({ base: "../", analytics: ANALYTICS }), scripts: ["site.js"],
+  })],
+  ["cookies/index.html", page({
+    title: "Cookies and storage: none until you say yes · Fizlet",
+    description: "Every cookie and storage key fizlet.com may use, what each holds, how long it lasts, and how to change your choice or clear them.",
+    base: "../", version, path: "cookies/", body: cookiesPage({ base: "../", analytics: ANALYTICS }), scripts: ["site.js"],
   })],
   ["examples/quick-start.html", page({
     title: "Quick start: ten lines to a blast · Fizlet",
@@ -378,7 +393,7 @@ const routeOf = (f) => f.replace(/(^|\/)index\.html$/, "$1");
 const LABEL = new Map([
   ...DOCS.map((d) => [docPath(d), d.nav]), ...NOTES.map((n) => [notePath(n), n.title]), ...RELEASES.map((r) => [releasePath(r), r.version]),
   ...bricks.map((b) => [brickPath(b), b.id]), ...gallery.pages.slice(1).map((p) => [p.path, `Page ${p.n}`]), ...PEOPLE.map((p) => [personPath(p.id), p.name]),
-  ["", "Home"], ["examples/quick-start.html", "Quick start"], ["demos/layers/", "The layers story"], ["demos/fizz/", "The fizz proof piece"], ["examples/fizz/", "The fizz hero example"],
+  ["", "Home"], ["examples/quick-start.html", "Quick start"], ["privacy/", "Privacy"], ["cookies/", "Cookies"], ["demos/layers/", "The layers story"], ["demos/fizz/", "The fizz proof piece"], ["demos/before-ai-2015/", "Before AI: 2015, live"], ["examples/fizz/", "The fizz hero example"],
 ]);
 const built = pages.map(([f]) => routeOf(f));
 const order = (r) => (built.includes(r) ? built.indexOf(r) : built.length);

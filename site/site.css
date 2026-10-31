@@ -3836,3 +3836,17 @@ html.bui[data-theme="light"] .phases b {
     transition: none;
   }
 }
+/* Consent banner + footer "Cookie settings" (site/analytics/runtime.mjs): the Board UI tokens. */
+:root {
+  --cc-bg: var(--surface);
+  --cc-fg: var(--ink);
+  --cc-accent: var(--k-go);
+  --cc-accent-fg: var(--rim);
+  --cc-border: 1px solid var(--line);
+  --cc-btn-border: 1px solid var(--line);
+  --cc-focus: var(--k-sys);
+}
+.foot-base .foot-cookies {
+  color: inherit;
+  min-height: 24px;
+}

@@ -569,6 +569,54 @@ try {
     assert.ok(n > 5 && n <= 33, `the fizz story asks for ${n} frames a second (cap 30)`);
     await context.close();
   }
+  // ---------- Before AI: 2015: the three columns play, then the page rests at 0 frames a second ----------
+  // The page says so (demos/before-ai-2015/): at rest it asks for no animation frames, and under
+  // reduced motion no column animates.
+  where = "before-ai-2015 settles";
+  for (const reducedMotion of ["no-preference", "reduce"]) {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 }, reducedMotion });
+    const page = await context.newPage();
+    await page.addInitScript(() => {
+      const raw = requestAnimationFrame.bind(window);
+      window.__raf = 0;
+      window.requestAnimationFrame = (cb) => (window.__raf++, raw(cb));
+    });
+    await page.goto(`${ORIGIN}${BASE}demos/before-ai-2015/`);
+    await page.locator(".bt-row").scrollIntoViewIfNeeded();
+    await page.waitForTimeout(2500);
+    const count = async () => { const n0 = await page.evaluate(() => window.__raf); await page.waitForTimeout(1000); return (await page.evaluate(() => window.__raf)) - n0; };
+    assert.equal(await count(), 0, `${where} (${reducedMotion}): no frames at rest after load`);
+    // A round in the arcade: slam the lid open and type, hit the cups (the music starts), fill the
+    // cup, then pause the music. Everything plays, then the column rests again: the steam (3 s on
+    // a full cup, its last puffs up to 1.9 s more) and the laptop's scroll run out (~6 s), the
+    // combo, the shake and every particle end.
+    const A = ".bt-arcade ";
+    await page.click(A + ".fz-keys");
+    await page.waitForTimeout(500);
+    for (let i = 0; i < 4; i++) await page.click(A + ".fz-keys"), await page.waitForTimeout(80);
+    for (let i = 0; i < 3; i++) await page.click(A + ".fz-cups"), await page.waitForTimeout(80);
+    await page.click(A + ".fz-coffee button");
+    if (reducedMotion === "no-preference") assert.ok((await count()) > 5, `${where}: the arcade plays`);
+    await page.click(A + ".fz-play");
+    assert.ok(Number(await page.textContent(A + ".fz-best")) >= 2, `${where} (${reducedMotion}): the HUD counts the combo`);
+    // Particles, squash and shake: what any canvas of the column has drawn, and the stage's styles.
+    const motion = () => page.evaluate(() => {
+      let ink = 0;
+      for (const c of document.querySelectorAll(".bt-arcade canvas")) {
+        const d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+        for (let i = 3; i < d.length; i += 4) if (d[i]) ink++;
+      }
+      const s = document.querySelector(".bt-arcade .bt-stage").style, b = document.querySelector(".bt-arcade .fz-beats").style;
+      return { ink, shake: s.translate, squash: b.scale };
+    });
+    if (reducedMotion === "reduce") assert.deepEqual(await motion(), { ink: 0, shake: "", squash: "" }, `${where}: reduced motion draws no particles, no squash, no shake`);
+    // (Reduced motion still counts the combo: its 1.1 s window, then the 0.5 s settle.)
+    await page.waitForTimeout(reducedMotion === "reduce" ? 2500 : 7500);
+    assert.equal(await count(), 0, `${where} (${reducedMotion}): rests after a round on all three`);
+    assert.deepEqual(await motion(), { ink: 0, shake: "", squash: "" }, `${where} (${reducedMotion}): at rest no particle, squash or shake is left`);
+    if (reducedMotion === "reduce") assert.equal(await page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length), 0, `${where}: no CSS animation runs under reduced motion`);
+    await context.close();
+  }
   // ---------- Gallery at phone width: a slot's CSS animation stops once it is off screen ----------
   where = "gallery, offscreen";
   {
