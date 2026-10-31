@@ -111,7 +111,7 @@ export declare class EventRing {
     readonly cap: number;
     size: number;
     dropped: number;
-    private readonly slots;
+    private readonly s;
     constructor(cap?: number);
     emit(type: string, a?: number, b?: number, x?: number, y?: number, v?: number): boolean;
     at(i: number): FizEvent | undefined;
@@ -124,6 +124,7 @@ export declare class Ledger {
     private readonly t;
     private readonly m;
     private readonly a;
+    private z?;
     private e;
     text(node: CharacterData, value: string): boolean;
     style(el: El, prop: string, value: string, priority?: string): boolean;
@@ -131,7 +132,7 @@ export declare class Ledger {
     attr(el: El, name: string, value: string | null): boolean;
     cls(el: El, name: string, on: boolean): boolean;
     add<N extends Node>(node: N): N;
-    restore(): void;
+    restore(close?: boolean): void;
     get size(): number;
 }
 export {};
@@ -140,7 +141,7 @@ export {};
 export declare class Pool<T> {
     readonly cap: number;
     readonly items: T[];
-    private readonly free;
+    private readonly f;
     constructor(cap: number, create: () => T);
     get size(): number;
     acquire(): T | undefined;

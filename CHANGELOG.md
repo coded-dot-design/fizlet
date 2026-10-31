@@ -2,9 +2,44 @@
 
 ## Unreleased
 
+- **Release train 0.21.1 (#206 + #212), measured together on main (with #136).** gz: kernel 3,413 →
+  3,372 B, page build 7,128 → 7,056 B (112 B under 7 KB, budget 7,104), perf 2,064 → 2,019 B (budget
+  2,022), grid 1,603 → 1,652 B (budget 1,664), arcade 24,327 → 24,143 B (budget 24,150), arcade
+  card 18,334 → 18,192 B (budget 18,201: #206's 18,179 plus #218's +22 B). Main here includes #218.
+  The per-PR numbers below are each PR on 0.21.0 alone.
+- **Size (S8, size/treeshake; supersedes #205): the page build has 154 B of headroom under its 7 KB cap.**
+  No behaviour change. esbuild keeps a top-level `const` as a variable in any file with imports (and
+  a local one declared after other code), so the numbers the engine and the bricks index with now
+  ship as literals named in a comment (`2 /* STEP */`): the engine's slots, pause bits and phases, and
+  the slots and kinds in hud, match, pad, perf, presence, camera, board-page and arcade (exported
+  values unchanged). `EventRing` and `Pool` private fields are one letter (`s`, `f`: the API snapshot
+  shows them, the public API is unchanged), the ledger entry's flags are `hs`/`hc`, and fx's shape
+  numbers come before `TAU`. Measured gz: kernel 3,413 → 3,332 B, page build 7,128 → 7,014 B, arcade
+  24,280 → 24,031 B, arcade card 18,295 → 18,113 B, presence/check −176 B, camera −69 B. Budgets
+  lowered to lock it in: page build 7,168 → 7,104, arcade 24,399 → 24,150, arcade card 18,361 → 18,179,
+  css-clock 5,632 → 5,566, board-page 4,193 → 4,160, perf 2,048 → 2,022, pad 2,126 → 2,120.
+- **src/ is erasable TypeScript, enforced.** `tsconfig.json` sets `erasableSyntaxOnly` and
+  `tests/erasable.test.mjs` runs every source file through Node's type stripper, so a `const enum`, an
+  `enum`, a namespace or a parameter property fails CI instead of breaking games that vendor `src/`
+  (byte-runner, null-invaders, sherman-bytes). `fizlet/perf`'s `FrameRing` had a parameter property;
+  `cap` is now a plain field (same API). The site's own tsconfig turns the flag off for gallery pieces.
+- **Hardening from the S6 pressure test (P2-01 to P2-04), pending owner review.** `fizlet/kernel`:
+  `destroy()` closes the engine's ledger (`Ledger.restore(close?)`, new optional argument): a late
+  `text`/`style`/`attr`/`cls` write is refused (returns false, touches nothing) and a late `add()`d
+  node leaves when the caller's task ends, so Recall stays exact (P2-03); `advance(sec)` throws
+  `RangeError: fizlet: sec must be a finite number` on Infinity, NaN or a non-number instead of
+  stopping the engine for good (P2-04). `fizlet/grid`: `path`, `flood`, `los` and `hit` throw
+  `fizlet/grid: cell … is not on the board` on an id that is not an integer on the board (they
+  looped forever, P2-01), and a bad size says "is not a board" (P2-02). Bytes: kernel 3,413 → 3,453,
+  page build 7,128 → 7,167 (+55 B for the fixes, −16 B paid down elsewhere), grid 1,603 → 1,652
+  (budget 1,664), perf 2,042 → 2,019 (−23 B, so #173's +22 B fits the 2,048 budget). The fuzz
+  (`npm run test:stress -- fuzz --fixed`) holds the four fixed cases.
 - **`fizlet/sound`: your own synth cues.** `notes` (name → `Note[]` voices) adds cues to the built-in
   synth, so a scene can have a slurp or a yawn without its own audio code; `cues` may map to those
   names (`CueName`). Additive: every existing call types and plays as before. 1,019 → 1,042 B gzip.
+
+## 0.21.0
+
 - **Website: the home reveals end at the foot of the page too** (`site/home-motion.ts`). The home
   engine paused itself when `main` left the viewport (the kernel's off-screen rule), and at the very
   bottom the footer can fill it: a reveal still playing froze mid-way (parts at opacity 0.5–0.999)
@@ -537,6 +572,15 @@
   bottom edge (its box lets the pointer through, its content takes it back), and `.hero` is
   `overflow: clip`, so the parallaxed field never gives a focus or `scrollIntoView` a hidden
   scroll to move. The site test's `revealAll` and the home rhythm check wait on the reveals' state, not on time.
+- **Website: gallery, team and footer PRs that had no line here** (added at release):
+  - Gallery: SMASH and the hammer, a rage giant and a storm god, by hand (#89); Halloween ghosts,
+    three hand-built micro games, Smoosh, Wrangle and Overflow (#162); two Halloween fights, HUSH vs
+    SNOOZE and the last slice (#167); the owner approved the nine pending entries (#182); Pip's
+    Bubbles, Pip's debut piece (WIP, #185). Each with its own stage and a Chromium test in
+    `test:browser`.
+  - Team: Pip, keeper of Fizlet, an AI agent persona (`site/contributors/pip.json`, #179).
+  - Footer: a site map from the sitemap's route list, every indexable page linked once in five
+    columns that fold at phone width; `tests/site.mjs` checks it (#188).
 
 ## 0.20.0
 
@@ -1186,6 +1230,21 @@
 - **Website: the gallery theme filter follows the address.** A `#theme-` link to the page you are
   on (or back) now filters too, not only on arrival (`hashchange`); it showed once there were two
   themes.
+- **Perf: the demo's blasts are back to 60 fps at 4× CPU throttle** (30 fps since 0.10.1). Bisected
+  to 1337112 (the layers story in the home page hero): scrolled off screen, its scene kept about 50
+  composited 3D layers, and Chromium layerizes the whole document on every frame that repaints, so
+  each blast frame paid 8.4–11.7 ms of `Layerize` for a scene nobody could see. `fizlet/slot`'s
+  stage is now `content-visibility: auto` (a scene off screen is skipped for style, layout, paint and
+  layers), and so is the layers figure (its slider's eight 3D plates sit outside the stage).
+  Measured (`npm run perf`, Chromium 153, 4× throttle, 10 s, a busy 4-core Xeon): before p50
+  33.3–33.4 ms, 47–61% dropped, `Layerize` 10.6–11.4 ms per frame; after p50 16.7 ms, 24–32%
+  dropped, `Layerize` 1.6–1.7 ms (0.4.4: 1.5–1.8). Size: `fizlet/slot` 1,845 B gzip (budget
+  2,048); layers live chunk 9,720 B (≤ 9,728; the
+  13 B the slot adds are paid for in the scene, which now makes its fx canvas directly instead of
+  through a `canvas` branch in its element helper). The harness now reports `layerizeMs`, and
+  `tests/perf/budgets.json` fails the demo on this regression: p50 ≤ 25 ms, p95 ≤ 67, ≤ 45%
+  dropped, `layerizeMs` ≤ 4.
+  (#55, e78c501: shipped in 0.18.0; listed under 0.17.0 until 0.21.0.)
 
 ## 0.17.0
 
@@ -1238,20 +1297,6 @@
     attribution links, the filter and the search in a browser, the heroes row (centre plays alone,
     next / arrow keys, pause, full screen and the overlay with focus return, reduced motion
     posters and play on request) and the profiles; `tests/gallery.test.mjs` for the data model.
-- **Perf: the demo's blasts are back to 60 fps at 4× CPU throttle** (30 fps since 0.10.1). Bisected
-  to 1337112 (the layers story in the home page hero): scrolled off screen, its scene kept about 50
-  composited 3D layers, and Chromium layerizes the whole document on every frame that repaints, so
-  each blast frame paid 8.4–11.7 ms of `Layerize` for a scene nobody could see. `fizlet/slot`'s
-  stage is now `content-visibility: auto` (a scene off screen is skipped for style, layout, paint and
-  layers), and so is the layers figure (its slider's eight 3D plates sit outside the stage).
-  Measured (`npm run perf`, Chromium 153, 4× throttle, 10 s, a busy 4-core Xeon): before p50
-  33.3–33.4 ms, 47–61% dropped, `Layerize` 10.6–11.4 ms per frame; after p50 16.7 ms, 24–32%
-  dropped, `Layerize` 1.6–1.7 ms (0.4.4: 1.5–1.8). Size: `fizlet/slot` 1,845 B gzip (budget
-  2,048); layers live chunk 9,720 B (≤ 9,728; the
-  13 B the slot adds are paid for in the scene, which now makes its fx canvas directly instead of
-  through a `canvas` branch in its element helper). The harness now reports `layerizeMs`, and
-  `tests/perf/budgets.json` fails the demo on this regression: p50 ≤ 25 ms, p95 ≤ 67, ≤ 45%
-  dropped, `layerizeMs` ≤ 4.
 - **board-page runs in its root's own document and window.** `boardPage(e, { root })` now measures,
   observes and writes in `root.ownerDocument` (its viewport, `getComputedStyle`, observers, scroll
   and resize, highlights), so a board inside an iframe's page works. Before, it always used the

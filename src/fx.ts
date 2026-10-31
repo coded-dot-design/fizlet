@@ -7,8 +7,10 @@
  * drip and debris (or your own) and sprays them; a page that never calls it never ships it. Visual only: its own random (seeded from Math.random), never the
  * simulation's seeded random.
  */
-const TAU = Math.PI * 2;
+// Shape numbers first: esbuild inlines a top-level const only while nothing that runs code (here
+// Math.PI) comes before it.
 const DEBRIS = 0, DISC = 1, RING = 2, SQUARE = 3, WORD = 4, SMOKE = 5, STREAK = 6;
+const TAU = Math.PI * 2;
 /** Shapes a kind can draw as (a streak trails its velocity: sparks, drips). */
 export const SHAPES = ["square", "disc", "ring", "frame", "word", "smoke", "streak"] as const;
 
@@ -149,7 +151,7 @@ export function effects(o: FxOptions = {}) {
       for (let i = 0; i < all; i++) {
         const p = st[0]!;
         if (p >= cap) {
-          st[3] = st[3]! + all - i;
+          st[3]! += all - i;
           break;
         }
         st[0] = p + 1;
@@ -157,8 +159,7 @@ export function effects(o: FxOptions = {}) {
         for (let r = 0; r < 6; r++) U[r] = rnd(0, 1);
         X[p] = x;
         Y[p] = y;
-        VX[p] = VY[p] = ROT[p] = SPIN[p] = 0;
-        word[p] = 0;
+        VX[p] = VY[p] = ROT[p] = SPIN[p] = word[p] = 0;
         if (i < 5) {
           // Flash, fireball, core, shock ring, spinning square ring.
           kind[p] = HERO_KIND[i]!;
@@ -194,7 +195,7 @@ export function effects(o: FxOptions = {}) {
         SY[s] = y;
         SR[s] = 16 * k;
         SL[s] = 9;
-        st[1] = st[1]! + 1;
+        st[1]!++;
       }
       st[2] = Math.min(18, st[2]! + power * 3.5);
     },
@@ -295,9 +296,8 @@ export function effects(o: FxOptions = {}) {
       ctx.globalAlpha = 1;
     },
     clear() {
-      st[0] = 0;
+      st[0] = st[2] = 0;
       SL.fill(0);
-      st[2] = 0;
     },
   };
   fx.gravity = o.gravity ?? 0; // the setter ignores a non-finite value
@@ -336,7 +336,7 @@ export function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>) {
       for (let i = 0; i < n; i++) {
         const p = st[0]!;
         if (p >= cap) {
-          st[3] = st[3]! + Math.ceil(n - i);
+          st[3]! += Math.ceil(n - i);
           break;
         }
         st[0] = p + 1;
