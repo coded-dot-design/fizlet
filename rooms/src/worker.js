@@ -13,10 +13,15 @@
 //   The same, plus the subprotocol "resume.<token>" (the WELCOME token in hex): back in a seat that
 //   dropped, within RESUME_SECONDS (README.md "Resume").
 //   Deprecated, accepted for one release: GET /invite?code=XXXX and /room/<n>?invite=XXXX (URLs are logged).
+//   Play passes (src/pass.js), only when REQUIRE_PASS is "true": the join offers "pass.<pass>" and
+//   "device.<key>" instead of the invite; POST /invite checks "<pass>\n<device key>"; POST /pass/revoke
+//   and /pass/list take the admin key (ROOMS_ADMIN_KEY).
 //   Over a rate cap: 429 {error:"slow down"} with retry-after.
 import { DurableObject } from "cloudflare:workers";
 import { Relay } from "./relay.js";
 import { Bucket, MSG_BYTES, Window, bodyText, inviteFrom, inviteKey, limits, originOk, resumeFrom, roomClock, roomNumber } from "./limits.js";
+import { deviceKey, passFrom, passGate, requirePass, adminRequest } from "./pass.js";
+export { Passes } from "./pass.js";
 
 const PROTOCOL = "fizlet-rooms";
 const json = (body, status, origin, headers) =>
@@ -39,10 +44,23 @@ export default {
     const url = new URL(req.url), cap = limits(env), origin = req.headers.get("origin");
     if (!originOk(origin, cap.ORIGINS)) return json({ error: "origin not allowed" }, 403);
     if (gate?.limit !== cap.GATE_RATE) gate = new Window(cap.GATE_RATE);
+    if (url.pathname.startsWith("/pass/")) {
+      if (!gate.hit(ipOf(req), Date.now())) return slow(origin);
+      const r = await adminRequest(req, env, url.pathname);
+      if (r) return json(r.body, r.status, origin);
+    }
     if (url.pathname === "/invite") {
       if (!gate.hit(ipOf(req), Date.now())) return slow(origin);
-      // A POST body is read to 257 bytes at most, chunked or not (P6-04): past 256 it's no code.
-      const code = req.method === "POST" ? await bodyText(req, 256) : inviteFrom(req, url).code;
+      // A POST body is read to max + 1 bytes at most, chunked or not (P6-04): past max it's no code.
+      // With passes on, the body may be a pass and a device key, so it may be longer.
+      const code = req.method === "POST" ? await bodyText(req, requirePass(env) ? 1024 : 256) : inviteFrom(req, url).code;
+      // Passes on (REQUIRE_PASS): the body is "<pass>\n<device key>", checked without taking a seat;
+      // every answer says pass:true, so a page shows its PASS field (an empty POST asks just that).
+      if (requirePass(env)) {
+        const [p, d] = String(code ?? "").split("\n").map((s) => s.trim());
+        const g = p ? await passGate(env, p, deviceKey(d), { claim: false }) : { ok: false, why: "pass needed" };
+        return g.ok ? json({ ok: true, players: cap.MAX_PLAYERS, pass: true }, 200, origin) : json({ ok: false, pass: true, why: g.why }, 403, origin);
+      }
       return (await invited(env, code)) ? json({ ok: true, players: cap.MAX_PLAYERS }, 200, origin) : json({ ok: false }, 403, origin);
     }
     const n = roomNumber(url.pathname, cap.MAX_ROOMS);
@@ -51,7 +69,9 @@ export default {
     const players = Number(url.searchParams.get("players") || 2);
     if (!Number.isInteger(players) || players < 1 || players > cap.MAX_PLAYERS) return json({ error: `players: 1 to ${cap.MAX_PLAYERS}` }, 400);
     if (!gate.hit(ipOf(req), Date.now())) return slow();
-    if (!(await invited(env, inviteFrom(req, url).code))) return json({ error: "invite code needed" }, 403);
+    // Passes on: a verified pass that this device holds replaces the invite. Off: the invite, as before.
+    const offered = passFrom(req), pass = await passGate(env, offered.pass, offered.device);
+    if (pass ? !pass.ok : !(await invited(env, inviteFrom(req, url).code))) return json({ error: pass?.why ?? "invite code needed" }, pass?.status ?? 403);
     return env.ROOMS.get(env.ROOMS.idFromName(`room-${n}`)).fetch(req);
   },
 };

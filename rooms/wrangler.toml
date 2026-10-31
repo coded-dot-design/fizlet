@@ -16,9 +16,19 @@ invocation_logs = false
 name = "ROOMS"
 class_name = "Room"
 
+# Play passes (src/pass.js): one object holds the device locks and the revoked list. Used only
+# when REQUIRE_PASS is "true".
+[[durable_objects.bindings]]
+name = "PASSES"
+class_name = "Passes"
+
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["Room"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["Passes"]
 
 # Invite codes for the demo gate: key = "invite:" + SHA-256(code), value = a label. See DEPLOY.md.
 # `id` is filled in at deploy time from `wrangler kv namespace create INVITES` (local dev ignores it).
@@ -41,3 +51,7 @@ RESUME_SECONDS = "20"
 # Comma-separated page origins allowed to connect (the deployed demo: the Blitz site). Empty = any;
 # `npm run dev` and test:wrangler clear it locally.
 ALLOWED_ORIGINS = "https://battlefieldblitz.domvirus.com"
+# Play passes: "true" makes every join show a valid pass (and its device key) instead of an invite
+# code. Off by default. Before switching it on, set the Worker secrets PASS_SECRET (and
+# ROOMS_ADMIN_KEY for revoking): `wrangler secret put PASS_SECRET`. See README "Play passes".
+REQUIRE_PASS = "false"

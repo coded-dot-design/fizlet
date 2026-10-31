@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **fizlet-rooms: play passes (optional, off by default).** A signed, expiring pass that locks to the
+  first device(s) that join with it, as an alternative gate to the invite code: `rooms/src/pass.js`
+  (HMAC-SHA256 checked with WebCrypto, a `Passes` Durable Object for the device locks and the revoked
+  list), `REQUIRE_PASS` (default `"false"`: nothing changes), `POST /pass/revoke` and `/pass/list`
+  with `ROOMS_ADMIN_KEY`. Kinds: play and family (30 days, 3 devices at most), owner (a year, 5).
+  Tests: `rooms/test/pass.test.mjs` (11). THREAT-MODEL covers the public pass comment.
+
 - **fizlet-rooms: reconnect, a safe wake, a bounded invite body, START (S6 P6-01, -02, -04; pending
   owner review, not deployed).** A dropped seat is held `RESUME_SECONDS` (20) and comes back with a
   per-seat resume token from `WELCOME` (subprotocol `resume.<hex>`, never the URL): `WELCOME`,
