@@ -11,7 +11,7 @@
   until it is used. The standalone layers page loads the note's own chunk (`hint.js`) with the scene.
   Reduced motion: no lock, no controls, the still exploded view. Measured (Chromium 153, 4× CPU
   throttle, one loop): live chunk 7,787 → 8,060 B gzip (budget 9,728), inline 3,438 → 4,057 B
-  (budget 6 KB), script per frame 1.4 ms median, 2.6 ms p95; CLS 0; 0 frames paused.
+  (budget 6 KB), script per frame 1.2 ms median, 3.3 ms p95; CLS 0; 0 frames paused.
 
 ## 0.21.1
 

@@ -62,10 +62,10 @@ over it fans the layers out by hand ("Scroll me to fan the layers"). By [Chris C
 
 ## Measured
 
-See `site/demos/layers/measured.json`. On Fizlet 0.21.0, Chromium 153: live chunk 8,060 B gzip
+See `site/demos/layers/measured.json`. On Fizlet 0.21.1, Chromium 153: live chunk 8,060 B gzip
 (`fzlt/slot` + scene, loaded only once the slot is near); poster, controls and inline script
-4,057 B gzip (script 368 B); at 4× CPU throttle over one whole loop, script per frame 1.4 ms median,
-2.6 ms p95, 5.7 ms max; layout shift 0; 0 frames while paused; 0 B of JS fetched before the slot
+4,057 B gzip (script 368 B); at 4× CPU throttle over one whole loop, script per frame 1.2 ms median,
+3.3 ms p95, 5.8 ms max; layout shift 0; 0 frames while paused; 0 B of JS fetched before the slot
 nears the viewport.
 
 Against the hero budgets in fizlet-engine `docs/LAYERS.md`: live chunk ≥ 5% under 10 KB ✔, poster ≤ 6 KB ✔,
