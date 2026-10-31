@@ -168,6 +168,14 @@
   progress (no table, no call, no allocation): whole steps only, all n + 1, the last one at the
   end, as CSS `steps(n, end)`. Other easings are unchanged. Test: `timeline: steps(n) lands on whole
   steps only` (fails on 0.20.0). Timeline 2,060 → 2,085 B gz (budget 2,304).
+- **`@fzlt/core/slot`: Recall is byte-exact for accessible scenes** (pending owner review). For a scene
+  with `accessible: true` the slot removed `role="img"` and the ledger set it again on `destroy()`,
+  so it came back last and the attribute order differed (the 3 pending 2015 gallery entries
+  reported `recallExact: false`). It now changes `role="img"` to `role="figure"` in place, through
+  the ledger, and Recall puts `"img"` back in the same spot: `outerHTML` is identical. `figure` is
+  a `<figure>`'s own role, so assistive tech gets the same thing on the engine's figure shape, and on
+  the box shape (`div.ae-slot`) the `aria-label` now sits on a role that takes a name. slot 1,819 →
+  1,822 B gz, page build 7,128 → 7,131 B.
 
 ## 0.21.2
 
