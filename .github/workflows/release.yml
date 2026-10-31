@@ -53,6 +53,8 @@ jobs:
           echo "VERSION=$version" >> "$GITHUB_ENV"
       - run: npm ci --no-audit --no-fund
       - run: npm run check
+      # The API snapshots of the COMPLETE bricks match what this tag publishes.
+      - run: npm run api:check
       - run: npm run size
       # README sizes are written at release time (land.py bump runs npm run readme:sizes), not per PR.
       - run: npm run readme:sizes -- --check
