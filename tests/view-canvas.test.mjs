@@ -1,4 +1,4 @@
-// fzlt/view-canvas in Node (a fake DOM and a recording 2D context): the backing store is the CSS
+// @fzlt/core/view-canvas in Node (a fake DOM and a recording 2D context): the backing store is the CSS
 // size × devicePixelRatio (capped), nothing is drawn until something is dirty, a dirty box is
 // snapped out to whole device pixels, cleared and clipped, boxes union, a resize re-measures, a
 // settled engine wakes for one redraw and settles again, destroy() is Recall, and a step that dirties

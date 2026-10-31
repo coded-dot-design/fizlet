@@ -8,7 +8,7 @@
 // a fresh bucket is ready.
 // Bricks: the kernel (fixed step, seeded random; settle: no frames while the bucket sits still; the
 // ledger for every page write (the counter's text included), so Recall gives the page back byte for
-// byte) and fzlt/sprite (the ghosts, the crew, the bucket and its lid, baked once). Shared world:
+// byte) and @fzlt/core/sprite (the ghosts, the crew, the bucket and its lid, baked once). Shared world:
 // spook.ts (with Smoosh and Wrangle).
 import { createEngine } from "../../../../src/kernel/index";
 import { sprites } from "../../../../src/sprite";

@@ -1,7 +1,7 @@
 // Docs code (shown on /docs/getting-started/ from the "// ---" line on): typechecked against the
 // source by `npm run typecheck`, so a listing on the site can't drift from the API.
 // ---
-import { createEngine } from "fzlt";
+import { createEngine } from "@fzlt/core";
 
 const root = document.querySelector("#game")!;
 const engine = createEngine({ root, seed: 7 });

@@ -5,7 +5,7 @@
 // shreds, and the blast shreds the letters right beside it and knocks the rest off course (they
 // tumble, then home in again). When the last letter lands, the card says how far it got and why it
 // worked: the attachment was LOVE-LETTER-FOR-YOU.TXT.vbs, a script, and Windows hid the ".vbs".
-// Tap to play it again. Bricks: the kernel (settle, ledger), fzlt/steer's exact hypot, fzlt/slot.
+// Tap to play it again. Bricks: the kernel (settle, ledger), @fzlt/core/steer's exact hypot, @fzlt/core/slot.
 import type { SlotScene, SlotTap } from "../../../src/slot";
 import { outbreak, hypot, ease, W, H, S, T, SHAKE, INK, MUTED, BUG, BUG2, GLOW, GOLD, BG } from "./outbreak";
 

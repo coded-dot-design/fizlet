@@ -1,6 +1,6 @@
 // Build the layers story: `node site/demos/layers/build.mjs [outDir]` (default site-dist/demos/layers).
 // The page (examples/layers/page.mjs) carries the slot figure, its poster and a tiny loader inline;
-// layers.js (fzlt/slot + the scene, one file) loads only once the slot is near.
+// layers.js (@fzlt/core/slot + the scene, one file) loads only once the slot is near.
 import { build } from "esbuild";
 import { gzipSync } from "node:zlib";
 import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";

@@ -6,9 +6,9 @@
   "eyebrow": "Guide · multiplayer",
   "title": "Two players,",
   "subtitle": "twelve bytes a message.",
-  "summary": "Lockstep multiplayer with fzlt/presence and the rooms server on Cloudflare: what is shipped, how to run it, and its caps.",
+  "summary": "Lockstep multiplayer with @fzlt/core/presence and the rooms server on Cloudflare: what is shipped, how to run it, and its caps.",
   "lead": [
-    "`fzlt/presence` is lockstep input exchange: every peer runs the same fixed-step sim from the same seed, and only inputs cross the wire, 12 bytes a message. The room server in [`rooms/` ↗](https://github.com/coded-dot-design/fizlet/tree/main/rooms) is a Cloudflare Worker with one Durable Object per room that seats players and relays their messages. It never simulates. This guide connects the two."
+    "`@fzlt/core/presence` is lockstep input exchange: every peer runs the same fixed-step sim from the same seed, and only inputs cross the wire, 12 bytes a message. The room server in [`rooms/` ↗](https://github.com/coded-dot-design/fizlet/tree/main/rooms) is a Cloudflare Worker with one Durable Object per room that seats players and relays their messages. It never simulates. This guide connects the two."
   ],
   "blocks": [
     {
@@ -57,7 +57,7 @@
       "body": [
         {
           "type": "p",
-          "text": "The server is its own package in `rooms/`, not a dependency of `fzlt`. Locally it runs on `wrangler dev`: `npm install`, `npm test` (caps, invite keys, relay logic), then `npm run test:wrangler`, which starts a local Worker and plays two Fizlet engines through one room for 600 lockstep frames, byte-identical. Deploying to your own Cloudflare account is yours to do: [DEPLOY.md ↗](https://github.com/coded-dot-design/fizlet/blob/main/rooms/DEPLOY.md)."
+          "text": "The server is its own package in `rooms/`, not a dependency of `@fzlt/core`. Locally it runs on `wrangler dev`: `npm install`, `npm test` (caps, invite keys, relay logic), then `npm run test:wrangler`, which starts a local Worker and plays two Fizlet engines through one room for 600 lockstep frames, byte-identical. Deploying to your own Cloudflare account is yours to do: [DEPLOY.md ↗](https://github.com/coded-dot-design/fizlet/blob/main/rooms/DEPLOY.md)."
         },
         {
           "type": "p",
@@ -106,7 +106,7 @@
       "type": "cta",
       "links": [
         {
-          "label": "fzlt/presence API",
+          "label": "@fzlt/core/presence API",
           "href": "/bricks/presence.html"
         },
         {
@@ -118,7 +118,7 @@
   ],
   "seo": {
     "title": "Lockstep multiplayer rooms with Fizlet",
-    "description": "Run two-player lockstep games with fzlt/presence and a Cloudflare Worker room server: 12-byte inputs, a hash check every 30 frames and hard caps in code."
+    "description": "Run two-player lockstep games with @fzlt/core/presence and a Cloudflare Worker room: 12-byte inputs, a hash check every 30 frames and hard caps in code."
   },
   "brick": "presence"
 }

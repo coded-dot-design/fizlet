@@ -6,10 +6,10 @@
  * Close the laptop (tap it, or Enter on it) and he goes to sleep; open it and the day starts.
  *
  * Bricks, each on a part you can see: the kernel (one loop, 30 fps cap, settle, the ledger),
- * fzlt/timeline (the day/night cycle on CSS custom properties; the wake/sleep and sip sequences on
- * a typed array), fzlt/fx (notes, steam, code sparks, the Zzz), fzlt/sound (the beat, key clicks,
- * the sip; silent until a gesture, mute key), fzlt/input (taps on the props, the lid key),
- * fzlt/sprite (the pixel coder on the phone). "Show bricks" labels each part with its brick and
+ * @fzlt/core/timeline (the day/night cycle on CSS custom properties; the wake/sleep and sip sequences on
+ * a typed array), @fzlt/core/fx (notes, steam, code sparks, the Zzz), @fzlt/core/sound (the beat, key clicks,
+ * the sip; silent until a gesture, mute key), @fzlt/core/input (taps on the props, the lid key),
+ * @fzlt/core/sprite (the pixel coder on the phone). "Show bricks" labels each part with its brick and
  * its gzip bytes (scripts/sizes.mjs, put in by the build).
  *
  * Rules: off screen or in a hidden tab the kernel pauses it; pause() rests it at 0 frames; reduced
@@ -87,7 +87,7 @@ const WORDS = ["♪", "♫", "z", "Z", "{ }", "</>", ";", "=>", "#"];
 const WORD = 4; // fx's word-shaped part
 let uid = 0; // each mount's own SVG ids (a poster or a second scene on the page has its own)
 
-// The pixel coder on the phone (fzlt/sprite): two dance frames and one asleep.
+// The pixel coder on the phone (@fzlt/core/sprite): two dance frames and one asleep.
 const PIX: SpriteDef = {
   frames: [
     ["...hhhhhh...", "..hhhhhhhh..", ".chsssssshc.", ".csessssesc.", "..ssssssss..", "..sssmmsss..", "...ssssss...", "..rrrrrrrr..", ".srrrrrrrrs.", ".srrrrrrrrs.", "..rrrrrrrr..", "..bb....bb.."],
@@ -249,7 +249,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   engine.add({
     step(e, dt) {
       if (paused) return;
-      // Taps (fzlt/input): which prop is under the pointer, in art units.
+      // Taps (@fzlt/core/input): which prop is under the pointer, in art units.
       if (ctl.pointer.hit) {
         const x = view[1]! + ctl.pointer.x / view[0]!, y = view[2]! + ctl.pointer.y / view[0]!;
         const inBox = (b: readonly number[]) => x >= b[0]! && x <= b[0]! + b[2]! && y >= b[1]! && y <= b[1]! + b[3]!;
@@ -475,7 +475,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   return scene;
 }
 
-/** For fzlt/slot: options from the slot figure's data attributes (data-mode, data-bricks="1",
+/** For @fzlt/core/slot: options from the slot figure's data attributes (data-mode, data-bricks="1",
  *  data-sound="0", data-speed). */
 export const mountSlot: SlotMount = (stage, fig) => {
   const d = fig.dataset;

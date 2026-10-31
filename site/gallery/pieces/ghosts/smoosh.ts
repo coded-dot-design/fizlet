@@ -8,7 +8,7 @@
 // smooshes. Once the dripping stops he slurps the whole puddle back up, burps, and floats still:
 // the page is spotless again and the scene sleeps.
 // Bricks: the kernel (fixed step, seeded random; settle: no frames once he's still; the ledger for
-// every page write, so Recall gives the page back byte for byte) and fzlt/sprite (SMUDGE and his
+// every page write, so Recall gives the page back byte for byte) and @fzlt/core/sprite (SMUDGE and his
 // palms, baked once). Shared world: spook.ts (with Wrangle and Overflow).
 import { createEngine } from "../../../../src/kernel/index";
 import { sprites } from "../../../../src/sprite";

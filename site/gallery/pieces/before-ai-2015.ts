@@ -48,7 +48,7 @@ const mountOf = (p: Piece): SlotMount => (stage) => {
   };
 };
 
-// One chunk per entry: each export is pure, so a bundle keeps only its own sprite (and fzlt/fx
+// One chunk per entry: each export is pure, so a bundle keeps only its own sprite (and @fzlt/core/fx
 // only where particles rise). h: the sprite plus the room its particles rise into.
 /** Hit the headphones: they bounce, ♪ ♫ burst out, the phone's equalizer jumps (2015, rebuilt, arcade). */
 export const headphones = /* @__PURE__ */ mountOf({ w: 300, h: 440, max: 1.25, box: ".fz-beats", start: (el) => beatsOf(el), html: '<div class="fz-beats"><button type="button" class="fz-cups" aria-label="Hit the beat"></button><button type="button" class="fz-play" aria-pressed="false" aria-label="Play the music"><svg class="fz-i-play" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1l10 6-10 6z"/></svg><svg class="fz-i-pause" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 1h4v12H2zM8 1h4v12H8z"/></svg></button></div>' });

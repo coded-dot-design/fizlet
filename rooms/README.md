@@ -1,13 +1,13 @@
 # fizlet-rooms (demo room server)
 
-A room server for [`fzlt/presence`](../src/presence.ts): a Cloudflare Worker that routes
+A room server for [`@fzlt/core/presence`](../src/presence.ts): a Cloudflare Worker that routes
 `/room/<n>` to one Durable Object per numbered room. The room seats players in arrival order,
 sends each one `WELCOME` (seat, player count, a shared seed) once it's full, then relays every
 `INPUT` and `HASH` message to the other seats, stamping the sender's real seat. It never simulates:
 the peers run the same lockstep sim. WebSockets use the hibernation API, so an idle room holds no
 running object.
 
-Its own package: it is not a dependency of `fzlt` and is not published. Deploying is an owner
+Its own package: it is not a dependency of `@fzlt/core` and is not published. Deploying is an owner
 step: [DEPLOY.md](DEPLOY.md).
 
 ## The demo gate
@@ -20,7 +20,7 @@ The code never goes in a URL (URLs land in request logs):
   join. A text body keeps it a simple request (no CORS preflight):
   `fetch(rooms + "/invite", { method: "POST", body: code })`.
 - `GET /room/<n>?players=2` (WebSocket) with the subprotocols `["fizlet-rooms", "invite." + code]`
-  → the room (the `101` answers `fizlet-rooms`), or `403` without a listed code. With fzlt/presence:
+  → the room (the `101` answers `fizlet-rooms`), or `403` without a listed code. With @fzlt/core/presence:
   `join(url, signal, ["fizlet-rooms", "invite." + code])`.
 - **Deprecated, accepted for one release:** `GET /invite?code=XXXX` and `/room/<n>?invite=XXXX`, for
   pages that still send the code in the URL. Invocation logs are off (`wrangler.toml`), so these

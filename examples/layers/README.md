@@ -46,7 +46,7 @@ Optional data attributes on the figure: `data-loops` (cycles before it settles, 
   before the scene loads (and under reduced motion) the inline controller moves the slider and the
   poster itself; once the scene is mounted it forwards input as a `lyr` event and the scene writes
   the controls through its ledger, so Recall gives them back exactly.
-- **Lazy:** no JS file loads up front. An ~850 B inline script (the controls' controller and loader) imports `layers.js` (`fzlt/slot`
+- **Lazy:** no JS file loads up front. An ~850 B inline script (the controls' controller and loader) imports `layers.js` (`@fzlt/core/slot`
   and the scene, one file) when the slot comes within 200px or is tapped; the slot then waits for an
   idle main thread and mounts the scene. The tap that triggers the load is not replayed (the scene
   takes no tap input; a pointer only wakes a settled scene).
@@ -68,7 +68,7 @@ Optional data attributes on the figure: `data-loops` (cycles before it settles, 
 ## Measured
 
 See `site/demos/layers/measured.json`. On Fizlet 0.15.0, Chromium 153: live chunk 9,713 B gzip
-(`fzlt/slot` + scene, loaded only once the slot is near); poster, controls and inline script
+(`@fzlt/core/slot` + scene, loaded only once the slot is near); poster, controls and inline script
 5,258 B gzip (script 848 B); at 4× CPU throttle, script per frame 0.9 ms median, 3.3 ms p95, 11.4 ms
 max; layout shift 0; 0 frames once settled; 0 B of JS fetched before the slot nears the viewport.
 
@@ -77,6 +77,6 @@ Against the hero budgets in fizlet-engine `docs/LAYERS.md`: live chunk ≥ 5% un
 build if the live chunk or the poster goes over.
 
 How it fits: the tanks patrol fixed loops (the dotted rectangles on the movement layer), so the hero
-carries no path search and no `fzlt/grid` (−1.5 KB); slot and scene ship as one file loaded by the
+carries no path search and no `@fzlt/core/grid` (−1.5 KB); slot and scene ship as one file loaded by the
 inline loader; the scene's state styles live in the page CSS; the stack's bounds are precomputed
 (`build.mjs` checks them against the formula). Bricks in the live chunk: kernel, slot, sprite, fx.

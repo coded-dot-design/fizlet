@@ -1,4 +1,4 @@
-// The gallery page's only script before a demo nears the viewport: fzlt/slot, armed on every
+// The gallery page's only script before a demo nears the viewport: @fzlt/core/slot, armed on every
 // entry's figure. Each entry's live chunk (gallery/<id>.js, its own bundle: the size on its badge)
 // loads once its slot is near and the main thread is idle; reduced motion keeps every poster.
 import { slot } from "../../src/slot";

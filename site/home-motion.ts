@@ -1,5 +1,5 @@
 /**
- * The home page's rhythm, run by Fizlet itself (kernel + fzlt/timeline, nothing else):
+ * The home page's rhythm, run by Fizlet itself (kernel + @fzlt/core/timeline, nothing else):
  *   - reveals: each section below the fold waits faded and a little low, and plays in (a short
  *     timeline: the divider draws, the head and the panels stagger up) as it comes on screen;
  *   - parallax: the hero grid and each numbered section's big ghost number drift with the scroll,

@@ -2,7 +2,7 @@
 // 2015" (notes/before-ai-2015/). Run after scripts/site.mjs builds the shell (it imports this).
 // Three columns, live: the 2015 CSS sprites (css/sprites.css byte for byte from the 2015 app CSS, and
 // the 4-line class toggle that replaced Angular), the Fizlet remake (same behaviour), the Fizlet
-// arcade (the same art, ×100 alive: fzlt/fx, fzlt/sound, fzlt/hud), and under them a dissection
+// arcade (the same art, ×100 alive: @fzlt/core/fx, @fzlt/core/sound, @fzlt/core/hud), and under them a dissection
 // of each: the 2015 sprite process (the sheets with their frames marked, the @keyframes, the class
 // swap), then the bricks each Fizlet column uses with their sizes, and one comparison table. The
 // sprite sheets and the icon font are Chris Cooley's 2015 originals, under app-assets/ with their
@@ -56,7 +56,7 @@ export const sizes = {
   sameCss: gzipSync(sameCss).length,
   arcadeJs: await alone("arcade", ".bt-arcade"),
   arcadeCss: gzipSync(arcadeCss).length,
-  bricks: Object.fromEntries(await Promise.all(["fzlt (kernel)", "fzlt/fx", "fzlt/sound", "fzlt/hud"].map(async (n) => [n, await brick(n)]))),
+  bricks: Object.fromEntries(await Promise.all(["@fzlt/core (kernel)", "@fzlt/core/fx", "@fzlt/core/sound", "@fzlt/core/hud"].map(async (n) => [n, await brick(n)]))),
   sheets: Object.fromEntries(["88597e86.beats.png", "2deb5381.coffee.png", "136aceff.computer.svg"].map((f) => [f, statSync(`${DIR}/${SHEETS}${f}`).size])),
   font: statSync(`${DIR}/app-assets/fonts/77bdc9dc.chriscooley.woff`).size,
 };
@@ -72,7 +72,7 @@ const sheetsTotal = Object.values(sizes.sheets).reduce((a, b) => a + b, 0);
 // and fx, a sound lights sound). The kernel is on whenever anything moves, so it never blinks.
 const chip = (name, bytes, id = "") => `<li class="bt-chip"${id ? ` data-brick="${id}"` : ""}><code>${name}</code> <b>${kb(bytes)}</b></li>`;
 const chips = (items, label) => `<ul class="bt-chips" aria-label="${label}">${items.join("")}</ul>`;
-const KERNEL = chip("fzlt", B["fzlt (kernel)"]);
+const KERNEL = chip("@fzlt/core", B["@fzlt/core (kernel)"]);
 
 // ---------- One comparison: the same metrics, in the same order, under all three ----------
 // Each numeric row marks its smallest value (SMALLEST, the contest's sticker) when one column is
@@ -95,7 +95,7 @@ const compare = `<div class="bt-cmp-wrap panel">
         <caption class="bt-meta">Measured on this build · gzip unless marked</caption>
         <thead><tr><td></td>${COLS.map((c, i) => `<th scope="col"><span class="bt-act-n">0${i + 1}</span>${c}</th>`).join("")}</tr></thead>
         <tbody>
-          <tr><th scope="row">Bricks</th><td>none</td><td>${chips([KERNEL], "Remake bricks")}</td><td>${chips([KERNEL, chip("fzlt/fx", B["fzlt/fx"]), chip("fzlt/sound", B["fzlt/sound"]), chip("fzlt/hud", B["fzlt/hud"])], "Arcade bricks")}</td></tr>
+          <tr><th scope="row">Bricks</th><td>none</td><td>${chips([KERNEL], "Remake bricks")}</td><td>${chips([KERNEL, chip("@fzlt/core/fx", B["@fzlt/core/fx"]), chip("@fzlt/core/sound", B["@fzlt/core/sound"]), chip("@fzlt/core/hud", B["@fzlt/core/hud"])], "Arcade bricks")}</td></tr>
           ${ROWS.map(([name, vals, note]) => `<tr${name.startsWith("Code") ? ' class="bt-total"' : ""}><th scope="row">${name}${note ? `<small>${note}</small>` : ""}</th>${vals.map((v) => cell(v, vals)).join("")}</tr>`).join("\n          ")}
           <tr><th scope="row">3 sprite sheets<small>the 2015 files, untouched</small></th><td colspan="3" class="bt-same-row"><span class="bt-num">${kb(sheetsTotal)}</span> in all three</td></tr>
           <tr><th scope="row">Sound</th><td>none</td><td>none</td><td>a synth, no files</td></tr>
@@ -138,19 +138,19 @@ const dissection = `<div class="bt-dis-row">
       </article>
       <article class="bt-dis panel" data-reveal>
         ${head(2, "REMAKE", "Fizlet · remake", "Bricks: the kernel. Nothing else.")}
-        ${chips([chip("fzlt", B["fzlt (kernel)"])], "Bricks")}
+        ${chips([chip("@fzlt/core", B["@fzlt/core (kernel)"])], "Bricks")}
         <p>The <code>@keyframes</code> become data: each segment is a first frame, a last frame, the jumps and the seconds, read by one engine per sprite. <code>beatsPlug 1.4s steps(13)</code> is <code>{ a: 0, b: 13, n: 13, d: 1.4 }</code>. The kernel owns the clock, writes <code>background-position</code> through the ledger only when the frame changes, and sleeps when nothing plays.</p>
         <pre class="bt-pre"><code>// strip.ts: the frame at time t, exactly steps(n), jump-end
 a + floor((t - w) / d * n) / n * (b - a)</code></pre>
         <p>Like 2015, the laptop's code scrolls forever once it is open, so the remake keeps asking for frames while it does. That is the fair copy.</p>
       </article>
       <article class="bt-dis panel" data-reveal>
-        ${head(3, "×100", "Fizlet · arcade", "Bricks: kernel, <code>fzlt/fx</code>, <code>fzlt/sound</code>, <code>fzlt/hud</code>.")}
+        ${head(3, "×100", "Fizlet · arcade", "Bricks: kernel, <code>@fzlt/core/fx</code>, <code>@fzlt/core/sound</code>, <code>@fzlt/core/hud</code>.")}
         <ul class="bt-does">
-          <li>${chips([chip("fzlt", B["fzlt (kernel)"])], "Brick")}<span>the clock, settle, the ledger</span></li>
-          <li>${chips([chip("fzlt/fx", B["fzlt/fx"])], "Brick")}<span>notes, code, splash, steam, combo words</span></li>
-          <li>${chips([chip("fzlt/sound", B["fzlt/sound"])], "Brick")}<span>thump, clack, keys, pour, slurp: a synth, no files</span></li>
-          <li>${chips([chip("fzlt/hud", B["fzlt/hud"])], "Brick")}<span>score, combo, best: change-only writes</span></li>
+          <li>${chips([chip("@fzlt/core", B["@fzlt/core (kernel)"])], "Brick")}<span>the clock, settle, the ledger</span></li>
+          <li>${chips([chip("@fzlt/core/fx", B["@fzlt/core/fx"])], "Brick")}<span>notes, code, splash, steam, combo words</span></li>
+          <li>${chips([chip("@fzlt/core/sound", B["@fzlt/core/sound"])], "Brick")}<span>thump, clack, keys, pour, slurp: a synth, no files</span></li>
+          <li>${chips([chip("@fzlt/core/hud", B["@fzlt/core/hud"])], "Brick")}<span>score, combo, best: change-only writes</span></li>
         </ul>
         <p>The art is the 2015 frames, untouched. Squash, wobble and the stage shake are one style each, written through the ledger and given back when they stop. The particles draw on one canvas per sprite, only while one is alive. Each sprite's engine and the column's own (HUD, combo, shake) settle on their own, so after the last spark the page asks for nothing.</p>
       </article>
@@ -184,7 +184,7 @@ const body = `${CSS}
     <ul class="rules bt-stats" aria-label="Measured on this build">
       <li class="panel rule"><b>${kb(code[0])}</b><p>2015, gzip: the CSS and the 4-line toggle. Bricks: none</p></li>
       <li class="panel rule"><b>${kb(code[1])}</b><p>the remake, gzip: JS (the kernel and the strip that plays the frames) and CSS</p></li>
-      <li class="panel rule"><b>${kb(code[2])}</b><p>the arcade, gzip: JS (kernel, <code>fzlt/fx</code>, <code>fzlt/sound</code>, <code>fzlt/hud</code>) and CSS</p></li>
+      <li class="panel rule"><b>${kb(code[2])}</b><p>the arcade, gzip: JS (kernel, <code>@fzlt/core/fx</code>, <code>@fzlt/core/sound</code>, <code>@fzlt/core/hud</code>) and CSS</p></li>
       <li class="panel rule"><b>0</b><p>animation frames a second the arcade asks for once a round is over</p></li>
     </ul>
     <figure class="bt-quote">
@@ -224,7 +224,7 @@ const body = `${CSS}
       </li>
       <li class="bt-act panel bt-arcade fz-arcade" data-reveal>
         ${head(3, "×100", "Fizlet · arcade", "Now hit it. ×100.")}
-        ${chips([KERNEL, chip("fzlt/fx", B["fzlt/fx"], "fx"), chip("fzlt/sound", B["fzlt/sound"], "sound"), chip("fzlt/hud", B["fzlt/hud"], "hud")], "Bricks at work: each lights while it acts")}
+        ${chips([KERNEL, chip("@fzlt/core/fx", B["@fzlt/core/fx"], "fx"), chip("@fzlt/core/sound", B["@fzlt/core/sound"], "sound"), chip("@fzlt/core/hud", B["@fzlt/core/hud"], "hud")], "Bricks at work: each lights while it acts")}
         <div class="bt-screen">
           <div class="bt-stage">
             <div class="fz-beats"><button type="button" class="fz-cups" aria-label="Hit the beat"></button><button type="button" class="fz-play" aria-pressed="false" aria-label="Play the music"><svg class="fz-i-play" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1l10 6-10 6z"/></svg><svg class="fz-i-pause" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 1h4v12H2zM8 1h4v12H8z"/></svg></button></div>

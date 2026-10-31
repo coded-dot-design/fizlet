@@ -7,7 +7,7 @@
 // instead (wider, PLONK, keys everywhere). Fool him once: after the first bonk he watches the sky
 // while he stands, sees a shadow and zips off, so catch him on the move.
 // Bricks: the kernel (fixed step, settle: it sleeps once he stands still and the page is whole; its
-// ledger for every page write, so Recall gives the page back byte for byte) and fzlt/sprite (the
+// ledger for every page write, so Recall gives the page back byte for byte) and @fzlt/core/sprite (the
 // toon and the props, baked once). The toon is shared with "Short fuse" (toon.ts).
 import { createEngine } from "../../../src/kernel/index";
 import { sprites } from "../../../src/sprite";

@@ -1,4 +1,4 @@
-// fzlt/touch + the kit's touch rules in Chromium's phone emulation (390 x 844, touch, mobile):
+// @fzlt/core/touch + the kit's touch rules in Chromium's phone emulation (390 x 844, touch, mobile):
 // a double-tap or a pinch on an animation slot or a game host never zooms the page, a sideways swipe
 // on a slot never pans it, a swipe on a game host never scrolls it, and the page stays 390 wide.
 // The same page without the lock is the control: there the pinch and the double-tap do zoom, so the

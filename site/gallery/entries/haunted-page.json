@@ -9,10 +9,10 @@
   "author": "chris-cooley",
   "recipe": "haunt",
   "bricks": [
-    "fzlt/kernel",
-    "fzlt/board-page",
-    "fzlt/sprite",
-    "fzlt/slot"
+    "@fzlt/core/kernel",
+    "@fzlt/core/board-page",
+    "@fzlt/core/sprite",
+    "@fzlt/core/slot"
   ],
   "pageCost": {
     "settles": true,

@@ -5,7 +5,7 @@
 // three hits and it's you on the mat. His pattern repeats, a little faster each time you land one.
 // Keys (focus in the stage): ← or A slips, ↓ or S ducks, Space, → or D punches; M mutes.
 // Bricks: the kernel (fixed step, settle: between bouts both fighters stand still and it sleeps; its
-// ledger for the canvas and the controls), fzlt/sound and fzlt/slot. The bout (`bout`) is plain
+// ledger for the canvas and the controls), @fzlt/core/sound and @fzlt/core/slot. The bout (`bout`) is plain
 // numbers: no DOM, no allocation a step.
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../src/slot";

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.21.2
+
+- 0.21.2 — first npm release, published as `@fzlt/core` (npm refused `fizlet` and `fzlt` as too similar to
+  existing names). Same code as 0.21.0. Install with `npm i @fzlt/core`; imports are `"@fzlt/core"` and
+  `"@fzlt/core/<brick>"` (README, docs, site, examples, gallery, size labels, API snapshots and the
+  package tests updated). The project, repo, site and brand stay Fizlet.
+
 ## 0.21.1
 
 - 0.21.1 — first npm release, published as `fzlt` (npm refused `fizlet` as too similar to `figlet`). Same code as 0.21.0.

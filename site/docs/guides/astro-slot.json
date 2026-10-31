@@ -8,7 +8,7 @@
   "subtitle": "nothing while it's still.",
   "summary": "Fill an astro-base-engine animation slot with a Fizlet scene: lazy, settles to zero frames, keeps the slot's text alternative.",
   "lead": [
-    "An Astro page engine (astro-base-engine) renders each animation slot on a page as a sized, described placeholder. `fzlt/slot` fills it with a scene that loads only near the viewport, never under reduced motion, and settles to zero frames once nothing moves. The heroes on this site's [home page](/) are built this way."
+    "An Astro page engine (astro-base-engine) renders each animation slot on a page as a sized, described placeholder. `@fzlt/core/slot` fills it with a scene that loads only near the viewport, never under reduced motion, and settles to zero frames once nothing moves. The heroes on this site's [home page](/) are built this way."
   ],
   "blocks": [
     {
@@ -62,7 +62,7 @@
       "body": [
         {
           "type": "p",
-          "text": "A hero's live chunk has a budget of 10 KB gzip. The page build (kernel, `fzlt/slot`, `fzlt/input`, `fzlt/fx`) is {size:page build (kernel+slot+input+fx)}, so the scene's own code gets about 3 KB. Sound, debug, the pad, the HUD, match and the Board UI never get pulled into it (a test checks)."
+          "text": "A hero's live chunk has a budget of 10 KB gzip. The page build (kernel, `@fzlt/core/slot`, `@fzlt/core/input`, `@fzlt/core/fx`) is {size:page build (kernel+slot+input+fx)}, so the scene's own code gets about 3 KB. Sound, debug, the pad, the HUD, match and the Board UI never get pulled into it (a test checks)."
         },
         {
           "type": "p",
@@ -74,7 +74,7 @@
       "type": "cta",
       "links": [
         {
-          "label": "fzlt/slot API",
+          "label": "@fzlt/core/slot API",
           "href": "/bricks/slot.html"
         },
         {
@@ -90,7 +90,7 @@
   ],
   "seo": {
     "title": "Fill an Astro animation slot with a Fizlet scene",
-    "description": "Fill an astro-base-engine slot with fzlt/slot: loads near the viewport, skips reduced motion, settles to zero frames, keeps the slot's text alternative."
+    "description": "Fill an astro-base-engine slot with @fzlt/core/slot: loads near the viewport, skips reduced motion, settles to zero frames, keeps the text alternative."
   },
   "brick": "slot"
 }

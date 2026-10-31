@@ -1,4 +1,4 @@
-// KRUNCH, the rage giant of #49 SMASH and #50 the hammer: one pixel brute as data for fzlt/sprite,
+// KRUNCH, the rage giant of #49 SMASH and #50 the hammer: one pixel brute as data for @fzlt/core/sprite,
 // shared by both pieces (he smashes the page in one and meets the storm god in the next). A flat-top
 // demolition giant in cyan work overalls whose skin goes from calm stone to hot pink to red as his
 // rage climbs (palettes), with a separate head so one body pose can wear any face. The 3 × 5 pixel

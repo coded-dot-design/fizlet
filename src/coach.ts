@@ -1,5 +1,5 @@
 /**
- * fzlt/coach: the hints and tutorial layer the board games share, in three small parts:
+ * @fzlt/core/coach: the hints and tutorial layer the board games share, in three small parts:
  * - `flag`: a once-only switch kept in localStorage ("tips off", "seen the tour"). Every read and
  *   write is wrapped in try/catch, so a page with storage blocked (private mode, sandboxed iframe,
  *   quota) just reads "not set" and plays on;

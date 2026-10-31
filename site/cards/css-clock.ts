@@ -1,6 +1,6 @@
 // css-clock card: scrub a stylesheet's time. The scene is plain CSS @keyframes (LEDs blinking on
 // steps(), a brick patrolling the floor, a ball hopping, a pendulum), every one of them `paused`
-// and reading its time from `--fz-t`; fzlt/css-clock moves that one property on the kernel clock.
+// and reading its time from `--fz-t`; @fzlt/core/css-clock moves that one property on the kernel clock.
 // Tap anywhere and the playhead jumps to that point of the four-second loop (the ruler under the
 // floor) and plays out from there; at the end every animation is back on its first frame and the
 // engine sleeps. No animation is written in JavaScript: the look stays in the stylesheet.

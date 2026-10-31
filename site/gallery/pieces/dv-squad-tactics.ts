@@ -1,7 +1,7 @@
 // "Squad tactics": DOM Battlefield's display card from domvirus.com, as a gallery micro. Markup and
 // stylesheet are dom-virus's own (site/vendor/dom-virus/squad-tactics.*, vendored at a pinned commit
 // by scripts/vendor-dom-virus.mjs): patrols, turret sweeps, shells and blasts are its @keyframes,
-// paused, their time read from --fz-t. fzlt/css-clock moves that time on the kernel clock: three
+// paused, their time read from --fz-t. @fzlt/core/css-clock moves that time on the kernel clock: three
 // 6 s plays, then it rests on frame one and the engine settles (0 frames); a pointer or coming back
 // into view plays it again; destroy() is Recall. Reduced motion never loads this: the poster is
 // frame one.
