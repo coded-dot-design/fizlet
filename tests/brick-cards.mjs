@@ -129,6 +129,14 @@ try {
         pill: li.querySelectorAll(".status-pill, .brick-top, .brick-tag").length, lift: cs.transform,
       };
     });
+    // Poll a card until ok(frame) holds, or 3 s pass (then return the last frame for the assert).
+    // `again` re-applies the input each poll: a lazy toy mounting next door can shift the card out
+    // from under a pointer that hovered it once, which leaves the border neutral for good.
+    const settle = async (c, ok, again) => {
+      let f = await frame(c);
+      for (const t = Date.now(); !ok(f) && Date.now() - t < 3000; f = await frame(c)) { if (again) await again(); await sleep(50); }
+      return f;
+    };
     for (const [path, reduce] of [["bricks/", false], ["", false], ["bricks/", true]]) {
       const { page, errors } = await open(path, reduce ? { reducedMotion: "reduce" } : {});
       await page.addStyleTag({ content: "[data-reveal]{opacity:1!important;transform:none!important}" });
@@ -150,14 +158,14 @@ try {
         const c = cards.nth(i);
         await c.scrollIntoViewIfNeeded();
         await c.hover({ position: { x: 8, y: 8 } });
-        await sleep(250);
-        let f = await frame(c);
+        // Wait on the state, not the clock: the border eases to the brick colour (a transition), so
+        // poll until it has settled there (up to 3 s) instead of reading after a fixed 250 ms.
+        let f = await settle(c, (x) => x.border === x.tone && x.lift === (reduce ? "none" : "matrix(1, 0, 0, 1, 0, -2)"), () => c.hover({ position: { x: 8, y: 8 } }));
         assert.equal(f.border, f.tone, `card ${i}: on hover, the brick's colour`);
         assert.equal(f.lift, reduce ? "none" : "matrix(1, 0, 0, 1, 0, -2)", `card ${i}: ${reduce ? "no movement under reduced motion" : "lifts on hover"}`);
         await page.mouse.move(0, 0);
         await c.locator(".brick-name a").focus();
-        await sleep(250);
-        f = await frame(c);
+        f = await settle(c, (x) => x.border === x.tone);
         assert.equal(f.border, f.tone, `card ${i}: on focus, the brick's colour`);
         await page.evaluate(() => document.activeElement.blur());
       }
