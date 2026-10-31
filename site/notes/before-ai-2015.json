@@ -15,8 +15,8 @@
     "css",
     "sprites"
   ],
-  "date": "2026-11-01",
-  "status": "scheduled",
+  "date": "2026-10-31",
+  "status": "published",
   "lead": [
     "Fizlet started long before Fizlet. In 2015, years before AI coding tools, Chris Cooley drew three clickable micro animations by hand: headphones that plug in and play, a cup of coffee that fills, a laptop that opens and types. The Wayback Machine captured them on 23 April 2015. We pulled them out of the archive and played them three ways: as they were, remade in Fizlet, and as an arcade."
   ],
@@ -175,6 +175,5 @@
   "seo": {
     "title": "Before AI: 2015, three micro animations · Fizlet",
     "description": "Three CSS sprite micro animations Chris Cooley drew by hand in 2015, recovered from the Wayback Machine, remade in Fizlet, then turned into an arcade."
-  },
-  "publishAt": "2026-11-01"
+  }
 }
