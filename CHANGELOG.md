@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **`fizlet/sound`: your own synth cues.** `notes` (name → `Note[]` voices) adds cues to the built-in
+  synth, so a scene can have a slurp or a yawn without its own audio code; `cues` may map to those
+  names (`CueName`). Additive: every existing call types and plays as before. 1,019 → 1,042 B gzip.
 - **Website: the home reveals end at the foot of the page too** (`site/home-motion.ts`). The home
   engine paused itself when `main` left the viewport (the kernel's off-screen rule), and at the very
   bottom the footer can fill it: a reveal still playing froze mid-way (parts at opacity 0.5–0.999)
