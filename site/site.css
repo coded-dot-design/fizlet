@@ -2534,9 +2534,19 @@ html.bui[data-theme="light"] .phases b {
   font: 700 11px/1 var(--mono);
   opacity: 0.75;
 }
-.gal-chip[aria-current] {
-  color: var(--k-sys-ink);
+/* The chip on show: filled and pressed down, like a pressed segment (.bui-seg). --k-sys-ink is
+   --k-sys itself in dark, so the label takes --rim; the hover lift stays off while it is down. */
+.bui .bui-key.gal-chip[aria-current],
+.bui .bui-key.gal-chip[aria-current]:hover {
+  color: var(--rim);
   background: var(--k-sys);
+  border-color: var(--rim);
+  transform: translateY(var(--py));
+  box-shadow: 0 0 0 var(--edge), var(--glow-press);
+}
+.bui .bui-key.gal-chip[aria-current]::before,
+.bui .bui-key.gal-chip[aria-current]:hover::before {
+  transform: translateY(calc(-1 * var(--py)));
 }
 .gal-search {
   display: grid;
