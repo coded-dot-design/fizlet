@@ -163,7 +163,7 @@ export function swarm(seed = 1) {
     } else if (mode === PLAY) {
       S[LEFT] = Math.max(0, S[LEFT]! - dt);
       S[SPAWN] = S[SPAWN]! - dt;
-      if (S[SPAWN]! <= 0 && S[LEFT]! > 1) (S[SPAWN] = 1.25 - (1 - S[LEFT]! / ROUND) * 0.5), edgeBug();
+      if (S[SPAWN]! <= 0 && S[LEFT]! > 1) (S[SPAWN] = 0.95 - (1 - S[LEFT]! / ROUND) * 0.4), edgeBug(), R() < 0.3 && edgeBug();
       let up = 0;
       for (let t = 0; t < n.buttons; t++) up += TP[t]! > 0 ? 1 : 0;
       if (S[LEFT] === 0 || !up) finish();
@@ -218,7 +218,7 @@ export function swarm(seed = 1) {
         let da = want - BA[b]!;
         da -= Math.round(da / 6.2832) * 6.2832;
         BA[b] = BA[b]! + Math.max(-7 * dt, Math.min(7 * dt, da));
-        const v = (BT[b]! >= 2 ? 30 : 20) + S[T]! * 0.8;
+        const v = (BT[b]! >= 2 ? 30 : 22) + S[T]! * 0.8;
         (BX[b] = BX[b]! + Math.cos(BA[b]!) * v * dt), (BY[b] = BY[b]! + Math.sin(BA[b]!) * v * dt);
         BP[b] = BP[b]! + dt * v * 0.9;
         if (d < 2.5) (BS[b] = t >= 100 ? LATCH : CHEW), (BK[b] = 0);
