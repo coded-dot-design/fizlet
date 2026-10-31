@@ -242,7 +242,9 @@ export function effects(o: FxOptions = {}) {
         const k = LIFE[i]! / MAX[i]!, c = colors[col[i]!]!, s = SIZE[i]!, sh = K[kind[i]! * 11], a = ROT[i]!;
         let x = X[i]!, y = Y[i]!;
         // A turned particle draws about its own origin (one save/restore, only when it is turned).
-        if (a) ctx.save(), ctx.translate(x, y), ctx.rotate(a), (x = y = 0);
+        // So does a word: fillText and strokeText box fractional x, y (12 B a call in Chromium 153);
+        // 0, 0 after a translate allocates nothing.
+        if (a || sh === WORD) ctx.save(), ctx.translate(x, y), ctx.rotate(a), (x = y = 0);
         switch (sh) {
           case STREAK: {
             // A streak stretches with its speed (falling drips, sparks), square to the page.
@@ -292,7 +294,7 @@ export function effects(o: FxOptions = {}) {
             ctx.fillStyle = c;
             ctx.fillText(words[word[i]!]!, x, y);
         }
-        if (a) ctx.restore();
+        if (a || sh === WORD) ctx.restore();
       }
       ctx.globalAlpha = 1;
     },
