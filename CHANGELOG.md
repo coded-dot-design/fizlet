@@ -185,6 +185,7 @@
   frames: 40 → 0 young GCs. `emit()` takes an optional word range `w, wn` after `scale`, like the
   colour range (it only ever sprayed `words[0]`). Additive. fx 2,797 → 2,829 B gz, page build
   7,128 → 7,163 B (cap 7,168).
+- **@fzlt/core/sound: a custom player's type now says it gets your own cue names.** `SoundOptions.play` takes `CueName` (a built-in `Cue` or one of your `notes`), matching what it already received; the cast is gone. A test pins that a `notes` entry named like an `Object.prototype` key (`constructor`) plays as a plain cue. 0 B.
 
 ## 0.21.2
 
