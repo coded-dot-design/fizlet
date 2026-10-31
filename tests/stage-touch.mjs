@@ -31,8 +31,13 @@ for (const path of ["/", "/gallery/", "/gallery/page/2/", "/make/"]) {
   assert.deepEqual(small, [], `${path}: text inputs under 16 px zoom the page on iOS focus`);
 }
 // After play: the piece's own layers (TAP TO PLAY, the LAUNCH button) must be tap-safe too.
-await page.goto(base + "/gallery/", { waitUntil: "domcontentloaded" });
+// The piece moves down the pages as new entries land, so find the gallery page that carries it.
 const fig = page.locator('figure[data-gallery="moon-rocket-launches-off-button"]');
+for (const path of ["/gallery/", "/gallery/page/2/", "/gallery/archive/"]) {
+  await page.goto(base + path, { waitUntil: "domcontentloaded" });
+  if (await fig.count()) break;
+}
+assert.equal(await fig.count(), 1, "moon-rocket-launches-off-button is on no gallery page");
 await fig.scrollIntoViewIfNeeded();
 await fig.tap();
 await page.waitForFunction(() => document.querySelector('figure[data-gallery="moon-rocket-launches-off-button"]')?.querySelectorAll("*").length > 2, null, { timeout: 15000 });
