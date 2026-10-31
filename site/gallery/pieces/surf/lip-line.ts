@@ -116,7 +116,7 @@ export function lipLine(seed: number, pad: Pad, demo: boolean) {
 }
 export type LipLine = ReturnType<typeof lipLine>;
 
-export type LipScene = SlotScene & { engine: ReturnType<typeof createEngine>; ride: LipLine; readonly state: { mode: number; score: number; snaps: number; chops: number; best: number; left: number } };
+export type LipScene = SlotScene & { engine: ReturnType<typeof createEngine>; ride: LipLine; poster(): void; readonly state: { mode: number; score: number; snaps: number; chops: number; best: number; left: number } };
 
 export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | null): LipScene {
   const engine = createEngine({ root: stage, settle: 0.5, seed: (Math.random() * 2147483647) | 0 });

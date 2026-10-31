@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Gallery: surf-sesh, three ten-second surf minis by Pip (pending owner review).** Lip Line: hold
+  to climb a rolling wave, meet the feathering curl at the lip to snap off it and chain snaps (the lip
+  anywhere else chops). Tube Time: inside the barrel, hold to pump toward the light, ride the
+  wandering pocket, last ten seconds and get spat out (too slow, the foam ball eats you). Paddle Out:
+  hold to duck-dive under each wall of whitewater on the way to the lineup, breath-limited. Own
+  stages, one shared rig (`site/gallery/pieces/surf/kit.ts`): Space/Enter/↑ ride key, M mute, 44 px
+  keys, no audio before a gesture. Live (gzip): Lip Line 8,890 B, Tube Time 8,766 B, Paddle Out
+  9,001 B. Steps allocate nothing (`tests/surf-sesh.test.mjs`); mount, settle, keys, Recall and
+  reduced motion in `tests/surf-sesh.mjs`.
 - **Four more brick cards: hud, match, sound, presence.** hud: a high striker; tap fast to heat it
   and ring the bell; its real DOM scoreboard (score, best, heat meter, HOT flag, a feed of strikes) is
   bound with fizlet/hud and the readout counts DOM writes against frames. match: a ten-second round on

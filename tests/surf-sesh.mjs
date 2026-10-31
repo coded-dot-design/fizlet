@@ -1,4 +1,4 @@
-// The surf-sesh minis (site/gallery/pieces/surf/lip-line.ts, tube-time.ts) in Chromium, each on its
+// The surf-sesh minis (site/gallery/pieces/surf/lip-line.ts, tube-time.ts, paddle-out.ts) in Chromium, each on its
 // own stage, mounted through fizlet/slot as the gallery does: it mounts (the poster steps aside),
 // plays its attract run and settles to no frames with the page as it was; no audio exists before a
 // gesture; the keyboard rides it (Space on the ride key starts and holds a ride) and M mutes; both
@@ -12,7 +12,7 @@ import { launchOptions } from "./chromium.mjs";
 
 const bundle = (await build({
   stdin: {
-    contents: 'export { slot } from "./src/slot.ts"; export { mount as lip } from "./site/gallery/pieces/surf/lip-line.ts"; export { mount as tube } from "./site/gallery/pieces/surf/tube-time.ts";',
+    contents: 'export { slot } from "./src/slot.ts"; export { mount as lip } from "./site/gallery/pieces/surf/lip-line.ts"; export { mount as tube } from "./site/gallery/pieces/surf/tube-time.ts"; export { mount as paddle } from "./site/gallery/pieces/surf/paddle-out.ts";',
     resolveDir: process.cwd(), loader: "ts",
   },
   bundle: true, format: "iife", globalName: "cv", write: false, logLevel: "silent",
@@ -32,7 +32,7 @@ const frames = (p, n = 20) => p.evaluate(async (n) => {
 const settle = (p, what) => p.waitForFunction(() => scene.engine.paused.includes("settled"), null, { timeout: 15000 }).catch(() => { throw new Error(`${what}: never settled`); });
 
 try {
-  for (const [id, make] of [["lip-line", "lip"], ["tube-time", "tube"]]) {
+  for (const [id, make, HELD] of [["lip-line", "lip", 17], ["tube-time", "tube", 8], ["paddle-out", "paddle", 12]]) {
     for (const w of [720, 358]) {
       const p = await browser.newPage({ viewport: { width: w + 40, height: 600 } });
       const errs = [];
@@ -58,7 +58,7 @@ try {
       await p.keyboard.down(" ");
       await p.waitForFunction(() => scene.state.mode === 2, null, { timeout: 3000 });
       await p.waitForTimeout(300);
-      const held = await p.evaluate(() => scene.ride.S[scene.ride.S.length === 24 ? 17 : 8]);
+      const held = await p.evaluate((k) => scene.ride.S[k], HELD);
       await p.keyboard.up(" ");
       assert.equal(held, 1, `${id} @${w}: Space holds`);
       await p.keyboard.press("m");
@@ -87,7 +87,7 @@ try {
     assert.deepEqual(rm, { made: 0, mounted: false, same: true, poster: true, drawn: true }, `${id}: reduced motion keeps the poster`);
     await ctx.close();
   }
-  console.log("surf-sesh: both mount, play the attract run and settle (no audio before a gesture), Space rides and M mutes with 44 px keys at 720 and 358 wide, Recall exact, reduced motion still — ok");
+  console.log("surf-sesh: all three mount, play the attract run and settle (no audio before a gesture), Space rides and M mutes with 44 px keys at 720 and 358 wide, Recall exact, reduced motion still — ok");
 } finally {
   await browser.close();
 }

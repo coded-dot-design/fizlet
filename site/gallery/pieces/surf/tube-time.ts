@@ -109,7 +109,7 @@ export function tubeTime(seed: number, pad: Pad, demo: boolean) {
 }
 export type TubeTime = ReturnType<typeof tubeTime>;
 
-export type TubeScene = SlotScene & { engine: ReturnType<typeof createEngine>; ride: TubeTime; readonly state: { mode: number; score: number; end: number; left: number; x: number } };
+export type TubeScene = SlotScene & { engine: ReturnType<typeof createEngine>; ride: TubeTime; poster(): void; readonly state: { mode: number; score: number; end: number; left: number; x: number } };
 
 export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | null): TubeScene {
   const engine = createEngine({ root: stage, settle: 0.5, seed: (Math.random() * 2147483647) | 0 });
