@@ -39,7 +39,7 @@
           "label": "a hero's live chunk: kernel, bricks and the scene's own code"
         },
         {
-          "value": "13,317 B",
+          "value": "13,371 B",
           "label": "`fizlet.js`: one script tag, every brick but debug"
         }
       ]
@@ -85,7 +85,7 @@
       "heading": "Every brick, gzip, on 0.21.0",
       "items": [
         {
-          "title": "steer 1,156 B · sound 1,019 B",
+          "title": "steer 1,156 B · sound 1,042 B",
           "body": "Movers on typed arrays with seek, flee, arrive, wander and patrol; a synth with nine cues and no audio files."
         },
         {
@@ -101,11 +101,11 @@
           "body": "A board with A* paths and sight; lockstep input exchange; a lazy scene for an Astro slot."
         },
         {
-          "title": "perf 2,042 B · pad 2,074 B · embed 2,016 B · timeline 2,120 B",
+          "title": "perf 2,064 B · pad 2,074 B · embed 2,040 B · timeline 2,120 B",
           "body": "The players' perf overlay; touch controls; a drop-in game toggle; keyframes on the kernel clock."
         },
         {
-          "title": "match 2,652 B · fx 2,797 B · ui 2,893 B + 4,974 B css · board-page 4,136 B",
+          "title": "match 2,652 B · fx 2,797 B · ui 2,907 B + 5,139 B css · board-page 4,136 B",
           "body": "Match flow; pooled particles and the blast; the Board UI keys; the host page as the board."
         }
       ]
@@ -120,7 +120,7 @@
         },
         {
           "type": "p",
-          "text": "The two story heroes on the home page fit: the layers scene's live chunk is 9,700 B and the fizz scene's 8,723 B. Neither loads until its slot nears the viewport, and both settle to zero frames once nothing moves."
+          "text": "The two story heroes on the home page fit: the layers scene's live chunk is 7,789 B and the fizz scene's 8,723 B. Neither loads until its slot nears the viewport, and both settle to zero frames once nothing moves."
         }
       ]
     },
@@ -146,8 +146,8 @@
           "a": "Gzip is what crosses the wire for a script on almost every host, so it is what a visitor pays. Where a change is about minified bytes, the changelog gives them too."
         },
         {
-          "q": "Why is fizlet/arcade 24,280 B?",
-          "a": "It is a shell, not a brick: it composes the kernel, board-page, input, the pad, sound, the HUD and the Board UI keys, so a page arcade game is only its rules and art. A card game that leaves out the skirmish HUD ships 18,295 B of it."
+          "q": "Why is fizlet/arcade 24,327 B?",
+          "a": "It is a shell, not a brick: it composes the kernel, board-page, input, the pad, sound, the HUD and the Board UI keys, so a page arcade game is only its rules and art. A card game that leaves out the skirmish HUD ships 18,334 B of it."
         },
         {
           "q": "Do you compare with other engines?",
