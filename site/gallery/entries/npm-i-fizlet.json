@@ -1,0 +1,21 @@
+{
+  "id": "npm-i-fizlet",
+  "date": "2026-10-31",
+  "prompt": "npm i fizlet: bricks ride a belt, an order card says what the thing needs; tap the bricks it needs into the box and the ones it doesn't bounce out with their real size; a full order ships with its bundle measured, and the package says 0 dependencies",
+  "title": "npm i fizlet",
+  "kind": "micro",
+  "theme": "launch-day",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sound",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/launch/npm-i-fizlet.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}

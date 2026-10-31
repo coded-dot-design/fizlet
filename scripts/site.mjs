@@ -5,6 +5,7 @@
 import { build, transform } from "esbuild";
 import { gzipSync } from "node:zlib";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { fillStage, launchFacts } from "./launch-facts.mjs";
 import { measure } from "./sizes.mjs";
 import { llmsFull } from "./llms-full.mjs";
 import { page, mark, fillSiteMap, SITE, ROOT, REPO, PERSON, ORG, WEBSITE } from "../site/layout.mjs";
@@ -192,6 +193,9 @@ for (const s of ["docs", "guides"]) mkdirSync(`${OUT}/${s}`, { recursive: true }
 const spMod = await build({ entryPoints: ["site/gallery/pieces/small-packages/poster.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
 const SP = await import("data:text/javascript;base64," + Buffer.from(spMod.outputFiles[0].text).toString("base64"));
 for (const e of gallery.entries.filter((x) => x.module === "pieces/small-packages/scene.ts")) figures[e.figure] = SP.figure(e, sizes.find((s) => s.name === "fizlet (kernel)").gzip);
+// Launch-day pieces (gallery): their stages carry {{…}} slots for numbers measured on this build
+// (brick and bundle gzip sizes, the packed tarball, the dependency count): scripts/launch-facts.mjs.
+for (const e of gallery.entries.filter((x) => x.stageHtml?.includes("{{"))) e.stageHtml = fillStage(e.stageHtml, await launchFacts());
 // Every brick's API, from its source comment and its built declarations; its card, when it has one.
 // A brick with no "In short" snippet gets its typechecked example (site/brick-examples/<id>.ts).
 const exampleOf = (id) => existsSync(`site/brick-examples/${id}.ts`) ? readFileSync(`site/brick-examples/${id}.ts`, "utf8").split("// ---\n")[1]?.trim() : undefined;
