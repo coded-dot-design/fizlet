@@ -102,9 +102,10 @@ export const BUDGETS = [
   // 18,312 B with #136 (+10 B): the card's hard base reads the domain shadow tokens (BOARD-UI.md 4.1).
   // 18,113 B with size/treeshake on 0.21.0 (−182 B from 18,295; no behaviour change).
   // S8 (#212): +44 B on 0.21.0 (18,339 B there): the ledger refuses writes after destroy (P2-03) and
-  // advance() checks sec (P2-04). Train 0.21.1 (#136 + size/treeshake + S8): 18,165 B measured, so
-  // size/treeshake's 18,179 budget holds.
-  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18179],
+  // advance() checks sec (P2-04). Train 0.21.1 (#136 + size/treeshake + S8): 18,165 B measured, under
+  // size/treeshake's 18,179. 18,192 B with #218 (+27 B here, +22 B on main: fizlet/sound's own synth
+  // cues); budget raised from 18,179 by main's +22 B.
+  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18201],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
   // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B). 4,162 B
