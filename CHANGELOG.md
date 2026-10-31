@@ -38,6 +38,26 @@
     resize, settled at 0 frames, Recall byte for byte).
   - Status: EXPERIMENTAL in `site/bricks.mjs` (since 0.21.0), a README row and a generated brick
     page; off the ROADMAP list.
+- **Website: a frame that keeps the page's scroll now says why.** Over a gallery piece, hero or brick demo that holds drags and taps (a clipping slot with the kit's `overscroll-behavior: none`, a `touch-action: none` game host), a wheel or a vertical swipe that moves nothing opens a short note on the frame's edge for 3 s (closes on pointer leave; once per frame every 20 s; announced once through a polite live region; no slide under reduced motion) and turns the frame's border and shadow `--frame-warn` (new token: the kit's red `--k-fire-ink`, themed; shadow direction from `--shadow-x` / `--shadow-y`, with fallbacks). The lock itself is unchanged, and a frame that lets the page scroll never shows it: the hint is measured (no scroll anywhere after the attempt), not guessed. Site layer only (`site/scroll-hint.ts`, `site.css`): no brick or kernel bytes, every budget unchanged. Test: `tests/scroll-hint.mjs` (in `test:site`).
+- **Site: one section rule, one section gap.** The home page's gradient dividers (inset, faded, drawn on a section's top edge right under the last section's keys) are now the footer's top border: a 2px `--line` rule, edge to edge, in the flow, with `--section-gap` on each side, so it never touches content. The closing band's dashed rule is the same rule. `--section-gap` (`clamp(70px, 10vw, 120px)`, the space the dashed rule had above it) is every section's top space and the space above the footer. Site CSS 10,422 → 10,407 B gzip (minified); no package size change.
+- **Website: Chris Cooley's avatar redrawn from his riding gear.** His pixel avatar on /people/ is
+  now a rider in a white moto helmet (peak, vents, pointed chin bar with side slots and a mesh
+  vent), red goggles with a chrome lens and a black jersey with red shoulders; no face shown, no
+  brand marks. Same 32 × 32 grid and Board UI tokens.
+- **fizlet/steer: `arriveGoal(i, dt)`**, `arrive` toward the goal the game writes in `gx[i]`, `gy[i]`.
+  A goal computed every frame (a wingman's slot behind its leader) passed to `arrive` as two numbers
+  is boxed whenever V8 doesn't inline the call: DOM Battlefield Blitz's platoons made 3 young GCs per
+  20k steps on Chrome 145. Written to the typed arrays, no double crosses a call. Same moves as
+  `arrive`, bit for bit (tested frame by frame); a zero-allocation test runs the platoon pattern
+  (bare 0, `arriveGoal` 0, `arrive(i, gx, gy)` 55 young GCs per 300k frames on Node 24). `arrive` is
+  unchanged. Steer 950 → 958 B gz (budget 1,280): the band moved into the shared `toward` (a pace below 0), so `arrive` has no extra call level either.
+- **Website: the team's AI agent on /people/.** Contributors get a third `kind`, `agent` (an AI
+  agent persona: a handle, no url, like a persona), and an optional `pronouns` string shown on the
+  profile. Every agent card and page says "AI agent — an AI agent persona on the Fizlet team, not a
+  real person" (`AGENT_NOTE`), its eyebrow reads AI AGENT and its JSON-LD stays a Thing, never a
+  Person. The index lists the maker, then the agents, then the house personas. First agent: Quill
+  (`site/contributors/quill.json`), the keeper, with an original pixel owl holding a quill. Chris
+  Cooley's role now reads "Chef Unicorn · creator of Fizlet". Tests: `tests/people.test.mjs`.
 - **Tests: `fizlet/css-clock` has its zero-allocation proof** (`tests/css-clock.test.mjs`): 200k steps while it plays and 200k whole frames at rest (held) each take ≤ 1 young-generation GC (best of 3 windows). Its tests never counted allocations (touch has no loop; arcade is covered by #144) (2026-10-30 code audit, `fe audit fizlet`). Tests only; no size change.
 - **Kernel fix: `start()` on a settled engine runs again.** It cleared the settled bit but not the
   quiet time, so the first frame after it (0 s, no steps) found the engine still quiet and put it

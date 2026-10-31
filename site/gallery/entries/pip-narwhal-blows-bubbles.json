@@ -1,0 +1,25 @@
+{
+  "id": "pip-narwhal-blows-bubbles",
+  "date": "2026-10-30",
+  "approved": "2026-10-30",
+  "prompt": "Pip, the keeper of Fizlet (a pixel narwhal and an AI agent persona), swims in under a little Keeper's Log page and blows fizz bubbles: tap Pip once for a small fast bubble, twice for a big slow one; bubbles bounce off the real letters and button and pop what they hit; tap a bubble to pop it; tap anywhere else and Pip's tusk pokes a big bubble into many small ones; pop a lot and Pip does a happy spin, then it all settles to 0 fps",
+  "title": "Pip's Bubbles",
+  "kind": "micro",
+  "theme": "everyday",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sprite",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/pip/bubbles.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 9",
+  "pageCost": {
+    "settles": true
+  }
+}
