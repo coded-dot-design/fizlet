@@ -162,6 +162,35 @@ try {
   // pages keep their own plain shell (the same ones the landmark gate lists).
   where = "site nav";
   assert.deepEqual(checkNav(PAGES.map((path) => ({ path, html: readFileSync(fileOf(path), "utf8") })), { site: SITE, standalone: Object.keys(KNOWN) }), [], "site nav rules");
+  // Footer site map (site/layout.mjs siteMap): on every page with the site footer, every route in
+  // sitemap.xml is linked exactly once (home by the brand link), no noindex page is, and the page
+  // itself is marked aria-current="page".
+  where = "footer site map";
+  {
+    const routes = [...sitemap.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1].slice(SITE.length));
+    const hidden = PAGES.filter((p) => !indexable.includes(p));
+    let footers = 0;
+    for (const path of PAGES) {
+      const foot = readFileSync(fileOf(path), "utf8").match(/<footer class="site-foot">([\s\S]*?)<\/footer>/)?.[1];
+      if (!foot) continue;
+      footers++;
+      assert.ok(foot.includes('<nav class="foot-map" aria-label="Site map">'), `${path || "index"}: footer has the site map nav`);
+      assert.ok(!foot.includes("<!--site-map"), `${path || "index"}: site map marker filled`);
+      const from = new URL(path, `http://x${BASE}`);
+      const hits = new Map();
+      for (const [, attrs] of foot.matchAll(/<a\s([^>]*)>/g)) {
+        const href = attrs.match(/href="([^"]*)"/)[1];
+        if (/^[a-z]+:/i.test(href) || href.includes("#")) continue;
+        const to = decodeURIComponent(new URL(href, from).pathname.slice(BASE.length)).replace(/(^|\/)index\.html$/, "$1");
+        hits.set(to, (hits.get(to) ?? 0) + 1);
+        if (to === path && path !== "") assert.match(attrs, /aria-current="page"/, `${path}: its own footer link is aria-current="page"`);
+      }
+      for (const r of routes) assert.equal(hits.get(r) ?? 0, 1, `${path || "index"}: footer links ${r || "home"} exactly once`);
+      for (const h of hidden) assert.ok(!hits.has(h), `${path || "index"}: footer does not link the hidden page ${h}`);
+      for (const to of hits.keys()) assert.ok(routes.includes(to), `${path || "index"}: footer links ${to}, which is not in the sitemap`);
+    }
+    assert.ok(footers > routes.length / 2, `the site footer is on most pages (${footers})`);
+  }
 
   // ---------- Brick pages: the sizes are the ones measured on this build ----------
   where = "brick sizes";
