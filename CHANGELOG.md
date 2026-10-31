@@ -176,6 +176,12 @@
   a `<figure>`'s own role, so assistive tech gets the same thing on the engine's figure shape, and on
   the box shape (`div.ae-slot`) the `aria-label` now sits on a role that takes a name. slot 1,819 →
   1,822 B gz, page build 7,128 → 7,131 B.
+- **`@fzlt/core/fx`: word particles no longer allocate per frame, and a word kind sprays a range**
+  (fizlet#209). `draw()` built a new font string for every word particle on every frame (1,409
+  B/frame on the 2015 headphones arcade); each pixel size's string is now built once and kept (a
+  word spray drawn for 100k frames: 0 young GCs, was 40). `emit()` takes an optional word range
+  `w, wn` after `scale`, like the colour range (it only ever sprayed `words[0]`). Additive; fx
+  2,797 → 2,823 B gz, page build 7,128 → 7,154 B (cap 7,168).
 
 ## 0.21.2
 
