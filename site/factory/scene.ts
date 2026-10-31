@@ -3,8 +3,8 @@
  * controller owns the game (controller.js) and tells this scene what changed with `fac` events on
  * the hero; the scene plays it: the stack knocked over, bricks hopping onto the belt and riding into
  * the machine, the machine shaking, sparking and blowing, the cartridge popping out and the Z
- * dropping back into the sign. Built on the kernel, fzlt/fx (sparks, blast, on one canvas over the
- * whole hero) and fzlt/sound; mounted by fzlt/slot (entry.ts), never under reduced motion.
+ * dropping back into the sign. Built on the kernel, @fzlt/core/fx (sparks, blast, on one canvas over the
+ * whole hero) and @fzlt/core/sound; mounted by @fzlt/core/slot (entry.ts), never under reduced motion.
  *
  * Contract: the step only moves numbers in typed arrays (no allocation, no layout reads, no DOM);
  * layout is read in the event handlers and the resize observer, the DOM written in render through
@@ -181,5 +181,5 @@ export function mountFactory(stage: HTMLElement, hero: HTMLElement) {
   };
 }
 
-/** fzlt/slot's mount: the stage is the slot's (inside the hero); the hero is the slot. */
+/** @fzlt/core/slot's mount: the stage is the slot's (inside the hero); the hero is the slot. */
 export const mountSlot: SlotMount = (stage, slot) => mountFactory(stage, slot);

@@ -1,12 +1,12 @@
 // Arcade: the same 2015 sheets and frames, ×100 alive. Every hit scores, chains a combo and kicks
 // the column (never the page); the art stays Chris Cooley's 2015 frames, the life comes from bricks.
-// - Headphones: hit the cups and they squash and bounce, the bass thumps (fzlt/sound), ♪ ♫ burst
-//   out (fzlt/fx) and the phone's equalizer jumps; play/pause runs the 2015 loop, notes ride it.
+// - Headphones: hit the cups and they squash and bounce, the bass thumps (@fzlt/core/sound), ♪ ♫ burst
+//   out (@fzlt/core/fx) and the phone's equalizer jumps; play/pause runs the 2015 loop, notes ride it.
 // - Coffee: the pour streams in and splashes, steam curls off the full cup, a sip slurps and the cup
 //   wobbles; pour and sip turn back from the frame they are on.
 // - Laptop: the lid slams open with a clack; then every press of the keys clicks, sprays code and
 //   lights the screen, and the code scrolls on; the screen's close button slams it shut.
-// - The column: score, combo and best on a HUD (fzlt/hud), a mute key, a shake on the stage only.
+// - The column: score, combo and best on a HUD (@fzlt/core/hud), a mute key, a shake on the stage only.
 // - The contract: real buttons with names (keyboard works), reduced motion lands on still frames
 //   with no particles, squash or shake (sound only on an explicit press, and the mute key), every
 //   engine settles to 0 rAF/s when nothing moves, and destroy() gives the page back (the ledger).
@@ -66,7 +66,7 @@ export function kit(stage: HTMLElement, bar: HTMLElement | null, mute: HTMLButto
   const st = new Float64Array(5); // 0 score, 1 combo, 2 combo time left, 3 shake (px), 4 best combo
   const snd = mute ? sound(e, { cues: {}, volume: 0.16 }) : null;
   let shaking = false;
-  // The Sound key: the synth stays silent until a press (fzlt/sound waits for a trusted gesture);
+  // The Sound key: the synth stays silent until a press (@fzlt/core/sound waits for a trusted gesture);
   // muting is kept for the next visit. Storage can throw (private mode, blocked): then it is per visit.
   if (mute && snd) {
     let saved: string | null = null;

@@ -1,4 +1,4 @@
-// fzlt/arcade in Chromium, with a tiny game on it: a ship that fires up the page. Play turns
+// @fzlt/core/arcade in Chromium, with a tiny game on it: a ship that fires up the page. Play turns
 // letters into bits and scores; an action key from the definition works from the keyboard and the
 // scoreboard; a link on the page doesn't navigate while a run is live; P pauses; the game reporting
 // over() gives the page back at once and keeps the scoreboard with the result until Escape; Recall
@@ -173,7 +173,7 @@ try {
   await pp.evaluate(() => (window.g = T.launch({ root: "#board", sound: false })).start());
   const pad = await pp.locator("[data-fizlet-host=test-game]").evaluate((h) => ({ stick: !!h.shadowRoot.querySelector(".bui-stick"), keys: h.shadowRoot.querySelectorAll(".bui-pad button").length, compact: h.shadowRoot.querySelector(".ar").classList.contains("compact") }));
   assert.ok(pad.stick && pad.keys >= 2 && pad.compact, JSON.stringify(pad));
-  // Touch lock (fzlt/touch): while a run is live a pinch anywhere on the page (the board) never
+  // Touch lock (@fzlt/core/touch): while a run is live a pinch anywhere on the page (the board) never
   // zooms it and the page is touch-action: manipulation (no double-tap zoom); stop() gives both back.
   // Raw touch points: Chromium's synthesized touch pinch never zooms headless.
   where = "phone touch lock";

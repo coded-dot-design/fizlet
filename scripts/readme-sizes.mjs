@@ -17,9 +17,9 @@ function cell(m, gz) {
     return gz[name];
   };
   switch (m.name) {
-    case "fzlt/ui": return `${kb(at("fzlt/ui (js)"))} + ${kb(at("fzlt/ui (css)"))} css`;
-    case "fzlt/fx": return `${kb(at("fzlt/fx"))} (\`emitter\` and \`KINDS\` tree-shake away when unused)`;
-    case "fzlt/arcade": return `${kb(at("fzlt/arcade (hud omitted)"))} for a card game with every brick it composes; ${kb(at("fzlt/arcade"))} with \`skirmishHud\` (in-page art via \`ctx.attach\`)`;
+    case "@fzlt/core/ui": return `${kb(at("@fzlt/core/ui (js)"))} + ${kb(at("@fzlt/core/ui (css)"))} css`;
+    case "@fzlt/core/fx": return `${kb(at("@fzlt/core/fx"))} (\`emitter\` and \`KINDS\` tree-shake away when unused)`;
+    case "@fzlt/core/arcade": return `${kb(at("@fzlt/core/arcade (hud omitted)"))} for a card game with every brick it composes; ${kb(at("@fzlt/core/arcade"))} with \`skirmishHud\` (in-page art via \`ctx.attach\`)`;
     default: return kb(at(m.size));
   }
 }
@@ -29,7 +29,7 @@ export function readmeSizes(md, sizes) {
   const gz = Object.fromEntries(sizes.map((s) => [s.name, s.gzip]));
   const mods = BRICKS.flatMap((b) => b.modules);
   const lines = md.split("\n").map((l) => {
-    if (!/^\| `fzlt/.test(l)) return l;
+    if (!/^\| `@fzlt\/core/.test(l)) return l;
     const cells = l.split(" | ");
     const m = mods.find((x) => cells[0].split("`").includes(x.name));
     if (!m && cells[0].includes("tokens.json")) return l; // data, no gzip size of its own
@@ -37,7 +37,7 @@ export function readmeSizes(md, sizes) {
     cells[cells.length - 1] = `${cell(m, gz)} |`;
     return cells.join(" | ");
   });
-  return lines.join("\n").replace(/(Kernel ≤ 4 KB gzip \(measured: )[\d,]+( bytes\))/, (_, a, b) => `${a}${gz["fzlt (kernel)"].toLocaleString("en-US")}${b}`);
+  return lines.join("\n").replace(/(Kernel ≤ 4 KB gzip \(measured: )[\d,]+( bytes\))/, (_, a, b) => `${a}${gz["@fzlt/core (kernel)"].toLocaleString("en-US")}${b}`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

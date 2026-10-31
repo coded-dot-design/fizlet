@@ -3,10 +3,10 @@
 // 12 bytes a message; both screens show the same game because both sims run the same frames.
 // For two devices, swap memory() for join("wss://<your room server>/room/0?players=2").
 // Kernel, input and presence. Runs as is with duel.html.
-import { createEngine } from "fzlt";
-import { controls } from "fzlt/input";
-import { presence, memory, hash32 } from "fzlt/presence";
-import { hud } from "fzlt/hud";
+import { createEngine } from "@fzlt/core";
+import { controls } from "@fzlt/core/input";
+import { presence, memory, hash32 } from "@fzlt/core/presence";
+import { hud } from "@fzlt/core/hud";
 
 const W = 320, H = 120;
 const root = document.getElementById("duel");

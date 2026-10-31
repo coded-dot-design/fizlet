@@ -1116,7 +1116,7 @@ try {
     await context.close();
   }
 
-  // ---------- Home rhythm (site/home-motion.ts): reveals and parallax on fzlt/timeline ----------
+  // ---------- Home rhythm (site/home-motion.ts): reveals and parallax on @fzlt/core/timeline ----------
   // Off-screen sections wait hidden and play in on screen; once the scroll stops, everything is
   // shown and still. With reduced motion nothing is ever hidden or moved. No layout shift either way.
   where = "home rhythm";

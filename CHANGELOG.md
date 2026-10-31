@@ -3,12 +3,19 @@
 ## Unreleased
 
 - **Site: a brand page at `/brand/`.** The FIZLET wordmark and the fzlt short mark, the lockups
-  (Fizlet™ · fzlt™, `npm i @fzlt/core`, fzlt.dev), why fzlt, the two voices, ™ and casing rules,
+  (Fizlet™ · fzlt™, `npm i @fzlt/core`, fzlt.dev), a sticker set, why fzlt, the two voices, ™ and casing rules,
   clear space and minimum sizes, don'ts, the colour tokens as swatches (read from
   `src/ui/tokens.json`) and the Board UI kit live. Every mark downloads as a self-contained SVG on
   dark and light, generated at build time from one source (`scripts/brand-marks.mjs`) that the page
   also draws inline. The page rests at 0 rAF; the sticker slam is the kit's own and settles, and
   stays still under reduced motion.
+
+## 0.21.2
+
+- 0.21.2 — first npm release, published as `@fzlt/core` (npm refused `fizlet` and `fzlt` as too similar to
+  existing names). Same library code as 0.21.0. Install with `npm i @fzlt/core`; imports are `"@fzlt/core"` and
+  `"@fzlt/core/<brick>"` (README, docs, site, examples, gallery, size labels, API snapshots and the
+  package tests updated). The project, repo, site and brand stay Fizlet.
 - **Layers story: it holds the scroll like every other demo frame, plays on its own, and scrolling
   over it fans the layers.** A wheel or a vertical swipe over the figure steps the story (down fans
   the layers out, up folds them back) instead of moving the page, and the site's scroll-lock note
@@ -22,7 +29,7 @@
 
 ## 0.21.1
 
-- 0.21.1 — first npm release, published as `fzlt` (npm refused `fizlet` as too similar to `figlet`). Same code as 0.21.0.
+- 0.21.1 — tagged, not published: npm refused `fzlt` as too similar to `flat` (and `fizlet` as too similar to `figlet`). Same code as 0.21.0.
   Install with `npm i fzlt`; imports are `"fzlt"` and `"fzlt/<brick>"` (README, docs, site, examples,
   gallery and the package tests updated). The project, repo, site and brand stay Fizlet.
 

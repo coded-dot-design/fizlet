@@ -1,6 +1,6 @@
 // The launch-day pieces (site/gallery/pieces/launch/npm-i-fizlet.ts, recall-party.ts) in Chromium, each
 // on its own stage (site/gallery/stages/<id>.html, its {{…}} slots filled from this checkout's
-// measured numbers, as the site build fills them), mounted through fzlt/slot as the gallery does:
+// measured numbers, as the site build fills them), mounted through @fzlt/core/slot as the gallery does:
 // it mounts (the poster steps aside), shows the measured numbers, plays its intro and settles to no
 // frames with the page as it was and no sound made (none before a gesture); taps and keys really
 // play (a brick snaps into the box, Space drops the one over the chute; confetti knocks letters

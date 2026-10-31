@@ -1,5 +1,5 @@
 // The example host page for the layers story: a plain page with one slot. The figure (and its
-// poster) and a tiny loader are inline; the live chunk (fzlt/slot + scene) loads when the slot is near. The caption prints only measured numbers
+// poster) and a tiny loader are inline; the live chunk (@fzlt/core/slot + scene) loads when the slot is near. The caption prints only measured numbers
 // (site/demos/layers/measured.json, written by site/demos/layers/measure.mjs). The page is a Board UI
 // root: colours, keys and cards come from the kit (src/ui/board-ui.css), no style of its own.
 import { sizeBadge } from "../../site/size-badge.mjs";
@@ -41,7 +41,7 @@ ${css}
 ${figure}
 <p class="cap">${sizeBadge(sizes.live, "demos/layers/layers.js", "the layers scene, its live chunk")}</p>
 <p class="cap">${caption}</p>
-<p class="cap">Layer bytes: Battlefield Blitz c8c8ca4, layer manifest (game code per layer, min + gzip; Effects is all brick, min). Built on fzlt, fzlt/slot and fzlt/sprite. By <a href="https://coded.design/">Chris Cooley ↗</a>.</p>
+<p class="cap">Layer bytes: Battlefield Blitz c8c8ca4, layer manifest (game code per layer, min + gzip; Effects is all brick, min). Built on @fzlt/core, @fzlt/core/slot and @fzlt/core/sprite. By <a href="https://coded.design/">Chris Cooley ↗</a>.</p>
 </main>
 ${loader}
 </body>

@@ -992,7 +992,7 @@ html.bui[data-theme="light"] .dl.hot {
   width: 9px;
   height: 9px;
   border: 2px solid currentColor;
-  /* On the kernel clock (fzlt/css-clock in demo.ts): paused here, its time is --fz-t. */
+  /* On the kernel clock (@fzlt/core/css-clock in demo.ts): paused here, its time is --fz-t. */
   animation: blink 1.1s steps(2) infinite paused;
   animation-delay: var(--fz-t, 0s);
 }
@@ -1136,7 +1136,7 @@ html.bui[data-theme="light"] .dl.hot {
 }
 
 /* Home rhythm (site/home-motion.ts): a rule that draws in and a big ghost number per numbered
-   section, both aria-hidden. fzlt/timeline writes their scale, opacity and translate inline;
+   section, both aria-hidden. @fzlt/core/timeline writes their scale, opacity and translate inline;
    without JS (or with reduced motion) these resting values are what shows. Only opacity, scale
    and translate move, on composited layers: nothing shifts the layout or repaints the page. */
 .section[data-reveal] {
@@ -2442,12 +2442,12 @@ html.bui[data-theme="light"] .phases b {
   image-rendering: pixelated;
 }
 /* Demo surfaces, like the kit's slots (board-ui.css): the page scrolls through them, never pans
-   sideways or zooms; site.ts hands the same list to fzlt/touch for pinch. */
+   sideways or zooms; site.ts hands the same list to @fzlt/core/touch for pinch. */
 :is(.bd-tl, .lab-stage) {
   touch-action: pan-y;
   overscroll-behavior: none;
 }
-/* The timeline demo: a console and a cartridge, every move written by fzlt/timeline. */
+/* The timeline demo: a console and a cartridge, every move written by @fzlt/core/timeline. */
 .bd-tl {
   position: relative;
   width: 100%;

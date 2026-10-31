@@ -7,7 +7,7 @@
 // Twin, Trident, then four-shot Overdrive. Twelve seconds; destroy both factories and clear the
 // sky and the page is clear. At the end Recall puts back every letter, one by one, and the scene
 // sleeps until the next tap. Steer: drag or tap (the gun fires on its own), or ← → on the keys.
-// Bricks: the kernel (fixed step, settle, the ledger for every page write) and fzlt/sound (a
+// Bricks: the kernel (fixed step, settle, the ledger for every page write) and @fzlt/core/sound (a
 // tiny synth, silent until a gesture; a mute key appears after the first one). The simulation is
 // plain numbers (`invaders`, no DOM): its step allocates nothing (tests/tiny-null-invaders.test.mjs).
 import { createEngine } from "../../../src/kernel/index";

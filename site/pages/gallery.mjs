@@ -1,5 +1,5 @@
 // The gallery: every animation, newest first. Each entry shows the prompt it was made from, the
-// live demo (lazy-mounted through fzlt/slot) and its size, measured on this build: the live chunk
+// live demo (lazy-mounted through @fzlt/core/slot) and its size, measured on this build: the live chunk
 // on the badge and the total with the shared loader beside it (one size, both parts named).
 // Entries, themes and contributors are data (site/gallery/entries, site/gallery/themes,
 // site/contributors); `fe anim --publish` in the engine adds entries. Each page holds PAGE_SIZE

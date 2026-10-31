@@ -1,5 +1,5 @@
 // Redline (site/gallery/pieces/redline.ts) in Chromium, on its own stage, mounted through
-// fzlt/slot as the gallery does: the demo rides to its first splash and the scene settles to no
+// @fzlt/core/slot as the gallery does: the demo rides to its first splash and the scene settles to no
 // frames; then a sprint by keyboard only: hold Space to pull, let off near the red, beat the ghost to
 // the flag; flat out blows the engine; the buttons are 44 px or more and holding GAS starts a sprint;
 // M mutes; Recall gives the page back; reduced motion keeps the poster.

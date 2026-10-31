@@ -1,5 +1,5 @@
 // /brand/: the sticker slam on the Stickers card. The motion is the kit's own CSS (bui-slam, from
-// fzlt/ui), restarted by its slam(); the sticker hides again once it has landed, so the page goes
+// @fzlt/core/ui), restarted by its slam(); the sticker hides again once it has landed, so the page goes
 // back to rest with nothing running. Under reduced motion the kit turns the animation off and the
 // sticker just shows, then hides. No requestAnimationFrame.
 import { slam } from "../src/ui/board-ui";

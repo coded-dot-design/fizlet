@@ -7,7 +7,7 @@
  *     wave list (no DOM, no allocation), render writes change-only through engine.ledger;
  *   - the engine pauses off screen and in a hidden tab, and settles (no frames at all) half a
  *     second after the last thing stops moving; input wakes it. The hint's blink and the roadmap's
- *     current-phase pulse are the stylesheet's @keyframes on the kernel clock (fzlt/css-clock):
+ *     current-phase pulse are the stylesheet's @keyframes on the kernel clock (@fzlt/core/css-clock):
  *     a few plays, then they rest and settle;
  *   - reduced motion: the engine stays paused, and a click jumps straight to the settled result
  *     (engine.advance by hand), a still frame instead of an animation.

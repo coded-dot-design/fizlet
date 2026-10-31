@@ -1,5 +1,5 @@
 // The two Halloween fight pieces (HUSH vs SNOOZE, the last slice) in Chromium, each on its own stage
-// (site/gallery/stages/<id>.html), mounted through fzlt/slot as the gallery does. Each: it fights
+// (site/gallery/stages/<id>.html), mounted through @fzlt/core/slot as the gallery does. Each: it fights
 // on its own to a winner, and the page's own elements move only once something has reached them (a
 // swing, a thrown thing, a bolt, a landing); it settles to no frames with every element back as it
 // was (the cut letters mended); its clicks have consequences (the lamp, the alarm clock, a thrown-in

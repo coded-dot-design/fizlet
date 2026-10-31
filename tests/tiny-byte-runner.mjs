@@ -1,5 +1,5 @@
 // Tiny Byte Runner (site/gallery/pieces/tiny-byte-runner.ts) in Chromium, on its own stage, mounted
-// through fzlt/slot as the gallery does: it mounts (the poster steps aside), plays its intro and
+// through @fzlt/core/slot as the gallery does: it mounts (the poster steps aside), plays its intro and
 // settles to no frames with the page as it was; an arrow key starts a round and steers; the frog
 // eats crumbs and, off the trail, the page's letters (gone through the ledger); a power square makes
 // a fly edible; the round ends, Recall puts every letter back and it sleeps again; the mute key
@@ -127,7 +127,7 @@ try {
   await until(p, () => scene.engine.running && scene.sim.S[0] === 2, 600, "a tap starts the next round");
   await p.evaluate(() => (scene.sim.S[3] = 40, scene.sim.S[4] = 20));
   await until(p, () => document.querySelectorAll(".tbr-h i.e").length > 0, 900, "letters are eaten");
-  // Byte for byte. The one exception is fzlt/slot's, not the piece's: an accessible scene (this one
+  // Byte for byte. The one exception is @fzlt/core/slot's, not the piece's: an accessible scene (this one
   // is a keyboard-playable application) has the figure's role="img" taken off and put back, and on
   // main the slot puts it back as the last attribute (#215 restores it in place). Everything else,
   // every letter and the factories included, must match exactly.
