@@ -111,7 +111,7 @@ export declare class EventRing {
     readonly cap: number;
     size: number;
     dropped: number;
-    private readonly slots;
+    private readonly s;
     constructor(cap?: number);
     emit(type: string, a?: number, b?: number, x?: number, y?: number, v?: number): boolean;
     at(i: number): FizEvent | undefined;
@@ -140,7 +140,7 @@ export {};
 export declare class Pool<T> {
     readonly cap: number;
     readonly items: T[];
-    private readonly free;
+    private readonly f;
     constructor(cap: number, create: () => T);
     get size(): number;
     acquire(): T | undefined;

@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- **Size (S8): the page build has 151 B of headroom under its 7 KB cap.** Kernel 3,413 → 3,334 B gz,
+  page build 7,128 → 7,017 B, no behaviour change. In `fizlet/kernel` the engine's slots, pause bits
+  and phases are const enums, which esbuild inlines (a top-level `const` in a module that imports
+  ships as a variable); `EventRing` and `Pool` private fields are one letter (`s`, `f`: the API
+  snapshot shows them, the public API is unchanged) and the ledger entry's flags are `hs`/`hc`. In
+  `fizlet/fx` the shape numbers come before `TAU`, so esbuild inlines them (fx −28 B). Budgets
+  lowered to lock it in: page build 7,168 → 7,104, arcade 24,399 → 24,297, arcade (`hud` omitted)
+  18,361 → 18,258, css-clock 5,632 → 5,569, board-page 4,193 → 4,188.
+
 ## 0.21.0
 
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
