@@ -5,6 +5,15 @@
 - **`fizlet/sound`: your own synth cues.** `notes` (name → `Note[]` voices) adds cues to the built-in
   synth, so a scene can have a slurp or a yawn without its own audio code; `cues` may map to those
   names (`CueName`). Additive: every existing call types and plays as before. 1,019 → 1,042 B gzip.
+- **Website: the home reveals end at the foot of the page too** (`site/home-motion.ts`). The home
+  engine paused itself when `main` left the viewport (the kernel's off-screen rule), and at the very
+  bottom the footer can fill it: a reveal still playing froze mid-way (parts at opacity 0.5–0.999)
+  until the visitor scrolled back. Each new footer link brings that line closer, which is why PRs
+  that add pages failed "home rhythm: every part shown" on slower CI runners. The engine now skips
+  the off-screen pause (`pause: { offscreen: false }`); settle still stops every frame once the
+  reveals end. `tests/site.mjs` adds a jump to the foot of the page (1), which fails without the fix
+  once the footer outgrows the gap.
+
 - **Four more brick cards: hud, match, sound, presence.** hud: a high striker; tap fast to heat it
   and ring the bell; its real DOM scoreboard (score, best, heat meter, HOT flag, a feed of strikes) is
   bound with fizlet/hud and the readout counts DOM writes against frames. match: a ten-second round on
