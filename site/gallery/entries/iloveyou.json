@@ -9,9 +9,9 @@
   "author": "chris-cooley",
   "recipe": "hand-built",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/steer",
-    "fizlet/slot"
+    "fzlt/kernel",
+    "fzlt/steer",
+    "fzlt/slot"
   ],
   "made": "by hand",
   "module": "pieces/iloveyou.ts",

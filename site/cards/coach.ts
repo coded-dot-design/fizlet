@@ -1,4 +1,4 @@
-// coach card: a four-step tutorial for the card itself. The coach card (fizlet/coach's own Board UI
+// coach card: a four-step tutorial for the card itself. The coach card (fzlt/coach's own Board UI
 // card, real DOM) says which brick to tap and rings that brick, a real DOM element, with its dashed
 // outline. Tap the right one and the step passes (`coach:step` on the ring), the brick hops and the
 // row shuffles; tap a wrong one and it shakes and counts as a miss. After the last step the tour

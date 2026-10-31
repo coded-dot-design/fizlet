@@ -1,5 +1,5 @@
 // The two brawl pieces (#49 SMASH, #50 the hammer) in Chromium, each on its own stage
-// (site/gallery/stages/<id>.html), mounted through fizlet/slot as the gallery does. Each: it plays on
+// (site/gallery/stages/<id>.html), mounted through fzlt/slot as the gallery does. Each: it plays on
 // its own and its consequence reaches the page's real elements; it settles to no frames with the
 // page exactly as it was; a tap has a consequence (SMASH: a letter crumbles, the steel badge never
 // does, the flower calms him to zero; the hammer: a letter is knocked, a hit takes the giant's pips,

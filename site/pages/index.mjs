@@ -14,7 +14,7 @@ export const CONTRACT = [
   ["One clock per page", "Every engine on the page shares one requestAnimationFrame. A fixed 60 Hz step with a catch-up cap: a long frame drops time, it never spirals."],
   ["Bounded everything", "Pools and the event ring have a fixed capacity and refuse work when full. Nothing grows during a session."],
   ["Zero steady-state allocation", "One million kernel steps of a busy system cause no young-generation GC. Each brick alone allocates nothing."],
-  ["No layout reads in the step", "Read in read, simulate in step, write in render. fizlet/debug counts any layout read made during a step."],
+  ["No layout reads in the step", "Read in read, simulate in step, write in render. fzlt/debug counts any layout read made during a step."],
   ["Change-only writes", "The ledger skips writes that change nothing. Writing the same value twice makes zero DOM mutations."],
   ["Pause by default", "Hidden tab, page leaving, root off screen, typing in the host's own fields. Zero CPU while paused."],
   ["Own nothing you can't give back", "Every page change goes through the ledger. destroy() restores it exactly, and a newer host edit always wins."],
@@ -112,8 +112,8 @@ export function roadmapSection(all = phases()) {
 
 export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, blast, origin }) {
   const size = (name) => sizes.find((s) => s.name === name);
-  const kernel = size("fizlet (kernel)");
-  const css = size("fizlet/ui (css)");
+  const kernel = size("fzlt (kernel)");
+  const css = size("fzlt/ui (css)");
   const pageBuild = size("page build (kernel+slot+input+fx)");
   // Compact on the home page: the snippet and the whole API live on each brick's own page.
   const bricks = catalog.map((b) => brickCompact({ brick: b, size: size(b.sizes[0]), href: `bricks/${b.id}.html`,
@@ -159,7 +159,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
     <div class="hero-layers" data-demo-host>
       <style>${layers.css}</style>
       ${layers.figure}
-      ${sizeBadge(layers.sizes.live, layers.live, "the layers scene with fizlet/slot")}
+      ${sizeBadge(layers.sizes.live, layers.live, "the layers scene with fzlt/slot")}
       <p class="hero-cap bui-label"><b>LIVE</b> · Battlefield Blitz as a stack of bricks · its code loads only once it nears the screen · <a href="demos/layers/">The layers story</a></p>
       ${layers.loader}
     </div>
@@ -223,7 +223,7 @@ ${originSection(origin)}
       <h2 id="profile-title">Costs nothing<br><em>while it's still.</em></h2>
       <p class="lead">Fizlet is not only for games: it is built just as much for landing-page heroes and interactive diagrams, where the page is the product. The page profile is a lighter build of the same bricks for them.</p>
       <p class="body"><b>Settle.</b> Pass <code>settle: 0.5</code> and systems call <code>engine.busy()</code> in any frame where something moves. Half a second after the last one, the engine sleeps: no requestAnimationFrame at all, zero frames, until <code>wake()</code>, its input or <code>start()</code>. Something due later (an intro delay, an autoplay beat) holds it awake with <code>engine.busy(seconds)</code>. <b>fps.</b> <code>fps: 30</code> caps an ambient loop on the shared clock. <b>slot.</b> Loads the scene only once it nears the viewport and the main thread is idle, and replays the tap that woke it.</p>
-      <div class="split-keys"><a class="bui-key bui-arcade bui-go" href="bricks/kernel.html">${icon("play", 16)}Try settle live</a><a class="bui-key bui-arcade bui-sys" href="bricks/slot.html">${icon("book", 16)}fizlet/slot</a></div>
+      <div class="split-keys"><a class="bui-key bui-arcade bui-go" href="bricks/kernel.html">${icon("play", 16)}Try settle live</a><a class="bui-key bui-arcade bui-sys" href="bricks/slot.html">${icon("book", 16)}fzlt/slot</a></div>
     </div>
     <div class="panel lit profile-card" style="--tone: var(--k-go)">
       <span class="bui-label"><b>PAGE BUILD</b> · kernel + slot + input + fx</span>
@@ -281,7 +281,7 @@ ${originSection(origin)}
       <p class="eyebrow"><span class="index">03</span> THE PAGE BECOMES THE BOARD</p>
       <h2 id="board-title">Read. Step.<br><em>Render.</em></h2>
       <p class="lead">A web page is a surprisingly good game map. The trick is reading it cheaply, changing only what you own and leaving cleanly. Every frame runs three phases, in order, for every system.</p>
-      <p class="body">Geometry is read once in <code>read</code> and cached. The simulation runs in <code>step</code> on plain numbers, at a fixed 60 Hz, with no DOM at all. <code>render</code> writes only what changed, through the ledger. The demo above counts layout reads made during a step with <code>fizlet/debug</code>: the number stays at zero.</p>
+      <p class="body">Geometry is read once in <code>read</code> and cached. The simulation runs in <code>step</code> on plain numbers, at a fixed 60 Hz, with no DOM at all. <code>render</code> writes only what changed, through the ledger. The demo above counts layout reads made during a step with <code>fzlt/debug</code>: the number stays at zero.</p>
     </div>
     <ol class="phases panel lit" aria-label="One frame">
       <li style="--tone: var(--k-sys)"><b>READ</b><span>once a frame</span><p>Cached geometry, input edges latched. The only phase that may measure the page.</p></li>
@@ -398,7 +398,7 @@ ${originSection(origin)}
       <article class="panel game">
         <p class="eyebrow"><b>THE ARCADE</b> · ON FIZLET</p>
         <h3>DOM VIRUS</h3>
-        <p>Tiny games that turn your page into the game board. Fizlet is the engine they proved out, and now they run on it: Null Invaders, Byte Runner and Sherman Bytes at 1.0 on <code>fizlet/arcade</code>, Swarm Protocol 1.4 on the kernel.</p>
+        <p>Tiny games that turn your page into the game board. Fizlet is the engine they proved out, and now they run on it: Null Invaders, Byte Runner and Sherman Bytes at 1.0 on <code>fzlt/arcade</code>, Swarm Protocol 1.4 on the kernel.</p>
         <div class="game-keys"><a class="bui-key bui-arcade bui-cmd" href="${HUB}">${icon("cart", 16)}Visit DOM VIRUS ↗</a></div>
       </article>
       <article class="panel game">
@@ -425,7 +425,7 @@ ${roadmapSection()}
       <ol class="start-steps">
         <li><b>Script tag.</b> <code>fizlet.js</code> (${kb(bundle)} KB gzip), one file, no build step.</li>
         <li><b>Modules.</b> Import only the bricks you use from <code>${SITE}dist/</code>.</li>
-        <li><b>npm.</b> <span class="soon-tag">COMING SOON</span> <code>npm install fizlet</code> is not published yet. Until then: <code>git clone</code>, <code>npm ci</code>, <code>npm run build</code> gives you <code>dist/</code> with the subpath exports.</li>
+        <li><b>npm.</b> <span class="soon-tag">COMING SOON</span> <code>npm install fzlt</code> is not published yet. Until then: <code>git clone</code>, <code>npm ci</code>, <code>npm run build</code> gives you <code>dist/</code> with the subpath exports.</li>
       </ol>
       <div class="split-keys">
         <a class="bui-key bui-arcade bui-go" href="examples/quick-start.html">${icon("play", 16)}Run the example</a>

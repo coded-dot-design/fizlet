@@ -1,4 +1,4 @@
-// fizlet/sound (Node): which events and cues make a sound. The browser suite plays the real synth.
+// fzlt/sound (Node): which events and cues make a sound. The browser suite plays the real synth.
 import test from "node:test";
 import assert from "node:assert/strict";
 

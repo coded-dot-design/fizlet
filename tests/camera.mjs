@@ -1,4 +1,4 @@
-// fizlet/camera in Chromium: the page is the camera. A zoom keeps its point fixed on screen, eases
+// fzlt/camera in Chromium: the page is the camera. A zoom keeps its point fixed on screen, eases
 // and settles (the engine sleeps), the page never scrolls sideways (contain clips the parent), Recall
 // mid-move gives the page back byte for byte, and with reduced motion every move jumps.
 import assert from "node:assert/strict";

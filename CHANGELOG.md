@@ -13,6 +13,12 @@
   throttle, one loop): live chunk 7,787 → 8,060 B gzip (budget 9,728), inline 3,438 → 4,057 B
   (budget 6 KB), script per frame 1.4 ms median, 2.6 ms p95; CLS 0; 0 frames paused.
 
+## 0.21.1
+
+- 0.21.1 — first npm release, published as `fzlt` (npm refused `fizlet` as too similar to `figlet`). Same code as 0.21.0.
+  Install with `npm i fzlt`; imports are `"fzlt"` and `"fzlt/<brick>"` (README, docs, site, examples,
+  gallery and the package tests updated). The project, repo, site and brand stay Fizlet.
+
 ## 0.21.0
 
 - **Gallery: surf-sesh, three ten-second surf minis by Pip (approved 2026-10-31).** Lip Line (v2,

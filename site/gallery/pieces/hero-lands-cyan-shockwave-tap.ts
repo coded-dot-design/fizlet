@@ -7,8 +7,8 @@
 // quickly and it hits harder (the wave gets thicker, the page jumps higher). Sometimes he lands
 // far too hard and gets stuck to the waist. The cat: the wave makes it jump; land close (or hard)
 // and it is flung across the page onto his head, where it stays until he leaps again.
-// Bricks: the kernel (fixed step, settle, its seeded random), fizlet/sprite (the hero and the cat,
-// baked once), fizlet/fx (dust and chips, kinds as data). The letters, words and buttons are the
+// Bricks: the kernel (fixed step, settle, its seeded random), fzlt/sprite (the hero and the cat,
+// baked once), fzlt/fx (dust and chips, kinds as data). The letters, words and buttons are the
 // stage's own elements (site/gallery/stages/hero-lands-cyan-shockwave-tap.html), moved only through
 // custom properties written by the engine's ledger in render, so Recall gives the page back exactly.
 import { createEngine } from "../../../src/kernel/index";

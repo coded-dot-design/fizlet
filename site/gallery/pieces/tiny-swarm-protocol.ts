@@ -5,7 +5,7 @@
 // latch on and drain their colour. Squash them: tap or click a bug, or move the crosshair with the
 // arrow keys and press Space. Twelve seconds; every button still standing at the bell is saved.
 // Then Recall puts back every letter and the buttons' colour, and the scene sleeps until a tap.
-// Bricks: the kernel (fixed step, settle, the ledger for every page write) and fizlet/sound (a
+// Bricks: the kernel (fixed step, settle, the ledger for every page write) and fzlt/sound (a
 // tiny synth, silent until a gesture; a mute key appears after the first one). The simulation is
 // plain numbers (`swarm`, no DOM): its step allocates nothing (tests/tiny-swarm-protocol.test.mjs).
 import { createEngine } from "../../../src/kernel/index";

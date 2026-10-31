@@ -126,7 +126,7 @@ const PHONE_CODE = [[0, 30, 2], [6, 22, 0], [6, 34, 1], [0, 16, 3], [0, 28, 0], 
  *  the screens show first; `cup`: the coffee sheet's URL. */
 export function art(p: { aw: number; ph: number; lid: number; hd: number }, mode: "code" | "design", cup: string, sizes: Record<string, number> = {}, id = "og-") {
   const tag = (id: string, x: number, y: number, bricks: string[], what: string) => {
-    const a = bricks.map((b) => `${b === "kernel" ? "kernel" : "fizlet/" + b}${sizes[b] ? ` ${sizes[b]!.toLocaleString("en-US")} B` : ""}`).join(" + "), w = Math.max(a.length, what.length) * 6.3 + 16;
+    const a = bricks.map((b) => `${b === "kernel" ? "kernel" : "fzlt/" + b}${sizes[b] ? ` ${sizes[b]!.toLocaleString("en-US")} B` : ""}`).join(" + "), w = Math.max(a.length, what.length) * 6.3 + 16;
     return `<g class="og-tag" data-t="${id}" transform="translate(${x} ${y})"><rect width="${r1(w)}" height="34" rx="5" fill="${C.ink}" stroke="${C.cream}" stroke-width="1"/><text x="8" y="14" fill="${C.cream}">${a}</text><text x="8" y="27" fill="${C.tealL}">${what}</text></g>`;
   };
   const hnd = hands(p.aw, p.hd, 0, 0, 0), hp = head(p.aw, 0);

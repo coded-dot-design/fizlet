@@ -1,7 +1,7 @@
 // Pumpkin Slice: pumpkins arc up out of the dark; swipe (or drag, or tap) through them to cut
 // them in half, the halves tumble apart and the seeds spill. Every cut buys the round time; when it
 // ends the last pumpkins fall away and the scene sleeps. Original art and rules.
-// Bricks: the kernel, fizlet/fx (seeds, goo), fizlet/sprite (whole, left and right halves; turned
+// Bricks: the kernel, fzlt/fx (seeds, goo), fzlt/sprite (whole, left and right halves; turned
 // as they spin, baked once), on the Halloween hero core (./hero).
 import { effects, emitter } from "../../../src/fx";
 import { sprites } from "../../../src/sprite";

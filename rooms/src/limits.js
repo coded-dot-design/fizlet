@@ -14,7 +14,7 @@ export const CAPS = {
   GATE_RATE: [30, 5, 300], // invite checks + joins per IP per minute, counted in each Worker isolate
   JOIN_RATE: [10, 2, 120], // joins per IP per minute into one room, counted by the room itself
 };
-export const MSG_BYTES = 12; // the only message size a room accepts (fizlet/presence wire format)
+export const MSG_BYTES = 12; // the only message size a room accepts (fzlt/presence wire format)
 
 /** The caps from the Worker's env ([vars]), clamped to their ceilings. */
 export function limits(env = {}) {

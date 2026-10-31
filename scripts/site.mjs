@@ -181,7 +181,7 @@ const sizes = await measure();
 const kernel = sizes[0];
 // Recipes (/docs/authoring/): each one bundled as it would ship (fizlet's imports resolved to src/),
 // its live bytes measured for its badge; the page runs it and shows it with the hosted imports.
-const fizletImports = { name: "fizlet", setup(b) { b.onResolve({ filter: /^fizlet(\/|$)/ }, (a) => ({ path: `${process.cwd()}/src/${a.path === "fizlet" ? "index" : a.path.slice(7)}.ts` })); } };
+const fizletImports = { name: "fizlet", setup(b) { b.onResolve({ filter: /^fzlt(\/|$)/ }, (a) => ({ path: `${process.cwd()}/src/${a.path === "fzlt" ? "index" : a.path.slice(5)}.ts` })); } };
 const RECIPES = {};
 for (const f of readdirSync("site/recipes").filter((x) => x.endsWith(".js"))) {
   const id = f.slice(0, -3);
@@ -189,8 +189,8 @@ for (const f of readdirSync("site/recipes").filter((x) => x.endsWith(".js"))) {
   const src = readFileSync(`site/recipes/${f}`, "utf8");
   RECIPES[id] = {
     html: readFileSync(`site/recipes/${id}.html`, "utf8").trim(), live: `recipes/${id}.js`, bytes: liveBytes(`${OUT}/recipes/${id}.js`),
-    imports: [...src.matchAll(/from "(fizlet(?:\/[\w-]+)?)"/g)].map((m) => m[1]),
-    code: src.replace(/from "fizlet(?:\/([\w-]+))?"/g, (_, sub) => `from "${SITE}dist/${sub ?? "index"}.js"`).trim(),
+    imports: [...src.matchAll(/from "(fzlt(?:\/[\w-]+)?)"/g)].map((m) => m[1]),
+    code: src.replace(/from "fzlt(?:\/([\w-]+))?"/g, (_, sub) => `from "${SITE}dist/${sub ?? "index"}.js"`).trim(),
   };
 }
 // Docs and guides: their numbers filled in from this build.
@@ -201,7 +201,7 @@ for (const s of ["docs", "guides"]) mkdirSync(`${OUT}/${s}`, { recursive: true }
 // measured just above (never typed). The posters are painted here by the scene's own world.
 const spMod = await build({ entryPoints: ["site/gallery/pieces/small-packages/poster.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
 const SP = await import("data:text/javascript;base64," + Buffer.from(spMod.outputFiles[0].text).toString("base64"));
-for (const e of gallery.entries.filter((x) => x.module === "pieces/small-packages/scene.ts")) figures[e.figure] = SP.figure(e, sizes.find((s) => s.name === "fizlet (kernel)").gzip);
+for (const e of gallery.entries.filter((x) => x.module === "pieces/small-packages/scene.ts")) figures[e.figure] = SP.figure(e, sizes.find((s) => s.name === "fzlt (kernel)").gzip);
 // Launch-day pieces (gallery): their stages carry {{…}} slots for numbers measured on this build
 // (brick and bundle gzip sizes, the packed tarball, the dependency count): scripts/launch-facts.mjs.
 for (const e of gallery.entries.filter((x) => x.stageHtml?.includes("{{"))) e.stageHtml = fillStage(e.stageHtml, await launchFacts());

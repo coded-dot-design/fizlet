@@ -24,7 +24,7 @@ const OLD = [
 ];
 const NEW = [
   ["Same art", "The same frames, timings and clicks, rebuilt on the kernel."],
-  ["Bricks", "<code>fizlet/fx</code> for the notes, splash, steam and code; <code>fizlet/sound</code> for the thump, clack and slurp; <code>fizlet/hud</code> for the score."],
+  ["Bricks", "<code>fzlt/fx</code> for the notes, splash, steam and code; <code>fzlt/sound</code> for the thump, clack and slurp; <code>fzlt/hud</code> for the score."],
   ["Settles", "Real buttons, keyboard, still frames under reduced motion, and no frames at all once a round is over."],
 ];
 const list = (rows) => `<ul class="ogs-list">${rows.map(([t, b]) => `<li><b>${t}</b><span>${b}</span></li>`).join("")}</ul>`;

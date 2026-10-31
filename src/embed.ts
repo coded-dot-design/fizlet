@@ -1,5 +1,5 @@
 /**
- * fizlet/embed: drop a game onto any page with one small config.
+ * fzlt/embed: drop a game onto any page with one small config.
  *   palette   - hex colours for the Board UI roles (anything else is ignored: no CSS injection)
  *   easterEgg - false: open now. true / {...}: stay dormant (tiny listeners only) until a trigger
  *               (key sequence, gesture on a selector, click on a selector), then lazy-load the game.

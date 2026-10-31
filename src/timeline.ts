@@ -1,5 +1,5 @@
 /**
- * fizlet/timeline: scripted DOM choreography on the kernel clock. Keyframe tracks animate CSS
+ * fzlt/timeline: scripted DOM choreography on the kernel clock. Keyframe tracks animate CSS
  * properties (transform, translate, scale, rotate, opacity, clip-path, filter, custom properties:
  * any value whose numbers change and whose words stay) or plain numbers, with easings, delays,
  * staggers, sequencing and overlap, labels, repeats and yoyo. Time moves in the fixed step (no

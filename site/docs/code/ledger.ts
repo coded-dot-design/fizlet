@@ -1,5 +1,5 @@
 // Docs code (shown on /docs/recall/): every page change through the ledger.
-import { createEngine } from "fizlet";
+import { createEngine } from "fzlt";
 declare const heading: HTMLElement, word: Text;
 // ---
 const e = createEngine({ root: document.body });

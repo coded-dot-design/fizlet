@@ -143,7 +143,7 @@ export function declarations(dts, { lead = "" } = {}) {
 
 /** The whole API of a module: its summary and its exports. */
 export function api({ src, dts }) {
-  const lead = leadComment(src), summary = lead.replace(/^(fizlet[\w/-]*|Board UI kit): /, "");
+  const lead = leadComment(src), summary = lead.replace(/^((?:fzlt|fizlet)[\w/-]*|Board UI kit): /, "");
   return { summary: summary.charAt(0).toUpperCase() + summary.slice(1), decls: declarations(dts, { lead }) };
 }
 

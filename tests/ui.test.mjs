@@ -1,4 +1,4 @@
-// fizlet/ui (Node, on tests/fake-dom.mjs): the Board UI kit's behaviour half. mount isolates and
+// fzlt/ui (Node, on tests/fake-dom.mjs): the Board UI kit's behaviour half. mount isolates and
 // shares sheets, applyPalette takes hex only and restores, the press helpers fire once, setting
 // survives storage that throws, launch honours reduced motion, every listener follows the signal
 // (Recall), and the per-press paths allocate nothing. tokens.test.mjs checks the CSS against

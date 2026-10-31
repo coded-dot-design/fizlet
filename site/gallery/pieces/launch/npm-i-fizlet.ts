@@ -1,4 +1,4 @@
-// "npm i fizlet": pay for what you use. Fizlet's bricks ride a belt; the order card says what this
+// "npm i fzlt": pay for what you use. Fizlet's bricks ride a belt; the order card says what this
 // thing needs; tap a brick (Space: the one over the chute) and it drops into the box. Ones the order
 // needs snap in; one it doesn't bounces back out with its real size ("+1,265 B you don't need").
 // A full order ships with its whole bundle measured: the bricks together, minified and gzipped, as
@@ -7,7 +7,7 @@
 // Every number comes from this build (scripts/launch-facts.mjs fills the stage); a stage with none
 // (the poster run) draws no numbers. The game: ./npm-sim.ts (plain numbers, zero allocation).
 // Bricks: the kernel (fixed step, settle, its ledger: Recall gives the page back byte for byte),
-// fizlet/sound (silent until a gesture; M mutes) and fizlet/slot.
+// fzlt/sound (silent until a gesture; M mutes) and fzlt/slot.
 import { createEngine } from "../../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../../src/slot";
 import { BELT_Y, BH, BOX_H, BOX_W, BOX_X, BOX_Y, BW, CHUTE, LID, MODE, IDLE, npmSim, ORDER, SHIP, SLOTS, SNAP, W_ADDED, W_DUP, W_NOPE, W_SNAP, BOXX, SHIPPED, HAVE, NOPES, OT, STREAK, LAST, SPEED, T } from "./npm-sim";
@@ -37,11 +37,11 @@ export function npmIFizlet(stage: HTMLElement, slot: HTMLElement, first: SlotTap
   const added = f ? `added 1 package, ${f.deps} dependencies` : "added 1 package";
   const sticker = f ? `${f.deps} deps` : "0 deps";
   const titles = orderList.map((o) => "# " + o[0]);
-  const CMD = "$ npm i fizlet", TYPE = Array.from({ length: CMD.length + 1 }, (_, i) => CMD.slice(0, i));
+  const CMD = "$ npm i fzlt", TYPE = Array.from({ length: CMD.length + 1 }, (_, i) => CMD.slice(0, i));
   const STREAK_S = Array.from({ length: 21 }, (_, i) => (i < 20 ? `streak ${i}` : "streak 20+"));
   const sim = npmSim(labels.length, orderList.map((o) => o[1].map(idx)), engine.random, (t) => engine.events.emit(t));
   const S = sim.S;
-  const k = kit(engine, stage, skin, "npm i fizlet: tap the bricks the order needs, or press Space for the one over the chute. M mutes.", { grab: "click", snap: "ready", nope: "hit", ship: "win" }, (key) => (key === " " || key === "Enter" || key === "ArrowDown" ? (sim.key(), true) : false));
+  const k = kit(engine, stage, skin, "npm i fzlt: tap the bricks the order needs, or press Space for the one over the chute. M mutes.", { grab: "click", snap: "ready", nope: "hit", ship: "win" }, (key) => (key === " " || key === "Enter" || key === "ArrowDown" ? (sim.key(), true) : false));
   const { g, col } = k;
   const pt = new Float64Array(2), cw = new Float64Array([2.34]);
   stage.addEventListener("pointerdown", (e) => {
@@ -153,7 +153,7 @@ export function npmIFizlet(stage: HTMLElement, slot: HTMLElement, first: SlotTap
       g.fillStyle = col[ORANGE]!;
       g.fillRect(0, BOX_H - 6, BOX_W, 6);
       g.fillStyle = col[INK]!;
-      k.text("fizlet", BOX_W / 2, BOX_H - 2.8, 4.2, true);
+      k.text("fzlt", BOX_W / 2, BOX_H - 2.8, 4.2, true);
       g.strokeStyle = col[ORANGE]!;
       g.lineWidth = 2.4;
       g.lineCap = "round";

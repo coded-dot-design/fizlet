@@ -1,6 +1,6 @@
 // The FILET factory hero's step (site/factory/motion.ts): zero allocation through everything it moves:
 // bricks hopping to the belt, refused bricks wobbling, bricks swallowed by the machine, the run (shake,
-// sparks, blast), the cartridge pop, the belt and the arrival beat, with fizlet/fx stepping under it.
+// sparks, blast), the cartridge pop, the belt and the arrival beat, with fzlt/fx stepping under it.
 // Young-GC count (tests/gc.mjs, best of 3 windows), with a self-check: the same steps plus one small
 // object each must show up, so a harness that cannot see allocation fails here too.
 import test from "node:test";

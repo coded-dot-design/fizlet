@@ -1,6 +1,6 @@
 // The Outbreak series, act 1 (ILOVEYOU, Slammer, WannaCry) and act 2 (the white hats: the edge
 // filter), each on its own stage markup
-// (site/gallery/stages/<id>.html) in Chromium: it mounts through fizlet/slot (the poster steps
+// (site/gallery/stages/<id>.html) in Chromium: it mounts through fzlt/slot (the poster steps
 // aside), plays its real spread by itself, every tap has its consequence (a letter deleted; a port
 // closed and a server rebooted; a file unplugged and the kill switch registered; a router filtered so
 // the flood bounces, then hosts patched into shields), the end card tells

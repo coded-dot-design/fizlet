@@ -1,7 +1,7 @@
 // Shared by the motocross minis (Dirt Lab, Redline): the side-on dirt world. One canvas over the
 // stage (art units: 160 across, 90 down), its colours read from the stage's own wrapper (light and
 // dark), dust and clods, the bike and its rider, and the controls: real <button>s (44 px or more)
-// and keys while focus is in the stage, with M for mute. Sound is fizlet/sound: silent until a
+// and keys while focus is in the stage, with M for mute. Sound is fzlt/sound: silent until a
 // gesture. Nothing here writes the page outside the slot's stage; the canvas and the buttons go
 // through the engine's ledger, so Recall gives the page back exactly. Steps allocate nothing.
 import type { Engine } from "../../../src/kernel/index";

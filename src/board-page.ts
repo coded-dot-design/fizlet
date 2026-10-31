@@ -1,5 +1,5 @@
 /**
- * fizlet/board-page: the host page as the board. Its text glyphs become terrain and food, its
+ * fzlt/board-page: the host page as the board. Its text glyphs become terrain and food, its
  * buttons become targets. Geometry is measured only in the read phase, on a budget (Range reads
  * capped per refresh; 12.5 Hz while the page moves, 2 Hz once it is still), kept in typed arrays
  * and indexed with a collide Grid, so `near` / `hit` in a step never read layout or allocate.

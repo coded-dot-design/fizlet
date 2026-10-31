@@ -1,5 +1,5 @@
 // Test fixture: the Sherman tank from sherman-bytes/src/sprites.ts (`tankSprites`), converted from
-// its fillRect calls to fizlet/sprite data. Data only; nothing is imported from that repo.
+// its fillRect calls to fzlt/sprite data. Data only; nothing is imported from that repo.
 // Hull: the 32x32 tread tile, two frames (the links shift 1px), pivot at its centre (-16, -16).
 // Turret: drawn at the hull centre, rotated on its own; the barrel at recoil 0. Body = role "team".
 export const SHERMAN_COLORS = { t: "#151020", l: "#8573ee", b: "team", d: "#241a35", c: "#06c4ff" };

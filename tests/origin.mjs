@@ -77,9 +77,9 @@ try {
     await p.waitForTimeout(400);
     const tags = await p.evaluate(() => [...document.querySelectorAll(".og-tag")].map((t) => [getComputedStyle(t).opacity, t.textContent]));
     assert.ok(tags.length >= 7 && tags.every(([o]) => o === "1"), `labels shown: ${JSON.stringify(tags)}`);
-    assert.ok(tags.some(([, t]) => /fizlet\/fx 2,797 B/.test(t)) && tags.some(([, t]) => /fizlet\/timeline 2,120 B/.test(t)), "labels carry brick sizes");
+    assert.ok(tags.some(([, t]) => /fzlt\/fx 2,797 B/.test(t)) && tags.some(([, t]) => /fzlt\/timeline 2,120 B/.test(t)), "labels carry brick sizes");
 
-    // Close the laptop (a tap on it, through fizlet/input): night, asleep. Open it: day.
+    // Close the laptop (a tap on it, through fzlt/input): night, asleep. Open it: day.
     const box = await p.evaluate(() => { const r = document.querySelector(".og-laptop").getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height * 0.6 }; });
     await p.mouse.click(box.x, box.y);
     assert.equal(await p.evaluate(() => window.__ac), 1, "the gesture unlocks sound");

@@ -1,4 +1,4 @@
-// fizlet/view-canvas in Chromium at 2× and 1×: the backing store is the CSS size × the screen's
+// fzlt/view-canvas in Chromium at 2× and 1×: the backing store is the CSS size × the screen's
 // density, a dirty box repaints only its own pixels (the rest of the canvas keeps what it had), a
 // resize redraws everything at the new size, the engine settles to 0 frames with only a canvas on
 // it, and Recall gives the page back byte for byte. Zero allocation: tests/view-canvas.test.mjs.

@@ -1,4 +1,4 @@
-// fizlet/steer (Node, headless): seek, wander and arrive move exactly like the DOM Battlefield Blitz
+// fzlt/steer (Node, headless): seek, wander and arrive move exactly like the DOM Battlefield Blitz
 // tanks they replace (frame by frame, same seed), flee and patrol are that same drive pointed
 // away / along a route, and none allocates per frame.
 import test from "node:test";

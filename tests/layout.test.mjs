@@ -1,4 +1,4 @@
-// fizlet/layout in Node: the Barnes-Hut pass matches the exact pairwise sum at theta 0 and stays
+// fzlt/layout in Node: the Barnes-Hut pass matches the exact pairwise sum at theta 0 and stays
 // close at the default; a graph settles (links near their length, no node on another) and then the
 // engine sleeps; runs replay bit for bit; reduced motion lands on exactly the animated run's rest;
 // pin, free and heat; fixed capacity; and a hot run allocates nothing. Pixels: tests/layout.mjs.

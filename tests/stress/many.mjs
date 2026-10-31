@@ -1,5 +1,5 @@
 // Many engines on one page (S6 P4): 1, 8, 32 and 64 gallery pieces on one page, each mounted the
-// real way (site-dist/gallery/gallery.js arms fizlet/slot on every figure; each piece's live chunk is
+// real way (site-dist/gallery/gallery.js arms fzlt/slot on every figure; each piece's live chunk is
 // its own bundle, so `mixed` pages carry one kernel and one shared clock per distinct piece).
 //
 //   npm run site && npm run test:stress -- many [--counts 1,8,32,64] [--mode same,mixed]

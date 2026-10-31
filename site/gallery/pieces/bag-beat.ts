@@ -5,7 +5,7 @@
 // At the bell: hits and your best streak. Gloves swap hands every punch.
 // Keys (focus in the stage): Space, J or F punches; M mutes.
 // Bricks: the kernel (fixed step, settle: a hanging bag is still and it sleeps; its ledger for the
-// canvas and the controls), fizlet/sound and fizlet/slot. The bag (`bag`) is plain numbers: no DOM,
+// canvas and the controls), fzlt/sound and fzlt/slot. The bag (`bag`) is plain numbers: no DOM,
 // no allocation a step.
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../src/slot";

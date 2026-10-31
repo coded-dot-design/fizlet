@@ -8,7 +8,7 @@
 // drops from the awning: small, big or jumbo, by your tickets. Then it sleeps until the next tap.
 // Bricks: the kernel (fixed step, settle: it sleeps once the moles are down and the last ticket has
 // landed; busy(sec) holds the intro; its ledger for every page write, so Recall gives the page back
-// byte for byte) and fizlet/slot. The booth, particles and prize: midway.ts; the letters: letters.ts.
+// byte for byte) and fzlt/slot. The booth, particles and prize: midway.ts; the letters: letters.ts.
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../src/slot";
 import { letters, ROT, STRETCH, TY } from "./letters";

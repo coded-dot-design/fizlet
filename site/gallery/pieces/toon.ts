@@ -1,6 +1,6 @@
 // PLUM, the toon of the classic cartoon gags (#anvil "Look out below!" and #fuse "Short fuse"): a
 // round grape of a fellow in a bowler hat, white gloves and yellow shoes, who only wants a quiet
-// walk. Original art as data for fizlet/sprite, shared by both pieces: walk cycle, the take, the
+// walk. Original art as data for fzlt/sprite, shared by both pieces: walk cycle, the take, the
 // look to camera, the glare, the accordion squash, the wind-up whirl; the hat is its own sprite so
 // it can fly off. Soot is a palette (the body goes black, the eyes stay white). Also the props
 // (anvil, piano, dynamite) and the little gag marks every toon needs (stars, a grawlix, speed

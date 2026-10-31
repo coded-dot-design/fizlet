@@ -5,7 +5,7 @@
 // a side. Red slalom flags mark the edges; the run starts under the START banner. Ten seconds, then
 // the score card, then you roll to a stop and it sleeps until the next press.
 // Bricks: the kernel (fixed step; settle; its ledger for every page write, so Recall gives the page
-// back byte for byte), fizlet/slot, fizlet/sound. The rig: kit.ts; the bar's font: pix.ts. The run is
+// back byte for byte), fzlt/slot, fzlt/sound. The rig: kit.ts; the bar's font: pix.ts. The run is
 // `hillBomb()`, plain numbers, no DOM (tests/skate-sesh.test.mjs: zero allocation). The hill itself
 // is a function of how far down you are: no tables, nothing to allocate.
 import { createEngine } from "../../../../src/kernel/index";

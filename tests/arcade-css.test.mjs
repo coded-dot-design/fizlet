@@ -1,4 +1,4 @@
-// fizlet/arcade composes a run's stylesheet as the game's kit CSS + the shared BASE + the HUD
+// fzlt/arcade composes a run's stylesheet as the game's kit CSS + the shared BASE + the HUD
 // preset's own CSS. Every preset must leave BASE out of its own CSS, or the overlay rules ship and
 // parse twice (the skirmish preset carried a second copy until the brick audit, 2026-10-30).
 import assert from "node:assert/strict";

@@ -1,5 +1,5 @@
 /**
- * fizlet/sprite: the character layer's drawing primitive. Pixel-art sprites written as data (rows of
+ * fzlt/sprite: the character layer's drawing primitive. Pixel-art sprites written as data (rows of
  * characters + a colour map whose values can be palette roles), baked once per (sprite, frame,
  * scale, palette) into a bounded cache, then blitted with one drawImage. `spriteSVG()` / `spriteURL()`
  * give the same pixels as an SVG for characters that live in the page instead of on a canvas; they

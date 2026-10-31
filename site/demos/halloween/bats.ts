@@ -1,7 +1,7 @@
 // Bat Blaster: pixel bats swoop across the night, in and out of the card and over the page above
 // it; tap to fire the blaster at them. A round runs while you play (every hit buys time); when it
 // ends, the bats left fly up and away off the page, and the scene sleeps.
-// Bricks: the kernel, fizlet/fx (one pool: bat bits, muzzle sparks, shake), fizlet/sprite (the bat,
+// Bricks: the kernel, fzlt/fx (one pool: bat bits, muzzle sparks, shake), fzlt/sprite (the bat,
 // two frames, baked once), on the Halloween hero core (./hero: canvas, spill layer, pixel font).
 import { effects, emitter } from "../../../src/fx";
 import { sprites } from "../../../src/sprite";

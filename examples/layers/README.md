@@ -46,7 +46,7 @@ over it fans the layers out by hand ("Scroll me to fan the layers"). By [Chris C
   The standalone page has no site script, so it loads the note's own chunk (`hint.js`) with the scene.
 - **Keys:** the figure takes focus; the arrows step one stop at a time (each label, then the fault,
   the scan and the patch), Home and End go to the ends. Tab then reaches the play key.
-- **Lazy:** no JS file loads up front. A ~370 B inline script imports `layers.js` (`fizlet/slot` and
+- **Lazy:** no JS file loads up front. A ~370 B inline script imports `layers.js` (`fzlt/slot` and
   the scene, one file) when the slot comes within 200px, is tapped or takes focus; the slot then
   waits for an idle main thread and mounts the scene.
 - **Calm:** 30 fps cap. Paused, or off screen, it settles (no `requestAnimationFrame` at all).
@@ -63,7 +63,7 @@ over it fans the layers out by hand ("Scroll me to fan the layers"). By [Chris C
 ## Measured
 
 See `site/demos/layers/measured.json`. On Fizlet 0.21.0, Chromium 153: live chunk 8,060 B gzip
-(`fizlet/slot` + scene, loaded only once the slot is near); poster, controls and inline script
+(`fzlt/slot` + scene, loaded only once the slot is near); poster, controls and inline script
 4,057 B gzip (script 368 B); at 4× CPU throttle over one whole loop, script per frame 1.4 ms median,
 2.6 ms p95, 5.7 ms max; layout shift 0; 0 frames while paused; 0 B of JS fetched before the slot
 nears the viewport.
@@ -73,6 +73,6 @@ Against the hero budgets in fizlet-engine `docs/LAYERS.md`: live chunk ≥ 5% un
 build if the live chunk or the poster goes over.
 
 How it fits: the tanks patrol fixed loops (the dotted rectangles on the movement layer), so the hero
-carries no path search and no `fizlet/grid` (−1.5 KB); slot and scene ship as one file loaded by the
+carries no path search and no `fzlt/grid` (−1.5 KB); slot and scene ship as one file loaded by the
 inline loader; the scene's state styles live in the page CSS; the stack's bounds are precomputed
 (`build.mjs` checks them against the formula). Bricks in the live chunk: kernel, slot, sprite, fx.

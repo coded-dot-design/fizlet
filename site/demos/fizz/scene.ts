@@ -1,8 +1,8 @@
 // The fizz: an arcade soda can, side view and top-down view of the same moment. A tap crunches the
 // can, the tab pops, and the fizz sprays up and out of the card. No camera: the card holds still and
 // the two views tell it (side and straight down into the can).
-// Bricks: the kernel (settle + fps cap), fizlet/fx (two pools: the spray on a layer above the card,
-// the top view's fizz inside it; kinds as data), fizlet/sprite (spriteURL: each frame of both views
+// Bricks: the kernel (settle + fps cap), fzlt/fx (two pools: the spray on a layer above the card,
+// the top view's fizz inside it; kinds as data), fzlt/sprite (spriteURL: each frame of both views
 // becomes an image once, drawn crisp).
 // Every node and style it adds goes through the engine's ledger, so Recall gives the page back.
 import { createEngine } from "../../../src/kernel/index";

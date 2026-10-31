@@ -1,4 +1,4 @@
-// Browser test for the layers story (site/demos/layers): it mounts through fizlet/slot and plays on its
+// Browser test for the layers story (site/demos/layers): it mounts through fzlt/slot and plays on its
 // own, looping, while it is on screen (off screen it settles: no requestAnimationFrame at all). The
 // play key pauses and resumes it. The figure holds the page's scroll like the site's other demo
 // frames: a wheel or a swipe over it steps the story (down fans the layers out) and the page stays
@@ -23,7 +23,7 @@ const bundle = (await build({
   bundle: true, format: "iife", globalName: "L", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 // The built page, with room to scroll the figure all the way through. Its inline loader does not
-// import the chunk: the test's own script mounts the scene through fizlet/slot and keeps the handle.
+// import the chunk: the test's own script mounts the scene through fzlt/slot and keeps the handle.
 const PAGE = html
   .replace('import("./layers.js");import("./hint.js")', "0")
   .replace('<link rel="stylesheet" href="board-ui.css">', `<style>${readFileSync("src/ui/board-ui.css", "utf8")}</style>`)

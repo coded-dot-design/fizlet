@@ -1,7 +1,7 @@
 // match card: a ten-second round. PRESS START, then 3 · 2 · 1, then bricks rain down: catch them on
 // your paddle (it follows the pointer, or jumps to a tap). Eight caught when the clock runs out is a
 // STAGE CLEAR; fewer is GAME OVER, and the bricks you missed lie cracked on the floor. The whole
-// flow is fizlet/match's phase machine, run headless: intro, count, play, end, rematch.
+// flow is fzlt/match's phase machine, run headless: intro, count, play, end, rematch.
 import type { SlotMount } from "../../src/slot";
 import { match } from "../../src/match";
 import { mountCard, ground, brick, ink, W, H, FLOOR } from "./frame";

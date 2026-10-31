@@ -3,7 +3,7 @@
 // its progress is where it sits in the viewport, so the same scroll position always gives the same
 // frame, scrolling back plays it backwards, and nothing waits on a timer. In the row of three, the
 // acts come in one after another (2015 first). No scroll-jacking: the page scrolls as it always does;
-// the engine only reads the scroll. One engine (kernel + fizlet/timeline): it wakes on scroll and
+// the engine only reads the scroll. One engine (kernel + fzlt/timeline): it wakes on scroll and
 // resize, settles 0.4 s after (no frames when still), and a part already in view at load is shown as
 // it is (never hidden after it painted). Only opacity and translate move: no layout shift. Reduced
 // motion: never runs (every part as written). destroy() gives every style back (the ledger).

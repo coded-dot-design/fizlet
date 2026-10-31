@@ -86,10 +86,10 @@ export const ROADMAP = [
     [1, "HUD presets (card, skirmish bar) and swappable touch pads"],
     [1, "match, coach and steer bricks"],
     [0, "Battlefield Blitz on the skirmish preset, steer and coach"],
-    [0, "A released game on fizlet/match"],
+    [0, "A released game on fzlt/match"],
   ] },
-  { id: "E9", name: "On npm", status: "planned", goal: "npm install fizlet: one package, a subpath per brick, published from CI with provenance.", items: [
-    [0, "fizlet@0.x on npm from the release workflow"],
+  { id: "E9", name: "On npm", status: "planned", goal: "npm install fzlt: one package, a subpath per brick, published from CI with provenance.", items: [
+    [0, "fzlt@0.x on npm from the release workflow"],
     [0, "An API snapshot test for every COMPLETE brick"],
   ] },
   { id: "E10", name: "Diagrams", status: "planned", goal: "Interactive diagrams that settle: graphs laid out on the kernel clock.", items: [
@@ -104,12 +104,12 @@ export const ROADMAP = [
   ] },
   { id: "E13", name: "Animation library", status: "planned", goal: "A recipe used twice becomes data; a recipe used across games becomes a brick.", items: [] },
   { id: "E14", name: "Accessible play", status: "planned", goal: "Every game playable by keyboard and gamepad, and heard by screen readers.", items: [
-    [0, "Gamepad in fizlet/input"],
+    [0, "Gamepad in fzlt/input"],
   ] },
   { id: "E15", name: "Music", status: "planned", goal: "Background loops from the same tiny synth, on the kernel clock.", items: [] },
   { id: "E16", name: "1.0", status: "planned", goal: "Every shipped brick COMPLETE or DEPRECATED, the API frozen, the games on 1.0, and smaller and faster than 0.x by a measured margin.", items: [
     [0, "Every brick COMPLETE or DEPRECATED"],
-    [0, "fizlet@1.0.0"],
+    [0, "fzlt@1.0.0"],
   ] },
 ];
 

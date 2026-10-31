@@ -1,4 +1,4 @@
-// fizlet/hud (Node, on a tiny fake DOM that counts writes): change-only writes, formats, meter and
+// fzlt/hud (Node, on a tiny fake DOM that counts writes): change-only writes, formats, meter and
 // flag, feed and banner from the event ring, and zero allocation in the steady state.
 // The real DOM (exact restore, 0 mutations on unchanged frames) is in tests/browser.mjs.
 import test from "node:test";

@@ -1,5 +1,5 @@
 // The two hero gallery pieces (site/gallery/pieces/) in Chromium, each on its own stage
-// (site/gallery/stages/<id>.html), mounted through fizlet/slot as the gallery does: it plays, a tap
+// (site/gallery/stages/<id>.html), mounted through fzlt/slot as the gallery does: it plays, a tap
 // has a consequence, the page's own elements move only when something reaches them, it settles to
 // no frames with the page exactly as it was, Recall mid-play gives the page back byte for byte, and
 // reduced motion keeps the still poster (the scene never mounts).

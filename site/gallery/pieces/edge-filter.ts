@@ -8,7 +8,7 @@
 // memory): it takes a second, a hit while patching knocks it back, and a patched host is a shield
 // packets die on. So the order is the lesson: cut the segment off, then patch it. Win when every
 // segment is clean; or the clock (20x) reaches ten minutes. Tap to play again.
-// Bricks: the kernel (settle, ledger), fizlet/steer's exact hypot, fizlet/slot. Step allocates nothing.
+// Bricks: the kernel (settle, ledger), fzlt/steer's exact hypot, fzlt/slot. Step allocates nothing.
 import type { SlotScene, SlotTap } from "../../../src/slot";
 import { outbreak, hypot, S, T, INK, MUTED, LINE, BUG, BUG2, HEAL, GLOW, GOLD } from "./outbreak";
 

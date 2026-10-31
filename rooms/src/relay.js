@@ -3,8 +3,8 @@
 // the player count and a shared seed); then it relays INPUT and HASH messages to everyone else,
 // stamping the sender's real seat so nobody can speak for another player, and only the first
 // INPUT (or HASH) a seat sends for a frame: each seat's frames must rise, so a second, different
-// input for a frame never reaches anyone (fizlet/presence keeps the first one too). Wire format: see
-// fizlet/presence (12 bytes: kind, slot, players, 0, u32 frame or seed, u32 value).
+// input for a frame never reaches anyone (fzlt/presence keeps the first one too). Wire format: see
+// fzlt/presence (12 bytes: kind, slot, players, 0, u32 frame or seed, u32 value).
 export const INPUT = 1, HASH = 2, WELCOME = 3, LEAVE = 4;
 
 export class Relay {
