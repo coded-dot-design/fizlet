@@ -1,0 +1,179 @@
+{
+  "$comment": "Generated from the content model; do not edit by hand.",
+  "site": "fizlet",
+  "brand": "fizlet",
+  "games": [],
+  "date": "2026-10-31",
+  "status": "scheduled",
+  "publishAt": "2026-10-31T09:00:00-05:00",
+  "id": "blog-how-small-is-small",
+  "type": "blog",
+  "slug": "how-small-is-small",
+  "title": "How small is small",
+  "subtitle": "The kernel, every brick and the hero budget, in bytes.",
+  "eyebrow": "Field notes · size",
+  "tags": [
+    "fizlet",
+    "engine",
+    "size",
+    "performance"
+  ],
+  "lead": [
+    "\"Tiny\" means nothing without a number. Fizlet's kernel is 3,439 bytes gzip on 0.19.0, against a budget of 4,096 that fails the build when crossed. Every brick has its own budget, a page hero has one too, and the site shows only numbers the build measured. Here is each number, and how we get it."
+  ],
+  "blocks": [
+    {
+      "type": "stats",
+      "heading": "The budgets that matter most",
+      "items": [
+        {
+          "value": "3,439 B",
+          "label": "the kernel (budget 4,096 B)"
+        },
+        {
+          "value": "7,127 B",
+          "label": "the page build: kernel + slot + input + fx (budget 7,168 B)"
+        },
+        {
+          "value": "10 KB",
+          "label": "a hero's live chunk: kernel, bricks and the scene's own code"
+        },
+        {
+          "value": "13,312 B",
+          "label": "`fizlet.js`: one script tag, every brick but debug"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "How we measure",
+      "body": [
+        {
+          "type": "p",
+          "text": "One function measures everything: `scripts/sizes.mjs`. It bundles each entry with esbuild (ESM, ES2022, minified), gzips the result and compares it with the entry's budget. 1 KB is 1,024 bytes. A brick's number includes every part of the kernel it imports, so it is what a page pays for that brick alone."
+        },
+        {
+          "type": "p",
+          "text": "`npm run size` runs it in CI and fails over budget. The website calls the same function while it builds, so the numbers on the [budgets page](/docs/budgets/) and on every brick page are the ones CI checked, never typed. The site test measures again and fails if a page disagrees."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "The kernel, release by release",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**0.1.0: about 2.6 KB.** The shared clock, the fixed step, auto-pause, pools, the event ring, the seeded random and the ledger.",
+            "**0.3.5: 2,839 → 3,106 B.** Hardening: options checked at setup, a throwing hook stops only its own engine, `destroy()` idempotent.",
+            "**0.5.0: 3,106 → 3,275 B.** The page profile: `settle` (no frames once nothing moves) and the `fps` cap.",
+            "**0.7.0: 3,275 → 3,347 B.** `engine.timing` and `engine.live`: typed-array slots, so reading them never boxes a number.",
+            "**0.19.0: 3,439 B (+17 B).** The fps cap now caps `requestAnimationFrame` itself: a capped hero asks for 30 frames a second instead of one per vsync."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Each step bought something you can test. That is the rule for a budget: it moves only with a reason, and the changelog says how much."
+        }
+      ]
+    },
+    {
+      "type": "features",
+      "layout": "grid",
+      "heading": "Every brick, gzip, on 0.19.0",
+      "items": [
+        {
+          "title": "steer 950 B · sound 1,000 B",
+          "body": "Movers on typed arrays with seek, flee, arrive, wander and patrol; a synth with nine cues and no audio files."
+        },
+        {
+          "title": "coach 1,192 B · input 1,283 B · collide 1,293 B",
+          "body": "Tutorial steps and tips; keys, pointer and a touch stick as intents; a fixed-capacity spatial hash."
+        },
+        {
+          "title": "rules 1,318 B · hud 1,320 B · camera 1,385 B · sprite 1,403 B",
+          "body": "Waves, drops and score; change-only readouts; pan and zoom of a DOM stage; pixel characters as data."
+        },
+        {
+          "title": "grid 1,533 B · presence 1,792 B · slot 1,856 B",
+          "body": "A board with A* paths and sight; lockstep input exchange; a lazy scene for an Astro slot."
+        },
+        {
+          "title": "perf 1,958 B · pad 1,995 B · embed 2,016 B · timeline 2,050 B",
+          "body": "The players' perf overlay; touch controls; a drop-in game toggle; keyframes on the kernel clock."
+        },
+        {
+          "title": "match 2,599 B · fx 2,797 B · ui 2,884 B + 4,884 B css · board-page 4,097 B",
+          "body": "Match flow; pooled particles and the blast; the Board UI keys; the host page as the board."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "The hero budget",
+      "body": [
+        {
+          "type": "p",
+          "text": "A landing-page hero's live chunk (kernel, bricks and the scene's own code) has a budget of 10 KB gzip. The page build takes 7,127 B of it, which leaves about 3 KB for the scene. A test fails if sound, debug, the pad, the HUD, match or the Board UI get into the page build."
+        },
+        {
+          "type": "p",
+          "text": "The two story heroes on the home page fit: the layers scene's live chunk is 9,727 B and the fizz scene's 8,752 B. Neither loads until its slot nears the viewport, and both settle to zero frames once nothing moves."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "When a budget had to move",
+      "body": [
+        {
+          "type": "p",
+          "text": "**`fizlet/timeline` missed its target.** We aimed for 1,536 B. Keyframes, easing tables, stagger, labels, repeat and yoyo, controls and revert came to 2,050 B, so its budget is 2,304 B, and the changelog says so."
+        },
+        {
+          "type": "p",
+          "text": "**`fizlet/board-page` moves when the kernel does.** It bundles only the kernel's phase constants, but esbuild's renamer counts the whole engine module, so any kernel edit moves it by about 2 bytes. It sat at 4,095 of 4,096; the budget went to 4,128 rather than chase renames."
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "q": "Why gzip and not minified bytes?",
+          "a": "Gzip is what crosses the wire for a script on almost every host, so it is what a visitor pays. Where a change is about minified bytes, the changelog gives them too."
+        },
+        {
+          "q": "Why is fizlet/arcade 21,915 B?",
+          "a": "It is a shell, not a brick: it composes the kernel, board-page, input, the pad, sound, the HUD and the Board UI keys, so a page arcade game is only its rules and art. A card game that leaves out the skirmish HUD ships 17,912 B of it."
+        },
+        {
+          "q": "Do you compare with other engines?",
+          "a": "No. We publish what we measured on our own code, with how we measured it."
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "Size budgets",
+          "href": "/docs/budgets/"
+        },
+        {
+          "label": "Every brick",
+          "href": "/bricks/"
+        },
+        {
+          "label": "Release notes",
+          "href": "/news/"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "How small is small: Fizlet's sizes · Fizlet",
+    "description": "Fizlet's kernel is 3,439 B gzip against a 4 KB budget. Every brick's size, the 10 KB hero budget, and how CI and this site measure them the same way."
+  }
+}
