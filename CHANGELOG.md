@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **Website: Chris Cooley's avatar redrawn from his riding gear.** His pixel avatar on /people/ is
+  now a rider in a white moto helmet (peak, vents, pointed chin bar with side slots and a mesh
+  vent), red goggles with a chrome lens and a black jersey with red shoulders; no face shown, no
+  brand marks. Same 32 × 32 grid and Board UI tokens.
 - **fizlet/steer: `arriveGoal(i, dt)`**, `arrive` toward the goal the game writes in `gx[i]`, `gy[i]`.
   A goal computed every frame (a wingman's slot behind its leader) passed to `arrive` as two numbers
   is boxed whenever V8 doesn't inline the call: DOM Battlefield Blitz's platoons made 3 young GCs per
