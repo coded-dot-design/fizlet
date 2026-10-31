@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Gallery, Boxing (pending owner review): Toast Tell.** A three-counter bout with Crumbtron, a
+  chrome toaster bot who always tells: toast pops up before his hook (duck it), his dial eyes go red
+  before a jab (slip it); the right dodge leaves him open for a counter, three and he's down for the
+  count. Keyboard and 44 px buttons, M mutes, settles between bouts. 9,681 B gzip live. Tests:
+  tests/toast-tell.mjs, tests/toast-tell.test.mjs.
 - **Four more brick cards: hud, match, sound, presence.** hud: a high striker; tap fast to heat it
   and ring the bell; its real DOM scoreboard (score, best, heat meter, HOT flag, a feed of strikes) is
   bound with fizlet/hud and the readout counts DOM writes against frames. match: a ten-second round on

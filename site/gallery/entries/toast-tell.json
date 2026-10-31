@@ -1,0 +1,21 @@
+{
+  "id": "toast-tell",
+  "date": "2026-10-31",
+  "prompt": "a tiny boxing bout with a chrome toaster bot: toast pops up before his hook (duck), his dial eyes go red before a jab (slip); dodge right and he's wide open for a counter, three counters and he goes down for the count",
+  "title": "Toast Tell",
+  "kind": "micro",
+  "theme": "boxing",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sound",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/toast-tell.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
