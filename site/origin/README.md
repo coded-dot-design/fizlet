@@ -1,6 +1,6 @@
 # Origin: the home page's origin hero
 
-The Origin section sits on the home page right after the hero band (the "The page is the board." hero
+The Origin section sits on the home page right after the hero band (the "Logic and style." hero
 and its stats strip). It holds:
 - the title loop, "Code. Sleep. Drink. Repeat.", with a switch to "Design. Sleep. Drink. Repeat.";
 - the Sound key;
