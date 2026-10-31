@@ -1,7 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.21.2
 
+- 0.21.2 — first npm release, published as `@fzlt/core` (npm refused `fizlet` and `fzlt` as too similar to
+  existing names). Same library code as 0.21.0. Install with `npm i @fzlt/core`; imports are `"@fzlt/core"` and
+  `"@fzlt/core/<brick>"` (README, docs, site, examples, gallery, size labels, API snapshots and the
+  package tests updated). The project, repo, site and brand stay Fizlet.
 - **Layers story: it holds the scroll like every other demo frame, plays on its own, and scrolling
   over it fans the layers.** A wheel or a vertical swipe over the figure steps the story (down fans
   the layers out, up folds them back) instead of moving the page, and the site's scroll-lock note
@@ -13,16 +17,9 @@
   throttle, one loop): live chunk 7,787 → 8,060 B gzip (budget 9,728), inline 3,438 → 4,057 B
   (budget 6 KB), script per frame 1.2 ms median, 3.3 ms p95; CLS 0; 0 frames paused.
 
-## 0.21.2
-
-- 0.21.2 — first npm release, published as `@fzlt/core` (npm refused `fizlet` and `fzlt` as too similar to
-  existing names). Same code as 0.21.0. Install with `npm i @fzlt/core`; imports are `"@fzlt/core"` and
-  `"@fzlt/core/<brick>"` (README, docs, site, examples, gallery, size labels, API snapshots and the
-  package tests updated). The project, repo, site and brand stay Fizlet.
-
 ## 0.21.1
 
-- 0.21.1 — first npm release, published as `fzlt` (npm refused `fizlet` as too similar to `figlet`). Same code as 0.21.0.
+- 0.21.1 — tagged, not published: npm refused `fzlt` as too similar to `flat` (and `fizlet` as too similar to `figlet`). Same code as 0.21.0.
   Install with `npm i fzlt`; imports are `"fzlt"` and `"fzlt/<brick>"` (README, docs, site, examples,
   gallery and the package tests updated). The project, repo, site and brand stay Fizlet.
 
