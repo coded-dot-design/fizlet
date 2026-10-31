@@ -264,7 +264,7 @@ export function dirtLab(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
     { id: 7, label: "GAS", aria: "Gas", hold: true },
     { id: 8, label: "♪", aria: "Mute" },
   ], (id, down) => {
-    if (id < 4) sim.pick(id);
+    if (id < 4) (S[BOT] && sim.stop(), sim.pick(id), showBar());
     else if (id === 4) go();
     else if (id === 5) S[LEAN] = down ? -1 : S[LEAN] === -1 ? 0 : S[LEAN]!;
     else if (id === 6) S[LEAN] = down ? 1 : S[LEAN] === 1 ? 0 : S[LEAN]!;
@@ -278,11 +278,12 @@ export function dirtLab(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
     B[8]!.setAttribute("aria-pressed", k.snd.on ? "false" : "true");
   };
   const go = () => {
-    if (S[MODE] === RACE && S[BOT]) sim.stop();
+    if (S[BOT]) sim.stop();
     if (sim.race()) (writeHash(), say(4, 80, 30));
+    showBar();
   };
   const showBar = () => {
-    const racing = S[MODE] !== BUILD;
+    const racing = S[MODE] !== BUILD && !S[BOT];
     for (let i = 0; i < 8; i++) B[i]!.hidden = (i < 5) === racing;
     for (let i = 0; i < 4; i++) B[i]!.setAttribute("aria-pressed", S[PICK] === i ? "true" : "false");
   };
@@ -296,9 +297,9 @@ export function dirtLab(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
     const c = e.code, m = S[MODE]!;
     let used = true;
     if (c === "KeyM") down && !e.repeat && mute();
-    else if (m === BUILD || (m === RACE && S[BOT])) {
+    else if (m === BUILD || S[BOT]) {
       if (!down) return;
-      if (S[BOT] && c !== "KeyM") sim.stop();
+      if (S[BOT]) sim.stop(), showBar();
       if (c === "ArrowLeft") sim.cursor(-1);
       else if (c === "ArrowRight") sim.cursor(1);
       else if (c >= "Digit1" && c <= "Digit4") sim.pick(+c[5]! - 1);
@@ -321,7 +322,7 @@ export function dirtLab(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
   // the finger lets go.
   const P = new Float64Array(2);
   const drop = (e: PointerEvent) => {
-    if (S[MODE] === RACE && S[BOT]) sim.stop();
+    if (S[BOT]) sim.stop(), showBar();
     if (S[MODE] !== BUILD) return;
     k.at(e, P);
     const s = sim.slotAt(P[0]!);

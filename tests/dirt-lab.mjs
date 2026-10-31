@@ -142,6 +142,11 @@ try {
     await mount(p);
     const s = await st(p);
     assert.deepEqual([s.track, s.mode], ["-rg--br-", 1], `dirt-lab: a bad #t= (${bad.slice(0, 20)}) is refused: the default track and its demo`);
+    // Any key during the demo ends it: the builder is yours at once.
+    await p.focus("[data-fizlet-slot]");
+    await p.keyboard.press("Digit4");
+    const d = await p.evaluate(() => ({ mode: scene.sim.S[0], bot: scene.sim.S[23], palette: !document.querySelector('[data-id="3"]').hidden }));
+    assert.deepEqual(d, { mode: 0, bot: 0, palette: true }, "dirt-lab: a key during the demo hands over the builder");
     assert.deepEqual(errs, []);
     await ctx.close();
   }
