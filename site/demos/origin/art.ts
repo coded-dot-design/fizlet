@@ -59,16 +59,22 @@ const r1 = (v: number) => Math.round(v * 10) / 10;
 
 /** Head centre and tilt for a pose. Asleep, the head is forward on his folded arms, tipped. */
 export function head(aw: number, sip: number) {
-  return { x: 400, y: mix(394, 446, aw) - sip * 6, a: mix(-16, 0, aw) };
+  return { x: 400, y: mix(416, 446, aw) - sip * 6, a: mix(-12, 0, aw) };
 }
 export const headT = (aw: number, sip: number, bob = 0) => {
   const h = head(aw, sip);
   return `translate(${r1(h.x)} ${r1(h.y + bob)}) rotate(${r1(h.a)})`;
 };
+/** The upper back and neck: the shirt from the shoulders up under the head, so head and body read
+ *  as one at every pose (asleep the head leans forward onto the arms; the back follows it). */
+export function neck(aw: number, sip: number) {
+  const h = head(aw, sip), top = h.y + 8;
+  return { cx: 400, cy: r1((top + 500) / 2), ry: r1((500 - top) / 2 + 14) };
+}
 /** Hand positions: asleep folded under the head; awake on the keys (hd) or resting by the laptop. */
 export function hands(aw: number, hd: number, sip: number, tl: number, tr: number) {
-  const lx = mix(mix(434, 352, aw), 350, hd), ly = mix(mix(400, 410, aw), 336, hd) + tl;
-  const rx = mix(mix(368, 452, aw), 448, hd), ry = mix(mix(406, 410, aw), 336, hd) + tr;
+  const lx = mix(mix(434, 352, aw), 350, hd), ly = mix(mix(412, 410, aw), 336, hd) + tl;
+  const rx = mix(mix(368, 452, aw), 448, hd), ry = mix(mix(418, 410, aw), 336, hd) + tr;
   // The sip: the left hand brings the cup to his mouth.
   return { lx: mix(lx, 360, sip), ly: mix(ly, 404, sip), rx, ry };
 }
@@ -179,6 +185,7 @@ export function art(p: { aw: number; ph: number; lid: number; hd: number }, mode
 <g class="og-body" data-p="person" tabindex="0" role="button" aria-label="Nudge him">
 <ellipse cx="400" cy="560" rx="132" ry="78" fill="${C.ink}" opacity=".16"/>
 <ellipse cx="400" cy="548" rx="128" ry="72" fill="${C.red}"/>
+<ellipse class="og-neck" cx="400" cy="${neck(p.aw, 0).cy}" rx="62" ry="${neck(p.aw, 0).ry}" fill="${C.red}"/><ellipse class="og-nape" cx="400" cy="${neck(p.aw, 0).cy - neck(p.aw, 0).ry + 30}" rx="20" ry="16" fill="${C.skinD}"/>
 <path d="M366 486q34 22 68 0" fill="none" stroke="${C.redD}" stroke-width="5" stroke-linecap="round"/>
 <line class="og-arm-l" x1="${SH.lx}" y1="${SH.y}" x2="${hnd.lx}" y2="${hnd.ly}" stroke="${C.red}" stroke-width="34" stroke-linecap="round"/>
 <line class="og-arm-r" x1="${SH.rx}" y1="${SH.y}" x2="${hnd.rx}" y2="${hnd.ry}" stroke="${C.red}" stroke-width="34" stroke-linecap="round"/>

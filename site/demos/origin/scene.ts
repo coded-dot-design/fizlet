@@ -24,7 +24,7 @@ import { controls } from "../../../src/input";
 import { spriteURL, type SpriteDef } from "../../../src/sprite";
 import type { SlotMount, SlotScene } from "../../../src/slot";
 import { ORIGIN_WHY, ORIGIN_WHY_BEATS } from "./copy";
-import { why, art, CSS, BOX, C, VB, head, headT, hands, cupT, LIQUID, brew, phonesT, cord, screenT, coverT } from "./art";
+import { why, art, CSS, BOX, C, VB, head, headT, hands, neck, cupT, LIQUID, brew, phonesT, cord, screenT, coverT } from "./art";
 
 declare const __ORIGIN_BRICKS__: Record<string, number> | undefined;
 /** Brick → gzip bytes, measured by the build (scripts/sizes.mjs); empty when bundled elsewhere. */
@@ -117,7 +117,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const layer = wrap.querySelector<HTMLElement>(".og-l")!, svg = layer.querySelector("svg")!, cv = layer.querySelector("canvas")!;
   const q = <T extends Element = SVGElement>(s: string) => svg.querySelector<T>(s)!;
   const qa = (s: string) => [...svg.querySelectorAll<SVGElement>(s)];
-  const headEl = q(".og-head"), phonesEl = q(".og-phones"), cordEl = q(".og-cord"), cupEl = q(".og-cup"), cupImg = q(".og-cupimg"), liquid = q(".og-liquid"), body = q(".og-body");
+  const neckEl = q(".og-neck"), napeEl = q(".og-nape"), headEl = q(".og-head"), phonesEl = q(".og-phones"), cordEl = q(".og-cord"), cupEl = q(".og-cup"), cupImg = q(".og-cupimg"), liquid = q(".og-liquid"), body = q(".og-body");
   const armL = q(".og-arm-l"), armR = q(".og-arm-r"), handL = q(".og-hand-l"), handR = q(".og-hand-r");
   const screen = q(".og-screen"), cover = q(".og-cover"), scrl = q(".og-scrl"), laptop = q(".og-laptop");
   const scroll = q(".og-scroll"), caret = q(".og-caret"), arrow = q(".og-arrow"), sel = q(".og-sel"), shape = q(".og-shape");
@@ -342,6 +342,8 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       const aw = P[AW]!, ph = P[PH]!, lid = P[LID]!, s = P[SIP]!, bob = aw > 0.9 && ph > 0.95 && music && !reduce ? Math.max(0, Math.cos((0.5 - N[BEAT]!) * Math.PI * 4)) * -2 : 0;
       const hn = hands(aw, P[HD]!, s, T[0]!, T[1]!);
       set(headEl, "transform", N[STIR]! > 0 ? `${headT(aw, s, bob)} rotate(${(Math.sin(N[STIR]! * 40) * 6).toFixed(1)})` : headT(aw, s, bob));
+      const nk = neck(aw, s);
+      set(neckEl, "cy", `${nk.cy}`), set(neckEl, "ry", `${nk.ry}`), set(napeEl, "cy", `${Math.round((nk.cy - nk.ry + 30) * 10) / 10}`);
       set(phonesEl, "transform", phonesT(ph, aw, s, bob));
       set(cordEl, "d", cord(ph, aw, s));
       set(cupEl, "transform", cupT(s));
