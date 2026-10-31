@@ -97,7 +97,7 @@ export function perf(engine: Engine, o: PerfOptions = {}) {
     "</div>";
   const el = tpl.firstChild as HTMLElement, canvas = el.firstChild as HTMLCanvasElement, dpr = Math.min(3, Math.max(1, globalThis.devicePixelRatio || 1));
   const cw = (canvas.width = Math.round(BARS * dpr)), ch = (canvas.height = Math.round(36 * dpr)), ctx = canvas.getContext("2d");
-  const tones = TONES.slice(), texts = [...el.querySelectorAll("b")].map((b) => b.firstChild as Text);
+  const tones = [...TONES], texts = [...el.querySelectorAll("b")].map((b) => b.firstChild as Text);
   let on = false, dead = false;
 
   const write = () => {
@@ -112,17 +112,18 @@ export function perf(engine: Engine, o: PerfOptions = {}) {
   };
   const draw = () => {
     if (!ctx) return;
-    const bw = cw / BARS, top = budget * 3, x0 = (BARS - ring.size) * bw;
+    const bw = cw / BARS, top = budget * 3, x0 = cw - ring.size * bw; // the newest bar ends at the right edge
     ctx.clearRect(0, 0, cw, ch);
     let tone = -1;
     for (let k = 0; k < ring.size; k++) {
-      const i = ring.slot(k), v = ring.ms[i]!, h = Math.max(dpr, Math.min(1, v / top) * ch), c = v <= budget * 1.25 ? 0 : v <= budget * 2 ? 1 : 2;
+      const v = ring.ms[ring.slot(k)]!, h = Math.max(dpr, Math.min(1, v / top) * ch), c = v <= budget * 1.25 ? 0 : v <= budget * 2 ? 1 : 2;
       if (c !== tone) ctx.fillStyle = tones[(tone = c)]!;
       ctx.fillRect(x0 + k * bw, ch - h, bw, h);
     }
-    // The budget line, over the bars: anything that pokes above it was a slow frame.
+    // The budget line, over the bars (1 budget of the chart's 3, so 2/3 of the way down): anything
+    // that pokes above it was a slow frame.
     ctx.fillStyle = tones[3]!;
-    ctx.fillRect(0, Math.round(ch - (budget / top) * ch) - dpr, cw, dpr);
+    ctx.fillRect(0, Math.round((ch * 2) / 3) - dpr, cw, dpr);
   };
   const system = engine.add({
     render() {
@@ -149,7 +150,7 @@ export function perf(engine: Engine, o: PerfOptions = {}) {
     L.attr(el, "aria-hidden", on ? null : "true");
     if (on) {
       // Read the tokens where it sits (a .bui root or a palette may change them); not in a step.
-      const cs = typeof getComputedStyle === "function" ? getComputedStyle(el) : null;
+      const cs = globalThis.getComputedStyle?.(el); // none in a worker or a bare test runtime
       for (let i = 0; i < VARS.length; i++) tones[i] = cs?.getPropertyValue(VARS[i]!).trim() || TONES[i]!;
       // A static host: its corner is not the overlay's (absolute goes to some ancestor). Relative
       // while shown, through the ledger (given back on hide and by Recall).
