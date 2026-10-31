@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- **Site: smaller gallery pages, same pixels** (size sprint, re-based #208). The gallery stages' inline
+  PNG posters are packed losslessly (`scripts/png-pack.mjs`: an indexed PNG at the smallest bit depth,
+  pixels compared after packing; kept as-is past 256 colours; `scripts/gallery-posters.mjs` packs what
+  it writes; a test keeps every stage packed): 17 of the 34 posters packed. The pages' inline `<style>`
+  blocks are minified at build like site.css. Gallery page 1 first load 531,997 → 520,651 B gzip,
+  page 2 92,521 → 76,754 B; all HTML 1,465,898 → 1,428,045 B gzip. No JS or CSS file changes.
+
 ## 0.21.2
 
 - 0.21.2 — first npm release, published as `@fzlt/core` (npm refused `fizlet` and `fzlt` as too similar to
