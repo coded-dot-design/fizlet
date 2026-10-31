@@ -18,7 +18,7 @@ import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
 import { entries as galleryEntries, isLive, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
 import { notes as siteNotes, notePath } from "../scripts/notes.mjs";
-import { STICKER, authorOf, contributors as profiles } from "../scripts/people.mjs";
+import { CONTEST, STICKER, authorOf, contributors as profiles } from "../scripts/people.mjs";
 import { gzipSync } from "node:zlib";
 import { checkKeys, checkTaps } from "./keys.mjs";
 import { snippetable, snippetFor, TABLE as MAKE_TABLE } from "../scripts/make.mjs";
@@ -237,10 +237,17 @@ try {
       for (const e of gp.entries) {
         const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
         assert.ok(html.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `${e.id}: its badge shows ${bytes} B`);
-        assert.ok(html.includes(`data-total="gallery:${e.id}">live ${bytes.toLocaleString("en-US")} B · total <b>${(bytes + loader).toLocaleString("en-US")} B</b>`), `${e.id}: live and total, one size`);
+        const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</div>\n    </li>")[0]; // a card ends at its own </li> (a poster may hold lists)
+        // The stat chips: live and total (with the shared loader), measured on this build.
+        assert.ok(card.includes(`data-live-bytes="gallery:${e.id}"><b>${bytes.toLocaleString("en-US")} B</b> live</li>`), `${e.id}: its live chip shows ${bytes} B`);
+        assert.match(card, new RegExp(`data-total="gallery:${e.id}"[^>]*><b>${(bytes + loader).toLocaleString("en-US")} B</b> total with the ${loader.toLocaleString("en-US")} B loader</li>`), `${e.id}: its total chip, live + loader`);
+        // Stickers: one status (NEW this week, else APPROVED, with the owner's date); HERO on a hero; TOO BIG TO WIN only over the cap, with the bytes over.
+        const status = [...card.matchAll(/class="gal-sticker gal-sticker-(new|ok)" role="img" aria-label="([^"]+)"/g)];
+        assert.ok(status.length === 1 && status[0][2].includes(`approved by the owner on ${e.approved}`), `${e.id}: one status sticker, with its approval date`);
+        assert.equal(card.includes(">HERO</span>"), e.kind === "hero", `${e.id}: a HERO sticker only on a hero`);
+        if (card.includes(">TOO BIG TO WIN</span>")) assert.ok(bytes > CONTEST.maxLive && card.includes(`<b>+${(bytes - CONTEST.maxLive).toLocaleString("en-US")} B</b> over the`), `${e.id}: too big to win only over the cap, by its measured bytes`);
         assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
         // Attribution: "by <name>", linked to the contributor's profile.
-        const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</div>\n    </li>")[0]; // a card ends at its own </li> (a poster may hold lists)
         assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">studio crew</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
       }
     }
