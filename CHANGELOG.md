@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Before AI: 2015 page redesign** (`demos/before-ai-2015/`, pending owner review): the people
+  page's language (stickers, mono meta, brick chips with measured sizes, panels), on-this-page
+  chips and a stat strip; the story told by the scroll (2015 → remake → arcade, scrubbed reveals
+  on the kernel and `fizlet/timeline`: same scroll, same frame; settles; none under reduced
+  motion); one comparison table (same metrics, SMALLEST where one column is least); the arcade
+  lights each brick's chip while it acts; a 44 px Sound key whose choice is kept; a Recall key.
+  The timeline is gone. The remake's play switch now matches 2015 (the icon font's
+  `line-height: 1` and the box's `left: -2%`). Page script +2,475 B gzip (11,567 → 14,042).
+
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
   first release tag after the owner adds the `NPM_TOKEN` repository secret; the release workflow
   (`.github/workflows/release.yml`, `npm publish --provenance --access public`) checks, packs and

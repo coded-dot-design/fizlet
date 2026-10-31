@@ -660,7 +660,8 @@ try {
     await page.locator(".bt-arcade .fz-cups").scrollIntoViewIfNeeded();
     await page.click(".bt-arcade .fz-cups");
     assert.equal(await page.evaluate(() => window.__audio), 1, `${where}: the first press starts the synth`);
-    assert.equal(await page.$eval(".bt-arcade [data-brick=hud]", (el) => el.classList.contains("lit")), true, `${where}: the hud chip lights on a hit`);
+    // The chip lights in the engine's next render (a frame after the press), for 0.45 s.
+    assert.ok(await page.waitForFunction(() => document.querySelector(".bt-arcade [data-brick=hud]").classList.contains("lit"), null, { timeout: 1000 }).then(() => true, () => false), `${where}: the hud chip lights on a hit`);
     // Mute is kept: off, reload, still off, and a press makes no audio context.
     await page.click(".bt-arcade .fz-mute");
     assert.equal(await page.evaluate(() => localStorage.getItem("fizlet:before-ai-2015:sound")), "off", `${where}: mute is stored`);

@@ -88,6 +88,7 @@ const cell = (v, all) => {
   const min = Math.min(...all), win = v === min && all.filter((x) => x === min).length === 1;
   return `<td${win ? ' class="bt-win"' : ""}><span class="bt-num">${v ? kb(v) : "none"}</span>${win ? ` ${smallestBadge()}` : ""}</td>`;
 };
+const TOC = [["three-ways", "Three ways"], ["compare", "One comparison"], ["taken-apart", "Taken apart"], ["archive", "The archive"]];
 const COLS = ["2015 · CSS sprites", "Fizlet · remake", "Fizlet · arcade"];
 const compare = `<div class="bt-cmp-wrap panel">
       <table class="bt-cmp">
@@ -162,6 +163,11 @@ ${fizCss}
 ${readFileSync(`${DIR}/page.css`, "utf8")}
 </style>`;
 
+// Chris's words on why Fizlet exists: the owner's wording, as in the note (fizlet-engine
+// content/posts/blog-before-ai-2015.json). Same text as ORIGIN_WHY (hero/origin-scene copy.ts):
+// import that constant here once it lands.
+const WHY = "There were a lot of animations before Fizlet, and in between. We kept writing the same thing over and over, a little different each time for a slightly different use. So we built Fizlet to make it easier for us. Then we figured other people could get something out of it too, so we open-sourced it.";
+
 // The three acts in story order: 2015, the remake, the arcade. Each wears its sticker, its bricks
 // as chips (measured) and the stage. `data-reveal`: scrubbed in by the scroll (reveal.ts).
 const body = `${CSS}
@@ -173,9 +179,20 @@ const body = `${CSS}
       <h1 id="bt-title" class="bt-title">Drawn by hand in 2015.<br><em>Rebuilt in Fizlet.</em></h1>
       <p class="lead">In 2015, years before AI coding tools, Chris Cooley drew three micro animations frame by frame and played them with CSS sprites: headphones that plug in and play, a coffee cup that fills, a laptop that opens and types. The Wayback Machine kept them. Here they are live, beside the same three on Fizlet: once as they were, once as an arcade.</p>
       <p class="bt-by">By <a href="https://coded.design/">Chris Cooley ↗</a> · <a href="../../${NOTE}">Read the note: Before AI: 2015</a></p>
+      <nav class="page-toc bt-toc" aria-label="On this page"><span class="bui-label"><b>ON THIS PAGE</b></span><ol>${TOC.map(([id, name], i) => `<li><a href="#${id}"><b>0${i + 1}</b>${name}</a></li>`).join("")}</ol></nav>
     </header>
+    <ul class="rules bt-stats" aria-label="Measured on this build">
+      <li class="panel rule"><b>${kb(code[0])}</b><p>2015, gzip: the CSS and the 4-line toggle. Bricks: none</p></li>
+      <li class="panel rule"><b>${kb(code[1])}</b><p>the remake, gzip: JS (the kernel and the strip that plays the frames) and CSS</p></li>
+      <li class="panel rule"><b>${kb(code[2])}</b><p>the arcade, gzip: JS (kernel, <code>fizlet/fx</code>, <code>fizlet/sound</code>, <code>fizlet/hud</code>) and CSS</p></li>
+      <li class="panel rule"><b>0</b><p>animation frames a second the arcade asks for once a round is over</p></li>
+    </ul>
+    <figure class="bt-quote">
+      <blockquote><p>“${esc(WHY)}”</p></blockquote>
+      <figcaption class="bt-meta">Chris Cooley · why Fizlet exists</figcaption>
+    </figure>
 
-    <div class="bt-sec" data-reveal>
+    <div class="bt-sec" id="three-ways" data-reveal>
       <p class="eyebrow"><span class="index">01</span> THREE WAYS · LIVE</p>
       <h2 class="bt-h">Same sprite sheets.<br><em>×100 the life.</em></h2>
       <p class="bt-how">Press the switches in the first two columns. In the arcade, hit everything: the headphones, the cup, the keys.</p>
@@ -224,19 +241,19 @@ const body = `${CSS}
     <p class="bt-note">Reduced motion: the 2015 column and the remake hold their first frame (a wrapper rule on this page; 2015 had none), and the arcade lands each press on its still frame with no particles, squash or shake; it makes a sound only when you press, and the Sound key mutes it. At rest the page asks for no animation frames, even after a round in the arcade; the site's tests count them on every build. On the page both Fizlet columns ship as one script, <b>${fmt(sizes.js)} B</b> gzip (they share the kernel), plus <b>${fmt(sizes.fizCss)} B</b> of CSS. The sprite sheets are the same files in all three.</p>
     <p class="bt-recall-row"><button type="button" class="bt-recall" data-recall>Recall</button><span>Give the page back: every engine stops and every style, class and attribute Fizlet wrote goes back as it was.</span></p>
 
-    <div class="bt-sec" data-reveal>
+    <div class="bt-sec" id="compare" data-reveal>
       <p class="eyebrow"><span class="index">02</span> ONE COMPARISON · MEASURED</p>
       <h2 class="bt-h">Side by side.<br><em>One comparison.</em></h2>
     </div>
     ${compare}
 
-    <div class="bt-sec" data-reveal>
+    <div class="bt-sec" id="taken-apart" data-reveal>
       <p class="eyebrow"><span class="index">03</span> HOW EACH ONE MOVES</p>
       <h2 class="bt-h">Taken apart.<br><em>Every byte counted.</em></h2>
     </div>
     ${dissection}
 
-    <div class="bt-sec" data-reveal>
+    <div class="bt-sec" id="archive" data-reveal>
       <p class="eyebrow"><span class="index">04</span> THE ARCHIVE</p>
       <h2 class="bt-h">The 2015 page.<br><em>Still on the archive.</em></h2>
     </div>
