@@ -1,0 +1,19 @@
+{
+  "_about": "The FILET factory's cartridge names (site/factory/). Edit freely: the build checks the shape. `soon` are real games, copied from fizlet-engine games/<id>/spec.json and only while that spec's status is not released (idea or in-progress); their cartridges say COMING SOON. `rolls` are jokes, never real games; their cartridges say FACTORY ROLL. The factory cycles through all of them in this order, from a random start.",
+  "soon": [
+    { "id": "dom-crossfire", "name": "DOM Crossfire", "tagline": "The virus scrambled the cartridges.", "status": "idea", "source": "fizlet-engine games/dom-crossfire/spec.json" },
+    { "id": "kaiju", "name": "DOM Kaiju", "tagline": "Climb the page. Wreck the page.", "status": "idea", "source": "fizlet-engine games/kaiju/spec.json" }
+  ],
+  "rolls": [
+    "Div Soup",
+    "Flexbox Fury",
+    "z-index Zero",
+    "Margin Collapse",
+    "Semicolon Smash",
+    "Hover Havoc",
+    "Cascade Crash",
+    "Null Pointer Picnic",
+    "Kernel Panic Party",
+    "Spaghetti Selector"
+  ]
+}

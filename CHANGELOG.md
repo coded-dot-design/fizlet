@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- **Website: the FILET game factory, a full-screen hero at the top of /bricks/** (`site/factory/`).
+  The real bricks (kernel, input, fx, sound, grid, steer, hud, timeline, sprite, collide, slot), each
+  in its token with its size measured on this build, stand stacked, get knocked over, and go on a
+  belt (tap, drag, Enter or Space); the kernel, any two bricks and the Z that fell off the sign make
+  the machine shake, spark and blow, and a FIZLET cartridge with the DOM VIRUS skull sticker comes
+  out, named from `site/factory/names.json` (real games marked COMING SOON from their specs, the rest
+  FACTORY ROLL jokes). An inline controller plays it from first paint and under reduced motion (the
+  cartridge simply appears); the live scene (kernel, fizlet/fx, fizlet/sound) loads near the viewport
+  through fizlet/slot, settles to 0 frames and gives the hero back exactly. Sound only after a
+  gesture, mute kept in localStorage. On phones everything that plays fits the first screen (bricks,
+  belt, machine, cartridge, HUD), the copy follows. `tests/factory.mjs` (in `npm run test:site`) and
+  `tests/factory-alloc.test.mjs` (the step allocates nothing over 1M steps, with the GC harness's self-check).
+
 - **Website: one brick component, three sizes** (`site/brick-ui.mjs` and one CSS block in
   `site/site.css`, tokens only). **Full** (the bricks index): the name in display type, the one-line
   what-it-does, the live toy, mono stat chips (gzip, budget, exports, all from the build) and the
