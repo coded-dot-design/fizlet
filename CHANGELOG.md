@@ -9,6 +9,10 @@
   build like site.css. Gallery page 1 first load 79,089 → 64,833 B gzip; all HTML 782,553 →
   759,776 B gzip. No JS changes; every live chunk is byte-identical.
 
+- **`fizlet/sound`: your own synth cues.** `notes` (name → `Note[]` voices) adds cues to the built-in
+  synth, so a scene can have a slurp or a yawn without its own audio code; `cues` may map to those
+  names (`CueName`). Additive: every existing call types and plays as before. 1,019 → 1,042 B gzip.
+
 ## 0.21.0
 
 - **Website: the home reveals end at the foot of the page too** (`site/home-motion.ts`). The home
