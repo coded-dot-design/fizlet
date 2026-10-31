@@ -168,6 +168,12 @@ const MARKER = /<!--site-map (\S*) (\S*)-->/;
 /** Swap a built page's site-map marker for the map (a page without one comes back as is). */
 export const fillSiteMap = (html, routes) => html.replace(MARKER, (_, base, path) => siteMap(routes, base, path));
 
+/** The grid on every hero: the page's first <section> or <article> (its head, the hero) gets the
+ *  shared `.has-grid` treatment from site.css (--grid-* tokens), unless the page already marks one. */
+export const withGrid = (body) =>
+  /\bhas-grid\b/.test(body) ? body : body.replace(/<(?:section|article)\b[^>]*>/, (tag) =>
+    / class="/.test(tag) ? tag.replace(/ class="/, ' class="has-grid ') : tag.replace(/>$/, ' class="has-grid">'));
+
 /**
  * A full page. `base` is the path back to the site root ("./" for top-level pages, "../" one
  * level down, "/fizlet/" for the 404 page, which can be served at any depth). `redirect`: a moved
@@ -176,6 +182,7 @@ export const fillSiteMap = (html, routes) => html.replace(MARKER, (_, base, path
  */
 export function page({ title, description, base, version, body, scripts = [], path = "", ld = [], noindex = false, nofollow = false, redirect = "" }) {
   const home = base;
+  body = withGrid(body);
   const nav = navTree(home, path);
   if (redirect) noindex = true;
   return `<!doctype html>
