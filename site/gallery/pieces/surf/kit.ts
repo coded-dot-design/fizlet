@@ -17,7 +17,7 @@ export const C = {
 };
 /** Score digits, made once. */
 export const NUM = Array.from({ length: 1000 }, (_, i) => String(i));
-export const FONT = Array.from({ length: 25 }, (_, i) => `900 ${i}px system-ui, sans-serif`);
+export const FONT = /* @__PURE__ */ Array.from({ length: 25 }, (_, i) => `900 ${i}px system-ui, sans-serif`);
 
 /** A hold-to-ride round's modes: the attract run, waiting, a ride, the score card. */
 export const DEMO = 0, IDLE = 1, PLAY = 2, DONE = 3;

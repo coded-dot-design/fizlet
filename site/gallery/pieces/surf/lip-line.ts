@@ -22,21 +22,21 @@ export const CREST = 24, TROUGH = 74, CAM = 30;
 const NP = 6;
 // State slots.
 const MODE = 0, T = 1, LEFT = 2, Y = 3, VY = 4, RX = 5, WX = 6, SCORE = 7, CHAIN = 8, BEST = 9, SNAPS = 10, WIPES = 11, WIPE = 12, FLOW = 13, HELD = 14, CARD = 15;
-const NEXTP = 16, GX = 17, GY = 18, NEXTG = 19, BX = 20, BY = 21, BVY = 22, CAUSE = 23, WAVE = 24;
+const NEXTP = 16, GX = 17, GY = 18, NEXTG = 19, BX = 20, BY = 21, BVY = 22, CAUSE = 23, GK = 24, AIR = 25, AIRS = 26, RYW = 27;
 /** Events this step (for the synth): snap, wipeout, start, end. */
 export const EV_SNAP = 0, EV_WIPE = 1, EV_START = 2, EV_END = 3;
-/** What wiped you out: the wall, a piling, the gull. */
+/** What wiped you out: the wall, the pier (a piling or a crossbeam), the gull or the hopper. */
 export const BY_WALL = 1, BY_PILING = 2, BY_GULL = 3;
-const WORDS = ["SNAP!", "RAD!", "STOKED!", "WIPEOUT!", "BIG CHAIN!"];
-/** Spray slots: foam, mist, feathers. */
-const FOAM = 0, MIST = 1, FEATHER = 2;
+const WORDS = ["SNAP!", "RAD!", "AIR!", "WIPEOUT!"];
+/** Spray slots: foam, mist. */
+const FOAM = 0, MIST = 1;
 
 /** The ride: plain numbers (headless-testable). `pad`: [0] held, [1] presses. */
 export function lipLine(seed: number, pad: Pad, demo: boolean) {
   const R = seeded(seed);
   const S = new Float64Array(28), ev = new Uint8Array(4);
   // Pilings: x on screen, how far down the face they hang (art y of the bottom); -99 none.
-  const PX = new Float64Array(NP).fill(-99), PB = new Float64Array(NP);
+  const PX = new Float64Array(NP).fill(-99), PB = new Float64Array(NP), PL = new Uint8Array(NP); // PL: a crossbeam to the next piling
   const sp = spray(140, R), wd = words(WORDS);
   S[MODE] = demo ? DEMO : IDLE;
   reset();
@@ -51,7 +51,7 @@ export function lipLine(seed: number, pad: Pad, demo: boolean) {
   /** A stretch of pier: three or four pilings, each hanging to its own depth. */
   function pier(x: number) {
     const n = 3 + (R() < 0.5 ? 1 : 0), deep = 38 + R() * 10;
-    for (let k = 0, i = 0; k < n && i < NP; i++) if (PX[i]! < -40) (PX[i] = x + k * 15), (PB[i] = deep + (R() - 0.5) * 6), k++;
+    for (let k = 0, i = 0; k < n && i < NP; i++) if (PX[i]! < -40) (PX[i] = x + k * 15), (PB[i] = deep + (R() - 0.5) * 6), (PL[i] = k < n - 1 ? 1 : 0), k++;
   }
   function start() {
     (S[MODE] = PLAY), (S[T] = 0), (S[LEFT] = ROUND), (S[SCORE] = 0), (S[BEST] = 0), (S[SNAPS] = 0), (S[WIPES] = 0), (S[WIPE] = 0);
@@ -59,12 +59,12 @@ export function lipLine(seed: number, pad: Pad, demo: boolean) {
     ev[EV_START] = 1;
   }
   function wipe(by: number) {
-    (S[WIPE] = 0.001), (S[CAUSE] = by), (S[WIPES] = S[WIPES]! + 1), (S[CHAIN] = 0);
+    (S[WIPE] = 0.001), (S[AIR] = 0), (S[CAUSE] = by), (S[WIPES] = S[WIPES]! + 1), (S[CHAIN] = 0);
     const y = ry();
     // The board pops up out of the foam; the rider is gone into it.
-    (S[BX] = S[RX]!), (S[BY] = y), (S[BVY] = -70);
+    (S[BX] = S[RX]!), (S[BY] = S[RYW] = y), (S[BVY] = -90);
     sp.burst(S[RX]!, y - 4, 24, 60, -1.5708, 2.8, 2, FOAM);
-    if (by === BY_GULL) sp.burst(S[GX]!, S[GY]!, 10, 40, -1.5708, 3, 1, FEATHER), (S[GX] = -99);
+    if (by === BY_GULL) S[GX] = -99;
     wd.say(3, 80, 30, 2);
     ev[EV_WIPE] = 1;
   }
@@ -82,19 +82,36 @@ export function lipLine(seed: number, pad: Pad, demo: boolean) {
       S[BVY] = S[BVY]! + 160 * dt;
       S[BY] = S[BY]! + S[BVY]! * dt;
       S[WX] = S[WX]! + 210 * dt;
-      if (S[WIPE]! > 1.5) (S[WIPE] = 0), reset();
+      if (S[WIPE]! > 1.65) (S[WIPE] = 0), reset();
     } else if (riding) {
       // Who holds: the rider, or (the attract run) a ghost that reads the face ahead.
       const held = mode === PLAY ? pad[0]! > 0 : S[Y]! + S[VY]! * 0.2 < ghost();
       S[HELD] = held ? 1 : 0;
-      S[VY] = S[VY]! + (held ? 3.6 : -4) * dt;
-      S[VY] = S[VY]! * (1 - 0.5 * dt);
-      S[Y] = S[Y]! + S[VY]! * dt;
+      if (S[AIR]) {
+        // Air off the lip: a short hop above the crest, then land it back on the face.
+        S[VY] = S[VY]! - 10 * dt;
+        S[Y] = S[Y]! + S[VY]! * dt;
+        if (S[Y]! <= 1) {
+          (S[AIR] = 0), (S[Y] = 0.99), (S[VY] = -1.2);
+          if (mode === PLAY) (S[SCORE] = S[SCORE]! + 20 * S[CHAIN]!), (S[AIRS] = S[AIRS]! + 1);
+          sp.burst(S[RX]!, CREST, 16, 50, -1.5708, 2.4, 1.4, FOAM);
+          wd.say(2, S[RX]! + 6, CREST - 12, 1);
+          ev[EV_SNAP] = 1;
+        }
+      } else {
+        S[VY] = S[VY]! + (held ? 3.6 : -4) * dt;
+        S[VY] = S[VY]! * (1 - 0.5 * dt);
+        S[Y] = S[Y]! + S[VY]! * dt;
+      }
       if (S[Y]! <= 0) {
         if (S[VY]! < -0.6) sp.burst(S[RX]! - 3, TROUGH, 5, 26, -2.6, 0.9, 1, FOAM);
         (S[Y] = 0), (S[VY] = 0);
       }
-      if (S[Y]! >= 1) {
+      if (S[Y]! >= 1 && !S[AIR] && S[VY]! > 1.7) {
+        // Up the face fast: launch.
+        (S[AIR] = 1), (S[CHAIN] = Math.min(9, S[CHAIN]! + 1));
+        sp.burst(S[RX]!, CREST - 1, 18, 60, -1.7, 1.4, 1.4, FOAM);
+      } else if (S[Y]! >= 1 && !S[AIR]) {
         // The snap off the lip: spray, points, the chain grows.
         S[Y] = 1;
         S[CHAIN] = Math.min(9, S[CHAIN]! + 1);
@@ -102,7 +119,7 @@ export function lipLine(seed: number, pad: Pad, demo: boolean) {
         S[VY] = -1.7;
         sp.burst(S[RX]! + 2, CREST - 1, 22, 70, -1.9, 1.6, 1.4, FOAM);
         sp.burst(S[RX]!, CREST - 3, 8, 40, -1.6, 2.4, 2, MIST);
-        wd.say(S[CHAIN]! >= 4 ? 4 : S[CHAIN]! === 3 ? 2 : S[CHAIN]! === 2 ? 1 : 0, S[RX]! + 6, CREST - 10, S[CHAIN]! >= 3 ? 1 : 0);
+        wd.say(S[CHAIN]! > 2 ? 1 : 0, S[RX]! + 6, CREST - 10, S[CHAIN]! > 2 ? 1 : 0);
         ev[EV_SNAP] = 1;
       }
       // Low on the face is fast, up at the lip is slow; the wall sweeps right, faster as the ride goes on.
@@ -115,14 +132,15 @@ export function lipLine(seed: number, pad: Pad, demo: boolean) {
       for (let i = 0; i < NP; i++) {
         if (PX[i]! < -40) continue;
         PX[i] = PX[i]! - CAM * dt;
-        if (!S[WIPE] && Math.abs(PX[i]! - S[RX]!) < 4.5 && y - 9 < PB[i]!) wipe(BY_PILING);
+        if (!S[WIPE] && S[RX]! > PX[i]! - 4.5 && S[RX]! < PX[i]! + (PL[i] ? 15 : 4.5) && y - 9 < PB[i]! - (S[RX]! > PX[i]! + 4.5 ? 3 : 0)) wipe(BY_PILING);
         if (PX[i]! < -20) PX[i] = -99;
       }
       S[NEXTP] = S[NEXTP]! - dt;
       if (S[NEXTP]! <= 0 && S[GX]! < S[RX]! - 10) pier(W + 8), (S[NEXTP] = 3.4 + R() * 1.4);
       if (S[GX]! > -40) {
-        S[GX] = S[GX]! - (CAM + 22) * dt;
-        S[GY] = 63 + Math.sin(S[T]! * 3) * 3;
+        // The gull glides; the hopper bounces along the flat water.
+        S[GX] = S[GX]! - (CAM + (S[GK] ? 8 : 22)) * dt;
+        S[GY] = S[GK] ? TROUGH - 3 - Math.abs(Math.sin(S[T]! * 6)) * 9 : 63 + Math.sin(S[T]! * 3) * 3;
         if (!S[WIPE] && Math.abs(S[GX]! - S[RX]!) < 6 && Math.abs(S[GY]! - (y - 5)) < 6) wipe(BY_GULL);
         if (S[GX]! < -20) S[GX] = -99;
       }
@@ -131,7 +149,7 @@ export function lipLine(seed: number, pad: Pad, demo: boolean) {
         // A gull, but never while a pier is still ahead.
         let clear = 1;
         for (let i = 0; i < NP; i++) if (PX[i]! > S[RX]! - 12) clear = 0;
-        if (clear) (S[GX] = W + 10), (S[NEXTG] = 3 + R() * 1.6);
+        if (clear) (S[GX] = W + 10), (S[GK] = R() < 0.4 ? 1 : 0), (S[NEXTG] = 3 + R() * 1.6);
       }
       S[FLOW] = S[FLOW]! + dt;
     }
@@ -145,13 +163,13 @@ export function lipLine(seed: number, pad: Pad, demo: boolean) {
   }
   /** The attract run's line: under a piling ahead, over a gull ahead, else up for a snap. */
   function ghost() {
-    let want = 1.1;
+    let want = 1.3;
     for (let i = 0; i < NP; i++) if (PX[i]! > S[RX]! - 6 && PX[i]! < S[RX]! + 34) want = 0;
     if (S[GX]! > S[RX]! - 4 && S[GX]! < S[RX]! + 46) want = 0.62;
     if (S[RX]! - S[WX]! < 26) want = Math.min(want, 0.1);
     return want;
   }
-  return { S, ev, sp, wd, step, ry, PX, PB, ghost };
+  return { S, ev, sp, wd, step, ry, PX, PB, PL, ghost };
 }
 export type LipLine = ReturnType<typeof lipLine>;
 
@@ -162,24 +180,25 @@ const TEAL2 = "#0b8aa8", SKY = "#eef0fb", SKY2 = "#e6e4f8", FACE = "#006e91", DE
 /** Sprites: rows of keys (k rim, c body, s belly, w white, y tusk/beak, o orange, b board). */
 const PIP = ["........y", ".......y.", "..kkkky..", ".kccccck.", "kccwkccck", "kcccccccck", "kcsssscck.", ".kkkkkkk.."];
 const GULL = [["kk.......kk", "kwwk...kwwk", ".kwwkkkwwk.", "..kwwwwkok.", "....kk....."], ["....kkk....", "..kwwwwwkok", ".kwwwwwwwk.", "kwk.....kwk", "k.........k"]];
-const KEY: Record<string, string> = { k: C.rim, c: C.cmd, s: "#b48cff", w: C.ink, y: C.hurt, o: C.advance };
+const HOP = [".k...k.", "..kak..", ".kaaak.", "kawawak", ".k.k.k."];
+const KEY: Record<string, string> = { a: C.attack, k: C.rim, c: C.cmd, s: "#b48cff", w: C.ink, y: C.hurt, o: C.advance };
 
 export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | null): LipScene {
   const engine = createEngine({ root: stage, settle: 0.5, seed: (Math.random() * 2147483647) | 0 });
   const r = rig(engine, stage, "Hold to climb the wave", { snap: "power", wipe: "boom", start: "ready", end: "win" }, true);
   const g = r.g;
   const ride = lipLine((engine.random() * 2147483647) | 0, r.pad, !first);
-  const S = ride.S, { PX, PB, sp, wd } = ride;
+  const S = ride.S, { PX, PB, PL, sp, wd } = ride;
   if (first) r.pad[1] = 1;
   const SPRAY = [FOAMC, FOAM2, C.ink];
   const WCOL = [C.ink, C.hurt, C.attack];
   const px = (x: number, y: number, w: number, h: number, c: string) => ((g.fillStyle = c), g.fillRect(x | 0, y | 0, w, h));
-  function sprite(rows: readonly string[], x: number, y: number, flip: boolean) {
+  function sprite(rows: readonly string[], x: number, y: number, flip: boolean, flipY = false) {
     for (let j = 0; j < rows.length; j++) {
       const row = rows[j]!;
       for (let i = 0; i < row.length; i++) {
         const k = row[i]!;
-        if (k !== ".") px(x + (flip ? row.length - 1 - i : i), y + j, 1, 1, KEY[k]!);
+        if (k !== ".") px(x + (flip ? row.length - 1 - i : i), y + (flipY ? rows.length - 1 - j : j), 1, 1, KEY[k]!);
       }
     }
   }
@@ -246,18 +265,21 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
         px(x - 1, 3, 1, PB[i]! - 3, WOOD2);
         px(x - 1, PB[i]! - 1, 3, 2, C.rim);
         px(x - 2, (PB[i]! - 2) | 0, 5, 1, FOAMC); // where the face wraps the post
+        if (PL[i]) px(x + 2, PB[i]! - 6, 12, 2, WOOD), px(x + 2, PB[i]! - 6, 12, 1, WOOD2), px(x + 2, 14, 12, 2, WOOD); // the crossbeams
       }
       // The gull: two wing frames, gliding low.
-      if (S[GX]! > -30) sprite(GULL[((f * 6) | 0) & 1]!, S[GX]! - 4, S[GY]! - 2, false);
+      if (S[GX]! > -30) sprite(S[GK] ? HOP : GULL[((f * 6) | 0) & 1]!, S[GX]! - 4, S[GY]! - 2, false);
       // The rider: Pip on a board, leaning with the face.
       if (!S[WIPE]) {
         const y = ride.ry() | 0, x = S[RX]! | 0, tilt = S[VY]! > 0.4 ? -1 : S[VY]! < -0.4 ? 1 : 0;
         sprite(PIP, x - 5, y - 9 + (S[HELD] ? 1 : 0), false);
         px(x - 7, y - 1 + tilt, 7, 1, C.attack), px(x, y - 1, 7, 1, C.attack), px(x - 6, y, 13, 1, C.rim);
-      } else if (S[WIPE]! < 1.1) {
-        // The board pops up and spins.
-        const v = ((S[WIPE]! * 12) | 0) & 1;
-        px(S[BX]! - (v ? 1 : 5), S[BY]! - (v ? 5 : 1), v ? 2 : 10, v ? 10 : 2, C.attack);
+      } else if (S[WIPE]! < 1.2) {
+        // The fall: Pip rolls over and over in the foam, dragged back; the board flips and pops up.
+        const w = S[WIPE]!, o = (w * 11) | 0;
+        sprite(PIP, S[BX]! - 5 - w * 26, S[RYW]! - 7 + Math.sin(w * 14) * 3 + w * 6, (o & 1) > 0, (o & 2) > 0);
+        const v = ((w * 12) | 0) & 1;
+        px(S[BX]! - (v ? 1 : 5), S[BY]! - 6 - (v ? 5 : 1), v ? 2 : 10, v ? 10 : 2, C.attack);
       }
       // The breaking wall behind: vertical streaks of white and blue, a frothy diagonal edge, a
       // foam ball tumbling in the pocket.
@@ -291,7 +313,7 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
       }
       // The wipeout: the whole frame floods with foam, a white band rising under it.
       if (S[WIPE]! > 0) {
-        const w = S[WIPE]!, rise = Math.min(1, w * 2) * (w > 1.1 ? Math.max(0, 1 - (w - 1.1) * 2.5) : 1);
+        const w = S[WIPE]!, rise = Math.min(1, Math.max(0, w - 0.55) * 2.2) * (w > 1.2 ? Math.max(0, 1 - (w - 1.2) * 2.5) : 1);
         for (let y = 0; y < H; y += 2) px(0, y, W * rise, 2, ((y >> 1) + ((fl | 0) >> 1)) % 3 ? FOAMC : FOAM2);
         if (rise > 0.6) px(0, H - 20, W, 20, FOAMC);
       }
