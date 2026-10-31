@@ -49,6 +49,29 @@
     resize, settled at 0 frames, Recall byte for byte).
   - Status: EXPERIMENTAL in `site/bricks.mjs` (since 0.21.0), a README row and a generated brick
     page; off the ROADMAP list.
+- **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
+  first release tag after the owner adds the `NPM_TOKEN` repository secret; the release workflow
+  (`.github/workflows/release.yml`, `npm publish --provenance --access public`) checks, packs and
+  skips the publish with a warning until then. No version bump here.
+  - **API snapshots** (`npm run api:check` / `api:write`, `scripts/api-snapshot.mjs`, tested in
+    `tests/api-snapshot.test.mjs`): `api/<brick>.api.txt` holds the public types of each of the 15
+    COMPLETE bricks, from the built declarations with comments stripped, following their
+    re-exports and the BETA types they name (arcade → board-page). CI (`--base HEAD^`) fails when a
+    snapshot is stale, or when one changed and this section does not name the brick. The release
+    workflow checks they match the tag.
+    Taken on main after release train 2 (#166): the private fields it shortened in
+    `fizlet/collide` (`Grid`) and the Kernel (`Ledger`) show in the snapshots, the public API is
+    unchanged; `fizlet/board-page` gets its own snapshot now that it is COMPLETE, and
+    `fizlet/arcade`'s no longer repeats board-page's types.
+  - **Pack smoke** (`npm run test:pack`) now also proves: every built entry is in `exports`, with
+    `types` first next to its `.js`; the tarball holds every export target and nothing outside the
+    whitelist (no sources, no maps); every subpath typechecks under Bundler as well as NodeNext
+    resolution; importing any subpath adds no globals, and what a bundler keeps of a bare import
+    touches no page API, so `sideEffects: ["*.css"]` is right (and keeps
+    `fizlet/ui/board-ui.css`). Measured on 0.20.0 + Unreleased: 85 files, 176.6 kB packed, 27 JS
+    subpaths and 2 data subpaths.
+  - README "Install": the exact commands, the imports, and how to build from source until the
+    first publish.
 - **Tests: the evidence behind six COMPLETE flags** (daily audit 2026-10-30: 9 gaps). New Node
   suites, each proving its brick's contract and zero allocation on the path it runs often, with a
   self-check in the same harness that the GC counter does see an allocation (best of 3 windows,
