@@ -1,0 +1,123 @@
+/* fzlt.dev: one landing page (site/fzlt-dev/build.mjs). Layout only, on the kit and site tokens; the
+   lockup, eyebrow, code and footer rules come from site.css itself. Type sizes are the style guide's
+   (h1 800 clamp(52px, 7.4vw, 104px)/0.92, -0.05em). No motion: nothing here animates. */
+html,
+body {
+  min-height: 100%;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+.fz {
+  flex: 1;
+  padding-top: clamp(40px, 9vh, 96px);
+  padding-bottom: clamp(48px, 9vh, 96px);
+}
+.fz-lockups {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 28px;
+  margin-top: 26px;
+}
+.fz-lockups .brand {
+  gap: 16px;
+}
+.fz-lockups .brand-mark {
+  width: 76px;
+  height: 76px;
+}
+.fz-lockups .brand-mark svg {
+  width: 70px;
+  height: 70px;
+}
+.fz-lockups .brand-text small {
+  font-size: 13px;
+}
+.fz-lockups .brand-text b {
+  font-size: clamp(34px, 6vw, 48px);
+}
+/* The short mark: the same tile, small, with "fzlt" in mono lowercase (style guide 13). */
+.fz-short {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font: 700 22px/1 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+.fz-short .brand-mark {
+  width: 34px;
+  height: 34px;
+}
+.fz-short .brand-mark svg {
+  width: 30px;
+  height: 30px;
+}
+.fz h1 {
+  margin: 34px 0 22px;
+  font: 800 clamp(44px, 7.4vw, 104px) / 0.92 var(--sans);
+  letter-spacing: -0.05em;
+}
+.fz h1 em {
+  display: block;
+  font-style: normal;
+  color: var(--k-attack);
+}
+.fz-lead {
+  max-width: 640px;
+  margin: 0;
+  font-size: 18px;
+  color: var(--muted);
+}
+.fz-lead b {
+  color: var(--ink);
+}
+.fz .hero-install {
+  max-width: 460px;
+}
+.fz .code {
+  font-size: 15px;
+  color: var(--k-sys-ink);
+}
+.fz-prompt {
+  color: var(--muted);
+  user-select: none;
+}
+.fz-facts {
+  margin: 14px 0 0;
+  font: 12px/1.5 var(--mono);
+  color: var(--muted);
+}
+.fz-facts b {
+  color: var(--ink);
+}
+.fz-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 16px;
+  margin: 34px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.fz-links .bui-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 700 12px var(--mono);
+  letter-spacing: 0.04em;
+}
+.fz-foot .wrap span + span {
+  text-align: right;
+}
+.fz-foot a {
+  color: var(--ink);
+}
+@media (max-width: 640px) {
+  .fz-foot .wrap span + span {
+    text-align: left;
+  }
+}

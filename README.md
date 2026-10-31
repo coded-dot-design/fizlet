@@ -1,5 +1,7 @@
 # Fizlet
 
+[![npm @fzlt/core](https://img.shields.io/npm/v/@fzlt/core?label=npm%20%40fzlt%2Fcore)](https://www.npmjs.com/package/@fzlt/core)
+
 By [Chris Cooley](https://coded.design/). **Tiny physics for your page.** A micro game and animation engine for the DOM: one shared loop,
 bounded everything, zero allocation in the steady state, and the page always comes back exactly as
 it was. No runtime dependencies, ever.
