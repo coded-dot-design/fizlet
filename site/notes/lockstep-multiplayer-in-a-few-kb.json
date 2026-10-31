@@ -20,7 +20,7 @@
     "cloudflare"
   ],
   "lead": [
-    "`fizlet/presence` is 1,792 bytes gzip. Every peer runs the same fixed-step game from the same seed, and only inputs cross the wire, 12 bytes a message. The room server is a Cloudflare Worker with one Durable Object per room. It seats players and relays messages; it never runs the game. This note covers only what has shipped, and how each part is tested."
+    "`fizlet/presence` is 1,834 bytes gzip. Every peer runs the same fixed-step game from the same seed, and only inputs cross the wire, 12 bytes a message. The room server is a Cloudflare Worker with one Durable Object per room. It seats players and relays messages; it never runs the game. This note covers only what has shipped, and how each part is tested."
   ],
   "blocks": [
     {
@@ -28,7 +28,7 @@
       "heading": "The numbers",
       "items": [
         {
-          "value": "1,792 B",
+          "value": "1,834 B",
           "label": "`fizlet/presence`, gzip (budget 2,048 B)"
         },
         {
@@ -140,6 +140,6 @@
   ],
   "seo": {
     "title": "Lockstep multiplayer in a few KB · Fizlet",
-    "description": "fizlet/presence is 1,792 B gzip: lockstep inputs, 12 bytes a message, a hash check every 30 frames, and a Cloudflare Worker room server with hard caps."
+    "description": "fizlet/presence is 1,834 B gzip: lockstep inputs, 12 bytes a message, a hash check every 30 frames, and a Cloudflare Worker room server with hard caps."
   }
 }
