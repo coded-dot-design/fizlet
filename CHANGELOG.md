@@ -11,7 +11,9 @@
   FACTORY ROLL jokes). An inline controller plays it from first paint and under reduced motion (the
   cartridge simply appears); the live scene (kernel, fizlet/fx, fizlet/sound) loads near the viewport
   through fizlet/slot, settles to 0 frames and gives the hero back exactly. Sound only after a
-  gesture, mute kept in localStorage. `tests/factory.mjs` (in `npm run test:site`).
+  gesture, mute kept in localStorage. On phones everything that plays fits the first screen (bricks,
+  belt, machine, cartridge, HUD), the copy follows. `tests/factory.mjs` (in `npm run test:site`) and
+  `tests/factory-alloc.test.mjs` (the step allocates nothing over 1M steps, with the GC harness's self-check).
 
 - **Website: a section the scroll jumps past still reveals** (`site/home-motion.ts`). The observer
   only reports threshold crossings, so a jump (an anchor, a fling, a slow frame landing several
