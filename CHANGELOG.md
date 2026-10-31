@@ -7,13 +7,14 @@
   whitewater sweeps in behind; ride low to outrun it, climb to the lip to snap (snaps chain) or hit
   it fast to launch a short air and land it; thread under the pier's pilings and crossbeams, over
   a gliding gull and a hopping critter; the wall, the pier or a critter wipes you out: Pip rolls in
-  the foam, the board flips up, and the frame floods before the next ride. Tube Time: inside the barrel, hold to pump toward the light,
-  ride the wandering pocket, last ten seconds and get spat out (too slow, the foam ball eats you).
-  Paddle Out: hold to duck-dive under each wall of whitewater on the way to the lineup,
-  breath-limited. Own stages, one shared rig (`site/gallery/pieces/surf/kit.ts`): Space/Enter/↑ ride
-  key, M mute, 44 px keys, no audio before a gesture. Live (gzip): Lip Line 10,137 B, Tube Time
-  8,868 B, Paddle Out 9,098 B. Steps allocate nothing (`tests/surf-sesh.test.mjs`); mount, settle,
-  keys, Recall and reduced motion in `tests/surf-sesh.mjs`.
+  the foam, the board flips up, and the frame floods before the next ride. Tube Time: inside the
+  barrel, hold to pump toward the light, ride the wandering pocket, last ten seconds and get spat
+  out (too slow, the foam ball eats you). Paddle Out: hold to duck-dive under each wall of
+  whitewater on the way to the lineup, breath-limited. Own stages, one shared rig
+  (`site/gallery/pieces/surf/kit.ts`): Space/Enter/↑ ride key, M mute, 44 px keys, no audio before a
+  gesture. Live (gzip): Lip Line 10,137 B, Tube Time 8,868 B, Paddle Out 9,098 B. Steps allocate
+  nothing (`tests/surf-sesh.test.mjs`); mount, settle, keys, Recall and reduced motion in
+  `tests/surf-sesh.mjs`.
 - **Four more brick cards: hud, match, sound, presence.** hud: a high striker; tap fast to heat it
   and ring the bell; its real DOM scoreboard (score, best, heat meter, HOT flag, a feed of strikes) is
   bound with fizlet/hud and the readout counts DOM writes against frames. match: a ten-second round on
