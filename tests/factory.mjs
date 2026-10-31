@@ -1,5 +1,6 @@
 // The FILET factory hero on /bricks/ (site/factory/), in Chromium. Run `npm run site` first.
-// - Fills the viewport (100svh, full width), no sideways scroll, every target ≥ 44 px: 1440×900, 390×844, 844×390.
+// - Fills the viewport (100svh, full width), no sideways scroll, every target ≥ 44 px: 1440×900, 390×844,
+//   375×667, 844×390; on phones the bricks, belt, machine, cartridge slot and HUD fit the first screen.
 // - Loads its live chunk only near the viewport; the stack is knocked over once the scene is up.
 // - Keyboard play: four sends make a cartridge named from names.json, labelled FIZLET, announced.
 // - Settles to 0 frames; Recall is exact (reduced motion turned on takes the scene down).
@@ -54,7 +55,7 @@ const frames = async (page, ms) => {
 };
 
 // 1. Size, overflow and targets at three viewports (reduced motion off).
-for (const [w, h] of [[1440, 900], [390, 844], [844, 390]]) {
+for (const [w, h] of [[1440, 900], [390, 844], [375, 667], [844, 390]]) {
   await check(`fills the viewport, no overflow, 44 px targets at ${w}×${h}`, async () => {
     const page = await browser.newPage({ viewport: { width: w, height: h } });
     const errs = errorsOf(page);
@@ -69,6 +70,19 @@ for (const [w, h] of [[1440, 900], [390, 844], [844, 390]]) {
     assert.ok(m.h >= m.vh, `hero is at least the viewport tall (${m.h} < ${m.vh})`);
     assert.ok(m.scroll <= m.vw, `no sideways scroll (${m.scroll} > ${m.vw})`);
     assert.deepEqual(m.small, [], "targets under 44 px");
+    // Phones: everything that plays is on the first screen (the bricks, the belt, the machine, the
+    // cartridge's slot and the HUD); the copy and the keys may follow below.
+    if (w < 600) {
+      const out = await page.evaluate(() => {
+        const cart = document.querySelector(".fac-cart");
+        cart.hidden = false;
+        const off = [".fac-lane", ".fac-machine", ".fac-cart", ".fac-hud", ".fac-b"].flatMap((s) => [...document.querySelectorAll(s)].map((e) => [s, e.getBoundingClientRect()]))
+          .filter(([, r]) => r.top < 0 || r.bottom > innerHeight || r.left < -1 || r.right > innerWidth + 1).map(([s, r]) => `${s} ${r.left.toFixed(0)},${r.top.toFixed(0)}–${r.right.toFixed(0)},${r.bottom.toFixed(0)}`);
+        cart.hidden = true;
+        return off;
+      });
+      assert.deepEqual(out, [], `the play area fits the ${w}×${h} screen`);
+    }
     assert.deepEqual(errs, []);
     await page.close();
   });

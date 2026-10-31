@@ -70,12 +70,16 @@ export async function factoryHero({ bricks, sizes, version, live, liveBytes, nam
   const wall = (i) => i === 11 ? [0, 4.5] : [((i % 3) - 1) * 1.04 + ((i / 3 | 0) % 2 ? 0.18 : -0.18), (i / 3 | 0) + 0.5];
   const tile = (t) => {
     const [wx, wy] = wall(t.i);
-    const vars = `--wx:calc(var(--tw) * ${wx.toFixed(2)});--wy:calc(var(--th) * ${wy.toFixed(2)} + ${wy * 3 | 0}px)`;
+    // Phones: a wider, lower wall (four by three) so the stack stands in the short floor.
+    const px = ((t.i % 4) - 1.5) * 1.04, py = (t.i / 4 | 0) + 0.5;
+    const vars = `--wx:calc(var(--tw) * ${wx.toFixed(2)});--wy:calc(var(--th) * ${wy.toFixed(2)} + ${wy * 3 | 0}px);--pwx:calc(var(--tw) * ${px.toFixed(2)});--pwy:calc(var(--th) * ${py.toFixed(2)} + ${py * 2 | 0}px)`;
     const label = `${esc(t.name)}, ${kb(t.gzip)} KB gzip`;
     return `<button type="button" class="fac-b" data-id="${t.id}" data-name="${esc(t.name)}" data-at="floor" data-s="${FIRST[t.i]}" style="--t:var(--k-${t.role});${vars}" aria-label="Send ${label} to the belt"><b>${esc(t.name)}</b><small>${kb(t.gzip)} KB</small></button>`;
   };
-  const z = `<button type="button" class="fac-b fac-z" data-id="z" data-name="The Z" data-at="floor" data-s="${FIRST[11]}" style="--wx:0px;--wy:calc(var(--th) * 4.5 + 13px)" aria-label="Send the Z, which fell off the sign, to the belt"><b>Z</b><small>THE Z</small></button>`;
-  const spots = SPOTS.map(([x, y, r], i) => `.fac-b[data-s="${i}"]{--x:${x};--y:${y};--r:${r}deg}`).join("");
+  const z = `<button type="button" class="fac-b fac-z" data-id="z" data-name="The Z" data-at="floor" data-s="${FIRST[11]}" style="--wx:0px;--wy:calc(var(--th) * 4.5 + 13px);--pwx:0px;--pwy:calc(var(--th) * 3.5 + 7px)" aria-label="Send the Z, which fell off the sign, to the belt"><b>Z</b><small>THE Z</small></button>`;
+  const spots = SPOTS.map(([x, y, r], i) => `.fac-b[data-s="${i}"]{--x:${x};--y:${y};--r:${r}deg}`).join("") +
+    // Phones: two tight rows of six.
+    `@media (max-width:600px){${SPOTS.map(([, , r], i) => `.fac-b[data-s="${i}"]{--x:${(8.5 + (i % 6) * 16.6).toFixed(1)};--y:${i < 6 ? 22 : 74};--r:${+(r / 3).toFixed(1)}deg}`).join("")}}`;
   const bytes = { live: liveBytes };
   const script = (await transform(readFileSync(new URL("./controller.js", import.meta.url), "utf8"), { minify: true, loader: "js", target: "es2022" })).code.trim();
   // The loader: import the live chunk once the hero nears the screen (fizlet/slot then waits for
@@ -225,10 +229,8 @@ html.bui[data-theme="light"] .fac-c b{color:var(--k-fire-ink)}
   .fac-yard{height:460px}
 }
 @media (max-width:600px){
-  .fac-hero{padding-top:20px}
   .fac-more{display:none}
-  .fac-hero h2{font-size:44px;margin:12px 0}
-  .fac-lead{font-size:15px;margin-bottom:14px}
+  .fac-lead{font-size:15px}
   .fac-keys{flex-wrap:nowrap;gap:12px}
   .fac-hint{margin-top:10px}
 }
@@ -238,4 +240,25 @@ html.bui[data-theme="light"] .fac-c b{color:var(--k-fire-ink)}
   .fac-lead{font-size:14px;margin-bottom:12px}
 }
 @container (max-width:539px){.fac-hud{left:0;justify-content:space-between}}
+/* Phones (portrait): everything that plays inside one screen. The heading, then the yard (two tight
+   rows of bricks; the belt and the machine side by side under them; the HUD as a slim bar), then
+   the copy and the keys. */
+@media (max-width:600px){
+  .fac-hero{align-items:start;padding:12px 0 24px}
+  .fac-grid{gap:0}
+  .fac-copy{display:contents}
+  .fac-top{order:1}.fac-hero h2{order:2;font-size:36px;margin:8px 0 10px}.fac-yard{order:3}.fac-lead{order:4;margin:14px 0 12px}.fac-keys{order:5}.fac-hint{order:6}
+  .fac-yard{height:318px}
+  .fac-y{--tw:58px;--th:44px;--fh:118px;--ly:178px;--lw:52%;--ls:calc(var(--tw) * .62);--mw:44%;--my:132px;--mh:104px}
+  .fac-hero .fac-b{font-size:11px;letter-spacing:-.04em;border-radius:6px;gap:1px}.fac-hero .fac-b small{font-size:9px}
+  .fac-hero .fac-z b{font-size:18px}
+  .fac-hero .fac-b[data-at=belt]{scale:.6}
+  .fac-sign{font-size:15px;padding:4px 2px}
+  .fac-machine{gap:6px;padding:8px}
+  .fac-machine::after{height:10px;bottom:8px}
+  .fac-out{left:0;top:116px;scale:.74;transform-origin:0 0}
+  .fac-hud{top:256px;bottom:auto;left:0;right:0;justify-content:space-between;gap:8px;padding:4px 4px 4px 10px}
+  .fac-c b{font-size:15px}.fac-c small{font-size:8px}
+}
+@media (max-width:600px) and (prefers-reduced-motion:no-preference){.fac-hero:not(.fac-down) .fac-b[data-at=floor]{left:calc(50% + var(--pwx));top:calc(var(--fh) - var(--pwy))}}
 `;
