@@ -3,51 +3,15 @@
 import { crumbs, esc, icon, REPO, SITE } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { STATUS, BETA_LINE, exportStatus } from "../bricks.mjs";
+import { brickTile, brickMini, brickOf, prose, statusSticker } from "../brick-ui.mjs";
+
+export { prose };
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
 const num = (n) => n.toLocaleString("en-US");
 
-/** `code` spans in doc text, everything else escaped. */
-export const prose = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
-
 /** A brick's status flag as a Board UI status pill (flat: a readout, not a key). */
 export const statusPill = (status) => `<span class="status-pill" data-flag="${status}" title="${esc(STATUS[status].line)}">${STATUS[status].label}</span>`;
-
-/**
- * A brick's status flag as a tilted sticker (the people and gallery cards' sticker): it sits on the
- * card's corner, never in the title, so it never competes with the brick's name.
- */
-export const statusSticker = (status) => `<span class="brick-sticker" data-flag="${status}" title="${esc(STATUS[status].line)}">${STATUS[status].label}</span>`;
-
-/** A size budget's progress: the brick's colour fills the share of its budget it uses. */
-const meter = (gzip, budget) => `<span class="meter brick-meter" role="img" aria-label="${kb(gzip)} KB of a ${kb(budget)} KB budget"><i style="--v:${(gzip / budget).toFixed(3)}"></i></span>`;
-
-/** A brick's runtime exports (what you import), from its declarations. */
-const exportCount = (brick) => (brick.mods ?? []).flatMap((m) => m.decls.filter((d) => !["type", "interface"].includes(d.kind)).flatMap((d) => d.names)).length;
-
-/**
- * One brick card (the bricks index and the home page): one 3D object with the neutral card border
- * and hard shadow at rest; on hover and focus they take the brick's colour (site.css). The status is
- * a sticker on its corner; then, in this order, the name in display type, what it does in one line,
- * its live toy when it has one, the measured sizes and exports as mono stat chips, and the budget bar
- * in the brick's colour (its cue at rest, and on touch). Everything else is on its own page.
- * The kernel is the core, not one brick among many: a wide card with a KERNEL sticker, a double hard
- * shadow and its measured size against its budget in display type.
- * `size`: its headline size entry (scripts/sizes.mjs); `extra`: more chips (as <li>).
- */
-export function brickTile({ brick, size, href, h = "h2", toy = "", extra = "", what = brick.summary }) {
-  const n = exportCount(brick), kernel = brick.id === "kernel";
-  const budget = kernel ? `<p class="brick-budget"><b data-size="${esc(size.name)}">${num(size.gzip)} B</b> <span>of a ${num(size.budget)} B budget</span></p>` : "";
-  return `<li class="panel brick${kernel ? " brick-kernel" : ""}" data-flag="${brick.status}" style="--tone: var(--k-${brick.role})">
-        <span class="brick-stickers">${kernel ? '<span class="brick-sticker brick-sticker-kernel">KERNEL</span>' : ""}${statusSticker(brick.status)}</span>
-        <${h} class="brick-name"><a href="${esc(href)}">${esc(brick.name)}</a></${h}>
-        <p class="brick-what">${prose(what)}</p>
-        ${toy}${budget}<ul class="brick-chips" aria-label="Measured on this build">
-          ${kernel ? "" : `<li><b>${kb(size.gzip)} KB</b> gzip</li><li>of <b>${kb(size.budget)} KB</b></li>`}${extra}${n ? `<li><b>${n}</b> ${n === 1 ? "export" : "exports"}</li>` : ""}
-        </ul>
-        ${meter(size.gzip, size.budget)}
-      </li>`;
-}
 
 /** The status panel on a brick page: the flag, what it means, and the evidence behind it. */
 function statusPanel(brick) {
@@ -211,7 +175,8 @@ export function bricksIndex({ bricks, sizes, version, planned = [] }) {
         <span class="brick-stickers">${statusSticker("roadmap")}</span>
         <h3 class="brick-name">${esc(p.name)}</h3>
         <p class="brick-what">${esc(p.purpose)}</p>
-        <ul class="brick-chips" aria-label="Planned"><li><b>${esc(p.phase)}</b></li><li>target <b>≤ ${kb(p.target)} KB</b> gzip</li><li>needs ${p.needs.map((n) => `<code>${esc(n)}</code>`).join(" ")}</li></ul>
+        <ul class="brick-chips" aria-label="Planned"><li><b>${esc(p.phase)}</b></li><li>target <b>≤ ${kb(p.target)} KB</b> gzip</li></ul>
+        <p class="brick-needs"><small>NEEDS</small> ${p.needs.map((n) => { const b = brickOf(bricks, n); return b ? brickMini({ brick: b, size: sizes.find((x) => x.name === b.sizes[0]), href: `${b.id}.html` }) : `<code>${esc(n)}</code>`; }).join(" ")}</p>
       </li>`).join("\n      ")}
     </ul>
   </div>

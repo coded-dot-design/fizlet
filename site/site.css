@@ -1139,7 +1139,8 @@ html.bui[data-theme="light"] .dl.hot {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 22px;
 }
-/* Brick cards (site/pages/brick.mjs brickTile): one solid 3D object, no top bar. At rest the
+/* ---------- Brick component (site/brick-ui.mjs): full, compact and mini, tokens only ---------- */
+/* Full brick cards (brickTile): one solid 3D object, no top bar. At rest the
    neutral card border and hard shadow (.panel); on hover and focus both take the brick's colour
    (--tone) and the card lifts like a key (transform, so it never fights the home reveal's translate). The brick's colour at rest (and on touch, with no hover)
    is its budget bar. The status is a tilted sticker on the corner, the people and gallery cards' look. */
@@ -1277,17 +1278,17 @@ html.bui[data-theme="light"] .brick:focus-within {
 }
 /* The kernel: the core, not one brick among many. A wide card, a KERNEL sticker, a double hard
    shadow in the card's own tokens, and its size against its budget in display type. */
-.brick-kernel {
+.brick.brick-kernel {
   grid-column: 1 / -1;
   border-width: 3px;
   box-shadow: 0 6px 0 var(--base), 0 12px 0 color-mix(in srgb, var(--base) 55%, var(--bg));
 }
-.brick-kernel:hover,
-.brick-kernel:focus-within {
+.brick.brick-kernel:hover,
+.brick.brick-kernel:focus-within {
   box-shadow: 0 6px 0 color-mix(in srgb, var(--tone) 55%, var(--rim)), 0 12px 0 color-mix(in srgb, var(--tone) 25%, var(--bg));
 }
-html.bui[data-theme="light"] .brick-kernel:hover,
-html.bui[data-theme="light"] .brick-kernel:focus-within {
+html.bui[data-theme="light"] .brick.brick-kernel:hover,
+html.bui[data-theme="light"] .brick.brick-kernel:focus-within {
   box-shadow: 0 6px 0 color-mix(in srgb, var(--tone) 55%, var(--line)), 0 12px 0 color-mix(in srgb, var(--tone) 25%, var(--bg));
 }
 .brick-kernel .brick-name {
@@ -1304,22 +1305,146 @@ html.bui[data-theme="light"] .brick-kernel:focus-within {
   letter-spacing: -0.03em;
   color: var(--ink);
 }
+/* Compact: lists and grids (the home page). The name, one size chip with the colour dot, a smaller
+   sticker; the kernel keeps its wide card, KERNEL sticker and double shadow. */
+.brick-compact {
+  gap: 12px;
+  padding: 20px 16px 14px;
+}
+.brick-compact .brick-name {
+  font-size: 21px;
+  padding-right: 48px;
+}
+.brick-compact.brick-kernel .brick-name {
+  font-size: clamp(26px, 3vw, 34px);
+}
+.brick-compact .brick-stickers {
+  top: -10px;
+  right: -6px;
+  gap: 4px;
+}
+.brick-compact .brick-sticker {
+  padding: 3px 6px 2px;
+  font-size: 9.5px;
+  border-width: 2px;
+  box-shadow: 0 2px 0 var(--rim);
+}
+.brick-compact .brick-chips {
+  padding: 0;
+}
+.brick-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 6px;
+  vertical-align: 0;
+  background: var(--tone);
+  border: 1.5px solid var(--rim);
+  border-radius: 50%;
+}
+@media (max-width: 600px) {
+  .brick-compact {
+    padding: 18px 12px 12px;
+  }
+  .brick-compact .brick-name {
+    font-size: 18px;
+  }
+}
+/* Mini: an inline chip, at most 28 px tall. The same rules at chip scale: neutral border and hard
+   shadow at rest, the brick's colour on hover and focus, the status as a tiny dot, the kernel with
+   a heavier frame and a double shadow. On touch the hit area grows to 44 px (::after), the face doesn't. */
+.brick-mini {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  margin: 2px 2px 4px 0;
+  padding: 2px 7px;
+  font: 11px/1.4 var(--mono);
+  color: var(--muted);
+  text-decoration: none;
+  vertical-align: middle;
+  background: var(--raised);
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 2px 0 var(--base);
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+.brick-mini:hover,
+.brick-mini:focus-visible {
+  border-color: var(--tone);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--tone) 55%, var(--rim));
+}
+.brick-mini .brick-dot {
+  margin: 0;
+}
+.brick-mini code {
+  font: 700 11.5px/1.4 var(--mono);
+  color: var(--ink);
+  background: none;
+  padding: 0;
+  overflow-wrap: anywhere;
+}
+.brick-mini b {
+  color: var(--ink);
+  white-space: nowrap;
+}
+.brick-flag {
+  --flag: var(--k-go);
+  width: 6px;
+  height: 6px;
+  flex: none;
+  background: var(--flag);
+  border-radius: 50%;
+}
+.brick-flag[data-flag="beta"] { --flag: var(--k-sys); }
+.brick-flag[data-flag="experimental"] { --flag: var(--k-aim); }
+.brick-flag[data-flag="deprecated"] { --flag: var(--hurt); }
+.brick-mini.brick-kernel {
+  border-width: 2.5px;
+  box-shadow: 0 2px 0 var(--base), 0 4px 0 color-mix(in srgb, var(--base) 55%, var(--bg));
+}
+.brick-mini.brick-kernel:hover,
+.brick-mini.brick-kernel:focus-visible {
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--tone) 55%, var(--rim)), 0 4px 0 color-mix(in srgb, var(--tone) 25%, var(--bg));
+}
+@media (pointer: coarse) {
+  .brick-mini::after {
+    content: "";
+    position: absolute;
+    inset: -10px -2px;
+  }
+}
+.brick-needs {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.brick-needs small {
+  margin-right: 4px;
+  font: 800 10px var(--mono);
+  letter-spacing: 0.12em;
+}
+.recipe-bricks .brick-mini {
+  margin-block: 0;
+}
 @media (min-width: 1081px) {
   .bricks.compact .brick-kernel {
     grid-column: span 2;
   }
 }
 @media (min-width: 901px) {
-  .bricks:not(.compact) .brick-kernel {
+  .brick-full.brick-kernel {
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
     grid-template-rows: auto auto auto 1fr auto auto;
     column-gap: 32px;
   }
-  .bricks:not(.compact) .brick-kernel > :not(.bc, .brick-stickers) {
+  .brick-full.brick-kernel > :not(.bc, .brick-stickers) {
     grid-column: 1;
   }
-  .bricks:not(.compact) .brick-kernel > .bc {
+  .brick-full.brick-kernel > .bc {
     grid-column: 2;
     grid-row: 1 / -1;
     margin: 0;
@@ -1964,24 +2089,6 @@ html.bui[data-theme="light"] .phases b {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
-.bricks.compact .brick {
-  gap: 8px;
-  padding: 20px 16px 16px;
-}
-.bricks.compact .brick .brick-name {
-  font-size: 21px;
-}
-.bricks.compact .brick-kernel .brick-name {
-  font-size: clamp(26px, 3vw, 34px);
-}
-.bricks.compact .brick .brick-what {
-  font-size: 13.5px;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  overflow: hidden;
-}
 @media (max-width: 1080px) {
   .bricks.compact {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1995,12 +2102,6 @@ html.bui[data-theme="light"] .phases b {
 @media (max-width: 600px) {
   .bricks.compact {
     gap: 10px;
-  }
-  .bricks.compact .brick {
-    padding: 12px;
-  }
-  .bricks.compact .brick .brick-what {
-    -webkit-line-clamp: 2;
   }
 }
 @media (max-width: 1080px) {
