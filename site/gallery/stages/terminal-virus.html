@@ -5,7 +5,7 @@
 .tv-box { position: absolute; inset: 0; container-type: size; }
 .tv { position: absolute; inset: 0; display: grid; grid-template-columns: 43% 1fr; gap: 2.6cqw; padding: 3.2cqw; background: var(--bg, #07060f); font: 500 1.8cqw/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --tv-heal: #39ffb0; --tv-bug: #ff2e88; --tv-bug2: #ff7389; --tv-glow: #19f0ff; }
 html[data-theme="light"] .tv { --tv-heal: #0b7a54; --tv-bug: #e0006e; --tv-bug2: #ff5c8f; --tv-glow: #006e91; }
-.tv-term { display: flex; flex-direction: column; min-width: 0; background: #07060f; color: #aea4d6; border: 0.3cqw solid #3b3170; border-radius: 1.2cqw; box-shadow: 0 0.9cqw 0 color-mix(in srgb, #9a63ff 38%, #07060f); overflow: hidden; }
+.tv-term { display: flex; flex-direction: column; min-width: 0; background: #07060f; color: #aea4d6; border: 0.3cqw solid #3b3170; border-radius: 1.2cqw; box-shadow: calc(0.9cqw * var(--shadow-x, 0)) calc(0.9cqw * var(--shadow-y, 1)) 0 color-mix(in srgb, #9a63ff 38%, #07060f); overflow: hidden; }
 .tv-bar { display: flex; align-items: center; gap: 0.8cqw; margin: 0; padding: 1cqw 1.4cqw; background: #120f26; border-bottom: 0.3cqw solid #3b3170; color: #aea4d6; font-size: 1.45cqw; white-space: nowrap; }
 .tv-bar i { width: 1.2cqw; height: 1.2cqw; border-radius: 50%; background: #3b3170; }
 .tv-bar i:first-child { background: #ff2e88; }

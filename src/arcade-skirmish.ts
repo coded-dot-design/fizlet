@@ -54,7 +54,7 @@ export interface SkirmishOptions {
 }
 
 const CSS = `
-.sk{position:absolute;left:50%;top:max(10px,env(safe-area-inset-top));translate:-50% 0;max-width:calc(100% - 20px);display:flex;align-items:center;gap:14px;padding:8px 10px 8px 14px;pointer-events:auto;color:var(--ink);background:color-mix(in srgb,var(--card) 94%,transparent);border:2.5px solid var(--line);border-radius:10px;box-shadow:0 5px 0 var(--rim)}
+.sk{position:absolute;left:50%;top:max(10px,env(safe-area-inset-top));translate:-50% 0;max-width:calc(100% - 20px);display:flex;align-items:center;gap:14px;padding:8px 10px 8px 14px;pointer-events:auto;color:var(--ink);background:color-mix(in srgb,var(--card) 94%,transparent);border:2.5px solid var(--line);border-radius:10px;box-shadow:calc(5px*var(--bui-sx)) calc(5px*var(--bui-sy)) 0 var(--bui-shadow)}
 .sk>b{font:900 11px/1 ui-monospace,monospace;letter-spacing:.14em;color:var(--team-a);white-space:nowrap}
 .sk .bui-readouts{gap:16px}.sk .bui-readout b{font-size:16px;margin-top:3px}
 .sk .bui-readout i{display:block;width:72px;height:8px;margin-top:7px;border-radius:3px;background:var(--surface);border:1.5px solid var(--line);overflow:hidden}
@@ -63,7 +63,7 @@ const CSS = `
 .bui .bui-badge:empty{display:none}.sk .bui-badge{top:-8px;right:-8px;min-width:18px;height:18px;font-size:10px;line-height:15px}
 .sk-feed{position:absolute;left:max(12px,env(safe-area-inset-left));top:80px;margin:0;padding:0;list-style:none;display:grid;gap:4px;font:700 11px/1.3 ui-monospace,monospace;color:var(--ink)}
 .sk-feed li{padding:3px 8px;background:color-mix(in srgb,var(--surface) 85%,transparent);border-left:3px solid var(--team-a);border-radius:4px}.sk-feed li:empty{display:none}
-.sk-ban{position:absolute;left:50%;top:24%;translate:-50% 0;display:grid;justify-items:center;gap:6px;padding:10px 18px;color:var(--ink);background:color-mix(in srgb,var(--surface) 94%,transparent);border:2px solid var(--line);border-radius:8px;box-shadow:0 4px 0 var(--rim);opacity:0}
+.sk-ban{position:absolute;left:50%;top:24%;translate:-50% 0;display:grid;justify-items:center;gap:6px;padding:10px 18px;color:var(--ink);background:color-mix(in srgb,var(--surface) 94%,transparent);border:2px solid var(--line);border-radius:8px;box-shadow:calc(4px*var(--bui-sx)) calc(4px*var(--bui-sy)) 0 var(--bui-shadow);opacity:0}
 .sk-ban b{font:900 28px/1 ui-monospace,monospace;letter-spacing:.1em}.sk-ban span{font:800 11px/1 ui-monospace,monospace;letter-spacing:.2em;color:var(--team-a)}
 .sk-ban.a{animation:ska 1.8s both}.sk-ban.b{animation:skb 1.8s both}
 @keyframes ska{0%{opacity:0;scale:1.4}12%,75%{opacity:1;scale:1}100%{opacity:0}}@keyframes skb{0%{opacity:0;scale:1.4}12%,75%{opacity:1;scale:1}100%{opacity:0}}

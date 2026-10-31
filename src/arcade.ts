@@ -225,7 +225,7 @@ const EDIT = 'input,textarea,select,[contenteditable],form,dialog,[role="dialog"
 const PROTECTED = "[data-virus-ignore],[data-fizlet-ignore]";
 // The card (the `arcade` preset): bottom right, folded to the top on phones.
 const CARD = `
-.ar{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));width:min(300px,calc(100% - 24px));display:grid;gap:10px;padding:10px 12px 12px;pointer-events:auto;color:var(--ink);background:color-mix(in srgb,var(--card) 94%,transparent);border:2.5px solid var(--line);border-radius:10px;box-shadow:0 5px 0 var(--rim)}
+.ar{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));width:min(300px,calc(100% - 24px));display:grid;gap:10px;padding:10px 12px 12px;pointer-events:auto;color:var(--ink);background:color-mix(in srgb,var(--card) 94%,transparent);border:2.5px solid var(--line);border-radius:10px;box-shadow:calc(5px*var(--bui-sx)) calc(5px*var(--bui-sy)) 0 var(--bui-shadow)}
 .ar header{display:flex;align-items:center;gap:6px}.ar header b{flex:1;font:900 11px/1 ui-monospace,monospace;letter-spacing:.14em;color:var(--team-a)}
 .ar header button{width:34px;height:34px;min-height:0;padding:0;display:grid;place-items:center}.ar header svg{width:18px;height:18px}
 .ar .bui-readouts{justify-content:space-between;gap:12px}
