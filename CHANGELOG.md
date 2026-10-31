@@ -161,6 +161,13 @@
 - **Site fix: brick card names no longer break inside a word on phones** (they showed "collid e",
   "came ra"). A name now breaks only after a "/", and phones get a smaller size; a test checks every
   card at 360 and 390 px.
+- **@fzlt/core/timeline: `steps(n)` lands on whole steps only.** Every easing is sampled into a 256-step
+  table and read by blending two neighbouring samples; for a steps easing, the cell across a step's
+  edge blended two steps, so a 13-frame sprite strip (`steps(13)` over 0..13, 1.4 s) read 1.619,
+  5.857, 6.143 and 10.381 at 60 Hz. A steps track now reads `floor(p × n) / n` straight from its
+  progress (no table, no call, no allocation): whole steps only, all n + 1, the last one at the
+  end, as CSS `steps(n, end)`. Other easings are unchanged. Test: `timeline: steps(n) lands on whole
+  steps only` (fails on 0.20.0). Timeline 2,060 → 2,085 B gz (budget 2,304).
 
 ## 0.21.2
 
