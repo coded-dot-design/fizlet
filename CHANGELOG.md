@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Site: the brick graph fits phones** (/bricks/). Labels no longer overlap: when the layout rests,
+  a one-shot pass moves each label to the cheapest of four sides of its brick (nudged up or down a
+  little), on typed arrays, deterministic, no allocation. Nothing clips: the view fits the world box
+  grown round any dot or label (widths measured once) that sticks out of it, so desktop looks the
+  same. `tests/brick-graph.mjs` checks every label inside the canvas and no two overlapping at 360,
+  390 and 1440, also with the longest label held at the right edge. No brick changes.
+
 - **Multiplayer is in-house; a guide to build your own room server.** `@fzlt/core/presence` and
   `@fzlt/core/presence/check` stay in the package unchanged (MIT, BETA) and move into an
   "In-house / experimental" group wherever bricks are listed (the bricks page, the home page, the
