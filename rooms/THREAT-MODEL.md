@@ -33,6 +33,9 @@ protects, what it doesn't, and the limits. Code: `src/` here; the client side is
 | Speaking for another seat | The relay stamps each message with the sender's real seat | `relay.js` |
 | Two different inputs for one frame | First write wins, twice: the relay passes on only a seat's first `INPUT` / `HASH` per frame (frames must rise), and presence keeps the first it receives | `relay.js`, `presence.ts` |
 | Fake room messages | Only `INPUT` and `HASH` are relayed; `WELCOME` and `LEAVE` come from the room only | `relay.js` |
+| A play pass copied from its public issue comment | The pass locks to the first device key that joins (`dev`, default 1) and expires after 1 hour; another device is refused `403`. Closing the issue revokes it (`POST /pass/revoke`, admin key) | `pass.js` `PassBook`, `verifyPass` |
+| Forged or edited passes | HMAC-SHA256 over the payload with `PASS_SECRET` (a Worker secret), checked with WebCrypto in constant time; `exp`, `dev` and the lifetime are capped per kind (play/family 30 days, 3 devices; owner a year, 5) | `pass.js` `verifyPass`, `PASS_LIMITS` |
+| Passes on, secret missing | Every join is refused `503`; nothing falls back to "open" | `pass.js` `passGate` |
 | Oversized or text messages | Closed with `1009`; a flood over the rate is closed with `1008` | `worker.js` |
 
 ## What is not protected (the limits)
@@ -65,6 +68,19 @@ protects, what it doesn't, and the limits. Code: `src/` here; the client side is
   never stored or logged by the worker.
 - **Codes sent in URLs before this release** may be in Workers Logs for their retention period.
   Rotate them after deploying this release ([DEPLOY.md](DEPLOY.md)).
+
+- **A play pass is posted in a public issue comment.** Anyone can read it. The mitigation is the
+  device lock plus the 1-hour expiry: the requester's device takes the one seat when it first joins;
+  until then, whoever joins first with it holds it (the requester then asks again, and closing the
+  issue revokes it). A pass used on no device simply expires.
+- **The device key is a bearer secret.** It is made by the page and kept in its storage; anyone who
+  copies both the pass and that device's key can join as that device until the pass expires.
+- **Family and owner passes last longer** (30 days, a year) and are delivered privately by the owner,
+  never posted. A leaked one is revoked by id (`POST /pass/revoke`).
+- **`PASS_SECRET` mints passes.** Whoever holds it can make any pass; it lives only in the Worker's
+  secrets and the Blitz repo's Actions secrets. Rotating it voids every pass.
+- **The revoked list and device locks live in one Durable Object**, so every pass join costs one
+  extra Durable Object request (after the rate caps). Its entries are deleted when their pass expires.
 
 ## The spend ceiling
 

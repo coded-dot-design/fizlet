@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **fizlet-rooms: play passes (optional, off by default).** A signed, expiring pass that locks to the
+  first device(s) that join with it, as an alternative gate to the invite code: `rooms/src/pass.js`
+  (HMAC-SHA256 checked with WebCrypto, a `Passes` Durable Object for the device locks and the revoked
+  list), `REQUIRE_PASS` (default `"false"`: nothing changes), `POST /pass/revoke` and `/pass/list`
+  with `ROOMS_ADMIN_KEY`. Kinds: play and family (30 days, 3 devices at most), owner (a year, 5).
+  Tests: `rooms/test/pass.test.mjs` (11). THREAT-MODEL covers the public pass comment.
+
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
   first release tag after the owner adds the `NPM_TOKEN` repository secret; the release workflow
   (`.github/workflows/release.yml`, `npm publish --provenance --access public`) checks, packs and

@@ -30,6 +30,36 @@ Codes are 10 to 64 characters. They live in Workers KV (`INVITES`) as `invite:` 
 code (trimmed, upper-cased), so the list never holds the codes themselves. Codes are made up by the
 owner and handed out. What the gate does and doesn't protect: [THREAT-MODEL.md](THREAT-MODEL.md).
 
+## Play passes (optional, off by default)
+
+A second gate for handing out play time: a **pass** is a signed, expiring token tied to the devices
+that first use it. Code: `src/pass.js`. With `REQUIRE_PASS` unset or `"false"` (the default) nothing
+changes: passes are ignored and the invite code is the gate.
+
+- **Format:** `base64url(payload).base64url(HMAC-SHA256(payload, PASS_SECRET))`, payload
+  `{v:1, id, exp, kind?, dev?, gh?, issue?, name?}` (`exp` in Unix seconds, `id` 96 random bits).
+  The Worker only checks passes (WebCrypto); they are minted elsewhere with the same secret: the
+  Battlefield Blitz `play-pass` workflow (a 1-hour pass for an approved GitHub request) and the
+  owner's mint CLI (`scripts/play-pass.mjs` in that repo).
+- **Kinds and ceilings:** `play` and `family` live at most 30 days on at most 3 devices; `owner` a
+  year on at most 5. `dev` (default 1) is how many devices may use it.
+- **Join** (`REQUIRE_PASS="true"`): subprotocols `["fizlet-rooms", "pass." + pass, "device." + key]`,
+  where the key is 16 to 64 base64url characters the page makes once per device. The first `dev`
+  device keys to join hold the pass (kept in the `Passes` Durable Object until it expires); any other
+  device gets `403 pass in use on another device`. The pass replaces the invite; the rate caps stay.
+  A pass is checked when a socket joins: a match running when it expires plays on, the next join is
+  refused.
+- **Sign-in check:** `POST /invite` with the body `pass + "\n" + device key` → `200 {ok, players,
+  pass:true}` or `403 {ok:false, pass:true, why}`, without taking a device seat. An empty POST
+  answers `pass:true` too, so a page knows to show its PASS field.
+- **Admin** (only when `ROOMS_ADMIN_KEY` is set, `authorization: Bearer <key>`):
+  `POST /pass/revoke` with the pass or its id (refused until it would have expired) and
+  `POST /pass/list` (ids, device counts, expiries; never device keys).
+- **Switching on** (owner): `wrangler secret put PASS_SECRET` (the same value as the Blitz repo's
+  Actions secret), `wrangler secret put ROOMS_ADMIN_KEY`, deploy (migration `v2` adds `Passes`), then
+  set `REQUIRE_PASS = "true"` and deploy again. With `REQUIRE_PASS` on and no `PASS_SECRET`, every
+  join is refused (`503`), never let through.
+
 ## Spend caps (hard limits in code)
 
 `src/limits.js` holds every cap with a default and a ceiling. `[vars]` in `wrangler.toml` can lower
@@ -48,7 +78,7 @@ a cap; nothing can lift it past its ceiling.
 | `JOIN_RATE` | 10 | 120 | Joins per IP a minute into one room, counted by the room before a socket is accepted; over it, `429` |
 | `ALLOWED_ORIGINS` | any | — | Page origins allowed to connect (set it before deploying) |
 
-The rooms store nothing (no Durable Object storage writes); one alarm per room checks the lobby,
+The rooms store nothing (no Durable Object storage writes; with passes on, only `Passes` stores the device locks); one alarm per room checks the lobby,
 idle and lifetime caps. The relay passes on only the first `INPUT` (and `HASH`) a seat sends for a
 frame: each seat's frames must rise, so a second, different input for a frame reaches nobody.
 
@@ -77,7 +107,7 @@ To play locally, add an invite to the local KV, then run `npm run dev`:
 npx wrangler kv key put --binding INVITES "$(node -e 'import("./src/limits.js").then(async m=>console.log(await m.inviteKey("MY-LOCAL-CODE")))')" local --local
 ```
 
-Files: `src/limits.js` (caps, invite keys), `src/relay.js` (the room logic, no platform APIs),
+Files: `src/limits.js` (caps, invite keys), `src/relay.js` (the room logic, no platform APIs), `src/pass.js` (play passes),
 `src/worker.js` (Worker + Durable Object), `wrangler.toml`.
 
 Open: real auth (later), what happens to a seat that leaves mid-game (today the others wait), an
