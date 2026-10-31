@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Notes: new note, **Why fzlt** (31 October 2026): why Fizlet's short mark and npm scope is fzlt, the
+  `npm i @fzlt/core` install line, the `fzlt` alias, and the planned fzlt.dev and fzlt.app. The notes are
+  regenerated from the content model, so a brick label in the lockstep note now reads `@fzlt/core/presence/check`.
+
 ## 0.21.2
 
 - 0.21.2 — first npm release, published as `@fzlt/core` (npm refused `fizlet` and `fzlt` as too similar to

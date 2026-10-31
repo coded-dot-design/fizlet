@@ -75,7 +75,7 @@
         },
         {
           "type": "p",
-          "text": "`syncCheck` from `fizlet/presence/check` is the same check for your own game: it runs your sim as lockstep clients over a jittery in-memory link and returns the first frame whose state differed, or -1. It is test-only code and never ships to players."
+          "text": "`syncCheck` from `@fzlt/core/presence/check` is the same check for your own game: it runs your sim as lockstep clients over a jittery in-memory link and returns the first frame whose state differed, or -1. It is test-only code and never ships to players."
         }
       ]
     },
