@@ -57,7 +57,7 @@ ${CSS}
 const body = `${STYLE}
 <section class="og-page" aria-labelledby="og-title">
   <div class="wrap">
-    ${crumbs("../../", [["heroes/", "Heroes"]], "Origin")}
+    ${crumbs("../../", [["gallery/", "Daily"]], "Origin")}
     <p class="eyebrow"><span class="index">OG</span> THE ORIGIN · A HERO SCENE</p>
     <h1 id="og-title" class="og-title"><button type="button" data-og-word aria-label="Switch the screens to design work">Code</button>. Sleep. Drink. Repeat.</h1>
     <p class="lead">A designer's and developer's day as a loop. Night: head down on the desk. The sun comes up, the headphones go on, the coffee goes down, and the laptop and phone run all day. Night falls, the lid closes, repeat. Tap the word to switch the screens between code and design work. Close the laptop and he sleeps; open it and the day starts.</p>
