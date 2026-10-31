@@ -190,7 +190,7 @@ try {
     assert.ok(start > 0 && end > start, "the brick component's CSS block");
     assert.doesNotMatch(css.slice(start, end), /#[0-9a-f]{3,8}\b|\b(rgb|hsl)a?\(/i, "brick component CSS: tokens only");
   }
-  // ---------- Mini chips (docs recipes, roadmap needs): ≤ 28 px, neutral at rest, colour on focus ----------
+  // ---------- Mini chips (docs recipes, roadmap needs): ≤ 28 px, its symbol, neutral at rest, colour on focus ----------
   {
     for (const path of ["bricks/", "docs/authoring/"]) {
       const { page, errors } = await open(path);
@@ -202,12 +202,12 @@ try {
         const f = await m.evaluate((a) => {
           const tok = (v) => { const p = document.createElement("i"); p.style.color = v; a.append(p); const c = getComputedStyle(p).color; p.remove(); return c; };
           const cs = getComputedStyle(a), bar = getComputedStyle(a, "::before");
-          return { h: a.getBoundingClientRect().height, bar: bar.content !== "none" && bar.content !== "normal", border: cs.borderTopColor, line: tok("var(--line)"), dot: !!a.querySelector(".brick-dot"), flag: a.querySelector(".brick-flag")?.dataset.flag, shadow: cs.boxShadow, kernel: a.classList.contains("brick-kernel") };
+          return { h: a.getBoundingClientRect().height, bar: bar.content !== "none" && bar.content !== "normal", border: cs.borderTopColor, line: tok("var(--line)"), dot: !!a.querySelector(".el-chip .el-sym"), flag: a.querySelector(".brick-flag")?.dataset.flag, shadow: cs.boxShadow, kernel: a.classList.contains("brick-kernel") };
         });
         assert.ok(f.h <= 28, `${path} mini ${i}: ${f.h} px tall (≤ 28)`);
         assert.equal(f.bar, false, `mini ${i}: no top bar`);
         assert.equal(f.border, f.line, `mini ${i}: neutral at rest`);
-        assert.ok(f.dot && f.flag, `mini ${i}: colour dot and status dot`);
+        assert.ok(f.dot && f.flag, `mini ${i}: its symbol in its colour, and a status dot`);
         if (f.kernel) assert.equal(f.shadow.split("rgb").length - 1, 2, "the kernel mini: a double hard shadow");
         else assert.equal(f.shadow.split("rgb").length - 1, 1, `mini ${i}: one hard shadow`);
       }
@@ -216,6 +216,23 @@ try {
       await sleep(250);
       assert.equal(...(await m.evaluate((a) => { const p = document.createElement("i"); p.style.color = "var(--tone)"; a.append(p); const c = getComputedStyle(p).color; p.remove(); return [getComputedStyle(a).borderTopColor, c]; })), "mini: the brick's colour on focus");
       if (path === "bricks/") assert.ok(await page.locator("a.brick-mini.brick-kernel").count() > 0, "a kernel mini on the roadmap's needs");
+      assert.deepEqual(errors, []);
+      await page.close();
+    }
+  }
+  // ---------- Brick card titles never break inside a word (phones): only after a "/" ----------
+  // Each part of a name ("@fzlt/", "core/", "collide") is one line box, and stays inside its card.
+  for (const [w, h] of [[360, 740], [390, 844]]) {
+    for (const path of ["bricks/", ""]) {
+      const { page, errors } = await open(path, { viewport: { width: w, height: h } });
+      const bad = await page.evaluate(() => [...document.querySelectorAll(".brick .brick-name")].flatMap((n) => {
+        const card = n.closest(".brick").getBoundingClientRect();
+        return [...n.querySelectorAll(".nw")].filter((p) => { const r = p.getClientRects(); return r.length !== 1 || r[0].right > card.right - 2 || r[0].left < card.left; })
+          .map((p) => `${n.textContent.trim()}: "${p.textContent}" (${p.getClientRects().length} lines)`);
+      }));
+      const parts = await page.evaluate(() => document.querySelectorAll(".brick .brick-name .nw").length);
+      assert.ok(parts > 0, `${path || "home"} at ${w}: name parts`);
+      assert.deepEqual(bad, [], `${path || "home"} at ${w}: a brick name breaks inside a word or overflows its card`);
       assert.deepEqual(errors, []);
       await page.close();
     }

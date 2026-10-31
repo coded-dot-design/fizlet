@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+- **Site: /bricks/ has a new hero, the Fizlet periodic table.** Every brick, 27 shipped and 8 planned,
+  is a Board UI key in a column for its family (kernel, input, network, motion, render, game, page),
+  showing its number, its two-letter symbol and, for a shipped brick, its size measured on this build.
+  `presence` and `presence/check` have their own In-house column, with the note "Used in our games.
+  Not a supported multiplayer service."
+  Planned bricks are dashed. Press one (click, tap, Enter or Space) and the key goes down, lights in its
+  colour, says PRESSED, and a short quick view flies in: name, status, size against budget, one line,
+  its import and a link to its page. On phones it is a bottom sheet, and the table scrolls inside its
+  own box. Arrow keys move between bricks and Esc closes. It runs 0 frames at rest and after use;
+  under reduced motion the quick view just appears. Its script is 914 B gzip (`periodic.js`, measured).
+  Each tile follows the brick cards: the status sticker on its top edge and the size with a colour dot
+  in the top-right corner. Each brick's symbol, number and family live in `site/bricks.mjs`, with the symbol rule in a comment.
+  Symbols are lowercase like the fzlt mark: the first letter, then the next consonant (`kr` kernel,
+  `fx` fx, `sl` slot). Brick chips show the symbol and open to the name on hover and focus: footer
+  chips, gallery "bricks used", roadmap needs and docs recipes. Brick cards carry the symbol as a small
+  tile. One sticker per brick, in the kit's sticker style, is drawn at build time as a downloadable SVG
+  (`bricks/stickers/`) and shown on a sticker sheet. The FILET factory moves down the page as a smaller
+  animation section.
+- **Site fix: brick card names no longer break inside a word on phones** (they showed "collid e",
+  "came ra"). A name now breaks only after a "/", and phones get a smaller size; a test checks every
+  card at 360 and 390 px.
+
 ## 0.21.2
 
 - 0.21.2 — first npm release, published as `@fzlt/core` (npm refused `fizlet` and `fzlt` as too similar to

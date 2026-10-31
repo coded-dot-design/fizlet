@@ -1,6 +1,8 @@
-// The FILET factory hero on /bricks/ (site/factory/), in Chromium. Run `npm run site` first.
-// - Fills the viewport (100svh, full width), no sideways scroll, every target ≥ 44 px: 1440×900, 390×844,
-//   375×667, 844×390; on phones the bricks, belt, machine, cartridge slot and HUD fit the first screen.
+// The FILET factory on /bricks/ (site/factory/), a small animation section under the periodic table,
+// in Chromium. Run `npm run site` first.
+// - Full width, below the table (not the hero), no sideways scroll, every target ≥ 44 px: 1440×900,
+//   390×844, 375×667, 844×390; on phones, scrolled to it, the bricks, belt, machine, cartridge slot and
+//   HUD fit one screen.
 // - Loads its live chunk only near the viewport; the stack is knocked over once the scene is up.
 // - Keyboard play: four sends make a cartridge named from names.json, labelled FIZLET, announced.
 // - Settles to 0 frames; Recall is exact (reduced motion turned on takes the scene down).
@@ -56,7 +58,7 @@ const frames = async (page, ms) => {
 
 // 1. Size, overflow and targets at three viewports (reduced motion off).
 for (const [w, h] of [[1440, 900], [390, 844], [375, 667], [844, 390]]) {
-  await check(`fills the viewport, no overflow, 44 px targets at ${w}×${h}`, async () => {
+  await check(`a section below the table, no overflow, 44 px targets at ${w}×${h}`, async () => {
     const page = await browser.newPage({ viewport: { width: w, height: h } });
     const errs = errorsOf(page);
     await page.goto(URL_);
@@ -64,15 +66,17 @@ for (const [w, h] of [[1440, 900], [390, 844], [375, 667], [844, 390]]) {
       const hero = document.querySelector(".fac-hero"), r = hero.getBoundingClientRect();
       const small = [...hero.querySelectorAll("button:not([hidden]), a")].map((b) => [b.className || b.textContent.trim(), b.getBoundingClientRect()])
         .filter(([, b]) => b.width < 44 || b.height < 44).map(([n, b]) => `${n} ${b.width.toFixed(0)}×${b.height.toFixed(0)}`);
-      return { w: r.width, h: r.height, vw: innerWidth, vh: innerHeight, scroll: document.documentElement.scrollWidth, small };
+      const table = document.querySelector(".pt-hero").getBoundingClientRect();
+      return { w: r.width, h: r.height, vw: innerWidth, vh: innerHeight, scroll: document.documentElement.scrollWidth, small, below: r.top >= table.bottom };
     });
-    assert.equal(m.w, m.vw, "hero is full width");
-    assert.ok(m.h >= m.vh, `hero is at least the viewport tall (${m.h} < ${m.vh})`);
+    assert.equal(m.w, m.vw, "the section is full width");
+    assert.ok(m.below, "the section sits below the periodic table");
     assert.ok(m.scroll <= m.vw, `no sideways scroll (${m.scroll} > ${m.vw})`);
     assert.deepEqual(m.small, [], "targets under 44 px");
     // Phones: everything that plays is on the first screen (the bricks, the belt, the machine, the
     // cartridge's slot and the HUD); the copy and the keys may follow below.
     if (w < 600) {
+      await page.evaluate(() => scrollTo({ top: document.querySelector(".fac-hero").getBoundingClientRect().top + scrollY, behavior: "instant" }));
       const out = await page.evaluate(() => {
         const cart = document.querySelector(".fac-cart");
         cart.hidden = false;
@@ -81,7 +85,7 @@ for (const [w, h] of [[1440, 900], [390, 844], [375, 667], [844, 390]]) {
         cart.hidden = true;
         return off;
       });
-      assert.deepEqual(out, [], `the play area fits the ${w}×${h} screen`);
+      assert.deepEqual(out, [], `the play area fits one ${w}×${h} screen`);
     }
     assert.deepEqual(errs, []);
     await page.close();
@@ -99,6 +103,7 @@ await check("scatter on load, keyboard play makes a FIZLET cartridge, settles to
   const gate = new Promise((d) => (open = d));
   await page.route("**/factory/factory.js", async (r) => (await gate, r.continue()));
   await page.goto(URL_);
+  await page.evaluate(() => document.querySelector(".fac-hero").scrollIntoView({ behavior: "instant" }));
   // The controller's own state stays (the knocked-over floor, each brick's floor spot); the rest is Recall's.
   const html = () => page.evaluate(() => document.querySelector(".fac-hero").outerHTML.replace(" fac-down", "").replace(/ data-s="\d+"/g, ""));
   const before = await html();
@@ -151,6 +156,7 @@ await check("mute persists and keeps it silent", async () => {
   assert.equal(await page.evaluate(() => localStorage.getItem("fizlet:factory:mute")), "1");
   await page.reload();
   assert.equal(await page.getAttribute(".fac-mute", "aria-pressed"), "true", "mute kept after a reload");
+  await page.evaluate(() => document.querySelector(".fac-hero").scrollIntoView({ behavior: "instant" }));
   await page.waitForSelector(".fac-hero [data-fizlet-slot] canvas", { timeout: 15000 });
   for (let i = 0; i < 4; i++) await page.click(".fac-go");
   await page.waitForSelector(".fac-cart:not([hidden])", { timeout: 8000 });

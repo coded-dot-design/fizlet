@@ -7,9 +7,18 @@
 // generated index (gallery/index.json) sit on top (site/gallery/browse.ts).
 import { crumbs, esc, icon } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
+import { BRICKS } from "../bricks.mjs";
+import { symChip } from "../brick-ui.mjs";
 import { sections } from "../../scripts/gallery.mjs";
 import { CONTEST } from "../../scripts/people.mjs";
 import { contestStory, enterKey } from "./contest.mjs";
+
+/** A brick an entry uses ("@fzlt/core/fx", "fzlt/kernel"): its symbol chip, named in full; a name
+ *  that is no brick stays as code. */
+const usedChip = (name, base) => {
+  const b = BRICKS.find((x) => x.id === name.split("/").pop());
+  return b ? `<li>${symChip(b, `${base}bricks/${b.id}.html`, b.id === "kernel" ? "@fzlt/core (kernel)" : b.name)}</li>` : `<li><code>${esc(name)}</code></li>`;
+};
 
 const fmt = (n) => n.toLocaleString("en-US");
 
@@ -104,7 +113,7 @@ const card = (e, { loader, figures, base, people, themeTitle, winners, tooBig = 
         <p class="gal-prompt"><span class="bui-label">${e.made === "fe anim" ? "PROMPT" : "BRIEF"}</span> “${esc(e.prompt)}”</p>
         <ul class="ppl-count gal-count" aria-label="What it costs the page, measured on this build">${chips}</ul>
         ${measured ? `<p class="gal-cost"><b>${measured.framesSettled}</b> frames a second once still · <b>${measured.framesOffscreen}</b> off screen · Recall ${measured.recallExact ? "exact" : "not exact"} <small>(Chromium ${esc(measured.chromium.split(".")[0])})</small></p>` : ""}
-        <ul class="ppl-count gal-bricks" aria-label="Bricks used">${e.bricks.map((b) => `<li><code>${esc(b)}</code></li>`).join("")}</ul>
+        <ul class="ppl-count gal-bricks" aria-label="Bricks used">${e.bricks.map((b) => usedChip(b, base)).join("")}</ul>
         ${snippets[e.id] ? `<p class="gal-keys"><a class="bui-key bui-arcade bui-go" href="${base}gallery/${esc(snippets[e.id].file)}" download="fizlet-${esc(e.id)}.html" data-snippet="${esc(e.id)}">${icon("down", 16)}Get the snippet</a><span>one drop-in file, <b>${fmt(snippets[e.id].size)} B</b> gzip · <a href="${base}make/?p=${encodeURIComponent(e.prompt)}">change the prompt</a></span></p>` : ""}
         ${e.source ? `<p><a class="gal-link" href="${esc(e.source.url)}">${icon("out", 16)}See it on ${esc(e.source.label)} ↗</a></p>` : ""}
         ${e.link ? `<p><a class="gal-link" href="${base}${esc(e.link)}">${icon("out", 16)}See it on its own page</a></p>` : ""}

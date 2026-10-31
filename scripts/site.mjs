@@ -8,7 +8,7 @@ import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, write
 import { fillStage, launchFacts } from "./launch-facts.mjs";
 import { measure } from "./sizes.mjs";
 import { llmsFull } from "./llms-full.mjs";
-import { page, mark, fillSiteMap, SITE, ROOT, REPO, PERSON, ORG, WEBSITE, ANALYTICS } from "../site/layout.mjs";
+import { page, mark, esc, fillSiteMap, SITE, ROOT, REPO, PERSON, ORG, WEBSITE, ANALYTICS } from "../site/layout.mjs";
 import { home } from "../site/pages/index.mjs";
 import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
@@ -35,6 +35,9 @@ import { releases as loadReleases, releasePath, parse as parseRelease, releaseDe
 import { newsIndex, releasePage, releaseLd } from "../site/pages/news.mjs";
 import { brickCard, CARDS } from "../site/brick-cards.mjs";
 import { buildFactory } from "../site/factory/build.mjs";
+import { elements, periodicHero } from "../site/periodic.mjs";
+import { symChip } from "../site/brick-ui.mjs";
+import { brickStickers, stickerSheet, STICKER_CSS } from "./brick-stickers.mjs";
 
 const OUT = "site-dist";
 const { version } = JSON.parse(readFileSync("package.json", "utf8"));
@@ -63,7 +66,7 @@ const bundle = gzipSync(iife.outputFiles[0].contents).length;
 
 // Page scripts: the demo (bundled from src/, as a game would) and the shared site script.
 await build({
-  entryPoints: { demo: "site/demo.ts", site: "site/site.ts", "home-motion": "site/home-motion.ts", "brick-graph": "site/brick-graph.ts" },
+  entryPoints: { demo: "site/demo.ts", site: "site/site.ts", "home-motion": "site/home-motion.ts", "brick-graph": "site/brick-graph.ts", periodic: "site/periodic.ts" },
   outdir: OUT, bundle: true, minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning",
 });
 
@@ -213,8 +216,16 @@ const bricks = BRICKS.map((b) => {
   const card = (where) => (CARDS[b.id] ? brickCard({ brick: b, bytes: sizes.find((s) => s.name === b.sizes[0]).gzip, card: cardSizes[b.id], where }) : "");
   return { ...b, mods, card, example: b.snippet ? undefined : exampleOf(b.id), summary: mods[0].summary.match(/^.*?\.(?=\s|$)/)?.[0] ?? mods[0].summary };
 });
-// The FILET factory hero at the top of /bricks/ (site/factory/): its bricks' sizes from this build.
+// The FILET factory (site/factory/), a small animation section on /bricks/: its bricks' sizes from this build.
 const factory = await buildFactory({ out: OUT, base: "../", bricks: BRICKS, sizes, version });
+// The periodic table, the hero of /bricks/ (site/periodic.mjs): every brick and planned brick, sizes
+// from this build; its script's gzip bytes measured here. One sticker per brick, written as SVG
+// downloads and shown on the page from the same files (scripts/brick-stickers.mjs).
+const ELEMENTS = elements({ bricks, planned: PLANNED, sizes });
+const periodic = periodicHero({ els: ELEMENTS, version, js: { live: "periodic.js", bytes: liveBytes(`${OUT}/periodic.js`) } });
+const STICKERS = brickStickers(ELEMENTS);
+mkdirSync(`${OUT}/bricks/stickers`, { recursive: true });
+for (const s of STICKERS) writeFileSync(`${OUT}/bricks/stickers/${s.file}`, s.svg);
 // JSON-LD: the engine's source code (home), each brick as a part of it. Facts from the page only.
 const CODE = `${SITE}#code`;
 const homeDescription = `A micro game engine for the DOM: one shared loop, bounded everything, and the page always comes back. Kernel ${(kernel.gzip / 1024).toFixed(1)} KB gzip, no dependencies.`;
@@ -270,7 +281,7 @@ const pages = [
   ["bricks/index.html", page({
     title: "Kernel and bricks: every module and its size · Fizlet",
     description: `Every Fizlet module with its API and its measured size: the kernel is ${(kernel.gzip / 1024).toFixed(1)} KB gzip, each brick its own import.`,
-    base: "../", version, path: "bricks/", body: `<style>${factory.css}</style>${factory.html}` + bricksIndex({ bricks, sizes, version, planned: PLANNED, graph: { ...brickGraph(BRICKS, PLANNED, STATUS), live: "brick-graph.js", bytes: liveBytes(`${OUT}/brick-graph.js`) } }), scripts: ["site.js", "brick-cards.js", "brick-graph.js"],
+    base: "../", version, path: "bricks/", body: `<style>${periodic.css}${STICKER_CSS}${factory.css}</style>${periodic.html}${stickerSheet(STICKERS, { esc })}` + bricksIndex({ bricks, sizes, version, planned: PLANNED, graph: { ...brickGraph(BRICKS, PLANNED, STATUS), live: "brick-graph.js", bytes: liveBytes(`${OUT}/brick-graph.js`) } }) + factory.html, scripts: ["site.js", "periodic.js", "brick-cards.js", "brick-graph.js"],
   })],
   // The gallery: PAGE_SIZE entries a page (gallery/, gallery/page/2/, …), in theme sections.
   ...gallery.pages.map((p) => [`${p.path}index.html`, page({
@@ -401,7 +412,9 @@ const LABEL = new Map([
 ]);
 const built = pages.map(([f]) => routeOf(f));
 const order = (r) => (built.includes(r) ? built.indexOf(r) : built.length);
-const routes = indexable.map((p) => ({ path: routeOf(p.f), label: LABEL.get(routeOf(p.f)) ?? unescTitle(p.html) }))
+// A brick's page is a symbol chip in the footer (its name on hover and focus, and as its accessible name).
+const CHIP = new Map(bricks.map((b) => [brickPath(b), (href, attrs) => symChip(b, href, b.id, attrs)]));
+const routes = indexable.map((p) => ({ path: routeOf(p.f), label: LABEL.get(routeOf(p.f)) ?? unescTitle(p.html), chip: CHIP.get(routeOf(p.f)) }))
   .sort((a, b) => order(a.path) - order(b.path));
 for (const f of readdirSync(OUT, { recursive: true }).map((x) => x.replace(/\\/g, "/")).filter((x) => x.endsWith(".html") && !x.startsWith("dist/"))) {
   const html = readFileSync(`${OUT}/${f}`, "utf8"), filled = fillSiteMap(html, routes);

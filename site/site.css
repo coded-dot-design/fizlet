@@ -1344,8 +1344,18 @@ html.bui[data-theme="light"] .brick:focus-within {
   margin: 0;
   font: 900 clamp(24px, 2.4vw, 30px)/1.05 var(--sans);
   letter-spacing: -0.035em;
-  overflow-wrap: anywhere;
+  /* A name breaks only after a "/" (brick-ui.mjs nameParts), never inside a word. */
+  overflow-wrap: normal;
+  word-break: keep-all;
   padding-right: 64px;
+}
+.brick-name .nw {
+  white-space: nowrap;
+}
+/* The symbol tile sits on its own line over the name. */
+.brick-name > .el-card {
+  display: grid;
+  margin: 0 0 10px;
 }
 .brick .brick-name a {
   color: var(--ink);
@@ -1480,7 +1490,14 @@ html.bui[data-theme="light"] .brick.brick-kernel:focus-within {
     padding: 18px 12px 12px;
   }
   .brick-compact .brick-name {
-    font-size: 18px;
+    font-size: clamp(15px, 4.6vw, 18px);
+  }
+  /* Phones: the stickers sit on the top edge, so the name takes the card's width, a size smaller. */
+  .brick .brick-name {
+    padding-right: 0;
+  }
+  .brick-full:not(.brick-kernel) .brick-name {
+    font-size: clamp(18px, 5.6vw, 24px);
   }
 }
 /* Mini: an inline chip, at most 28 px tall. The same rules at chip scale: neutral border and hard
@@ -4640,3 +4657,97 @@ html.bui[data-theme="light"] .ogs-vs {
 .bgraph-key i { display: inline-block; width: 18px; height: 0; margin: 0 6px 3px 0; border-top: 2px solid var(--muted); vertical-align: middle; }
 .bgraph-key i.k1 { border-top-style: dotted; }
 .bgraph-key i.k2 { border-top-style: dashed; border-color: var(--line); }
+
+/* ---------- Brick symbols: the periodic table tile's small versions (site/brick-ui.mjs) ----------
+   One look at every scale, tokens only: the symbol in mono on its brick's colour (--tone), the ink
+   rim and a hard base. Card: number + symbol (brick cards, the quick view). Chip: the symbol alone
+   (chips, where bricks are paired). A symbol chip shows its name on hover and focus; its accessible
+   name is the name, always. The hero tile itself is on bricks/ (site/periodic.mjs). */
+.el {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  color: var(--ink);
+  font-style: normal;
+  vertical-align: middle;
+  background: color-mix(in srgb, var(--tone) 18%, var(--surface));
+  border: 2px solid var(--tone);
+  border-radius: 6px;
+  box-shadow: calc(2px * var(--shadow-x, 0)) calc(2px * var(--shadow-y, 1)) 0 color-mix(in srgb, var(--tone) 50%, var(--rim));
+}
+.el-sym {
+  font: 900 1em/1 var(--mono);
+  letter-spacing: -0.03em;
+}
+.el-card {
+  width: 40px;
+  height: 40px;
+  margin: 0 10px 4px 0;
+  font-size: 17px;
+  letter-spacing: 0;
+}
+.el-card .el-no {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  font: 700 8px/1 var(--mono);
+  font-style: normal;
+  color: var(--muted);
+}
+.el-card .el-sym {
+  margin-top: 5px;
+}
+.el-chip {
+  width: 20px;
+  height: 20px;
+  font-size: 11px;
+  border-width: 1.5px;
+  border-radius: 4px;
+  box-shadow: none;
+}
+.sym-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 2px;
+  font: 700 12px/1 var(--mono);
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--raised);
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+}
+.sym-chip:hover,
+.sym-chip:focus-visible {
+  border-color: var(--tone);
+}
+.sym-chip .sym-name,
+.brick-mini .sym-name {
+  display: inline-block;
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.brick-mini .sym-name {
+  margin-left: -6px;
+}
+:is(.sym-chip, .brick-mini):is(:hover, :focus-visible) .sym-name {
+  max-width: 24em;
+  margin: 0 4px 0 6px;
+}
+.brick-mini:is(:hover, :focus-visible) .sym-name {
+  margin: 0;
+}
+.map-chips a.sym-chip {
+  padding: 2px;
+  border: 1px solid var(--line);
+}
+.foot-map .map-chips a.sym-chip:hover,
+.foot-map .map-chips a.sym-chip:focus-visible {
+  border-color: var(--tone);
+}
+.gal-bricks > li:has(> .sym-chip) {
+  padding: 0;
+  border: 0;
+}

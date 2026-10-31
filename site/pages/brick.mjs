@@ -164,13 +164,13 @@ const graphFigure = (g) => {
 
 /** bricks/index.html: every brick, with its measured size and its status. */
 export function bricksIndex({ bricks, sizes, version, planned = [], graph }) {
-  const cards = bricks.map((b) => brickTile({ brick: b, size: sizes.find((x) => x.name === b.sizes[0]), href: `${b.id}.html`, toy: b.card ? b.card("bricks") : "" })).join("\n      ");
+  const cards = bricks.map((b) => brickTile({ brick: b, size: sizes.find((x) => x.name === b.sizes[0]), href: `${b.id}.html`, h: "h3", toy: b.card ? b.card("bricks") : "" })).join("\n      ");
   return `
-<section class="section" aria-labelledby="bi-title">
+<section class="section" id="bricks" aria-labelledby="bi-title">
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow"><span class="index">${bricks.length}</span> BRICKS · V${esc(version)}</p>
-      <h1 id="bi-title">Kernel and<br><em>bricks.</em></h1>
+      <h2 id="bi-title">Kernel and<br><em>bricks.</em></h2>
       <p class="lead">One small kernel and a box of bricks, each its own import with its own size budget. Each page is generated from the source: the API from the type declarations, the size measured on this build.</p>
     </div>
     ${graph ? graphFigure(graph) : ""}

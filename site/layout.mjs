@@ -141,12 +141,13 @@ export const SITE_MAP = [
 
 /**
  * The footer's site map for the page at `path` (`base`: the path back to the root). `routes`:
- * [{ path, label }] in reading order, every indexable page ("" is home, linked by the brand).
+ * [{ path, label, chip? }] in reading order, every indexable page ("" is home, linked by the brand).
  */
 export function siteMap(routes, base, path) {
   const claimed = new Set([""]);
   const take = (test) => routes.filter((r) => !claimed.has(r.path) && test(r.path)).map((r) => (claimed.add(r.path), r));
-  const a = (r, cls = "") => `<a${cls} href="${base}${r.path}"${current(r.path, path)}>${esc(r.label)}</a>`;
+  // A route with a `chip` (a brick: site/brick-ui.mjs symChip) draws itself; its label stays its name.
+  const a = (r, cls = "") => r.chip ? r.chip(`${base}${r.path}`, current(r.path, path)) : `<a${cls} href="${base}${r.path}"${current(r.path, path)}>${esc(r.label)}</a>`;
   const section = (s) => {
     if (s.links) return `<li class="map-sec"><span class="map-label">${esc(s.label)}</span><ul>${s.links.map(([href, label]) => `<li><a href="${href}">${esc(label)}${href === SITE ? "" : " ↗"}</a></li>`).join("")}</ul></li>`;
     const rs = take(s.head ? (p) => p === s.head || (s.head.endsWith("/") && p.startsWith(s.head)) : (p) => s.match.test(p));
