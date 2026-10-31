@@ -622,7 +622,7 @@ export function freeze(stage: HTMLElement, slot: HTMLElement, first: SlotTap | n
       const left = max(0, LIVE_T - S[T]!);
       g.fillStyle = K_rim;
       g.fillRect(2, 2, 46, 12);
-      print(g, "LIVE " + ((left * 10) | 0) / 10, 4, 4, K_fire, 1);
+      print(g, "LIVE " + Math.ceil(left), 4, 4, K_fire, 1);
       g.fillStyle = K_fire;
       g.fillRect(4, 11, round((left / LIVE_T) * 40), 1);
     }

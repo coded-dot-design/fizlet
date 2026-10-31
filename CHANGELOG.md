@@ -7,7 +7,7 @@
   RADIO the platoon and time runs for three seconds while turrets find targets in sight and the coral
   platoon fires back; it freezes again for the next leg. Take the HQ flag or knock out their tanks in
   six legs. Keyboard: 1–3, arrows, Enter. Hand-built on the kernel and fizlet/sound (the sound key
-  shows after a gesture); 10,212 B gzip live; the step allocates ~5 B a frame; Recall exact;
+  shows after a gesture); 10,211 B gzip live; the step allocates ~5 B a frame; Recall exact;
   reduced motion is the poster. `author: pip`, pending (no `approved`); `teaser` links to
   battlefield.domvirus.com.
 - **Four more brick cards: hud, match, sound, presence.** hud: a high striker; tap fast to heat it
