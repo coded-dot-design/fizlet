@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **Gallery: Tiny Byte Runner (pending owner review).** A ten-second taste of Byte Runner by Pip:
+  the round green frog chomps along crumb trails in a little web page's gutters, leaves them to eat
+  the page's letters (gone through the ledger till Recall) and dodges three flies (chaser,
+  interceptor, roamer) until a power square turns them blue and edible. Arrows/WASD, swipe or tap;
+  44 px mute key after a gesture. 9,330 B gzip live; zero-alloc step; settles; reduced motion keeps
+  the poster.
 - **Gallery: Tiny Swarm Protocol (pending owner review).** A ten-second taste of Swarm Protocol by
   Pip: bugs crawl onto a little web page and eat its letters into binary (real text, through the
   ledger); every three letters a bug grows a tier, and grown hunters latch on the buttons and drain
