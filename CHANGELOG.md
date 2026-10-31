@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- **Website: the FILET game factory, a full-screen hero at the top of /bricks/** (`site/factory/`).
+  The real bricks (kernel, input, fx, sound, grid, steer, hud, timeline, sprite, collide, slot), each
+  in its token with its size measured on this build, stand stacked, get knocked over, and go on a
+  belt (tap, drag, Enter or Space); the kernel, any two bricks and the Z that fell off the sign make
+  the machine shake, spark and blow, and a FIZLET cartridge with the DOM VIRUS skull sticker comes
+  out, named from `site/factory/names.json` (real games marked COMING SOON from their specs, the rest
+  FACTORY ROLL jokes). An inline controller plays it from first paint and under reduced motion (the
+  cartridge simply appears); the live scene (kernel, fizlet/fx, fizlet/sound) loads near the viewport
+  through fizlet/slot, settles to 0 frames and gives the hero back exactly. Sound only after a
+  gesture, mute kept in localStorage. `tests/factory.mjs` (in `npm run test:site`).
+
 - **Website: a section the scroll jumps past still reveals** (`site/home-motion.ts`). The observer
   only reports threshold crossings, so a jump (an anchor, a fling, a slow frame landing several
   scrolls at once) could carry a waiting section from below the fold to above it with no callback,

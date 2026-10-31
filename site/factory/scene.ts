@@ -19,7 +19,7 @@ import type { SlotMount } from "../../src/slot";
 // Tile motion kinds.
 const IDLE = 0, MOVE = 1, NOPE = 2, SWALLOW = 3;
 // The run: swallow, shake, blast (seconds); a re-roll skips the swallow.
-const SWALLOW_T = 0.7, BLAST_T = 2.1, AGAIN_BLAST = 1.0, POP = 0.55;
+const ARRIVE = 1.1, SWALLOW_T = 0.7, BLAST_T = 2.1, AGAIN_BLAST = 1.0, POP = 0.55;
 
 const smooth = (p: number) => p * p * (3 - 2 * p);
 const back = (p: number) => 1 + 2.70158 * (p - 1) ** 3 + 1.70158 * (p - 1) ** 2;
@@ -64,8 +64,9 @@ export function mountFactory(stage: HTMLElement, hero: HTMLElement, opts: Factor
   // [4] belt speed, [5..6] machine centre (stage px), [7] shake, [8] flash, [9] pop clock (-1 idle),
   // [10] canvas w, [11] canvas h, [12] dpr, [13] resized, [14] drew last frame, [15] light theme,
   // [16] done owed, [17..18] mouth (stage px), [19] spark clock.
-  const s = new Float64Array(20);
-  s[0] = -1; s[9] = -1;
+  // [20] arrival clock (-1 done): the stack stands a beat before it is knocked over; [21] ready owed.
+  const s = new Float64Array(22);
+  s[0] = -1; s[9] = -1; s[20] = 0;
 
   const stageXY = (el: Element, out: Float64Array, i: number) => {
     const r = el.getBoundingClientRect(), b = stage.getBoundingClientRect();
@@ -170,19 +171,20 @@ export function mountFactory(stage: HTMLElement, hero: HTMLElement, opts: Factor
         s[0]! += dt;
         const t = s[0]!, blast = s[1] ? AGAIN_BLAST : BLAST_T, start = s[1] ? 0 : SWALLOW_T * 0.7;
         const k = t < start ? 0 : t < blast ? (t - start) / (blast - start) : 0;
-        s[7] = k * k * 9;
+        s[7] = k * k * 16;
         if (t > start && t < blast) {
           s[19]! += dt;
-          if (s[19]! > 0.07) {
+          if (s[19]! > 0.05) {
             s[19] = 0;
-            em.emit(em.ids.spark, s[5]! + (e.random() - 0.5) * 120, s[6]! - 40 + (e.random() - 0.5) * 60, 4 + (k * 8) | 0, 0, 2);
+            em.emit(em.ids.spark, s[5]! + (e.random() - 0.5) * 120, s[6]! - 40 + (e.random() - 0.5) * 60, 6 + (k * 14) | 0, 0, 3);
             if (e.random() < 0.3) e.events.emit("hit", 0, 0, 0, 0, 0.4);
           }
         }
         if (t >= blast && !s[2]) {
           s[2] = 1; s[8] = 1; s[16] = 1;
-          fx.blast(s[5]!, s[6]!, 1.3, 0);
-          fx.kick(14);
+          fx.blast(s[5]!, s[6]!, 2, 0);
+          em.emit(em.ids.spark, s[5]!, s[6]!, 60, 0, 5, 4);
+          fx.kick(18);
           e.events.emit("boom");
         }
         if (t > blast + 0.2) s[0] = -1;
@@ -192,6 +194,12 @@ export function mountFactory(stage: HTMLElement, hero: HTMLElement, opts: Factor
       // The belt runs while bricks ride it.
       if (s[4]! > 0) { busy = 1; s[3] = (s[3]! + s[4]! * dt) % 22; s[4] = Math.max(0, s[4]! - 300 * dt); }
       fx.step(dt);
+      // Arrival: the stack stands a beat, then the scene tells the controller to knock it over.
+      if (s[20]! >= 0) {
+        busy = 1;
+        s[20]! += dt;
+        if (s[20]! > ARRIVE) { s[20] = -1; s[21] = 1; }
+      }
       if (busy || fx.live > 0 || s[13]) e.busy();
     },
     render() {
@@ -217,6 +225,10 @@ export function mountFactory(stage: HTMLElement, hero: HTMLElement, opts: Factor
       L.style(flash, "opacity", s[8]!.toFixed(2));
       // A re-roll: the old cartridge goes into the machine's shake; the new one pops.
       if (s[0]! >= 0 && s[1] && !s[2]) L.style(cart, "opacity", "0");
+      if (s[21]) {
+        s[21] = 0;
+        hero.dispatchEvent(new CustomEvent("fac-ready"));
+      }
       if (s[16]) {
         s[16] = 0;
         hero.dispatchEvent(new CustomEvent("fac-done"));
@@ -246,7 +258,6 @@ export function mountFactory(stage: HTMLElement, hero: HTMLElement, opts: Factor
     },
   });
   e.start();
-  hero.dispatchEvent(new CustomEvent("fac-ready"));
   return {
     engine: e,
     destroy() {
