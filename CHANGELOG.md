@@ -6,7 +6,7 @@
   an interceptor under a little web page shoots its headline into binary (real text, through the
   ledger), two buttons are alien factories, and XP upgrades the gun mid-round (Pulse, Twin, Trident,
   Overdrive); Recall puts every letter back. Keys, tap or drag; 44 px mute key after a gesture.
-  9,405 B gzip live; zero-alloc step; settles; reduced motion keeps the poster.
+  9,412 B gzip live; zero-alloc step; settles; reduced motion keeps the poster.
 - **Four more brick cards: hud, match, sound, presence.** hud: a high striker; tap fast to heat it
   and ring the bell; its real DOM scoreboard (score, best, heat meter, HOT flag, a feed of strikes) is
   bound with fizlet/hud and the readout counts DOM writes against frames. match: a ten-second round on
