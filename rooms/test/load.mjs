@@ -462,7 +462,7 @@ async function hostilePhase(out) {
   m.ws.send(frame(1, m.slot, 0xffffffff)); // last frame there is: the seat can never send again
   m.ws.send(frame(1, m.slot, 10)); // so this is dropped
   await sleep(500);
-  const seen = p.msgs.filter((x) => x.d[0] !== 3).map((x) => ({ kind: x.d[0], slot: x.d[1], frame: new DataView(x.d.buffer).getUint32(4, true) }));
+  const seen = p.msgs.filter((x) => x.d[0] !== 3 && x.d[0] !== 8).map((x) => ({ kind: x.d[0], slot: x.d[1], frame: new DataView(x.d.buffer).getUint32(4, true) }));
   out.hostile.relay = { sender: m.slot, seen };
   check("relay: forged seat restamped, room-only kinds and repeats dropped", seen.length === 2 && seen.every((s) => s.kind === 1 && s.slot === m.slot) && seen[0].frame === 5 && seen[1].frame === 0xffffffff, seen, "2 INPUTs from the sender's real seat (f 5, f 2^32-1)");
   cs.forEach((c) => c.ws.close());

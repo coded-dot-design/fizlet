@@ -6,9 +6,9 @@
 // frames must rise, so a second, different input for a frame never reaches anyone (fizlet/presence
 // keeps the first one too). A seat that drops (no clean close) is held: the others hear AWAY, and
 // its token gets it back (WELCOME, RESUME, then the other seats' last RING inputs) until the hold
-// runs out (LEAVE). Wire format: see fizlet/presence (12 bytes: kind, slot, players, mode, u32
+// runs out (LEAVE). Before the start every waiting seat hears LOBBY on each join and leave. Wire format: see fizlet/presence (12 bytes: kind, slot, players, mode, u32
 // frame or seed, u32 value or token) and README.md.
-export const INPUT = 1, HASH = 2, WELCOME = 3, LEAVE = 4, RESUME = 5, AWAY = 6, START = 7;
+export const INPUT = 1, HASH = 2, WELCOME = 3, LEAVE = 4, RESUME = 5, AWAY = 6, START = 7, LOBBY = 8;
 /** Inputs kept per seat for a resume (presence's default cap; it resends the rest itself). */
 export const RING = 64;
 
@@ -48,7 +48,13 @@ export class Relay {
     if (slot < 0) return -1;
     this.seats[slot] = peer;
     this.ready();
+    this.lobby();
     return slot;
+  }
+  /** Before the start: each waiting seat hears LOBBY (its seat, the room size, how many are seated). */
+  lobby() {
+    const n = this.seats.filter(Boolean).length;
+    if (!this.started) this.seats.forEach((p, s) => p?.send(msg(LOBBY, s, this.players, 0, 0, n)));
   }
   /** Start when full, or once START's count is seated: with the seats taken, in arrival order. */
   ready() {
@@ -119,6 +125,7 @@ export class Relay {
     this.frames[slot * 2] = this.frames[slot * 2 + 1] = -1;
     if (this.started) this.seats.forEach((p) => p?.send(msg(LEAVE, slot, this.players, 0, 0)));
     if (!this.live()) this.started = false;
+    else this.lobby();
   }
 }
 

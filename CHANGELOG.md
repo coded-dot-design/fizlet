@@ -7,10 +7,11 @@
   per-seat resume token from `WELCOME` (subprotocol `resume.<hex>`, never the URL): `WELCOME`,
   `RESUME` and the inputs it missed, while the others see `AWAY`, not `LEAVE`. A room woken from
   hibernation keeps its idle clock (`last` rides in the attachments). `POST /invite` stops reading at
-  257 bytes. The host's `START` begins a room before it's full, with a `mode` byte for every peer.
+  257 bytes. The host's `START` begins a room before it's full, with a `mode` byte for every peer; `LOBBY`
+  tells each waiting seat its seat, how many are seated and the room size on every join and leave.
   fizlet/presence: `join()` reconnects on its own (6 tries, about 16 s; token in memory only) and
-  takes `{ retry, lobby }`; `away` shows seats reconnecting; `RESUME` resends a peer's recent inputs;
-  `mode` in the join result. presence 1,834 → 2,194 B gz (budget 2,048 → 2,240).
+  takes `{ retry, lobby }` (`lobby(start, seat, seated, size)` on each LOBBY); `away` shows seats reconnecting; `RESUME` resends a peer's recent inputs;
+  `mode` in the join result. presence 1,834 → 2,207 B gz (budget 2,048 → 2,240).
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
   first release tag after the owner adds the `NPM_TOKEN` repository secret; the release workflow
   (`.github/workflows/release.yml`, `npm publish --provenance --access public`) checks, packs and

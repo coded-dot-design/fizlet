@@ -251,8 +251,12 @@ test("presence: join() reconnects a dropped seat with its resume token, in memor
   try {
     const { join } = await import("../src/presence.ts");
     const url = "wss://rooms.example/room/1?players=4", P = ["fizlet-rooms", "invite.ABCD-EFGH-JK"];
-    const p = join(url, undefined, P, { retry: 3, lobby: (start) => start(2, 9) });
-    made[0].fire("open");
+    const lobbies = [];
+    const p = join(url, undefined, P, { retry: 3, lobby: (start, seat, seated, size) => (lobbies.push([seat, seated, size]), seat === 0 && seated === 2 && start(2, 9)) });
+    made[0].deliver([8, 0, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0]); // LOBBY: seat 0 of 4, 1 seated
+    assert.equal(made[0].sent.length, 0);
+    made[0].deliver([8, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0]);
+    assert.deepEqual(lobbies, [[0, 1, 4], [0, 2, 4]], "each LOBBY: seat, seated, room size");
     assert.deepEqual([...made[0].sent[0]], [7, 0, 2, 9, 0, 0, 0, 0, 0, 0, 0, 0], "the host's START: begin with 2, mode 9");
     made[0].deliver([3, 1, 2, 9, 0x2a, 0, 0, 0, 0xd4, 0xc3, 0xb2, 0xa1]);
     const j = await p;

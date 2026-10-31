@@ -70,6 +70,7 @@ little-endian. The room stamps `slot` with the sender's real seat; clients send 
 | `RESUME` | 5 | room | `slot` is back: every peer resends its own inputs for its frames F-D..F+D-1 |
 | `AWAY` | 6 | room | `slot` dropped and is held for `RESUME_SECONDS`: show "reconnecting" |
 | `START` | 7 | host (seat 0) | `players` byte = start once this many are seated (`0`: now), `mode` byte = any 0..255 the game picks (e.g. its mode or team layout) |
+| `LOBBY` | 8 | room | before the start, to every waiting seat on each join and leave: `slot` (your seat), `players` (the room size), `mode` byte = how many are seated |
 
 **START (begin before the room is full).** Open the room with the most seats the mode can take
 (`?players=4`). Seat 0 is the host (the first to join). Its `START` begins the match once `n` seats
@@ -77,7 +78,9 @@ are taken (`n = 0`: now), with the seats taken: they are numbered `0..k-1` in ar
 `WELCOME` says `players = k` and the host's `mode`. The game fills the other places with bots, which
 every peer simulates the same way from the seed, and seats teams from `slot` and `mode` (for
 example 2v2: seats 0 and 2 against 1 and 3). A `START` from any other seat, or after the start, is
-ignored. With fizlet/presence: `join(url, signal, protocols, { lobby: (start) => button.onclick = () => start(0, mode) })`.
+ignored. `LOBBY` tells each waiting player its seat, how many are seated and the room size, so only
+seat 0 shows a start button and everyone sees "2 of 4". With fizlet/presence:
+`join(url, signal, protocols, { lobby: (start, seat, seated, size) => { count.textContent = `${seated} of ${size}`; button.hidden = seat !== 0; button.onclick = () => start(0, mode); } })`.
 Joiners after the start are refused (`4000 room full`); a room opened for a different count is `409`.
 
 ## Resume

@@ -28,8 +28,8 @@ export const BUDGETS = [
   ["fizlet/sound", "src/sound.ts", 1536],
   ["fizlet/embed", "src/embed.ts", 2560],
   ["fizlet/slot", "src/slot.ts", 2048],
-  // 1,834 B gz before resume (0.21.0); 2,194 B with it: AWAY/RESUME and the resend, join's reconnect
-  // with the seat's token, and the host's START (+360 B; fizlet-rooms P6-02).
+  // 1,834 B gz before resume (0.21.0); 2,207 B with it: AWAY/RESUME and the resend, join's reconnect
+  // with the seat's token, LOBBY and the host's START (+373 B; fizlet-rooms P6-02).
   ["fizlet/presence", "src/presence.ts", 2240],
   ["fizlet/presence/check", "src/presence-check.ts", 5120],
   ["fizlet/hud", "src/hud.ts", 1536],

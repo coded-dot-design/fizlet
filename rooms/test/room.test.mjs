@@ -26,8 +26,9 @@ globalThis.Response = class {
 class Socket {
   sent = [];
   closed = null;
+  lobby = []; // LOBBY (8) messages are kept apart, so the other checks read the match's messages
   send(d) {
-    this.sent.push(Uint8Array.from(d));
+    (d[0] === 8 ? this.lobby : this.sent).push(Uint8Array.from(d));
   }
   close(code, why) {
     this.closed ??= [code, why];
@@ -302,4 +303,24 @@ test("room: START from the host (seat 0) begins before the room is full, with th
   await join(r2, { ip: "12.0.0.2", players: 4 });
   r2.webSocketMessage(s2[0], Uint8Array.from([START, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).buffer); // 0: now
   assert.deepEqual([...s2[1].sent[0].slice(0, 3)], [WELCOME, 1, 2]);
+});
+
+test("room: LOBBY before the start tells each waiting seat its seat, how many are seated and the room size, on every join and leave", async (t) => {
+  t.mock.timers.enable({ apis: ["Date"], now: 13e6 });
+  const LOBBY = 8, { r, sockets } = room({ ...ENV, MAX_PLAYERS: "4", JOIN_RATE: "50" });
+  const last = (s) => [...s.lobby.at(-1)?.slice(0, 4) ?? []];
+  await join(r, { ip: "13.0.0.1", players: 4 });
+  const [a] = sockets;
+  assert.deepEqual(last(a), [LOBBY, 0, 4, 1], "seat 0 of a 4-seat room, 1 seated");
+  await join(r, { ip: "13.0.0.2", players: 4 });
+  await join(r, { ip: "13.0.0.3", players: 4 });
+  const [, b, c] = sockets;
+  assert.deepEqual([last(a), last(b), last(c)], [[LOBBY, 0, 4, 3], [LOBBY, 1, 4, 3], [LOBBY, 2, 4, 3]], "everyone hears the new count, each with its own seat");
+  r.webSocketClose(b, 1000, "bye");
+  assert.deepEqual([last(a), last(c)], [[LOBBY, 0, 4, 2], [LOBBY, 2, 4, 2]], "a leave is told too");
+  r.webSocketMessage(a, Uint8Array.from([7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).buffer); // START now
+  const n = a.lobby.length;
+  assert.equal(a.sent[0][0], WELCOME);
+  await join(r, { ip: "13.0.0.4", players: 4 });
+  assert.equal(a.lobby.length, n, "no LOBBY once started");
 });

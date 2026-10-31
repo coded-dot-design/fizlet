@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { Relay, msg, INPUT, HASH, WELCOME, LEAVE } from "../src/relay.js";
 
-const peer = () => ({ got: [], send(d) { this.got.push(Uint8Array.from(d)); } });
+const peer = () => ({ got: [], lobby: [], send(d) { (d[0] === 8 ? this.lobby : this.got).push(Uint8Array.from(d)); } });
 
 test("relay: seats, welcome when full, relays with the real seat, refuses extras", () => {
   const r = new Relay(2, 77), a = peer(), b = peer(), c = peer();

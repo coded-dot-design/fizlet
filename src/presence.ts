@@ -9,8 +9,9 @@ import { seeded } from "./kernel/random";
 
 /** Wire kinds. Every message is 12 bytes: kind, slot, players, mode, u32 frame (or seed), u32 value
  *  (or token). From the room: WELCOME, LEAVE, RESUME (a seat is back: resend), AWAY (a seat dropped and
- *  may come back); START goes to the room from the host (fizlet-rooms README). */
-export const INPUT = 1, HASH = 2, WELCOME = 3, LEAVE = 4, RESUME = 5, AWAY = 6, START = 7;
+ *  may come back), LOBBY (before the start: your seat, room size, seated); START goes to the room from
+ *  the host (fizlet-rooms README). */
+export const INPUT = 1, HASH = 2, WELCOME = 3, LEAVE = 4, RESUME = 5, AWAY = 6, START = 7, LOBBY = 8;
 const m12 = (k: number, s: number, a = 0, b = 0) => Uint8Array.of(k, s, a, b, 0, 0, 0, 0, 0, 0, 0, 0);
 const u32 = (d: Uint8Array, i: number) => (d[i]! | (d[i + 1]! << 8) | (d[i + 2]! << 16) | (d[i + 3]! << 24)) >>> 0;
 
@@ -241,10 +242,11 @@ export interface JoinOptions {
   /** Reconnect tries after a drop, 250 ms apart and doubling (default 6: about 16 s; 0: off). Meanwhile
    *  `away` has this seat's bit (the others see AWAY); when they run out, `lost` (LEAVE). */
   retry?: number;
-  /** Called when the socket opens, before the room starts. `start(seats, mode)` (from seat 0, the host)
-   *  asks the room to begin once `seats` are taken (0: now) with the seats it has; `mode` (0..255)
-   *  reaches every peer. */
-  lobby?(start: (seats?: number, mode?: number) => void): void;
+  /** Called on each LOBBY from the room before the start (on every join and leave): this player's
+   *  `seat`, how many are `seated`, the room `size`. Seat 0 is the host: its `start(seats, mode)` asks
+   *  the room to begin once `seats` are taken (0: now) with the seats it has; `mode` (0..255) reaches
+   *  every peer. Other seats' starts are ignored by the room. */
+  lobby?(start: (seats?: number, mode?: number) => void, seat: number, seated: number, size: number): void;
 }
 
 /** Join a room (`fizlet-rooms`): resolves when the room starts with your seat, the player count, the
@@ -260,8 +262,12 @@ export function join(url: string, signal?: AbortSignal, protocols?: string | str
     const bye = () => (t.close(), me < 0 ? fail(new Error("presence: room closed")) : fn?.(m12(LEAVE, me)));
     const open = (p?: string | string[]) => {
       const ws = new WebSocket(url, p);
-      // WELCOME is eaten (after a resume, the room's RESUME tells presence to resend).
-      cur = websocket(ws, (d) => d[0] === WELCOME && ((tries = 0), me < 0 && ((me = d[1]!), (token = u32(d, 8)), ok({ transport: t, slot: me, players: d[2]!, seed: u32(d, 4), mode: d[3]! })), 1));
+      // WELCOME and LOBBY are eaten (after a resume, the room's RESUME tells presence to resend).
+      cur = websocket(ws, (d) =>
+        d[0] === LOBBY
+          ? (o.lobby?.((n = 0, m = 0) => t.send(m12(START, 0, n, m)), d[1]!, d[3]!, d[2]!), 1)
+          : d[0] === WELCOME && ((tries = 0), me < 0 && ((me = d[1]!), (token = u32(d, 8)), ok({ transport: t, slot: me, players: d[2]!, seed: u32(d, 4), mode: d[3]! })), 1),
+      );
       if (fn) cur.listen(fn);
       ws.onclose = (ev) => {
         if (tries < 0) return;
@@ -269,9 +275,8 @@ export function join(url: string, signal?: AbortSignal, protocols?: string | str
         tries++ || fn?.(m12(AWAY, me));
         setTimeout(() => tries < 0 || open([...[protocols ?? []].flat(), "resume." + token.toString(16)]), 125 << tries);
       };
-      return ws;
     };
-    open(protocols).onopen = () => o.lobby?.((n = 0, m = 0) => t.send(m12(START, 0, n, m)));
+    open(protocols);
     signal?.addEventListener("abort", () => me < 0 && bye());
   });
 }
