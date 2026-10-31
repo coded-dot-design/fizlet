@@ -108,8 +108,14 @@ export class Room extends DurableObject {
     // Only a relayed message keeps the room alive: a lone player's refused messages don't.
     if (this.relay.message(s, data)) this.last = now;
   }
-  webSocketClose(ws) {
+  webSocketClose(ws, code, reason) {
     this.leave(ws);
+    // Answer the client's close, or it waits for one and ends with 1006 (~10 s on workerd).
+    // 1005/1006 mean no code was sent and may not be sent back: answer those with 1000.
+    const echo = code === 1000 || code === 1001 || (code >= 3000 && code < 5000);
+    try {
+      ws.close(echo ? code : 1000, echo ? reason : "");
+    } catch {}
   }
   webSocketError(ws) {
     this.leave(ws);
