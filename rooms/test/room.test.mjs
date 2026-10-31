@@ -153,3 +153,16 @@ test("room: JOIN_RATE joins per IP a minute, refused before a socket is accepted
   t.mock.timers.tick(60000);
   assert.equal((await join(r, { ip: "3.3.3.3", players: 4 })).status, 101, "a minute later");
 });
+
+test("room: a client's close is answered (else the client sees 1006 after a timeout, ~10 s on workerd)", async (t) => {
+  t.mock.timers.enable({ apis: ["Date"], now: 6e6 });
+  const { r, sockets } = room();
+  await join(r, { ip: "6.0.0.1" });
+  await join(r, { ip: "6.0.0.2" });
+  const [a, b] = sockets;
+  r.webSocketClose(a, 1000, "bye");
+  assert.deepEqual(a.closed, [1000, "bye"], "the close frame is echoed back");
+  assert.equal(b.sent.at(-1)[0], 4, "and the others hear LEAVE");
+  r.webSocketClose(b, 1006, ""); // abnormal: no close frame came, and 1006 may not be sent
+  assert.equal(b.closed?.[0], 1000);
+});
