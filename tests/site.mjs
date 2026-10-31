@@ -251,7 +251,7 @@ try {
         if (card.includes(">TOO BIG TO WIN</span>")) assert.ok(bytes > CONTEST.maxLive && card.includes(`<b>+${(bytes - CONTEST.maxLive).toLocaleString("en-US")} B</b> over the`), `${e.id}: too big to win only over the cap, by its measured bytes`);
         assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
         // Attribution: "by <name>", linked to the contributor's profile.
-        assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">studio crew</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
+        assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${{ persona: ' <small class="gal-persona">studio crew</small>', agent: ' <small class="gal-persona">AI agent</small>' }[PEOPLE[e.author].kind] ?? ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
       }
     }
     // The generated index: every entry once, newest first, on the page that holds it, its sizes measured on this build.
