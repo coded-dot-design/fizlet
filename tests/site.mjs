@@ -18,7 +18,7 @@ import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
 import { entries as galleryEntries, isLive, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
 import { notes as siteNotes, notePath } from "../scripts/notes.mjs";
-import { PERSONA_NOTE, authorOf, contributors as profiles } from "../scripts/people.mjs";
+import { STICKER, authorOf, contributors as profiles } from "../scripts/people.mjs";
 import { gzipSync } from "node:zlib";
 import { checkKeys, checkTaps } from "./keys.mjs";
 import { snippetable, snippetFor, TABLE as MAKE_TABLE } from "../scripts/make.mjs";
@@ -241,7 +241,7 @@ try {
         assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
         // Attribution: "by <name>", linked to the contributor's profile.
         const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</div>\n    </li>")[0]; // a card ends at its own </li> (a poster may hold lists)
-        assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
+        assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">studio crew</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
       }
     }
     // The generated index: every entry once, newest first, on the page that holds it, its sizes measured on this build.
@@ -280,7 +280,7 @@ try {
       const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
       const card = html.slice(html.indexOf(`id="hero-${e.id}"`)).split("</li>")[0];
       assert.ok(card.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `hero ${e.id}: its badge shows ${bytes} B`);
-      assert.ok(card.includes(`<p class="hero-by">by <a href="../${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `hero ${e.id}: by ${PEOPLE[e.author].name}, linked`);
+      assert.ok(card.includes(`<p class="hero-by">by <a href="../${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">studio crew</small>' : ""}</p>`), `hero ${e.id}: by ${PEOPLE[e.author].name}, linked`);
       assert.ok(!/data-slot-target/.test(card), `hero ${e.id}: no gallery slot wiring on its poster`);
     }
     assert.ok(PEOPLE["chris-cooley"], "the owner's profile");
@@ -336,7 +336,7 @@ try {
     }
   }
 
-  // ---------- People and the weekly contest: stats measured on this build, personas say so ----------
+  // ---------- People and the weekly contest: stats measured on this build, stickers say who is real ----------
   where = "people";
   {
     const people = profiles(), index = readFileSync(`${ROOT}/people/index.html`, "utf8");
@@ -347,7 +347,7 @@ try {
       const mine = GALLERY.filter((e) => authorOf(e) === p.id);
       const bytes = mine.reduce((n, e) => n + gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length, 0);
       assert.ok(html.includes(`data-stat="entries">${mine.length}</b>`) && html.includes(`data-stat="bytes">${bytes.toLocaleString("en-US")} B</b>`), `${p.id}: ${mine.length} entries, ${bytes} B, measured`);
-      assert.equal(html.includes(PERSONA_NOTE.replace(/ — /, "</b> — ")), p.kind === "persona", `${p.id}: the persona line`);
+      assert.ok(html.includes(`aria-label="${STICKER[p.kind].label}" title="${STICKER[p.kind].label}">${STICKER[p.kind].text}</span>`), `${p.id}: the ${STICKER[p.kind].text} sticker says what they are`);
       const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
       const profile = graph.find((x) => x["@type"] === "ProfilePage");
       assert.ok(p.kind === "owner" ? profile.mainEntity["@id"].endsWith("#author") : !profile.mainEntity && profile.about["@type"] !== "Person", `${p.id}: only the maker is a Person`);
