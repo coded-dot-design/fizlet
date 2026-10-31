@@ -241,9 +241,12 @@ export function createEngine(o: EngineOptions = {}) {
       // negative delay is fine: setTimeout clamps it to 0 (no Math.max: page build ≤ 7,168 B gz).
       if (gap) clearTimeout(napT), schedule(engine, false), (napT = setTimeout(set, gap - n[10 /* WORK */]!, 0, false));
     },
-    /** Run one frame's worth of time by hand (tests, headless, a server). A hook's error throws here. */
+    /** Run one frame's worth of time by hand (tests, headless, a server). A hook's error throws here.
+     *  `sec` must be a finite number (0 or less runs a frame with no steps); anything else throws a
+     *  RangeError before the frame starts, instead of stalling the clock for good (S6 P2-04). */
     advance(sec: number) {
       if (dead) return;
+      need(sec, "sec");
       const t0 = performance.now();
       events.clear();
       phase = 1 /* READ */;
@@ -302,7 +305,7 @@ export function createEngine(o: EngineOptions = {}) {
       clearTimeout(napT); // the fps cap's pending wake-up: nothing of ours outlives destroy()
       set(1 /* STOPPED */, true);
       ctl.abort();
-      ledger.restore();
+      ledger.restore(true); // and closed: a late write through engine.ledger is refused (S6 P2-03)
       for (const [, pool] of pools) pool.clear();
       systems.length = 0;
     },
