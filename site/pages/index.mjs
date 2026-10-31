@@ -4,7 +4,7 @@ import { esc, icon, REPO, SITE, HUB, BATTLEFIELD, BLITZ, ENGINE_PLAN, AUTHOR } f
 import { sizeBadge } from "../size-badge.mjs";
 import { QUICK_START } from "./quick-start.mjs";
 import { BETA_LINE } from "../bricks.mjs";
-import { statusPill } from "./brick.mjs";
+import { brickTile } from "./brick.mjs";
 import { LAUNCH_LAST, phases } from "../roadmap.mjs";
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
@@ -114,17 +114,9 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
   const kernel = size("fizlet (kernel)");
   const css = size("fizlet/ui (css)");
   const pageBuild = size("page build (kernel+slot+input+fx)");
-  const bricks = catalog.map((b, i) => {
-    const s = size(b.sizes[0]);
-    const extra = b.id === "ui" ? ` + ${kb(css.gzip)} KB css` : "";
-    // Compact on the home page: the snippet and the whole API live on each brick's own page.
-    return `<li class="panel brick${i === 0 ? " lit kernel" : ""}" style="--tone: var(--k-${b.role})">
-        <div class="brick-top"><span class="brick-tag">${b.tag}</span>${statusPill(b.status)}<span class="brick-size"><b>${kb(s.gzip)} KB</b>${extra}<small> / ${kb(s.budget)} KB gzip</small></span></div>
-        <h3><a href="bricks/${b.id}.html"><code>${b.name}</code></a></h3>
-        <p>${esc(b.summary)}</p>
-        <span class="meter" aria-hidden="true"><i style="--v:${(s.gzip / s.budget).toFixed(3)}"></i></span>
-      </li>`;
-  }).join("\n      ");
+  // Compact on the home page: the snippet and the whole API live on each brick's own page.
+  const bricks = catalog.map((b) => brickTile({ brick: b, size: size(b.sizes[0]), href: `bricks/${b.id}.html`, h: "h3",
+    extra: b.id === "ui" ? `<li>+ <b>${kb(css.gzip)} KB</b> css</li>` : "" })).join("\n      ");
 
   const contract = CONTRACT.map(([t, b], i) => `<li class="panel rule"><b>${String(i + 1).padStart(2, "0")}</b><h3>${esc(t)}</h3><p>${esc(b)}</p></li>`).join("\n      ");
 

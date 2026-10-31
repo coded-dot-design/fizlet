@@ -1139,70 +1139,191 @@ html.bui[data-theme="light"] .dl.hot {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 22px;
 }
+/* Brick cards (site/pages/brick.mjs brickTile): one solid 3D object, no top bar. At rest the
+   neutral card border and hard shadow (.panel); on hover and focus both take the brick's colour
+   (--tone) and the card lifts like a key (transform, so it never fights the home reveal's translate). The brick's colour at rest (and on touch, with no hover)
+   is its budget bar. The status is a tilted sticker on the corner, the people and gallery cards' look. */
 .brick {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-content: start;
-  gap: 12px;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px 22px 22px;
   min-width: 0;
-  overflow: hidden;
+  transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
 }
-.brick::before {
-  content: "";
+.brick:hover,
+.brick:focus-within {
+  border-color: var(--tone);
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--tone) 55%, var(--rim));
+}
+html.bui[data-theme="light"] .brick:hover,
+html.bui[data-theme="light"] .brick:focus-within {
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--tone) 55%, var(--line));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .brick:hover,
+  .brick:focus-within {
+    transform: translateY(-2px);
+  }
+}
+.bricks.planned .brick:hover,
+.bricks.planned .brick:focus-within {
+  border-color: var(--line);
+  box-shadow: 0 6px 0 var(--base);
+  transform: none;
+}
+.brick-stickers {
   position: absolute;
-  inset: 0 0 auto;
-  height: 5px;
-  background: var(--tone);
+  top: -12px;
+  right: -8px;
+  z-index: 2;
+  display: flex;
+  gap: 6px;
+  pointer-events: none;
 }
-.brick-top {
+.brick-sticker {
+  --tone: var(--k-go);
+  display: inline-block;
+  padding: 4px 8px 3px;
+  font: 900 11px/1 var(--mono);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  color: var(--rim);
+  background: var(--tone);
+  border: 2.5px solid var(--rim);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--rim);
+  rotate: -6deg;
+}
+.brick-sticker[data-flag="beta"] { --tone: var(--k-sys); }
+.brick-sticker[data-flag="experimental"] { --tone: var(--k-aim); }
+.brick-sticker[data-flag="deprecated"] { --tone: var(--hurt); }
+.brick-sticker[data-flag="roadmap"] {
+  color: var(--muted);
+  background: var(--raised);
+  border-color: var(--line);
+  box-shadow: 0 3px 0 var(--line);
+}
+.brick-stickers .brick-sticker + .brick-sticker { rotate: 4deg; }
+.brick-sticker-kernel { --tone: var(--k-cmd); }
+.brick .brick-name {
+  margin: 0;
+  font: 900 clamp(24px, 2.4vw, 30px)/1.05 var(--sans);
+  letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
+  padding-right: 64px;
+}
+.brick .brick-name a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.brick .brick-name a:hover,
+.brick .brick-name a:focus-visible {
+  text-decoration: underline;
+  text-decoration-color: var(--tone);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+}
+.brick .brick-what {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+.brick .bc {
+  margin-top: 4px;
+}
+/* Stat chips: the measured size, the budget, the exports (mono, quiet; numbers from the build). */
+.brick-chips {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
+  margin: auto 0 0;
+  padding: 6px 0 0;
+  list-style: none;
 }
-.brick-tag {
-  padding: 4px 9px;
-  font: 800 10px var(--mono);
-  letter-spacing: 0.14em;
-  color: var(--rim);
-  background: var(--tone);
-  border: 2px solid var(--rim);
+.brick-chips > li {
+  padding: 3px 8px;
+  font: 11px/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  background: var(--raised);
+  border: 2px solid var(--line);
   border-radius: 6px;
-  box-shadow: 0 3px 0 var(--rim);
 }
-.brick-size {
-  font: 12px var(--mono);
-  color: var(--muted);
-}
-.brick-size b {
-  font-size: 16px;
+.brick-chips b {
+  font-size: 12.5px;
   color: var(--ink);
 }
-.brick h3 code {
-  font-size: 20px;
-  color: var(--ink);
+.brick-chips code {
+  font-size: 11px;
 }
-.brick p {
-  margin: 0;
-  font-size: 14.5px;
-  line-height: 1.6;
-  color: var(--muted);
-}
+/* A size budget's progress, in the brick's colour: a hard-edged bar in a tinted track. */
 .meter {
   display: block;
-  height: 6px;
-  background: var(--surface);
-  border: 1.5px solid var(--line);
-  border-radius: 3px;
+  height: 8px;
+  background: color-mix(in srgb, var(--tone, var(--k-cmd)) 14%, var(--surface));
+  border-radius: 4px;
   overflow: hidden;
 }
 .meter i {
   display: block;
   height: 100%;
   width: calc(var(--v) * 100%);
-  background: var(--tone);
+  background: var(--tone, var(--k-cmd));
+  border-radius: 4px;
+}
+/* The kernel: the core, not one brick among many. A wide card, a KERNEL sticker, a double hard
+   shadow in the card's own tokens, and its size against its budget in display type. */
+.brick-kernel {
+  grid-column: 1 / -1;
+  border-width: 3px;
+  box-shadow: 0 6px 0 var(--base), 0 12px 0 color-mix(in srgb, var(--base) 55%, var(--bg));
+}
+.brick-kernel:hover,
+.brick-kernel:focus-within {
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--tone) 55%, var(--rim)), 0 12px 0 color-mix(in srgb, var(--tone) 25%, var(--bg));
+}
+html.bui[data-theme="light"] .brick-kernel:hover,
+html.bui[data-theme="light"] .brick-kernel:focus-within {
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--tone) 55%, var(--line)), 0 12px 0 color-mix(in srgb, var(--tone) 25%, var(--bg));
+}
+.brick-kernel .brick-name {
+  font-size: clamp(32px, 4vw, 48px);
+}
+.brick-budget {
+  margin: 4px 0 0;
+  font: 12px/1.3 var(--mono);
+  color: var(--muted);
+}
+.brick-budget b {
+  display: block;
+  font: 900 clamp(30px, 3.6vw, 44px)/1 var(--sans);
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+@media (min-width: 1081px) {
+  .bricks.compact .brick-kernel {
+    grid-column: span 2;
+  }
+}
+@media (min-width: 901px) {
+  .bricks:not(.compact) .brick-kernel {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    grid-template-rows: auto auto auto 1fr auto auto;
+    column-gap: 32px;
+  }
+  .bricks:not(.compact) .brick-kernel > :not(.bc, .brick-stickers) {
+    grid-column: 1;
+  }
+  .bricks:not(.compact) .brick-kernel > .bc {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    margin: 0;
+  }
 }
 
 /* 03 phases */
@@ -1845,13 +1966,15 @@ html.bui[data-theme="light"] .phases b {
 }
 .bricks.compact .brick {
   gap: 8px;
-  padding: 16px;
+  padding: 20px 16px 16px;
 }
-.bricks.compact .brick h3 code {
-  font-size: 17px;
-  overflow-wrap: anywhere;
+.bricks.compact .brick .brick-name {
+  font-size: 21px;
 }
-.bricks.compact .brick p {
+.bricks.compact .brick-kernel .brick-name {
+  font-size: clamp(26px, 3vw, 34px);
+}
+.bricks.compact .brick .brick-what {
   font-size: 13.5px;
   line-height: 1.5;
   display: -webkit-box;
@@ -1876,11 +1999,8 @@ html.bui[data-theme="light"] .phases b {
   .bricks.compact .brick {
     padding: 12px;
   }
-  .bricks.compact .brick p {
+  .bricks.compact .brick .brick-what {
     -webkit-line-clamp: 2;
-  }
-  .bricks.compact .brick-size small {
-    display: none;
   }
 }
 @media (max-width: 1080px) {
@@ -2005,22 +2125,6 @@ html.bui[data-theme="light"] .phases b {
   color: var(--rim);
   background: var(--k-aim);
   border-radius: 5px;
-}
-.brick h3 a,
-.brick h2 a {
-  color: inherit;
-  text-decoration: none;
-}
-.brick h3 a:hover code,
-.brick h2 a:hover code {
-  text-decoration: underline;
-}
-.brick h2 {
-  margin: 0;
-}
-.brick h2 code {
-  font-size: 20px;
-  color: var(--ink);
 }
 .profile-card {
   display: grid;
@@ -3753,7 +3857,8 @@ html.bui[data-theme="light"] .phases b {
   background: transparent;
   border-color: var(--line);
 }
-.brick-top .status-pill { margin-right: auto; }
+.brick-top .brick-sticker { margin-right: auto; }
+.bp-eyebrow .brick-sticker { margin-left: 6px; }
 .status-cards {
   list-style: none;
   margin: 0 0 48px;
@@ -3768,7 +3873,6 @@ html.bui[data-theme="light"] .phases b {
 .bp-status ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
 .status-card small { font: 12px var(--mono); color: var(--muted); }
 .bricks.planned .brick { border-style: dashed; }
-.bricks.planned .needs { margin: 0; font-size: 13px; color: var(--muted); }
 .bp-status { display: grid; gap: 10px; padding: 18px 20px; margin: 0 0 28px; min-width: 0; }
 .bp-status p { margin: 0; }
 .bp-status dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; margin: 0; }

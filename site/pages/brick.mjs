@@ -13,6 +13,42 @@ export const prose = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
 /** A brick's status flag as a Board UI status pill (flat: a readout, not a key). */
 export const statusPill = (status) => `<span class="status-pill" data-flag="${status}" title="${esc(STATUS[status].line)}">${STATUS[status].label}</span>`;
 
+/**
+ * A brick's status flag as a tilted sticker (the people and gallery cards' sticker): it sits on the
+ * card's corner, never in the title, so it never competes with the brick's name.
+ */
+export const statusSticker = (status) => `<span class="brick-sticker" data-flag="${status}" title="${esc(STATUS[status].line)}">${STATUS[status].label}</span>`;
+
+/** A size budget's progress: the brick's colour fills the share of its budget it uses. */
+const meter = (gzip, budget) => `<span class="meter brick-meter" role="img" aria-label="${kb(gzip)} KB of a ${kb(budget)} KB budget"><i style="--v:${(gzip / budget).toFixed(3)}"></i></span>`;
+
+/** A brick's runtime exports (what you import), from its declarations. */
+const exportCount = (brick) => (brick.mods ?? []).flatMap((m) => m.decls.filter((d) => !["type", "interface"].includes(d.kind)).flatMap((d) => d.names)).length;
+
+/**
+ * One brick card (the bricks index and the home page): one 3D object with the neutral card border
+ * and hard shadow at rest; on hover and focus they take the brick's colour (site.css). The status is
+ * a sticker on its corner; then, in this order, the name in display type, what it does in one line,
+ * its live toy when it has one, the measured sizes and exports as mono stat chips, and the budget bar
+ * in the brick's colour (its cue at rest, and on touch). Everything else is on its own page.
+ * The kernel is the core, not one brick among many: a wide card with a KERNEL sticker, a double hard
+ * shadow and its measured size against its budget in display type.
+ * `size`: its headline size entry (scripts/sizes.mjs); `extra`: more chips (as <li>).
+ */
+export function brickTile({ brick, size, href, h = "h2", toy = "", extra = "", what = brick.summary }) {
+  const n = exportCount(brick), kernel = brick.id === "kernel";
+  const budget = kernel ? `<p class="brick-budget"><b data-size="${esc(size.name)}">${num(size.gzip)} B</b> <span>of a ${num(size.budget)} B budget</span></p>` : "";
+  return `<li class="panel brick${kernel ? " brick-kernel" : ""}" data-flag="${brick.status}" style="--tone: var(--k-${brick.role})">
+        <span class="brick-stickers">${kernel ? '<span class="brick-sticker brick-sticker-kernel">KERNEL</span>' : ""}${statusSticker(brick.status)}</span>
+        <${h} class="brick-name"><a href="${esc(href)}">${esc(brick.name)}</a></${h}>
+        <p class="brick-what">${prose(what)}</p>
+        ${toy}${budget}<ul class="brick-chips" aria-label="Measured on this build">
+          ${kernel ? "" : `<li><b>${kb(size.gzip)} KB</b> gzip</li><li>of <b>${kb(size.budget)} KB</b></li>`}${extra}${n ? `<li><b>${n}</b> ${n === 1 ? "export" : "exports"}</li>` : ""}
+        </ul>
+        ${meter(size.gzip, size.budget)}
+      </li>`;
+}
+
 /** The status panel on a brick page: the flag, what it means, and the evidence behind it. */
 function statusPanel(brick) {
   const s = STATUS[brick.status];
@@ -107,7 +143,7 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
     ${crumbs("../", [["bricks/", "Bricks"]], brick.name)}
     <div class="split bp-top" style="--tone: var(--k-${brick.role})">
       <div>
-        <p class="eyebrow"><span class="index">${esc(brick.tag)}</span> V${esc(version)} ${statusPill(brick.status)}</p>
+        <p class="eyebrow bp-eyebrow"><span class="index">${esc(brick.tag)}</span> V${esc(version)} ${statusSticker(brick.status)}</p>
         <h1 id="bp-title" class="bp-title"><code>${esc(brick.name)}</code></h1>
         <p class="lead">${prose(lead.summary)}</p>
         <div class="split-keys"><a class="bui-key bui-arcade bui-sys" href="#api">${icon("code", 16)}API</a><a class="bui-key bui-arcade bui-cmd" href="${REPO}/blob/main/${lead.src}">${icon("github", 16)}Source ↗</a></div>
@@ -138,7 +174,7 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
 function statusLegend(bricks) {
   return Object.entries(STATUS).map(([k, s]) => {
     const n = bricks.filter((b) => b.status === k).length;
-    return `<li class="panel status-card" data-flag="${k}"><div class="brick-top">${statusPill(k)}<small>${n ? `${n} ${n === 1 ? "brick" : "bricks"}` : k === "roadmap" ? "planned below" : "none today"}</small></div>
+    return `<li class="panel status-card" data-flag="${k}"><div class="brick-top">${statusSticker(k)}<small>${n ? `${n} ${n === 1 ? "brick" : "bricks"}` : k === "roadmap" ? "planned below" : "none today"}</small></div>
         <p>${esc(s.line)}</p>
         <ul>${s.criteria.map((c) => `<li>${prose(c)}</li>`).join("")}</ul>
       </li>`;
@@ -147,15 +183,7 @@ function statusLegend(bricks) {
 
 /** bricks/index.html: every brick, with its measured size and its status. */
 export function bricksIndex({ bricks, sizes, version, planned = [] }) {
-  const cards = bricks.map((b) => {
-    const s = sizes.find((x) => x.name === b.sizes[0]);
-    return `<li class="panel brick" style="--tone: var(--k-${b.role})">
-        <div class="brick-top"><span class="brick-tag">${esc(b.tag)}</span>${statusPill(b.status)}<span class="brick-size"><b>${kb(s.gzip)} KB</b><small> / ${kb(s.budget)} KB gzip</small></span></div>
-        <h2><a href="${b.id}.html"><code>${esc(b.name)}</code></a></h2>
-        ${b.card ? b.card("bricks") : ""}
-        <p>${prose(b.summary)}</p>
-      </li>`;
-  }).join("\n      ");
+  const cards = bricks.map((b) => brickTile({ brick: b, size: sizes.find((x) => x.name === b.sizes[0]), href: `${b.id}.html`, toy: b.card ? b.card("bricks") : "" })).join("\n      ");
   return `
 <section class="section" aria-labelledby="bi-title">
   <div class="wrap">
@@ -180,10 +208,10 @@ export function bricksIndex({ bricks, sizes, version, planned = [] }) {
     </div>
     <ul class="bricks planned">
       ${planned.map((p) => `<li class="panel brick" data-flag="roadmap">
-        <div class="brick-top"><span class="brick-tag">${esc(p.phase)}</span>${statusPill("roadmap")}<span class="brick-size"><small>target ≤ ${kb(p.target)} KB gzip</small></span></div>
-        <h3><code>${esc(p.name)}</code></h3>
-        <p>${esc(p.purpose)}</p>
-        <p class="needs"><small>NEEDS</small> ${p.needs.map((n) => `<code>${esc(n)}</code>`).join(" ")}</p>
+        <span class="brick-stickers">${statusSticker("roadmap")}</span>
+        <h3 class="brick-name">${esc(p.name)}</h3>
+        <p class="brick-what">${esc(p.purpose)}</p>
+        <ul class="brick-chips" aria-label="Planned"><li><b>${esc(p.phase)}</b></li><li>target <b>≤ ${kb(p.target)} KB</b> gzip</li><li>needs ${p.needs.map((n) => `<code>${esc(n)}</code>`).join(" ")}</li></ul>
       </li>`).join("\n      ")}
     </ul>
   </div>

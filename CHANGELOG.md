@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Website: brick cards redesigned** (`site/pages/brick.mjs` `brickTile`, `site/site.css`; the bricks
+  index and the home page). One solid 3D card, no top colour bar: at rest the neutral card border and
+  hard shadow; on hover and focus both take the brick's colour and the card lifts (colour only under
+  reduced motion); at rest the brick's colour is its budget bar. The status (COMPLETE, BETA, ROADMAP…)
+  is a tilted sticker on the corner like the people and gallery cards, also on a brick page's eyebrow
+  and the status legend. The name is display type, then the one-line what-it-does, the live toy, mono
+  stat chips (gzip, budget, exports, all from the build) and the bar. The kernel gets its own wide
+  card: a KERNEL sticker, a double hard shadow and its measured bytes against its 4,096 B budget.
+  `tests/brick-cards.mjs` checks the frame, the sticker, the hover/focus colour and the kernel card.
+
 - **Website: a section the scroll jumps past still reveals** (`site/home-motion.ts`). The observer
   only reports threshold crossings, so a jump (an anchor, a fling, a slow frame landing several
   scrolls at once) could carry a waiting section from below the fold to above it with no callback,
