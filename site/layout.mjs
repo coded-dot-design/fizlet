@@ -111,7 +111,10 @@ const PROJECT = [
   [`${REPO}/blob/main/src/ui/BOARD-UI.md`, "Board UI spec"],
   [ENGINE_PLAN, "Engine plan"],
 ];
-const BUILT_ON = [[BLITZ, "Battlefield Blitz"], [BATTLEFIELD, "DOM Battlefield"], [HUB, "DOM VIRUS arcade"]];
+// The family line: the same four sites, in the same order, in every family footer (domvirus.com,
+// battlefield.domvirus.com and battlefieldblitz.domvirus.com list it too). Production URLs; Fizlet is
+// the engine, and this site's own entry (SITE) has no ↗. Other hosts never go in sitemap.xml.
+export const FAMILY_LINE = [[HUB, "DOM VIRUS"], [BATTLEFIELD, "DOM Battlefield"], [BLITZ, "Battlefield Blitz"], [SITE, "Built with Fizlet"]];
 /** Columns of sections. `head`: the section's index page; `match`: a section with no page of its
  *  own; `chips`: short labels in a wrapped grid; `fold`: children behind a disclosure; `links`: external. */
 export const SITE_MAP = [
@@ -119,7 +122,7 @@ export const SITE_MAP = [
   ["Engine", [{ head: "bricks/", chips: true }, { label: "Demos", match: /^(demos|examples)\// }]],
   ["Gallery", [{ head: "gallery/" }, { head: "heroes/" }, { head: "make/" }, { head: "contest/" }, { head: "people/" }]],
   ["Notes", [{ head: "notes/" }, { head: "news/", chips: true, fold: "releases" }]],
-  ["Project", [{ label: "More", match: /./ }, { label: "Source", links: PROJECT }, { label: "Built on it", links: BUILT_ON }]],
+  ["Project", [{ label: "More", match: /./ }, { label: "Source", links: PROJECT }, { label: "DOM VIRUS family", links: FAMILY_LINE }]],
 ];
 
 /**
@@ -131,7 +134,7 @@ export function siteMap(routes, base, path) {
   const take = (test) => routes.filter((r) => !claimed.has(r.path) && test(r.path)).map((r) => (claimed.add(r.path), r));
   const a = (r, cls = "") => `<a${cls} href="${base}${r.path}"${current(r.path, path)}>${esc(r.label)}</a>`;
   const section = (s) => {
-    if (s.links) return `<li class="map-sec"><span class="map-label">${esc(s.label)}</span><ul>${s.links.map(([href, label]) => `<li><a href="${href}">${esc(label)} ↗</a></li>`).join("")}</ul></li>`;
+    if (s.links) return `<li class="map-sec"><span class="map-label">${esc(s.label)}</span><ul>${s.links.map(([href, label]) => `<li><a href="${href}">${esc(label)}${href === SITE ? "" : " ↗"}</a></li>`).join("")}</ul></li>`;
     const rs = take(s.head ? (p) => p === s.head || (s.head.endsWith("/") && p.startsWith(s.head)) : (p) => s.match.test(p));
     const head = rs.find((r) => r.path === s.head), kids = rs.filter((r) => r !== head);
     if (!head && !kids.length) return "";

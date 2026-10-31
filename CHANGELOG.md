@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Site footer: the family line.** The site map's "Built on it" list is now "DOM VIRUS family": the same four sites, in the same order, as every family footer: DOM VIRUS (domvirus.com), DOM Battlefield, Battlefield Blitz and Built with Fizlet (this site, no ↗). One source: `FAMILY_LINE` in `site/layout.mjs`. No other host goes into sitemap.xml. `test:site` checks the line on every page with the footer.
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
   first release tag after the owner adds the `NPM_TOKEN` repository secret; the release workflow
   (`.github/workflows/release.yml`, `npm publish --provenance --access public`) checks, packs and
