@@ -1,0 +1,20 @@
+{
+  "$comment": "PLACEHOLDER so the companion page's link to the note resolves on this branch. The real note is written in fizlet-engine and replaces this file; do not publish as is.",
+  "id": "blog-before-ai-2015",
+  "site": "fizlet",
+  "brand": "fizlet",
+  "games": [],
+  "type": "blog",
+  "slug": "before-ai-2015",
+  "title": "Before AI: 2015",
+  "eyebrow": "Field notes · Origin",
+  "tags": ["fizlet", "history", "css", "sprites"],
+  "date": "2026-11-01",
+  "status": "scheduled",
+  "lead": ["Draft: copy coming from fizlet-engine. Meanwhile, [play the three 2015 sprites beside their Fizlet rebuilds](/demos/before-ai-2015/)."],
+  "blocks": [],
+  "seo": {
+    "title": "Before AI: 2015, hand-drawn sprites · Fizlet",
+    "description": "Draft placeholder for the note on three CSS sprite animations Chris Cooley drew by hand in 2015, and their Fizlet rebuilds."
+  }
+}

@@ -569,6 +569,31 @@ try {
     assert.ok(n > 5 && n <= 33, `the fizz story asks for ${n} frames a second (cap 30)`);
     await context.close();
   }
+  // ---------- Before AI: 2015: the three columns play, then the page rests at 0 frames a second ----------
+  // The page says so (demos/before-ai-2015/): at rest it asks for no animation frames, and under
+  // reduced motion no column animates.
+  where = "before-ai-2015 settles";
+  for (const reducedMotion of ["no-preference", "reduce"]) {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 }, reducedMotion });
+    const page = await context.newPage();
+    await page.addInitScript(() => {
+      const raw = requestAnimationFrame.bind(window);
+      window.__raf = 0;
+      window.requestAnimationFrame = (cb) => (window.__raf++, raw(cb));
+    });
+    await page.goto(`${ORIGIN}${BASE}demos/before-ai-2015/`);
+    await page.locator(".bt-row").scrollIntoViewIfNeeded();
+    await page.waitForTimeout(2500);
+    const count = async () => { const n0 = await page.evaluate(() => window.__raf); await page.waitForTimeout(1000); return (await page.evaluate(() => window.__raf)) - n0; };
+    assert.equal(await count(), 0, `${where} (${reducedMotion}): no frames at rest after load`);
+    // Play the better laptop: it opens, types, scrolls three times (~6 s), then rests again.
+    await page.click(".bt-better .fz-comp button");
+    if (reducedMotion === "no-preference") assert.ok((await count()) > 5, `${where}: the laptop plays`);
+    await page.waitForTimeout(reducedMotion === "reduce" ? 1500 : 6500);
+    assert.equal(await count(), 0, `${where} (${reducedMotion}): rests once the laptop is open`);
+    if (reducedMotion === "reduce") assert.equal(await page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length), 0, `${where}: no CSS animation runs under reduced motion`);
+    await context.close();
+  }
   // ---------- Gallery at phone width: a slot's CSS animation stops once it is off screen ----------
   where = "gallery, offscreen";
   {
