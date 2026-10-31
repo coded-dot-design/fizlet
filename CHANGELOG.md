@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **`fizlet/sound`: your own synth cues.** `notes` (name → `Note[]` voices) adds cues to the built-in
+  synth, so a scene can have a slurp or a yawn without its own audio code; `cues` may map to those
+  names (`CueName`). Additive: every existing call types and plays as before. 1,019 → 1,042 B gzip.
 - **Gallery: Launch day, two tiny games by Pip (pending owner review).** A new theme, `launch-day`.
   *npm i fizlet*: bricks ride a belt and an order card says what the thing needs (a blaster: kernel,
   input, fx, sound). Tap a brick, or press Space for the one over the chute: one the order needs
