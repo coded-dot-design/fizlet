@@ -529,7 +529,7 @@ test("fx: drawing a word spray allocates nothing (the font string is not rebuilt
     strokeText() {},
     fillText() {
       this.n++;
-      if (leak) sink = { n: this.n }; // the self-check: a draw that allocates
+      if (leak) sink = `900 ${this.n}px ui-monospace`; // the self-check: a draw that builds a string, as the bug did
     },
   };
   const fx = effects({ cap: 120, words: ["♪", "♫", "♬", "BOOM"] });
