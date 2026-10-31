@@ -617,6 +617,106 @@ try {
     if (reducedMotion === "reduce") assert.equal(await page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length), 0, `${where}: no CSS animation runs under reduced motion`);
     await context.close();
   }
+  // ---------- Before AI: 2015: the scroll tells the story; sound waits for a press; Recall is exact ----------
+  where = "before-ai-2015 story";
+  {
+    const URL_ = `${ORIGIN}${BASE}demos/before-ai-2015/`;
+    const counters = () => {
+      const raw = requestAnimationFrame.bind(window);
+      window.__raf = 0;
+      window.requestAnimationFrame = (cb) => (window.__raf++, raw(cb));
+      window.__audio = 0;
+      const AC = window.AudioContext;
+      if (AC) window.AudioContext = class extends AC { constructor(...a) { super(...a); window.__audio++; } };
+    };
+    const frames = async (page) => { const n0 = await page.evaluate(() => window.__raf); await page.waitForTimeout(1000); return (await page.evaluate(() => window.__raf)) - n0; };
+    const looks = (page) => page.$$eval("[data-reveal]", (els) => els.map((el) => `${el.style.opacity}|${el.style.translate}`));
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    const page = await context.newPage();
+    await page.addInitScript(counters);
+    await page.goto(URL_);
+    await page.waitForTimeout(600);
+    // Scrubbed by the scroll: an act part-way into view is part-way revealed, and the same scroll
+    // position gives the same frame, whichever way it was reached.
+    const actTop = await page.$eval(".bt-same", (el) => el.getBoundingClientRect().top + scrollY);
+    const y1 = Math.round(actTop - 860 * 0.9);
+    await page.mouse.wheel(0, y1);
+    await page.waitForTimeout(700);
+    await page.evaluate((y) => scrollTo(0, y), y1);
+    await page.waitForTimeout(700);
+    const at1 = await looks(page);
+    const op = await page.$eval(".bt-same", (el) => Number(getComputedStyle(el).opacity));
+    assert.ok(op > 0 && op < 1, `${where}: the remake is part-way in at part-way scroll (opacity ${op})`);
+    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+    await page.waitForTimeout(700);
+    await page.evaluate(() => scrollTo(0, 0));
+    await page.waitForTimeout(700);
+    await page.evaluate((y) => scrollTo(0, y), y1);
+    await page.waitForTimeout(700);
+    assert.deepEqual(await looks(page), at1, `${where}: the same scroll position, the same frame`);
+    assert.equal(await frames(page), 0, `${where}: settles to 0 frames once the scroll stops`);
+    // Sound waits for a press: scrolling (wheel) made no audio context; a press does.
+    assert.equal(await page.evaluate(() => window.__audio), 0, `${where}: no audio before a gesture`);
+    await page.locator(".bt-arcade .fz-cups").scrollIntoViewIfNeeded();
+    await page.click(".bt-arcade .fz-cups");
+    assert.equal(await page.evaluate(() => window.__audio), 1, `${where}: the first press starts the synth`);
+    assert.equal(await page.$eval(".bt-arcade [data-brick=hud]", (el) => el.classList.contains("lit")), true, `${where}: the hud chip lights on a hit`);
+    // Mute is kept: off, reload, still off, and a press makes no audio context.
+    await page.click(".bt-arcade .fz-mute");
+    assert.equal(await page.evaluate(() => localStorage.getItem("fizlet:before-ai-2015:sound")), "off", `${where}: mute is stored`);
+    await page.reload();
+    await page.waitForTimeout(400);
+    assert.equal(await page.getAttribute(".bt-arcade .fz-mute", "aria-pressed"), "false", `${where}: mute persists`);
+    await page.locator(".bt-arcade .fz-cups").scrollIntoViewIfNeeded();
+    await page.click(".bt-arcade .fz-cups");
+    assert.equal(await page.evaluate(() => window.__audio), 0, `${where}: muted, a press makes no sound`);
+    await page.click(".bt-arcade .fz-mute");
+    await context.close();
+  }
+  // Recall: the page as it was before Fizlet touched it (the same page with before.js blocked), and
+  // the page after a scroll through, a round in the arcade and the Recall key: the same markup.
+  where = "before-ai-2015 recall";
+  {
+    const URL_ = `${ORIGIN}${BASE}demos/before-ai-2015/`;
+    const snap = (page) => page.$eval(".bt", (el) => el.outerHTML);
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    const bare = await context.newPage();
+    await bare.route("**/before.js", (r) => r.abort());
+    await bare.goto(URL_);
+    await bare.waitForTimeout(500);
+    const before = await snap(bare);
+    const page = await context.newPage();
+    await page.goto(URL_);
+    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight / 3));
+    await page.waitForTimeout(500);
+    const A = ".bt-arcade ";
+    await page.click(A + ".fz-keys");
+    await page.waitForTimeout(400);
+    for (let i = 0; i < 3; i++) await page.click(A + ".fz-keys");
+    for (let i = 0; i < 3; i++) await page.click(A + ".fz-cups");
+    await page.click(A + ".fz-coffee button");
+    await page.click(A + ".fz-mute");
+    await page.click(A + ".fz-mute");
+    await page.click("[data-recall]");
+    await page.waitForTimeout(300);
+    assert.equal(await snap(page), before, `${where}: Recall gives the page back exactly`);
+    await context.close();
+  }
+  // Reduced motion: a calm, complete page. Every part shown as written, nothing moves, no frames.
+  where = "before-ai-2015 reduced motion";
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+    const page = await context.newPage();
+    await page.goto(`${ORIGIN}${BASE}demos/before-ai-2015/`);
+    for (let y = 0; y < 6000; y += 700) await page.evaluate((y) => scrollTo(0, y), y), await page.waitForTimeout(40);
+    await page.waitForTimeout(600);
+    const styled = await page.$$eval("[data-reveal]", (els) => els.filter((el) => el.getAttribute("style")).length);
+    assert.equal(styled, 0, `${where}: no part is hidden or moved`);
+    const n = await page.evaluate(() => new Promise((r) => { let n = 0; const raf = window.requestAnimationFrame; window.requestAnimationFrame = (f) => (n++, raf(f)); setTimeout(() => ((window.requestAnimationFrame = raf), r(n)), 1000); }));
+    assert.equal(n, 0, `${where}: no frames`);
+    assert.equal(await page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length), 0, `${where}: no CSS animation runs`);
+    await context.close();
+  }
   // ---------- Gallery at phone width: a slot's CSS animation stops once it is off screen ----------
   where = "gallery, offscreen";
   {
