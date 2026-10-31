@@ -29,7 +29,7 @@ export const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
 // GA4 + PostHog, consent first (site/analytics, from astro-engine kit/src/lib/analytics): only when
 // PUBLIC_GA4_ID or PUBLIC_POSTHOG_KEY is set at build time (repository Variables); otherwise no
 // analytics code ships. Never in src/: the engine (kernel and bricks) stays analytics-free.
-const ANALYTICS = resolveAnalytics(process.env);
+export const ANALYTICS = resolveAnalytics(process.env);
 const analytics = (base) =>
   analyticsSnippet(ANALYTICS, { privacyUrl: `${base}privacy/`, cookiesUrl: `${base}cookies/`, storageKey: "fizlet:consent" });
 
