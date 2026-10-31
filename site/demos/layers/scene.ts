@@ -1,37 +1,35 @@
 /**
- * The layers story: a Battlefield Blitz-style board plays, turns and fans out into its stacked
- * layers (CSS 3D on real DOM layers), one layer faults red, a scan patches it, it flashes green,
- * and the stack folds back into the game. Built on the kernel (settle + fps cap), fizlet/sprite and
- * fizlet/fx; mounted by fizlet/slot (see entry.ts). The tanks patrol fixed loops, so the hero needs
- * no path search (the grid brick stays out of its 10 KB live budget).
+ * The layers story: a Battlefield Blitz-style board turns and fans out into its stacked layers (CSS 3D
+ * on real DOM layers), one layer at a time, each label arriving with its layer; one layer faults red,
+ * a scan patches it, it flashes green, and the stack snaps back into the game. Built on the kernel
+ * (settle + fps cap) and fizlet/sprite; mounted by fizlet/slot (see entry.ts).
  *
- * Calm: 30 fps cap, and after `loops` cycles it stops asking for frames and the kernel settles (no
- * requestAnimationFrame at all) on the game frame. Paused, it settles too.
- * Controls (poster.ts): the figure's play key and slider send a `lyr` event (0–100 scrubs the
- * explode/assemble timeline and pauses, -1 toggles play); the scene writes their state back through
- * its ledger (`--e` on the figure, aria-valuenow, the key's label).
+ * Scroll-linked, never scroll-jacked: the story's position follows the figure's position in the
+ * viewport (one getBoundingClientRect per frame in the read phase, frames only while it is on screen
+ * and moving). The scroll and resize listeners are passive and only wake the engine: the page scrolls
+ * as it always does. When the shown position reaches the scroll's, nothing is busy and the kernel
+ * settles (no requestAnimationFrame at all). Keyboard: the figure takes focus; arrows (and Home/End)
+ * step through the layers, one stop per label; a scroll hands it back to the scroll.
+ *
+ * The game is a pure function of the story time: the tanks drive fixed loops, their shots are
+ * worked out once at mount and a hit's blast is a ring sized by the time since it, so a scroll
+ * position always shows the same frame, whichever way the page got there.
  * Recall: every node it adds goes through the engine's ledger; destroy() gives the stage back.
  */
 import { createEngine } from "../../../src/kernel/index";
 import { spriteURL, type SpriteDef } from "../../../src/sprite";
-import { effects } from "../../../src/fx";
 import type { SlotMount, SlotScene } from "../../../src/slot";
-import { FAULT, RESERVE, fit, COLS, ROWS, CELL, BW, BH, MAP, TILT, TURN } from "./data";
+import { FAULT, fit, COLS, ROWS, CELL, BW, BH, MAP, TILT, TURN } from "./data";
 
-export interface LayersOptions {
-  /** Cycles to run before settling when nobody interacts (default 3). */
-  loops?: number;
-  /** Quiet seconds before the kernel settles (default 0.5). */
-  settle?: number;
-  /** Story clock speed (default 1; tests run it faster). */
-  speed?: number;
-}
-
-// Timeline (seconds into a cycle).
-const PLAY = 4.2, OPEN = 5.6, FAULT_AT = 6.2, SCAN_AT = 6.9, SCAN_END = 8.7, OK_END = 9.4, FOLD_AT = 10, CLOSED = 11.4, CYCLE = 13;
+// The story in seconds of story time; the scroll maps onto 0–END.
+const PLAY = 0.8, OPEN = 2.4, LIFT = 0.45, RISE = 0.7, FAULT_AT = 6.8, SCAN_AT = 7.5, SCAN_END = 8.9, OK_END = 9.6, FOLD_AT = 10, CLOSED = 11.4, END = 12.4;
 /** Layer ids, bottom to top (data.ts LAYERS; the labels' text comes from the poster's own). */
 const IDS = "grid characters movement collision rules fx input hud".split(" ");
-const N = IDS.length, TANKS = 4, SHELLS = 8;
+const N = IDS.length, TANKS = 4, SHOTS = 40;
+/** Layer i (1–7) lifts off the stack from here; it is in place at lift(i) + RISE. */
+const lift = (i: number) => OPEN + (i - 1) * LIFT;
+/** Keyboard stops: the game, the grid's label, each lifted layer's label, fault, scan, patched, the game. */
+const STOPS = [0, OPEN + 0.15, 1, 2, 3, 4, 5, 6, 7, FAULT_AT + 0.3, SCAN_AT + 0.7, SCAN_END + 0.3, END].map((v, k) => (k > 1 && k < 9 ? lift(v) + RISE + 0.15 : v));
 /** Patrol loops (cells: left, top, right, bottom), one per tank; even tanks are green. */
 const LOOP = [[0, 3, 4, 5], [5, 9, 8, 12], [4, 3, 8, 5], [0, 9, 3, 12]];
 const wall = (x: number, y: number) => MAP[(y / CELL) | 0]?.[(x / CELL) | 0] === "#";
@@ -39,6 +37,18 @@ const smooth = (a: number, b: number, t: number) => {
   const k = t <= a ? 0 : t >= b ? 1 : (t - a) / (b - a);
   return k * k * (3 - 2 * k);
 };
+/** Where tank i is at story time g: x, y, heading (written into P; no allocation). Clockwise round
+ *  its loop at 38 px/s, easing into each corner's turn over the last 8 px. */
+const P = new Float64Array(3);
+function at(i: number, g: number) {
+  const [c0, r0, c1, r1] = LOOP[i]!, w = (c1! - c0!) * CELL, h = (r1! - r0!) * CELL;
+  let d = (g * 38) % (2 * (w + h)), k = 0;
+  for (; d > (k & 1 ? h : w); k++) d -= k & 1 ? h : w;
+  const len = k & 1 ? h : w, s = k > 1 ? len - d : d;
+  P[0] = (c0! + 0.5) * CELL + (k & 1 ? (k > 1 ? 0 : w) : s);
+  P[1] = (r0! + 0.5) * CELL + (k & 1 ? s : k > 1 ? h : 0);
+  P[2] = (k + 1 + smooth(len - 8, len, d)) * Math.PI / 2;
+}
 
 // The tank, as data. The scene places it as SVG backgrounds (spriteURL), so the canvas half of
 // fizlet/sprite stays out of the live chunk.
@@ -58,17 +68,10 @@ const TANK: SpriteDef = {
   outline: "rim",
 };
 
-/** The cycle time that shows explode amount `v` (0–1): on the opening ramp (inverse smoothstep), or
- *  just after it opens (labels in, before the fault) for fully open. */
-const timeAt = (v: number) => (v > 0.995 ? OPEN + 0.4 : PLAY + (OPEN - PLAY) * (0.5 - Math.sin(Math.asin(1 - 2 * v) / 3)));
-
-export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLElement = stage): SlotScene {
-  const loops = opts.loops ?? 3, speed = opts.speed ?? 1;
-  const engine = createEngine({ root: stage, fps: 30, settle: opts.settle ?? 0.5 });
-  const rand = engine.random;
+export function mount(stage: HTMLElement, fig: HTMLElement = stage): SlotScene {
+  const engine = createEngine({ root: stage, fps: 30, settle: 0.4 });
   const W = stage.clientWidth, H = stage.clientHeight; // one read, at mount (the slot sizes the stage)
   // The tanks wear the Board UI kit's tokens (sprites take hex: read them once, here).
-  // The figure is a .bui root on a page with board-ui.css (every colour here is a kit token).
   const cs = getComputedStyle(stage), tok = (v: string) => cs.getPropertyValue(v).trim();
   const rim = tok("--rim");
   const pals: Record<string, string>[] = [{ tread: tok("--raised"), team: tok("--team-a"), hatch: rim, rim }, { team: tok("--team-b") }];
@@ -86,7 +89,7 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
     return parent.appendChild(e);
   };
   const layers: HTMLElement[] = [], tags: HTMLElement[] = [];
-  const names = fig.querySelectorAll(".lyr__t"), slider = fig.querySelector<HTMLElement>("[role=slider]"), key = fig.querySelector<HTMLElement>(".lyr__play");
+  const names = fig.querySelectorAll(".lyr__t");
   const bytesText = names[FAULT]?.lastElementChild?.textContent ?? "";
   for (let i = 0; i < N; i++) {
     const l = el(stack, i ? "lz-l" : "lz-l lz-g");
@@ -96,15 +99,12 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
     layers.push(l), tags.push(t);
   }
   // ---------- fit: game pose and exploded pose ----------
-  // One layout read, here at mount: the widest label at its on-screen size (--se 1 = 11px text), so
-  // the stack leaves room for the labels in whatever monospace font this device has.
+  // One layout read, here at mount: the widest label at its on-screen size, so the stack leaves room
+  // for the labels in whatever monospace font this device has.
   stage.append(root);
   let lw = 0;
   for (const t of tags) lw = Math.max(lw, t.offsetWidth);
-  // Controls keep a column on each side (landscape) or a row at the bottom (portrait).
-  const land = W > H, R = RESERVE;
-  const { sp, se, ex, g } = fit(land ? W - 2 * R : W, land ? H : H - R, lw + 14); // + 10px margin, 4px slack
-  const oy = land ? 0 : -R / 2;
+  const { sp, se, ex, g: gp } = fit(W, H, lw + 14); // + 10px margin, 4px slack
   root.style.setProperty("--se", `${se}`);
   const [gridL, charL, moveL, colL, rulesL, fxL, inL, hudL] = layers as [HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement, HTMLElement];
   // Collision: the fixed copy, revealed by the scan, over the broken one.
@@ -118,14 +118,6 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
   const scan = el(colL, "lz-scan");
   // Rules: spawn pads in the corners.
   for (let k = 0; k < 4; k++) el(rulesL, "lz-p", (k & 1) * (COLS - 1) * CELL, (k >> 1) * (ROWS - 1) * CELL);
-  // Effects: the fx brick draws on its own canvas inside its layer.
-  const cv = fxL.appendChild(document.createElement("canvas"));
-  cv.className = "lz-cv";
-  const dpr = Math.min(2, devicePixelRatio);
-  cv.width = BW * dpr, cv.height = BH * dpr;
-  const ctx = cv.getContext("2d")!; // a fresh canvas always has a 2D context
-  ctx.scale(dpr, dpr);
-  const fx = effects({ cap: 160, scorch: 12 });
   // Input: the aim line (the intent the lead tank follows).
   const aim = el(inL, "lz-a");
   // The kit's own arcade fire key (Board UI), as the player's on-screen control.
@@ -136,113 +128,94 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
   const [hudA, , hudB] = hud.children as unknown as [HTMLElement, HTMLElement, HTMLElement];
 
   // Characters, their hitboxes and their patrol loops (the movement layer).
-  const TX = new Float64Array(TANKS), TY = new Float64Array(TANKS), TA = new Float64Array(TANKS), COOL = new Float64Array(TANKS);
-  const AT = new Int32Array(TANKS); // the loop corner each tank drives to next
-  const tankEl: HTMLElement[] = [], boxEl: HTMLElement[] = [];
-  // Loop corners clockwise from the top left: k & 3 = 0 TL, 1 TR, 2 BR, 3 BL (cell centres, px).
-  const corner = (i: number, k: number, y: number) => {
-    const q = k & 3, L = LOOP[i]!;
-    return (L[y ? (q > 1 ? 3 : 1) : q === 1 || q === 2 ? 2 : 0]! + 0.5) * CELL;
-  };
+  const tankEl: HTMLElement[] = [], boxEl: HTMLElement[] = [], shellEl: HTMLElement[] = [], boomEl: HTMLElement[] = [];
   for (let i = 0; i < TANKS; i++) {
     const [c0, r0, c1, r1] = LOOP[i]!;
-    TX[i] = (c0! + 0.5) * CELL, TY[i] = (r0! + 0.5) * CELL, AT[i] = 1, COOL[i] = 1 + i * 0.4;
     const t = el(charL, "lz-t");
     t.style.background = `url("${spriteURL(TANK, 0, pals, i & 1)}") 0 0/100% 100%`;
-    tankEl.push(t), boxEl.push(el(colL, "lz-h"));
-    const loop = el(moveL, "lz-o", TX[i]!, TY[i]!);
+    tankEl.push(t), boxEl.push(el(colL, "lz-h")), shellEl.push(el(charL, "lz-b")), boomEl.push(el(fxL, "lz-m"));
+    const loop = el(moveL, "lz-o", (c0! + 0.5) * CELL, (r0! + 0.5) * CELL);
     loop.style.width = `${(c1! - c0!) * CELL}px`;
     loop.style.height = `${(r1! - r0!) * CELL}px`;
   }
-  // Shells: a fixed pool.
-  const SX = new Float64Array(SHELLS), SY = new Float64Array(SHELLS), SVX = new Float64Array(SHELLS), SVY = new Float64Array(SHELLS), SL = new Float64Array(SHELLS), SO = new Int32Array(SHELLS);
-  const shellEl: HTMLElement[] = [];
-  for (let i = 0; i < SHELLS; i++) shellEl.push(el(charL, "lz-b"));
-  const score = new Int32Array(2);
+  // ---------- the shots, worked out once: each tank fires on a fixed beat at the nearest enemy ----------
+  // Shot s: fired at F by tank O from (SX, SY) at (VX, VY) px/s; it ends at E: K 1 on a wall, 2 on a
+  // tank (a point for O's team), 0 off the board or spent. While the collision layer is broken
+  // (FAULT_AT to SCAN_END) shells pass through walls.
+  const F = new Float64Array(SHOTS), E = new Float64Array(SHOTS), SX = new Float64Array(SHOTS), SY = new Float64Array(SHOTS), VX = new Float64Array(SHOTS), VY = new Float64Array(SHOTS);
+  const K = new Int32Array(SHOTS), O = new Int32Array(SHOTS);
+  let shots = 0;
+  for (let i = 0; i < TANKS; i++)
+    for (let f = 1 + i * 0.4; f < END && shots < SHOTS; f += 1.7, shots++) {
+      at(i, f);
+      const x = P[0]!, y = P[1]!;
+      let best = 0, d2 = 1e9;
+      for (let j = 1 - (i & 1); j < TANKS; j += 2) {
+        at(j, f);
+        const d = (P[0]! - x) ** 2 + (P[1]! - y) ** 2;
+        if (d < d2) (d2 = d), (best = j);
+      }
+      at(best, f);
+      const dd = Math.sqrt(d2) || 1, vx = ((P[0]! - x) / dd) * 170, vy = ((P[1]! - y) / dd) * 170;
+      const s = shots;
+      (F[s] = f), (O[s] = i), (SX[s] = x + vx / 14), (SY[s] = y + vy / 14), (VX[s] = vx), (VY[s] = vy), (E[s] = f + 1.4);
+      for (let u = f; u < f + 1.4; u += 1 / 60) {
+        const px = SX[s]! + vx * (u - f), py = SY[s]! + vy * (u - f);
+        if (px < 0 || py < 0 || px > BW || py > BH) { E[s] = u; break; }
+        if ((u < FAULT_AT || u >= SCAN_END) && wall(px, py)) { (E[s] = u), (K[s] = 1); break; }
+        let hit = 0;
+        for (let j = 1 - (i & 1); j < TANKS; j += 2) (at(j, u), (hit ||= +((P[0]! - px) ** 2 + (P[1]! - py) ** 2 <= 110)));
+        if (hit) { (E[s] = u), (K[s] = 2); break; }
+      }
+    }
 
-  // ---------- the game (fixed step, no DOM) ----------
-  const phase = new Float64Array(2); // time in cycle, cycles done
-  // Start where the controls are (the visitor may have scrubbed or paused before the chunk loaded).
-  const v0 = +(slider?.getAttribute("aria-valuenow") ?? 0);
-  let play = key?.getAttribute("aria-label") !== "Play";
-  if (v0 > 0) phase[0] = timeAt(v0 / 100);
-  function fire(i: number) {
-    let best = 0, d2 = 1e9;
-    for (let j = 1 - (i & 1); j < TANKS; j += 2) {
-      const d = (TX[j]! - TX[i]!) ** 2 + (TY[j]! - TY[i]!) ** 2;
-      if (d < d2) (d2 = d), (best = j);
-    }
-    for (let s = 0; s < SHELLS; s++) {
-      if (SL[s]! > 0) continue;
-      const d = Math.sqrt(d2) || 1, vx = (TX[best]! - TX[i]!) / d, vy = (TY[best]! - TY[i]!) / d;
-      SX[s] = TX[i]! + vx * 12, SY[s] = TY[i]! + vy * 12, SVX[s] = vx * 170, SVY[s] = vy * 170, SL[s] = 1.4, SO[s] = i;
-      TA[i] = Math.atan2(vy, vx) + Math.PI / 2;
-      COOL[i] = 1.3 + rand() * 1.2;
-      return;
-    }
-  }
+  // ---------- the story clock: shown time T[0] eases to the scroll's T[1] ----------
+  // T: shown, target, keyboard (1: the keys own the target until the next scroll), first read done.
+  const T = new Float64Array(4);
+  const stop = (dir: number) => {
+    let k = dir > 0 ? 0 : STOPS.length - 1;
+    while (STOPS[k] !== undefined && (dir > 0 ? STOPS[k]! <= T[1]! + 0.01 : STOPS[k]! >= T[1]! - 0.01)) k += dir;
+    return STOPS[k] ?? T[1]!;
+  };
   engine.add({
+    read() {
+      if (T[2]) return;
+      // The figure's place in the viewport: the story starts as its middle rises past 85% of the
+      // viewport and ends as it reaches 25% (sooner if the page can't scroll that far). The story
+      // lasts at least 40% of a viewport of scrolling.
+      const r = fig.getBoundingClientRect(), y = scrollY, vh = innerHeight, mid = r.top + r.height / 2 + y;
+      const a = Math.max(0, mid - vh * 0.85), b = Math.min(Math.max(a + vh * 0.4, mid - vh * 0.25), document.documentElement.scrollHeight - vh);
+      T[1] = b - a > 40 ? Math.min(1, Math.max(0, (y - a) / (b - a))) * END : 0;
+      if (!T[3]) (T[3] = 1), (T[0] = T[1]!); // first frame: no story to play back from 0
+    },
     step(e, dt) {
-      // Paused, or done (the last cycle ended in game mode): no busy(), so the kernel settles.
-      if (!play || phase[1]! >= loops) return;
-      e.busy();
-      phase[0]! += dt * speed;
-      if (phase[0]! >= CYCLE) {
-        phase[0]! -= CYCLE;
-        if (++phase[1]! >= loops) phase[0] = 0; // rest exactly on the game frame
-      }
-      for (let i = 0; i < TANKS; i++) {
-        const gx = corner(i, AT[i]!, 0), gy = corner(i, AT[i]!, 1);
-        const dx = gx - TX[i]!, dy = gy - TY[i]!, d = Math.hypot(dx, dy), v = 38 * dt;
-        if (d <= v) (TX[i] = gx), (TY[i] = gy), AT[i]!++;
-        else {
-          TX[i]! += (dx / d) * v, TY[i]! += (dy / d) * v;
-          let da = Math.atan2(dy, dx) + Math.PI / 2 - TA[i]!;
-          da = Math.atan2(Math.sin(da), Math.cos(da));
-          TA[i]! += da * Math.min(1, dt * 8);
-        }
-        if ((COOL[i]! -= dt) <= 0) fire(i);
-      }
-      const ghost = phase[0]! >= FAULT_AT && phase[0]! < SCAN_END; // a broken collision layer: shells pass through walls
-      for (let s = 0; s < SHELLS; s++) {
-        if (SL[s]! <= 0) continue;
-        SL[s]! -= dt, SX[s]! += SVX[s]! * dt, SY[s]! += SVY[s]! * dt;
-        if (SX[s]! < 0 || SY[s]! < 0 || SX[s]! > BW || SY[s]! > BH) { SL[s] = 0; continue; }
-        if (!ghost && wall(SX[s]!, SY[s]!)) {
-          fx.blast(SX[s]!, SY[s]!, 0.35, 4);
-          SL[s] = 0;
-          continue;
-        }
-        for (let j = 0; j < TANKS; j++) {
-          if ((j & 1) === (SO[s]! & 1) || (SX[s]! - TX[j]!) ** 2 + (SY[s]! - TY[j]!) ** 2 > 110) continue;
-          fx.blast(TX[j]!, TY[j]!, 0.7, j & 1 ? 3 : 5);
-          score[SO[s]! & 1]!++;
-          SL[s] = 0;
-          break;
-        }
-      }
-      fx.step(dt);
+      const d = T[1]! - T[0]!;
+      T[0] = Math.abs(d) < 0.004 ? T[1]! : T[0]! + d * Math.min(1, dt * 9);
+      if (T[0] !== T[1]) e.busy();
     },
     render() {
-      const t = phase[0]!;
-      const open = t < FOLD_AT ? smooth(PLAY, OPEN, t) : 1 - smooth(FOLD_AT, CLOSED, t);
-      const s = sp + (se - sp) * open;
-      // Labels only while the stack is fully open: in after it opens, out before the fold starts,
-      // so they never move, scale or crowd while the layers travel.
-      const label = smooth(OPEN, OPEN + 0.3, t) * (1 - smooth(FOLD_AT - 0.3, FOLD_AT, t));
-      stack.style.transform = `translate(${ex * open}px,${oy}px) scale(${s}) rotateX(${TILT * open}deg) rotateZ(${TURN * open}deg)`;
+      const t = T[0]!;
+      // Camera: the board turns into the exploded view, then the layers lift off it one by one,
+      // bottom to top; the fold brings them all back together and turns the board back.
+      const fold = 1 - smooth(FOLD_AT + 0.3, CLOSED, t), cam = t < FOLD_AT ? smooth(PLAY, OPEN, t) : fold;
+      stack.style.transform = `translate(${ex * cam}px,0) scale(${sp + (se - sp) * cam}) rotateX(${TILT * cam}deg) rotateZ(${TURN * cam}deg)`;
+      const zb = -(N - 1) / 2 * gp, out = 1 - smooth(FOLD_AT, FOLD_AT + 0.3, t);
       for (let i = 0; i < N; i++) {
-        const l = layers[i]!;
-        l.style.transform = `translateZ(${(i - (N - 1) / 2) * g * open}px)`;
-        tags[i]!.style.transform = `rotateZ(${-TURN * open}deg) rotateX(${-TILT * open}deg)`;
-        tags[i]!.style.opacity = `${label}`;
+        const zf = (i - (N - 1) / 2) * gp;
+        layers[i]!.style.transform = `translateZ(${t < FOLD_AT ? zb * cam + (zf - zb) * smooth(lift(i), lift(i) + RISE, t) : zf * fold}px)`;
+        // A label shows only once its layer is in place (so labels never travel, crowd or overlap),
+        // and all go before the fold starts.
+        const end = i ? lift(i) + RISE : OPEN;
+        tags[i]!.style.transform = `rotateZ(${-TURN * cam}deg) rotateX(${-TILT * cam}deg)`;
+        tags[i]!.style.opacity = `${smooth(end - 0.1, end + 0.15, t) * out}`;
       }
       // Fault, scan, patch, green.
       const bad = t >= FAULT_AT && t < SCAN_END, ok = t >= SCAN_END && t < OK_END;
       const p = smooth(SCAN_AT, SCAN_END, t);
       // State classes (namespaced: a host page may style .o or .k): lz--o open (layer plates show),
       // lz--f fault or fix (others dim), lz--b broken, lz--k patched.
-      root.className = `lz${open > 0.02 ? " lz--o" : ""}${bad || ok ? " lz--f" : ""}${bad ? " lz--b" : ok ? " lz--k" : ""}`;
+      root.className = `lz${cam > 0.02 ? " lz--o" : ""}${bad || ok ? " lz--f" : ""}${bad ? " lz--b" : ok ? " lz--k" : ""}`;
+      root.dataset.p = `${Math.round((t / END) * 1000) / 1000}`;
       colL.style.setProperty("--g", `${Math.round(50 * (1 - smooth(SCAN_END, OK_END, t)))}%`);
       const h = `${t >= SCAN_AT && t < OK_END ? p * BH : t >= OK_END || t < FAULT_AT ? BH : 0}px`;
       if (fixed.style.height !== h) fixed.style.height = h;
@@ -255,46 +228,55 @@ export function mount(stage: HTMLElement, opts: LayersOptions = {}, fig: HTMLEle
         tag.lastElementChild!.textContent = word ? `· ${word}` : bytesText;
       }
       // Game-mode helpers (paths, hitboxes, rules) show only when the stack is open.
-      moveL.style.opacity = rulesL.style.opacity = `${open}`;
-      // Characters and hitboxes.
+      moveL.style.opacity = rulesL.style.opacity = `${cam}`;
+      // Characters, hitboxes, shells (one live shell per tank at most: it fires every 1.7 s, a shell
+      // lasts 1.4 s), the score.
+      let a = 0, b = 0;
       for (let i = 0; i < TANKS; i++) {
-        tankEl[i]!.style.transform = `translate(${TX[i]! - 13.5}px,${TY[i]! - 13.5}px) rotate(${TA[i]}rad)`;
-        boxEl[i]!.style.transform = `translate(${TX[i]}px,${TY[i]}px)`;
+        at(i, t);
+        tankEl[i]!.style.transform = `translate(${P[0]! - 13.5}px,${P[1]! - 13.5}px) rotate(${P[2]}rad)`;
+        boxEl[i]!.style.transform = `translate(${P[0]}px,${P[1]}px)`;
+        if (!i) aim.style.transform = `translate(${P[0]}px,${P[1]}px) rotate(${P[2]! - Math.PI / 2}rad)`;
+        shellEl[i]!.style.display = boomEl[i]!.style.display = "none";
       }
-      for (let s = 0; s < SHELLS; s++) {
-        shellEl[s]!.style.display = SL[s]! > 0 ? "" : "none";
-        if (SL[s]! > 0) shellEl[s]!.style.transform = `translate(${SX[s]}px,${SY[s]}px)`;
+      // A hit's blast: a ring that grows and fades over 0.5 s of story time (a tank hit, bigger).
+      for (let s = 0; s < shots; s++) {
+        if (K[s]! > 1 && E[s]! <= t) O[s]! & 1 ? b++ : a++;
+        const q = (t - E[s]!) * 2;
+        if (K[s] && q >= 0 && q < 1) {
+          const m = boomEl[O[s]!]!;
+          m.style.display = "";
+          m.style.opacity = `${1 - q * q}`;
+          m.style.transform = `translate(${SX[s]! + VX[s]! * (E[s]! - F[s]!)}px,${SY[s]! + VY[s]! * (E[s]! - F[s]!)}px) scale(${(0.4 + q) * K[s]!})`;
+        }
+        if (F[s]! <= t && t < E[s]!) {
+          const sh = shellEl[O[s]!]!;
+          sh.style.display = "";
+          sh.style.transform = `translate(${SX[s]! + VX[s]! * (t - F[s]!)}px,${SY[s]! + VY[s]! * (t - F[s]!)}px)`;
+        }
       }
-      // Input: the line points along the lead tank's aim.
-      aim.style.transform = `translate(${TX[0]}px,${TY[0]}px) rotate(${TA[0]! - Math.PI / 2}rad)`;
       // HUD: change-only text.
-      const a = `GREEN ${score[0]}`, b = `PINK ${score[1]}`;
-      if (hudA.textContent !== a) hudA.textContent = a;
-      if (hudB.textContent !== b) hudB.textContent = b;
-      ctx.clearRect(0, 0, BW, BH);
-      fx.drawGround(ctx);
-      fx.draw(ctx);
-      // The controls follow the story (through the ledger: Recall gives them back).
-      const L = engine.ledger, pct = `${Math.round(open * 100)}`;
-      L.style(fig, "--e", `${open}`);
-      if (slider) L.attr(slider, "aria-valuenow", pct);
-      if (key) L.attr(key, "aria-label", play && phase[1]! < loops ? "Pause" : "Play");
+      const ga = `GREEN ${a}`, pb = `PINK ${b}`;
+      if (hudA.textContent !== ga) hudA.textContent = ga;
+      if (hudB.textContent !== pb) hudB.textContent = pb;
     },
   });
-  // The controls: -1 toggles play (a finished run starts its cycles again), 0–100 scrubs and pauses.
-  fig.addEventListener("lyr", (ev) => {
-    const d = (ev as CustomEvent<number>).detail;
-    if (d >= 0) (play = false), (phase[0] = timeAt(d / 100));
-    else if (play && phase[1]! < loops) play = false;
-    else (play = true), phase[1]! >= loops && (phase[1] = 0);
+  // The scroll and resize only wake the engine (passive: the page scrolls as it always does); a scroll
+  // hands the story back from the keys.
+  const on = { passive: true, signal: engine.signal };
+  addEventListener("scroll", () => ((T[2] = 0), engine.wake()), on);
+  addEventListener("resize", () => engine.wake(), on);
+  // Keys on the focused figure: step to the next or previous stop (a label, the fault, the patch).
+  fig.addEventListener("keydown", (ev) => {
+    const k = ev.key, dir = /Right|Down/.test(k) ? 1 : /Left|Up/.test(k) ? -1 : 0;
+    if (!dir && k !== "Home" && k !== "End") return;
+    ev.preventDefault();
+    (T[2] = 1), (T[1] = dir ? stop(dir) : k === "End" ? END : 0);
     engine.wake();
   }, { signal: engine.signal });
   engine.start();
   return { destroy: () => engine.destroy() };
 }
 
-/** For fizlet/slot: reads `data-loops` / `data-speed` from the slot figure. */
-export const mountSlot: SlotMount = (stage, slotEl) => {
-  const d = slotEl.dataset; // missing or 0 → the defaults (3 cycles, speed 1)
-  return mount(stage, { loops: +d.loops! || 3, speed: +d.speed! || 1 }, slotEl);
-};
+/** For fizlet/slot. */
+export const mountSlot: SlotMount = (stage, slotEl) => mount(stage, slotEl);
