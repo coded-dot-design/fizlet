@@ -40,12 +40,11 @@ every brick you don't import. Releases are published from CI with
 [npm provenance](https://docs.npmjs.com/generating-provenance-statements), so
 `npm audit signatures` can check that the tarball was built from this repo.
 
-> The first npm publish goes out with the first release tag after the repository's `NPM_TOKEN`
-> secret is set (`.github/workflows/release.yml`). Until `npm view @fzlt/core version` prints a
-> version, use the hosted builds or build from source: `git clone
+> On npm since 0.21.2 (2026-10-31), published from CI on tag (`.github/workflows/release.yml`).
+> No npm? The site hosts the same builds (see the
+> [quick start](https://coded-dot-design.github.io/fizlet/)), or build from source: `git clone
 > https://github.com/coded-dot-design/fizlet && cd fizlet && npm ci && npm run build` gives you
-> `dist/` with the same subpath exports. No npm? The site hosts the same builds (see the
-> [quick start](https://coded-dot-design.github.io/fizlet/)).
+> `dist/` with the same subpath exports.
 
 ```ts
 import { createEngine } from "@fzlt/core";
