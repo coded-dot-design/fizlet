@@ -7,7 +7,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { seeded } from "../src/kernel/random.ts";
-import { npmSim, MODE, ORDER, SHIPPED, HAVE, NOPES, IDLE, PLAY } from "../site/gallery/pieces/launch/npm-sim.ts";
+import { npmSim, MODE, ORDER, SHIPPED, HAVE, NOPES, IDLE, PLAY, STREAK, LAST } from "../site/gallery/pieces/launch/npm-sim.ts";
 import { recallSim, LOOSE, MODE as RMODE, IDLE as RIDLE, RECALL, CHECK } from "../site/gallery/pieces/launch/recall-sim.ts";
 import { fillStage, ORDERS, BRICKS } from "../scripts/launch-facts.mjs";
 import { minorGCs } from "./gc.mjs";
@@ -36,6 +36,10 @@ test("npm i fizlet: needed bricks snap in, others bounce, a full order ships, th
   assert.ok(ev.includes("ship"), "a full order ships");
   run(s, 2.2);
   assert.deepEqual([s.S[SHIPPED], s.S[ORDER], s.S[HAVE], s.S[MODE]], [1, 1, 0, PLAY], "the next order comes in empty");
+  assert.deepEqual([s.S[STREAK], s.S[LAST]], [0, 0], "a bounce in the order: no streak; the bundle shown is the order that shipped");
+  for (const k of orders[1].slice(0)) feed(k);
+  run(s, 2.2);
+  assert.equal(s.S[STREAK], 1, "a clean order starts a streak");
   assert.equal(run(s, 12), false, "with no input the belt coasts to a stop and nothing moves");
   assert.equal(s.S[MODE], IDLE);
 });

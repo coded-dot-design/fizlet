@@ -6,7 +6,7 @@
   *npm i fizlet*: bricks ride a belt and an order card says what the thing needs (a blaster: kernel,
   input, fx, sound). Tap a brick, or press Space for the one over the chute: one the order needs
   snaps into the box, and one it doesn't bounces back out with its real size ("+1,265 B you don't
-  need"). A full order ships with its whole bundle measured. *Recall Party*: tap and a party popper
+  need"). The order card is a terminal (the command types in, the bricks tick off). A full order gets its lid shut and a "0 deps" sticker stamped on, and the bundle counts up to its measured size; clean orders build a streak. *Recall Party*: tap and a party popper
   fires confetti that knocks the headline's real letters into a heap on the floor. Press Recall (R)
   and every letter flies home, and the scene measures each letter's box against where it started
   before it says "back to the pixel". No number is typed: `scripts/launch-facts.mjs` measures the

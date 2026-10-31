@@ -7,14 +7,14 @@
 // Every step writes typed arrays only: no objects, no strings, no closures (tests/launch-day.test.mjs).
 
 /** Belt geometry (art units, 160 × 90). */
-export const BW = 26, BH = 13, BELT_Y = 21, SLOTS = 6, GAP = 32, LOOP = SLOTS * GAP, CHUTE = 95;
+export const BW = 27, BH = 14, BELT_Y = 21, SLOTS = 6, GAP = 32, LOOP = SLOTS * GAP, CHUTE = 95;
 /** The box (top left, size) and where it rests. */
 export const BOX_X = 72, BOX_Y = 62, BOX_W = 46, BOX_H = 24;
 /** Modes. */
 export const INTRO = 0, IDLE = 1, PLAY = 2;
 /** State slots. */
-export const T = 0, MODE = 1, SPEED = 2, TARGET = 3, POS = 4, QUIET = 5, ORDER = 6, HAVE = 7, SHIP = 8, SHIPPED = 9, DEMO = 10, NOPES = 11, BOXX = 12, LID = 13, SNAP = 14, NHAVE = 15;
-/** Word kinds: a snap ✓, "+N B you don't need" (value: the brick), "added 1 package", "already in". */
+export const T = 0, MODE = 1, SPEED = 2, TARGET = 3, POS = 4, QUIET = 5, ORDER = 6, HAVE = 7, SHIP = 8, SHIPPED = 9, DEMO = 10, NOPES = 11, BOXX = 12, LID = 13, SNAP = 14, NHAVE = 15, OT = 16, STREAK = 17, CLEAN = 18, LAST = 19;
+/** Word kinds: a snap (+kernel 3,413 B), "+N B you don't need" (value: the brick), "added 1 package", "already in". */
 export const W_SNAP = 0, W_NOPE = 1, W_ADDED = 2, W_DUP = 3;
 const FN = 4, WN = 6, PN = 160;
 
@@ -25,7 +25,7 @@ export type NpmSim = ReturnType<typeof npmSim>;
  * the engine's seeded random; `emit(type)` reports "grab", "snap", "nope", "ship" (for sound).
  */
 export function npmSim(bricks: number, orders: number[][], rnd: () => number, emit: (type: string) => void) {
-  const S = new Float64Array(16);
+  const S = new Float64Array(20);
   const belt = new Int8Array(SLOTS);
   // Flying bricks: kind (-1 free), from x, y, age, good (1 snaps, 0 bounces), bounce vx, vy.
   const FK = new Int8Array(FN).fill(-1), FX = new Float32Array(FN), FY = new Float32Array(FN), FT = new Float32Array(FN), FG = new Uint8Array(FN), FVX = new Float32Array(FN), FVY = new Float32Array(FN);
@@ -45,6 +45,7 @@ export function npmSim(bricks: number, orders: number[][], rnd: () => number, em
   S[TARGET] = 28;
   S[DEMO] = 1.05;
   S[BOXX] = BOX_X;
+  (S[CLEAN] = 1), (S[LAST] = -1);
 
   const slotX = (i: number) => ((S[POS]! + i * GAP) % LOOP + LOOP) % LOOP - BW;
   const need = (k: number) => (MASK[S[ORDER]!]! >> k) & 1;
@@ -96,7 +97,7 @@ export function npmSim(bricks: number, orders: number[][], rnd: () => number, em
 
   S[SHIP] = -1;
   return {
-    S, belt, FK, FX, FY, FT, FG, IN, WK, WV, WX, WY, WT, PX, PY, PL, PC, MASK,
+    S, belt, FK, FX, FY, FT, FG, FVX, IN, WK, WV, WX, WY, WT, PX, PY, PL, PC, MASK,
     slotX,
     need,
     /** A tap at (x, y) art units: a brick on the belt there drops. */
@@ -166,7 +167,7 @@ export function npmSim(bricks: number, orders: number[][], rnd: () => number, em
             word(W_SNAP, k, S[BOXX]! + BOX_W / 2, BOX_Y - 6);
             burst(S[BOXX]! + BOX_W / 2, BOX_Y, 10, 5, 34);
             emit("snap");
-            if ((S[HAVE]! & MASK[S[ORDER]!]!) === MASK[S[ORDER]!]) (S[SHIP] = 0), word(W_ADDED, S[ORDER]!, S[BOXX]! + BOX_W / 2, BOX_Y - 14), emit("ship");
+            if ((S[HAVE]! & MASK[S[ORDER]!]!) === MASK[S[ORDER]!]) (S[SHIP] = 0), word(W_ADDED, S[ORDER]!, S[BOXX]! + BOX_W / 2, BOX_Y - 21), emit("ship");
           }
         } else if (FT[f]! < 0.3) {
           // falling toward the lip
@@ -178,6 +179,7 @@ export function npmSim(bricks: number, orders: number[][], rnd: () => number, em
             word(has(k) && need(k) ? W_DUP : W_NOPE, k, S[BOXX]! + BOX_W / 2, BOX_Y - 17);
             burst(S[BOXX]! + BOX_W / 2, BOX_Y - 2, 6, 2, 26);
             S[NOPES] = S[NOPES]! + 1;
+            S[CLEAN] = 0;
             emit("nope");
           }
           FVY[f] = FVY[f]! + 160 * dt;
@@ -193,6 +195,8 @@ export function npmSim(bricks: number, orders: number[][], rnd: () => number, em
         S[LID] = Math.min(1, t / 0.35);
         if (t > 0.9) S[BOXX] = BOX_X + (t - 0.9) * (t - 0.9) * 400;
         if (t > 1.5 && S[BOXX]! > 170) {
+          // A clean order (no brick it didn't need) adds to the streak; one bounce resets it.
+          (S[STREAK] = S[CLEAN] ? S[STREAK]! + 1 : 0), (S[CLEAN] = 1), (S[LAST] = S[ORDER]!), (S[OT] = 0);
           (S[SHIP] = -2), (S[SHIPPED] = S[SHIPPED]! + 1), (S[ORDER] = (S[ORDER]! + 1) % MASK.length), (S[HAVE] = 0), (S[NHAVE] = 0), (S[LID] = 0), (S[BOXX] = -60);
           IN.fill(-1);
         }
@@ -201,6 +205,8 @@ export function npmSim(bricks: number, orders: number[][], rnd: () => number, em
         S[BOXX] = S[BOXX]! + (BOX_X - S[BOXX]!) * Math.min(1, dt * 9);
         if (Math.abs(S[BOXX]! - BOX_X) < 0.05) (S[BOXX] = BOX_X), (S[SHIP] = -1);
       }
+      // The order card types its command in.
+      if (S[OT]! < 0.8) (S[OT] = S[OT]! + dt), (moving = 1);
       S[SNAP] = Math.max(0, S[SNAP]! - dt);
       if (S[SNAP]! > 0) moving = 1;
       for (let i = 0; i < WN; i++) if (WT[i]! < 1.4) (WT[i] = WT[i]! + dt), (WY[i] = WY[i]! - dt * 6), (moving = 1);
