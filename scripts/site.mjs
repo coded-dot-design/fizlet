@@ -100,6 +100,14 @@ cpSync("dist", `${OUT}/dist`, { recursive: true });
 const minCss = async (from, to) => writeFileSync(to, (await transform(readFileSync(from, "utf8"), { loader: "css", minify: true })).code);
 await minCss("src/ui/board-ui.css", `${OUT}/board-ui.css`);
 await minCss("site/site.css", `${OUT}/site.css`);
+// The pages' inline <style> blocks (the gallery stages' own CSS, the layers and labs sheets), minified
+// the same way once every page is written (below, with the footer's site map): the sources keep
+// their comments. Gallery page 1: 57,361 → 55,896 B gzip (2026-10-31).
+const minInlineCss = async (html) => {
+  const parts = html.split(/(<style>[\s\S]*?<\/style>)/);
+  for (let i = 1; i < parts.length; i += 2) parts[i] = `<style>${(await transform(parts[i].slice(7, -8), { loader: "css", minify: true })).code.trimEnd()}</style>`;
+  return parts.join("");
+};
 writeFileSync(`${OUT}/icon.svg`, mark(64).replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" style="color:#39ffb0;background:#07060f" '));
 writeFileSync(`${OUT}/og.png`, ogImage());
 writeFileSync(`${OUT}/.nojekyll`, "");
@@ -414,7 +422,7 @@ const order = (r) => (built.includes(r) ? built.indexOf(r) : built.length);
 const routes = indexable.map((p) => ({ path: routeOf(p.f), label: LABEL.get(routeOf(p.f)) ?? unescTitle(p.html) }))
   .sort((a, b) => order(a.path) - order(b.path));
 for (const f of readdirSync(OUT, { recursive: true }).map((x) => x.replace(/\\/g, "/")).filter((x) => x.endsWith(".html") && !x.startsWith("dist/"))) {
-  const html = readFileSync(`${OUT}/${f}`, "utf8"), filled = fillSiteMap(html, routes);
+  const html = readFileSync(`${OUT}/${f}`, "utf8"), filled = await minInlineCss(fillSiteMap(html, routes));
   if (filled !== html) writeFileSync(`${OUT}/${f}`, filled);
 }
 const meta = (html, re) => unesc(html.match(re)?.[1] ?? "");

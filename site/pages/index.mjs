@@ -435,7 +435,7 @@ ${roadmapSection()}
       <ol class="start-steps">
         <li><b>Script tag.</b> <code>fizlet.js</code> (${kb(bundle)} KB gzip), one file, no build step.</li>
         <li><b>Modules.</b> Import only the bricks you use from <code>${SITE}dist/</code>.</li>
-        <li><b>npm.</b> <span class="soon-tag">COMING SOON</span> <code>npm install @fzlt/core</code> is not published yet. Until then: <code>git clone</code>, <code>npm ci</code>, <code>npm run build</code> gives you <code>dist/</code> with the subpath exports.</li>
+        <li><b>npm.</b> <code>npm install @fzlt/core</code>, with the subpath exports.</li>
       </ol>
       <div class="split-keys">
         <a class="bui-key bui-arcade bui-go" href="examples/quick-start.html">${icon("play", 16)}Run the example</a>
