@@ -276,17 +276,17 @@ const pages = [
     base: "../", version, path: "make/", body: makePage({ made: defaultSnippet, script: make.script, recipes: Object.keys(MAKE_TABLE.recipes), base: "../" }), scripts: ["site.js", "make/make.js"],
   })],
   ["people/index.html", page({
-    title: "People: the maker and the house personas · Fizlet",
-    description: `Who makes Fizlet animations: Chris Cooley, ${PEOPLE.filter((p) => p.kind === "persona").length} house personas (Fizlet characters, not real people) and the team's AI agents, with their entries and bytes.`,
+    title: "People: the maker, AI agents and studio crew · Fizlet",
+    description: `Who makes Fizlet animations: Chris Cooley, ${PEOPLE.filter((p) => p.kind === "persona").length} studio crew (Fizlet characters, not real people) and the team's AI agents, with their entries and bytes.`,
     base: "../", version, path: "people/", body: peopleIndex({ rows: people, base: "../" }), scripts: ["site.js"],
   })],
   ...people.map(({ person: p, stats }) => [`${personPath(p.id)}index.html`, page({
-    title: `${p.name}: ${{ owner: "maker of Fizlet", persona: "a house persona", agent: "an AI agent on the team" }[p.kind]} · Fizlet`,
+    title: `${p.name}: ${{ owner: "maker of Fizlet", persona: "studio crew", agent: "an AI agent on the team" }[p.kind]} · Fizlet`,
     description: p.description,
     base: "../../", version, path: personPath(p.id),
     ld: [{ "@type": "ProfilePage", "@id": `${SITE}${personPath(p.id)}#page`, url: SITE + personPath(p.id), name: p.name,
       ...(p.kind === "owner" ? { mainEntity: { "@id": PERSON["@id"] } } : { about: { "@type": "Thing", name: p.name, description: `${p.kind === "agent" ? AGENT_NOTE : PERSONA_NOTE}. ${p.bio}` } }) }],
-    body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners }), scripts: ["site.js"],
+    body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners, people: PEOPLE }), scripts: ["site.js"],
   })]),
   ["contest/index.html", page({
     title: "Weekly contest: small wins, one winner · Fizlet",
