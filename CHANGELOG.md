@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **fizlet/sound: a custom player's type now says it gets your own cue names.** `SoundOptions.play` takes `CueName` (a built-in `Cue` or one of your `notes`), matching what it already received; the cast is gone. A test pins that a `notes` entry named like an `Object.prototype` key (`constructor`) plays as a plain cue. 0 B.
 - **`fizlet/sound`: your own synth cues.** `notes` (name → `Note[]` voices) adds cues to the built-in
   synth, so a scene can have a slurp or a yawn without its own audio code; `cues` may map to those
   names (`CueName`). Additive: every existing call types and plays as before. 1,019 → 1,042 B gzip.
