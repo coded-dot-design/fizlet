@@ -1,7 +1,8 @@
 // Page keys check (Board UI kit, BOARD-UI.md "Page keys"): every visible in-page key is a
-// `.bui-key`, and for each one a press shows (the face drops by its base, --py) and the click lands
-// on the key whether the pointer is on the face's centre, just under its top edge (which the
-// dropping face leaves) or on the base below it. Keyboard Enter shows the press (.down) too.
+// `.bui-key`, and for each one a press shows (the face drops by its base: depth --py along the
+// domain's shadow direction, --shadow-x/-y, BOARD-UI.md 4.1) and the click lands on the key whether
+// the pointer is on the face's centre, just under its top edge (which the dropping face leaves) or
+// on the base beside / below it. Keyboard Enter shows the press (.down) too.
 // Clicks are caught at the window and cancelled, so nothing navigates and no handler runs.
 // Shared by the site tests; `page` is a Playwright page already loaded.
 import assert from "node:assert/strict";
@@ -9,14 +10,26 @@ import assert from "node:assert/strict";
 /** Kit key families an in-page <a> or <button> may wear; each must also be a .bui-key. */
 const FAMILIES = ".bui-arcade, .bui-icon-key, .bui-sticker-key";
 
-/** The key's base height (--py) in px: a probe sized by it (custom properties compute as text). */
-const basePx = (key) => key.evaluate((e) => {
+/** The key's base offset in px, [x, y]: its depth (--py) along the shadow direction (--bx, --by in
+ *  the kit; a kit without the tokens falls back to straight below). Read off a probe placed by it
+ *  (custom properties compute as text). */
+const baseOf = (key) => key.evaluate((e) => {
   const probe = e.appendChild(document.createElement("i"));
-  probe.style.cssText = "position:absolute;width:var(--py);height:0;padding:0;border:0";
-  const px = probe.getBoundingClientRect().width;
+  probe.style.cssText = "position:absolute;left:var(--bx,0px);top:var(--by,var(--py));margin:0;padding:0;border:0";
+  const s = getComputedStyle(probe), xy = [parseFloat(s.left), parseFloat(s.top)];
   probe.remove();
-  return px;
+  return xy;
 });
+/** The face's resting offset (a locked key rests dropped), [x, y]. */
+const restOf = (key) => key.evaluate((e) => { const m = new DOMMatrix(getComputedStyle(e).transform); return [m.m41, m.m42]; });
+/** A point on the base that the resting face doesn't cover: past the face's edge, half the depth out. */
+function onBase(box, [rx, ry], [bx, by]) {
+  const l = box.x - rx, t = box.y - ry, cx = l + box.width / 2, cy = t + box.height / 2;
+  return Math.abs(by) >= Math.abs(bx)
+    ? [cx + bx, (by > 0 ? t + box.height : t) + by / 2]
+    : [(bx > 0 ? l + box.width : l) + bx / 2, cy + by];
+}
+const near = ([ax, ay], [bx, by]) => Math.abs(ax - bx) < 0.5 && Math.abs(ay - by) < 0.5;
 
 /** Wait for the key to come to rest: two frames (so a press or release has restyled and started its
  *  transitions), then until none of its transitions or animations is still running. On state, never
@@ -64,21 +77,21 @@ export async function checkKeys(page, label, { skip = "" } = {}) {
     const key = page.locator(`[data-key-id="${id}"]`);
     await key.evaluate((e) => e.scrollIntoView({ block: "center", behavior: "instant" }));
     const box = await key.boundingBox();
-    const py = await basePx(key);
+    const base = await baseOf(key);
     const name = `${label}: key ${JSON.stringify((await key.textContent()).trim().slice(0, 30) || (await key.getAttribute("aria-label")))}`;
-    assert.ok(py > 0, `${name} has a base`);
+    assert.ok(Math.hypot(...base) > 0, `${name} has a base`);
     const x = box.x + box.width / 2;
     // A locked key (aria-pressed) rests dropped: its base is under the face, so measure from rest.
     await page.mouse.move(2, 2);
     await settle(key);
-    const rest = await key.evaluate((e) => new DOMMatrix(getComputedStyle(e).transform).m42);
-    for (const [where, y] of [["centre", box.y + box.height / 2], ["top edge", box.y + 1], ["base", box.y + box.height - rest + py / 2]]) {
+    const rest = await restOf(key);
+    for (const [where, px, py] of [["centre", x, box.y + box.height / 2], ["top edge", x, box.y + 1], ["base", ...onBase(box, rest, base)]]) {
       await page.mouse.move(2, 2);
-      await page.mouse.move(x, y);
+      await page.mouse.move(px, py);
       await page.mouse.down();
       await settle(key);
-      const ty = await key.evaluate((e) => new DOMMatrix(getComputedStyle(e).transform).m42);
-      assert.ok(Math.abs(ty - py) < 0.5, `${name} at the ${where}: the face drops by its base (${ty} vs ${py})`);
+      const t = await restOf(key);
+      assert.ok(near(t, base), `${name} at the ${where}: the face drops by its base (${t} vs ${base})`);
       await page.mouse.up();
       const hits = await page.evaluate(() => window.__hits.splice(0));
       assert.deepEqual(hits, [id], `${name} at the ${where}: the click lands on the key`);
@@ -101,10 +114,9 @@ export async function checkTaps(page, label, { skip = "" } = {}) {
     const key = page.locator(`[data-key-id="${id}"]`);
     await key.evaluate((e) => e.scrollIntoView({ block: "center", behavior: "instant" }));
     const box = await key.boundingBox();
-    const py = await basePx(key);
+    const base = await baseOf(key);
     await settle(key);
-    const rest = await key.evaluate((e) => new DOMMatrix(getComputedStyle(e).transform).m42);
-    await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height - rest + py / 2);
+    await page.touchscreen.tap(...onBase(box, await restOf(key), base));
     const hits = await page.evaluate(() => window.__hits.splice(0));
     assert.deepEqual(hits, [id], `${label}: a tap on the base of key ${id} clicks it`);
   }

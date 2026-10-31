@@ -1,0 +1,27 @@
+{
+  "id": "dv-under-attack",
+  "date": "2026-10-30",
+  "prompt": "your.page is under attack: bad guys from every DOM VIRUS game spawn into a browser card, a tank and an interceptor blast them on an 8 s loop; tap to play, drag the tank, BUTTON_01 nukes the round",
+  "title": "your.page / under attack",
+  "kind": "micro",
+  "theme": "dom-virus",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/dv-under-attack.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "4 / 3",
+  "source": {
+    "url": "https://domvirus.com/",
+    "label": "domvirus.com"
+  },
+  "pageCost": {
+    "settles": true
+  },
+  "approved": "2026-10-30"
+}

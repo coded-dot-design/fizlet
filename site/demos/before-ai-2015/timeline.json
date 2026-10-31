@@ -1,0 +1,12 @@
+{
+  "$comment": "The timeline on demos/before-ai-2015/. Only confirmed entries are drawn. Every date comes from git, an archive, a decision record or Chris Cooley's word, and says which.",
+  "entries": [
+    { "date": "2014-12", "label": "chriscooley.me started", "source": "Chris", "confirmed": true },
+    { "date": "2015-04-23", "label": "The Wayback Machine captures the three micro animations", "source": "Wayback capture 20150423171151", "href": "https://web.archive.org/web/20150423171151/http://chriscooley.me/projects/css-animations", "confirmed": true },
+    { "date": "2026-04-04", "label": "The Fizlet concept", "source": "Chris", "confirmed": true },
+    { "date": "2026-10-22", "label": "The games the engine grew from: Swarm Protocol, then DOM VIRUS, Null Invaders and DOM Battlefield", "source": "git, first commits 22–24 Oct", "confirmed": true },
+    { "date": "2026-10-28", "label": "Pip writes line one, the kernel, and Quill starts the brain the same morning. Open source from the first commit", "source": "git, fizlet 3a42d95", "href": "https://github.com/coded-dot-design/fizlet/commit/3a42d95", "confirmed": true },
+    { "date": "2026-10-29", "label": "Public engine, private factory: the code is open, the agents stay home", "source": "decision record, 29 Oct", "confirmed": true },
+    { "date": "2026-10-31T09:00-05:00", "zone": "Central", "label": "Fizlet launches, on npm", "source": "launch plan", "confirmed": true }
+  ]
+}
