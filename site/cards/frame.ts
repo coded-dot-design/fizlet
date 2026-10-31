@@ -122,6 +122,28 @@ export function mountCard(stage: HTMLElement, slot: HTMLElement, first: SlotTap 
   return { destroy: () => e.destroy(), engine: e, tap: scene.tap };
 }
 
+/**
+ * A Board UI kit layer over the canvas (pad, ui): a `.bui` root the size of the stage, its `--u`
+ * scaled so the kit's controls keep their proportions in any card (`units` kit px = the card's
+ * height; 400 puts a 128 px stick at a third of it), its theme following the page's. The wrapper
+ * lets pointer events through; the kit's own controls take them. The page brings board-ui.css.
+ */
+export function kit(card: Card, units = 400) {
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "position:absolute;inset:0;container-type:size;pointer-events:none";
+  const root = document.createElement("div");
+  root.className = "bui";
+  root.style.cssText = `position:absolute;inset:0;--u:calc(100cqh / ${units})`;
+  const theme = () => (root.dataset.theme = light() ? "light" : "dark");
+  theme();
+  wrap.append(root);
+  card.stage.insertBefore(wrap, card.c.nextSibling);
+  const mo = new MutationObserver(theme);
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  card.e.signal.addEventListener("abort", () => mo.disconnect());
+  return root;
+}
+
 /** The floor line and the faint grid every card stands on. */
 export function ground(card: Card) {
   const { ctx, theme } = card;

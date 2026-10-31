@@ -11,6 +11,12 @@ npm run test:alloc           # the allocation test alone (after `npm run site`)
 # Battlefield Blitz: BLITZ_DIR=<its built dir> [BLITZ_PATH=play/] npm run perf
 ```
 
+Stress runs (S6, not in CI; `npm run test:stress` lists them): `npm run test:stress -- frame --throttle 4,6
+--runs 5` (medians against the proposed `tests/stress/frame-budgets.json`, with a main-thread breakdown
+from the trace; `--site <dir>` bisects an older build) and `npm run test:stress -- many` (1/8/32/64
+gallery pieces on one page: idle and off-screen rAF, frame time, heap; `--gallery`, `--sweep`). Each
+takes `--self-test`. `npm run perf -- --throttle 6 --runs 5` checks the CI budgets on a median.
+
 | File | What |
 | --- | --- |
 | `harness.mjs` | static server, CPU throttle (`Emulation.setCPUThrottlingRate`), GC trace, frame stats, seeded clicker |

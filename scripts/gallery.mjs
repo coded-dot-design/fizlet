@@ -23,6 +23,18 @@ const readDir = (dir, what) => (existsSync(dir) ? readdirSync(dir).filter((f) =>
   return d;
 });
 
+/**
+ * A stage may pull in a vendored piece (scripts/vendor-dom-virus.mjs writes site/vendor/<repo>/):
+ * `<!-- vendor: dom-virus/under-attack -->` becomes its stylesheet and markup, so a piece has one
+ * copy whoever shows it (the gallery's stage, a hero).
+ */
+export const vendorIncludes = (html) =>
+  html.replace(/<!-- vendor: ([a-z0-9-]+\/[a-z0-9-]+) -->/g, (_, name) => {
+    const at = `site/vendor/${name}`;
+    if (!existsSync(`${at}.html`) || !existsSync(`${at}.css`)) throw new Error(`vendor include ${name}: ${at}.html and .css are missing (scripts/vendor-dom-virus.mjs)`);
+    return `<style>${readFileSync(`${at}.css`, "utf8").replace(/^\/\*[^]*?\*\/\n/, "").trim()}</style>${readFileSync(`${at}.html`, "utf8").trim()}`;
+  });
+
 /** The themes, in their order. Each: { id, title, blurb, order }. */
 export function themes(dir = `${DIR}/themes`, what = "gallery/themes") {
   const list = readDir(dir, what);
@@ -59,8 +71,9 @@ export function entries({ dir = `${DIR}/entries`, what = "gallery/entries", them
     if (e.stage === "own") {
       const f = `${DIR}/stages/${e.id}.html`;
       if (!existsSync(f)) throw new Error(`${at}: stage "own" needs ${f}`);
-      e.stageHtml = readFileSync(f, "utf8").trim();
+      e.stageHtml = vendorIncludes(readFileSync(f, "utf8")).trim();
     }
+    if (e.source !== undefined && !(e.source && /^https:\/\//.test(e.source.url) && e.source.label)) throw new Error(`${at}: source is { url: "https://…", label } (where the piece comes from)`);
     return e;
   });
   // Numbers are given at land time (scripts/gallery-number.mjs): an archived entry has its own; a

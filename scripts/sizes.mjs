@@ -7,8 +7,10 @@ export const BUDGETS = [
   ["fizlet (kernel)", "src/index.ts", 4096],
   ["fizlet/debug", "src/debug.ts", 1536],
   // The player-facing performance overlay (off by default). Logic ~1.5 KB gz; its look is inline
-  // on the kit tokens (~0.45 KB) so it works on pages without board-ui.css.
-  ["fizlet/perf", "src/perf.ts", 2048],
+  // on the kit tokens (~0.45 KB) so it works on pages without board-ui.css. 2,042 B in train 0.21.0
+  // (a canvas or svg host, a static host made relative); 2,064 B with #136's card base in the page's
+  // shadow direction (--shadow-x/-y, --shadow-color: +22 B); budget raised from 2,048 by that need.
+  ["fizlet/perf", "src/perf.ts", 2064],
   ["fizlet/input", "src/input.ts", 1536],
   // 1,995 B gz in 0.19.0; 2,073 B once stickAt/dpadAt/the drag use steer's exact `hypot` (+78 B, #118, K5:
   // `Math.hypot` boxes its arguments, 23 young GCs per 1M drags; now 0). Budget raised by that delta.
@@ -80,6 +82,7 @@ export const BUDGETS = [
   // +3 B #122: the fps cap counts from the frame's start.
   // 18,302 B in train 0.21.0 (headroom, no behaviour change): the ledger's private names and shared
   // style checks, and collide Grid's one-letter private names.
+  // 18,312 B with #136 (+10 B): the card's hard base reads the domain shadow tokens (BOARD-UI.md 4.1).
   ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18361],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
@@ -97,7 +100,12 @@ export const BUDGETS = [
   // put-back −12 B, restore's attribute put-back as one expression −8 B.
   ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7168],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
-  ["fizlet/ui (css)", "src/ui/board-ui.css", 5120],
+  // 4,974 B on 0.20.0. 5,125 B with #136 (+151 B): every hard base, press, hover lift, focus ring,
+  // call ring, sticker slam and hit area reads the domain shadow direction (--shadow-x/-y, through
+  // --bui-sx/-sy) instead of a literal "straight below"; budget raised from 5,120 by that need.
+  // 5,139 B with #148 (+14 B): a hidden fizlet/coach card is not drawn (`[hidden]` beats its
+  // inline grid); budget raised from 5,136 by that need.
+  ["fizlet/ui (css)", "src/ui/board-ui.css", 5152],
 ];
 
 /** [{ name, entry, budget, gzip }] for every budgeted entry. */

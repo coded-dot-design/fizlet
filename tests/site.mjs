@@ -872,6 +872,22 @@ try {
       assert.deepEqual(errors, []);
       await context.close();
     }
+    // One jump down the page (an anchor, a fling, or a slow runner landing several scrolls in one
+    // frame) can cross no observer threshold for a section it passes over: it still plays in.
+    // Whether a jump skips one depends on where the sections sit, so try a few depths. The foot of
+    // the page (1) is where the footer can fill the viewport: the reveals still end there.
+    const passed = () => [...document.querySelectorAll("section[data-reveal]")].filter((s) => s.getBoundingClientRect().top < innerHeight * 0.85)
+      .flatMap((s) => [...s.querySelectorAll("*")]).filter((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1")).map((el) => el.className || el.tagName);
+    for (const depth of [0.3, 0.4, 0.5, 0.6, 0.7, 1]) {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+      const { page, errors } = await open(context, "");
+      await page.waitForTimeout(300);
+      await page.evaluate((d) => scrollTo(0, Math.round(document.documentElement.scrollHeight * d)), depth);
+      await page.waitForFunction(`(${passed})().length === 0`, null, { polling: "raf", timeout: 15000 }).catch(() => {});
+      assert.deepEqual(await page.evaluate(`(${passed})()`), [], `a jump to ${depth} of the page: every section passed over is shown`);
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
   }
 
   // ---------- The quick start example runs ----------
