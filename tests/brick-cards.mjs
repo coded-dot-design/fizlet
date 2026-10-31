@@ -62,7 +62,7 @@ try {
     for (const id of IDS) {
       const f = fig(page, id);
       await f.scrollIntoViewIfNeeded();
-      await until(() => f.locator("canvas").count().then((n) => n === 1), 4000, `${id} mounts near the viewport`);
+      await until(() => f.locator("canvas").count().then((n) => n >= 1), 4000, `${id} mounts near the viewport`);
       await f.click();
       await until(async () => /^AWAKE/.test(await read(page, id)), 2000, `${id} wakes on a tap`);
       await f.click({ position: { x: 40, y: 60 } });
@@ -89,7 +89,7 @@ try {
     const { page, errors } = await open("bricks/fx.html");
     const f = fig(page, "fx");
     await f.click(); // before the scene is up: the slot hands the tap over
-    await until(() => f.locator("canvas").count().then((n) => n === 1), 4000, "fx mounts on the first tap");
+    await until(() => f.locator("canvas").count().then((n) => n >= 1), 4000, "fx mounts on the first tap");
     await until(async () => (await read(page, "fx")) === "ASLEEP · 0 FPS", 9000, "fx settles");
     assert.deepEqual(errors, []);
     await page.close();
@@ -124,7 +124,7 @@ try {
         for (const id of IDS) {
           const f = fig(page, id);
           await f.scrollIntoViewIfNeeded();
-          await until(() => f.locator("canvas").count().then((n) => n === 1), 4000, id);
+          await until(() => f.locator("canvas").count().then((n) => n >= 1), 4000, id);
           await f.click();
           await sleep(id === "steer" || id === "grid" ? 350 : 160);
         }

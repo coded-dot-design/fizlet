@@ -39,8 +39,9 @@ const RECORDER = { path: new URL("./recorder.js", import.meta.url).pathname };
 
 const GC_CATEGORIES = ["devtools.timeline", "v8", "disabled-by-default-v8.gc"];
 
-/** Run one target. target: { name, url, ready(page), drive(page, ms) }. */
-export async function measure(browser, target, { seconds = 10, throttle = 4, warmup = 2 } = {}) {
+/** Run one target. target: { name, url, ready(page), drive(page, ms) }. `categories`: extra trace
+ *  categories; `onTrace(events)`: the window's raw trace events, after the run. */
+export async function measure(browser, target, { seconds = 10, throttle = 4, warmup = 2, categories = [], onTrace } = {}) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   const page = await context.newPage();
   const errors = [];
@@ -65,7 +66,7 @@ export async function measure(browser, target, { seconds = 10, throttle = 4, war
   const events = [];
   cdp.on("Tracing.dataCollected", (d) => events.push(...d.value));
   const traced = new Promise((r) => cdp.once("Tracing.tracingComplete", r));
-  await cdp.send("Tracing.start", { traceConfig: { includedCategories: GC_CATEGORIES }, transferMode: "ReportEvents" });
+  await cdp.send("Tracing.start", { traceConfig: { includedCategories: [...GC_CATEGORIES, ...categories] }, transferMode: "ReportEvents" });
   await page.evaluate(() => window.__perf.start());
   await target.drive(page, seconds * 1000);
   const stamps = await page.evaluate(() => window.__perf.stop());
@@ -73,6 +74,7 @@ export async function measure(browser, target, { seconds = 10, throttle = 4, war
   await traced;
   const metrics = Object.fromEntries((await cdp.send("Performance.getMetrics")).metrics.map((m) => [m.name, m.value]));
   await context.close();
+  onTrace?.(events); // callers that break the window down (tests/stress/frame.mjs) read the raw trace
 
   const frames = frameStats(stamps);
   return { name: target.name, throttle, seconds, fcp, ...frames, layerizeMs: layerizeMs(events, frames.frames), heapMB: metrics.JSHeapUsedSize / 1048576, ...gcStats(events), errors };

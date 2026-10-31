@@ -1,16 +1,18 @@
-// The stress runner: `npm run test:stress -- <name> [flags]` runs tests/stress/<name>.mjs with the
-// flags. Not part of `npm test` or CI: these are long, throttled, machine-sensitive runs.
-// With no name it lists the tests.
+// `npm run test:stress -- <name> [flags]`: runs tests/stress/<name>.mjs with the flags (Node with
+// --expose-gc, for the soak). Stress tests stay out of `npm test` and CI: they are long and seeded,
+// and each prints its seed and exits non-zero on a failure. `npm run test:stress` alone lists them.
 import { spawnSync } from "node:child_process";
-import { readdirSync } from "node:fs";
+import { readdirSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
-const dir = fileURLToPath(new URL(".", import.meta.url));
+const dir = dirname(fileURLToPath(import.meta.url));
+// Helpers live in lib/ (or lib.mjs): every other top-level .mjs is a test.
 const names = readdirSync(dir).filter((f) => f.endsWith(".mjs") && !["run.mjs", "lib.mjs"].includes(f)).map((f) => f.slice(0, -4));
-const [name, ...rest] = process.argv.slice(2);
-if (!name || !names.includes(name)) {
-  console.log(`usage: npm run test:stress -- <name> [flags]\n  tests: ${names.join(", ")}`);
+const [name, ...flags] = process.argv.slice(2);
+if (!name || !existsSync(join(dir, name + ".mjs"))) {
+  console.log(`usage: npm run test:stress -- <name> [flags]\nstress tests: ${names.join(", ")}`);
   process.exit(name ? 2 : 0);
 }
-const r = spawnSync(process.execPath, ["--expose-gc", `${dir}${name}.mjs`, ...rest], { stdio: "inherit" });
+const r = spawnSync(process.execPath, ["--expose-gc", "--import", "tsx", join(dir, name + ".mjs"), ...flags], { stdio: "inherit" });
 process.exit(r.status ?? 1);
