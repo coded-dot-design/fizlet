@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- **Minifier bake-off (size sprint, dev only).** `scripts/size-bakeoff.mjs` bundles every
+  `scripts/sizes.mjs` entry with esbuild and minifies it with each minifier it finds (esbuild,
+  terser, oxc-minify, swc, uglify-js, Closure, Bun; none added to package.json, missing ones are
+  skipped), printing gzip and brotli per entry. `sizes.mjs` exports its esbuild options
+  (`ESBUILD_JS`) so the bake-off's esbuild column is the CI number. No shipped byte changes.
+
 ## 0.21.0
 
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
