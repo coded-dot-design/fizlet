@@ -1042,14 +1042,17 @@ ${fig("home#hero", "Sparks over the logo")}${box("home#box", "Sparks in a box")}
     "the engine's figure > div.ae-slot shape: found by target, the scene mounts in the box, the caption outside stays, destroy gives it back");
 
   const a11y = await sp.evaluate(async () => {
-    const hero = fizlet.slot(fizlet.findSlot("home#hero"), scene(true));
+    // Byte for byte, attribute order included (snap() sorts): role="img" goes back where it was.
+    const html = [fizlet.findSlot("home#hero").outerHTML, fizlet.findSlot("home#box").outerHTML];
+    const hero = fizlet.slot(fizlet.findSlot("home#hero"), scene(true)), box = fizlet.slot("home#box", scene(true));
     await frame();
     await frame();
     const role = hero.el.getAttribute("role"), label = hero.el.getAttribute("aria-label"), hidden = hero.el.querySelector("[data-fizlet-slot]").hasAttribute("aria-hidden");
     hero.destroy();
-    return { role, label, hidden, back: snap() === before };
+    box.destroy();
+    return { role, label, hidden, back: snap() === before, exact: [hero.el.outerHTML, box.el.outerHTML].map((h, i) => h === html[i] || h) };
   });
-  assert.deepEqual(a11y, { role: null, label: "Sparks over the logo", hidden: false, back: true }, "a scene with real accessible content drops role=img; destroy puts it back");
+  assert.deepEqual(a11y, { role: null, label: "Sparks over the logo", hidden: false, back: true, exact: [true, true] }, "a scene with real accessible content drops role=img; destroy puts it back, byte for byte");
 
   await sp.emulateMedia({ reducedMotion: "reduce" });
   const calm = await sp.evaluate(async () => {
