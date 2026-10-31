@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Site: Fizlet positioning, with ™ marks.** fizlet.com and the README now say what Fizlet is: the
+  building blocks for animation and games on the DOM, each brick a task written hundreds of times,
+  so a piece boils down to logic and style. New hero ("Logic and style. / *The bricks do the
+  rest.*"), final call, section 03 ("One frame, three phases"), footer, social card text, the home,
+  docs, notes and gallery intros and descriptions. "The page is the board" is credited to DOM VIRUS
+  as its approach, one use of Fizlet. Fizlet™ on first prominent use (home hero, footer, README
+  title), and the footer says "Fizlet and fzlt are trademarks of Chris Cooley." The footer copyright
+  reads "© 2026 Chris Cooley" (was coded.design); the byline still links coded.design as his site.
 - **Layers story: it holds the scroll like every other demo frame, plays on its own, and scrolling
   over it fans the layers.** A wheel or a vertical swipe over the figure steps the story (down fans
   the layers out, up folds them back) instead of moving the page, and the site's scroll-lock note
