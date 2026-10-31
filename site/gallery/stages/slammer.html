@@ -1,0 +1,36 @@
+<style>
+/* Outbreak · Slammer (site/gallery/pieces/slammer.ts). The firewall's port keys and the rack's
+   servers are real elements: a closed port and an infected server get data-sl through the ledger.
+   The .ob base is the Outbreak series' (one copy per stage: a stage is self-contained). cqw units:
+   390 and 1440 are the same picture. */
+.ob-box { position: absolute; inset: 0; container-type: size; }
+.ob { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 1.8cqw; padding: 2.6cqw 3cqw calc(1.2cqw + 17px); background: var(--ob-bg); color: var(--ob-ink); font: 600 2.3cqw/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --ob-bg: var(--bg, #07060f); --ob-surface: var(--surface, #110d22); --ob-ink: var(--ink, #f6f3ff); --ob-muted: var(--muted, #aea4d6); --ob-line: var(--line, #3b3170); --ob-bug: #ff2e88; --ob-bug2: #ff7389; --ob-heal: #39ffb0; --ob-glow: #19f0ff; --ob-gold: #ffc21a; }
+html[data-theme="light"] .ob { --ob-bug: #e0006e; --ob-bug2: #ff5c8f; --ob-heal: #0b7a54; --ob-glow: #006e91; --ob-gold: #b07800; }
+.ob-head { display: flex; align-items: center; gap: 1.6cqw; margin: 0; white-space: nowrap; overflow: hidden; }
+.ob-head b { font: 900 4.6cqw/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--ob-bug); letter-spacing: -0.02em; }
+.ob-head span { padding: 0.4cqw 1cqw; border-radius: 0.6cqw; background: var(--ob-gold); color: #07060f; font-weight: 900; }
+.ob-head em { font-style: normal; color: var(--ob-muted); overflow: hidden; text-overflow: ellipsis; }
+.ob-end { display: none; position: absolute; left: 3cqw; right: 3cqw; bottom: calc(1.2cqw + 17px); margin: 0; padding: 1.6cqw 2.2cqw; background: var(--ob-surface); color: var(--ob-ink); border: 0.35cqw solid var(--ob-bug); border-radius: 1cqw; box-shadow: calc(0.8cqw * var(--shadow-x, 0)) calc(0.8cqw * var(--shadow-y, 1)) 0 var(--ob-bug); font-size: 2.6cqw; font-weight: 700; }
+.ob[data-ob-state="end"] .ob-end { display: block; }
+.ob-poster { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* Slammer */
+.sl { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 40% 22%; gap: 2.4cqw; }
+.sl-net { display: flex; flex-direction: column; gap: 0.6cqw; color: var(--ob-muted); }
+.sl-net p { margin: 0; white-space: nowrap; }
+.sl-net strong { display: block; color: var(--ob-bug); font: 900 4.4cqw/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.sl-net b { color: var(--ob-ink); }
+.sl-fw, .sl-rack { min-width: 0; display: flex; flex-direction: column; background: var(--ob-surface); border: 0.3cqw solid var(--ob-line); border-radius: 1.2cqw; overflow: hidden; }
+.sl-bar { margin: 0; padding: 0.8cqw 1.2cqw; border-bottom: 0.3cqw solid var(--ob-line); color: var(--ob-muted); font-size: 2cqw; white-space: nowrap; overflow: hidden; }
+.sl-keys { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 0.9cqw; padding: 1.2cqw; }
+.sl-p { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 0.3cqw solid var(--ob-line); border-radius: 0.8cqw; box-shadow: calc(0.5cqw * var(--shadow-x, 0)) calc(0.5cqw * var(--shadow-y, 1)) 0 var(--ob-line); color: var(--ob-ink); font-weight: 800; line-height: 1.05; }
+.sl-p small { color: var(--ob-muted); font-size: 1.5cqw; font-weight: 600; }
+.sl-p[data-sl="closed"] { background: var(--ob-heal); border-color: var(--ob-heal); box-shadow: none; transform: translateY(0.5cqw); color: var(--ob-bg); }
+.sl-p[data-sl="down"] { background: var(--ob-gold); border-color: var(--ob-gold); box-shadow: none; transform: translateY(0.5cqw); color: var(--ob-bg); }
+.sl-p[data-sl] small { color: inherit; }
+.sl-msg { margin: 0; padding: 0 1.2cqw 1cqw; color: var(--ob-muted); font-size: 1.9cqw; white-space: nowrap; overflow: hidden; }
+.sl-hosts { flex: 1; display: grid; grid-template-rows: repeat(6, 1fr); gap: 0.8cqw; padding: 1.2cqw; }
+.sl-h { display: flex; align-items: center; justify-content: space-between; padding: 0 1cqw; border: 0.3cqw solid var(--ob-line); border-radius: 0.7cqw; color: var(--ob-ink); font-size: 1.9cqw; }
+.sl-h i { width: 1.2cqw; height: 1.2cqw; border-radius: 50%; background: var(--ob-heal); }
+.sl-h[data-sl="hot"] { border-color: var(--ob-bug); color: var(--ob-bug); }
+.sl-h[data-sl="hot"] i { background: var(--ob-bug); }
+</style><div class="ob-box"><div class="ob" data-ob><p class="ob-head"><b>SLAMMER</b><span>2003</span><em>376 bytes. Doubled every 8.5 seconds.</em></p><div class="sl"><div class="sl-net"><p>internet · <b data-sl-clock>T+0:00</b></p><p>infected out there<strong data-sl-world>1</strong></p></div><div class="sl-fw"><p class="sl-bar">Firewall · tap to close</p><div class="sl-keys"><span class="sl-p" data-sl-port="21">21<small>tcp</small></span><span class="sl-p" data-sl-port="22">22<small>tcp</small></span><span class="sl-p" data-sl-port="25">25<small>tcp</small></span><span class="sl-p" data-sl-port="53">53<small>udp</small></span><span class="sl-p" data-sl-port="80">80<small>tcp</small></span><span class="sl-p" data-sl-port="110">110<small>tcp</small></span><span class="sl-p" data-sl-port="123">123<small>udp</small></span><span class="sl-p" data-sl-port="135">135<small>tcp</small></span><span class="sl-p" data-sl-port="139">139<small>tcp</small></span><span class="sl-p" data-sl-port="143">143<small>tcp</small></span><span class="sl-p" data-sl-port="161">161<small>udp</small></span><span class="sl-p" data-sl-port="443">443<small>tcp</small></span><span class="sl-p" data-sl-port="445">445<small>tcp</small></span><span class="sl-p" data-sl-port="1434">1434<small>udp</small></span><span class="sl-p" data-sl-port="3389">3389<small>tcp</small></span><span class="sl-p" data-sl-port="8080">8080<small>tcp</small></span></div><p class="sl-msg" data-sl-msg>tap the port it comes in on</p></div><div class="sl-rack"><p class="sl-bar">SQL rack</p><div class="sl-hosts"><span class="sl-h" data-sl-host>sql-01<i></i></span><span class="sl-h" data-sl-host>sql-02<i></i></span><span class="sl-h" data-sl-host>sql-03<i></i></span><span class="sl-h" data-sl-host>sql-04<i></i></span><span class="sl-h" data-sl-host>sql-05<i></i></span><span class="sl-h" data-sl-host>sql-06<i></i></span></div></div></div><p class="ob-end" data-ob-end>Closing UDP 1434 at the edge stopped it. The patch had been out for six months.</p></div></div><svg class="ae-slot__placeholder ob-poster" viewBox="0 0 160 90" aria-hidden="true"><g fill="#ff2e88"><rect x="18" y="40" width="3" height="3"/><rect x="30" y="52" width="3" height="3"/><rect x="42" y="34" width="3" height="3"/><rect x="26" y="62" width="3" height="3"/><rect x="50" y="58" width="3" height="3"/></g><g fill="#ffc21a"><rect x="12" y="40.5" width="5" height="2" opacity=".5"/><rect x="24" y="52.5" width="5" height="2" opacity=".5"/><rect x="36" y="34.5" width="5" height="2" opacity=".5"/></g></svg>
