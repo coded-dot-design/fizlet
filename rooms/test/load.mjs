@@ -329,25 +329,41 @@ async function capsPhase(out) {
   clearInterval(keep);
   rate.forEach((x) => x.ws.close());
 
-  // Reconnect after a drop: four play (raw lockstep inputs), one drops and comes back.
+  // Reconnect after a drop: four play (raw lockstep inputs); one client's process is killed (no close
+  // frame: the room sees 1006) and it comes back with the resume token from its WELCOME.
   await sleep(500);
-  const rc = await seats(w, 4);
+  const kid = spawn(process.execPath, ["--input-type=module", "-e", `const ws = new WebSocket(${JSON.stringify(`${w.ws}/room/4?players=4`)}, ["fizlet-rooms", "invite.${CODE}"]); ws.binaryType = "arraybuffer"; ws.onmessage = (e) => { const d = new Uint8Array(e.data); if (d[0] === 3) console.log(Buffer.from(d).toString("hex")); }; setInterval(() => {}, 1000);`], { stdio: ["ignore", "pipe", "inherit"] });
+  let kidOut = "";
+  kid.stdout.on("data", (d) => (kidOut += d));
+  const rc = Array.from({ length: 3 }, () => sock(`${w.ws}/room/4?players=4`));
+  for (let i = 0; i < 400 && !(rc.every((c) => c.msgs.some((m) => m.d[0] === 3)) && kidOut.includes("\n")); i++) await sleep(25);
+  rc.forEach((c) => (c.slot = c.msgs.find((m) => m.d[0] === 3)?.d[1] ?? -1));
+  const welcome = Buffer.from(kidOut.trim(), "hex"), kidSlot = welcome[1], token = welcome.readUInt32LE(8);
   let fr = 0;
   const rt = setInterval(() => (fr++, rc.forEach((x) => x.ws.readyState === 1 && x.ws.send(frame(1, x.slot, fr)))), 50);
   await sleep(1000);
-  const dropT = now();
-  rc[0].ws.close(1000, "bye");
+  kid.kill("SIGKILL");
+  const seen = (k, slot, ms) => (async () => { for (let i = 0; i < ms / 25; i++) { if (rc.every((x) => x.msgs.some((m) => m.d[0] === k && m.d[1] === slot))) return true; await sleep(25); } return false; })();
+  const awaySeen = await seen(6, kidSlot, 15000), dropT = now();
+  check("reconnect: peers hear AWAY (reconnecting), not LEAVE, when a seat drops", awaySeen && !rc.some((x) => x.msgs.some((m) => m.d[0] === 4)), { awaySeen, slot: kidSlot }, "AWAY");
+  await sleep(1000); // a second later, still within RESUME_SECONDS
+  const frAt = fr, back = sock(`${w.ws}/room/4?players=4`, ["fizlet-rooms", `invite.${CODE}`, `resume.${token.toString(16)}`]);
+  for (let i = 0; i < 200 && !back.msgs.some((m) => m.d[0] === 5) && !back.end; i++) await sleep(25);
+  const bw = back.msgs.find((m) => m.d[0] === 3)?.d, resumed = await seen(5, kidSlot, 3000);
+  // Replayed: the other seats' inputs from before the resume (live ones are later frames).
+  const replayed = back.msgs.filter((m) => m.d[0] === 1 && new DataView(m.d.buffer).getUint32(4, true) <= frAt - 5).length;
+  out.caps.reconnect = { slot: kidSlot, welcome: bw ? [...bw.slice(0, 3)] : null, resumeFrame: back.msgs.some((m) => m.d[0] === 5), peersResumed: resumed, replayed, s: r1((now() - dropT) / 1000) };
+  check("reconnect: the dropped player gets its seat back (WELCOME, its old seat, then RESUME)", bw?.[1] === kidSlot && back.msgs.some((m) => m.d[0] === 5) && resumed, out.caps.reconnect, "WELCOME with its old seat, RESUME to everyone");
+  check("reconnect: the inputs it missed are replayed", replayed > 0, replayed, "> 0 INPUT after RESUME");
+  back.ws.send(frame(1, kidSlot, 100000));
   await sleep(300);
-  const back = sock(`${w.ws}/room/4?players=4`), bt0 = now();
-  const be2 = await ended(back, 25000); // local workerd: a server close reaches a Node client 10–15 s late
-  out.caps.rejoinCloseS = r1((now() - bt0) / 1000);
-  const leaveSeen = rc.slice(1).every((x) => x.msgs.some((m) => m.d[0] === 4 && m.d[1] === rc[0].slot));
-  check("reconnect: peers are told the seat left (LEAVE)", leaveSeen, leaveSeen, true);
-  out.caps.reconnect = { rejoin: be2, welcomeOnRejoin: back.msgs.some((m) => m.d[0] === 3) };
-  check("reconnect: the dropped player can take its seat back", back.msgs.some((m) => m.d[0] === 3), be2 === "open" ? "open, no WELCOME" : { ...be2, s: out.caps.rejoinCloseS }, "WELCOME with its old seat (not built: THREAT-MODEL 'Not yet')");
-  const own = await ended(rc[0], 15000);
+  check("reconnect: lockstep continues: its input reaches the others", rc.every((x) => x.msgs.some((m) => m.d[0] === 1 && m.d[1] === kidSlot)), true, true);
+  const leaveT = now();
+  back.ws.close(1000, "bye");
+  const own = await ended(back, 15000);
   // Timed, not the code: Node's client sometimes reports 1006 even when the answer comes at once.
-  check("close: a client's own close is answered at once (not a ~10 s timeout)", rc[0].at - dropT < 2000, { ...own, s: r1((rc[0].at - dropT) / 1000) }, "closed in < 2 s");
+  check("close: a client's own close is answered at once (not a ~10 s timeout)", back.at - leaveT < 2000, { ...own, s: r1((back.at - leaveT) / 1000) }, "closed in < 2 s");
+  check("reconnect: a clean close (1000) is a leave: peers hear LEAVE", await seen(4, kidSlot, 3000), true, true);
   clearInterval(rt);
   // The three left behind stall in lockstep; the room only frees after IDLE (they keep relaying here, so MAX_ROOM).
   rc.forEach((x) => x.ws.close());
@@ -459,8 +475,8 @@ async function hostilePhase(out) {
 // ---------- phase: wake (hibernation, end to end) ----------
 // workerd hibernates a Room after ~10 s without an event, locally too. A room that plays, then goes
 // quiet (every tab paused, or one: lockstep stalls everyone) across its first alarm (the lobby
-// deadline, set at the first seat) wakes with `last` = 0 and closes as idle, however recently it
-// played. LOBBY 20 s, IDLE 60 s: play 3 s, then silence. Expected: open until ~63 s.
+// deadline, set at the first seat) woke with `last` = 0 and closed as idle, however recently it
+// played (P6-01; `last` now rides in the attachments). LOBBY 20 s, IDLE 60 s: play 3 s, then silence. Expected: open until ~63 s.
 async function wakePhase(out) {
   const w = await wrangler(8805, { MAX_ROOMS: 4, MAX_PLAYERS: 4, LOBBY_SECONDS: 20, IDLE_SECONDS: 60, MAX_ROOM_SECONDS: 600, GATE_RATE: 300, JOIN_RATE: 120 });
   const t0 = now(), cs = await seats(w, 0);

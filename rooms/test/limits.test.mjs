@@ -78,3 +78,13 @@ test("invite from a request: subprotocol first, then the URL (deprecated)", () =
   assert.deepEqual(inviteFrom(req({}), new URL("https://r.example/invite?code=URL-CODE-123")), { code: "URL-CODE-123", via: "url" });
   assert.deepEqual(inviteFrom(req({ "sec-websocket-protocol": "fizlet-rooms" }), new URL("https://r.example/room/1")), { code: null, via: "" });
 });
+
+test("resume token from a request: the subprotocol resume.<hex>, never the URL", async () => {
+  const { resumeFrom } = await import("../src/limits.js");
+  const req = (p) => new Request("https://rooms.example/room/1?resume.a1b2c3d4", { headers: p ? { "sec-websocket-protocol": p } : {} });
+  assert.equal(resumeFrom(req("fizlet-rooms, invite.ABCDEFGHJK, resume.a1b2c3d4")), 0xa1b2c3d4);
+  assert.equal(resumeFrom(req("fizlet-rooms, resume.7")), 7, "leading zeros optional");
+  assert.equal(resumeFrom(req("fizlet-rooms, resume.123456789")), 0, "more than 32 bits");
+  assert.equal(resumeFrom(req("fizlet-rooms, resume.xyz")), 0);
+  assert.equal(resumeFrom(req("")), 0);
+});

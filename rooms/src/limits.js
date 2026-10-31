@@ -92,10 +92,10 @@ export function inviteFrom(req, url) {
   return q == null ? { code: null, via: "" } : { code: q, via: "url" };
 }
 
-/** The resume token a reconnect offers as the subprotocol `resume.<8 hex digits>` (from WELCOME), or 0. */
+/** The resume token a reconnect offers as the subprotocol `resume.<token in hex>` (from WELCOME), or 0. */
 export function resumeFrom(req) {
   for (const p of (req.headers.get("sec-websocket-protocol") ?? "").split(",")) {
-    const m = /^resume\.([0-9a-f]{8})$/i.exec(p.trim());
+    const m = /^resume\.([0-9a-f]{1,8})$/i.exec(p.trim());
     if (m) return parseInt(m[1], 16) >>> 0;
   }
   return 0;
@@ -117,7 +117,7 @@ export async function bodyText(req, max) {
     n += value.byteLength;
   }
   if (n > max) {
-    reader.cancel().catch(() => {});
+    reader.cancel().catch(() => {}); // stop reading: the rest is never pulled from the client
     return null;
   }
   const all = new Uint8Array(n);

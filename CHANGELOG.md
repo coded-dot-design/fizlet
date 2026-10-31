@@ -9,6 +9,15 @@
   with `ROOMS_ADMIN_KEY`. Kinds: play and family (30 days, 3 devices at most), owner (a year, 5).
   Tests: `rooms/test/pass.test.mjs` (11). THREAT-MODEL covers the public pass comment.
 
+- **fizlet-rooms: reconnect, a safe wake, a bounded invite body, START (S6 P6-01, -02, -04; pending
+  owner review, not deployed).** A dropped seat is held `RESUME_SECONDS` (20) and comes back with a
+  per-seat resume token from `WELCOME` (subprotocol `resume.<hex>`, never the URL): `WELCOME`,
+  `RESUME` and the inputs it missed, while the others see `AWAY`, not `LEAVE`. A room woken from
+  hibernation keeps its idle clock (`last` rides in the attachments). `POST /invite` stops reading at
+  257 bytes. The host's `START` begins a room before it's full, with a `mode` byte for every peer.
+  fizlet/presence: `join()` reconnects on its own (6 tries, about 16 s; token in memory only) and
+  takes `{ retry, lobby }`; `away` shows seats reconnecting; `RESUME` resends a peer's recent inputs;
+  `mode` in the join result. presence 1,834 → 2,194 B gz (budget 2,048 → 2,240).
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
   first release tag after the owner adds the `NPM_TOKEN` repository secret; the release workflow
   (`.github/workflows/release.yml`, `npm publish --provenance --access public`) checks, packs and

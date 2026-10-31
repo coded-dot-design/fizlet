@@ -2,10 +2,11 @@
 
 A room server for [`fizlet/presence`](../src/presence.ts): a Cloudflare Worker that routes
 `/room/<n>` to one Durable Object per numbered room. The room seats players in arrival order,
-sends each one `WELCOME` (seat, player count, a shared seed) once it's full, then relays every
-`INPUT` and `HASH` message to the other seats, stamping the sender's real seat. It never simulates:
-the peers run the same lockstep sim. WebSockets use the hibernation API, so an idle room holds no
-running object.
+sends each one `WELCOME` (seat, player count, a shared seed, a resume token) once it's full (or the
+host says start), then relays every `INPUT` and `HASH` message to the other seats, stamping the
+sender's real seat. It never simulates: the peers run the same lockstep sim. WebSockets use the
+hibernation API, so an idle room holds no running object. A player whose link drops gets its seat
+back with its token ([Resume](#resume)).
 
 Its own package: it is not a dependency of `fizlet` and is not published. Deploying is an owner
 step: [DEPLOY.md](DEPLOY.md).
@@ -76,11 +77,55 @@ a cap; nothing can lift it past its ceiling.
 | `MAX_ROOM_SECONDS` | 1800 | 14400 | Every room closes after this, busy or not |
 | `GATE_RATE` | 30 | 300 | Invite checks + joins per IP a minute, counted in each Worker isolate, before the KV read; over it, `429` |
 | `JOIN_RATE` | 10 | 120 | Joins per IP a minute into one room, counted by the room before a socket is accepted; over it, `429` |
+| `RESUME_SECONDS` | 20 | 120 | A seat that drops is held this long for its resume token (`0`: no resume, a drop is a leave) |
 | `ALLOWED_ORIGINS` | any | — | Page origins allowed to connect (set it before deploying) |
 
-The rooms store nothing (no Durable Object storage writes; with passes on, only `Passes` stores the device locks); one alarm per room checks the lobby,
-idle and lifetime caps. The relay passes on only the first `INPUT` (and `HASH`) a seat sends for a
+The rooms store nothing (no Durable Object storage writes; with passes on, only `Passes` stores the device locks): what a room must remember across
+hibernation (seats, tokens, held seats, the time of the last relayed message) rides in its sockets'
+attachments. One alarm per room checks the lobby, idle and lifetime caps and the end of each hold. The relay passes on only the first `INPUT` (and `HASH`) a seat sends for a
 frame: each seat's frames must rise, so a second, different input for a frame reaches nobody.
+
+## Wire format
+
+Every message is 12 bytes: `kind, slot, players, mode, u32 frame (or seed), u32 value (or token)`,
+little-endian. The room stamps `slot` with the sender's real seat; clients send only `INPUT`,
+`HASH` and (the host, before the start) `START`.
+
+| Kind | # | From | Bytes |
+|---|---|---|---|
+| `INPUT` | 1 | a seat, relayed | `slot`, u32 frame, u32 input bits |
+| `HASH` | 2 | a seat, relayed | `slot`, u32 frame, u32 state hash |
+| `WELCOME` | 3 | room | `slot` (your seat), `players`, `mode` (the host's START byte, else 0), u32 seed, u32 resume token |
+| `LEAVE` | 4 | room | `slot` left for good (a clean close, a kick, or its hold ran out) |
+| `RESUME` | 5 | room | `slot` is back: every peer resends its own inputs for its frames F-D..F+D-1 |
+| `AWAY` | 6 | room | `slot` dropped and is held for `RESUME_SECONDS`: show "reconnecting" |
+| `START` | 7 | host (seat 0) | `players` byte = start once this many are seated (`0`: now), `mode` byte = any 0..255 the game picks (e.g. its mode or team layout) |
+
+**START (begin before the room is full).** Open the room with the most seats the mode can take
+(`?players=4`). Seat 0 is the host (the first to join). Its `START` begins the match once `n` seats
+are taken (`n = 0`: now), with the seats taken: they are numbered `0..k-1` in arrival order and
+`WELCOME` says `players = k` and the host's `mode`. The game fills the other places with bots, which
+every peer simulates the same way from the seed, and seats teams from `slot` and `mode` (for
+example 2v2: seats 0 and 2 against 1 and 3). A `START` from any other seat, or after the start, is
+ignored. With fizlet/presence: `join(url, signal, protocols, { lobby: (start) => button.onclick = () => start(0, mode) })`.
+Joiners after the start are refused (`4000 room full`); a room opened for a different count is `409`.
+
+## Resume
+
+A drop is a close without a clean code (1006, or a server restart 1011/1012/1014) or a socket error.
+The room holds the seat for `RESUME_SECONDS` (default 20) and tells the others `AWAY`. A clean
+close (1000, 1001, no code, 3000-4999) or a kick (1008/1009) is a leave: `LEAVE` at once.
+
+To come back, the client opens the same room with the subprotocol `resume.<token in hex>` next to
+its invite (`["fizlet-rooms", "invite." + code, "resume." + token.toString(16)]`): never in the URL.
+The room answers `WELCOME` (same seat, same token), `RESUME` for that seat, then the other seats'
+last 64 relayed inputs; the others hear `RESUME`. Every peer then resends its own recent inputs, so
+inputs lost while the link was down arrive (first write wins drops the repeats; after a wake, the
+room's own copy is gone and these resends carry it). If the old socket still sits in the seat
+(half-open), it is closed `4001 resumed` and nobody hears `LEAVE`. A wrong or expired token is
+closed `4002 seat gone`: a resume never takes a fresh seat. Tokens are 32 random bits per seat,
+drawn at the start, kept in memory on the client (fizlet/presence's `join` does all of this, with 6
+tries over about 16 s; `away` / `lost` on the presence show it).
 
 ## Run and test locally
 
@@ -110,5 +155,5 @@ npx wrangler kv key put --binding INVITES "$(node -e 'import("./src/limits.js").
 Files: `src/limits.js` (caps, invite keys), `src/relay.js` (the room logic, no platform APIs), `src/pass.js` (play passes),
 `src/worker.js` (Worker + Durable Object), `wrangler.toml`.
 
-Open: real auth (later), what happens to a seat that leaves mid-game (today the others wait), an
-authoritative room (ENGINE.md §5) for games that need one.
+Open: real auth (later), a seat that leaves for good mid-game (the others wait; a game can replace
+it with a bot on `LEAVE`), an authoritative room (ENGINE.md §5) for games that need one.

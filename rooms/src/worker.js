@@ -10,7 +10,7 @@
 //                                                     players = MAX_PLAYERS, so a page offers only room sizes that join)
 //   GET /room/<n>?players=2  (WebSocket, subprotocols ["fizlet-rooms", "invite.<code>"])
 //                                                   → the room, n < MAX_ROOMS; the 101 answers "fizlet-rooms"
-//   The same, plus the subprotocol "resume.<token>" (8 hex digits, from WELCOME): back in a seat that
+//   The same, plus the subprotocol "resume.<token>" (the WELCOME token in hex): back in a seat that
 //   dropped, within RESUME_SECONDS (README.md "Resume").
 //   Deprecated, accepted for one release: GET /invite?code=XXXX and /room/<n>?invite=XXXX (URLs are logged).
 //   Play passes (src/pass.js), only when REQUIRE_PASS is "true": the join offers "pass.<pass>" and
