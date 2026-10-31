@@ -45,7 +45,8 @@ Hand the codes out by message. To revoke one, delete its key:
 In `wrangler.toml` `[vars]`:
 - set `ALLOWED_ORIGINS` to the page origins that host the game, e.g. `https://battlefield.example`;
 - keep or lower the caps (they can't go past the ceilings in `src/limits.js`), including the
-  lobby timeout and the per-IP rates (`LOBBY_SECONDS`, `GATE_RATE`, `JOIN_RATE`).
+  lobby timeout, the per-IP rates and the resume hold (`LOBBY_SECONDS`, `GATE_RATE`, `JOIN_RATE`,
+  `RESUME_SECONDS`).
 
 What the gate and the caps do and don't protect: [THREAT-MODEL.md](THREAT-MODEL.md).
 

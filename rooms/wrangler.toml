@@ -37,6 +37,7 @@ MAX_ROOM_SECONDS = "1800"
 LOBBY_SECONDS = "90"
 GATE_RATE = "30"
 JOIN_RATE = "10"
+RESUME_SECONDS = "20"
 # Comma-separated page origins allowed to connect (the deployed demo: the Blitz site). Empty = any;
 # `npm run dev` and test:wrangler clear it locally.
 ALLOWED_ORIGINS = "https://battlefieldblitz.domvirus.com"

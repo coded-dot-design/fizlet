@@ -1,6 +1,7 @@
 // What a Room remembers when its Durable Object wakes from hibernation (Node, on the same fakes as
 // room.test.mjs; no wrangler). A hibernated object is rebuilt by its constructor from the sockets'
-// attachments; everything else (`last`, the buckets, the relay's frames) starts over.
+// attachments (since P6-01 `last` too, saved at most once a second); the buckets and the relay's
+// frames start over.
 //   node test/wake.mjs [--self-test]
 // 1. last: a room busy until +100 s, then quiet (every tab paused) long enough to hibernate. Its alarm
 //    fires at +120 s (the deadline set from the first seat). Expected: still open (idle only at +220 s).

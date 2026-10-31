@@ -32,7 +32,11 @@ protects, what it doesn't, and the limits. Code: `src/` here; the client side is
 | Holding a room open alone | A room not full `LOBBY_SECONDS` (default 90) after its first seat closes. Only relayed messages and seats taken count as activity: refused messages and "room full" joiners don't extend it | `limits.js` `roomClock` |
 | Speaking for another seat | The relay stamps each message with the sender's real seat | `relay.js` |
 | Two different inputs for one frame | First write wins, twice: the relay passes on only a seat's first `INPUT` / `HASH` per frame (frames must rise), and presence keeps the first it receives | `relay.js`, `presence.ts` |
-| Fake room messages | Only `INPUT` and `HASH` are relayed; `WELCOME` and `LEAVE` come from the room only | `relay.js` |
+| Fake room messages | Only `INPUT` and `HASH` are relayed; `WELCOME`, `LEAVE`, `RESUME` and `AWAY` come from the room only (and `LOBBY`). `START` is taken from seat 0 before the start, and never relayed | `relay.js` |
+| Taking someone else's seat on a reconnect | A resume needs the seat's token: 32 random bits per seat, drawn at the start, sent only to that seat in `WELCOME`, offered back as a subprotocol (never a URL), and behind the invite gate, `GATE_RATE` and `JOIN_RATE` (10 guesses a minute per IP per room against 2^32). A wrong or expired token is closed `4002` and never takes a fresh seat. Tokens die with the hold (`RESUME_SECONDS`) or a leave | `relay.js` `slotOf`, `worker.js` `Room.fetch` |
+| One Wi-Fi blip ending a match | A drop (1006, a restart code, an error) holds the seat for `RESUME_SECONDS` (default 20) and the others hear `AWAY`; the token gets it back with `RESUME` and the inputs it missed (the room's last 64 per seat, plus every peer's resend), so lockstep continues. A half-open old socket is closed `4001` without a `LEAVE`. A clean close or a kick is still a leave | `relay.js`, `worker.js`, `presence.ts` `join` |
+| A room forgetting its clock or seats in hibernation | Seats, tokens, holds and the time of the last relayed message (saved at most once a second) ride in the sockets' attachments, so a woken room keeps its idle clock and its holds. A seat that leaves or drops clears its attachment, so it is never re-seated as a ghost after a wake | `worker.js` `Room` |
+| Huge request bodies | `POST /invite` is read with a stream reader that stops at 257 bytes, chunked or not (no `content-length`); a longer body is no code (`403`) and the rest is never read | `limits.js` `bodyText` |
 | Oversized or text messages | Closed with `1009`; a flood over the rate is closed with `1008` | `worker.js` |
 
 ## What is not protected (the limits)
@@ -58,7 +62,15 @@ protects, what it doesn't, and the limits. Code: `src/` here; the client side is
   It can't move another player, run a frame with two different inputs, or send room messages.
 - **Room numbers are guessable.** Anyone with a code can take an open seat in any room.
 - **The relay forgets frames when a room hibernates** (no message for a while, e.g. every tab
-  paused). After it wakes, presence's own first-input-wins still holds.
+  paused): which frames each seat sent, and the last 64 inputs a resume replays. After it wakes,
+  presence's own first-input-wins still holds, and the peers' resends on `RESUME` carry the inputs.
+- **A held seat stalls the others** for up to `RESUME_SECONDS` (lockstep waits); after that they
+  hear `LEAVE` and still wait (the game decides: a bot, or end the match). A room where every seat
+  dropped at once and then hibernated forgets its holds (no socket carries them): those players get
+  `4002` and start a new room.
+- **Locally (`wrangler dev`) a refused chunked `POST /invite` may end in a `500` or a reset** from
+  wrangler's dev proxy, because the worker answers before the body is sent; nothing is buffered
+  (the workerd RSS step is +3 MB for 96 MiB, was +193 MB).
 - **Matches are not private.** Traffic is TLS (`wss://`) to Cloudflare; the room server sees every
   input. Presence trusts the room server.
 - **IP addresses** are read for counting only, kept in memory for at most a minute's window, and
@@ -71,11 +83,12 @@ protects, what it doesn't, and the limits. Code: `src/` here; the client side is
 At most `MAX_ROOMS × MAX_PLAYERS` sockets, each sending at most `MSG_RATE` messages a second (plus a
 `MSG_BURST`). Every message is relayed to the other `MAX_PLAYERS − 1` seats. Every room closes
 after `MAX_ROOM_SECONDS`. With the deployed `[vars]` (16 rooms, 4 players, 90 a second), that is at
-most 5,760 messages a second received across all rooms. No price is quoted here: read it from the
-billing alerts.
+most 5,760 messages a second received across all rooms. A resume sends the returning seat at most
+`64 × (MAX_PLAYERS − 1)` replayed inputs (192 with 4 players), and resumes count against
+`JOIN_RATE`. No price is quoted here: read it from the billing alerts.
 
 ## Not yet
 
 - Real auth (accounts, Keycloak) replaces the invite gate after the demo stage.
-- A seat that leaves mid-match: the others wait.
+- A seat that leaves for good mid-match: the others wait (a game can put a bot in its place).
 - An authoritative room for games that need one.
