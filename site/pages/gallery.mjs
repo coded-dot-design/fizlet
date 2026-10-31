@@ -39,8 +39,8 @@ export const ownFigure = (e) =>
 /** The figure for an entry: its own poster (`figures[e.figure]`), its own stage, a page scene or the prompt. */
 export const entryFigure = (e, figures) => figures[e.figure] ?? (e.stage === "own" ? ownFigure : e.stage === "page" ? pageFigure : plainFigure)(e);
 
-/** "by <name>", linked to the contributor's profile; a house persona or an AI agent is named as one (not a real person). */
-const BY_KIND = { persona: "house persona", agent: "AI agent" };
+/** "by <name>", linked to the contributor's profile; studio crew or an AI agent is named as one (not a real person). */
+const BY_KIND = { persona: "studio crew", agent: "AI agent" };
 export const byLine = (e, people, base, cls = "gal-by") =>
   `<p class="${cls}">by <a href="${base}people/${esc(e.author)}/">${esc(people[e.author].name)}</a>${BY_KIND[people[e.author].kind] ? ` <small class="gal-persona">${BY_KIND[people[e.author].kind]}</small>` : ""}</p>`;
 

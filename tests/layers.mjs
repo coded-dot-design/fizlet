@@ -200,12 +200,16 @@ await test("controls: pause settles, slider scrubs (keys, pointer), play resumes
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 4 });
   await page.mouse.up();
   await page.waitForFunction(() => Math.abs(document.querySelector("[role=slider]").ariaValueNow - 50) <= 3);
-  // Play resumes: frames run, the key reads Pause, the slider follows the story.
+  // Play resumes: frames run, the key reads Pause, the slider follows the story. Counted in frames
+  // and story progress, not wall time: under CPU load the page's frames come 300+ ms apart, so a
+  // fixed window can hold only two or three of them while play is fine (a stall still times out).
+  const v0 = +(await now());
   await b.click();
   await page.waitForFunction(() => document.querySelector(".lyr__play").ariaLabel === "Pause");
   f0 = await frames();
-  await page.waitForTimeout(400);
-  assert.ok((await frames()) > f0 + 5, "playing: frames run");
+  await page.waitForFunction(([f, v]) => window.frames_ > f + 5 && document.querySelector("[role=slider]").ariaValueNow != v, [f0, v0], { timeout: 10000 })
+    .catch(() => assert.fail("playing: frames run and the story moves on"));
+  assert.equal(await b.getAttribute("aria-label"), "Pause", "still playing");
   // Recall: the controls come back exactly as the page had them.
   const same = await page.evaluate(() => (window.handle.destroy(), document.body.innerHTML.trimEnd() === window.before.trimEnd()));
   assert.ok(same, "destroy() gives the page back exactly, controls included");
