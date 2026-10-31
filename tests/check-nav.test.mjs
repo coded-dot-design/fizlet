@@ -8,9 +8,9 @@ const shell = (base, path, body, current = "") => `<html><head><link rel="canoni
 <nav class="site-nav" aria-label="Site"><a href="${base}#contract">Contract</a><a href="${base}bricks/"${current}>Bricks</a></nav>
 <main>${body}</main><footer class="site-foot"><ul><li><a href="${base}notes/">Notes</a></li></ul></footer></body></html>`;
 const good = () => [
-  { path: "", html: shell("./", "", '<a href="bricks/fx.html">fzlt/fx</a> <a href="https://github.com/x">Source ↗</a> <a class="k" href="https://github.com/x" aria-label="Source on GitHub"><svg></svg></a>') },
+  { path: "", html: shell("./", "", '<a href="bricks/fx.html">@fzlt/core/fx</a> <a href="https://github.com/x">Source ↗</a> <a class="k" href="https://github.com/x" aria-label="Source on GitHub"><svg></svg></a>') },
   { path: "bricks/", html: shell("../", "bricks/", "", ' aria-current="page"') },
-  { path: "bricks/fx.html", html: shell("../", "bricks/fx.html", '<nav class="bp-crumbs" aria-label="Breadcrumb"><a href="../">Fizlet</a> / <a href="./">Bricks</a> / <span aria-current="page">fzlt/fx</span></nav>', ' aria-current="true"') },
+  { path: "bricks/fx.html", html: shell("../", "bricks/fx.html", '<nav class="bp-crumbs" aria-label="Breadcrumb"><a href="../">Fizlet</a> / <a href="./">Bricks</a> / <span aria-current="page">@fzlt/core/fx</span></nav>', ' aria-current="true"') },
   { path: "notes/", html: shell("../", "notes/", "") },
 ];
 
@@ -26,7 +26,7 @@ test("each broken rule is named", () => {
   pages[3].html = pages[3].html.replace('<a href="../notes/">', '<a href="../notes/" aria-current="page">');
   pages[1].html = pages[1].html.replace(' aria-current="page"', ""); // 2: no active state
   pages[2].html = pages[2].html.replace(/<nav class="bp-crumbs"[\s\S]*?<\/nav>/, ""); // 3: no crumbs
-  pages[0].html = pages[0].html.replace("Source ↗", "Source").replace('<a href="bricks/fx.html">fzlt/fx</a>', '<a href="bricks/fx.html">here</a>'); // 4, 5
+  pages[0].html = pages[0].html.replace("Source ↗", "Source").replace('<a href="bricks/fx.html">@fzlt/core/fx</a>', '<a href="bricks/fx.html">here</a>'); // 4, 5
   pages.push({ path: "lost/", html: shell("../", "lost/", "").replace('<a href="../#contract">Contract</a>', "") }); // 1 and 6
   pages[4].html = pages[4].html; // lost/ links out, but nothing links to it
   const got = checkNav(pages, { site: SITE }).join("\n");

@@ -6,7 +6,7 @@
 // seconds. Steer with the arrow keys (or WASD), a swipe, or a tap on the side you want to go.
 // Twelve seconds and three lives; eat every crumb and the page is clear. Then Recall puts every
 // letter back and the scene sleeps until the next tap. Art: Byte Runner's frog and fly pixels.
-// Bricks: the kernel (fixed step, settle, the ledger for every page write) and fzlt/sound (a
+// Bricks: the kernel (fixed step, settle, the ledger for every page write) and @fzlt/core/sound (a
 // tiny synth, silent until a gesture; a mute key appears after the first one). The simulation is
 // plain numbers (`runner`, no DOM): its step allocates nothing (tests/tiny-byte-runner.test.mjs).
 import { createEngine } from "../../../src/kernel/index";

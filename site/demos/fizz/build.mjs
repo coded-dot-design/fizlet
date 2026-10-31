@@ -30,7 +30,7 @@ function bytes(file, seen = new Set()) {
 }
 export const sizes = { loader: bytes(`${OUT}/main.js`), chunk: bytes(`${OUT}/scene.js`) };
 
-// The poster: the same can pixels as SVGs (fzlt/sprite spriteSVG), both views, crunched and open,
+// The poster: the same can pixels as SVGs (@fzlt/core/sprite spriteSVG), both views, crunched and open,
 // with the drip and the fizz frozen mid-spray, laid out as the scene lays out a 160 × 100 card. It is
 // the placeholder while the scene loads and the still frame for reduced motion.
 const art = await build({ stdin: { contents: 'export { CAN, TOP, C } from "./can.ts"; export { spriteSVG } from "../../../src/sprite.ts";', resolveDir: DIR, loader: "ts" }, bundle: true, format: "esm", write: false, logLevel: "silent" });
@@ -60,7 +60,7 @@ const m = existsSync(`${DIR}/measured.json`) ? JSON.parse(readFileSync(`${DIR}/m
 const fmt = (n) => n.toLocaleString("en-GB");
 const caption = [
   `Live chunk <b>${fmt(sizes.chunk)} B</b> gzip (kernel + fx + sprite + the can, both views)`,
-  `loader <b>${fmt(sizes.loader)} B</b> (fzlt/slot)`,
+  `loader <b>${fmt(sizes.loader)} B</b> (@fzlt/core/slot)`,
   `poster <b>${fmt(sizes.poster)} B</b>`,
   ...(m ? [
     `script per frame at 4× CPU throttle <b>${m.throttle4x.avgMs} ms</b> avg, <b>${m.throttle4x.maxMs} ms</b> max`,
@@ -117,9 +117,9 @@ const body = `${CSS}
     </div>
     <div class="fz-how">
       <div class="panel"><h2>Kernel</h2><p><code>settle</code> and <code>fps: 30</code>. It runs while something moves, then sleeps: no frames at all until a tap.</p></div>
-      <div class="panel"><h2>fzlt/fx</h2><p>Two fixed pools. The spray flies on a layer above the card, so nothing crops it; the top view fizzes inside. Geyser, burst, bubbles, rings: kinds as data, sprayed with <code>emit()</code>.</p></div>
-      <div class="panel"><h2>fzlt/sprite</h2><p>The can is pixel data: 20 × 40 from the side, 22 × 22 from the top, crunched or not. Baked once; the poster is the same pixels as SVG.</p></div>
-      <div class="panel"><h2>fzlt/slot</h2><p>Loads near the viewport, on an idle main thread. Reduced motion keeps the still frame; the scene never loads.</p></div>
+      <div class="panel"><h2>@fzlt/core/fx</h2><p>Two fixed pools. The spray flies on a layer above the card, so nothing crops it; the top view fizzes inside. Geyser, burst, bubbles, rings: kinds as data, sprayed with <code>emit()</code>.</p></div>
+      <div class="panel"><h2>@fzlt/core/sprite</h2><p>The can is pixel data: 20 × 40 from the side, 22 × 22 from the top, crunched or not. Baked once; the poster is the same pixels as SVG.</p></div>
+      <div class="panel"><h2>@fzlt/core/slot</h2><p>Loads near the viewport, on an idle main thread. Reduced motion keeps the still frame; the scene never loads.</p></div>
     </div>
   </div>
 </section>`;

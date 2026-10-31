@@ -1,4 +1,4 @@
-// fzlt/layout in Chromium, drawn with fzlt/view-canvas: a 30-node graph lays out on the real
+// @fzlt/core/layout in Chromium, drawn with @fzlt/core/view-canvas: a 30-node graph lays out on the real
 // frame clock, comes to rest, and then the page asks for 0 frames; a drag (pin) moves it and it
 // settles again; reduced motion lands on the rest at once (one step); Recall gives the
 // page back byte for byte. Algorithm and zero allocation: tests/layout.test.mjs.

@@ -1,5 +1,5 @@
 /**
- * fzlt/css-clock: a page's own CSS @keyframes, on the kernel clock. The look stays in the
+ * @fzlt/core/css-clock: a page's own CSS @keyframes, on the kernel clock. The look stays in the
  * stylesheet; Fizlet owns the time. Each animation under `root` is paused and reads its time from
  * one custom property that a timeline moves through the ledger:
  *

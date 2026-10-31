@@ -1,5 +1,5 @@
 /**
- * fzlt/debug: development-only checks. `guardLayout(engine)` counts every layout read (rects,
+ * @fzlt/core/debug: development-only checks. `guardLayout(engine)` counts every layout read (rects,
  * offset/client/scroll sizes, computed style) made while the engine is in its STEP phase, the
  * contract's "no layout reads in the tick". Never ship this in a production build.
  */

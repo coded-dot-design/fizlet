@@ -3,8 +3,8 @@
 // floor, the stack and the dev, and what was above it drops. Cut them all and the crate shrinks to
 // the Fizlet box, which flies to his hands with the kernel's real gzip size, measured at build
 // (the figure's data-kernel-gzip; no number at all without it). Tap again to play again.
-// Bricks: the kernel (fixed step, settle, 30 fps cap, the ledger), fzlt/collide (shards against
-// the stack). Mounted through fzlt/slot: never under reduced motion (the poster is the joke,
+// Bricks: the kernel (fixed step, settle, 30 fps cap, the ledger), @fzlt/core/collide (shards against
+// the stack). Mounted through @fzlt/core/slot: never under reduced motion (the poster is the joke,
 // tap to shrink); every node it adds goes through the ledger, so Recall gives the page back.
 import { createEngine } from "../../../../src/kernel/index";
 import { circleRect } from "../../../../src/collide";

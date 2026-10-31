@@ -1,4 +1,4 @@
-// The bricks index's live diagram (site/brick-graph.ts on fzlt/layout and fzlt/view-canvas), on
+// The bricks index's live diagram (site/brick-graph.ts on @fzlt/core/layout and @fzlt/core/view-canvas), on
 // the built page in Chromium. Page cost, as the page itself sees it (every requestAnimationFrame
 // call counted from before its scripts run): it lays out, then asks for 0 frames a second once
 // still and 0 off screen; a drag moves a brick, wakes it and it settles to 0 again; with reduced

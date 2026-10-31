@@ -6,7 +6,7 @@
 // copy that looks it up now gets an answer and quits. That was the kill switch (a researcher
 // registered it for $10.69); it stopped new infections and decrypted nothing. Tap a clean file to
 // unplug it: hops bounce off it. Tap to play again.
-// Bricks: the kernel (settle, ledger), fzlt/steer's exact hypot, fzlt/slot. Step allocates nothing.
+// Bricks: the kernel (settle, ledger), @fzlt/core/steer's exact hypot, @fzlt/core/slot. Step allocates nothing.
 import type { SlotScene, SlotTap } from "../../../src/slot";
 import { outbreak, hypot, ease, S, T, SHAKE, MUTED, LINE, BUG, BUG2, HEAL, GLOW, GOLD } from "./outbreak";
 

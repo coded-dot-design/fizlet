@@ -9,9 +9,9 @@
   "author": "chris-cooley",
   "recipe": "hand-built",
   "bricks": [
-    "fzlt/kernel",
-    "fzlt/collide",
-    "fzlt/slot"
+    "@fzlt/core/kernel",
+    "@fzlt/core/collide",
+    "@fzlt/core/slot"
   ],
   "pageCost": {
     "settles": true,

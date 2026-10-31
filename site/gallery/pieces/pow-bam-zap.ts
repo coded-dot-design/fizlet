@@ -6,8 +6,8 @@
 // pips and it's KO!: launched off the roof, a twinkle in the sky, and it drops back in. Each new
 // Glitch dodges about, then comes back angrier with more pips. The panel shakes on impacts only;
 // the caption's real letters move only when a balloon slams down on them.
-// Bricks: the kernel (fixed step, settle: it sleeps between hits), fzlt/sprite (both fighters
-// as pixel data, baked once; the hit flash and the angry Glitch as palettes), fzlt/slot (loads
+// Bricks: the kernel (fixed step, settle: it sleeps between hits), @fzlt/core/sprite (both fighters
+// as pixel data, baked once; the hit flash and the angry Glitch as palettes), @fzlt/core/slot (loads
 // near the screen, never under reduced motion; destroy() gives the page back through the ledger).
 import { createEngine } from "../../../src/kernel/index";
 import { sprites, type SpriteDef } from "../../../src/sprite";

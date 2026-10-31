@@ -1,4 +1,4 @@
-// tokens.json is the authoritative token source: the build exports it (fzlt/ui/tokens.json) and
+// tokens.json is the authoritative token source: the build exports it (@fzlt/core/ui/tokens.json) and
 // refuses to build when board-ui.css or applyPalette's variable map disagrees with it.
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -27,7 +27,7 @@ test("tokens: a drifted CSS default, an unknown --k-* variable or a drifted pale
   assert.match(checkTokens({ ...src, ts }).join("\n"), /sys/);
 });
 
-test("tokens: exported from the package as fzlt/ui/tokens.json", () => {
+test("tokens: exported from the package as @fzlt/core/ui/tokens.json", () => {
   const pkg = JSON.parse(readFileSync("package.json", "utf8"));
   assert.equal(pkg.exports["./ui/tokens.json"], "./dist/ui/tokens.json");
   assert.match(readFileSync("scripts/build.mjs", "utf8"), /tokens\.json/);

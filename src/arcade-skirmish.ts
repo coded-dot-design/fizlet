@@ -1,9 +1,9 @@
-// fzlt/arcade's `skirmish` preset (Battlefield Blitz's HUD): a bar across the top with the title,
+// @fzlt/core/arcade's `skirmish` preset (Battlefield Blitz's HUD): a bar across the top with the title,
 // readouts (kills, clock, rank, an armor bar, streak…), aim toggles, action keys with counts and
 // header keys; a feed and a banner driven by the event ring; the pad on phones with counted keys and
-// aim toggles. Values go through fzlt/hud: change-only, from typed-array slots, nothing allocated
+// aim toggles. Values go through @fzlt/core/hud: change-only, from typed-array slots, nothing allocated
 // in the steady state. The run's flow (countdown, pause / surrender, result: BOARD-UI.md §9) is
-// fzlt/match on a small engine of its own that lives as long as the overlay: its clock runs the
+// @fzlt/core/match on a small engine of its own that lives as long as the overlay: its clock runs the
 // countdown while the game's engine waits, and its END sticker outlives the game's engine (whose end
 // gives the page back) until REMATCH, EXIT or Recall. Match owns the phase; the shell asks it.
 import type { ArcadeHud, HudView } from "./arcade";
@@ -41,7 +41,7 @@ export interface SkirmishOptions {
   feed?: { rows?: number; on: string; line: (a: number, b: number) => string };
   /** A centred banner (title, sub) on each event of type `on`. */
   banner?: { on: string; text: (a: number, b: number) => readonly [string, string?] };
-  /** Overlays (default all four; fzlt/match runs the flow either way). `countdown` holds the start
+  /** Overlays (default all four; @fzlt/core/match runs the flow either way). `countdown` holds the start
    *  for 3, 2, 1 on the flow's clock; without `pause` or `result` that phase shows no overlay; without
    *  `surrender` the pause card has no SURRENDER key. */
   overlays?: ("pause" | "surrender" | "countdown" | "result")[];
@@ -139,7 +139,7 @@ ${o.feed ? '<ol class="sk-feed" aria-label="Feed"></ol>' : ""}${o.banner ? '<div
       }
       for (const [b, slot] of counted) h.num(b as HTMLElement, [out, slot]);
 
-      // The flow: fzlt/match on its own engine, alive as long as the overlay (Recall destroys it,
+      // The flow: @fzlt/core/match on its own engine, alive as long as the overlay (Recall destroys it,
       // and its ledger takes the overlay back). Match owns the phase and its keys' clicks; the shell
       // keeps the keyboard (P, Escape) and asks (`ask`); each phase change answers it (`go`).
       let won = false, kept = "", play = () => {};
@@ -207,7 +207,7 @@ ${o.feed ? '<ol class="sk-feed" aria-label="Feed"></ol>' : ""}${o.banner ? '<div
           play = go;
           m.restart();
         },
-        // The engine's ledger takes back what fzlt/hud wrote: the bar keeps the final numbers.
+        // The engine's ledger takes back what @fzlt/core/hud wrote: the bar keeps the final numbers.
         hold: () => void (kept = group.innerHTML),
         end(_, notice, stats) {
           group.innerHTML = kept;

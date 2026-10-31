@@ -1,4 +1,4 @@
-// fzlt/slot (Node, on tests/fake-dom.mjs): lazy (near the viewport, then idle), the safe first
+// @fzlt/core/slot (Node, on tests/fake-dom.mjs): lazy (near the viewport, then idle), the safe first
 // tap, reduced motion (never loads; turning it on takes a running scene down), accessibility,
 // Recall (destroy gives the slot back as the engine drew it), and no allocation on a tap once the
 // scene is up. The browser, fizz and layers suites run it in Chromium.

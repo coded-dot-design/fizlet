@@ -1,5 +1,5 @@
 // Build the FILET factory hero for /bricks/ (scripts/site.mjs calls this): the live chunk
-// (factory.js: fzlt/slot + the scene) into <out>/factory/, and the hero's HTML and CSS with every
+// (factory.js: @fzlt/core/slot + the scene) into <out>/factory/, and the hero's HTML and CSS with every
 // byte measured: live chunk, inline loader + controller, and the poster (inline HTML + CSS + script).
 import { build } from "esbuild";
 import { gzipSync } from "node:zlib";

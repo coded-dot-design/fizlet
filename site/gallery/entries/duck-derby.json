@@ -9,8 +9,8 @@
   "author": "chris-cooley",
   "recipe": "hand-built",
   "bricks": [
-    "fzlt/kernel",
-    "fzlt/slot"
+    "@fzlt/core/kernel",
+    "@fzlt/core/slot"
   ],
   "fizlet": "0.20.0",
   "made": "by hand",

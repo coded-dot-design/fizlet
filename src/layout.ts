@@ -1,5 +1,5 @@
 /**
- * fzlt/layout: force-directed layout on typed arrays, with a Barnes-Hut pass, for diagrams and
+ * @fzlt/core/layout: force-directed layout on typed arrays, with a Barnes-Hut pass, for diagrams and
  * graphs that settle. Nodes repel (a quadtree, rebuilt each step, sums far groups as one mass:
  * O(n log n)), links pull like springs toward their length, and a weak pull holds the graph
  * around (`cx`, `cy`). One tick per fixed step, so a run replays exactly.
@@ -8,7 +8,7 @@
  *   `heat()`, `pin()` and `link()` warm it up and wake the engine.
  * - Reduced motion: the whole run happens in one step, so the graph lands where it settles.
  * - Zero allocation per step; fixed capacity (`cap` nodes, `links` links: add and link return -1 when full).
- * - DOM-free: draw it anywhere (fzlt/view-canvas), frame it with fzlt/camera (`bounds`).
+ * - DOM-free: draw it anywhere (@fzlt/core/view-canvas), frame it with @fzlt/core/camera (`bounds`).
  * Distances use steer's exact `hypot` (Math.hypot boxes its arguments).
  */
 import type { Engine } from "./kernel/engine";

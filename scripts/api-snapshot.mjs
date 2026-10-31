@@ -2,7 +2,7 @@
 // changes is a reviewed change. A snapshot is the brick's built declarations (dist/*.d.ts) with the
 // comments stripped (docs can change freely), following its own `export … from "./…"` re-exports
 // (the kernel's index re-exports engine, pool, ring…) and the files it imports types from that no
-// other COMPLETE snapshot covers (arcade names fzlt/board-page's BETA types). Types it imports from
+// other COMPLETE snapshot covers (arcade names @fzlt/core/board-page's BETA types). Types it imports from
 // another COMPLETE brick are that brick's snapshot.
 //
 //   npm run api:write                  rebuild, then write api/<brick>.api.txt for each COMPLETE brick
@@ -60,7 +60,7 @@ function resolveDts(from, spec) {
 /**
  * The declaration files a .d.ts entry exposes: itself and, recursively, its relative re-exports.
  * With `owned` (files another snapshot covers), also the files its declarations import types from
- * that no other snapshot covers (arcade's options name fzlt/board-page's BETA types: a change
+ * that no other snapshot covers (arcade's options name @fzlt/core/board-page's BETA types: a change
  * there changes arcade's API).
  */
 export function surfaceFiles(dts, owned = null, seen = new Set()) {
@@ -104,13 +104,13 @@ export function unreleased(changelog) {
 }
 
 /** Words that also name a brick in the CHANGELOG, besides its module names (case-insensitive). */
-const ALIASES = { kernel: ["kernel", "fzlt/kernel", "`fzlt`"], ui: ["board ui"] };
+const ALIASES = { kernel: ["kernel", "@fzlt/core/kernel", "`@fzlt/core`"], ui: ["board ui"] };
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /** Does `text` name the brick: one of its module names (not as a prefix of a longer path), or an alias. */
 export function mentions(brick, text) {
-  const names = brick.modules.map((m) => m.name).filter((n) => n !== "fzlt");
-  names.push(`fzlt/${brick.id}`);
+  const names = brick.modules.map((m) => m.name).filter((n) => n !== "@fzlt/core");
+  names.push(`@fzlt/core/${brick.id}`);
   const exact = names.some((n) => new RegExp(`(?<![\\w/-])${esc(n)}(?![\\w/-])`).test(text));
   return exact || (ALIASES[brick.id] ?? []).some((a) => new RegExp(`(?<![\\w/-])${esc(a)}(?![\\w/-])`, "i").test(text));
 }
@@ -127,7 +127,7 @@ export function compare({ current, committed, base = null, changelog, bricks }) 
   const stale = [...ids].filter((id) => current.get(id) !== committed.get(id)).sort();
   const from = base ?? committed, to = base ? committed : current;
   // A change is in the declarations: the "# id: …" and "## module" headings only name the package
-  // (a package rename, fizlet → fzlt, is not an API change of the brick).
+  // (a package rename, fizlet → fzlt → @fzlt/core, is not an API change of the brick).
   const decls = (t) => t?.replace(/^#{1,2} .*\n/gm, "");
   const changed = [...from.keys()].filter((id) => decls(from.get(id)) !== decls(to.get(id))).sort();
   const notes = unreleased(changelog);
@@ -184,7 +184,7 @@ async function main(argv) {
   const errors = [];
   if (stale.length) errors.push(`stale API snapshots (an export changed, or a brick became or stopped being COMPLETE): ${stale.join(", ")}. Run npm run api:write and commit ${DIR}/.`);
   for (const id of unannounced)
-    errors.push(`${id}: its public API changed${baseRef ? ` since ${baseRef}` : ""} but CHANGELOG.md's "## Unreleased" does not name it (e.g. \`fzlt/${id}\`). COMPLETE bricks keep their API: say what changed, and move it back to BETA if it breaks.`);
+    errors.push(`${id}: its public API changed${baseRef ? ` since ${baseRef}` : ""} but CHANGELOG.md's "## Unreleased" does not name it (e.g. \`@fzlt/core/${id}\`). COMPLETE bricks keep their API: say what changed, and move it back to BETA if it breaks.`);
   if (errors.length) {
     for (const e of errors) console.error(`::error::${e}`);
     return 1;

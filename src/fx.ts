@@ -1,5 +1,5 @@
 /**
- * fzlt/fx: explosions that land. One fixed pool of particles (struct-of-arrays, no allocation),
+ * @fzlt/core/fx: explosions that land. One fixed pool of particles (struct-of-arrays, no allocation),
  * drawn on a canvas: square debris, flashes, shock rings, spinning square rings, smoke, scorch marks
  * and pop words, plus screen shake. `blast()` is the DOM VIRUS / Battlefield hero recipe.
  * Gravity (`gravity`, px/s²) pulls each kind by its own share. Particle kinds are data (shape, drag,

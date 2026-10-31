@@ -6,7 +6,7 @@
 // port and you take your own service down (it reopens). The worm lived only in memory, so tap an
 // infected server to reboot it: with 1434 still open it is hit again in seconds. Close 1434 and reboot
 // the rack clean, or the clock (20x) reaches ten minutes and 75,000 servers. Tap to play again.
-// Bricks: the kernel (settle, ledger), fzlt/steer's exact hypot, fzlt/slot. Step allocates nothing.
+// Bricks: the kernel (settle, ledger), @fzlt/core/steer's exact hypot, @fzlt/core/slot. Step allocates nothing.
 import type { SlotScene, SlotTap } from "../../../src/slot";
 import { outbreak, hypot, W, H, S, T, SHAKE, INK, MUTED, LINE, BUG, BUG2, HEAL, GLOW, GOLD } from "./outbreak";
 
