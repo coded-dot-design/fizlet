@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **Gallery: Tiny Swarm Protocol (pending owner review).** A ten-second taste of Swarm Protocol by
+  Pip: bugs crawl onto a little web page and eat its letters into binary (real text, through the
+  ledger); every three letters a bug grows a tier, and grown hunters latch on the buttons and drain
+  their colour. Squash them (tap, or arrows and Space) and save the buttons till the bell; Recall puts
+  every letter back. 44 px mute key after a gesture. 9,701 B gzip live; zero-alloc step; settles;
+  reduced motion keeps the poster.
 - **Gallery: Tiny Null Invaders (pending owner review).** A ten-second taste of Null Invaders by Pip:
   an interceptor under a little web page shoots its headline into binary (real text, through the
   ledger), two buttons are alien factories, and XP upgrades the gun mid-round (Pulse, Twin, Trident,
