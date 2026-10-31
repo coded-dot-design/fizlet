@@ -1,0 +1,28 @@
+{
+  "no": 82,
+  "id": "tiny-byte-runner",
+  "date": "2026-10-31",
+  "prompt": "a tiny Byte Runner: a round green frog chomps along crumb trails in a little web page's gutters, leaves them to eat the page's letters, and dodges three flies (a chaser, an interceptor, a roamer) until a glowing power square turns them blue and edible; at the end Recall puts every letter back",
+  "title": "Tiny Byte Runner",
+  "kind": "micro",
+  "theme": "dom-virus",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sound",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/tiny-byte-runner.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "teaser": {
+    "game": "byte-runner",
+    "title": "Byte Runner",
+    "url": "https://domvirus.com/games/byte-runner/"
+  },
+  "approved": "2026-10-31"
+}

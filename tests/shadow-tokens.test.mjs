@@ -11,7 +11,6 @@ import { hardShadows, layerToToken, tokenShadows } from "../scripts/shadow-token
 
 const PENDING = {
   "site/demos/layers/css.ts": 3,
-  "site/demos/layers/poster.ts": 1,
   "src/ui/board-ui.css": 1,
 };
 

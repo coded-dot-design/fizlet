@@ -1,4 +1,5 @@
 {
+  "no": 63,
   "id": "edge-filter",
   "date": "2026-11-01",
   "prompt": "Outbreak, act 2 (2003): the white hats beat Slammer. Tap routers on a four-segment network map to filter UDP 1434 so the flood bounces off, then patch the hosts into shields until every segment is clean",

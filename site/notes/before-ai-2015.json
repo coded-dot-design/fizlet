@@ -123,6 +123,10 @@
         },
         {
           "type": "p",
+          "text": "\"There were a lot of animations before Fizlet, and in between. We kept writing the same thing over and over, a little different each time for a slightly different use. So we built Fizlet to make it easier for us. Then we figured other people could get something out of it too, so we open-sourced it.\""
+        },
+        {
+          "type": "p",
           "text": "In 2015 the DOM was harder to animate. Getting it fast meant knowing which properties were cheap to move and which made the browser work. Fizlet is that knowledge, written down once and tested."
         }
       ]

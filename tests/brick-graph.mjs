@@ -63,6 +63,9 @@ try {
     while (Date.now() - t1 < 12000 && (await rafs(p, 500)) > 0);
     const resettleMs = Date.now() - t1, framesAfterDrag = await rafs(p, 1000);
     await p.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    // The scroll itself may cost the page a frame (the lazy brick cards and the factory hero react
+    // to what comes into view); off screen is the steady state after it.
+    await rafs(p, 500);
     const framesOffscreen = await rafs(p, 1000);
     console.log(`brick graph${reduced ? " (reduced motion)" : ""}: settled in ${settleMs} ms, then ${framesSettled} frames/s; drag woke it (${woke} rAFs), settled again in ${resettleMs} ms, then ${framesAfterDrag} frames/s; off screen ${framesOffscreen} frames/s`);
     assert.equal(still, 0, "it settles");

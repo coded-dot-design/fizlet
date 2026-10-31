@@ -1,4 +1,5 @@
 {
+  "no": 61,
   "id": "dv-squad-tactics",
   "date": "2026-10-30",
   "prompt": "squad tactics on a DOM grid: two tanks a side patrol between walls and HQ zones, turrets sweep, shells fly and blast; lock, order, breach",

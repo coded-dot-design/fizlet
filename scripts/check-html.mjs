@@ -28,10 +28,13 @@ export function checkHtml(html, path) {
   need(title.length >= 10 && title.length <= 70, `title 10–70 characters (${title.length})`);
   const desc = attr(meta(html, "name", "description") ?? "", "content") ?? "";
   need(desc.length >= 50 && desc.length <= 300, `meta description 50–300 characters (${desc.length})`);
+  // A moved page (a meta refresh: the static site's redirect) names its new home as canonical.
+  const refresh = attr(meta(html, "http-equiv", "refresh") ?? "", "content")?.match(/url=(.+)$/i)?.[1];
+  const url = refresh ? new URL(refresh, SITE + path).href : SITE + path;
   const canonical = tags(html, "link").find((t) => attr(t, "rel") === "canonical");
-  need(canonical && attr(canonical, "href") === SITE + path, `canonical is ${SITE}${path}`);
+  need(canonical && attr(canonical, "href") === url, `canonical is ${url}`);
   for (const p of ["og:type", "og:title", "og:description", "og:url", "og:image", "og:site_name"]) need(meta(html, "property", p), `<meta property="${p}">`);
-  need(attr(meta(html, "property", "og:url") ?? "", "content") === SITE + path, "og:url matches the canonical");
+  need(attr(meta(html, "property", "og:url") ?? "", "content") === url, "og:url matches the canonical");
 
   // Structure: one h1, landmarks, unique ids, no skipped heading levels inside <main>.
   const h1 = tags(body, "h1");

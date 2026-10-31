@@ -1,0 +1,23 @@
+{
+  "no": 71,
+  "id": "bag-beat",
+  "date": "2026-10-31",
+  "prompt": "a speed bag on a swivel: punch, it slaps the board and swings back; punch again right on the beat and it goes faster, early or late is a clunk; ten seconds, count your streak",
+  "title": "Bag Beat",
+  "kind": "micro",
+  "theme": "boxing",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sound",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/bag-beat.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "approved": "2026-10-31"
+}

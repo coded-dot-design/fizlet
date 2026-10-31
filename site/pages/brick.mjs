@@ -3,12 +3,12 @@
 import { crumbs, esc, icon, REPO, SITE } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { STATUS, BETA_LINE, exportStatus } from "../bricks.mjs";
+import { brickTile, brickMini, brickOf, prose, statusSticker } from "../brick-ui.mjs";
+
+export { prose };
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
 const num = (n) => n.toLocaleString("en-US");
-
-/** `code` spans in doc text, everything else escaped. */
-export const prose = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
 
 /** A brick's status flag as a Board UI status pill (flat: a readout, not a key). */
 export const statusPill = (status) => `<span class="status-pill" data-flag="${status}" title="${esc(STATUS[status].line)}">${STATUS[status].label}</span>`;
@@ -107,7 +107,7 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
     ${crumbs("../", [["bricks/", "Bricks"]], brick.name)}
     <div class="split bp-top" style="--tone: var(--k-${brick.role})">
       <div>
-        <p class="eyebrow"><span class="index">${esc(brick.tag)}</span> V${esc(version)} ${statusPill(brick.status)}</p>
+        <p class="eyebrow bp-eyebrow"><span class="index">${esc(brick.tag)}</span> V${esc(version)} ${statusSticker(brick.status)}</p>
         <h1 id="bp-title" class="bp-title"><code>${esc(brick.name)}</code></h1>
         <p class="lead">${prose(lead.summary)}</p>
         <div class="split-keys"><a class="bui-key bui-arcade bui-sys" href="#api">${icon("code", 16)}API</a><a class="bui-key bui-arcade bui-cmd" href="${REPO}/blob/main/${lead.src}">${icon("github", 16)}Source ↗</a></div>
@@ -138,7 +138,7 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
 function statusLegend(bricks) {
   return Object.entries(STATUS).map(([k, s]) => {
     const n = bricks.filter((b) => b.status === k).length;
-    return `<li class="panel status-card" data-flag="${k}"><div class="brick-top">${statusPill(k)}<small>${n ? `${n} ${n === 1 ? "brick" : "bricks"}` : k === "roadmap" ? "planned below" : "none today"}</small></div>
+    return `<li class="panel status-card" data-flag="${k}"><div class="brick-top">${statusSticker(k)}<small>${n ? `${n} ${n === 1 ? "brick" : "bricks"}` : k === "roadmap" ? "planned below" : "none today"}</small></div>
         <p>${esc(s.line)}</p>
         <ul>${s.criteria.map((c) => `<li>${prose(c)}</li>`).join("")}</ul>
       </li>`;
@@ -164,15 +164,7 @@ const graphFigure = (g) => {
 
 /** bricks/index.html: every brick, with its measured size and its status. */
 export function bricksIndex({ bricks, sizes, version, planned = [], graph }) {
-  const cards = bricks.map((b) => {
-    const s = sizes.find((x) => x.name === b.sizes[0]);
-    return `<li class="panel brick" style="--tone: var(--k-${b.role})">
-        <div class="brick-top"><span class="brick-tag">${esc(b.tag)}</span>${statusPill(b.status)}<span class="brick-size"><b>${kb(s.gzip)} KB</b><small> / ${kb(s.budget)} KB gzip</small></span></div>
-        <h2><a href="${b.id}.html"><code>${esc(b.name)}</code></a></h2>
-        ${b.card ? b.card("bricks") : ""}
-        <p>${prose(b.summary)}</p>
-      </li>`;
-  }).join("\n      ");
+  const cards = bricks.map((b) => brickTile({ brick: b, size: sizes.find((x) => x.name === b.sizes[0]), href: `${b.id}.html`, toy: b.card ? b.card("bricks") : "" })).join("\n      ");
   return `
 <section class="section" aria-labelledby="bi-title">
   <div class="wrap">
@@ -198,10 +190,11 @@ export function bricksIndex({ bricks, sizes, version, planned = [], graph }) {
     </div>
     <ul class="bricks planned">
       ${planned.map((p) => `<li class="panel brick" data-flag="roadmap">
-        <div class="brick-top"><span class="brick-tag">${esc(p.phase)}</span>${statusPill("roadmap")}<span class="brick-size"><small>target ≤ ${kb(p.target)} KB gzip</small></span></div>
-        <h3><code>${esc(p.name)}</code></h3>
-        <p>${esc(p.purpose)}</p>
-        <p class="needs"><small>NEEDS</small> ${p.needs.map((n) => `<code>${esc(n)}</code>`).join(" ")}</p>
+        <span class="brick-stickers">${statusSticker("roadmap")}</span>
+        <h3 class="brick-name">${esc(p.name)}</h3>
+        <p class="brick-what">${esc(p.purpose)}</p>
+        <ul class="brick-chips" aria-label="Planned"><li><b>${esc(p.phase)}</b></li><li>target <b>≤ ${kb(p.target)} KB</b> gzip</li></ul>
+        <p class="brick-needs"><small>NEEDS</small> ${p.needs.map((n) => { const b = brickOf(bricks, n); return b ? brickMini({ brick: b, size: sizes.find((x) => x.name === b.sizes[0]), href: `${b.id}.html` }) : `<code>${esc(n)}</code>`; }).join(" ")}</p>
       </li>`).join("\n      ")}
     </ul>
   </div>

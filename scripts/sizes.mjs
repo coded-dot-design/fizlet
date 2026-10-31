@@ -114,12 +114,15 @@ export const BUDGETS = [
   ["fizlet/ui (css)", "src/ui/board-ui.css", 5152],
 ];
 
+/** esbuild options for a JS entry: what a consumer's minifier makes of it (also scripts/size-bakeoff.mjs). */
+export const ESBUILD_JS = { bundle: true, minify: true, logLevel: "silent", format: "esm", target: "es2022" };
+
 /** [{ name, entry, budget, gzip }] for every budgeted entry. */
 export async function measure() {
   const out = [];
   for (const [name, entry, budget] of BUDGETS) {
     const css = entry.endsWith(".css");
-    const res = await build({ entryPoints: [entry], bundle: true, minify: true, write: false, logLevel: "silent", ...(css ? {} : { format: "esm", target: "es2022" }) });
+    const res = await build({ entryPoints: [entry], write: false, ...(css ? { bundle: true, minify: true, logLevel: "silent" } : ESBUILD_JS) });
     out.push({ name, entry, budget, gzip: gzipSync(res.outputFiles[0].contents).length });
   }
   return out;

@@ -31,5 +31,6 @@
   "module": "anims/transformer-fights-diffuser-ko.ts",
   "export": "mount",
   "aspect": "16 / 9",
+  "phone": "1 / 1",
   "approved": "2026-10-30"
 }

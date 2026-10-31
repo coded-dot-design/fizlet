@@ -36,5 +36,6 @@
   "module": "anims/pumpkin-slice.ts",
   "export": "mount",
   "aspect": "16 / 9",
+  "phone": "3 / 4",
   "approved": "2026-10-30"
 }

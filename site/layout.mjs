@@ -53,6 +53,7 @@ const PATHS = {
   check: "M4 10.5 8 14.5 16 5.5",
   cart: "M4 2h9l3 3v13H4ZM7 2v5h6V2M7 13h6M7 16h6",
   close: "M5 5l10 10M15 5 5 15",
+  menu: "M3 5h14M3 10h14M3 15h14",
   left: "M17 10H4M9 5l-5 5 5 5",
   right: "M3 10h13M11 5l5 5-5 5",
 };
@@ -63,25 +64,28 @@ export const icon = (name, size = 20) =>
 export const mark = (size = 40) =>
   `<svg viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true" shape-rendering="crispEdges"><path d="M0 16h64M0 32h64M0 48h64M16 0v64M32 0v64M48 0v64" stroke="#19f0ff" stroke-opacity=".35"/><rect x="1" y="1" width="62" height="62" fill="none" stroke="#19f0ff" stroke-width="2"/><g fill="currentColor"><path fill-rule="evenodd" d="M8 30h26v26H8Zm7 7v12h12V37Z"/><path d="M36 18h14v14H36ZM40 40h8v8h-8Z"/></g><path d="M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z" fill="#ff2e88"/></svg>`;
 
-// Site navigation, one source (brain: fizlet-engine playbooks/content/site-nav.md). The header names the
-// top-level pages: Docs · Bricks · Guides · Gallery · Heroes · Notes · News. The footer's site map
-// lists every indexable page (siteMap() below), so no page is an orphan. A link to the page you are
-// on, or one of its parents, carries aria-current. External links end in ↗ (icon keys name the
-// destination in aria-label).
+// Site navigation, one source (brain: fizlet-engine playbooks/content/site-nav.md). The header is the
+// short version: Daily · Docs · Bricks · Notes. A group is a small menu behind a disclosure button
+// (site/nav.ts: click, keyboard, Escape, outside click; never hover-only); on a phone the whole nav
+// is one panel behind the menu key. The footer's site map lists every indexable page (siteMap()
+// below), so no page is an orphan. A link to the page you are on, or one of its parents, carries
+// aria-current. External links end in ↗ (icon keys name the destination in aria-label).
 export const NAV = [
-  ["docs/", "Docs"],
+  ["Daily", [["gallery/", "Daily pieces"], ["contest/", "Contest rules"]]],
+  ["Docs", [["docs/", "All docs"], ["docs/getting-started/", "Getting started"], ["guides/", "Guides"], ["docs/authoring/", "Recipes"], ["bricks/", "API"]]],
   ["bricks/", "Bricks"],
-  ["guides/", "Guides"],
-  ["gallery/", "Gallery"],
-  ["heroes/", "Heroes"],
-  ["notes/", "Notes"],
-  ["news/", "News"],
+  ["Notes", [["notes/", "Notes"], ["news/", "News"]]],
 ];
 
 /** `aria-current` for a nav link to `id` from the page at `path`: "page" on the page itself, "true"
  *  on a parent section (bricks/ on a brick page). Home anchors never carry it. */
 export const current = (id, path) => (id.startsWith("#") ? "" : path === id ? ' aria-current="page"' : path.startsWith(id) ? ' aria-current="true"' : "");
 const navLinks = (list, home, path) => list.map(([id, label]) => `<a href="${home}${id}"${current(id, path)}>${label}</a>`);
+const CHEVRON = `<svg class="nav-chev" viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m5 8 5 5 5-5"/></svg>`;
+/** The header nav: a link per top-level page, a disclosure button and its menu per group. */
+const navTree = (home, path) => `<ul class="nav-list">${NAV.map(([id, label]) => typeof label === "string"
+  ? `<li class="nav-item"><a class="nav-top" href="${home}${id}"${current(id, path)}>${label}</a></li>`
+  : `<li class="nav-item"><button class="nav-btn" type="button" aria-expanded="false" aria-controls="nav-${id.toLowerCase()}">${id}${CHEVRON}</button><span class="nav-label" aria-hidden="true">${id}</span><ul class="nav-menu" id="nav-${id.toLowerCase()}" aria-label="${id}">${navLinks(label, home, path).map((a) => `<li>${a}</li>`).join("")}</ul></li>`).join("")}</ul>`;
 
 /**
  * A breadcrumb trail for a deep page: Fizlet / its section / the page. `trail`: [[href, label], …]
@@ -95,11 +99,11 @@ export const jsonLd = (nodes = []) =>
   `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@graph": [WEBSITE, ORG, PERSON, ...nodes] }).replace(/</g, "\\u003c")}</script>`;
 
 /** Canonical, Open Graph and author tags for a page at `path` (also used by the demos' own host pages). */
-export const social = ({ title, description, path }) => `<link rel="canonical" href="${SITE}${path}">
+export const social = ({ title, description, path, canonical = path }) => `<link rel="canonical" href="${SITE}${canonical}">
 <meta property="og:type" content="website">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
-<meta property="og:url" content="${SITE}${path}">
+<meta property="og:url" content="${SITE}${canonical}">
 <meta property="og:site_name" content="Fizlet">
 <meta property="og:image" content="${SITE}og.png">
 <meta property="og:image:width" content="1200">
@@ -121,15 +125,18 @@ const PROJECT = [
   [`${REPO}/blob/main/src/ui/BOARD-UI.md`, "Board UI spec"],
   [ENGINE_PLAN, "Engine plan"],
 ];
-const BUILT_ON = [[BLITZ, "Battlefield Blitz"], [BATTLEFIELD, "DOM Battlefield"], [HUB, "DOM VIRUS arcade"]];
+// The family line: the same four sites, in the same order, in every family footer (domvirus.com,
+// battlefield.domvirus.com and battlefieldblitz.domvirus.com list it too). Production URLs; Fizlet is
+// the engine, and this site's own entry (SITE) has no ↗. Other hosts never go in sitemap.xml.
+export const FAMILY_LINE = [[HUB, "DOM VIRUS"], [BATTLEFIELD, "DOM Battlefield"], [BLITZ, "Battlefield Blitz"], [SITE, "Built with Fizlet"]];
 /** Columns of sections. `head`: the section's index page; `match`: a section with no page of its
  *  own; `chips`: short labels in a wrapped grid; `fold`: children behind a disclosure; `links`: external. */
 export const SITE_MAP = [
   ["Learn", [{ head: "docs/" }, { head: "guides/" }, { head: "examples/quick-start.html" }]],
   ["Engine", [{ head: "bricks/", chips: true }, { label: "Demos", match: /^(demos|examples)\// }]],
-  ["Gallery", [{ head: "gallery/" }, { head: "heroes/" }, { head: "make/" }, { head: "contest/" }, { head: "people/" }]],
+  ["Daily", [{ head: "gallery/" }, { head: "contest/" }, { head: "make/" }, { head: "people/" }]],
   ["Notes", [{ head: "notes/" }, { head: "news/", chips: true, fold: "releases" }]],
-  ["Project", [{ label: "More", match: /./ }, { label: "Source", links: PROJECT }, { label: "Built on it", links: BUILT_ON }]],
+  ["Project", [{ label: "More", match: /./ }, { label: "Source", links: PROJECT }, { label: "DOM VIRUS family", links: FAMILY_LINE }]],
 ];
 
 /**
@@ -141,7 +148,7 @@ export function siteMap(routes, base, path) {
   const take = (test) => routes.filter((r) => !claimed.has(r.path) && test(r.path)).map((r) => (claimed.add(r.path), r));
   const a = (r, cls = "") => `<a${cls} href="${base}${r.path}"${current(r.path, path)}>${esc(r.label)}</a>`;
   const section = (s) => {
-    if (s.links) return `<li class="map-sec"><span class="map-label">${esc(s.label)}</span><ul>${s.links.map(([href, label]) => `<li><a href="${href}">${esc(label)} ↗</a></li>`).join("")}</ul></li>`;
+    if (s.links) return `<li class="map-sec"><span class="map-label">${esc(s.label)}</span><ul>${s.links.map(([href, label]) => `<li><a href="${href}">${esc(label)}${href === SITE ? "" : " ↗"}</a></li>`).join("")}</ul></li>`;
     const rs = take(s.head ? (p) => p === s.head || (s.head.endsWith("/") && p.startsWith(s.head)) : (p) => s.match.test(p));
     const head = rs.find((r) => r.path === s.head), kids = rs.filter((r) => r !== head);
     if (!head && !kids.length) return "";
@@ -161,13 +168,23 @@ const MARKER = /<!--site-map (\S*) (\S*)-->/;
 /** Swap a built page's site-map marker for the map (a page without one comes back as is). */
 export const fillSiteMap = (html, routes) => html.replace(MARKER, (_, base, path) => siteMap(routes, base, path));
 
+/** The grid on every hero: the page's first <section> or <article> (its head, the hero) gets the
+ *  shared `.has-grid` treatment from site.css (--grid-* tokens), unless the page already marks one. */
+export const withGrid = (body) =>
+  /\bhas-grid\b/.test(body) ? body : body.replace(/<(?:section|article)\b[^>]*>/, (tag) =>
+    / class="/.test(tag) ? tag.replace(/ class="/, ' class="has-grid ') : tag.replace(/>$/, ' class="has-grid">'));
+
 /**
  * A full page. `base` is the path back to the site root ("./" for top-level pages, "../" one
- * level down, "/fizlet/" for the 404 page, which can be served at any depth).
+ * level down, "/fizlet/" for the 404 page, which can be served at any depth). `redirect`: a moved
+ * page's new path (from the root): the page sends the visitor there (meta refresh, the static
+ * site's redirect), its canonical names it, and it stays out of search (noindex).
  */
-export function page({ title, description, base, version, body, scripts = [], path = "", ld = [], noindex = false, nofollow = false }) {
+export function page({ title, description, base, version, body, scripts = [], path = "", ld = [], noindex = false, nofollow = false, redirect = "" }) {
   const home = base;
-  const nav = navLinks(NAV, home, path).join("");
+  body = withGrid(body);
+  const nav = navTree(home, path);
+  if (redirect) noindex = true;
   return `<!doctype html>
 <html lang="en" class="bui" data-theme="dark">
 <head>
@@ -175,7 +192,7 @@ export function page({ title, description, base, version, body, scripts = [], pa
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
-${noindex ? `<meta name="robots" content="noindex${nofollow ? ",nofollow" : ""}">\n` : ""}${social({ title, description, path })}
+${redirect ? `<meta http-equiv="refresh" content="0; url=${base}${redirect}">\n` : ""}${noindex ? `<meta name="robots" content="noindex${nofollow ? ",nofollow" : ""}">\n` : ""}${social({ title, description, path, canonical: redirect || path })}
 <meta name="theme-color" content="#07060f">
 ${jsonLd(ld)}
 <link rel="icon" href="${base}icon.svg" type="image/svg+xml">
@@ -191,11 +208,12 @@ ${jsonLd(ld)}
       <span class="brand-mark">${mark(40)}</span>
       <span class="brand-text"><small>DOM ENGINE<i>V${esc(version)}</i></small><b>FIZLET</b></span>
     </a>
-    <nav class="site-nav" aria-label="Site">${nav}</nav>
+    <nav class="site-nav" aria-label="Site" id="site-nav">${nav}</nav>
     <div class="head-keys">
       <a class="bui-key bui-icon-key gh" href="${REPO}" aria-label="Source on GitHub">${icon("github")}</a>
       <button class="bui-key bui-icon-key" type="button" data-theme-toggle aria-label="Switch light or dark"><span class="theme-dark">${icon("moon")}</span><span class="theme-light">${icon("sun")}</span></button>
       <a class="bui-key bui-arcade bui-go start-key-sm" href="${home}#start">${icon("play", 16)}Start</a>
+      <button class="bui-key bui-icon-key menu-key" type="button" data-menu aria-expanded="false" aria-controls="site-nav" aria-label="Menu">${icon("menu")}${icon("close")}</button>
     </div>
   </div>
 </header>
