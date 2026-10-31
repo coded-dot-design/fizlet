@@ -1,6 +1,6 @@
 // Measure the layers story and write site/demos/layers/measured.json (the only numbers its caption
-// prints): gzip bytes, script time per frame under 4× CPU throttle, layout shift, frames once
-// settled, and JS fetched before the slot nears the viewport (the inline loader is in the poster bytes). Budgets: fizlet-engine docs/LAYERS.md.
+// prints): gzip bytes, script time per frame under 4× CPU throttle while the page scrolls through the
+// story (down and back up, wheel steps), layout shift, frames once the scrolling stops, and JS fetched before the slot nears the viewport (the inline loader is in the poster bytes). Budgets: fizlet-engine docs/LAYERS.md.
 // Run: node site/demos/layers/measure.mjs (builds first).
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -29,7 +29,16 @@ const PROBE = () => {
 const pct = (a, p) => a.slice().sort((x, y) => x - y)[Math.min(a.length - 1, Math.floor(a.length * p))] ?? 0;
 const r2 = (v) => Math.round(v * 100) / 100;
 
-// 1. One full cycle at 1440 × 900, CPU throttled 4×.
+// The story is scroll-linked: wheel down through it and back up, 40 px a step, one step every 2 frames.
+const scrub = (p) => p.evaluate(async () => {
+  const f = document.querySelector("figure.lyr"), r = f.getBoundingClientRect(), max = document.documentElement.scrollHeight - innerHeight;
+  const frame = () => new Promise(requestAnimationFrame);
+  for (const dir of [1, -1])
+    for (let k = 0; k < 400 && (dir > 0 ? scrollY < max : scrollY > 0); k++) (scrollBy(0, 40 * dir), await frame(), await frame());
+  return r.height;
+});
+
+// 1. The scroll through the story at 1440 × 900, CPU throttled 4×.
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
 const page = await ctx.newPage();
 await page.addInitScript(PROBE);
@@ -38,22 +47,19 @@ await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
 await page.goto(srv.url);
 await page.waitForSelector("[data-fizlet-slot] .lz", { timeout: 15000 });
 await page.evaluate(() => (window.__f.length = 0));
-await page.waitForTimeout(13000);
+await scrub(page);
 const frames = await page.evaluate(() => window.__f);
 const ms = frames.map((f) => f[1]), gaps = frames.slice(1).map((f, i) => f[0] - frames[i][0]);
 const cls = await page.evaluate(() => window.__cls);
 await ctx.close();
 
-// 2. Settles: one quick cycle (data-loops=1), then count frames over 2 s.
+// 2. Settles: scroll halfway into the story, stop, then count frames over 2 s.
 const p2 = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 await p2.addInitScript(PROBE);
-await p2.route(srv.url, async (route) => {
-  const res = await route.fetch();
-  route.fulfill({ response: res, body: (await res.text()).replace('<figure class=', '<figure data-loops="1" data-speed="4" class=') });
-});
 await p2.goto(srv.url);
 await p2.waitForSelector("[data-fizlet-slot] .lz", { timeout: 15000 });
-await p2.waitForTimeout(13000 / 4 + 2000);
+await p2.evaluate(() => scrollTo(0, (document.documentElement.scrollHeight - innerHeight) / 2));
+await p2.waitForTimeout(1500);
 const n0 = await p2.evaluate(() => window.__f.length);
 await p2.waitForTimeout(2000);
 const settled = (await p2.evaluate(() => window.__f.length)) - n0;
@@ -85,7 +91,7 @@ await browser.close();
 srv.close();
 writeFileSync("site/demos/layers/measured.json", JSON.stringify(measured, null, 2) + "\n");
 console.log(JSON.stringify(measured, null, 2));
-const BUDGET = { poster: 6144, live: 10240 };
+const BUDGET = { poster: 6144, live: 9728 };
 console.log(`poster ${sizes.poster} B gz (hero budget ${BUDGET.poster}): ${sizes.poster <= BUDGET.poster ? "ok" : "OVER"}`);
 console.log(`live chunk ${sizes.live} B gz (hero budget ${BUDGET.live}): ${sizes.live <= BUDGET.live ? "ok" : "OVER"}`);
 console.log(`CLS ${measured.cls} (budget 0) · frames once settled ${settled} (budget 0) · JS fetched before the slot is near ${before} B (budget 0)`);
