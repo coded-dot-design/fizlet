@@ -5,7 +5,7 @@
 - **Gallery, Motocross (pending owner review): Dirt Lab.** Build an eight-slot track from ramps,
   bumps and gaps, then race it: hold gas, lean in the air, land flat or go over the bars. The track
   rides in the address as `#t=` (eight known letters, refused whole otherwise; no server). Keyboard
-  and 44 px buttons, M mutes, settles in the builder. 10,201 B gzip live. Tests: tests/dirt-lab.mjs,
+  and 44 px buttons, M mutes, settles in the builder. 10,211 B gzip live. Tests: tests/dirt-lab.mjs,
   tests/dirt-lab.test.mjs.
 - **Gallery, Motocross (pending owner review): Redline.** A drag sprint against a pace ghost on an
   engine that runs hot: hold gas to pull, let off to cool; past the red it pops and stalls, and
