@@ -249,7 +249,10 @@ export function tinyByteRunner(stage: HTMLElement, slot: HTMLElement, first: Slo
   V[0] = 1;
   const ro = new ResizeObserver(() => ((V[0] = 1), engine.wake()));
   ro.observe(stage);
-  engine.signal.addEventListener("abort", () => ro.disconnect());
+  // The site's theme switch: the crumbs' colour is read again.
+  const mo = new MutationObserver(() => ((V[0] = 1), engine.wake()));
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  engine.signal.addEventListener("abort", () => (ro.disconnect(), mo.disconnect()));
 
   L.attr(stage, "tabindex", "0");
   L.attr(stage, "role", "application");
