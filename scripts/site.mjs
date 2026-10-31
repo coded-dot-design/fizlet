@@ -197,6 +197,7 @@ for (const f of readdirSync("site/recipes").filter((x) => x.endsWith(".js"))) {
 const DOCS = loadDocs().map((d) => fill(d, { sizes, version }));
 for (const d of DOCS) mkdirSync(`${OUT}/${docPath(d)}`, { recursive: true });
 for (const s of ["docs", "guides"]) mkdirSync(`${OUT}/${s}`, { recursive: true });
+mkdirSync(`${OUT}/guides/multiplayer-rooms`, { recursive: true }); // moved: redirects to build-your-own-room-server
 // Big things, small packages (gallery): its figure and its punchline carry the kernel's gzip size,
 // measured just above (never typed). The posters are painted here by the scene's own world.
 const spMod = await build({ entryPoints: ["site/gallery/pieces/small-packages/poster.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
@@ -297,6 +298,15 @@ const pages = [
     body: `<section class="section"><div class="wrap"><div class="section-head"><h1>Heroes moved to <em>Daily</em>.</h1><p class="lead">Every hero is an entry on <a href="../gallery/">Daily, the gallery</a>. Taking you there now.</p></div></div></section>`,
     scripts: ["site.js"],
   })],
+  // /guides/multiplayer-rooms/ moved (2026-10-31: multiplayer is in-house; the room server left this
+  // repo): it redirects to the guide that replaced it.
+  ["guides/multiplayer-rooms/index.html", page({
+    title: "Multiplayer rooms moved: build your own room server · Fizlet",
+    description: "The Fizlet multiplayer rooms guide has moved: Build your own room server specs the wire protocol @fzlt/core/presence speaks, so you can run one like ours.",
+    base: "../../", version, path: "guides/multiplayer-rooms/", redirect: "guides/build-your-own-room-server/",
+    body: `<section class="section"><div class="wrap"><nav class="bp-crumbs" aria-label="Breadcrumb"><a href="../../">Fizlet</a> / <a href="../">Guides</a> / <span aria-current="page">Multiplayer rooms (moved)</span></nav><div class="section-head"><h1>This guide moved to <em>Build your own room server</em>.</h1><p class="lead">Our room server is in-house now. <a href="../build-your-own-room-server/">Build your own room server</a> has the wire protocol presence speaks. Taking you there now.</p></div></div></section>`,
+    scripts: ["site.js"],
+  })],
   ["make/index.html", page({
     title: "Make one: a prompt in, a snippet out · Fizlet",
     description: `Type a prompt, get a drop-in Fizlet animation: one file, only the bricks it uses, its size measured in your browser. No server, no tracking.`,
@@ -339,7 +349,7 @@ const pages = [
   })],
   ["guides/index.html", page({
     title: "Guides: build with Fizlet, step by step · Fizlet",
-    description: "Step-by-step Fizlet guides: build a micro game, fill an Astro slot with a scene, port a game onto the kernel and run lockstep multiplayer rooms.",
+    description: "Step-by-step Fizlet guides: build a micro game, fill an Astro slot with a scene, port a game onto the kernel and build your own lockstep room server.",
     base: "../", version, path: "guides/", ld: [{ "@type": "CollectionPage", "@id": `${SITE}guides/#page`, url: `${SITE}guides/`, name: "Fizlet guides", isPartOf: { "@id": WEBSITE["@id"] }, about: { "@id": CODE } }],
     body: sectionIndex({ section: "guides", all: DOCS, base: "../", head: { eyebrow: "GUIDES · ONE JOB EACH", title: "Build something.", accent: "Ship it small.", lead: "Each guide does one job end to end with real code: the APIs on the [brick pages](/bricks/), the ideas in the [docs](/docs/)." } }),
     scripts: ["site.js"],

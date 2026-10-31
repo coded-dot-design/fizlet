@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+- **Multiplayer is in-house; a guide to build your own room server.** `@fzlt/core/presence` and
+  `@fzlt/core/presence/check` stay in the package unchanged (MIT, BETA) and move into an
+  "In-house / experimental" group wherever bricks are listed (the bricks page, the home page, the
+  README table, llms-full.txt): "Used in our games. Not a supported multiplayer service." The room
+  server (`rooms/`) leaves this repo; its history stays here, and we keep running it for our own
+  games, privately. Its CI step and the `rooms-load` / `rooms-wake` stress wrappers go with it.
+  `/guides/multiplayer-rooms/` becomes **Build your own room server**
+  (`/guides/build-your-own-room-server/`; the old URL redirects): what presence speaks, the full
+  wire protocol as the contract (subprotocol `fizlet-rooms`, the 12-byte message and its eight kinds,
+  seats, the lobby, resume, the access check), the one-room-one-object pattern and a threat
+  checklist. The roadmap says "Multiplayer: in-house. DIY guide for your own server."; E12 builds on
+  presence (in-house). The lockstep note links the guide.
+
 ## 0.21.2
 
 - 0.21.2 — first npm release, published as `@fzlt/core` (npm refused `fizlet` and `fzlt` as too similar to
