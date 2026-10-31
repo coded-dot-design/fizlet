@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Before AI: 2015 page redesign** (`demos/before-ai-2015/`, pending owner review): the people
+  page's language (stickers, mono meta, brick chips with measured sizes, panels), on-this-page
+  chips and a stat strip; the story told by the scroll (2015 → remake → arcade, scrubbed reveals
+  on the kernel and `fizlet/timeline`: same scroll, same frame; settles; none under reduced
+  motion); one comparison table (same metrics, SMALLEST where one column is least); the arcade
+  lights each brick's chip while it acts; a 44 px Sound key whose choice is kept; a Recall key.
+  The timeline is gone. The remake's play switch now matches 2015 (the icon font's
+  `line-height: 1` and the box's `left: -2%`). Page script +2,475 B gzip (11,567 → 14,042).
 - **Site footer: the family line.** The site map's "Built on it" list is now "DOM VIRUS family": the same four sites, in the same order, as every family footer: DOM VIRUS (domvirus.com), DOM Battlefield, Battlefield Blitz and Built with Fizlet (this site, no ↗). One source: `FAMILY_LINE` in `site/layout.mjs`. No other host goes into sitemap.xml. `test:site` checks the line on every page with the footer.
 - **Website: the FILET game factory, a full-screen hero at the top of /bricks/** (`site/factory/`).
   The real bricks (kernel, input, fx, sound, grid, steer, hud, timeline, sprite, collide, slot), each
