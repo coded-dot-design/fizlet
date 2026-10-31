@@ -1,7 +1,7 @@
 // Shared by the surf-sesh minis (Lip Line, Tube Time): the rig every one of them stands on. One
 // smooth canvas over the stage (art units: 160 × 90, scaled to the stage at the device's pixel
 // ratio), one hold-to-ride input (a press anywhere on the stage, or Space / Enter / ↑ on its ride
-// key), a mute key (M, or the ♪ key), the fizlet/sound synth (silent until a gesture), a spray pool
+// key), a mute key (M, or the ♪ key), the fzlt/sound synth (silent until a gesture), a spray pool
 // and pop words. Every colour is a Board UI token (fizlet src/ui/tokens.json).
 // Nothing here writes the page except what it adds through the engine's ledger (the canvas and two
 // 44 px keys), so Recall gives the page back byte for byte. Steps allocate nothing: every string is

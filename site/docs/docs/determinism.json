@@ -39,7 +39,7 @@
       "body": [
         {
           "type": "p",
-          "text": "`syncCheck(setup, { players, frames, latency, jitter })` from `fizlet/presence/check` runs your sim as lockstep clients over an in-memory link with the latency and jitter you ask for, hashes each client's state every frame and returns `{ ok, frames, diverged, stalls }`. `diverged` is the first frame whose state differed, or -1. It is test-only code ({size:fizlet/presence/check} gzip) and never ships to players."
+          "text": "`syncCheck(setup, { players, frames, latency, jitter })` from `fzlt/presence/check` runs your sim as lockstep clients over an in-memory link with the latency and jitter you ask for, hashes each client's state every frame and returns `{ ok, frames, diverged, stalls }`. `diverged` is the first frame whose state differed, or -1. It is test-only code ({size:fzlt/presence/check} gzip) and never ships to players."
         },
         {
           "type": "p",
@@ -55,7 +55,7 @@
           "href": "/guides/multiplayer-rooms/"
         },
         {
-          "label": "fizlet/presence",
+          "label": "fzlt/presence",
           "href": "/bricks/presence.html"
         }
       ]

@@ -1,5 +1,5 @@
 // The hero of the heroes pieces (#23 the cape whoosh, #26 the landing): one pixel superhero, as data
-// for fizlet/sprite, and the red cape as cloth (a short verlet chain drawn as stamped pixel squares).
+// for fzlt/sprite, and the red cape as cloth (a short verlet chain drawn as stamped pixel squares).
 // Same hero, same cape in both pieces: night patrol over the skyline, then the landing on the page.
 // Flat Fizlet tokens with an ink rim. A step on the cape never allocates; drawing is one pass of
 // fillRects at whole art pixels, so it stays crisp on a pixel canvas scaled up with CSS.

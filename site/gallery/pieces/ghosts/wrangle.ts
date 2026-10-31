@@ -7,7 +7,7 @@
 // and the wands overheat: PFFT, and it's loose again. Miss, and the streams zap the page where you
 // tapped. Every bag sends the next ghost out of a letter, in a new flavour.
 // Bricks: the kernel (fixed step, seeded random; settle: no frames once the ghost sits still; the
-// ledger for every page write, so Recall gives the page back byte for byte) and fizlet/sprite (the
+// ledger for every page write, so Recall gives the page back byte for byte) and fzlt/sprite (the
 // ghost, the crew, the bucket and its lid, baked once). Shared world: spook.ts (with Smoosh, Overflow).
 import { createEngine } from "../../../../src/kernel/index";
 import { sprites } from "../../../../src/sprite";

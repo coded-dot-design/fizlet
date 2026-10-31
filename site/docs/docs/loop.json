@@ -18,7 +18,7 @@
       "items": [
         {
           "title": "read · once a frame",
-          "body": "The only phase that may measure the page: cached geometry, input edges latched. `fizlet/input` measures its target here, at most once a frame, and only when the pointer moved."
+          "body": "The only phase that may measure the page: cached geometry, input edges latched. `fzlt/input` measures its target here, at most once a frame, and only when the pointer moved."
         },
         {
           "title": "step · 0 to 4 times, dt = 1/60 s",

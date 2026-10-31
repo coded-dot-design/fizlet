@@ -1,6 +1,6 @@
 // P5 (S6 pressure test): tab hide/show storm, resize storm, scroll in and out, Recall mid-step and
 // mid-timeline, re-mount, in Chromium. One page carries five Fizlet scenes on one shared clock: a bare
-// kernel engine, a looping timeline, a css clock, a gallery piece (Pip's Bubbles through fizlet/slot)
+// kernel engine, a looping timeline, a css clock, a gallery piece (Pip's Bubbles through fzlt/slot)
 // and an arcade game. Seeded: every interval, viewport and scroll comes from --seed (printed), so a
 // failure reruns exactly.
 //
@@ -100,7 +100,7 @@ export function mount(o = {}) {
   }
   // css clock: CSS @keyframes on the kernel clock; many loops, so it should never settle in the test.
   live.css = cssClock($("c"), { span: 1, loops: 100000 });
-  // gallery piece through fizlet/slot, as the gallery mounts it.
+  // gallery piece through fzlt/slot, as the gallery mounts it.
   live.pipSlot = slot(document.querySelector("figure.ae-slot"), () => (stage, el, first) => (live.pip = bubbles(stage, el, first)), { idle: 0 });
   // arcade game over the page's own text.
   live.game = game();

@@ -1,6 +1,6 @@
 # Board UI: the game board and controls design system
 
-**Status:** v1.1 (2026-10-28). Lives in Fizlet (`src/ui/`, published as `fizlet/ui`); DOM
+**Status:** v1.1 (2026-10-28). Lives in Fizlet (`src/ui/`, published as `fzlt/ui`); DOM
 Battlefield keeps a copy in `board-ui/` until it imports the package. Live guide:
 https://coded-dot-design.github.io/dom-battlefield/style-guide/ (built from the kit only). Kit:
 `src/ui/board-ui.css` + `src/ui/board-ui.ts`. Tokens: `src/ui/tokens.json`.
@@ -49,7 +49,7 @@ building, then section 16 (lessons: mistakes we already paid for) and section 17
 |---|---|
 | `src/ui/board-ui.css` | Tokens and every component, scoped under `.bui`. CSS containment (Fizlet contract rule 8): the pad and the overlay are `contain: layout style` |
 | `src/ui/board-ui.ts` | `mount`, `applyPalette`, `press`, `pressCue`, `slam`, `toast`, `launch` (2.9 KB gzip; the CSS is 4.9 KB gzip, as `npm run size` measures them). The mount root is `contain: style`, the launch burst `contain: layout style` |
-| `src/ui/tokens.json` | Machine-readable tokens, timings, breakpoints, z-layers, storage keys. **Authoritative**: published as `fizlet/ui/tokens.json`; the build (`scripts/tokens.mjs`) fails when a `board-ui.css` default (every palette role, ink, surface, `--k-*`, `--u`, motion curve) or `applyPalette`'s variable map disagrees with it |
+| `src/ui/tokens.json` | Machine-readable tokens, timings, breakpoints, z-layers, storage keys. **Authoritative**: published as `fzlt/ui/tokens.json`; the build (`scripts/tokens.mjs`) fails when a `board-ui.css` default (every palette role, ink, surface, `--k-*`, `--u`, motion curve) or `applyPalette`'s variable map disagrees with it |
 | `src/ui/BOARD-UI.md` | This spec |
 | `/style-guide/` (Battlefield site) | Live guide built from the kit only |
 
@@ -259,7 +259,7 @@ calm: `animation: none` on locked footer keys.
 - **Pager** (`.bui-pager`): ‹ ★ › as one sys bar; ★ = your own unit, pressed when you are selected.
 - **Shortcut chip** (`kbd`): 9u mono, 1u currentColor border, 88% opacity (`--bui-kbd-alpha`: rim ink stays AA on every face), always right-aligned.
 
-### 5.5 Touch pad (`fizlet/pad`, CSS section 11)
+### 5.5 Touch pad (`fzlt/pad`, CSS section 11)
 
 - **`.bui-pad`**: absolute along the board's bottom edge, notch-safe, 14u in from the edges; the
   move control under one thumb, the action keys under the other (right; `data-hand="left"` swaps).
@@ -287,7 +287,7 @@ never restate its states. `bui-key` gives, on top of the family:
   a pointer.) Don't use `::before` on a page key for anything else.
 - **Press beats hover.** On a mouse, the face drops by its base (`--py` along the domain's shadow
   direction, section 4.1) on `:active` even while hovered.
-- **Keyboard and iOS.** Call `pressCue(document)` once per page (`fizlet/ui`): Enter (and Space on
+- **Keyboard and iOS.** Call `pressCue(document)` once per page (`fzlt/ui`): Enter (and Space on
   a button) shows the pressed face (`.down`) until release or blur, and a passive `touchstart`
   listener lets iOS Safari apply `:active`. Activation stays native: links navigate, buttons click.
 - **Focus** rings face and base; **disabled** is `:disabled` (button) or `aria-disabled="true"`
@@ -479,7 +479,7 @@ own action** (a reset that cancels effects must be told to keep it).
 - **Settings switch** (`setting(button, key, change, signal)` in `board-ui.ts`): a base key that rests
   locked (`aria-pressed="true"`) while on. Its state lives in localStorage as `"1"` / `"0"` under a
   key from `tokens.json` `storage`; storage that throws is ignored (the switch works, it forgets).
-- **Performance overlay** (`fizlet/perf`, switch label "Performance overlay", key `dom-virus:perf`,
+- **Performance overlay** (`fzlt/perf`, switch label "Performance overlay", key `dom-virus:perf`,
   **off by default**, F9 toggles it): a flat card in a corner of the board, `--surface` on a 2u
   `--rim` border with a 3u rim base in the page's shadow direction, 9u/700 mono caps, numbers in `--ink`, labels in
   `--muted`. One 120 × 36u chart on `--bg`: a bar per frame, `--k-go` within 1.25 frame budgets,
@@ -584,7 +584,7 @@ Reduced motion: no loops, no bursts, no slams (static end states), instant trans
 | win | `win` (three notes) |
 | lose / surrender | `end` |
 
-Cue names are `fizlet/sound`'s (`src/sound.ts`); it also has `boom`, `power` and `click`.
+Cue names are `fzlt/sound`'s (`src/sound.ts`); it also has `boom`, `power` and `click`.
 
 Audio unlocks on the first trusted gesture; cues have cooldowns; at most 8 voices; muted state is
 remembered (`dom-virus:<game>:sound`).
@@ -645,11 +645,11 @@ pressed, never focusable.
 - **Tone** (`data-tone`): `team` paints the value `--team-ink`, `enemy` paints it `--team-b`, and no tone leaves it ink. That matches Battlefield: ARMOR is team, HOSTILE is enemy.
 - **On the map** (`.bui-on-map`, the phone cockpit's panel): a flat plate of `--surface` at 74% with a 1.5u `--line` rim and a 5u radius. Use it whenever readouts sit over a playfield.
 - **JS:** `readouts(parent, [["Score", "team"], ["Time"]], onMap?)` builds the group and returns `{ group, values }`.
-  - Bind `values` with `fizlet/hud` (`num(values[0], [state, SCORE])`): change-only and allocation-free.
+  - Bind `values` with `fzlt/hud` (`num(values[0], [state, SCORE])`): change-only and allocation-free.
   - Add the group through the engine's ledger, or mount it inside a kit root the game owns, so Recall removes it.
 - **Placement is the game's layout:** where the group sits (corner, rail, header) may vary per game. The look may not.
 
-## 19. Game HUD presets (`fizlet/arcade` `hud`)
+## 19. Game HUD presets (`fzlt/arcade` `hud`)
 
 The standard game UI is DOM Battlefield / Blitz's, scoped per game: a game keeps its own rules and
 picks its controls and scoreboard from one set. `arcade(def)` takes `hud`, a preset; every piece is
@@ -665,14 +665,14 @@ names. Leaving `hud` out keeps the card byte for byte.
 
 - **Readouts** are section 18's: label, value, tone. A `bar` readout is a track with the fill as
   the `progressbar`, `low` turning it to `--hurt`.
-- **Overlays** are section 9's, run by `fizlet/match` (one owner of the phase): one dim layer, one
+- **Overlays** are section 9's, run by `fzlt/match` (one owner of the phase): one dim layer, one
   sticker, at most two sticker keys, the toast for the explanation. Pause: BATTLE PAUSED / GIVE UP?
   (KEEP FIGHTING · SURRENDER). Result: INSERT COIN / GAME OVER, WHITE FLAG / GAME OVER or
   STAGE CLEAR / MISSION COMPLETE (REMATCH · EXIT), with the chosen stats and the best on this
   device; it stays up after the run until dismissed. Countdown: GET READY 3, 2, 1 on the flow's
   clock, then the game's engine starts.
 - **Counts** are the kit's badge (`.bui-badge`, section 7) on the action's bar key and pad key.
-- **Values** go through `fizlet/hud` from typed-array slots: change-only, no layout reads, nothing
+- **Values** go through `fzlt/hud` from typed-array slots: change-only, no layout reads, nothing
   allocated in the steady state. The game fills `hud(out)` in readout order, then the count slots.
 - **Recall** is exact with any preset: the page comes back at once when a run ends, and the
   overlay host goes on Escape or the exit key (full screen too).

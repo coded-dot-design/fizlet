@@ -1,7 +1,7 @@
 // touch card: grab and throw. Press the brick and drag it, let go and it flies with your hand's
 // speed, bounces off the walls and the floor and the name brick, and comes to rest. Tap the sky and
-// it hops toward you. One finger always works: fizlet/touch never touches it. Two fingers on the
-// card would be a pinch that zooms the page, and fizlet/touch cancels exactly that: the readout
+// it hops toward you. One finger always works: fzlt/touch never touches it. Two fingers on the
+// card would be a pinch that zooms the page, and fzlt/touch cancels exactly that: the readout
 // counts the pinch events it stopped (they arrive here already cancelled). Release gives the page
 // its gestures back.
 import type { SlotMount } from "../../src/slot";
@@ -102,7 +102,7 @@ const mount: SlotMount = (stage, slot, first) => mountCard(stage, slot, first, (
     hover(x, y) {
       if (s[4] && x >= 0) (s[5] = x), (s[6] = y);
     },
-    read: () => `THROWS ${s[9]} · PINCHES ${s[10]}`, // pinches: cancelled by fizlet/touch
+    read: () => `THROWS ${s[9]} · PINCHES ${s[10]}`, // pinches: cancelled by fzlt/touch
   };
 });
 export default mount;

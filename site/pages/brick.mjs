@@ -119,7 +119,7 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
     ${statusPanel(brick)}
     <div class="bp-use">
       <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>MODULES</b> · hosted on this site</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(esm)}</code></pre></div>
-      <div class="panel code-card bp-npm"><div class="code-head"><span class="bui-label"><b>NPM</b> · <span class="soon-tag">COMING SOON</span></span></div><pre class="code"><code>${esc(`npm install fizlet   # not published yet\n${npm}`)}</code></pre></div>
+      <div class="panel code-card bp-npm"><div class="code-head"><span class="bui-label"><b>NPM</b> · <span class="soon-tag">COMING SOON</span></span></div><pre class="code"><code>${esc(`npm install fzlt     # not published yet\n${npm}`)}</code></pre></div>
     </div>
     ${brick.example ? `<div class="panel code-card bp-snippet"><div class="code-head"><span class="bui-label"><b>EXAMPLE</b> · typechecked against v${esc(version)}</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(brick.example)}</code></pre></div>` : ""}
     ${brick.snippet ? `<div class="panel code-card bp-snippet"><div class="code-head"><span class="bui-label"><b>IN SHORT</b></span></div><pre class="code"><code>${esc(brick.snippet)}</code></pre></div>` : ""}
@@ -146,8 +146,8 @@ function statusLegend(bricks) {
 }
 
 /**
- * The live diagram: every brick and what it imports, laid out by fizlet/layout and drawn by
- * fizlet/view-canvas (site/brick-graph.ts). `graph` is site/brick-graph.mjs's data plus the live
+ * The live diagram: every brick and what it imports, laid out by fzlt/layout and drawn by
+ * fzlt/view-canvas (site/brick-graph.ts). `graph` is site/brick-graph.mjs's data plus the live
  * chunk's file and measured gzip bytes.
  */
 const graphFigure = (g) => {
@@ -157,7 +157,7 @@ const graphFigure = (g) => {
       <figcaption>
         <span class="bui-label"><b>LIVE</b> · ${data.nodes.length} modules · ${data.links.length} links, read from the source</span>
         <span class="bgraph-key"><i class="k0"></i>imports (its code ships) ${kinds[0]} · <i class="k1"></i>takes its types ${kinds[1]} · <i class="k2"></i>planned needs ${kinds[2]}</span>
-        <span>Drag a brick; hover one for its links. Laid out by <a href="layout.html"><code>fizlet/layout</code></a>, drawn by <a href="view-canvas.html"><code>fizlet/view-canvas</code></a>: <b>${bytes.toLocaleString("en-US")} B</b> gzip with the kernel, and 0 frames once it settles.</span>
+        <span>Drag a brick; hover one for its links. Laid out by <a href="layout.html"><code>fzlt/layout</code></a>, drawn by <a href="view-canvas.html"><code>fzlt/view-canvas</code></a>: <b>${bytes.toLocaleString("en-US")} B</b> gzip with the kernel, and 0 frames once it settles.</span>
       </figcaption>
     </figure>`;
 };

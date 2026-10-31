@@ -1,2 +1,2 @@
 {"compilerOptions":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","lib":["ES2022","DOM","DOM.Iterable"],"strict":true,"skipLibCheck":true,"noEmit":true,
-  "paths":{"fizlet":["../../../src/index.ts"],"fizlet/presence/check":["../../../src/presence-check.ts"],"fizlet/*":["../../../src/*.ts"]}},"include":["*.ts"]}
+  "paths":{"fzlt":["../../../src/index.ts"],"fzlt/presence/check":["../../../src/presence-check.ts"],"fzlt/*":["../../../src/*.ts"]}},"include":["*.ts"]}

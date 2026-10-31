@@ -9,8 +9,8 @@
   "author": "chris-cooley",
   "recipe": "hand-built",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/slot"
+    "fzlt/kernel",
+    "fzlt/slot"
   ],
   "made": "by hand",
   "module": "pieces/dv-under-attack.ts",

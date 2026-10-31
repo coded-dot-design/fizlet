@@ -23,7 +23,7 @@ export interface OriginScene extends SlotScene {
   readonly state: OriginState;
 }
 
-/** The one export the loader needs: fizlet/slot's mount. It reads the figure's data-mode
+/** The one export the loader needs: fzlt/slot's mount. It reads the figure's data-mode
  *  ("code" | "design") and data-sound ("0" | "1") when it mounts. */
 export type OriginModule = { mountSlot: SlotMount };
 

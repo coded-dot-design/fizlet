@@ -9,9 +9,9 @@
   "author": "pip",
   "recipe": "hand-built",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/sound",
-    "fizlet/slot"
+    "fzlt/kernel",
+    "fzlt/sound",
+    "fzlt/slot"
   ],
   "fizlet": "0.20.0",
   "made": "by hand",

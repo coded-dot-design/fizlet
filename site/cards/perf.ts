@@ -1,6 +1,6 @@
 // perf card: drop a long task on the frame. Tap and a brick falls; the higher you tap, the longer the
 // task it carries (16 to 52 ms). The step it lands in does that much real work, so that frame runs
-// late: fizlet/perf's own overlay, sitting in the card, draws the spike over its budget line and
+// late: fzlt/perf's own overlay, sitting in the card, draws the spike over its budget line and
 // counts the dropped frames, while the bricks around it stay green. The brick crumbles, the engine
 // settles and the chart rests with it (perf never keeps an engine awake).
 import type { SlotMount } from "../../src/slot";

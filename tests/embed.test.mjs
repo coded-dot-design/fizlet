@@ -1,4 +1,4 @@
-// fizlet/embed (Node, on tests/fake-dom.mjs): open now or behind the toggle, the easter-egg
+// fzlt/embed (Node, on tests/fake-dom.mjs): open now or behind the toggle, the easter-egg
 // triggers, Escape, a load that loses the race, Recall (destroy leaves no listener, no node), and
 // no allocation on the dormant pointer path. The browser suite runs it in Chromium.
 import test from "node:test";

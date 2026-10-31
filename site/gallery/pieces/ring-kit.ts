@@ -1,7 +1,7 @@
 // Shared by the boxing minis: the ring. One canvas over the stage (art units: 160 across, 90 down),
 // colours from the stage's own wrapper (light and dark), the crowd and the ropes, hit sparks and
 // sweat, pop words, and the controls: real <button>s (44 px or more) and keys while focus is in the
-// stage, M to mute. Sound is fizlet/sound: silent until a gesture. Nothing here writes the page
+// stage, M to mute. Sound is fzlt/sound: silent until a gesture. Nothing here writes the page
 // outside the slot's stage (the canvas and the buttons go through the engine's ledger), so Recall
 // gives the page back exactly. Steps allocate nothing.
 import type { Engine } from "../../../src/kernel/index";

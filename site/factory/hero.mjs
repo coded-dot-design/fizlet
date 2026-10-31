@@ -1,6 +1,6 @@
 // The FILET game factory: the full-screen hero at the top of /bricks/. Static HTML and CSS (the
 // poster: it plays as is, and under reduced motion it is the whole thing), the inline controller
-// (controller.js) and the loader for the live scene (scene.ts, through fizlet/slot).
+// (controller.js) and the loader for the live scene (scene.ts, through fzlt/slot).
 //
 // The bricks are the real ones, each tile in its brick's token with its size measured on this build
 // (scripts/sizes.mjs, passed in by scripts/site.mjs). Cartridge names: names.json.
@@ -82,7 +82,7 @@ export async function factoryHero({ bricks, sizes, version, live, liveBytes, nam
     `@media (max-width:600px){${SPOTS.map(([, , r], i) => `.fac-b[data-s="${i}"]{--x:${(8.5 + (i % 6) * 16.6).toFixed(1)};--y:${i < 6 ? 22 : 74};--r:${+(r / 3).toFixed(1)}deg}`).join("")}}`;
   const bytes = { live: liveBytes };
   const script = (await transform(readFileSync(new URL("./controller.js", import.meta.url), "utf8"), { minify: true, loader: "js", target: "es2022" })).code.trim();
-  // The loader: import the live chunk once the hero nears the screen (fizlet/slot then waits for
+  // The loader: import the live chunk once the hero nears the screen (fzlt/slot then waits for
   // an idle main thread) or on the first tap; never under reduced motion.
   const loader = `{const h=document.querySelector(".fac-hero"),m=matchMedia("(prefers-reduced-motion: reduce)");let d=0;const go=()=>{d++||(o.disconnect(),import(${JSON.stringify(live)}))},o=new IntersectionObserver(e=>e.some(x=>x.isIntersecting)&&go(),{rootMargin:"200px"}),arm=()=>{o.observe(h);h.addEventListener("pointerdown",go,{once:true})};h&&(m.matches?m.addEventListener("change",arm,{once:true}):arm())}`;
   const html = `

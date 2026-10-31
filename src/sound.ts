@@ -1,5 +1,5 @@
 /**
- * fizlet/sound: the sound adapter. After each frame it reads the engine's event ring and plays the
+ * fzlt/sound: the sound adapter. After each frame it reads the engine's event ring and plays the
  * mapped cues, so collisions and game events make sound without knowing about audio. The default
  * voice is a tiny synth (oscillators, no assets); pass `play` to use your own sounds.
  * Silent until the first trusted gesture, while paused, and when switched off.

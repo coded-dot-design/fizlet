@@ -5,8 +5,8 @@
 // green packet and is written back exactly. Let it eat half the page and the kernel panics, then
 // Recall rolls the whole page back. Clean: tap to reinfect, one more worm each wave.
 // Bricks: the kernel (fixed step, settle: no frames once still; the ledger: every text write is
-// recorded, so destroy() gives the page back byte for byte), fizlet/steer's exact hypot and
-// fizlet/slot. Step allocates nothing (typed arrays); text is written only on the frame it changes.
+// recorded, so destroy() gives the page back byte for byte), fzlt/steer's exact hypot and
+// fzlt/slot. Step allocates nothing (typed arrays); text is written only on the frame it changes.
 import { createEngine } from "../../../src/kernel/index";
 import { hypot } from "../../../src/steer";
 import type { SlotScene, SlotTap } from "../../../src/slot";

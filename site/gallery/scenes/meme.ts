@@ -2,8 +2,8 @@
 // the last frame (a tap plays it again). Original characters only: no real coins, logos, tickers or
 // mascots, and no money talk. Bits: a "to the moon" rocket that launches off a button, diamond hands
 // that won't let go, a candle chart that pumps then dumps, and an original laser-eyes mascot.
-// Bricks: the kernel (settle + fps cap), fizlet/sprite (the pixel art, baked once) and fizlet/fx
-// (exhaust, sparkles, sparks, pop words, shake). Mounted through fizlet/slot: it loads near the
+// Bricks: the kernel (settle + fps cap), fzlt/sprite (the pixel art, baked once) and fzlt/fx
+// (exhaust, sparkles, sparks, pop words, shake). Mounted through fzlt/slot: it loads near the
 // viewport, never under reduced motion, and destroy() gives the page back.
 import { createEngine } from "../../../src/kernel/index";
 import { effects, emitter, SPARK, type Kind } from "../../../src/fx";

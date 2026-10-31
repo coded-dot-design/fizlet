@@ -1,4 +1,4 @@
-# Publish fizlet to npm (with provenance) for a vX.Y.Z tag.
+# Publish Fizlet to npm as `fzlt` (with provenance) for a vX.Y.Z tag.
 # Runs when:
 #   - a v* tag is pushed by a person (git push origin v0.3.0),
 #   - ci.yml tags a new version on main (it calls this workflow: tags pushed with GITHUB_TOKEN
@@ -68,13 +68,13 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          if npm view "fizlet@$VERSION" version >/dev/null 2>&1; then
-            echo "fizlet@$VERSION is already on npm; nothing to do." | tee -a "$GITHUB_STEP_SUMMARY"
+          if npm view "fzlt@$VERSION" version >/dev/null 2>&1; then
+            echo "fzlt@$VERSION is already on npm; nothing to do." | tee -a "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::warning::NPM_TOKEN is not set: fizlet@$VERSION checked and packed, not published. Add the secret, then re-run (Actions > Release to npm > Run workflow, tag $TAG)."
+            echo "::warning::NPM_TOKEN is not set: fzlt@$VERSION checked and packed, not published. Add the secret, then re-run (Actions > Release to npm > Run workflow, tag $TAG)."
             exit 0
           fi
           npm publish --provenance --access public
-          echo "Published fizlet@$VERSION: https://www.npmjs.com/package/fizlet/v/$VERSION" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "Published fzlt@$VERSION: https://www.npmjs.com/package/fzlt/v/$VERSION" | tee -a "$GITHUB_STEP_SUMMARY"

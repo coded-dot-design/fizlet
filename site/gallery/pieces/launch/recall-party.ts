@@ -7,7 +7,7 @@
 // leaving (Recall for real: destroy) gives the page back byte for byte. The line under the headline
 // carries the kernel's gzip size and the dependency count, filled from this build
 // (scripts/launch-facts.mjs). The game: ./recall-sim.ts (plain numbers, zero allocation).
-// Bricks: the kernel, fizlet/sound (silent until a gesture; M mutes) and fizlet/slot.
+// Bricks: the kernel, fzlt/sound (silent until a gesture; M mutes) and fzlt/slot.
 import { createEngine } from "../../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../../src/slot";
 import { BTN_H, BTN_W, BTN_X, BTN_Y, CHECK, FLASH, HOME, LOOSE, MODE, PN, RECALL, recallSim, SIDE, AIMX, AIMY, POPS, RECALLS, HITS } from "./recall-sim";

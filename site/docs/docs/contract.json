@@ -23,9 +23,9 @@
           "type": "ul",
           "items": [
             "**One clock.** A kernel test runs several engines and counts one `requestAnimationFrame` between them; another checks the fixed step drops time after `maxSteps` (default 4) instead of spiralling. Details in [the loop](/docs/loop/).",
-            "**Bounded.** Pools and the event ring (64 events a frame by default) refuse work at their cap, and the test checks they never grew. `fizlet/fx` refuses particles past its cap (420 by default) and counts them in `fx.dropped`.",
+            "**Bounded.** Pools and the event ring (64 events a frame by default) refuse work at their cap, and the test checks they never grew. `fzlt/fx` refuses particles past its cap (420 by default) and counts them in `fx.dropped`.",
             "**Zero allocation.** One million kernel steps of a busy system cause 0 young-generation GCs on Node 24 (best of three windows; the test fails above 1). Bricks with a hot path have their own allocation tests.",
-            "**No layout reads in the step.** `fizlet/debug`'s `guardLayout(engine)` counts layout reads made during a step. The live demo on the [home page](/) shows the count: it stays at 0.",
+            "**No layout reads in the step.** `fzlt/debug`'s `guardLayout(engine)` counts layout reads made during a step. The live demo on the [home page](/) shows the count: it stays at 0.",
             "**Change-only writes and Recall.** Browser tests in Chromium write the same value twice and count zero mutations, then `destroy()` and compare the DOM with a snapshot taken before. See [Recall](/docs/recall/).",
             "**Pause by default.** A browser test hides the tab, types in a host field and scrolls the root away, and checks the engine pauses for each reason (`engine.paused`) and runs again after.",
             "**Embed-safe.** A browser test compares every box inside the pad, the match overlay and the launch burst with CSS containment on and off: nothing moves or clips.",

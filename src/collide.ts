@@ -1,5 +1,5 @@
 /**
- * fizlet/collide: a fixed-capacity spatial hash (no allocation per insert or query) and the shape
+ * fzlt/collide: a fixed-capacity spatial hash (no allocation per insert or query) and the shape
  * tests games need: circle–circle, circle–rect, swept segment–circle.
  */
 

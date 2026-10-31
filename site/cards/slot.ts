@@ -1,5 +1,5 @@
 // slot card: a film strip of six real astro-base-engine slot figures behind a small window. Each is
-// a real fizlet/slot: it loads only once the window shows it (the browser's own visibility test:
+// a real fzlt/slot: it loads only once the window shows it (the browser's own visibility test:
 // a figure clipped out of sight is not near), and its little scene drops a brick in. Tap the card
 // to slide the strip on; tap a live figure to drop its brick again. At the end of the strip a tap
 // destroys every slot and checks each figure against the markup it started as (Recall), then the

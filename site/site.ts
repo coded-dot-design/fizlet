@@ -1,5 +1,5 @@
 // Every page: the theme toggle (shared with DOM VIRUS and Battlefield), the copy keys, the
-// kit's press cue for page keys (keyboard press, iOS :active) and fizlet/touch, so pinching a demo
+// kit's press cue for page keys (keyboard press, iOS :active) and fzlt/touch, so pinching a demo
 // never zooms the page (the page itself keeps pinch-zoom, WCAG 1.4.4).
 import { pressCue } from "../src/ui/board-ui";
 import { lockTouch, SURFACES } from "../src/touch";

@@ -1,4 +1,4 @@
-// The fizz demo (site/demos/fizz/) in Chromium: it mounts through fizlet/slot, animates (the can
+// The fizz demo (site/demos/fizz/) in Chromium: it mounts through fzlt/slot, animates (the can
 // crunches, the tab pops, the spray flies up out of the card, the card holds still (no camera) and
 // never the page), settles (no frames), wakes on a tap, Recall gives the page back byte for byte,
 // and reduced motion keeps the still poster (the scene never mounts).

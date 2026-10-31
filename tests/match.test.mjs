@@ -1,4 +1,4 @@
-// fizlet/match (Node, headless: root null): the phase machine, the clock, events, restart and zero
+// fzlt/match (Node, headless: root null): the phase machine, the clock, events, restart and zero
 // allocation while playing. Overlays, keys, focus and Recall: tests/browser.mjs.
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -176,7 +176,7 @@ test("match: `on` follows every phase change once (not the first intro); a destr
 
 test("match: the arcade flow (match on its own engine, the game's engine following it) allocates nothing per frame", async (t) => {
   if (typeof gc !== "function") return t.skip("needs node --expose-gc");
-  // As fizlet/arcade's skirmish preset wires it: the flow engine runs match; each phase change starts
+  // As fzlt/arcade's skirmish preset wires it: the flow engine runs match; each phase change starts
   // or stops the game's engine. Best of three windows (tests/gc.mjs), run with --test-concurrency=1.
   const minors = async (withFlow) => {
     const g = createEngine({ events: 32 }), f = withFlow ? createEngine({ events: 32 }) : null;

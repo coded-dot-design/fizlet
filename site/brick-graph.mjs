@@ -27,7 +27,7 @@ export function brickGraph(bricks, planned, status) {
       owner.set(m.src, nodes.length);
       nodes.push({ id: b.id, name: m.name, status: b.status, tone: status[b.status].tone });
     }
-  const kernel = nodes.findIndex((n) => n.name === "fizlet");
+  const kernel = nodes.findIndex((n) => n.name === "fzlt");
   const brickOf = (f) => (KERNEL(f) ? kernel : owner.get(f));
   const links = new Map(); // "from,to" → kind (a runtime import wins over a type-only one)
   for (const [src, i] of owner) {
@@ -43,7 +43,7 @@ export function brickGraph(bricks, planned, status) {
     }
   }
   for (const p of planned) {
-    const i = nodes.push({ id: p.name.slice(7), name: p.name, status: "roadmap", tone: status.roadmap.tone, planned: true }) - 1;
+    const i = nodes.push({ id: p.name.slice(5), name: p.name, status: "roadmap", tone: status.roadmap.tone, planned: true }) - 1;
     for (const n of p.needs) {
       const j = nodes.findIndex((x) => x.name === n);
       if (j >= 0) links.set(`${i},${j}`, 2);

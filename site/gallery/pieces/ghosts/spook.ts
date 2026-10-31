@@ -2,7 +2,7 @@
 // slime ghost (and his cousins, in other flavours); the Spook Sweep crew, a two-person janitorial
 // outfit that "mops the paranormal" with backpack scrub-stream wands; their mop-bucket trap and
 // its lid; the wobbling streams; and a shout for sound effects. All of it is pixel data for
-// fizlet/sprite, whole pixels on the 160 × 90 art grid (pix.ts), crisp at any size.
+// fzlt/sprite, whole pixels on the 160 × 90 art grid (pix.ts), crisp at any size.
 // Original parody archetypes: no names, logos, costumes or props from any film.
 import type { SpriteDef } from "../../../../src/sprite";
 import { print, textW } from "../pix";

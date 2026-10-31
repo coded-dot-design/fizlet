@@ -1,5 +1,5 @@
 /**
- * fizlet/view-canvas: one overlay canvas per root, sized for the screen's pixel density and redrawn
+ * fzlt/view-canvas: one overlay canvas per root, sized for the screen's pixel density and redrawn
  * only where something changed. The canvas covers the root's padding box (`pointer-events: none`,
  * so the root keeps its input), its backing store is the CSS size × devicePixelRatio (capped by
  * `maxDpr`), and drawing is in CSS px.

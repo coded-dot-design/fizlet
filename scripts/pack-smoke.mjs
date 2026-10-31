@@ -80,8 +80,8 @@ console.log(out.join("\\n"));`;
     const left = (await bundle(`import "${s}";`, { minify: true, ignoreAnnotations: true })).outputFiles[0].text;
     if (HOST.test(left)) fail(`${s}: importing it runs code that touches the page, so sideEffects must list it:\n${left.slice(0, 400)}`);
   }
-  const kept = await bundle(`import "fizlet/ui/board-ui.css";`, { outdir: join(dir, "out") });
-  if (!kept.outputFiles.some((f) => f.path.endsWith(".css") && f.text.includes(".bui-"))) fail("a bundler dropped fizlet/ui/board-ui.css: sideEffects must keep *.css");
+  const kept = await bundle(`import "fzlt/ui/board-ui.css";`, { outdir: join(dir, "out") });
+  if (!kept.outputFiles.some((f) => f.path.endsWith(".css") && f.text.includes(".bui-"))) fail("a bundler dropped fzlt/ui/board-ui.css: sideEffects must keep *.css");
 
   // Types: each JS subpath resolves to its .d.ts under the consumer's own settings, with Node
   // (NodeNext) and bundler (Bundler) resolution.

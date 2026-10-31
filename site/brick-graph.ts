@@ -1,6 +1,6 @@
 // The bricks index's live diagram: every brick and what it imports (read from the source at build
-// time, site/brick-graph.mjs), laid out on the kernel clock by fizlet/layout and drawn by
-// fizlet/view-canvas. Drag a brick and the rest flows round it; hover one to see its links. Once
+// time, site/brick-graph.mjs), laid out on the kernel clock by fzlt/layout and drawn by
+// fzlt/view-canvas. Drag a brick and the rest flows round it; hover one to see its links. Once
 // the layout rests the engine settles: the page asks for 0 frames until the next touch. Off screen
 // it pauses; with reduced motion the layout lands at once.
 import { createEngine } from "../src/index";
@@ -17,8 +17,8 @@ export function mount(host: HTMLElement) {
   const lay = layout(e, { cap: N, links: g.links.length, charge: 260, distance: 58, gravity: 0.06, cx: WW / 2, cy: WH / 2 });
   for (let i = 0; i < N; i++) lay.add();
   for (const [a, b] of g.links) lay.link(a, b, 58);
-  const kernel = g.nodes.findIndex((n) => n.name === "fizlet");
-  const label = g.nodes.map((n) => (n.name === "fizlet" ? "kernel" : n.name.slice(7)));
+  const kernel = g.nodes.findIndex((n) => n.name === "fzlt");
+  const label = g.nodes.map((n) => (n.name === "fzlt" ? "kernel" : n.name.slice(5)));
   // Theme colours, read once and again when the theme changes (never in a frame).
   let tone: Record<string, string> = {}, ink = "", muted = "", line = "";
   const colors = () => {

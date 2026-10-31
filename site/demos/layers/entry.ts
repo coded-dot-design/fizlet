@@ -1,5 +1,5 @@
 /**
- * The live chunk, one file (layers.js): fizlet/slot and the scene together. Nothing loads it until
+ * The live chunk, one file (layers.js): fzlt/slot and the scene together. Nothing loads it until
  * the slot nears the viewport: the page's inline loader (poster.ts, `loader()`) imports it then.
  * The slot then waits for an idle main thread and mounts the scene. With reduced motion it never loads.
  */

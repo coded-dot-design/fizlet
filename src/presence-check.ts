@@ -1,4 +1,4 @@
-// fizlet/presence/check: the determinism check as one function any game can call from a test.
+// fzlt/presence/check: the determinism check as one function any game can call from a test.
 // It runs `players` copies of your sim as lockstep clients over the in-memory link (each with only
 // its own input), hashes the state after every frame, and reports the first frame that differs.
 import { createEngine, type Engine } from "./kernel/engine";

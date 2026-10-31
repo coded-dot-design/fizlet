@@ -1,5 +1,5 @@
 /**
- * fizlet/hud: change-only HUD bindings that never allocate in the steady state. A binding reads a
+ * fzlt/hud: change-only HUD bindings that never allocate in the steady state. A binding reads a
  * number (or a flag) every render, compares it as a number after rounding to what the readout
  * shows, and formats and writes only when that changed. Feeds and banners react to the event ring
  * (`engine.events`), never to polling. Every write goes through `engine.ledger`, so `destroy()`

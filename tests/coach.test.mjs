@@ -1,4 +1,4 @@
-// fizlet/coach: tour steps and tips frame by frame like DOM Battlefield Blitz's practice coach, flag
+// fzlt/coach: tour steps and tips frame by frame like DOM Battlefield Blitz's practice coach, flag
 // reads and writes like DOM Battlefield's tips switch (and survives blocked storage), and tour
 // allocates nothing per frame. The card, in a real browser, is tests/coach.mjs (npm run test:browser).
 import test from "node:test";

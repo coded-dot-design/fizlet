@@ -1,5 +1,5 @@
 /**
- * fizlet/rules: the rules every arcade game repeats, as three small systems on the kernel:
+ * fzlt/rules: the rules every arcade game repeats, as three small systems on the kernel:
  * - `waves`: a wave clock, prepare → assault → rebuild, with a spawn budget per wave;
  * - `drops`: pickups that fall, wait to be collected and expire;
  * - `score`: points, a combo that decays, and levels from XP thresholds.

@@ -1,4 +1,4 @@
-// The origin page: fizlet/slot loads the scene (scene.js) once the figure is near the viewport and
+// The origin page: fzlt/slot loads the scene (scene.js) once the figure is near the viewport and
 // the main thread is idle. Reduced motion: the scene never loads; the poster is the still frame, and
 // the title's word still swaps its screens. The word in the title switches code and design.
 import { slot } from "../../../src/slot";
