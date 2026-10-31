@@ -257,7 +257,9 @@ export function tinyByteRunner(stage: HTMLElement, slot: HTMLElement, first: Slo
   L.attr(stage, "tabindex", "0");
   L.attr(stage, "role", "application");
   L.attr(stage, "aria-label", "Tiny Byte Runner: arrow keys steer the frog and start a round; eat the crumbs and the letters, dodge the flies");
-  L.style(stage, "touch-action", "none");
+  // Touch: the page scrolls over the stage until a round starts; in a round, swipes steer.
+  L.style(stage, "touch-action", "manipulation");
+  let touch = 0;
   L.style(stage, "outline-offset", "-3px");
   const key = L.add(document.createElement("button"));
   key.type = "button";
@@ -333,6 +335,8 @@ export function tinyByteRunner(stage: HTMLElement, slot: HTMLElement, first: Slo
       if (sim.step(dt) || S[MODE] === PLAY) e.busy();
     },
     render() {
+      const play = S[MODE] === PLAY ? 1 : 0;
+      if (play !== touch) (touch = play), L.style(stage, "touch-action", play ? "none" : "manipulation");
       // The page: an eaten letter is gone (its class), and back at Recall.
       for (let i = 0; i < els.length; i++) {
         const s = sim.LS[i]!;
