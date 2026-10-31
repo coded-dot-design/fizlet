@@ -64,7 +64,7 @@ for (const b of BRICKS) assert.ok(PAGES.includes(`bricks/${b.id}.html`), `a page
 // What counts as a live demo: the home blast board, slot scenes (layers, fizz), brick demos and the
 // quick start's canvas. The demos' own standalone pages (built by site/demos/*) have no badge yet.
 const DEMOS = "[data-demo], figure.ae-slot, [data-brick-demo], figure[data-recipe], canvas.qs-canvas";
-const NO_BADGE = { "demos/fizz/": 1, "demos/layers/": 1, "examples/fizz/": 1 };
+const NO_BADGE = { "demos/fizz/": 1, "demos/origin/": 1, "demos/layers/": 1, "examples/fizz/": 1 };
 let badges = 0, sizeCache = null;
 const measured = async () => (sizeCache ??= await measure());
 const browser = await chromium.launch(launchOptions());
@@ -569,6 +569,54 @@ try {
     assert.ok(n > 5 && n <= 33, `the fizz story asks for ${n} frames a second (cap 30)`);
     await context.close();
   }
+  // ---------- Before AI: 2015: the three columns play, then the page rests at 0 frames a second ----------
+  // The page says so (demos/before-ai-2015/): at rest it asks for no animation frames, and under
+  // reduced motion no column animates.
+  where = "before-ai-2015 settles";
+  for (const reducedMotion of ["no-preference", "reduce"]) {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 }, reducedMotion });
+    const page = await context.newPage();
+    await page.addInitScript(() => {
+      const raw = requestAnimationFrame.bind(window);
+      window.__raf = 0;
+      window.requestAnimationFrame = (cb) => (window.__raf++, raw(cb));
+    });
+    await page.goto(`${ORIGIN}${BASE}demos/before-ai-2015/`);
+    await page.locator(".bt-row").scrollIntoViewIfNeeded();
+    await page.waitForTimeout(2500);
+    const count = async () => { const n0 = await page.evaluate(() => window.__raf); await page.waitForTimeout(1000); return (await page.evaluate(() => window.__raf)) - n0; };
+    assert.equal(await count(), 0, `${where} (${reducedMotion}): no frames at rest after load`);
+    // A round in the arcade: slam the lid open and type, hit the cups (the music starts), fill the
+    // cup, then pause the music. Everything plays, then the column rests again: the steam (3 s on
+    // a full cup, its last puffs up to 1.9 s more) and the laptop's scroll run out (~6 s), the
+    // combo, the shake and every particle end.
+    const A = ".bt-arcade ";
+    await page.click(A + ".fz-keys");
+    await page.waitForTimeout(500);
+    for (let i = 0; i < 4; i++) await page.click(A + ".fz-keys"), await page.waitForTimeout(80);
+    for (let i = 0; i < 3; i++) await page.click(A + ".fz-cups"), await page.waitForTimeout(80);
+    await page.click(A + ".fz-coffee button");
+    if (reducedMotion === "no-preference") assert.ok((await count()) > 5, `${where}: the arcade plays`);
+    await page.click(A + ".fz-play");
+    assert.ok(Number(await page.textContent(A + ".fz-best")) >= 2, `${where} (${reducedMotion}): the HUD counts the combo`);
+    // Particles, squash and shake: what any canvas of the column has drawn, and the stage's styles.
+    const motion = () => page.evaluate(() => {
+      let ink = 0;
+      for (const c of document.querySelectorAll(".bt-arcade canvas")) {
+        const d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+        for (let i = 3; i < d.length; i += 4) if (d[i]) ink++;
+      }
+      const s = document.querySelector(".bt-arcade .bt-stage").style, b = document.querySelector(".bt-arcade .fz-beats").style;
+      return { ink, shake: s.translate, squash: b.scale };
+    });
+    if (reducedMotion === "reduce") assert.deepEqual(await motion(), { ink: 0, shake: "", squash: "" }, `${where}: reduced motion draws no particles, no squash, no shake`);
+    // (Reduced motion still counts the combo: its 1.1 s window, then the 0.5 s settle.)
+    await page.waitForTimeout(reducedMotion === "reduce" ? 2500 : 7500);
+    assert.equal(await count(), 0, `${where} (${reducedMotion}): rests after a round on all three`);
+    assert.deepEqual(await motion(), { ink: 0, shake: "", squash: "" }, `${where} (${reducedMotion}): at rest no particle, squash or shake is left`);
+    if (reducedMotion === "reduce") assert.equal(await page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length), 0, `${where}: no CSS animation runs under reduced motion`);
+    await context.close();
+  }
   // ---------- Gallery at phone width: a slot's CSS animation stops once it is off screen ----------
   where = "gallery, offscreen";
   {
@@ -856,7 +904,13 @@ try {
       // the last reveals can take longer than any fixed wait. A part that never shows still fails.
       await page.waitForFunction(() => ![...document.querySelectorAll("section[data-reveal] *")]
         .some((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1")), null, { polling: "raf", timeout: 15000 }).catch(() => {});
-      assert.deepEqual(await moved(page), [], `${reducedMotion}: every part shown once the reveals end`);
+      // Name what is still hidden (section id, class, opacity) in the message: CI shows only the first
+      // lines of a failure, so a bare deepEqual diff never reached the annotations.
+      const left = await page.evaluate(() => [...document.querySelectorAll("section[data-reveal] *, .hero-field")]
+        .filter((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1"))
+        .map((el) => `${el.closest("section")?.id || "-"}:${el.className || el.tagName}@${el.style.opacity}`));
+      if (left.length) console.log(`home rhythm actual hidden (${reducedMotion}): ${left.join(" | ")}`);
+      assert.deepEqual(left, [], `${reducedMotion}: every part shown once the reveals end (${left.length} hidden: ${left.slice(0, 12).join(" | ")})`);
       if (reducedMotion === "reduce") {
         assert.equal(await page.evaluate(() => document.querySelector(".sec-num").style.translate), "", "reduced motion: no parallax");
       } else {
@@ -874,10 +928,11 @@ try {
     }
     // One jump down the page (an anchor, a fling, or a slow runner landing several scrolls in one
     // frame) can cross no observer threshold for a section it passes over: it still plays in.
-    // Whether a jump skips one depends on where the sections sit, so try a few depths.
+    // Whether a jump skips one depends on where the sections sit, so try a few depths. The foot of
+    // the page (1) is where the footer can fill the viewport: the reveals still end there.
     const passed = () => [...document.querySelectorAll("section[data-reveal]")].filter((s) => s.getBoundingClientRect().top < innerHeight * 0.85)
       .flatMap((s) => [...s.querySelectorAll("*")]).filter((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1")).map((el) => el.className || el.tagName);
-    for (const depth of [0.3, 0.4, 0.5, 0.6, 0.7]) {
+    for (const depth of [0.3, 0.4, 0.5, 0.6, 0.7, 1]) {
       const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
       const { page, errors } = await open(context, "");
       await page.waitForTimeout(300);

@@ -62,6 +62,7 @@ const card = (e, { loader, figures, base, people, themeTitle, winners, tooBig = 
         <ul class="gal-cost" aria-label="What it costs the page">${cost}</ul>
         <p class="gal-bricks">${e.bricks.map((b) => `<code>${esc(b)}</code>`).join(" ")}</p>
         ${snippets[e.id] ? `<p class="gal-keys"><a class="bui-key bui-arcade bui-go" href="${base}gallery/${esc(snippets[e.id].file)}" download="fizlet-${esc(e.id)}.html" data-snippet="${esc(e.id)}">${icon("down", 16)}Get the snippet</a><span>one drop-in file, <b>${fmt(snippets[e.id].size)} B</b> gzip · <a href="${base}make/?p=${encodeURIComponent(e.prompt)}">change the prompt</a></span></p>` : ""}
+        ${e.source ? `<p><a class="gal-link" href="${esc(e.source.url)}">${icon("out", 16)}See it on ${esc(e.source.label)} ↗</a></p>` : ""}
         ${e.link ? `<p><a class="gal-link" href="${base}${esc(e.link)}">${icon("out", 16)}See it on its own page</a></p>` : ""}
       </div>
     </li>`;

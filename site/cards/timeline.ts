@@ -25,7 +25,7 @@ const mount: SlotMount = (stage, slot, first) => mountCard(stage, slot, first, (
   for (let i = 0; i < N; i++) {
     const b = document.createElement("i");
     place(0, i, at);
-    b.style.cssText = `position:absolute;left:0;top:0;display:grid;place-items:center;width:${WIDTHS[i]! * k}px;height:${BH * k}px;box-sizing:border-box;background:var(--tone);border:2px solid #07060f;border-radius:3px;box-shadow:0 3px 0 #07060f;font:800 ${Math.round(8 * k)}px ui-monospace,Menlo,monospace;color:#07060f;font-style:normal;translate:${at[0]! * k}px ${at[1]! * k}px`;
+    b.style.cssText = `position:absolute;left:0;top:0;display:grid;place-items:center;width:${WIDTHS[i]! * k}px;height:${BH * k}px;box-sizing:border-box;background:var(--tone);border:2px solid #07060f;border-radius:3px;box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 #07060f;font:800 ${Math.round(8 * k)}px ui-monospace,Menlo,monospace;color:#07060f;font-style:normal;translate:${at[0]! * k}px ${at[1]! * k}px`;
     if (i === 0) b.textContent = `${card.tag} ${card.kb}`;
     els.push(b);
     card.stage.insertBefore(b, card.c);
