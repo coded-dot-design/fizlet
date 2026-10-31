@@ -145,8 +145,25 @@ function statusLegend(bricks) {
   }).join("\n      ");
 }
 
+/**
+ * The live diagram: every brick and what it imports, laid out by fizlet/layout and drawn by
+ * fizlet/view-canvas (site/brick-graph.ts). `graph` is site/brick-graph.mjs's data plus the live
+ * chunk's file and measured gzip bytes.
+ */
+const graphFigure = (g) => {
+  const { live, bytes, ...data } = g, kinds = [0, 1, 2].map((k) => data.links.filter((l) => l[2] === k).length);
+  return `<figure class="panel bgraph" data-brick-graph data-graph="${esc(JSON.stringify(data))}">
+      <div class="bgraph-stage" data-graph-stage></div>
+      <figcaption>
+        <span class="bui-label"><b>LIVE</b> · ${data.nodes.length} modules · ${data.links.length} links, read from the source</span>
+        <span class="bgraph-key"><i class="k0"></i>imports (its code ships) ${kinds[0]} · <i class="k1"></i>takes its types ${kinds[1]} · <i class="k2"></i>planned needs ${kinds[2]}</span>
+        <span>Drag a brick; hover one for its links. Laid out by <a href="layout.html"><code>fizlet/layout</code></a>, drawn by <a href="view-canvas.html"><code>fizlet/view-canvas</code></a>: <b>${bytes.toLocaleString("en-US")} B</b> gzip with the kernel, and 0 frames once it settles.</span>
+      </figcaption>
+    </figure>`;
+};
+
 /** bricks/index.html: every brick, with its measured size and its status. */
-export function bricksIndex({ bricks, sizes, version, planned = [] }) {
+export function bricksIndex({ bricks, sizes, version, planned = [], graph }) {
   const cards = bricks.map((b) => brickTile({ brick: b, size: sizes.find((x) => x.name === b.sizes[0]), href: `${b.id}.html`, toy: b.card ? b.card("bricks") : "" })).join("\n      ");
   return `
 <section class="section" aria-labelledby="bi-title">
@@ -156,6 +173,7 @@ export function bricksIndex({ bricks, sizes, version, planned = [] }) {
       <h1 id="bi-title">Kernel and<br><em>bricks.</em></h1>
       <p class="lead">One small kernel and a box of bricks, each its own import with its own size budget. Each page is generated from the source: the API from the type declarations, the size measured on this build.</p>
     </div>
+    ${graph ? graphFigure(graph) : ""}
     <ul class="bricks">
       ${cards}
     </ul>
