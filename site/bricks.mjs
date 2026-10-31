@@ -28,6 +28,17 @@ export const STATUS = {
 /** The one line for the whole engine: every page and the README say the same. */
 export const BETA_LINE = "Fizlet 0.x is a public beta: every brick carries a status flag, and a 0.x minor release may change a BETA brick's API (the CHANGELOG says how). COMPLETE bricks keep theirs.";
 
+/**
+ * In-house / experimental (owner, 2026-10-31: multiplayer is in-house): bricks that ship in the
+ * package (MIT, shipped, no breaking change) and that our games run on, but that aren't offered as
+ * a supported service. Every list of bricks (the bricks page, the home page, the README table,
+ * llms-full.txt) shows them apart, under this label. The way to run your own room server:
+ * /guides/build-your-own-room-server/.
+ */
+export const IN_HOUSE = { ids: ["presence"], label: "In-house / experimental", line: "Used in our games. Not a supported multiplayer service.", guide: "guides/build-your-own-room-server/" };
+/** Is this brick in the in-house group? */
+export const inHouse = (b) => IN_HOUSE.ids.includes(b.id);
+
 /** One export's flag: its brick's, unless its doc comment carries `@deprecated`, `@experimental` or `@beta`. */
 export const exportStatus = (brick, decl) => decl.tags.find((t) => ["deprecated", "experimental", "beta"].includes(t.name))?.name ?? brick.status;
 
@@ -43,8 +54,8 @@ export const FAMILIES = [
   { id: "render", label: "Render", tone: "attack" },
   { id: "game", label: "Game", tone: "fire" },
   { id: "page", label: "Page", tone: "fallin" },
-  // Ours, not a product: the bricks our own games run on. A brick moves out with its `family`.
-  { id: "inhouse", label: "In-house", tone: "hurt", note: "Used in our games. Not a supported multiplayer service." },
+  // IN_HOUSE's bricks (above): its column, with its line as the note.
+  { id: "inhouse", label: "In-house", tone: "hurt", note: IN_HOUSE.line },
 ];
 
 /**

@@ -2,11 +2,31 @@
 
 ## Unreleased
 
+- **Multiplayer is in-house; a guide to build your own room server.** `@fzlt/core/presence` and
+  `@fzlt/core/presence/check` stay in the package unchanged (MIT, BETA) and move into an
+  "In-house / experimental" group wherever bricks are listed (the bricks page, the home page, the
+  README table, llms-full.txt): "Used in our games. Not a supported multiplayer service." The room
+  server (`rooms/`) leaves this repo; its history stays here, and we keep running it for our own
+  games, privately. Its CI step and the `rooms-load` / `rooms-wake` stress wrappers go with it.
+  `/guides/multiplayer-rooms/` becomes **Build your own room server**
+  (`/guides/build-your-own-room-server/`; the old URL redirects): what presence speaks, the full
+  wire protocol as the contract (subprotocol `fizlet-rooms`, the 12-byte message and its eight kinds,
+  seats, the lobby, resume, the access check), the one-room-one-object pattern and a threat
+  checklist. The roadmap says "Multiplayer: in-house. DIY guide for your own server."; E12 builds on
+  presence (in-house). The lockstep note links the guide.
+- Site and README: `@fzlt/core` is on npm (0.21.2, 2026-10-31), so the home quick start, the brick
+  pages and the docs drop "coming soon" / "not published yet", and the README's pre-publish note
+  says when it went out. Building from source stays as the no-npm option.
+- **Site: smaller gallery pages, same pixels** (size sprint, re-based #208). The gallery stages' inline
+  PNG posters are packed losslessly (`scripts/png-pack.mjs`: an indexed PNG at the smallest bit depth,
+  pixels compared after packing; kept as-is past 256 colours; `scripts/gallery-posters.mjs` packs what
+  it writes; a test keeps every stage packed): 17 of the 34 posters packed. The pages' inline `<style>`
+  blocks are minified at build like site.css. Gallery page 1 first load 531,997 → 520,651 B gzip,
+  page 2 92,521 → 76,754 B; all HTML 1,465,898 → 1,428,045 B gzip. No JS or CSS file changes.
 - **Site: /bricks/ has a new hero, the Fizlet periodic table.** Every brick, 27 shipped and 8 planned,
   is a Board UI key in a column for its family (kernel, input, network, motion, render, game, page),
   showing its number, its two-letter symbol and, for a shipped brick, its size measured on this build.
-  `presence` and `presence/check` have their own In-house column, with the note "Used in our games.
-  Not a supported multiplayer service."
+  `presence` and `presence/check` (in-house) have their own In-house column, with its note.
   Planned bricks are dashed. Press one (click, tap, Enter or Space) and the key goes down, lights in its
   colour, says PRESSED, and a short quick view flies in: name, status, size against budget, one line,
   its import and a link to its page. On phones it is a bottom sheet, and the table scrolls inside its

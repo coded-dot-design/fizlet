@@ -3,7 +3,7 @@
 // gaps, no repeats); and one family from FAMILIES, with every family in use.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { BRICKS, PLANNED, FAMILIES } from "../site/bricks.mjs";
+import { BRICKS, PLANNED, FAMILIES, inHouse } from "../site/bricks.mjs";
 
 const all = [...BRICKS.map((b) => ({ id: b.id, ...b })), ...PLANNED.map((p) => ({ id: p.name.split("/").pop(), ...p }))];
 
@@ -49,4 +49,5 @@ test("families: each brick in one known family; every family has a brick", () =>
   for (const b of all) assert.ok(ids.includes(b.family), `${b.id}: family ${b.family}`);
   for (const f of ids) assert.ok(all.some((b) => b.family === f), `family ${f} is used`);
   assert.deepEqual(all.filter((b) => b.family === "kernel").map((b) => b.id), ["kernel"], "the kernel stands alone");
+  for (const b of BRICKS) assert.equal(b.family === "inhouse", inHouse(b), `${b.id}: in the In-house column exactly when IN_HOUSE lists it`);
 });
