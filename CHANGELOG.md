@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **Gallery: Tiny Swarm Protocol (pending owner review).** A ten-second taste of Swarm Protocol by
+  Pip: bugs crawl onto a little web page and eat its letters into binary (real text, through the
+  ledger); every three letters a bug grows a tier, and grown hunters latch on the buttons and drain
+  their colour. Squash them (tap, or arrows and Space) and save the buttons till the bell; Recall puts
+  every letter back. 44 px mute key after a gesture. 9,701 B gzip live; zero-alloc step; settles;
+  reduced motion keeps the poster.
 - **Four more brick cards: hud, match, sound, presence.** hud: a high striker; tap fast to heat it
   and ring the bell; its real DOM scoreboard (score, best, heat meter, HOT flag, a feed of strikes) is
   bound with fizlet/hud and the readout counts DOM writes against frames. match: a ten-second round on
