@@ -9,7 +9,7 @@ import { LAUNCH_LAST, phases } from "../roadmap.mjs";
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
 
-const CONTRACT = [
+export const CONTRACT = [
   ["One clock per page", "Every engine on the page shares one requestAnimationFrame. A fixed 60 Hz step with a catch-up cap: a long frame drops time, it never spirals."],
   ["Bounded everything", "Pools and the event ring have a fixed capacity and refuse work when full. Nothing grows during a session."],
   ["Zero steady-state allocation", "One million kernel steps of a busy system cause no young-generation GC. Each brick alone allocates nothing."],
@@ -18,7 +18,7 @@ const CONTRACT = [
   ["Pause by default", "Hidden tab, page leaving, root off screen, typing in the host's own fields. Zero CPU while paused."],
   ["Own nothing you can't give back", "Every page change goes through the ledger. destroy() restores it exactly, and a newer host edit always wins."],
   ["Embed-safe", "No globals, no global styles, many engines per page. Every root Fizlet owns is CSS-contained. One AbortSignal removes every listener and observer."],
-  ["Budgets in CI", "Kernel at most 4 KB gzip, each brick its own budget of 1.5 to 5 KB. Over budget, the build fails."],
+  ["Budgets in CI", "Kernel at most 4 KB gzip; every brick and the page build have their own budget. Over budget, the build fails."],
 ];
 
 const PIPELINE = [
@@ -29,7 +29,7 @@ const PIPELINE = [
   ["Pages", "static, no server"],
 ];
 
-const LEDGER_ROWS = [
+export const LEDGER_ROWS = [
   ["ledger.text(node, v)", "a text node's value", "the 0s and 1s a shot leaves in a word"],
   ["ledger.style(el, prop, v)", "one inline style property", "transforms, custom properties"],
   ["ledger.attr(el, name, v)", "an attribute (null removes)", "aria-busy, data-hp"],
@@ -185,9 +185,9 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
   </div>
 </section>
 
-<!-- ON THIS PAGE: one jump per numbered section (the long page's own table of contents) -->
+<!-- ON THIS PAGE: one jump per numbered section (the long page's own table of contents), then the weekly contest (its own page; it and Roadmap left the header) -->
 <nav class="page-toc" aria-label="On this page">
-  <div class="wrap"><span class="bui-label"><b>ON THIS PAGE</b></span><ol><li><a href="#contract"><b>01</b>Contract</a></li><li><a href="#bricks"><b>02</b>Bricks</a></li><li><a href="#board"><b>03</b>The board</a></li><li><a href="#loop"><b>04</b>The loop</a></li><li><a href="#recall"><b>05</b>Recall</a></li><li><a href="#specs"><b>06</b>Specs</a></li><li><a href="#ship"><b>07</b>Ship</a></li><li><a href="#games"><b>08</b>Games</a></li><li><a href="#roadmap"><b>09</b>Roadmap</a></li><li><a href="#start"><b>10</b>Quick start</a></li></ol></div>
+  <div class="wrap"><span class="bui-label"><b>ON THIS PAGE</b></span><ol><li><a href="#contract"><b>01</b>Contract</a></li><li><a href="#bricks"><b>02</b>Bricks</a></li><li><a href="#board"><b>03</b>The board</a></li><li><a href="#loop"><b>04</b>The loop</a></li><li><a href="#recall"><b>05</b>Recall</a></li><li><a href="#specs"><b>06</b>Specs</a></li><li><a href="#ship"><b>07</b>Ship</a></li><li><a href="#games"><b>08</b>Games</a></li><li><a href="#roadmap"><b>09</b>Roadmap</a></li><li><a href="#start"><b>10</b>Quick start</a></li><li><a href="contest/"><b>→</b>Weekly contest</a></li></ol></div>
 </nav>
 
 <!-- PLAY: the live board, running on Fizlet itself -->
@@ -450,6 +450,7 @@ ${roadmapSection()}
 
 <!-- FINAL -->
 <section class="section final" data-reveal aria-labelledby="final-title">
+  <span class="sec-rule" aria-hidden="true"></span>
   <div class="wrap final-inner">
     <p class="eyebrow">MIT · NO DEPENDENCIES · V${esc(version)}</p>
     <h2 id="final-title">Make the page play.</h2>

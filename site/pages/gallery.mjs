@@ -39,9 +39,10 @@ export const ownFigure = (e) =>
 /** The figure for an entry: its own poster (`figures[e.figure]`), its own stage, a page scene or the prompt. */
 export const entryFigure = (e, figures) => figures[e.figure] ?? (e.stage === "own" ? ownFigure : e.stage === "page" ? pageFigure : plainFigure)(e);
 
-/** "by <name>", linked to the contributor's profile; a house persona is named as one (a character, not a real person). */
+/** "by <name>", linked to the contributor's profile; studio crew or an AI agent is named as one (not a real person). */
+const BY_KIND = { persona: "studio crew", agent: "AI agent" };
 export const byLine = (e, people, base, cls = "gal-by") =>
-  `<p class="${cls}">by <a href="${base}people/${esc(e.author)}/">${esc(people[e.author].name)}</a>${people[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`;
+  `<p class="${cls}">by <a href="${base}people/${esc(e.author)}/">${esc(people[e.author].name)}</a>${BY_KIND[people[e.author].kind] ? ` <small class="gal-persona">${BY_KIND[people[e.author].kind]}</small>` : ""}</p>`;
 
 const card = (e, { loader, figures, base, people, themeTitle, winners, tooBig = new Set(), snippets = {} }) => {
   const fig = entryFigure(e, figures).replace("<figure ", `<figure data-gallery="${esc(e.id)}" `);

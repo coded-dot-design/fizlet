@@ -18,7 +18,7 @@ import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
 import { entries as galleryEntries, isLive, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
 import { notes as siteNotes, notePath } from "../scripts/notes.mjs";
-import { PERSONA_NOTE, authorOf, contributors as profiles } from "../scripts/people.mjs";
+import { STICKER, authorOf, contributors as profiles } from "../scripts/people.mjs";
 import { gzipSync } from "node:zlib";
 import { checkKeys, checkTaps } from "./keys.mjs";
 import { snippetable, snippetFor, TABLE as MAKE_TABLE } from "../scripts/make.mjs";
@@ -30,6 +30,8 @@ const VERSION = JSON.parse(readFileSync("package.json", "utf8")).version;
 /** The size a snippet's header says it is. */
 const snippetSize = (text) => Number(/^ {5}([\d,]+) B gzip, this whole file/m.exec(text)?.[1].replace(/,/g, "") ?? NaN);
 import { liveBytes } from "../scripts/live-bytes.mjs";
+import { docs as siteDocs, docPath } from "../scripts/docs.mjs";
+import { releases as siteReleases, releasePath } from "../scripts/releases.mjs";
 
 const ROOT = "site-dist", BASE = SITE_ROOT;
 if (!existsSync(`${ROOT}/index.html`)) throw new Error("site-dist/ is missing: run `npm run site` first");
@@ -61,7 +63,7 @@ const PAGES = readdirSync(ROOT, { recursive: true }).filter((f) => f.endsWith(".
 for (const b of BRICKS) assert.ok(PAGES.includes(`bricks/${b.id}.html`), `a page for ${b.name}`);
 // What counts as a live demo: the home blast board, slot scenes (layers, fizz), brick demos and the
 // quick start's canvas. The demos' own standalone pages (built by site/demos/*) have no badge yet.
-const DEMOS = "[data-demo], figure.ae-slot, [data-brick-demo], canvas.qs-canvas";
+const DEMOS = "[data-demo], figure.ae-slot, [data-brick-demo], figure[data-recipe], canvas.qs-canvas";
 const NO_BADGE = { "demos/fizz/": 1, "demos/layers/": 1, "examples/fizz/": 1 };
 let badges = 0, sizeCache = null;
 const measured = async () => (sizeCache ??= await measure());
@@ -149,12 +151,46 @@ try {
     assert.ok(llms.includes(`](${SITE}${path}):`), `llms.txt lists ${path || "index"}`);
   }
   assert.ok(robots.includes(`Sitemap: ${SITE}sitemap.xml`) && /User-agent: \*\nAllow: \//.test(robots), "robots.txt admits crawlers and names the sitemap");
+  // llms-full.txt: the whole API in plain text for agents, linked from llms.txt, every brick in it.
+  const llmsFull = readFileSync(`${ROOT}/llms-full.txt`, "utf8");
+  assert.ok(llms.includes(`[llms-full.txt](${SITE}llms-full.txt)`), "llms.txt links llms-full.txt");
+  for (const b of BRICKS) assert.ok(llmsFull.includes(`\n## ${b.name}\n`), `llms-full.txt has ${b.name}`);
+  assert.equal(await status(`${BASE}llms-full.txt`), 200, "llms-full.txt is served");
   assert.equal(await status(`${BASE}og.png`), 200, "the social card");
   // Site nav rules (scripts/check-nav.mjs): one header, an active state, breadcrumbs on deep pages,
   // external links marked ↗, descriptive link text, no orphan pages. The two standalone example
   // pages keep their own plain shell (the same ones the landmark gate lists).
   where = "site nav";
   assert.deepEqual(checkNav(PAGES.map((path) => ({ path, html: readFileSync(fileOf(path), "utf8") })), { site: SITE, standalone: Object.keys(KNOWN) }), [], "site nav rules");
+  // Footer site map (site/layout.mjs siteMap): on every page with the site footer, every route in
+  // sitemap.xml is linked exactly once (home by the brand link), no noindex page is, and the page
+  // itself is marked aria-current="page".
+  where = "footer site map";
+  {
+    const routes = [...sitemap.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1].slice(SITE.length));
+    const hidden = PAGES.filter((p) => !indexable.includes(p));
+    let footers = 0;
+    for (const path of PAGES) {
+      const foot = readFileSync(fileOf(path), "utf8").match(/<footer class="site-foot">([\s\S]*?)<\/footer>/)?.[1];
+      if (!foot) continue;
+      footers++;
+      assert.ok(foot.includes('<nav class="foot-map" aria-label="Site map">'), `${path || "index"}: footer has the site map nav`);
+      assert.ok(!foot.includes("<!--site-map"), `${path || "index"}: site map marker filled`);
+      const from = new URL(path, `http://x${BASE}`);
+      const hits = new Map();
+      for (const [, attrs] of foot.matchAll(/<a\s([^>]*)>/g)) {
+        const href = attrs.match(/href="([^"]*)"/)[1];
+        if (/^[a-z]+:/i.test(href) || href.includes("#")) continue;
+        const to = decodeURIComponent(new URL(href, from).pathname.slice(BASE.length)).replace(/(^|\/)index\.html$/, "$1");
+        hits.set(to, (hits.get(to) ?? 0) + 1);
+        if (to === path && path !== "") assert.match(attrs, /aria-current="page"/, `${path}: its own footer link is aria-current="page"`);
+      }
+      for (const r of routes) assert.equal(hits.get(r) ?? 0, 1, `${path || "index"}: footer links ${r || "home"} exactly once`);
+      for (const h of hidden) assert.ok(!hits.has(h), `${path || "index"}: footer does not link the hidden page ${h}`);
+      for (const to of hits.keys()) assert.ok(routes.includes(to), `${path || "index"}: footer links ${to}, which is not in the sitemap`);
+    }
+    assert.ok(footers > routes.length / 2, `the site footer is on most pages (${footers})`);
+  }
 
   // ---------- Brick pages: the sizes are the ones measured on this build ----------
   where = "brick sizes";
@@ -205,7 +241,7 @@ try {
         assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
         // Attribution: "by <name>", linked to the contributor's profile.
         const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</div>\n    </li>")[0]; // a card ends at its own </li> (a poster may hold lists)
-        assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
+        assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">studio crew</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
       }
     }
     // The generated index: every entry once, newest first, on the page that holds it, its sizes measured on this build.
@@ -244,7 +280,7 @@ try {
       const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
       const card = html.slice(html.indexOf(`id="hero-${e.id}"`)).split("</li>")[0];
       assert.ok(card.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `hero ${e.id}: its badge shows ${bytes} B`);
-      assert.ok(card.includes(`<p class="hero-by">by <a href="../${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">house persona</small>' : ""}</p>`), `hero ${e.id}: by ${PEOPLE[e.author].name}, linked`);
+      assert.ok(card.includes(`<p class="hero-by">by <a href="../${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">studio crew</small>' : ""}</p>`), `hero ${e.id}: by ${PEOPLE[e.author].name}, linked`);
       assert.ok(!/data-slot-target/.test(card), `hero ${e.id}: no gallery slot wiring on its poster`);
     }
     assert.ok(PEOPLE["chris-cooley"], "the owner's profile");
@@ -253,6 +289,27 @@ try {
       const p = readFileSync(pageFile(personPath(person.id)), "utf8");
       assert.ok(p.includes(`<h1 id="person-name" data-person="${person.id}">${person.name}</h1>`), `${person.id}: named`);
       for (const e of GALLERY.filter((x) => x.author === person.id)) assert.ok(p.includes(`>${e.title.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</a>`), `${person.id}: lists ${e.id}`);
+    }
+  }
+
+  // ---------- Docs, guides and news: every page built, numbers from this build, every release from the changelog ----------
+  where = "docs and news";
+  {
+    const sizes = await measure(), kernel = sizes[0];
+    for (const d of siteDocs()) {
+      assert.ok(PAGES.includes(docPath(d)), `${d.slug}: built at ${docPath(d)}`);
+      const html = readFileSync(`${ROOT}/${docPath(d)}index.html`, "utf8");
+      assert.doesNotMatch(html, /\{(size|kb|budget|version)(:[^}]+)?\}/, `${d.slug}: every number token filled in`);
+      assert.ok(html.includes(`"@type":"TechArticle"`) && html.includes(`"@type":"BreadcrumbList"`), `${d.slug}: TechArticle and breadcrumb JSON-LD`);
+    }
+    const budgets = readFileSync(`${ROOT}/docs/budgets/index.html`, "utf8");
+    for (const s of sizes) assert.ok(budgets.includes(`data-size="${s.name.replace(/"/g, "&quot;")}">${s.gzip.toLocaleString("en-US")} B</td>`), `budgets: ${s.name} shows ${s.gzip} B`);
+    assert.ok(readFileSync(`${ROOT}/docs/getting-started/index.html`, "utf8").includes(`${kernel.gzip.toLocaleString("en-US")} B gzip`), "getting started: the kernel size from this build");
+    const REL = siteReleases(), news = readFileSync(`${ROOT}/news/index.html`, "utf8");
+    assert.ok(REL.length > 0 && !REL.some((r) => r.version === "Unreleased"), "releases from the changelog, Unreleased left out");
+    for (const r of REL) {
+      assert.ok(PAGES.includes(releasePath(r)), `${r.version}: release notes built`);
+      assert.ok(news.includes(`href="../${releasePath(r)}"`), `news lists ${r.version}`);
     }
   }
 
@@ -279,7 +336,7 @@ try {
     }
   }
 
-  // ---------- People and the weekly contest: stats measured on this build, personas say so ----------
+  // ---------- People and the weekly contest: stats measured on this build, stickers say who is real ----------
   where = "people";
   {
     const people = profiles(), index = readFileSync(`${ROOT}/people/index.html`, "utf8");
@@ -290,7 +347,7 @@ try {
       const mine = GALLERY.filter((e) => authorOf(e) === p.id);
       const bytes = mine.reduce((n, e) => n + gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length, 0);
       assert.ok(html.includes(`data-stat="entries">${mine.length}</b>`) && html.includes(`data-stat="bytes">${bytes.toLocaleString("en-US")} B</b>`), `${p.id}: ${mine.length} entries, ${bytes} B, measured`);
-      assert.equal(html.includes(PERSONA_NOTE.replace(/ — /, "</b> — ")), p.kind === "persona", `${p.id}: the persona line`);
+      assert.ok(html.includes(`aria-label="${STICKER[p.kind].label}" title="${STICKER[p.kind].label}">${STICKER[p.kind].text}</span>`), `${p.id}: the ${STICKER[p.kind].text} sticker says what they are`);
       const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
       const profile = graph.find((x) => x["@type"] === "ProfilePage");
       assert.ok(p.kind === "owner" ? profile.mainEntity["@id"].endsWith("#author") : !profile.mainEntity && profile.about["@type"] !== "Person", `${p.id}: only the maker is a Person`);

@@ -28,6 +28,9 @@ export const STATUS = {
 /** The one line for the whole engine: every page and the README say the same. */
 export const BETA_LINE = "Fizlet 0.x is a public beta: every brick carries a status flag, and a 0.x minor release may change a BETA brick's API (the CHANGELOG says how). COMPLETE bricks keep theirs.";
 
+/** One export's flag: its brick's, unless its doc comment carries `@deprecated`, `@experimental` or `@beta`. */
+export const exportStatus = (brick, decl) => decl.tags.find((t) => ["deprecated", "experimental", "beta"].includes(t.name))?.name ?? brick.status;
+
 /**
  * [{ id, tag, role, modules, sizes, demo, snippet, status, since, tests, used, why }]. `sizes` are
  * the size entries shown (the first is the headline); `demo` names a live demo in site/demos/ (only
@@ -71,27 +74,27 @@ fx.step(dt); fx.draw(ctx); // pooled: never allocates` },
   { palettes: [{ team: "#39ffb0" }, { team: "#ff5c8f" }] });
 art.draw(ctx, "bug", frame, x, y, angle, 3, side);
 img.src = spriteURL(def, 0, palettes); // the same pixels as SVG` },
-  { id: "sound", status: "complete", since: "0.2.0", tests: ["browser.mjs"], used: ["Battlefield Blitz", "Null Invaders, Byte Runner and Sherman Bytes (through fizlet/arcade)"],
+  { id: "sound", status: "complete", since: "0.2.0", tests: ["sound.test.mjs", "browser.mjs"], used: ["Battlefield Blitz", "Null Invaders, Byte Runner and Sherman Bytes (through fizlet/arcade)"],
     tag: "SOUND", role: "advance", modules: [mod("fizlet/sound", "sound")], demo: "sound",
     snippet: `const sfx = sound(e, { cues: { boom: "boom" } });
 e.events.emit("boom"); // in a step; plays after render
 sfx.on = false;        // mute` },
-  { id: "embed", status: "complete", since: "0.2.0", tests: ["browser.mjs"], used: ["Battlefield Blitz (the drop-in)"],
+  { id: "embed", status: "complete", since: "0.2.0", tests: ["embed.test.mjs", "browser.mjs"], used: ["Battlefield Blitz (the drop-in)"],
     tag: "EMBED", role: "fallin", modules: [mod("fizlet/embed", "embed")],
     snippet: `embed(() => import("./game.js").then((m) => m.mount), {
   name: "blitz", palette: { cmd: "#8573ee" },
   easterEgg: { sequence: "konami" } });` },
-  { id: "slot", status: "complete", since: "0.3.0", tests: ["browser.mjs", "fizz.mjs", "layers.mjs", "page.test.mjs"], used: ["fizlet.com: the home hero, the fizz and the gallery"],
+  { id: "slot", status: "complete", since: "0.3.0", tests: ["slot.test.mjs", "browser.mjs", "fizz.mjs", "layers.mjs", "page.test.mjs"], used: ["fizlet.com: the home hero, the fizz and the gallery"],
     tag: "SLOT", role: "sys", modules: [mod("fizlet/slot", "slot")] },
   { id: "hud", status: "beta", since: "0.3.6", tests: ["hud.test.mjs", "browser.mjs"], used: [], why: "Only fizlet/arcade's skirmish preset uses it, and no released game uses that preset yet.",
     tag: "HUD", role: "aim", modules: [mod("fizlet/hud", "hud")] },
   { id: "match", status: "beta", since: "0.4.3", tests: ["match.test.mjs", "browser.mjs"], used: [], why: "No released game runs its match flow on it yet.",
     tag: "MATCH", role: "go", modules: [mod("fizlet/match", "match")] },
-  { id: "board-page", status: "beta", since: "0.4.4", tests: ["browser.mjs"], used: ["Byte Runner, Sherman Bytes, Swarm Protocol 1.4", "Null Invaders (through fizlet/arcade)"], why: "Tested only in the browser: no Node test and no allocation test for its step queries (near, hit) yet.",
+  { id: "board-page", status: "complete", since: "0.4.4", tests: ["board-page.test.mjs", "browser.mjs"], used: ["Byte Runner, Sherman Bytes, Swarm Protocol 1.4", "Null Invaders (through fizlet/arcade)"],
     tag: "BOARD PAGE", role: "attack", modules: [mod("fizlet/board-page", "board-page")] },
   { id: "presence", status: "beta", since: "0.4.0", tests: ["presence.test.mjs", "api.test.mjs"], used: ["Battlefield Blitz two players (behind an invite code)"], why: "The API is still growing: interpolation and AI players come next.",
     tag: "PRESENCE", role: "cmd", modules: [mod("fizlet/presence", "presence"), mod("fizlet/presence/check", "presence-check")] },
-  { id: "ui", status: "complete", since: "0.1.0", tests: ["browser.mjs", "tokens.test.mjs"], used: ["every game", "fizlet.com", "the DOM VIRUS and DOM Battlefield sites"],
+  { id: "ui", status: "complete", since: "0.1.0", tests: ["ui.test.mjs", "tokens.test.mjs", "browser.mjs"], used: ["every game", "fizlet.com", "the DOM VIRUS and DOM Battlefield sites"],
     tag: "BOARD UI", role: "fire", modules: [mod("fizlet/ui", "ui/board-ui", "fizlet/ui (js)")], sizes: ["fizlet/ui (js)", "fizlet/ui (css)"],
     snippet: `applyPalette(root, { sys: "#06c4ff" }); // hex only
 press(key, () => fire(), signal); // touch-safe
@@ -130,14 +133,14 @@ lockTouch(document, null); // a full-screen board: the whole page` },
 
 const c = cssClock(diagram, { span: 6, loops: 3 }); // rests on frame one, settles
 pauseButton.onclick = () => c.hold(!held); // c.destroy() gives the page back` },
-  { id: "arcade", status: "complete", since: "0.11.0", tests: ["arcade.mjs", "arcade-game.mjs", "arcade-hud.mjs"], used: ["Null Invaders 1.0", "Byte Runner 1.0", "Sherman Bytes 1.0"],
+  { id: "arcade", status: "complete", since: "0.11.0", tests: ["arcade.test.mjs", "arcade.mjs", "arcade-game.mjs", "arcade-hud.mjs"], used: ["Null Invaders 1.0", "Byte Runner 1.0", "Sherman Bytes 1.0"],
     tag: "ARCADE", role: "go", modules: [mod("fizlet/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
   hint: "Mouse / WASD · Space fires", css: KIT_CSS, fire: true,
   readouts: [["Score", "team"], ["Wave"]], colors: ["#06c4ff"],
   cues: { fire: "fire" }, create: (ctx) => myRules(ctx) }, { root: "main" });
 game.start(); // Escape: Recall` },
-  { id: "debug", status: "complete", since: "0.1.0", tests: ["browser.mjs"], used: ["fizlet.com: the home demo (guardLayout)"],
+  { id: "debug", status: "complete", since: "0.1.0", tests: ["debug.test.mjs", "browser.mjs"], used: ["fizlet.com: the home demo (guardLayout)"],
     tag: "DEBUG", role: "aim", modules: [mod("fizlet/debug", "debug")],
     snippet: `import { guardLayout } from "fizlet/debug";
 guardLayout(e);  // dev builds only

@@ -228,3 +228,14 @@ test("grid: zero allocation across many searches", async (t) => {
   t.diagnostic(`100k path + los calls (48×30, 8-way, budget 600) and 1,563 floods: ${minor} young GCs, ${(ms / 100).toFixed(1)} µs per frame`);
   assert.ok(minor <= 1, `young-generation GCs over 100k searches: ${minor}`);
 });
+
+test("grid: options are checked at setup (a bad size throws with its name, never NaN cells)", () => {
+  for (const bad of [0, -3, 2.5, NaN, Infinity, "8"]) {
+    assert.throws(() => board(bad, 4), /cols/, `cols ${bad}`);
+    assert.throws(() => board(4, bad), /rows/, `rows ${bad}`);
+  }
+  for (const bad of [0, -1, NaN, Infinity, "2"]) assert.throws(() => board(4, 4, { cell: bad }), /cell/, `cell ${bad}`);
+  // cell: 0 used to make at() NaN; good values still pass.
+  const b = board(4, 3, { cell: 0.5 });
+  assert.deepEqual([b.cols, b.rows, b.cell, b.at(1.2, 0.7)], [4, 3, 0.5, 6]);
+});
