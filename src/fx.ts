@@ -149,7 +149,7 @@ export function effects(o: FxOptions = {}) {
       for (let i = 0; i < all; i++) {
         const p = st[0]!;
         if (p >= cap) {
-          st[3] = st[3]! + all - i;
+          st[3]! += all - i;
           break;
         }
         st[0] = p + 1;
@@ -157,8 +157,7 @@ export function effects(o: FxOptions = {}) {
         for (let r = 0; r < 6; r++) U[r] = rnd(0, 1);
         X[p] = x;
         Y[p] = y;
-        VX[p] = VY[p] = ROT[p] = SPIN[p] = 0;
-        word[p] = 0;
+        VX[p] = VY[p] = ROT[p] = SPIN[p] = word[p] = 0;
         if (i < 5) {
           // Flash, fireball, core, shock ring, spinning square ring.
           kind[p] = HERO_KIND[i]!;
@@ -194,7 +193,7 @@ export function effects(o: FxOptions = {}) {
         SY[s] = y;
         SR[s] = 16 * k;
         SL[s] = 9;
-        st[1] = st[1]! + 1;
+        st[1]!++;
       }
       st[2] = Math.min(18, st[2]! + power * 3.5);
     },
@@ -295,9 +294,8 @@ export function effects(o: FxOptions = {}) {
       ctx.globalAlpha = 1;
     },
     clear() {
-      st[0] = 0;
+      st[0] = st[2] = 0;
       SL.fill(0);
-      st[2] = 0;
     },
   };
   fx.gravity = o.gravity ?? 0; // the setter ignores a non-finite value
@@ -336,7 +334,7 @@ export function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>) {
       for (let i = 0; i < n; i++) {
         const p = st[0]!;
         if (p >= cap) {
-          st[3] = st[3]! + Math.ceil(n - i);
+          st[3]! += Math.ceil(n - i);
           break;
         }
         st[0] = p + 1;
