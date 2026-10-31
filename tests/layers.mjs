@@ -131,7 +131,7 @@ await test("mounts and plays on its own; the play key pauses and resumes it; no 
   assert.equal(m.cue, "↕ scroll me to fan the layers");
   assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector(".lz-fire")).backgroundColor), "rgb(255, 43, 78)");
   assert.equal(m.label, "The layers story");
-  assert.match(m.desc, /plays on its own and loops.*play key pauses it.*scrolling or swiping over it.*arrow keys/);
+  assert.match(m.desc, /plays on its own, three times round.*play key pauses and replays it.*scrolling or swiping over it.*arrow keys/);
   // Autoplay: the play key says Pause and the story moves on by itself.
   await page.waitForFunction(() => document.querySelector(".lyr__play").getAttribute("aria-label") === "Pause");
   const p0 = (await frameOf(page)).p;

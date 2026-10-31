@@ -60,7 +60,7 @@ export const ARIA =
   "A stylised mobile tank game. The board turns and its eight stacked layers lift off one by one, " +
   "each labelled with its measured size: board grid, characters, movement, collision, rules, effects, input and HUD. " +
   "The collision layer turns red with a fault, a scan passes over it and patches it, it flashes green, " +
-  "and the stack snaps back into the game. It plays on its own and loops; the play key pauses it, and scrolling " +
+  "and the stack snaps back into the game. It plays on its own, three times round; the play key pauses and replays it, and scrolling " +
   "or swiping over it (or the arrow keys, once it has focus) steps through the layers by hand.";
 
 /** Width the labels take beside the exploded stack (screen px): the longest label, "Input intents ·

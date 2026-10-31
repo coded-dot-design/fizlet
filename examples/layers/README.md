@@ -33,7 +33,8 @@ over it fans the layers out by hand ("Scroll me to fan the layers"). By [Chris C
 
 ## Behaviour
 
-- **Plays on its own:** the story runs and loops while the figure is on screen. The play/pause key
+- **Plays on its own:** the story runs three times round while the figure is on screen, then rests
+  on the game frame and the kernel settles. The play/pause key
   (the kit's arcade key, `go`) stops and resumes it from the same frame.
 - **Scroll lock, like every demo frame on the site:** a wheel or a vertical swipe over the figure
   steps the story by hand instead of moving the page (down fans the layers out, up folds them back;
@@ -61,10 +62,10 @@ over it fans the layers out by hand ("Scroll me to fan the layers"). By [Chris C
 
 ## Measured
 
-See `site/demos/layers/measured.json`. On Fizlet 0.21.0, Chromium 153: live chunk 8,033 B gzip
+See `site/demos/layers/measured.json`. On Fizlet 0.21.0, Chromium 153: live chunk 8,060 B gzip
 (`fizlet/slot` + scene, loaded only once the slot is near); poster, controls and inline script
-4,046 B gzip (script 368 B); at 4× CPU throttle over one whole loop, script per frame 1.2 ms median,
-2.7 ms p95, 4.8 ms max; layout shift 0; 0 frames while paused; 0 B of JS fetched before the slot
+4,057 B gzip (script 368 B); at 4× CPU throttle over one whole loop, script per frame 1.4 ms median,
+2.6 ms p95, 5.7 ms max; layout shift 0; 0 frames while paused; 0 B of JS fetched before the slot
 nears the viewport.
 
 Against the hero budgets in fizlet-engine `docs/LAYERS.md`: live chunk ≥ 5% under 10 KB ✔, poster ≤ 6 KB ✔,

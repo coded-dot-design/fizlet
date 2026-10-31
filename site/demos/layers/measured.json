@@ -3,16 +3,16 @@
   "chromium": "153.0.8010.12",
   "bytes": {
     "loader": 368,
-    "live": 8033,
-    "poster": 4046
+    "live": 8060,
+    "poster": 4057
   },
   "frame": {
     "throttle": 4,
     "fps": 30,
-    "frames": 370,
-    "p50": 1.2,
-    "p95": 2.7,
-    "max": 4.8,
+    "frames": 367,
+    "p50": 1.4,
+    "p95": 2.6,
+    "max": 5.7,
     "gapP95": 50
   },
   "cls": 0,

@@ -4,8 +4,8 @@
  * a scan patches it, it flashes green, and the stack snaps back into the game. Built on the kernel
  * (settle + fps cap) and fizlet/sprite; mounted by fizlet/slot (see entry.ts).
  *
- * It plays on its own and loops, while the figure is on screen (off screen nothing runs; the kernel
- * settles). The play key pauses and resumes it. A wheel or a vertical swipe over the figure steps
+ * It plays on its own, LOOPS times round, while the figure is on screen, then rests on the game frame
+ * and the kernel settles (off screen nothing runs either). The play key pauses and resumes it. A wheel or a vertical swipe over the figure steps
  * the story by hand (the figure holds the page's scroll, like the site's other demo frames; the
  * site's scroll-lock note says why) and pauses it; scrolling down fans the layers out. Keyboard: the
  * figure takes focus; arrows (and Home/End) step through the layers, one stop per label.
@@ -21,7 +21,7 @@ import type { SlotMount, SlotScene } from "../../../src/slot";
 import { FAULT, fit, COLS, ROWS, CELL, BW, BH, MAP, TILT, TURN } from "./data";
 
 // The story in seconds of story time; it loops at END. WHEEL: wheel (or swipe) pixels per second of story.
-const PLAY = 0.8, OPEN = 2.4, LIFT = 0.45, RISE = 0.7, FAULT_AT = 6.8, SCAN_AT = 7.5, SCAN_END = 8.9, OK_END = 9.6, FOLD_AT = 10, CLOSED = 11.4, END = 12.4, WHEEL = 90;
+const PLAY = 0.8, OPEN = 2.4, LIFT = 0.45, RISE = 0.7, FAULT_AT = 6.8, SCAN_AT = 7.5, SCAN_END = 8.9, OK_END = 9.6, FOLD_AT = 10, CLOSED = 11.4, END = 12.4, WHEEL = 90, LOOPS = 3;
 /** Layer ids, bottom to top (data.ts LAYERS; the labels' text comes from the poster's own). */
 const IDS = "grid characters movement collision rules fx input hud".split(" ");
 const N = IDS.length, TANKS = 4, SHOTS = 40;
@@ -169,12 +169,13 @@ export function mount(stage: HTMLElement, fig: HTMLElement = stage): SlotScene {
     }
 
   // ---------- the story clock ----------
-  // T: shown time, target time, playing (1/0), on screen (1/0).
-  const T = new Float64Array(4);
+  // T: shown time, target time, playing (1/0), on screen (1/0), loops played.
+  const T = new Float64Array(5);
   T[2] = 1;
   const btn = fig.querySelector<HTMLElement>(".lyr__play");
   const play = (on: boolean) => {
     T[2] = +on;
+    if (on) T[4] = 0;
     if (on && T[1]! >= END) T[0] = T[1] = 0;
     if (btn) engine.ledger.attr(btn, "aria-label", on ? "Pause" : "Play");
     engine.wake();
@@ -194,8 +195,10 @@ export function mount(stage: HTMLElement, fig: HTMLElement = stage): SlotScene {
   engine.add({
     step(e, dt) {
       if (T[2] && T[3]) {
-        // Playing: the story runs at real time and loops (the end and the start are both the game).
+        // Playing: the story runs at real time and loops (the end and the start are both the game);
+        // after LOOPS it rests on the game frame, and play starts it again.
         T[0] = T[1] = T[1]! + dt >= END ? 0 : T[1]! + dt;
+        if (T[1] === 0 && ++T[4]! >= LOOPS) return play(false);
         return e.busy();
       }
       const d = T[1]! - T[0]!;
