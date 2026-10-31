@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- **Gallery: surf-sesh, three ten-second surf minis by Pip (pending owner review).** Lip Line (v2,
+- **Gallery: surf-sesh, three ten-second surf minis by Pip (approved 2026-10-31).** Lip Line (v2,
   chunky pixel art): Pip the pixel narwhal rides a big side-on wave while the breaking wall of
   whitewater sweeps in behind; ride low to outrun it, climb to the lip to snap (snaps chain) or hit
   it fast to launch a short air and land it; thread under the pier's pilings and crossbeams, over
@@ -12,13 +12,13 @@
   out (too slow, the foam ball eats you). Paddle Out: hold to duck-dive under each wall of
   whitewater on the way to the lineup, breath-limited. Own stages, one shared rig
   (`site/gallery/pieces/surf/kit.ts`): Space/Enter/↑ ride key, M mute, 44 px keys, no audio before a
-  gesture. Live (gzip): Lip Line 10,137 B, Tube Time 8,868 B, Paddle Out 9,098 B. Steps allocate
+  gesture. Live (gzip): Lip Line 10,163 B, Tube Time 8,893 B, Paddle Out 9,118 B. Steps allocate
   nothing (`tests/surf-sesh.test.mjs`); mount, settle, keys, Recall and reduced motion in
   `tests/surf-sesh.mjs`.
 - **`fizlet/sound`: your own synth cues.** `notes` (name → `Note[]` voices) adds cues to the built-in
   synth, so a scene can have a slurp or a yawn without its own audio code; `cues` may map to those
   names (`CueName`). Additive: every existing call types and plays as before. 1,019 → 1,042 B gzip.
-- **Gallery: Launch day, two tiny games by Pip (pending owner review).** A new theme, `launch-day`.
+- **Gallery: Launch day, two tiny games by Pip (approved 2026-10-31).** A new theme, `launch-day`.
   *npm i fizlet*: bricks ride a belt and an order card says what the thing needs (a blaster: kernel,
   input, fx, sound). Tap a brick, or press Space for the one over the chute: one the order needs
   snaps into the box, and one it doesn't bounces back out with its real size ("+1,265 B you don't
@@ -32,7 +32,7 @@
   `tests/launch-day.test.mjs`), settles to 0 frames and draws none off screen, keeps sound off until a
   gesture (M mutes, 44 px button), is keyboard playable, and gives the page back byte for byte
   (`tests/launch-day.mjs`).
-- **Gallery: skate-sesh, three ten-second skate minis by Pip (pending owner review).** Pump Pipe:
+- **Gallery: skate-sesh, three ten-second skate minis by Pip (approved 2026-10-31).** Pump Pipe:
   a stadium halfpipe under the lights (decks, flags, palms, a crowd stand that jumps for a landed
   trick, a skater waiting a turn); hold on the drops to pump speed (holding on the climbs bleeds
   it), get over the coping and tap in the air to flip the board, land it under your feet or bail;
@@ -43,53 +43,53 @@
   to carve left, stay off the dithered grass, shoot the gaps in the wooden fences, pick a side where
   the path forks round a rocky island; slalom flags, a START banner, our own time and total bar. Own stages, one shared rig
   (`site/gallery/pieces/skate/kit.ts`): Space/Enter/↑ ride key, M mute, 44 px keys, no audio before a
-  gesture. Live (gzip): Pump Pipe 9,849 B, Rail Run 9,721 B, Hill Bomb 9,323 B. Steps allocate
+  gesture. Live (gzip): Pump Pipe 9,863 B, Rail Run 9,743 B, Hill Bomb 9,341 B. Steps allocate
   nothing (`tests/skate-sesh.test.mjs`); mount, settle, keys, Recall and reduced motion in
   `tests/skate-sesh.mjs`.
-- **Gallery: Tiny Byte Runner (pending owner review).** A ten-second taste of Byte Runner by Pip:
+- **Gallery: Tiny Byte Runner (approved 2026-10-31).** A ten-second taste of Byte Runner by Pip:
   the round green frog chomps along crumb trails in a little web page's gutters, leaves them to eat
   the page's letters (gone through the ledger till Recall) and dodges three flies (chaser,
   interceptor, roamer) until a power square turns them blue and edible. Arrows/WASD, swipe or tap;
-  44 px mute key after a gesture. 9,330 B gzip live; zero-alloc step; settles; reduced motion keeps
+  44 px mute key after a gesture. 9,351 B gzip live; zero-alloc step; settles; reduced motion keeps
   the poster.
-- **Gallery: Tiny Swarm Protocol (pending owner review).** A ten-second taste of Swarm Protocol by
+- **Gallery: Tiny Swarm Protocol (approved 2026-10-31).** A ten-second taste of Swarm Protocol by
   Pip: bugs crawl onto a little web page and eat its letters into binary (real text, through the
   ledger); every three letters a bug grows a tier, and grown hunters latch on the buttons and drain
   their colour. Squash them (tap, or arrows and Space) and save the buttons till the bell; Recall puts
-  every letter back. 44 px mute key after a gesture. 9,701 B gzip live; zero-alloc step; settles;
+  every letter back. 44 px mute key after a gesture. 9,727 B gzip live; zero-alloc step; settles;
   reduced motion keeps the poster.
-- **Gallery: Tiny Null Invaders (pending owner review).** A ten-second taste of Null Invaders by Pip:
+- **Gallery: Tiny Null Invaders (approved 2026-10-31).** A ten-second taste of Null Invaders by Pip:
   an interceptor under a little web page shoots its headline into binary (real text, through the
   ledger), two buttons are alien factories, and XP upgrades the gun mid-round (Pulse, Twin, Trident,
   Overdrive); Recall puts every letter back. Keys, tap or drag; 44 px mute key after a gesture.
-  9,412 B gzip live; zero-alloc step; settles; reduced motion keeps the poster.
-- **Gallery, Boxing (pending owner review): Toast Tell.** A three-counter bout with Crumbtron, a
+  9,434 B gzip live; zero-alloc step; settles; reduced motion keeps the poster.
+- **Gallery, Boxing (approved 2026-10-31): Toast Tell.** A three-counter bout with Crumbtron, a
   chrome toaster bot who always tells: toast pops up before his hook (duck it), his dial eyes go red
   before a jab (slip it); the right dodge leaves him open for a counter, three and he's down for the
-  count. Keyboard and 44 px buttons, M mutes, settles between bouts. 9,681 B gzip live. Tests:
+  count. Keyboard and 44 px buttons, M mutes, settles between bouts. 9,706 B gzip live. Tests:
   tests/toast-tell.mjs, tests/toast-tell.test.mjs.
-- **Gallery, Boxing (pending owner review): Bag Beat.** A speed bag on a swivel: punch, it slaps the
+- **Gallery, Boxing (approved 2026-10-31): Bag Beat.** A speed bag on a swivel: punch, it slaps the
   board and swings back; punch right as it returns (a ring closes on it) and it goes faster; early or
-  late is a CLUNK and the streak is gone. Ten seconds, hits and best streak at the bell. 8,143 B gzip
+  late is a CLUNK and the streak is gone. Ten seconds, hits and best streak at the bell. 8,167 B gzip
   live. Tests: tests/bag-beat.mjs, tests/bag-beat.test.mjs.
-- **Gallery, Motocross (pending owner review): Dirt Lab.** Build an eight-slot track from ramps,
+- **Gallery, Motocross (approved 2026-10-31): Dirt Lab.** Build an eight-slot track from ramps,
   bumps and gaps, then race it: hold gas, lean in the air, land flat or go over the bars. The track
   rides in the address as `#t=` (eight known letters, refused whole otherwise; no server). Keyboard
-  and 44 px buttons, M mutes, settles in the builder. 10,229 B gzip live. Tests: tests/dirt-lab.mjs,
+  and 44 px buttons, M mutes, settles in the builder. 10,245 B gzip live. Tests: tests/dirt-lab.mjs,
   tests/dirt-lab.test.mjs.
-- **Gallery, Motocross (pending owner review): Redline.** A drag sprint against a pace ghost on an
+- **Gallery, Motocross (approved 2026-10-31): Redline.** A drag sprint against a pace ghost on an
   engine that runs hot: hold gas to pull, let off to cool; past the red it pops and stalls, and
-  puddles cool it with a splash. Ride the edge of the red to win. 8,804 B gzip live. Tests:
+  puddles cool it with a splash. Ride the edge of the red to win. 8,825 B gzip live. Tests:
   tests/redline.mjs, tests/redline.test.mjs.
-- **Gallery: Freeze, plan, radio (DOM Battlefield in ten seconds), pending owner review.** Time is
+- **Gallery: Freeze, plan, radio (DOM Battlefield in ten seconds), approved 2026-10-31.** Time is
   frozen and so is the engine (no frames): drag a route for each of three tanks round the walls,
   RADIO the platoon and time runs for three seconds while turrets find targets in sight and the coral
   platoon fires back; it freezes again for the next leg. Take the HQ flag or knock out their tanks in
   six legs. Keyboard: 1–3, arrows, Enter. Hand-built on the kernel and fizlet/sound (the sound key
-  shows after a gesture); 10,211 B gzip live; the step allocates ~5 B a frame; Recall exact;
+  shows after a gesture); 10,231 B gzip live; the step allocates ~5 B a frame; Recall exact;
   reduced motion is the poster. `author: pip`, pending (no `approved`); `teaser` links to
   battlefield.domvirus.com.
-- **Before AI: 2015 page redesign** (`demos/before-ai-2015/`, pending owner review): the people
+- **Before AI: 2015 page redesign** (`demos/before-ai-2015/`, approved 2026-10-31): the people
   page's language (stickers, mono meta, brick chips with measured sizes, panels), on-this-page
   chips and a stat strip; the story told by the scroll (2015 → remake → arcade, scrubbed reveals
   on the kernel and `fizlet/timeline`: same scroll, same frame; settles; none under reduced
