@@ -6,6 +6,9 @@ import { seeded, type Random } from "./random";
 
 /** Frame phases. Read geometry only in READ, never in STEP; write the DOM only in RENDER. */
 export const IDLE = 0, READ = 1, STEP = 2, RENDER = 3;
+// Inside this file, numbers are const enums: esbuild inlines them even in a file with imports (where
+// it keeps a plain `const` as a variable) and in the unminified dist build, so consumers get literals too.
+const enum P { IDLE, READ, STEP, RENDER }
 
 /** A system: game logic or a harness. Every hook is optional; systems run in the order added. */
 export interface System {
@@ -106,10 +109,12 @@ export const scheduler = {
 };
 
 const REASONS = ["stopped", "hidden", "offscreen", "editable", "reduced-motion", "settled"];
-const STOPPED = 1, HIDDEN = 2, OFFSCREEN = 4, EDITABLE = 8, MOTION = 16, SETTLED = 32;
+const enum B { STOPPED = 1, HIDDEN = 2, OFFSCREEN = 4, EDITABLE = 8, MOTION = 16, SETTLED = 32 }
 
 /** Systems removed mid-frame are swapped for this until the frame ends. */
 const GONE: System = {};
+/** Slots of the engine's running numbers (`n` in createEngine). */
+const enum N { ACC, LAST, TIME, FRAMES, STEPS, DROPPED, MS, MAX, QUIET, DELTA, WORK }
 
 /** Make an engine: a fixed-step loop on the page's shared clock, with its own pools, event ring,
  *  seeded random and ledger. Add systems with `add()`, then `start()`; `destroy()` (or aborting
@@ -120,23 +125,22 @@ export function createEngine(o: EngineOptions = {}) {
   const ctl = new AbortController(), signal = ctl.signal;
   const systems: System[] = [], pools: [string, Pool<unknown>][] = [];
   const events = new EventRing(o.events ?? 64), ledger = new Ledger(), random: Random = seeded(need(o.seed ?? 1, "seed"));
-  let held = STOPPED, phase = IDLE, dead = false, gone = false;
+  let held: number = B.STOPPED, phase: number = P.IDLE, dead = false, gone = false;
   let napT: ReturnType<typeof setTimeout> | undefined; // the fps cap's timer
   // Running numbers live in one typed array: updating it never allocates (a captured `let` holding
   // a double would box a new number on every write). QUIET is the engine time settle counts from (the
   // last busy(), pushed later by busy(sec)): engine time, counted in steps, so a slow frame that drops
   // steps can't make a settling engine sleep before its own time has run.
   const n = new Float64Array(11);
-  const ACC = 0, LAST = 1, TIME = 2, FRAMES = 3, STEPS = 4, DROPPED = 5, MS = 6, MAX = 7, QUIET = 8, DELTA = 9, WORK = 10;
-  n[LAST] = -1;
+  n[N.LAST] = -1;
 
   const set = (bit: number, on: boolean) => {
     const was = !held && !dead;
     held = on ? held | bit : held & ~bit;
-    if (held) n[LAST] = -1;
+    if (held) n[N.LAST] = -1;
     schedule(engine, !held && !dead);
     // Settling is not a pause for the game: held input and sounds stay as they are.
-    if (was && held && bit !== SETTLED) for (let i = 0; i < systems.length; i++) systems[i]!.pause?.(engine);
+    if (was && held && bit !== B.SETTLED) for (let i = 0; i < systems.length; i++) systems[i]!.pause?.(engine);
   };
 
   const engine = {
@@ -150,15 +154,15 @@ export function createEngine(o: EngineOptions = {}) {
      * `[0]` seconds this frame advances on the shared clock (0 after a pause or a settle), `[1]` ms
      * the last finished frame's hooks took (read, steps, render). Read-only by convention.
      */
-    timing: n.subarray(DELTA, WORK + 1),
+    timing: n.subarray(N.DELTA, N.WORK + 1),
     /** Fixed step length in seconds. */
     dt,
     get time() {
-      return n[TIME]!;
+      return n[N.TIME]!;
     },
     /** Fixed steps run so far: an integer, so reading it in a hot path never boxes a number. */
     get steps() {
-      return n[STEPS]!;
+      return n[N.STEPS]!;
     },
     get phase() {
       return phase;
@@ -196,7 +200,7 @@ export function createEngine(o: EngineOptions = {}) {
     /** Run (again). On a settled engine this is wake() too: the quiet time starts over, so it runs a
      *  full settle window instead of going back to sleep on its first frame. Inert once destroyed. */
     start() {
-      engine.wake(), dead || set(STOPPED, false);
+      engine.wake(), dead || set(B.STOPPED, false);
     },
     /**
      * Something moved this frame: keeps a settling engine awake (no-op without `settle`). With
@@ -205,25 +209,25 @@ export function createEngine(o: EngineOptions = {}) {
      * settle counts from then. A later, shorter hold never cuts a longer one; 0 or NaN is busy().
      */
     busy(sec?: number) {
-      n[QUIET] = Math.max(n[QUIET]!, n[TIME]! + (sec || 0));
+      n[N.QUIET] = Math.max(n[N.QUIET]!, n[N.TIME]! + (sec || 0));
     },
     /** Wake a settled engine (input does this for you); the quiet time starts again. */
     wake() {
       engine.busy(); // the quiet time starts again; a hold still ahead stays
-      if (held & SETTLED) set(SETTLED, false);
+      if (held & B.SETTLED) set(B.SETTLED, false);
     },
     stop() {
-      set(STOPPED, true);
+      set(B.STOPPED, true);
     },
     /** Called by the scheduler with the rAF timestamp. */
     frame(now: number) {
-      const sec = n[LAST]! < 0 ? 0 : (now - n[LAST]!) / 1000;
-      n[LAST] = now;
+      const sec = n[N.LAST]! < 0 ? 0 : (now - n[N.LAST]!) / 1000;
+      n[N.LAST] = now;
       try {
         engine.advance(sec);
       } catch (err) {
         // Isolate the failure: this engine stops, every other engine keeps its frame.
-        phase = IDLE;
+        phase = P.IDLE;
         engine.stop();
         if (!o.onError) throw err;
         o.onError(err, engine);
@@ -234,54 +238,54 @@ export function createEngine(o: EngineOptions = {}) {
       // The slot counts from the frame's start: the nap is shortened by the work this frame took, so
       // a slow frame (a throttled phone) still meets its next slot instead of missing a vsync. A
       // negative delay is fine: setTimeout clamps it to 0 (no Math.max: page build ≤ 7,168 B gz).
-      if (gap) clearTimeout(napT), schedule(engine, false), (napT = setTimeout(set, gap - n[WORK]!, 0, false));
+      if (gap) clearTimeout(napT), schedule(engine, false), (napT = setTimeout(set, gap - n[N.WORK]!, 0, false));
     },
     /** Run one frame's worth of time by hand (tests, headless, a server). A hook's error throws here. */
     advance(sec: number) {
       if (dead) return;
       const t0 = performance.now();
       events.clear();
-      phase = READ;
+      phase = P.READ;
       for (let i = 0; i < systems.length; i++) systems[i]!.read?.(engine);
-      phase = STEP;
-      n[DELTA] = sec;
-      if (sec > 0) n[ACC]! += sec;
-      for (let k = 0; n[ACC]! >= dt; k++) {
+      phase = P.STEP;
+      n[N.DELTA] = sec;
+      if (sec > 0) n[N.ACC]! += sec;
+      for (let k = 0; n[N.ACC]! >= dt; k++) {
         if (k === maxSteps) {
-          n[DROPPED]! += Math.floor(n[ACC]! / dt);
-          n[ACC]! %= dt;
+          n[N.DROPPED]! += Math.floor(n[N.ACC]! / dt);
+          n[N.ACC]! %= dt;
           break;
         }
         for (let i = 0; i < systems.length; i++) systems[i]!.step?.(engine, dt);
-        n[ACC]! -= dt;
-        n[TIME]! += dt;
-        n[STEPS]!++;
+        n[N.ACC]! -= dt;
+        n[N.TIME]! += dt;
+        n[N.STEPS]!++;
       }
-      phase = RENDER;
-      const alpha = n[ACC]! / dt;
+      phase = P.RENDER;
+      const alpha = n[N.ACC]! / dt;
       for (let i = 0; i < systems.length; i++) systems[i]!.render?.(engine, alpha);
-      phase = IDLE;
+      phase = P.IDLE;
       if (gone) {
         gone = false;
         for (let i = systems.length; i--; ) if (systems[i] === GONE) systems.splice(i, 1);
       }
-      if (settle && n[TIME]! - n[QUIET]! >= settle) set(SETTLED, true);
-      const ms = (n[WORK] = performance.now() - t0);
-      n[FRAMES]!++;
-      n[MS]! += ms;
+      if (settle && n[N.TIME]! - n[N.QUIET]! >= settle) set(B.SETTLED, true);
+      const ms = (n[N.WORK] = performance.now() - t0);
+      n[N.FRAMES]!++;
+      n[N.MS]! += ms;
       // Written every frame: a store that runs only on a new maximum would deopt this hot function each time.
-      n[MAX] = ms > n[MAX]! ? ms : n[MAX]!;
+      n[N.MAX] = ms > n[N.MAX]! ? ms : n[N.MAX]!;
     },
     stats(): EngineStats {
       const p: EngineStats["pools"] = {};
       for (const [name, pool] of pools) p[name] = { used: pool.size, cap: pool.cap };
-      const frames = n[FRAMES]!;
+      const frames = n[N.FRAMES]!;
       return {
         frames,
-        steps: n[STEPS]!,
-        dropped: n[DROPPED]!,
-        time: n[TIME]!,
-        frameMs: { avg: frames ? n[MS]! / frames : 0, max: n[MAX]! },
+        steps: n[N.STEPS]!,
+        dropped: n[N.DROPPED]!,
+        time: n[N.TIME]!,
+        frameMs: { avg: frames ? n[N.MS]! / frames : 0, max: n[N.MAX]! },
         events: { size: events.size, cap: events.cap, dropped: events.dropped },
         pools: p,
         ledger: ledger.size,
@@ -293,9 +297,9 @@ export function createEngine(o: EngineOptions = {}) {
     destroy() {
       if (dead) return;
       dead = true;
-      n[ACC] = 0; // destroyed from inside a step: no more steps this frame
+      n[N.ACC] = 0; // destroyed from inside a step: no more steps this frame
       clearTimeout(napT); // the fps cap's pending wake-up: nothing of ours outlives destroy()
-      set(STOPPED, true);
+      set(B.STOPPED, true);
       ctl.abort();
       ledger.restore();
       for (const [, pool] of pools) pool.clear();
@@ -308,14 +312,14 @@ export function createEngine(o: EngineOptions = {}) {
   if (typeof document === "object") {
     const on = { signal };
     if (rule.hidden !== false) {
-      const vis = () => set(HIDDEN, document.visibilityState === "hidden");
+      const vis = () => set(B.HIDDEN, document.visibilityState === "hidden");
       document.addEventListener("visibilitychange", vis, on);
-      addEventListener("pagehide", () => set(HIDDEN, true), on);
+      addEventListener("pagehide", () => set(B.HIDDEN, true), on);
       addEventListener("pageshow", vis, on);
       vis();
     }
     if (rule.offscreen !== false && root && typeof IntersectionObserver === "function") {
-      const io = new IntersectionObserver((list) => set(OFFSCREEN, !list[list.length - 1]!.isIntersecting));
+      const io = new IntersectionObserver((list) => set(B.OFFSCREEN, !list[list.length - 1]!.isIntersecting));
       io.observe(root);
       // Not `on`: a listener tied to this same signal is removed before its abort event fires.
       signal.addEventListener("abort", () => io.disconnect(), { once: true });
@@ -324,13 +328,13 @@ export function createEngine(o: EngineOptions = {}) {
       // Typing in the host page's own fields pauses the game (keys belong to the field).
       const edit = (t: EventTarget | null) =>
         t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) && !root?.contains(t);
-      document.addEventListener("focusin", (ev) => set(EDITABLE, !!edit(ev.target)), on);
-      document.addEventListener("focusout", () => set(EDITABLE, false), on);
+      document.addEventListener("focusin", (ev) => set(B.EDITABLE, !!edit(ev.target)), on);
+      document.addEventListener("focusout", () => set(B.EDITABLE, false), on);
     }
     if (rule.reducedMotion && typeof matchMedia === "function") {
       const mq = matchMedia("(prefers-reduced-motion: reduce)");
-      set(MOTION, mq.matches);
-      mq.addEventListener("change", () => set(MOTION, mq.matches), on);
+      set(B.MOTION, mq.matches);
+      mq.addEventListener("change", () => set(B.MOTION, mq.matches), on);
     }
   }
   if (o.signal) {
