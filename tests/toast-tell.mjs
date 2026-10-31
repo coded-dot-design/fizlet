@@ -1,5 +1,5 @@
 // Toast Tell (site/gallery/pieces/toast-tell.ts) in Chromium, on its own stage, mounted through
-// fizlet/slot as the gallery does: the demo exchange plays (a tell, a dodge, one counter) and the
+// fzlt/slot as the gallery does: the demo exchange plays (a tell, a dodge, one counter) and the
 // scene settles to no frames; then a bout by keyboard only: read each tell (toast up: ↓ ducks; red
 // eyes: ← slips), Space counters, three counters and his count to KO, and it sleeps again; a wrong
 // dodge is a hit; the buttons are 44 px or more and a tap on PUNCH starts a bout; M mutes; Recall

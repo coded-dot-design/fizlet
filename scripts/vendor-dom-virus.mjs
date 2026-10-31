@@ -24,7 +24,7 @@ import { fileURLToPath } from "node:url";
 import { tokenShadows } from "./shadow-tokens.mjs";
 
 export const REPO = "https://github.com/coded-dot-design/dom-virus";
-/** dom-virus#23's head: #20 (the home hero on Fizlet) + the Battlefield field on fizlet/css-clock. */
+/** dom-virus#23's head: #20 (the home hero on Fizlet) + the Battlefield field on fzlt/css-clock. */
 export const PIN = "248d1e9ca5dce51395efd5029875b73215641ccd";
 export const OUT = "site/vendor/dom-virus";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -184,7 +184,7 @@ async function vendor(from, build) {
     css = css.replace(/animation(-name)?:[^;}]*/g, rename);
     html = html.replace(/animation(-name)?:[^;"]*/g, rename);
     for (const n of x.names) keyframes = keyframes.replace(new RegExp(`@keyframes ${n}(?![\\w-])`), `@keyframes dv-${n}`);
-    // The fizlet/slot stage lives on the host's figure, not inside the piece: drop dom-virus's own
+    // The fzlt/slot stage lives on the host's figure, not inside the piece: drop dom-virus's own
     // "until the scene is up" rule (the poster shows until then).
     css = css.split("\n").filter((r) => !r.includes("data-fizlet-slot")).join("\n");
     // Shadows take the host domain's direction (--shadow-x/-y, BOARD-UI.md §4.1): dom-virus's 45°

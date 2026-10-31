@@ -9,7 +9,7 @@
   "author": "chris-cooley",
   "recipe": "hand-built",
   "bricks": [
-    "fizlet/kernel"
+    "fzlt/kernel"
   ],
   "made": "by hand",
   "module": "seeds/labs.ts",

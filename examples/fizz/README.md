@@ -7,8 +7,8 @@ By [Chris Cooley](https://coded.design/). The live page is at
 An 80s arcade soda can, side view and top-down view of the same moment. Tap it: the can crunches,
 the tab pops, and the fizz sprays up and out of the card while a drip runs down the side. The camera
 moves inside the card only: in on the opening, across to the view straight down into the can, then
-home. It mounts through `fizlet/slot`, so it can be a hero or a story graphic, and it is built from
-the kernel (`settle` + `fps`), `fizlet/fx`, `fizlet/sprite` and `fizlet/camera` only.
+home. It mounts through `fzlt/slot`, so it can be a hero or a story graphic, and it is built from
+the kernel (`settle` + `fps`), `fzlt/fx`, `fzlt/sprite` and `fzlt/camera` only.
 
 ```html
 <div>                                            <!-- the spray may fly over this box, and above it -->
@@ -17,7 +17,7 @@ the kernel (`settle` + `fps`), `fizlet/fx`, `fizlet/sprite` and `fizlet/camera` 
   </figure>
 </div>
 <script type="module">
-  import { slot } from "fizlet/slot";
+  import { slot } from "fzlt/slot";
   slot("fizz#hero", () => import("./scene.js").then((m) => m.mount));
 </script>
 ```

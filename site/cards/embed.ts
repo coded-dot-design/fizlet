@@ -1,4 +1,4 @@
-// embed card: an easter egg. The vault is locked and fizlet/embed sits dormant: tiny listeners only,
+// embed card: an easter egg. The vault is locked and fzlt/embed sits dormant: tiny listeners only,
 // nothing mounted. A single tap only rattles it. Double-tap the card (embed's gesture trigger) or
 // type B R I C K anywhere on the page (its key sequence; keys typed in a field never count) and
 // embed unlocks and mounts the game: the vault bursts and a fountain of coins bounces out to be

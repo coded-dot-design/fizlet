@@ -1,6 +1,6 @@
 // The brick cards' shared frame: one canvas stage per card, the brick's own block drawn the Board UI
 // way (flat role colour, rim, hard shadow), a floor, and a live readout of the engine's state.
-// Every card is a fizlet/slot scene (`SlotMount`), so the bricks page, a brick's docs page, a note
+// Every card is a fzlt/slot scene (`SlotMount`), so the bricks page, a brick's docs page, a note
 // card or a gallery hero mounts it the same way and gets lazy load, reduced motion and Recall free.
 // Each card supplies its own idea; this file is only the frame they share.
 import { createEngine, type Engine } from "../../src/index";

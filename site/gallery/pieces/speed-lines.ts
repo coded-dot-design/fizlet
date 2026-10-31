@@ -6,8 +6,8 @@
 // then snap back. Bowl a whole line in one run for a STRIKE. Each run goes faster (the flame turns
 // cyan at full boost). The exclamation mark is a heavy pin: hit it and the rocket bonks off it.
 // Nothing on the page moves unless the rocket or its wind reaches it.
-// Bricks: the kernel (fixed step, settle: it sleeps between runs), fizlet/sprite (the rider and the
-// rocket as pixel data, baked once; the bonk flash as a palette), fizlet/slot (loads near the
+// Bricks: the kernel (fixed step, settle: it sleeps between runs), fzlt/sprite (the rider and the
+// rocket as pixel data, baked once; the bonk flash as a palette), fzlt/slot (loads near the
 // screen, never under reduced motion; destroy() gives the page back: every letter, through the ledger).
 import { createEngine } from "../../../src/kernel/index";
 import { sprites, type SpriteDef } from "../../../src/sprite";

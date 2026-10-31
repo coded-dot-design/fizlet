@@ -5,7 +5,7 @@
 // a lit bomb. The black plate prints the cover's real title too: each letter comes up in dots as
 // the wave reaches it, then goes crisp. Now and then a sheet comes out a MISPRINT (the black plate
 // stays off register). Click a finished cover and it's pulled off the bed; a fresh sheet slides on.
-// Bricks: the kernel (fixed step, settle: it sleeps between plates), fizlet/slot (loads near the
+// Bricks: the kernel (fixed step, settle: it sleeps between plates), fzlt/slot (loads near the
 // screen, never under reduced motion; destroy() gives the page back: the title, through the ledger).
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../src/slot";

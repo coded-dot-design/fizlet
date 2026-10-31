@@ -1,8 +1,8 @@
 // Candy Cauldron: tap to drop wrapped candy; land it in the cauldron and the brew fizzes up in a
 // rush of pixel bubbles (a nod to Fizlet's first demo, the fizz). Miss and it bounces off into the
 // grass. The brew calms down on its own and the scene sleeps.
-// Bricks: the kernel, fizlet/fx (BUBBLE, the built-in kind, for the fizz; embers under the pot),
-// fizlet/sprite (the cauldron and one candy in four flavours: palettes, baked once), on the
+// Bricks: the kernel, fzlt/fx (BUBBLE, the built-in kind, for the fizz; embers under the pot),
+// fzlt/sprite (the cauldron and one candy in four flavours: palettes, baked once), on the
 // Halloween hero core (./hero).
 import { effects, emitter, BUBBLE } from "../../../src/fx";
 import { sprites } from "../../../src/sprite";

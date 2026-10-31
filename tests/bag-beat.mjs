@@ -1,5 +1,5 @@
 // Bag Beat (site/gallery/pieces/bag-beat.ts) in Chromium, on its own stage, mounted through
-// fizlet/slot as the gallery does: the demo keeps the beat and the scene settles to no frames; then a
+// fzlt/slot as the gallery does: the demo keeps the beat and the scene settles to no frames; then a
 // round by keyboard only (Space on the beat builds a streak; one early press clunks), the bell, and it
 // sleeps again; the buttons are 44 px or more and a tap on PUNCH starts a round; M mutes; Recall
 // gives the page back; reduced motion keeps the poster.

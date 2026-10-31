@@ -8,7 +8,7 @@
   "subtitle": "is a choice.",
   "summary": "Every module has a gzip budget checked in CI. The table is measured on the build you are reading.",
   "lead": [
-    "Each module has a size budget, and CI fails when one is over. The kernel is {size:fizlet (kernel)} gzip against a budget of {budget:fizlet (kernel)}. The table below is not typed: this page is built by the same code that checks the budgets, so the numbers are the ones measured on v{version}."
+    "Each module has a size budget, and CI fails when one is over. The kernel is {size:fzlt (kernel)} gzip against a budget of {budget:fzlt (kernel)}. The table below is not typed: this page is built by the same code that checks the budgets, so the numbers are the ones measured on v{version}."
   ],
   "blocks": [
     {
@@ -37,7 +37,7 @@
       "body": [
         {
           "type": "p",
-          "text": "A page hero's live chunk (kernel, bricks and the scene's own code) has a budget of 10 KB gzip. The page build (kernel, `fizlet/slot`, `fizlet/input` and `fizlet/fx`) is {size:page build (kernel+slot+input+fx)} against {budget:page build (kernel+slot+input+fx)}, which leaves about 3 KB for the scene. A test fails if sound, debug, the pad, the HUD, match or the Board UI get into it."
+          "text": "A page hero's live chunk (kernel, bricks and the scene's own code) has a budget of 10 KB gzip. The page build (kernel, `fzlt/slot`, `fzlt/input` and `fzlt/fx`) is {size:page build (kernel+slot+input+fx)} against {budget:page build (kernel+slot+input+fx)}, which leaves about 3 KB for the scene. A test fails if sound, debug, the pad, the HUD, match or the Board UI get into it."
         },
         {
           "type": "p",
@@ -53,7 +53,7 @@
           "a": "Because gzip is what crosses the wire for a script on almost every host. The changelog gives minified bytes too where a change is about them."
         },
         {
-          "q": "Why is fizlet/arcade so much bigger?",
+          "q": "Why is fzlt/arcade so much bigger?",
           "a": "It is a shell, not a brick: it composes the kernel, board-page, input, the pad, sound, the HUD and the Board UI keys, so a page game is only its rules and art. Its budget counts all of them."
         }
       ]

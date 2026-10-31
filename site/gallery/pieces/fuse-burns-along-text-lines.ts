@@ -7,7 +7,7 @@
 // you, gulps: BOOM. The page jumps, he stands there black with soot, blinking white eyes, his hat
 // comes down, he coughs, the soot falls off, and he lays a new fuse and goes back to sleep.
 // Bricks: the kernel (fixed step, settle: it sleeps while he does; its ledger for every page write,
-// so Recall gives the page back byte for byte) and fizlet/sprite (the toon and the bundle, baked
+// so Recall gives the page back byte for byte) and fzlt/sprite (the toon and the bundle, baked
 // once). The toon is shared with "Look out below!" (toon.ts).
 import { createEngine } from "../../../src/kernel/index";
 import { sprites } from "../../../src/sprite";

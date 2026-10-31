@@ -1,4 +1,4 @@
-// Browser test for the layers story (site/demos/layers): it mounts through fizlet/slot and follows
+// Browser test for the layers story (site/demos/layers): it mounts through fzlt/slot and follows
 // the page's scroll. Its progress is a pure function of the scroll position (the same frame however
 // the page got there), it never captures the scroll (a wheel over it moves the page by the full
 // amount), it settles (no requestAnimationFrame at all) once the scroll stops, the labels arrive one
@@ -22,7 +22,7 @@ const bundle = (await build({
   bundle: true, format: "iife", globalName: "L", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 // The built page, with room to scroll the figure all the way through. Its inline loader does not
-// import the chunk: the test's own script mounts the scene through fizlet/slot and keeps the handle.
+// import the chunk: the test's own script mounts the scene through fzlt/slot and keeps the handle.
 const PAGE = html
   .replace('import("./layers.js")', "0")
   .replace('<link rel="stylesheet" href="board-ui.css">', `<style>${readFileSync("src/ui/board-ui.css", "utf8")}</style>`)

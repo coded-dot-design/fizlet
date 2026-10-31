@@ -1,5 +1,5 @@
 /**
- * fizlet/pad: swappable on-screen controls for touch (and mouse). One move control (an analog
+ * fzlt/pad: swappable on-screen controls for touch (and mouse). One move control (an analog
  * stick, a d-pad or move keys) under one thumb and round arcade action keys under the other, all
  * driving `controls` intents through `press()` / `steer()`: game code reads `down`, `hit` and
  * `axis` and never knows which scheme is on screen. Swap with `setScheme()` at any time.
@@ -57,7 +57,7 @@ const DIRS = ["Up", "Down", "Left", "Right"];
 
 /** Stick vector from a drag offset in radii: clamped to the unit circle, dead zone rescaled so a
  *  light push still creeps (Battlefield's feel). Writes out[0], out[1]; never allocates
- *  (the exact `hypot` from fizlet/steer: `Math.hypot` boxes its arguments, K5). */
+ *  (the exact `hypot` from fzlt/steer: `Math.hypot` boxes its arguments, K5). */
 export function stickAt(dx: number, dy: number, out: Float64Array) {
   const d = hypot(dx, dy), k = d < DEAD ? 0 : (Math.min(1, d) - DEAD) / (1 - DEAD) / d;
   out[0] = dx * k;

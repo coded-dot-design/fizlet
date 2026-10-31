@@ -1,5 +1,5 @@
 // The DOM Virus pieces (#047 terminal virus, #048 petri dish), each on its own stage markup
-// (site/gallery/stages/<id>.html) in Chromium: it mounts through fizlet/slot (the poster steps
+// (site/gallery/stages/<id>.html) in Chromium: it mounts through fzlt/slot (the poster steps
 // aside), plays by itself, every tap has its consequence (a worm killed and its letters written
 // back exactly; a cell zapped and burst), it settles to no frames once still, destroy() mid-play
 // gives the page back byte for byte, and under reduced motion nothing loads.

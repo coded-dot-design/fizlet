@@ -1,7 +1,7 @@
 // The gallery's data and build. Data, one file each: entries (site/gallery/entries/<id>.json),
 // themes (site/gallery/themes/<id>.json: adding a theme is a data file, never code) and
 // contributors (site/contributors/<id>.json). The build writes site-dist/gallery/: the loader
-// (fizlet/slot, armed on every figure), one bundle per entry (its live chunk, self-contained: the
+// (fzlt/slot, armed on every figure), one bundle per entry (its live chunk, self-contained: the
 // bytes on its size badge, measured here, on this build), the browse script (theme filter and
 // search) and index.json, the generated index every page and the search read (never hand-written).
 import { build } from "esbuild";

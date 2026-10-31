@@ -2,7 +2,7 @@
  * The layers story: a Battlefield Blitz-style board turns and fans out into its stacked layers (CSS 3D
  * on real DOM layers), one layer at a time, each label arriving with its layer; one layer faults red,
  * a scan patches it, it flashes green, and the stack snaps back into the game. Built on the kernel
- * (settle + fps cap) and fizlet/sprite; mounted by fizlet/slot (see entry.ts).
+ * (settle + fps cap) and fzlt/sprite; mounted by fzlt/slot (see entry.ts).
  *
  * Scroll-linked, never scroll-jacked: the story's position follows the figure's position in the
  * viewport (one getBoundingClientRect per frame in the read phase, frames only while it is on screen
@@ -51,7 +51,7 @@ function at(i: number, g: number) {
 }
 
 // The tank, as data. The scene places it as SVG backgrounds (spriteURL), so the canvas half of
-// fizlet/sprite stays out of the live chunk.
+// fzlt/sprite stays out of the live chunk.
 const TANK: SpriteDef = {
   frames: [
     "...ccc...",
@@ -278,5 +278,5 @@ export function mount(stage: HTMLElement, fig: HTMLElement = stage): SlotScene {
   return { destroy: () => engine.destroy() };
 }
 
-/** For fizlet/slot. */
+/** For fzlt/slot. */
 export const mountSlot: SlotMount = (stage, slotEl) => mount(stage, slotEl);

@@ -1,12 +1,12 @@
 // Haunted Page: a pixel ghost drifts over the page's own headings, and every heading it passes
 // shivers. Point at it and it comes to you; tap and it swoops there, BOO!, and every heading on the
 // page shudders. When it has haunted enough it fades away and the scene sleeps.
-// A page scene: it reads the slot's real headings through fizlet/board-page (targets only,
+// A page scene: it reads the slot's real headings through fzlt/board-page (targets only,
 // re-measured only after a scroll, resize or change: a frame reads no layout) and writes to them
 // only through the engine's ledger: one data attribute per heading, styled by one sheet the ledger
-// adds, so Recall gives the page back byte for byte. The ghost is fizlet/sprite pixels (spriteURL:
+// adds, so Recall gives the page back byte for byte. The ghost is fzlt/sprite pixels (spriteURL:
 // each frame becomes a bitmap once) on a pixel canvas that lets the pointer through to the page.
-// Bricks: the kernel, fizlet/board-page, fizlet/sprite (the ghost and its BOO!).
+// Bricks: the kernel, fzlt/board-page, fzlt/sprite (the ghost and its BOO!).
 import { createEngine } from "../../../src/kernel/index";
 import { boardPage } from "../../../src/board-page";
 import { spriteURL } from "../../../src/sprite";

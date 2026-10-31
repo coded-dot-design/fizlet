@@ -1,5 +1,5 @@
 /**
- * fizlet/camera: the page is the camera. Pan and zoom a DOM stage (any element) with one
+ * fzlt/camera: the page is the camera. Pan and zoom a DOM stage (any element) with one
  * `transform` written through the engine's ledger, so Recall gives it back exactly. Moves ease and
  * settle (the engine sleeps when they end); with reduced motion they jump. `contain` (default on)
  * keeps the stage covering its own box, so no edge shows and the page never scrolls sideways.

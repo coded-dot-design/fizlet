@@ -10,12 +10,12 @@ import { gzipSync } from "node:zlib";
 import { build } from "esbuild";
 import { measure } from "./sizes.mjs";
 
-/** The bricks on the npm i fizlet belt (label → the sizes.mjs entry). */
+/** The bricks on the npm i fzlt belt (label → the sizes.mjs entry). */
 export const BRICKS = [
-  ["kernel", "fizlet (kernel)", "src/index.ts"], ["input", "fizlet/input", "src/input.ts"], ["fx", "fizlet/fx", "src/fx.ts"],
-  ["sound", "fizlet/sound", "src/sound.ts"], ["slot", "fizlet/slot", "src/slot.ts"], ["pad", "fizlet/pad", "src/pad.ts"],
-  ["collide", "fizlet/collide", "src/collide.ts"], ["sprite", "fizlet/sprite", "src/sprite.ts"], ["steer", "fizlet/steer", "src/steer.ts"],
-  ["grid", "fizlet/grid", "src/grid.ts"], ["camera", "fizlet/camera", "src/camera.ts"], ["hud", "fizlet/hud", "src/hud.ts"],
+  ["kernel", "fzlt (kernel)", "src/index.ts"], ["input", "fzlt/input", "src/input.ts"], ["fx", "fzlt/fx", "src/fx.ts"],
+  ["sound", "fzlt/sound", "src/sound.ts"], ["slot", "fzlt/slot", "src/slot.ts"], ["pad", "fzlt/pad", "src/pad.ts"],
+  ["collide", "fzlt/collide", "src/collide.ts"], ["sprite", "fzlt/sprite", "src/sprite.ts"], ["steer", "fzlt/steer", "src/steer.ts"],
+  ["grid", "fzlt/grid", "src/grid.ts"], ["camera", "fzlt/camera", "src/camera.ts"], ["hud", "fzlt/hud", "src/hud.ts"],
 ];
 /** What a thing needs (always the kernel first). */
 export const ORDERS = [
@@ -46,7 +46,7 @@ export async function launchFacts() {
   cached = {
     deps: Object.keys(pkg.dependencies ?? {}).length,
     pack: { size: p.size, unpacked: p.unpackedSize, files: p.entryCount },
-    kernel: gzipOf("fizlet (kernel)"),
+    kernel: gzipOf("fzlt (kernel)"),
     bricks,
     orders,
   };

@@ -8,7 +8,7 @@
 // its route, Backspace clears it, Enter radios. Left alone it plays one attack with routes drawn
 // for it, then waits, frozen and asleep, for your plan.
 // Bricks: the kernel (fixed step; settle; the ledger for every page write, so Recall gives the page
-// back byte for byte), fizlet/sound (cues from the event ring, silent until a gesture; its key
+// back byte for byte), fzlt/sound (cues from the event ring, silent until a gesture; its key
 // shows once you have touched the piece).
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../src/slot";

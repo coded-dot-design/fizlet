@@ -1,5 +1,5 @@
 // The classic cartoon gags (site/gallery/pieces/anvil-drops-where-you-click.ts and
-// fuse-burns-along-text-lines.ts) in Chromium, each on its own stage, mounted through fizlet/slot as
+// fuse-burns-along-text-lines.ts) in Chromium, each on its own stage, mounted through fzlt/slot as
 // the gallery does. For each: it plays its intro, the page's own letters move only where something
 // hits them, it settles to no frames with the page exactly as it was, real clicks play the gag
 // (an anvil on PLUM, a crater in the headline, a double-click piano; a fuse lit and blown out), Recall

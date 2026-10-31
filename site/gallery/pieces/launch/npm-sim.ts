@@ -1,4 +1,4 @@
-// npm i fizlet, the game on plain numbers (no DOM: the GC test steps it in Node). Bricks ride a belt
+// npm i fzlt, the game on plain numbers (no DOM: the GC test steps it in Node). Bricks ride a belt
 // across the top; an order card says what this thing needs (a blaster: kernel, input, fx, sound).
 // Tap a brick (or press Space when it's over the chute) and it drops into the box: one the order
 // needs snaps in; one it doesn't bounces back out ("+1,265 B you don't need": you pay only for what

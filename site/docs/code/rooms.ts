@@ -1,7 +1,7 @@
 // Docs code (shown on /guides/multiplayer-rooms/): one client in a lockstep room.
-import { createEngine } from "fizlet";
-import { controls } from "fizlet/input";
-import { presence, join, hash32 } from "fizlet/presence";
+import { createEngine } from "fzlt";
+import { controls } from "fzlt/input";
+import { presence, join, hash32 } from "fzlt/presence";
 declare const ROOM: string, sim: (inputs: Uint32Array, frame: number) => void, state: Float64Array;
 // ---
 // wss://<your worker>/room/0?players=2&invite=<code>

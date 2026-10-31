@@ -1,5 +1,5 @@
 /**
- * fizlet/perf: a live performance overlay for players, off until they switch it on. Frames per
+ * fzlt/perf: a live performance overlay for players, off until they switch it on. Frames per
  * second, a rolling frame-time bar chart (one bar per frame, coloured against the budget),
  * dropped frames, the engine's work per frame (read, steps, render), live pooled entities and,
  * where the browser exposes it, the JS heap. It reads the engine's own frames on the shared clock
@@ -10,7 +10,7 @@
  * allocated per frame), the numbers are written twice a second through the ledger (change-only,
  * strings cached), the chart is one canvas, and the root is `contain: layout paint style` and
  * `pointer-events: none`. Hidden, it only records (a few typed-array writes a frame).
- * Not the dev-only `fizlet/debug`, which patches Element prototypes: this one ships to players.
+ * Not the dev-only `fzlt/debug`, which patches Element prototypes: this one ships to players.
  */
 import type { Engine } from "./kernel/engine";
 

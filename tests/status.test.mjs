@@ -41,7 +41,7 @@ test("COMPLETE names who ships it; BETA says what keeps it from COMPLETE", () =>
 });
 
 test("ROADMAP bricks are planned, not shipped, and build on real or planned bricks", () => {
-  const exported = Object.keys(pkg.exports).map((k) => (k === "." ? "fizlet" : `fizlet/${k.slice(2)}`));
+  const exported = Object.keys(pkg.exports).map((k) => (k === "." ? "fzlt" : `fzlt/${k.slice(2)}`));
   const known = new Set([...exported, ...PLANNED.map((p) => p.name)]);
   for (const p of PLANNED) {
     assert.ok(!exported.includes(p.name), `${p.name} is in package.json: give it a status in BRICKS`);
@@ -52,7 +52,7 @@ test("ROADMAP bricks are planned, not shipped, and build on real or planned bric
 });
 
 test("the README table shows each brick's flag, and the beta line", () => {
-  const rows = readme.split("\n").filter((l) => /^\| `fizlet/.test(l));
+  const rows = readme.split("\n").filter((l) => /^\| `fzlt/.test(l));
   for (const b of BRICKS)
     for (const m of b.modules) {
       const row = rows.find((r) => r.split(" | ")[0].split(/[`]/).includes(m.name));
@@ -65,13 +65,13 @@ test("the README table shows each brick's flag, and the beta line", () => {
 test("readmeSizes: rewrites the size column and the kernel bytes from measured sizes (a release step, not a PR gate)", () => {
   const md = [
     "9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 1,000 bytes); each brick",
-    "| `fizlet` / `fizlet/kernel` | COMPLETE | createEngine | 0.1 KB |",
-    "| `fizlet/fx` | COMPLETE | effects | 9.9 KB (old) |",
-    "| `fizlet/arcade` | COMPLETE | the shell | old |",
-    "| `fizlet/ui` + `fizlet/ui/board-ui.css` | COMPLETE | Board UI | old |",
-    "| `fizlet/ui/tokens.json` | COMPLETE | tokens | data |",
+    "| `fzlt` / `fzlt/kernel` | COMPLETE | createEngine | 0.1 KB |",
+    "| `fzlt/fx` | COMPLETE | effects | 9.9 KB (old) |",
+    "| `fzlt/arcade` | COMPLETE | the shell | old |",
+    "| `fzlt/ui` + `fzlt/ui/board-ui.css` | COMPLETE | Board UI | old |",
+    "| `fzlt/ui/tokens.json` | COMPLETE | tokens | data |",
   ].join("\n");
-  const sizes = Object.entries({ "fizlet (kernel)": 3439, "fizlet/fx": 2797, "fizlet/arcade": 21970, "fizlet/arcade (hud omitted)": 17964, "fizlet/ui (js)": 2884, "fizlet/ui (css)": 4884 }).map(([name, gzip]) => ({ name, gzip }));
+  const sizes = Object.entries({ "fzlt (kernel)": 3439, "fzlt/fx": 2797, "fzlt/arcade": 21970, "fzlt/arcade (hud omitted)": 17964, "fzlt/ui (js)": 2884, "fzlt/ui (css)": 4884 }).map(([name, gzip]) => ({ name, gzip }));
   const out = readmeSizes(md, sizes).split("\n");
   assert.match(out[0], /\(measured: 3,439 bytes\)/);
   assert.match(out[1], /\| 3\.4 KB \|$/);
@@ -80,5 +80,5 @@ test("readmeSizes: rewrites the size column and the kernel bytes from measured s
   assert.match(out[4], /\| 2\.8 KB \+ 4\.8 KB css \|$/);
   assert.equal(out[5], md.split("\n")[5], "tokens.json has no size of its own");
   assert.equal(readmeSizes(out.join("\n"), sizes), out.join("\n"), "idempotent");
-  assert.throws(() => readmeSizes("| `fizlet/nope` | BETA | x | 1 KB |", sizes), /no known module/);
+  assert.throws(() => readmeSizes("| `fzlt/nope` | BETA | x | 1 KB |", sizes), /no known module/);
 });

@@ -9,12 +9,12 @@
   "author": "chris-cooley",
   "recipe": "hand-built",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/input",
-    "fizlet/fx",
-    "fizlet/sound",
-    "fizlet/debug",
-    "fizlet/ui"
+    "fzlt/kernel",
+    "fzlt/input",
+    "fzlt/fx",
+    "fzlt/sound",
+    "fzlt/debug",
+    "fzlt/ui"
   ],
   "made": "by hand",
   "module": "seeds/howitworks.ts",

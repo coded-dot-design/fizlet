@@ -1,7 +1,7 @@
-// Shared by the launch-day pieces (npm i fizlet, Recall Party): one smooth canvas over the stage's
+// Shared by the launch-day pieces (npm i fzlt, Recall Party): one smooth canvas over the stage's
 // real text in art units (160 × 90, scaled to the stage at the device's pixel ratio), colours read
 // from the stage's --ld-* custom properties (dark: a night launch; light: the morning of it), the
-// keys (the stage takes focus; M mutes) and a 44 px mute button, and fizlet/sound: silent until the
+// keys (the stage takes focus; M mutes) and a 44 px mute button, and fzlt/sound: silent until the
 // player's first gesture. Everything it adds to the page goes through the engine's ledger, so
 // Recall (destroy) gives the page back byte for byte. Nothing here allocates in a frame.
 import type { Engine } from "../../../../src/kernel/index";
@@ -41,7 +41,7 @@ export function kit(engine: Engine, stage: HTMLElement, skin: HTMLElement, label
   mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "class"] });
   engine.signal.addEventListener("abort", () => (ro.disconnect(), mo.disconnect()), { once: true });
 
-  // Sound: fizlet/sound plays the cues from the engine's events; it stays silent until a trusted
+  // Sound: fzlt/sound plays the cues from the engine's events; it stays silent until a trusted
   // gesture. M (or the button) mutes.
   const snd = sound(engine, { cues, volume: 0.1 });
   const mute = L.add(document.createElement("button"));

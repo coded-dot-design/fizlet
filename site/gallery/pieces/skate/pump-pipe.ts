@@ -4,7 +4,7 @@
 // time you land or you BAIL. Ten seconds a session, then the score card, then it sleeps until the
 // next press.
 // Bricks: the kernel (fixed step; settle; its ledger for every page write, so Recall gives the page
-// back byte for byte), fizlet/slot, fizlet/sound. The rig: kit.ts. The session is `pumpPipe()`,
+// back byte for byte), fzlt/slot, fzlt/sound. The rig: kit.ts. The session is `pumpPipe()`,
 // plain numbers, no DOM (tests/skate-sesh.test.mjs: zero allocation).
 import { createEngine } from "../../../../src/kernel/index";
 import { seeded } from "../../../../src/kernel/random";

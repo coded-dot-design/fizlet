@@ -40,7 +40,7 @@ const mount: SlotMount = (stage, slot, first) => mountCard(stage, slot, first, (
   for (let i = 0; i < 6; i++) {
     const p = document.createElement("p");
     p.style.top = `${60 + i * 3.4}%`;
-    p.textContent = i === 5 ? `the fine print: fizlet/camera is ${card.bytes.toLocaleString("en-US")} bytes gzip, measured on this build. You found it.` : "Fizlet moves the page itself: no canvas copy, no clone, the real elements, still selectable and still the page.";
+    p.textContent = i === 5 ? `the fine print: fzlt/camera is ${card.bytes.toLocaleString("en-US")} bytes gzip, measured on this build. You found it.` : "Fizlet moves the page itself: no canvas copy, no clone, the real elements, still selectable and still the page.";
     world.append(p);
   }
   const lbl = document.createElement("p");

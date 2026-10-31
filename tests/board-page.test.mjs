@@ -1,4 +1,4 @@
-// fizlet/board-page (Node, on a fixed fake page): near / nearAt, hit / hitAt and consume on a page
+// fzlt/board-page (Node, on a fixed fake page): near / nearAt, hit / hitAt and consume on a page
 // whose layout is known to the pixel, the queued consume from a step, a host edit winning, Recall,
 // the refresh budgets, and zero allocation in the step queries (the hot path a game runs every frame).
 // The real DOM (Range reads, highlights, observers, Recall byte for byte) is in tests/browser.mjs.

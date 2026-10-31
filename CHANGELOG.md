@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.21.1
+
+- 0.21.1 — first npm release, published as `fzlt` (npm refused `fizlet` as too similar to `figlet`). Same code as 0.21.0.
+  Install with `npm i fzlt`; imports are `"fzlt"` and `"fzlt/<brick>"` (README, docs, site, examples,
+  gallery and the package tests updated). The project, repo, site and brand stay Fizlet.
+
 ## 0.21.0
 
 - **Gallery: surf-sesh, three ten-second surf minis by Pip (approved 2026-10-31).** Lip Line (v2,

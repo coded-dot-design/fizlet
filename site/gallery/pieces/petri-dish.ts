@@ -6,7 +6,7 @@
 // it. Zap every cell and it is STERILE; tap to drop in a new culture. Dark: a fluorescence scope;
 // light: a brightfield one.
 // Bricks: the kernel (fixed step, settle: no frames once still; the ledger: Recall takes the canvas
-// back off the page) and fizlet/steer's exact hypot, plus fizlet/slot. Step allocates nothing.
+// back off the page) and fzlt/steer's exact hypot, plus fzlt/slot. Step allocates nothing.
 import { createEngine } from "../../../src/kernel/index";
 import { hypot } from "../../../src/steer";
 import type { SlotScene, SlotTap } from "../../../src/slot";

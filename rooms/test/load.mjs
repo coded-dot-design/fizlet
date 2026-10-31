@@ -2,7 +2,7 @@
 //   node test/load.mjs [--rooms 1,8,16,17] [--seconds 10] [--soak 60] [--seed 1] [--phases load,caps,hostile,wake,gate]
 //                      [--delay 3] [--p95 50] [--json out.json] [--self-test]
 // Phases:
-//   load    N rooms × 4 players running real fizlet/presence lockstep (seeded inputs, a state hash every
+//   load    N rooms × 4 players running real fzlt/presence lockstep (seeded inputs, a state hash every
 //           frame) for N = 1, 8, 16, 17: input latency p50/p95 (send → each peer's receive), desyncs,
 //           stalls, join time, room 17 refused, workerd RSS sampled every second; then a soak at N = 16.
 //   caps    on a second wrangler with short timers: lobby, idle and max-room timeouts fire; bursts under
@@ -128,7 +128,7 @@ const upgrade = (url, headers = {}) =>
   });
 
 // ---------- phase: load (real lockstep) ----------
-/** One room of `players` fizlet engines on fizlet/presence. */
+/** One room of `players` fizlet engines on fzlt/presence. */
 async function lockstepRoom(w, room, players, opt = {}) {
   const url = `${w.ws}/room/${room}?players=${players}`, t0 = now(), R = 1024;
   const sent = new Float64Array(players * R).fill(-1), lat = [], opened = [];

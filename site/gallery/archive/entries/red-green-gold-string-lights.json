@@ -9,9 +9,9 @@
   "author": "chris-cooley",
   "recipe": "lights",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/board-page",
-    "fizlet/slot"
+    "fzlt/kernel",
+    "fzlt/board-page",
+    "fzlt/slot"
   ],
   "pageCost": {
     "settles": true,

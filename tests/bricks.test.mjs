@@ -417,7 +417,7 @@ test("input: hit() and down() in a step allocate nothing", async (t) => {
   assert.ok(minor <= 3, `young-generation GCs over 1M frames: ${minor}`);
 });
 
-test("input: press() and steer() wake a settled engine (on-screen keys, fizlet/pad)", async () => {
+test("input: press() and steer() wake a settled engine (on-screen keys, fzlt/pad)", async () => {
   // A pad key is [data-fizlet-ignore], so its pointerdown never reaches input's own wake: before
   // the fix a tap on a settled engine was latched but never stepped until something else woke it.
   globalThis.addEventListener ??= () => {};
@@ -508,7 +508,7 @@ test("fx: emitting kinds under gravity allocates nothing", async (t) => {
   assert.ok(minor <= 1, `young-generation GCs over 200k frames: ${minor}`);
 });
 
-test("K5: no plain-sqrt distance in a brick; the exact hypot (fizlet/steer) is the one place", async () => {
+test("K5: no plain-sqrt distance in a brick; the exact hypot (fzlt/steer) is the one place", async () => {
   // Math.sqrt(x * x + y * y) differs from Math.hypot in the last bit for ~40% of inputs, and a
   // replay that keeps every bit needs the same distance everywhere (fizlet-engine context/06 K5).
   const { readdirSync, readFileSync } = await import("node:fs");

@@ -1,4 +1,4 @@
-// fizlet/camera in Node: easing, settling, contain, screen<->world, reduced motion (motion: false),
+// fzlt/camera in Node: easing, settling, contain, screen<->world, reduced motion (motion: false),
 // zero allocation while it eases. The DOM half (ledger writes, Recall exact, the page never scrolls
 // sideways, prefers-reduced-motion) is tests/camera.mjs in Chromium.
 import test from "node:test";

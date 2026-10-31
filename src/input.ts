@@ -1,5 +1,5 @@
 /**
- * fizlet/input: one controller for keys, pointer and a touch stick, mapped to named intents.
+ * fzlt/input: one controller for keys, pointer and a touch stick, mapped to named intents.
  * Listeners only record; the engine's read phase latches edges and measures the target, so a step
  * sees a stable snapshot. Keys typed into the host page's fields (or inside [data-fizlet-ignore])
  * never count. Keys, the pointer, `press()` and `steer()` wake a settled engine. Held state is
@@ -190,7 +190,7 @@ export function controls(e: Engine, o: ControlsOptions = {}) {
       if (down && !isDown(i)) pend[i] = 1;
       btn[i] = +down;
     },
-    /** Drive the stick from code (an on-screen stick, fizlet/pad): x, y in -1..1; `on = false` lets go. */
+    /** Drive the stick from code (an on-screen stick, fzlt/pad): x, y in -1..1; `on = false` lets go. */
     steer(x: number, y: number, on = true) {
       e.wake();
       s[0] = on ? x : 0;

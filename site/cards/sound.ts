@@ -1,6 +1,6 @@
 // sound card: the brick stairs. Tap above the stairs to drop a ball; it bounces down, and every
 // brick it lands on plays that brick's cue (click, fire, hit, power, ready, win, boom) and rings.
-// The collision only emits an event; fizlet/sound reads the event ring after the frame and plays
+// The collision only emits an event; fzlt/sound reads the event ring after the frame and plays
 // the cue on a tiny oscillator synth: no audio files, silent until your first press.
 import type { SlotMount } from "../../src/slot";
 import { sound, type Cue } from "../../src/sound";

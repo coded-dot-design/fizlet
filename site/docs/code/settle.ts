@@ -1,5 +1,5 @@
 // Docs code (shown on /docs/loop/): a settling, capped engine for a page hero.
-import { createEngine } from "fizlet";
+import { createEngine } from "fzlt";
 declare const stage: HTMLElement, moving: () => boolean;
 // ---
 const e = createEngine({

@@ -9,9 +9,9 @@
   "author": "pip",
   "recipe": "hand-built",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/sound",
-    "fizlet/slot"
+    "fzlt/kernel",
+    "fzlt/sound",
+    "fzlt/slot"
   ],
   "made": "by hand",
   "module": "pieces/freeze-plan-radio-platoon.ts",

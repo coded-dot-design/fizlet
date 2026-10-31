@@ -1,8 +1,8 @@
 // The decor scene: a page scene (like page.ts) that dresses the page's own elements. It reads them
-// through fizlet/board-page (targets only, re-measured only after a scroll, resize or change: a
+// through fzlt/board-page (targets only, re-measured only after a scroll, resize or change: a
 // running frame reads no layout), draws on a canvas in the slot's stage and writes to page elements
 // only through the engine's ledger (one data attribute per element, styled by one sheet the ledger
-// adds), so Recall gives the page back byte for byte. Mounted through fizlet/slot: it loads near the
+// adds), so Recall gives the page back byte for byte. Mounted through fzlt/slot: it loads near the
 // viewport, never under reduced motion. Each effect is its own export and the entry imports only the
 // one it plays (`scene(settle, {...})`), so a page ships one effect:
 //   settle    flakes (snow, leaves) fall and settle on the elements' top edges, and stay

@@ -1,9 +1,9 @@
 // Docs code (shown on /guides/astro-slot/): a scene for an astro-base-engine slot.
 // ---
 // hero-scene.ts: build inside the stage; return destroy.
-import { createEngine } from "fizlet";
-import { effects } from "fizlet/fx";
-import type { SlotTap } from "fizlet/slot";
+import { createEngine } from "fzlt";
+import { effects } from "fzlt/fx";
+import type { SlotTap } from "fzlt/slot";
 
 export function mount(stage: HTMLElement, figure: HTMLElement, first: SlotTap | null) {
   // settle: no frames once nothing moves; fps: an ambient hero needs no more than 30.

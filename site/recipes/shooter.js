@@ -1,11 +1,11 @@
 // Recipe: a shooter. Bugs fall, you fire up at them. Typed-array state, a fixed step, collision,
 // pooled blasts and a change-only HUD. Kernel, input, collide, fx and hud. Runs as is with
 // shooter.html. Keys count only while a run is live: Start begins one, losing the last life ends it.
-import { createEngine } from "fizlet";
-import { controls } from "fizlet/input";
-import { circles } from "fizlet/collide";
-import { effects } from "fizlet/fx";
-import { hud } from "fizlet/hud";
+import { createEngine } from "fzlt";
+import { controls } from "fzlt/input";
+import { circles } from "fzlt/collide";
+import { effects } from "fzlt/fx";
+import { hud } from "fzlt/hud";
 
 const W = 480, H = 320, BUGS = 12, SHOTS = 16;
 const root = document.getElementById("shooter");

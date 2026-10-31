@@ -1,5 +1,5 @@
 // Tiny Null Invaders (site/gallery/pieces/tiny-null-invaders.ts) in Chromium, on its own stage, mounted
-// through fizlet/slot as the gallery does: it mounts (the poster steps aside), plays its intro and
+// through fzlt/slot as the gallery does: it mounts (the poster steps aside), plays its intro and
 // settles to no frames with the page as it was; Space starts a round and the gun really shoots the
 // page (letters turn to binary in the DOM text, a factory drains, XP upgrades the gun); the arrow
 // keys steer; the round ends, Recall puts every letter back and it sleeps again; the mute key shows
@@ -125,7 +125,7 @@ try {
   await p.mouse.click(fb.x + fb.width / 2, fb.y + fb.height * 0.6);
   await until(p, () => scene.engine.running && scene.sim.S[0] === 2, 600, "a tap starts the next round");
   await until(p, () => [...document.querySelectorAll(".tni-h i")].some((e) => e.textContent === "0" || e.textContent === "1"), 600, "letters go binary");
-  // Byte for byte. The one exception is fizlet/slot's, not the piece's: an accessible scene (this one
+  // Byte for byte. The one exception is fzlt/slot's, not the piece's: an accessible scene (this one
   // is a keyboard-playable application) has the figure's role="img" taken off and put back, and on
   // main the slot puts it back as the last attribute (#215 restores it in place). Everything else,
   // every letter and the factories included, must match exactly.
