@@ -9,7 +9,8 @@
 // mid-timeline, after re-mount; two engines with overlapping writes are recalled first-in first-out),
 // every scene settles to 0 frames at the end, no console or page error.
 //
-//   node tests/stress/visibility.mjs [--seed n] [--cycles 200] [--json] [--self-test]
+//   node tests/stress/visibility.mjs [--seed n] [--cycles 200] [--json] [--self-test] [--lifo]
+//   (--lifo: Recall the two overlapping engines last-in first-out, to show the order is what matters)
 //
 // Hidden/visible is emulated in the page (document.visibilityState overridden, visibilitychange
 // dispatched): headless Chromium keeps a lone tab visible. The engine reads exactly that property and
@@ -30,7 +31,7 @@ const arg = (name, dflt) => {
 const flag = (name) => process.argv.includes("--" + name);
 const SEED = Number(arg("seed", 0)) || ((Date.now() % 1e9) | 0);
 const CYCLES = Number(arg("cycles", flag("self-test") ? 30 : 200));
-const SELF = flag("self-test"), JSON_OUT = flag("json");
+const SELF = flag("self-test"), JSON_OUT = flag("json"), LIFO = flag("lifo");
 
 // mulberry32: the Node side's only randomness.
 let rs = SEED >>> 0;
@@ -171,7 +172,7 @@ export async function settle() {
 }
 
 // Recall everything, mid-step and mid-timeline when asked.
-export async function recall(mid) {
+export async function recall(mid, lifo) {
   const out = {};
   if (mid && live.kernel) {
     live.kernel.stopAt = live.kernel.n + 3;
@@ -182,8 +183,15 @@ export async function recall(mid) {
     const t = live.timeline.once.time;
     out.midTimeline = t > 0 && t < 30;
   }
-  live.overlap?.a.destroy();
-  live.overlap?.b.destroy();
+  if (live.overlap) {
+    // first in, first out (as two independent scenes on a page come and go); lifo: the reverse
+    if (lifo) live.overlap.b.destroy(), live.overlap.a.destroy();
+    else live.overlap.a.destroy(), live.overlap.b.destroy();
+    // Reported on its own (and put back by hand), so it never hides another leak in the page compare.
+    const el = $("o"), was = '<div id="o" style="height:20px">overlap</div>';
+    out.overlap = el.outerHTML === was ? null : el.outerHTML;
+    if (out.overlap) el.outerHTML = was;
+  }
   live.kernel?.e.destroy();
   live.timeline?.e.destroy();
   live.css?.destroy();
@@ -274,7 +282,8 @@ try {
   const half = Math.floor(CYCLES / 2);
   await storm(0, half);
   await home();
-  const midA = await p.evaluate(() => S.recall(true));
+  const midA = await p.evaluate((lifo) => S.recall(true, lifo), LIFO);
+  if (midA.overlap) fail("overlap", { phase: "A", what: "two engines wrote the same element; Recall first-in first-out left the first engine's write", left: midA.overlap });
   if (!midA.midStep) fail("recall", { phase: "A", what: "destroy from inside a step did not land mid-step", midA });
   if (!midA.midTimeline) fail("recall", { phase: "A", what: "not mid-timeline", midA });
   for (let i = 0; i < 3; i++) await p.evaluate(() => S.frame());
@@ -287,7 +296,8 @@ try {
   await home();
   const st = await p.evaluate(() => S.settle());
   if (st.requests) fail("settle", { what: "frames still requested after everything stopped", ...st });
-  await p.evaluate(() => S.recall(false));
+  const endB = await p.evaluate((lifo) => S.recall(false, lifo), LIFO);
+  if (endB.overlap) fail("overlap", { phase: "B", what: "two engines wrote the same element; Recall first-in first-out left the first engine's write", left: endB.overlap });
   for (let i = 0; i < 3; i++) await p.evaluate(() => S.frame());
   if ((await html()) !== before) fail("recall", { phase: "B", what: "page not byte for byte after re-mount + Recall", diff: await diff(before, await html()) });
   for (const e of errs) fail("error", { message: e });
