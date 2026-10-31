@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Gallery, Motocross (pending owner review): Dirt Lab.** Build an eight-slot track from ramps,
+  bumps and gaps, then race it: hold gas, lean in the air, land flat or go over the bars. The track
+  rides in the address as `#t=` (eight known letters, refused whole otherwise; no server). Keyboard
+  and 44 px buttons, M mutes, settles in the builder. 10,229 B gzip live. Tests: tests/dirt-lab.mjs,
+  tests/dirt-lab.test.mjs.
+- **Gallery, Motocross (pending owner review): Redline.** A drag sprint against a pace ghost on an
+  engine that runs hot: hold gas to pull, let off to cool; past the red it pops and stalls, and
+  puddles cool it with a splash. Ride the edge of the red to win. 8,804 B gzip live. Tests:
+  tests/redline.mjs, tests/redline.test.mjs.
 - **Gallery: Freeze, plan, radio (DOM Battlefield in ten seconds), pending owner review.** Time is
   frozen and so is the engine (no frames): drag a route for each of three tanks round the walls,
   RADIO the platoon and time runs for three seconds while turrets find targets in sight and the coral
