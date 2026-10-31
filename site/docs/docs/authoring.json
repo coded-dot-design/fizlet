@@ -68,7 +68,7 @@
         },
         {
           "title": "Two or more players",
-          "body": "A deterministic step and `@fzlt/core/presence`: inputs in lockstep, a state hash every 30 frames. `syncCheck` proves it in a test; the rooms server joins two devices.",
+          "body": "A deterministic step and `@fzlt/core/presence`: inputs in lockstep, a state hash every 30 frames. `syncCheck` proves it in a test; a room server you run joins two devices.",
           "link": {
             "label": "Recipe 3",
             "href": "#recipe-duel"
@@ -108,7 +108,7 @@
       "id": "duel",
       "heading": "Recipe 3: two players",
       "body": [
-        "Two peers on one page, each with its own engine, controls and screen, joined by `memory()`: an in-memory link with three ticks of latency and jitter. Only inputs cross it, 12 bytes a message. Each sim runs a frame only when both inputs for it are in, so both screens show the same game, and the hash check every 30 frames says so. Swap `memory()` for `join(url)` and the same code plays across two devices through a [room server](/guides/multiplayer-rooms/)."
+        "Two peers on one page, each with its own engine, controls and screen, joined by `memory()`: an in-memory link with three ticks of latency and jitter. Only inputs cross it, 12 bytes a message. Each sim runs a frame only when both inputs for it are in, so both screens show the same game, and the hash check every 30 frames says so. Swap `memory()` for `join(url)` and the same code plays across two devices through a room server: ours is in-house, so [build your own](/guides/build-your-own-room-server/)."
       ],
       "caption": "Player 1: A/D. Player 2: J/L. On touch, hold the left or right half of a screen. The frame count only moves when both inputs are in."
     },

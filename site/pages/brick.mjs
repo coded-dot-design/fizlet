@@ -2,7 +2,7 @@
 // API is its declarations (scripts/api.mjs), the sizes are measured on this build (scripts/sizes.mjs).
 import { crumbs, esc, icon, REPO, SITE } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
-import { STATUS, BETA_LINE, exportStatus } from "../bricks.mjs";
+import { STATUS, BETA_LINE, IN_HOUSE, exportStatus, inHouse } from "../bricks.mjs";
 import { brickTile, brickMini, brickOf, prose, statusSticker } from "../brick-ui.mjs";
 
 export { prose };
@@ -20,6 +20,7 @@ function statusPanel(brick) {
   return `<div class="panel bp-status" data-flag="${brick.status}">
       <div class="code-head"><span class="bui-label"><b>STATUS</b> · <a href="./#status">what the flags mean</a></span>${statusPill(brick.status)}</div>
       <p>${esc(s.line)}${brick.why ? ` ${esc(brick.why)}` : ""}</p>
+      ${inHouse(brick) ? `<p><b>${esc(IN_HOUSE.label.toUpperCase())}.</b> ${esc(IN_HOUSE.line)} <a href="../${IN_HOUSE.guide}">Build your own room server</a>.</p>` : ""}
       <dl>
         <div><dt>SINCE</dt><dd>v${esc(brick.since)}</dd></div>
         <div><dt>SHIPPED IN</dt><dd>${brick.used.length ? `<ul>${list(brick.used)}</ul>` : "no released game or page yet"}</dd></div>
@@ -164,7 +165,7 @@ const graphFigure = (g) => {
 
 /** bricks/index.html: every brick, with its measured size and its status. */
 export function bricksIndex({ bricks, sizes, version, planned = [], graph }) {
-  const cards = bricks.map((b) => brickTile({ brick: b, size: sizes.find((x) => x.name === b.sizes[0]), href: `${b.id}.html`, toy: b.card ? b.card("bricks") : "" })).join("\n      ");
+  const cards = bricks.filter((b) => !inHouse(b)).map((b) => brickTile({ brick: b, size: sizes.find((x) => x.name === b.sizes[0]), href: `${b.id}.html`, toy: b.card ? b.card("bricks") : "" })).join("\n      ");
   return `
 <section class="section" aria-labelledby="bi-title">
   <div class="wrap">
@@ -176,6 +177,13 @@ export function bricksIndex({ bricks, sizes, version, planned = [], graph }) {
     ${graph ? graphFigure(graph) : ""}
     <ul class="bricks">
       ${cards}
+    </ul>
+    <div class="section-head" id="in-house">
+      <h2>${esc(IN_HOUSE.label)}</h2>
+      <p class="lead">${esc(IN_HOUSE.line)} These bricks stay in the package (MIT, with their flags), and our games run them against our own room server, which isn't a hosted service. <a href="../${IN_HOUSE.guide}">Build your own room server</a>: the wire protocol, the pattern and a threat checklist.</p>
+    </div>
+    <ul class="bricks in-house">
+      ${bricks.filter(inHouse).map((b) => brickTile({ brick: b, size: sizes.find((x) => x.name === b.sizes[0]), href: `${b.id}.html`, h: "h3", toy: b.card ? b.card("bricks") : "" })).join("\n      ")}
     </ul>
     <div class="section-head" id="status">
       <h2>Status flags</h2>

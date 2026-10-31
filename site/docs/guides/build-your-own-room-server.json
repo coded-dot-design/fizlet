@@ -1,0 +1,288 @@
+{
+  "slug": "build-your-own-room-server",
+  "section": "guides",
+  "order": 4,
+  "nav": "Your own room server",
+  "eyebrow": "Guide · multiplayer",
+  "title": "Build your own",
+  "subtitle": "room server.",
+  "summary": "The contract @fzlt/core/presence speaks: lockstep inputs, the 12-byte wire protocol, seats, the lobby, resume and the access check, plus the one-room-one-object pattern and a threat checklist.",
+  "lead": [
+    "We run this in our own games. It isn't a hosted service; here's how to build one like it. `@fzlt/core/presence` and `@fzlt/core/presence/check` are **in-house / experimental**: used in our games, not a supported multiplayer service. Our room server is private, so this guide gives you the contract instead: what presence speaks, the full wire protocol, the pattern we built ours on, and the threat checklist we hold it to. A server that keeps this contract works with presence, and with any page that already speaks it."
+  ],
+  "blocks": [
+    {
+      "type": "stats",
+      "heading": "The contract in numbers",
+      "items": [
+        {
+          "value": "{size:@fzlt/core/presence}",
+          "label": "`@fzlt/core/presence`, gzip, measured on this build"
+        },
+        {
+          "value": "12 B",
+          "label": "every message, both ways"
+        },
+        {
+          "value": "8",
+          "label": "message kinds; clients send 3 of them"
+        },
+        {
+          "value": "1",
+          "label": "subprotocol: `fizlet-rooms`"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "1. What presence speaks",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**Lockstep.** Every peer runs the same fixed-step sim from the same seed, which the room hands out. Only inputs cross the wire. The room never runs the game.",
+            "**Inputs per tick.** Each step, presence sends one `INPUT` for frame `f + delay` (default 2: 33 ms at 60 Hz) carrying the player's 32-bit input word. A frame runs only once every seat's input for it is in. A missing input stalls the sim (`net.stalls`); it never guesses.",
+            "**The hash check.** Every `hashEvery` frames (default 30) it sends a `HASH` of the sim state. `net.desync` is the first frame whose hashes differed, or -1.",
+            "**First write wins.** It keeps the first `INPUT` and the first `HASH` it receives per seat and frame, and counts the rest in `net.dropped`. `LEAVE` sets the seat's bit in `net.lost`.",
+            "**Joining.** `join(url, signal, protocols)` opens the WebSocket, ignores every message until `WELCOME`, and resolves with `{ transport, slot, players, seed }`. In v{version} presence handles kinds 1 to 4. The lobby (`START`, `LOBBY`) and resume (`AWAY`, `RESUME`, the token) are room-level: a page that wants them handles those kinds itself; presence ignores them (they count in `net.dropped`) and the match goes on."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "label": "A CLIENT",
+      "file": "net.ts",
+      "src": "room-client.ts"
+    },
+    {
+      "type": "text",
+      "heading": "2. The wire format",
+      "body": [
+        {
+          "type": "p",
+          "text": "Binary WebSocket messages of exactly 12 bytes, integers little-endian. Anything else (a text frame, any other size) is a protocol error: close the socket with `1009`."
+        },
+        {
+          "type": "ol",
+          "items": [
+            "Byte 0, `kind`: one of the eight below.",
+            "Byte 1, `slot`: a seat, `0` to `players - 1`. The room overwrites it with the sender's real seat before relaying.",
+            "Byte 2, `players`: the number of seats in the match (in `LOBBY`, the room's size; in `START`, the count to start at).",
+            "Byte 3, `mode`: the host's `START` byte in `WELCOME`, the seated count in `LOBBY`, else 0.",
+            "Bytes 4 to 7, u32: the frame (`INPUT`, `HASH`) or the seed (`WELCOME`).",
+            "Bytes 8 to 11, u32: the input word (`INPUT`), the state hash (`HASH`) or the resume token (`WELCOME`)."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "features",
+      "layout": "rows",
+      "heading": "3. The message kinds",
+      "subhead": "Clients send only `INPUT`, `HASH` and, the host before the start, `START`. Every other kind comes from the room.",
+      "items": [
+        {
+          "title": "`INPUT` · 1 · a seat → every other seat",
+          "body": "u32 frame, u32 input word. Relay only after the start, and only the first one per seat and frame: each seat's frames must rise. Stamp byte 1 with the sender's seat."
+        },
+        {
+          "title": "`HASH` · 2 · a seat → every other seat",
+          "body": "u32 frame, u32 state hash. The same rules as `INPUT`, counted apart from it."
+        },
+        {
+          "title": "`WELCOME` · 3 · room → each seat, at the start",
+          "body": "`slot` is your seat, `players` the match's count, `mode` the host's `START` byte (else 0), then the u32 seed (one per room, the same for everyone) and the u32 resume token (random, never 0, sent only to that seat). Sent again to a seat that resumes."
+        },
+        {
+          "title": "`LEAVE` · 4 · room → the others, after the start",
+          "body": "`slot` left for good: a clean close, a kick, or its resume hold ran out. Lockstep then waits on that seat, so the game decides what happens: a bot in its place, or the end of the match."
+        },
+        {
+          "title": "`RESUME` · 5 · room → everyone",
+          "body": "`slot` is back in its seat. Every peer resends its own inputs for its last few frames; first write wins drops the repeats."
+        },
+        {
+          "title": "`AWAY` · 6 · room → the others",
+          "body": "`slot` dropped and its seat is held for a while: show \"reconnecting\". Lockstep waits meanwhile."
+        },
+        {
+          "title": "`START` · 7 · the host (seat 0) → room, before the start",
+          "body": "Byte 2: start once this many are seated (0: now). Byte 3: any byte the game picks, such as its mode or team layout. Never relayed; a `START` from another seat, or after the start, is ignored."
+        },
+        {
+          "title": "`LOBBY` · 8 · room → every waiting seat",
+          "body": "On each join and each leave before the start: `slot` is your seat, `players` the room's size, byte 3 how many are seated. Seat 0 is the host, so only it shows a start key."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "4. Joining: the handshake and the access check",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**The URL.** `GET /room/<n>?players=<p>` as a WebSocket upgrade: one numbered room per `n`, opened for `p` seats. Refuse an `n` you don't run (404), a request that isn't an upgrade (426) and a `p` outside 1 to your seat cap (400).",
+            "**The subprotocols.** The client offers `fizlet-rooms` plus its access token: `invite.<code>`, or `pass.<pass>` and `device.<key>` (16 to 64 base64url characters, made once per device). Answer `fizlet-rooms` in the `101`: a browser that offered subprotocols fails the handshake when the server picks none. Tokens never go in the URL, because URLs land in logs.",
+            "**Refused before a socket.** `403` with no valid access or from an origin you don't allow, `429` with `retry-after` over a rate, `409` when the room is already open for a different player count.",
+            "**Closed after it.** `4000 room full` (full, or already playing), `1008` over the message rate, `1009` for anything but a 12-byte binary message, `1001` with `room not filled`, `room idle` or `room time is up`.",
+            "**The sign-in check.** `POST /invite` with a text body: the code, or the pass and the device key on two lines. A text body keeps it a simple request, with no CORS preflight. Answer `200 {\"ok\":true,\"players\":N}`, where `N` is the most seats a room takes so a page offers only sizes that can join, or `403 {\"ok\":false}`. With passes, add `\"pass\":true` to every answer and a `why` to a refusal: `pass expired`, `pass revoked`, `pass in use on another device` or `pass not valid`. The check takes no seat. Read the body with a limit."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "5. The lobby: start before the room is full",
+      "body": [
+        {
+          "type": "p",
+          "text": "Open the room with the most seats the mode can take (`?players=4`). The first to join is seat 0, the host. Every waiting seat hears `LOBBY` on each join and leave. The host's `START` begins the match once `n` seats are taken (0: now), with the seats taken, renumbered `0` to `k - 1` in seat order; `WELCOME` then says `players = k` and carries the host's mode byte. The game fills the empty places with bots, which every peer simulates the same way from the seed. A room without `START` starts when it is full, so a client should handle both."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "6. Resume: a dropped seat comes back",
+      "body": [
+        {
+          "type": "p",
+          "text": "A drop is a close with no clean code (`1006`, or a server restart: `1011`, `1012`, `1014`) or a socket error. Hold the seat for a while (our default: 20 s) and tell the others `AWAY`. A clean close (`1000`, `1001`, no code, `3000` to `4999`) or a kick is a leave: `LEAVE` at once."
+        },
+        {
+          "type": "p",
+          "text": "To come back, the client opens the same room with one more subprotocol, `resume.<token in hex>`, next to its access token. Answer `WELCOME` (the same seat and token), then `RESUME` for that seat, then the other seats' recent `INPUT`s (we keep the last 64 per seat); the others hear `RESUME`. If the old socket still sits in the seat, close it `4001 resumed` and send no `LEAVE`. A wrong or expired token gets the socket closed `4002 seat gone`: a resume never takes a fresh seat."
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "label": "ONE ROOM'S LOGIC · NO RESUME",
+      "file": "room.ts",
+      "src": "room-relay.ts"
+    },
+    {
+      "type": "text",
+      "heading": "7. The pattern: one room, one stateful object",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**A stateless front, then one object per room.** The front checks the origin, the rate and the access token, then hands `/room/<n>` to the one object named for that room: on Cloudflare, a Durable Object; elsewhere, one single-threaded process or actor per room. Every message for a room passes through one place, in order, so seating, the start and first write wins need no locks.",
+            "**It seats, seeds and relays.** The room never runs the sim, and reads nothing from an input but its frame.",
+            "**Idle costs nothing.** We use WebSocket hibernation, so an idle room holds no running object. What a room must remember across a sleep (the seats, the tokens, held seats, the time of the last relayed message) rides in each socket's attachment, not in storage. A seat that leaves or drops clears its attachment, so a woken room never seats a ghost.",
+            "**One alarm per room** for every deadline: the lobby, idle, the room's lifetime and the end of each resume hold.",
+            "**Measured locally, through `wrangler dev`:** two Fizlet engines play 600 lockstep frames through one room, byte-identical."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "features",
+      "layout": "rows",
+      "heading": "8. The threat checklist",
+      "subhead": "What we hold our own server to. Each line is a check for yours.",
+      "items": [
+        {
+          "title": "The gate comes before the room",
+          "body": "Check access before any room object is touched. Store codes hashed (we keep SHA-256 of the trimmed, upper-cased code), never the codes. Ours are 10 to 64 characters."
+        },
+        {
+          "title": "Tokens stay out of URLs",
+          "body": "Access codes, passes and resume tokens travel in subprotocols or a POST body. Keep request-URL logging off anyway, and log nothing your code reads from a client."
+        },
+        {
+          "title": "Rate limits before storage",
+          "body": "Count access checks and joins per IP before the lookup, refused with `429`, and joins per IP into each room, counted by the room before it accepts a socket. Know whether your counter is per process or global."
+        },
+        {
+          "title": "Hard caps in code",
+          "body": "Every cap gets a ceiling that config can lower but never lift: rooms, seats, message rate and burst, message size, the lobby, idle and lifetime timers. Your worst case is rooms × seats × rate messages a second, each relayed to the other seats."
+        },
+        {
+          "title": "Nobody speaks for anyone else",
+          "body": "Stamp byte 1 with the sender's seat. Relay only `INPUT` and `HASH`; `WELCOME`, `LEAVE`, `RESUME`, `AWAY` and `LOBBY` come from the room. Take `START` from seat 0 only, before the start."
+        },
+        {
+          "title": "First write wins",
+          "body": "Pass on only a seat's first `INPUT`, and first `HASH`, per frame: each seat's frames must rise. presence keeps the first it receives too, so a peer can't split the others' sims."
+        },
+        {
+          "title": "Resume tokens are seats",
+          "body": "32 random bits per seat, drawn at the start, sent only to that seat, offered back as a subprotocol, behind the gate and the join rate. A wrong token is closed `4002` and never takes a fresh seat. Tokens die with the hold or a leave."
+        },
+        {
+          "title": "Bounded bodies",
+          "body": "Read request bodies with a limit, chunked or not, and stop reading past it."
+        },
+        {
+          "title": "Origins stop browsers only",
+          "body": "An origin allowlist keeps other pages' scripts out. Any other client can send any `Origin`: access is the gate."
+        },
+        {
+          "title": "Passes, if you hand out play time",
+          "body": "Sign them (we use HMAC-SHA256 over the payload, checked in constant time), cap their lifetime, lock each to the first devices that use it, and keep a revoke list. With passes required and no signing secret set, refuse every join: never fall back to open."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "What the checklist does not protect",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "Requests are billed before your code runs. Rate limits bound what a client makes you do, not the requests themselves: put billing alerts and your platform's DDoS or WAF rules in front.",
+            "An access code is a shared secret. Hand out one per person, so one can be revoked.",
+            "A malicious peer can still stall the match (lockstep waits), play its own seat however it likes, and report a false hash, which shows as a desync on the honest peers. It can't move another player, run a frame with two different inputs or send room messages.",
+            "Room numbers are guessable: anyone with access can take an open seat.",
+            "A held seat stalls the others for the hold. After `LEAVE` they still wait, unless the game puts a bot in the seat.",
+            "Matches are not private from the server: it sees every input, and presence trusts it.",
+            "A room that sleeps forgets which frames it relayed and its recent inputs. presence's own first write wins still holds, and the peers' resends on `RESUME` carry the inputs.",
+            "Read IP addresses for counting only: keep them in memory for a minute's window, never store or log them."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "q": "Can I use your room server?",
+          "a": "No. It runs our games and isn't a hosted service, and its code is private now; its earlier history stays in this repository's git log. This guide is the contract, so a server you write works with presence."
+        },
+        {
+          "q": "Does a game need its own server code?",
+          "a": "No. The room seats, seeds and relays. The game runs in every browser, the same on each."
+        },
+        {
+          "q": "Will the protocol change?",
+          "a": "It is what our server and presence speak today. presence is BETA: a minor release may change it, and the CHANGELOG says how."
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "@fzlt/core/presence API",
+          "href": "/bricks/presence.html"
+        },
+        {
+          "label": "Lockstep in a few KB",
+          "href": "/notes/lockstep-multiplayer-in-a-few-kb/"
+        },
+        {
+          "label": "Determinism",
+          "href": "/docs/determinism/"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Build your own room server for Fizlet multiplayer",
+    "description": "The wire protocol @fzlt/core/presence speaks, as a contract: 12-byte lockstep messages, seats, lobby, resume, one room per object, a threat checklist."
+  },
+  "brick": "presence"
+}

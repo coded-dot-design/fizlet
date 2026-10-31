@@ -3,7 +3,7 @@
 import { esc, icon, REPO, SITE, HUB, BATTLEFIELD, BLITZ, ENGINE_PLAN, AUTHOR } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { QUICK_START } from "./quick-start.mjs";
-import { BETA_LINE } from "../bricks.mjs";
+import { BETA_LINE, IN_HOUSE, inHouse } from "../bricks.mjs";
 import { brickCompact } from "../brick-ui.mjs";
 import { LAUNCH_LAST, phases } from "../roadmap.mjs";
 import { originSection } from "../origin/section.mjs";
@@ -116,8 +116,11 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
   const css = size("@fzlt/core/ui (css)");
   const pageBuild = size("page build (kernel+slot+input+fx)");
   // Compact on the home page: the snippet and the whole API live on each brick's own page.
-  const bricks = catalog.map((b) => brickCompact({ brick: b, size: size(b.sizes[0]), href: `bricks/${b.id}.html`,
-    extra: b.id === "ui" ? `<li>+ <b>${kb(css.gzip)} KB</b> css</li>` : "" })).join("\n      ");
+  const compact = (b, h) => brickCompact({ brick: b, size: size(b.sizes[0]), href: `bricks/${b.id}.html`, h,
+    extra: b.id === "ui" ? `<li>+ <b>${kb(css.gzip)} KB</b> css</li>` : "" });
+  const bricks = catalog.filter((b) => !inHouse(b)).map((b) => compact(b)).join("\n      ");
+  // In-house / experimental (site/bricks.mjs IN_HOUSE): listed apart, with its label.
+  const ours = catalog.filter(inHouse).map((b) => compact(b, "h4")).join("\n      ");
 
   const contract = CONTRACT.map(([t, b], i) => `<li class="panel rule"><b>${String(i + 1).padStart(2, "0")}</b><h3>${esc(t)}</h3><p>${esc(b)}</p></li>`).join("\n      ");
 
@@ -267,6 +270,13 @@ ${originSection(origin)}
     </div>
     <ul class="bricks compact">
       ${bricks}
+    </ul>
+    <div class="section-head" id="in-house">
+      <h3>${esc(IN_HOUSE.label)}</h3>
+      <p class="body">${esc(IN_HOUSE.line)} <a href="${IN_HOUSE.guide}">Build your own room server</a>.</p>
+    </div>
+    <ul class="bricks compact in-house">
+      ${ours}
     </ul>
     <div class="split-keys"><a class="bui-key bui-arcade bui-sys" href="bricks/">${icon("grid", 16)}Every brick, every export</a></div>
   </div>
