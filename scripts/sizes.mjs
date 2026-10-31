@@ -7,14 +7,20 @@ export const BUDGETS = [
   ["fizlet (kernel)", "src/index.ts", 4096],
   ["fizlet/debug", "src/debug.ts", 1536],
   // The player-facing performance overlay (off by default). Logic ~1.5 KB gz; its look is inline
-  // on the kit tokens (~0.45 KB) so it works on pages without board-ui.css.
-  ["fizlet/perf", "src/perf.ts", 2048],
+  // on the kit tokens (~0.45 KB) so it works on pages without board-ui.css. 2,042 B in train 0.21.0
+  // (a canvas or svg host, a static host made relative); 2,064 B with #136's card base in the page's
+  // shadow direction (--shadow-x/-y, --shadow-color: +22 B); budget raised from 2,048 by that need.
+  ["fizlet/perf", "src/perf.ts", 2064],
   ["fizlet/input", "src/input.ts", 1536],
   // 1,995 B gz in 0.19.0; 2,073 B once stickAt/dpadAt/the drag use steer's exact `hypot` (+78 B, #118, K5:
   // `Math.hypot` boxes its arguments, 23 young GCs per 1M drags; now 0). Budget raised by that delta.
   ["fizlet/pad", "src/pad.ts", 2126],
   ["fizlet/collide", "src/collide.ts", 1536],
-  ["fizlet/grid", "src/grid.ts", 1536],
+  // 1,533 B gz in 0.19.0 (3 B under 1,536); 1,634 B once the constructor checks cols, rows and cell
+  // (+101 B, brick audit P8: `cell: 0` made at() NaN, a fractional cols sized the arrays wrong). An
+  // inline check, not the kernel's `need` (+181 B: grid runs without the kernel). Raised by that delta.
+  // 1,603 B in train 0.21.0: the search's private members are one letter (−31 B, no behaviour change).
+  ["fizlet/grid", "src/grid.ts", 1637],
   // Whole module: effects() 2,1xx B + gravity, plus emitter() and KINDS (~0.6 KB), which tree-shake
   // away when unused (the page build below ships effects() alone).
   ["fizlet/fx", "src/fx.ts", 3072],
@@ -31,7 +37,8 @@ export const BUDGETS = [
   ["fizlet/match", "src/match.ts", 2816],
   // 1,318 B gz with per-drop age, landing spot and drop:land (0.10.1).
   ["fizlet/rules", "src/rules.ts", 1536],
-  // seek, flee, arrive, wander, patrol on typed arrays: 950 B gz when added.
+  // seek, flee, arrive, wander, patrol on typed arrays: 950 B gz when added. 958 B with arriveGoal (+8 B,
+  // the goal read from gx/gy: Blitz's wingmen boxed their per-frame slot as arrive's arguments).
   ["fizlet/steer", "src/steer.ts", 1280],
   // flag + tour + the kit card (its look inline on the tokens): 1,192 B gz when added; flag and tour alone tree-shake to less.
   ["fizlet/coach", "src/coach.ts", 1536],
@@ -73,18 +80,24 @@ export const BUDGETS = [
   // +70 B #118 and −6 B #119: pad's and board-page's exact `hypot` (shared code: +64 B together).
   // +55 B #120: input's intents resolved once, `id()` handles.
   // +3 B #122: the fps cap counts from the frame's start.
-  // +15 B #136: the card's hard base reads the domain shadow tokens (BOARD-UI.md 4.1).
-  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18376],
+  // 18,302 B in train 0.21.0 (headroom, no behaviour change): the ledger's private names and shared
+  // style checks, and collide Grid's one-letter private names.
+  // 18,312 B with #136 (+10 B): the card's hard base reads the domain shadow tokens (BOARD-UI.md 4.1).
+  ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18361],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
   // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B). 4,162 B
   // (+65 B, #119) when `hit`'s query radius took steer's exact `hypot` (K5, not a plain sqrt); budget
-  // raised by that delta from 4,128.
+  // raised by that delta from 4,128. 4,136 B in train 0.21.0: collide Grid's one-letter private names
+  // (−26 B, no behaviour change).
   ["fizlet/board-page", "src/board-page.ts", 4193],
   // A hero's live chunk is ≤ 10 KB gz (fizlet-engine docs/LAYERS.md); the bricks take ≤ 7 KB, the scene
   // ≥ 3 KB (tests/page.test.mjs holds the budget there, so it never rises). 7,129 B before release
   // train 0.20.0, 7,164 B after: +35 B #120 (input's intents resolved once), +0 B #122 (its fps-cap
   // nap leaves the clamp to setTimeout; with Math.max the two together were 7,169, 1 B over).
+  // 7,128 B in train 0.21.0 (7,166 on main, 7,171 with #174's start fix; no behaviour change): slot's
+  // selector without spaces −3 B, the ledger's short private names −20 B, one shared style check and
+  // put-back −12 B, restore's attribute put-back as one expression −8 B.
   ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7168],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
   // 4,974 B on 0.20.0. 5,125 B with #136 (+151 B): every hard base, press, hover lift, focus ring,

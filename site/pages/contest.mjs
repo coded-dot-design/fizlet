@@ -62,7 +62,7 @@ export function contestPage({ now, weeks, people, base, urlOf }) {
     <div class="section-head">
       <p class="eyebrow"><span class="index">WEEKLY</span> ONE THEME · ONE WINNER</p>
       <h1 id="ct-title">The weekly contest.<br><em>Small wins.</em></h1>
-      <p class="lead">Every week has a theme. Each day brings one or two new pieces, at most, to the <a href="${base}gallery/">gallery</a>, and once a week the team picks one winner from them. Write any prompt; the size decides. At ${CAP_KB} gzip or less a piece can win; bigger, it is posted but too big to win. The <a href="${base}people/">house personas</a> make pieces too.</p>
+      <p class="lead">Every week has a theme. Each day brings one or two new pieces, at most, to the <a href="${base}gallery/">gallery</a>, and once a week the team picks one winner from them. Write any prompt; the size decides. At ${CAP_KB} gzip or less a piece can win; bigger, it is posted but too big to win. The <a href="${base}people/">studio crew</a> pitch pieces too, and vote with Quill, Pip and Chris.</p>
     </div>
     ${theme}
     ${entries}

@@ -109,6 +109,35 @@ try {
     assert.deepEqual(r, { reduced: true, playing: false, time: 3, opacity: "1", transform: "scale(1)", fewSteps: true }, "reduced motion: play() lands on the end state at once");
     await ctx.close();
   }
+  {
+    // Off screen and back (a real IntersectionObserver): the engine pauses, then the loop plays on
+    // (dom-virus#33: the engine's pause hook used to pause the timeline for good).
+    const p = await browser.newPage({ viewport: { width: 900, height: 700 } });
+    await p.setContent(PAGE.replace('<main id="page">', '<main id="page" style="padding-bottom:3000px">'));
+    const r = await p.evaluate(async () => {
+      const $ = (id) => document.getElementById(id);
+      const frame = () => new Promise((ok) => requestAnimationFrame(() => ok()));
+      const wait = async (cond, max = 120) => {
+        for (let i = 0; i < max && !cond(); i++) await frame();
+        return cond();
+      };
+      const e = fz.createEngine({ root: $("screen") });
+      const tl = fz.timeline(e, { repeat: Infinity }).to($("screen"), { rotate: ["0deg", "90deg"] }, { dur: 1, ease: "linear" });
+      e.start();
+      tl.play();
+      await wait(() => tl.time > 0.2);
+      scrollTo(0, 2000);
+      const away = await wait(() => e.paused.includes("offscreen"));
+      const t = tl.time;
+      scrollTo(0, 0);
+      const back = await wait(() => !e.paused.length);
+      const moved = await wait(() => tl.time > t + 0.1);
+      e.destroy();
+      return { away, back, moved, playing: tl.playing, recall: $("screen").style.rotate };
+    });
+    assert.deepEqual(r, { away: true, back: true, moved: true, playing: true, recall: "" }, "off screen and back: the loop plays on; Recall after");
+    await p.close();
+  }
   console.log("timeline: animates real elements, right mid-way, settles to 0 frames (done or paused), Recall exact mid-play, reduced motion jumps to the end — ok");
 } finally {
   await browser.close();
