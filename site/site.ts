@@ -3,9 +3,11 @@
 // never zooms the page (the page itself keeps pinch-zoom, WCAG 1.4.4).
 import { pressCue } from "../src/ui/board-ui";
 import { lockTouch, SURFACES } from "../src/touch";
+import { scrollHint } from "./scroll-hint";
 
 pressCue(document);
 lockTouch(document, `${SURFACES},.demo-board,.bd-canvas,.bd-tl,.lab-stage`);
+scrollHint(document); // a frame that keeps the page's scroll says why, when someone tries
 const html = document.documentElement;
 document.querySelector("[data-theme-toggle]")?.addEventListener("click", () => {
   const next = html.dataset.theme === "light" ? "dark" : "light";

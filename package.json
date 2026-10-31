@@ -147,7 +147,7 @@
     "test:layers": "tsc -p site/demos/layers/tsconfig.json && node tests/layers.mjs",
     "test:pack": "node scripts/pack-smoke.mjs",
     "site": "npm run build && node scripts/site.mjs",
-    "test:site": "node tests/site.mjs && node tests/brick-cards.mjs",
+    "test:site": "node tests/site.mjs && node tests/brick-cards.mjs && node tests/scroll-hint.mjs",
     "test:settle": "node tests/settle-guard.mjs",
     "prepack": "npm run build",
     "perf": "npm run site && node tests/perf/run.mjs",
