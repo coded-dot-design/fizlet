@@ -3,7 +3,7 @@
 // setSound, state, origin:state). It clones the poster into the slot's stage and plays a short idle
 // loop on the kernel: steam rises off the coffee, notes float off the headphones, the cursor blinks
 // and the screen types. Then it settles: no requestAnimationFrame at all until a tap or a mode flip
-// plays it again. A tap clicks through fzlt/sound only when sound is on (and after a gesture).
+// plays it again. A tap clicks through @fzlt/core/sound only when sound is on (and after a gesture).
 // Everything it adds is inside the stage the slot made (gone on destroy) or a listener on the engine's
 // signal, so destroy() gives the page back exactly.
 import { createEngine } from "../../src/kernel/index";

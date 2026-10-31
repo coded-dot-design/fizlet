@@ -1,5 +1,5 @@
 // Build the Origin section's scripts into site-dist/origin/ and measure them (gzip):
-// - main.js, the loader (toggle, Sound key, fzlt/slot): a deferred module, never in the way of
+// - main.js, the loader (toggle, Sound key, @fzlt/core/slot): a deferred module, never in the way of
 //   first paint;
 // - the scene, loaded by the slot only once the figure nears the viewport. With the origin scene in
 //   the tree (site/demos/origin/, fizlet#218) the loader imports its chunk, demos/origin/scene.js,

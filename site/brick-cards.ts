@@ -1,5 +1,5 @@
 // The brick cards' loader: every <figure data-brick-card="<id>"> on the page (site/brick-cards.mjs)
-// becomes a fzlt/slot; its card's chunk loads only when it nears the viewport, never under
+// becomes a @fzlt/core/slot; its card's chunk loads only when it nears the viewport, never under
 // reduced motion. `mountBrickCards(root)` mounts the cards under `root` and returns their slots
 // (destroy() each to give the page back); this file mounts the whole page on load.
 import { slot } from "../src/slot";

@@ -83,5 +83,5 @@ export function brickMini({ brick, size, href }) {
   return `<a class="${cls(brick, "mini")}" data-flag="${brick.status}" style="${tone(brick)}" href="${esc(href)}" title="${esc(`${brick.name}: ${s.label}`)}"><i class="brick-dot" aria-hidden="true"></i><code>${esc(brick.name)}</code>${size ? `<b>${kb(size.gzip)} KB</b>` : ""}<i class="brick-flag" data-flag="${brick.status}"><span class="sr">${s.label}</span></i></a>`;
 }
 
-/** A site/bricks.mjs row by its module name ("fzlt/fx", "fzlt" for the kernel), or undefined. */
+/** A site/bricks.mjs row by its module name ("@fzlt/core/fx", "@fzlt/core" for the kernel), or undefined. */
 export const brickOf = (bricks, name) => bricks.find((b) => b.modules.some((m) => m.name === name));

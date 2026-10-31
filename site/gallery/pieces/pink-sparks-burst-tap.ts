@@ -5,7 +5,7 @@
 // bead that cools to steel, scorch marks that glow and fade, a curl of smoke. Then the mask comes up
 // and Sparky looks pleased with itself. It welds once by itself on load; every tap welds again.
 // Bricks: the kernel (fixed step, settle: no frames once still; the ledger: Recall gives the page
-// back) and fzlt/slot. The scene is palette indices in one small buffer (./pixel-stage.ts).
+// back) and @fzlt/core/slot. The scene is palette indices in one small buffer (./pixel-stage.ts).
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotTap } from "../../../src/slot";
 import { art, at, blit, dot, fill, line, pixelCanvas, pixels, type Pixels } from "./pixel-stage";

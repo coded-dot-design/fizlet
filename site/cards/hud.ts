@@ -1,6 +1,6 @@
 // hud card: the high striker. Tap and the hammer brick slams the pad; the puck shoots up the tower.
 // Tap again quickly and the heat builds, so the next strike goes higher: ring the bell at the top.
-// The scoreboard beside it is real DOM bound with fzlt/hud: score, best, a heat meter, a HOT flag
+// The scoreboard beside it is real DOM bound with @fzlt/core/hud: score, best, a heat meter, a HOT flag
 // and a feed of the last strikes, each written only when what it shows changes. The readout counts
 // the DOM writes against the frames drawn: far fewer, which is the point.
 import type { SlotMount } from "../../src/slot";

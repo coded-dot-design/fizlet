@@ -1,4 +1,4 @@
-// fzlt/presence: lockstep input exchange for multiplayer, behind a tiny transport adapter.
+// @fzlt/core/presence: lockstep input exchange for multiplayer, behind a tiny transport adapter.
 // Every peer runs the same fixed-step simulation from the same seed. Each sim frame needs every
 // player's input for that frame; your own input is sent `delay` frames ahead, so on a good link the
 // game never waits. A missing input stalls the sim (never guesses), so peers can't drift apart.

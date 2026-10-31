@@ -52,7 +52,7 @@
       "items": [
         {
           "title": "A reaction on the page",
-          "body": "A click, a hover, a scroll that should feel alive: `fzlt/fx` for particles, `fzlt/timeline` for choreographed DOM moves, `fzlt/hud` for counts. Settle on.",
+          "body": "A click, a hover, a scroll that should feel alive: `@fzlt/core/fx` for particles, `@fzlt/core/timeline` for choreographed DOM moves, `@fzlt/core/hud` for counts. Settle on.",
           "link": {
             "label": "Recipe 1",
             "href": "#recipe-action"
@@ -60,7 +60,7 @@
         },
         {
           "title": "An arcade game",
-          "body": "`fzlt/input` (and `fzlt/pad` on touch), `fzlt/collide`, `fzlt/fx`, `fzlt/hud`; `fzlt/rules` for waves, drops and score; `fzlt/match` for start, pause and results; `fzlt/arcade` when the page itself is the board.",
+          "body": "`@fzlt/core/input` (and `@fzlt/core/pad` on touch), `@fzlt/core/collide`, `@fzlt/core/fx`, `@fzlt/core/hud`; `@fzlt/core/rules` for waves, drops and score; `@fzlt/core/match` for start, pause and results; `@fzlt/core/arcade` when the page itself is the board.",
           "link": {
             "label": "Recipe 2",
             "href": "#recipe-shooter"
@@ -68,7 +68,7 @@
         },
         {
           "title": "Two or more players",
-          "body": "A deterministic step and `fzlt/presence`: inputs in lockstep, a state hash every 30 frames. `syncCheck` proves it in a test; the rooms server joins two devices.",
+          "body": "A deterministic step and `@fzlt/core/presence`: inputs in lockstep, a state hash every 30 frames. `syncCheck` proves it in a test; the rooms server joins two devices.",
           "link": {
             "label": "Recipe 3",
             "href": "#recipe-duel"
@@ -76,7 +76,7 @@
         },
         {
           "title": "A hero in an Astro slot",
-          "body": "`fzlt/slot` loads the scene near the viewport and keeps the slot's text alternative; `fzlt/camera` pans and zooms a DOM stage.",
+          "body": "`@fzlt/core/slot` loads the scene near the viewport and keeps the slot's text alternative; `@fzlt/core/camera` pans and zooms a DOM stage.",
           "link": {
             "label": "The slot guide",
             "href": "/guides/astro-slot/"
@@ -90,7 +90,7 @@
       "heading": "Recipe 1: an action",
       "headingAccent": "on the page",
       "body": [
-        "A real button on the page, a burst of sparks out of it on every click, and a count. The canvas is added through the ledger, the class through `ledger.cls`, the count through `fzlt/hud`, so `destroy()` leaves the button as it was. Half a second after the last spark, the engine settles: no frames at all until the next click. With reduced motion it counts without the burst."
+        "A real button on the page, a burst of sparks out of it on every click, and a count. The canvas is added through the ledger, the class through `ledger.cls`, the count through `@fzlt/core/hud`, so `destroy()` leaves the button as it was. Half a second after the last spark, the engine settles: no frames at all until the next click. With reduced motion it counts without the burst."
       ],
       "caption": "Click **Like**. The sparks are pooled (cap 160); a full pool refuses new ones instead of growing."
     },
@@ -120,7 +120,7 @@
           "type": "ul",
           "items": [
             "**Measure it.** Bundle, minify and gzip your piece; that is what a visitor downloads. The badges above are measured that way on every build.",
-            "**Check the step.** No `Math.random`, no clock, no layout reads, nothing allocated. [Determinism](/docs/determinism/) and the [contract](/docs/contract/) list the rules; `fzlt/debug` counts layout reads in a step.",
+            "**Check the step.** No `Math.random`, no clock, no layout reads, nothing allocated. [Determinism](/docs/determinism/) and the [contract](/docs/contract/) list the rules; `@fzlt/core/debug` counts layout reads in a step.",
             "**Check Recall.** Snapshot the page, run the piece, `destroy()` it, and compare: the DOM should match.",
             "**Check stillness.** With `settle`, a piece that is not moving should ask for no frames. The [perf overlay](/bricks/perf.html) shows it."
           ]

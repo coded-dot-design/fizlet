@@ -1,13 +1,13 @@
 // Brick cards: one tiny live toy per brick, built with that brick, that shows what it does (site/cards/).
 // This is the markup half: an astro-base-engine slot figure the loader (site/brick-cards.ts →
-// brick-cards.js) mounts with fzlt/slot (lazy near the viewport, asleep off screen, a still
+// brick-cards.js) mounts with @fzlt/core/slot (lazy near the viewport, asleep off screen, a still
 // labelled poster under reduced motion, Recall exact). Every number comes from the build: `bytes`
 // is the brick's gzip size (scripts/sizes.mjs), `card` the card's own live chunk (scripts/live-bytes.mjs).
 //
 // Mount one anywhere (bricks page, a brick's page, a note card's slot, a gallery hero):
 //   html:   brickCard({ brick, bytes, card, where: "notes" })   // brick: a site/bricks.mjs row
 //   script: <script type="module" src="<base>brick-cards.js"></script>  (mounts every card on the page)
-// The scenes themselves are fzlt/slot mounts (`export default` of site/cards/<id>.ts), so a page
+// The scenes themselves are @fzlt/core/slot mounts (`export default` of site/cards/<id>.ts), so a page
 // with its own loader can call slot(figure, () => import(".../cards/fx").then((m) => m.default)).
 import { esc } from "./layout.mjs";
 import { sizeBadge } from "./size-badge.mjs";

@@ -1,4 +1,4 @@
-// Halloween heroes: the pixel art, as data for fzlt/sprite (rows of characters + a colour map),
+// Halloween heroes: the pixel art, as data for @fzlt/core/sprite (rows of characters + a colour map),
 // in flat Fizlet tokens with an ink rim. Original art: bats, a jack-o'-lantern, a ghost, a
 // cauldron, wrapped candy. Each is its own const, so a scene ships only the art it draws.
 import type { SpriteDef } from "../../../src/sprite";

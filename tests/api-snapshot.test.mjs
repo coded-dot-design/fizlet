@@ -19,9 +19,9 @@ function fixture(files) {
   return dir;
 }
 
-const KERNEL = { id: "kernel", modules: [{ name: "fzlt", dts: "dist/index.d.ts" }] };
-const FX = { id: "fx", modules: [{ name: "fzlt/fx", dts: "dist/fx.d.ts" }] };
-const UI = { id: "ui", modules: [{ name: "fzlt/ui", dts: "dist/ui/board-ui.d.ts" }] };
+const KERNEL = { id: "kernel", modules: [{ name: "@fzlt/core", dts: "dist/index.d.ts" }] };
+const FX = { id: "fx", modules: [{ name: "@fzlt/core/fx", dts: "dist/fx.d.ts" }] };
+const UI = { id: "ui", modules: [{ name: "@fzlt/core/ui", dts: "dist/ui/board-ui.d.ts" }] };
 
 test("comments go, strings stay: a doc edit is not an API change", () => {
   const src = `/** Docs. */\nexport declare const a: "x // y" | '/* z */'; // trailing\n/* block\n */\nexport type T = \`a\${string}//b\`;\n`;
@@ -43,7 +43,7 @@ test("a snapshot follows re-exports, and type imports no other COMPLETE brick co
     const snap = snapshots([KERNEL, FX], dir);
     assert.match(snap.get("kernel"), /### dist\/kernel\/engine\.d\.ts\nexport interface Engine/);
     const fx = snap.get("fx");
-    assert.match(fx, /^# fx: public API of fzlt\/fx \(COMPLETE\)\./);
+    assert.match(fx, /^# fx: public API of @fzlt\/core\/fx \(COMPLETE\)\./);
     assert.match(fx, /### dist\/board-page\.d\.ts\n/, "a BETA brick's types that fx names are fx's API too");
     assert.doesNotMatch(fx, /kernel\/engine\.d\.ts/, "the kernel's types are the kernel's snapshot");
     assert.throws(() => surfaceFiles(join(dir, "dist/x.d.ts")), /ENOENT/);
@@ -61,28 +61,28 @@ test("the Unreleased section is the text between its heading and the next releas
 });
 
 test("a brick is named by a module name, not by a longer path or a bare word", () => {
-  assert.ok(mentions(FX, "- **`fzlt/fx`**: blast takes a scale."));
-  assert.ok(mentions(FX, "fzlt/fx."));
-  assert.ok(!mentions(FX, "fzlt/fxlite and fx in general"));
-  assert.ok(!mentions(UI, "`fzlt/ui/board-ui.css` gets a token"), "the stylesheet is not the JS API");
+  assert.ok(mentions(FX, "- **`@fzlt/core/fx`**: blast takes a scale."));
+  assert.ok(mentions(FX, "@fzlt/core/fx."));
+  assert.ok(!mentions(FX, "@fzlt/core/fxlite and fx in general"));
+  assert.ok(!mentions(UI, "`@fzlt/core/ui/board-ui.css` gets a token"), "the stylesheet is not the JS API");
   assert.ok(mentions(UI, "Board UI: a new key style"));
   assert.ok(mentions(KERNEL, "- **Kernel: `engine.busy(seconds)`**"));
-  assert.ok(mentions(KERNEL, "`fzlt`: createEngine takes a clock"));
-  assert.ok(mentions(KERNEL, "fzlt/kernel"));
-  assert.ok(!mentions(KERNEL, "fizlet.com and the fzlt/fx brick"));
+  assert.ok(mentions(KERNEL, "`@fzlt/core`: createEngine takes a clock"));
+  assert.ok(mentions(KERNEL, "@fzlt/core/kernel"));
+  assert.ok(!mentions(KERNEL, "fizlet.com and the @fzlt/core/fx brick"));
 });
 
-const LOG = (lines) => `# Changelog\n\n## Unreleased\n\n${lines}\n\n## 0.20.0\n\n- \`fzlt/fx\`: old news\n`;
+const LOG = (lines) => `# Changelog\n\n## Unreleased\n\n${lines}\n\n## 0.20.0\n\n- \`@fzlt/core/fx\`: old news\n`;
 const bricks = [KERNEL, FX, UI];
 const m = (o) => new Map(Object.entries(o));
 
 test("a package rename in the headings is stale until written, but not an API change", () => {
   const snap = (pkg) => `# kernel: public API of ${pkg} (COMPLETE).\n# Generated.\n\n## ${pkg}\n\n### dist/index.d.ts\nexport declare function f(): void;\n`;
-  const r = compare({ current: m({ kernel: snap("fzlt") }), committed: m({ kernel: snap("fzlt") }), base: m({ kernel: snap("fizlet") }), changelog: LOG("- nothing"), bricks });
+  const r = compare({ current: m({ kernel: snap("@fzlt/core") }), committed: m({ kernel: snap("@fzlt/core") }), base: m({ kernel: snap("fzlt") }), changelog: LOG("- nothing"), bricks });
   assert.deepEqual(r, { stale: [], changed: [], unannounced: [] });
-  assert.deepEqual(compare({ current: m({ kernel: snap("fzlt") }), committed: m({ kernel: snap("fizlet") }), changelog: LOG("- nothing"), bricks }).stale, ["kernel"]);
-  const grown = snap("fzlt").replace("f(): void", "f(n: number): void");
-  assert.deepEqual(compare({ current: m({ kernel: grown }), committed: m({ kernel: grown }), base: m({ kernel: snap("fizlet") }), changelog: LOG("- nothing"), bricks }).unannounced, ["kernel"]);
+  assert.deepEqual(compare({ current: m({ kernel: snap("@fzlt/core") }), committed: m({ kernel: snap("fzlt") }), changelog: LOG("- nothing"), bricks }).stale, ["kernel"]);
+  const grown = snap("@fzlt/core").replace("f(): void", "f(n: number): void");
+  assert.deepEqual(compare({ current: m({ kernel: grown }), committed: m({ kernel: grown }), base: m({ kernel: snap("fzlt") }), changelog: LOG("- nothing"), bricks }).unannounced, ["kernel"]);
 });
 
 test("local check: a changed export is stale, and unannounced until the CHANGELOG names it", () => {
@@ -91,7 +91,7 @@ test("local check: a changed export is stale, and unannounced until the CHANGELO
   assert.deepEqual(same, { stale: [], changed: [], unannounced: [] });
   const r = compare({ current: m({ kernel: "k1", fx: "f2" }), committed, changelog: LOG("- nothing"), bricks });
   assert.deepEqual(r, { stale: ["fx"], changed: ["fx"], unannounced: ["fx"] });
-  assert.deepEqual(compare({ current: m({ kernel: "k1", fx: "f2" }), committed, changelog: LOG("- `fzlt/fx`: new option"), bricks }).unannounced, []);
+  assert.deepEqual(compare({ current: m({ kernel: "k1", fx: "f2" }), committed, changelog: LOG("- `@fzlt/core/fx`: new option"), bricks }).unannounced, []);
   // A release's notes don't count: only Unreleased.
   assert.deepEqual(compare({ current: m({ kernel: "k1", fx: "f2" }), committed, changelog: LOG("- other"), bricks }).unannounced, ["fx"]);
 });

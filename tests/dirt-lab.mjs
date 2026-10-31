@@ -1,5 +1,5 @@
 // Dirt Lab (site/gallery/pieces/dirt-lab.ts) in Chromium, on its own stage, mounted through
-// fzlt/slot as the gallery does: the demo ride plays and the scene settles to no frames with the
+// @fzlt/core/slot as the gallery does: the demo ride plays and the scene settles to no frames with the
 // page as it was; then the whole game by keyboard only: pick and place pieces, race, hold gas to the
 // flag (a finish), then a gap with no ramp (a crash) and back to the builder; the track goes into the
 // address as #t= and a fresh load reads it back; a malformed or oversized #t= is refused (the

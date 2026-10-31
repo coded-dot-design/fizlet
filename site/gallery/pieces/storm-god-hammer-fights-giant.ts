@@ -7,7 +7,7 @@
 // BRONT swats it to bits, if it's still out he takes it. Rounds escalate (more pips, a guard from
 // round 2, faster boulders); a KO puts KRUNCH down, three wins the bout, and it starts again.
 // Bricks: the kernel (fixed step, settle: it sleeps between throws; its ledger for every page write,
-// so Recall gives the page back byte for byte) and fzlt/sprite (both fighters and the hammer,
+// so Recall gives the page back byte for byte) and @fzlt/core/sprite (both fighters and the hammer,
 // baked once). The giant is shared with #49 (krunch.ts).
 import { createEngine } from "../../../src/kernel/index";
 import { sprites } from "../../../src/sprite";

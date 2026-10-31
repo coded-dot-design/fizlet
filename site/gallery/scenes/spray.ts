@@ -1,7 +1,7 @@
 // The spray scene: the particle recipes (burst, rise, fall, trail) are this one scene with different
 // data; a tap sets where they leave from (a point bursts there, an edge sprays above or below it, a
-// trail crosses the stage at its height). A burst can pop comic words too (fx.word). Bricks: the kernel (settle + fps cap: it sleeps once still) and fzlt/fx (one fixed pool,
-// one named particle kind). Mounted through fzlt/slot, so it loads near the viewport, never under
+// trail crosses the stage at its height). A burst can pop comic words too (fx.word). Bricks: the kernel (settle + fps cap: it sleeps once still) and @fzlt/core/fx (one fixed pool,
+// one named particle kind). Mounted through @fzlt/core/slot, so it loads near the viewport, never under
 // reduced motion, and destroy() gives the page back (the canvas goes through the ledger).
 import { createEngine } from "../../../src/kernel/index";
 import { effects, emitter, type Kind } from "../../../src/fx";
@@ -23,7 +23,7 @@ export interface Spray {
   loop: number;
   /** Size multiplier for speed and particle size. */
   scale: number;
-  /** Comic words a point burst pops, one a burst, in turn (fzlt/fx pop words). */
+  /** Comic words a point burst pops, one a burst, in turn (@fzlt/core/fx pop words). */
   words?: string[];
   /** Hovering the stage plays it too (where the pointer comes in). */
   hover?: boolean;

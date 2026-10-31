@@ -1,9 +1,9 @@
 /**
- * fzlt/grid: the game board. A cols × rows tile grid in typed arrays (terrain id, move cost,
+ * @fzlt/core/grid: the game board. A cols × rows tile grid in typed arrays (terrain id, move cost,
  * flags), A* paths, line of sight, movement range and seeded terrain. Every search reuses buffers
  * made once by `board()`, so no call allocates. Cell ids are `row * cols + col`.
  *
- * Not collision: fzlt/collide's `Grid` re-buckets moving bodies every step; a `Board` holds the
+ * Not collision: @fzlt/core/collide's `Grid` re-buckets moving bodies every step; a `Board` holds the
  * ground they move over. Use the same cell size for both and a body's collide bucket is its cell.
  * The size is checked at setup: `cols` and `rows` are positive integers, `cell` a finite number > 0
  * (a RangeError names all three).

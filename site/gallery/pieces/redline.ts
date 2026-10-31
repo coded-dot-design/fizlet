@@ -4,7 +4,7 @@
 // Beat the ghost to the flag by riding the edge of the red.
 // Keys (focus in the stage): hold Space, ↑ or → for gas; M mutes.
 // Bricks: the kernel (fixed step, settle: on the line the scene is still and it sleeps; its ledger
-// for the canvas and the controls), fzlt/sound and fzlt/slot; the bike, dust and controls are
+// for the canvas and the controls), @fzlt/core/sound and @fzlt/core/slot; the bike, dust and controls are
 // moto-kit.ts. The sprint (`sprint`) is plain numbers: no DOM, no allocation a step.
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../src/slot";

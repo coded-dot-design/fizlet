@@ -1,5 +1,5 @@
 // The carnival pieces (site/gallery/pieces/duck-derby.ts, oodles-o-moles.ts, dunk-tank.ts) in Chromium, each on
-// its own stage (site/gallery/stages/<id>.html), mounted through fzlt/slot as the gallery does: it
+// its own stage (site/gallery/stages/<id>.html), mounted through @fzlt/core/slot as the gallery does: it
 // mounts (the poster steps aside), plays its intro and settles to no frames with the page exactly as
 // it was; a tap starts a round and really hits (a duck tips over, a mole is bonked; a double tap is
 // the BOOM; the bomb mole blows the letters about; the target drops Sir Dry in and the splash wets
