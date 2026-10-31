@@ -29,6 +29,7 @@
 /* ---------- Timeline ---------- */
 .bt-time { margin: 0; }
 .bt-scale { padding: 34px 10px 0; }
+.bt-scale-cap { padding-bottom: calc(var(--lifts, 0) * 26px); } /* room for dots stacked on the same month */
 .bt-scale-cap { margin: 0 0 30px; font: 12px/1.5 var(--mono); color: var(--muted); }
 .bt-rail { position: relative; height: 4px; background: var(--line); border-radius: 2px; }
 .bt-dot { position: absolute; top: 50%; translate: -50% calc(-50% - var(--lift) * 26px); width: 22px; height: 22px; border-radius: 50%;

@@ -82,10 +82,11 @@ export const hidden = entries.filter((e) => e.confirmed !== true);
 const YEAR = 365.25 * 864e5, t0 = at(shown[0].date), t1 = at(shown.at(-1).date);
 const pct = (t) => (((t - t0) / (t1 - t0)) * 100).toFixed(2);
 // The to-scale rail: one dot per entry at its true place; dots closer than 3% stack upward.
-let lastX = -9, lift = 0;
+let lastX = -9, lift = 0, lifts = 0;
 const dots = shown.map((e, i) => {
   const x = Number(pct(at(e.date)));
   lift = x - lastX < 3 ? lift + 1 : 0;
+  lifts = Math.max(lifts, lift);
   lastX = x;
   return `<span class="bt-dot" style="left:${x}%;--lift:${lift}">${i + 1}</span>`;
 }).join("");
@@ -97,7 +98,7 @@ const items = shown.map((e, i) => {
   return `<li${gap ? ' class="bt-after-gap"' : ""}>${gap ? `<p class="bt-gap"><span aria-hidden="true">≈ ≈</span> ${gap} later</p>` : ""}<span class="bt-n" aria-hidden="true">${i + 1}</span><time datetime="${esc(e.date)}">${esc(when(e))}</time><b>${esc(e.label)}</b><small>Source: ${source}</small></li>`;
 }).join("");
 const timeline = `<figure class="bt-time">
-      <div class="bt-scale" aria-hidden="true"><p class="bt-scale-cap">To scale, ${new Date(t0).getUTCFullYear()} to ${new Date(t1).getUTCFullYear()}: one dot per moment below.</p><div class="bt-rail">${dots}</div><div class="bt-years">${years.join("")}</div></div>
+      <div class="bt-scale" aria-hidden="true" style="--lifts:${lifts}"><p class="bt-scale-cap">To scale, ${new Date(t0).getUTCFullYear()} to ${new Date(t1).getUTCFullYear()}: one dot per moment below.</p><div class="bt-rail">${dots}</div><div class="bt-years">${years.join("")}</div></div>
       <ol class="bt-list">${items}</ol>
       <figcaption>Dates come from the sources named on each one. Moments still to confirm with Chris are left off until he does.</figcaption>
     </figure>`;
