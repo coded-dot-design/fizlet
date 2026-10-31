@@ -314,7 +314,7 @@ export type Effects = ReturnType<typeof effects>;
  * At most 26 kinds per pool (ids 6-31); a second emitter on the same pool adds after the first.
  */
 export function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>) {
-  const { f, kind, col, word, st, K, cap, rnd } = fx.raw, U = new Float64Array(5);
+  const { f, kind, col, word, st, K, cap, rnd } = fx.raw, U = new Float64Array(6);
   const [X, Y, VX, VY, ROT, SPIN, SIZE, LIFE, MAX] = f as Float32Array[] as [Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array];
   const ids = {} as Record<N, number>;
   let nk = 6;
@@ -329,10 +329,11 @@ export function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>) {
     ids,
     /**
      * `n` particles of kind `k` from (x, y), as that kind's data says: direction, spread, speed, size
-     * and life (speed and size times `scale`). Colours are picked from `c`...`c + cn - 1`. Bounded: it
-     * stops at capacity and counts the rest in `dropped`. Writes the arrays directly: nothing boxes.
+     * and life (speed and size times `scale`). Colours are picked from `c`...`c + cn - 1`, and a word
+     * kind's words from `w`...`w + wn - 1` (indexes into the pool's `words`). Bounded: it stops at
+     * capacity and counts the rest in `dropped`. Writes the arrays directly: nothing boxes.
      */
-    emit(k: number, x: number, y: number, n: number, c = 0, cn = 1, scale = 1) {
+    emit(k: number, x: number, y: number, n: number, c = 0, cn = 1, scale = 1, w = 0, wn = 1) {
       if (!(k >= 6 && k < nk && finite(x) && finite(y) && finite(scale) && n < Infinity)) return void st[3]!++;
       const r = k * 11 + 1;
       for (let i = 0; i < n; i++) {
@@ -342,7 +343,7 @@ export function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>) {
           break;
         }
         st[0] = p + 1;
-        for (let q = 0; q < 5; q++) U[q] = rnd(0, 1);
+        for (let q = 0; q < 6; q++) U[q] = rnd(0, 1);
         const a = K[r + 2]! + (U[0]! - 0.5) * K[r + 3]!, v = (K[r + 4]! + U[1]! * (K[r + 5]! - K[r + 4]!)) * scale;
         kind[p] = k;
         X[p] = x;
@@ -353,7 +354,8 @@ export function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>) {
         LIFE[p] = MAX[p] = K[r + 8]! + U[3]! * (K[r + 9]! - K[r + 8]!);
         col[p] = c + ((U[4]! * cn) | 0);
         // Square to the page (pixel bubbles stay crisp): no rotation, no spin.
-        ROT[p] = SPIN[p] = word[p] = 0;
+        ROT[p] = SPIN[p] = 0;
+        word[p] = w + ((U[5]! * wn) | 0);
       }
     },
   };
