@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Website: a section the scroll jumps past still reveals** (`site/home-motion.ts`). The observer
+  only reports threshold crossings, so a jump (an anchor, a fling, a slow frame landing several
+  scrolls at once) could carry a waiting section from below the fold to above it with no callback,
+  and it stayed hidden; the read phase now plays in any waiting section above the reveal line. This
+  was the CI-only "home rhythm: every part shown" failure on PRs that lengthen the home page.
+  `tests/site.mjs` adds single jumps to 0.3–0.7 of the page (the old code left `profile` hidden at
+  0.3, 0.35 and 0.5 locally).
+
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the
   first release tag after the owner adds the `NPM_TOKEN` repository secret; the release workflow
   (`.github/workflows/release.yml`, `npm publish --provenance --access public`) checks, packs and
