@@ -440,7 +440,10 @@ export function freeze(stage: HTMLElement, slot: HTMLElement, first: SlotTap | n
         } else if (S[BURSTS] && t > 0.7) radio();
       }
       if (mode === LIVE) {
+        // Busy now: the round can end on this step (HQ taken, a side wiped), and the result plays on.
         mv = true;
+        e.busy();
+        S[DIRTY] = 1;
         let foes = 0, mine = 0;
         for (let i = 0; i < N; i++) if (HP[i]! > 0) i < 3 ? mine++ : foes++;
         if (tanks(dt)) return;
