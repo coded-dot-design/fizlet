@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+- **Hardening from the S6 pressure test (P2-01 to P2-04), pending owner review.** `fizlet/kernel`:
+  `destroy()` closes the engine's ledger (`Ledger.restore(close?)`, new optional argument): a late
+  `text`/`style`/`attr`/`cls` write is refused (returns false, touches nothing) and a late `add()`d
+  node leaves when the caller's task ends, so Recall stays exact (P2-03); `advance(sec)` throws
+  `RangeError: fizlet: sec must be a finite number` on Infinity, NaN or a non-number instead of
+  stopping the engine for good (P2-04). `fizlet/grid`: `path`, `flood`, `los` and `hit` throw
+  `fizlet/grid: cell … is not on the board` on an id that is not an integer on the board (they
+  looped forever, P2-01), and a bad size says "is not a board" (P2-02). Bytes: kernel 3,413 → 3,453,
+  page build 7,128 → 7,167 (+55 B for the fixes, −16 B paid down elsewhere), grid 1,603 → 1,652
+  (budget 1,664), perf 2,042 → 2,019 (−23 B, so #173's +22 B fits the 2,048 budget). The fuzz
+  (`npm run test:stress -- fuzz --fixed`) holds the four fixed cases.
+
 ## 0.21.0
 
 - **On npm (roadmap E9): the package is ready to publish.** `npm install fizlet` works from the

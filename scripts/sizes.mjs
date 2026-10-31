@@ -7,7 +7,10 @@ export const BUDGETS = [
   ["fizlet (kernel)", "src/index.ts", 4096],
   ["fizlet/debug", "src/debug.ts", 1536],
   // The player-facing performance overlay (off by default). Logic ~1.5 KB gz; its look is inline
-  // on the kit tokens (~0.45 KB) so it works on pages without board-ui.css.
+  // on the kit tokens (~0.45 KB) so it works on pages without board-ui.css. 2,042 B in train 0.21.0;
+  // 2,019 B in S8 (−23 B, no behaviour change: getComputedStyle?.(), the bar's slot read inline, x0
+  // and the budget line from the canvas width and height), so #173's shadow direction (+22 B) fits
+  // under 2,048 (2,042 B measured with it) and the budget stays 2,048.
   ["fizlet/perf", "src/perf.ts", 2048],
   ["fizlet/input", "src/input.ts", 1536],
   // 1,995 B gz in 0.19.0; 2,073 B once stickAt/dpadAt/the drag use steer's exact `hypot` (+78 B, #118, K5:
@@ -18,7 +21,10 @@ export const BUDGETS = [
   // (+101 B, brick audit P8: `cell: 0` made at() NaN, a fractional cols sized the arrays wrong). An
   // inline check, not the kernel's `need` (+181 B: grid runs without the kernel). Raised by that delta.
   // 1,603 B in train 0.21.0: the search's private members are one letter (−31 B, no behaviour change).
-  ["fizlet/grid", "src/grid.ts", 1637],
+  // 1,652 B in S8 (+49 B, S6 P2-01/P2-02): path, flood, los and hit check their cell ids (a NaN, a
+  // fraction, a string or an id off the board looped forever) and the size error says "is not a board";
+  // the size check itself is shorter (−8 B). Budget raised by the need, with 12 B headroom.
+  ["fizlet/grid", "src/grid.ts", 1664],
   // Whole module: effects() 2,1xx B + gravity, plus emitter() and KINDS (~0.6 KB), which tree-shake
   // away when unused (the page build below ships effects() alone).
   ["fizlet/fx", "src/fx.ts", 3072],
@@ -78,8 +84,9 @@ export const BUDGETS = [
   // +70 B #118 and −6 B #119: pad's and board-page's exact `hypot` (shared code: +64 B together).
   // +55 B #120: input's intents resolved once, `id()` handles.
   // +3 B #122: the fps cap counts from the frame's start.
-  // 18,302 B in train 0.21.0 (headroom, no behaviour change): the ledger's private names and shared
-  // style checks, and collide Grid's one-letter private names.
+  // 18,295 B in train 0.21.0 (headroom, no behaviour change): the ledger's private names and shared
+  // style checks, and collide Grid's one-letter private names. 18,339 B in S8 (+44 B): the ledger
+  // refuses writes after destroy (P2-03) and advance() checks sec (P2-04).
   ["fizlet/arcade (hud omitted)", "scripts/arcade-card.ts", 18361],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
@@ -94,7 +101,10 @@ export const BUDGETS = [
   // nap leaves the clamp to setTimeout; with Math.max the two together were 7,169, 1 B over).
   // 7,128 B in train 0.21.0 (7,166 on main, 7,171 with #174's start fix; no behaviour change): slot's
   // selector without spaces −3 B, the ledger's short private names −20 B, one shared style check and
-  // put-back −12 B, restore's attribute put-back as one expression −8 B.
+  // put-back −12 B, restore's attribute put-back as one expression −8 B. 7,167 B in S8 (+39 B): the
+  // ledger closed by destroy() refuses writes and removes a late add() (+46 B, S6 P2-03), advance()
+  // checks sec with the kernel's `need` (+9 B, P2-04), paid down by −16 B with no behaviour change
+  // (need's one Number.isFinite test, slot's one idle-callback test, fx's compound counter writes).
   ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7168],
   ["fizlet/ui (js)", "src/ui/board-ui.ts", 3072],
   ["fizlet/ui (css)", "src/ui/board-ui.css", 5120],
