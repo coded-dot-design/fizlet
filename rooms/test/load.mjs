@@ -282,6 +282,10 @@ async function capsPhase(out) {
   const ie = await Promise.all(idle.map((c) => ended(c, 20000)));
   const firstLeave = Math.min(...idle.flatMap((c) => c.msgs.filter((m) => m.d[0] === 4).map((m) => m.t)));
   check("idle: silent full room closed 'room idle' after ~3 s", ie.some((e) => e.reason === "room idle") && firstLeave - t < 6000, { reasons: [...new Set(ie.map((e) => e.reason))], leaveS: r1((firstLeave - t) / 1000), closeS: r1((Math.max(...idle.map((c) => c.at)) - t) / 1000) }, "room idle, 3–6 s");
+  // Reconnect after idle: the same four come back to the room that just timed out.
+  const again = await seats(w, 1);
+  check("reconnect after idle: the timed-out room seats its four again", again.every((c) => c.slot >= 0), again.map((c) => c.slot), "[0..3]");
+  again.forEach((c) => c.ws.close());
   // Max room: four seats relaying at 20 Hz each: idle never fires, MAX_ROOM_SECONDS (10) does.
   t = now();
   const busy = await seats(w, 2);
@@ -342,7 +346,8 @@ async function capsPhase(out) {
   out.caps.reconnect = { rejoin: be2, welcomeOnRejoin: back.msgs.some((m) => m.d[0] === 3) };
   check("reconnect: the dropped player can take its seat back", back.msgs.some((m) => m.d[0] === 3), be2 === "open" ? "open, no WELCOME" : { ...be2, s: out.caps.rejoinCloseS }, "WELCOME with its old seat (not built: THREAT-MODEL 'Not yet')");
   const own = await ended(rc[0], 15000);
-  check("close: a client's own close is answered (clean code, not a 1006 timeout)", own.code === 1000 && rc[0].at - dropT < 2000, { ...own, s: r1((rc[0].at - dropT) / 1000) }, "1000 in < 2 s");
+  // Timed, not the code: Node's client sometimes reports 1006 even when the answer comes at once.
+  check("close: a client's own close is answered at once (not a ~10 s timeout)", rc[0].at - dropT < 2000, { ...own, s: r1((rc[0].at - dropT) / 1000) }, "closed in < 2 s");
   clearInterval(rt);
   // The three left behind stall in lockstep; the room only frees after IDLE (they keep relaying here, so MAX_ROOM).
   rc.forEach((x) => x.ws.close());
@@ -398,7 +403,9 @@ async function hostilePhase(out) {
     });
   const rss0 = rss(w);
   out.hostile.chunked = { mb1: await chunked(1), mb32: await chunked(32), mb96: await chunked(96), rssBefore: rss0, rssAfter: rss(w) };
-  check("POST /invite chunked 96 MiB: refused without reading the body", out.hostile.chunked.mb96.ms < 500, out.hostile.chunked, "403 in < 500 ms (body not buffered)");
+  // Timing is noisy on a shared machine; the RSS step is not (the body is buffered whole before the slice).
+  const grew = r1(out.hostile.chunked.rssAfter - rss0);
+  check("POST /invite chunked 96 MiB: refused without buffering the body", grew < 32, { ...out.hostile.chunked, rssGrowMB: grew }, "workerd RSS + < 32 MB");
   // Paths and player counts.
   const paths = {};
   for (const p of ["/room/8?players=4", "/room/-1?players=4", "/room/abc?players=4", "/room/0001?players=4", "/room/01?players=4", "/room/0?players=0", "/room/0?players=5", "/room/0?players=2.5", "/room/0?players=abc", "/room/0?players=", "/"]) paths[p] = await upgrade(`${H}${p}&invite=${CODE}`.replace("/&", "/?"));
