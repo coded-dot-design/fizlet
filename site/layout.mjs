@@ -55,15 +55,15 @@ export const mark = (size = 40) =>
   `<svg viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true" shape-rendering="crispEdges"><path d="M0 16h64M0 32h64M0 48h64M16 0v64M32 0v64M48 0v64" stroke="#19f0ff" stroke-opacity=".35"/><rect x="1" y="1" width="62" height="62" fill="none" stroke="#19f0ff" stroke-width="2"/><g fill="currentColor"><path fill-rule="evenodd" d="M8 30h26v26H8Zm7 7v12h12V37Z"/><path d="M36 18h14v14H36ZM40 40h8v8h-8Z"/></g><path d="M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z" fill="#ff2e88"/></svg>`;
 
 // Site navigation, one source (brain: fizlet-engine playbooks/content/site-nav.md). The header is the
-// short version: Docs · Bricks · Daily · Notes. A group is a small menu behind a disclosure button
+// short version: Daily · Docs · Bricks · Notes. A group is a small menu behind a disclosure button
 // (site/nav.ts: click, keyboard, Escape, outside click; never hover-only); on a phone the whole nav
 // is one panel behind the menu key. The footer's site map lists every indexable page (siteMap()
 // below), so no page is an orphan. A link to the page you are on, or one of its parents, carries
 // aria-current. External links end in ↗ (icon keys name the destination in aria-label).
 export const NAV = [
+  ["Daily", [["gallery/", "Daily pieces"], ["contest/", "Contest rules"]]],
   ["Docs", [["docs/", "All docs"], ["docs/getting-started/", "Getting started"], ["guides/", "Guides"], ["docs/authoring/", "Recipes"], ["bricks/", "API"]]],
   ["bricks/", "Bricks"],
-  ["Daily", [["gallery/", "Daily pieces"], ["contest/", "Contest rules"]]],
   ["Notes", [["notes/", "Notes"], ["news/", "News"]]],
 ];
 
@@ -73,9 +73,9 @@ export const current = (id, path) => (id.startsWith("#") ? "" : path === id ? ' 
 const navLinks = (list, home, path) => list.map(([id, label]) => `<a href="${home}${id}"${current(id, path)}>${label}</a>`);
 const CHEVRON = `<svg class="nav-chev" viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m5 8 5 5 5-5"/></svg>`;
 /** The header nav: a link per top-level page, a disclosure button and its menu per group. */
-const navTree = (home, path) => `<ul class="nav-list">${NAV.map(([id, label], i) => typeof label === "string"
+const navTree = (home, path) => `<ul class="nav-list">${NAV.map(([id, label]) => typeof label === "string"
   ? `<li class="nav-item"><a class="nav-top" href="${home}${id}"${current(id, path)}>${label}</a></li>`
-  : `<li class="nav-item"><button class="nav-btn" type="button" aria-expanded="false" aria-controls="nav-${i}">${id}${CHEVRON}</button><span class="nav-label" aria-hidden="true">${id}</span><ul class="nav-menu" id="nav-${i}" aria-label="${id}">${navLinks(label, home, path).map((a) => `<li>${a}</li>`).join("")}</ul></li>`).join("")}</ul>`;
+  : `<li class="nav-item"><button class="nav-btn" type="button" aria-expanded="false" aria-controls="nav-${id.toLowerCase()}">${id}${CHEVRON}</button><span class="nav-label" aria-hidden="true">${id}</span><ul class="nav-menu" id="nav-${id.toLowerCase()}" aria-label="${id}">${navLinks(label, home, path).map((a) => `<li>${a}</li>`).join("")}</ul></li>`).join("")}</ul>`;
 
 /**
  * A breadcrumb trail for a deep page: Fizlet / its section / the page. `trail`: [[href, label], …]

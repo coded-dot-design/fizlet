@@ -79,7 +79,7 @@ try {
     assert.equal(await menuShown(page, "Docs"), true, "Docs: the menu shows");
     assert.deepEqual(await layout(page), before, "opening a menu moves nothing");
     // The API link marks the section you are in (a brick page).
-    assert.equal(await page.locator('#nav-0 a[href$="bricks/"]').getAttribute("aria-current"), "true", "API: aria-current on a brick page");
+    assert.equal(await page.locator('#nav-docs a[href$="bricks/"]').getAttribute("aria-current"), "true", "API: aria-current on a brick page");
     await page.locator(".nav-btn", { hasText: "Daily" }).click();
     assert.deepEqual(await expanded(page), ["Daily"], "one menu open at a time");
     await page.locator(".nav-btn", { hasText: "Daily" }).click();
@@ -105,8 +105,8 @@ try {
     assert.deepEqual(await expanded(page), [], "Tab past the menu closes it");
     // Every link works: one opens its page.
     await page.locator(".nav-btn", { hasText: "Daily" }).click();
-    await Promise.all([page.waitForURL(/\/contest\/$/), page.locator("#nav-2 a", { hasText: "Contest rules" }).click()]);
-    assert.equal(await page.locator("#nav-2 a[aria-current=page]").textContent(), "Contest rules", "the contest page marks its link");
+    await Promise.all([page.waitForURL(/\/contest\/$/), page.locator("#nav-daily a", { hasText: "Contest rules" }).click()]);
+    assert.equal(await page.locator("#nav-daily a[aria-current=page]").textContent(), "Contest rules", "the contest page marks its link");
     assert.deepEqual(errors, []);
     await ctx.close();
   }
@@ -180,10 +180,10 @@ try {
         const { ctx, page } = await open(opts, "", theme);
         await shot(page, "1-home-header");
         if (w === 1440) {
-          await page.locator(".nav-btn", { hasText: "Docs" }).click();
-          await shot(page, "2-menu-docs-open");
-          await page.locator(".nav-btn", { hasText: "Daily" }).click();
-          await shot(page, "2-menu-daily-open");
+          for (const name of GROUPS) {
+            await page.locator(".nav-btn", { hasText: name }).click();
+            await shot(page, `2-menu-${name.toLowerCase()}-open`);
+          }
         } else {
           await page.locator(".menu-key").click();
           await shot(page, "3-mobile-menu-open");

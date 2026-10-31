@@ -388,9 +388,9 @@ html.bui[data-theme="light"] .panel.lit {
   }
   .nav-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: 1fr;
     align-items: start;
-    gap: 6px 18px;
+    gap: 0;
     max-width: var(--page);
     margin: 0 auto;
   }
@@ -419,7 +419,7 @@ html.bui[data-theme="light"] .panel.lit {
     font-size: 13px;
   }
   .nav-top {
-    margin-top: 26px;
+    margin-top: 8px;
   }
 }
 @media (max-width: 520px) {
