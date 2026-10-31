@@ -2512,6 +2512,59 @@ html.bui[data-theme="light"] .phases b {
 .gal-total {
   margin-left: 8px;
 }
+/* The stage aspect contract (site/gallery/aspect.ts): a piece that lays itself out per aspect
+   (gal-re) is a size container (its stage DOM uses container queries on "stage"), and on a phone held
+   upright its figure takes the piece's phone shape (--phone, square or portrait) in CSS before any
+   script, so the card never shifts. The layout key (site/gallery/shape.ts) pins either shape.
+   !important: it outranks the figure's inline wide aspect. */
+/* The key hangs under the frame's corner, never over the play; its room is kept from the first paint. */
+.gal-stage:has(.gal-re) {
+  position: relative;
+  padding-bottom: 52px;
+}
+.gal-stage figure.gal-re {
+  container: stage / size;
+}
+.gal-stage figure.gal-re[data-shape="phone"] {
+  aspect-ratio: var(--phone) !important;
+}
+@media (max-width: 600px) and (orientation: portrait) {
+  .gal-stage figure.gal-re:not([data-shape="wide"]) {
+    aspect-ratio: var(--phone) !important;
+  }
+}
+.bui .gal-stage .gal-shape {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  font: 700 11px/1 var(--mono);
+  letter-spacing: 0.14em;
+}
+/* The page scene's small page re-lays itself for a square or portrait stage: bigger type, keys stacked. */
+@container stage (aspect-ratio < 7 / 5) {
+  .gal-mini {
+    gap: 3cqh;
+    padding: 6cqh 7cqw 18cqh;
+  }
+  .gal-mini-h1 {
+    font-size: 11cqw;
+  }
+  .gal-mini-h2 {
+    font-size: 7cqw;
+  }
+  .gal-mini-p {
+    font-size: max(13px, 4cqw);
+  }
+}
+@container stage (aspect-ratio < 4 / 5) {
+  .gal-mini-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 /* A spray settles to an empty stage: say it plays again on a tap (motion only: never under reduced motion). */
 @media (prefers-reduced-motion: no-preference) {
   .gal-stage figure.gal-tap[data-live]::after {

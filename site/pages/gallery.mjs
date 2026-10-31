@@ -13,16 +13,31 @@ import { tooBigBadge } from "./contest.mjs";
 
 const fmt = (n) => n.toLocaleString("en-US");
 
+/**
+ * A figure's shape: its aspect, and for a piece that lays itself out per stage aspect
+ * (site/gallery/aspect.ts) its phone shape (`phone`, square or portrait): on a phone the figure
+ * takes it in CSS before any script runs (class gal-re), so the card never shifts.
+ */
+const figStyle = (e) => `style="aspect-ratio: ${esc(e.aspect ?? "16 / 9")}${e.phone ? `; --phone: ${esc(e.phone)}` : ""}"`;
+
+/**
+ * The layout key on a piece that lays itself out per aspect: auto follows the frame (wide on a wide
+ * screen, its phone shape on a phone); a tap pins the other one (site/gallery/shape.ts, remembered
+ * per piece). Beside the figure, never in it: a tap on it is never a tap on the scene.
+ */
+export const shapeKey = (e) =>
+  `<button type="button" class="bui-key gal-shape" data-shape-for="${esc(e.id)}" data-name="${e.phone === "1 / 1" ? "square" : "tall"}" aria-label="Layout" hidden></button>`;
+
 /** A figure for an entry without a poster of its own: the prompt, as the still frame. */
 export const plainFigure = (e) =>
-  `<figure class="ae-slot gal-fig gal-tap" data-slot-target="gallery#${esc(e.id)}" role="img" aria-label="${esc(e.title)}: ${esc(e.prompt)}" style="aspect-ratio: ${esc(e.aspect ?? "16 / 9")}"><span class="ae-slot__placeholder gal-still" aria-hidden="true">“${esc(e.prompt)}”</span></figure>`;
+  `<figure class="ae-slot gal-fig gal-tap${e.phone ? " gal-re" : ""}" data-slot-target="gallery#${esc(e.id)}" role="img" aria-label="${esc(e.title)}: ${esc(e.prompt)}" ${figStyle(e)}><span class="ae-slot__placeholder gal-still" aria-hidden="true">“${esc(e.prompt)}”</span></figure>`;
 
 /**
  * A figure for a page scene (`stage: "page"`): a small page of real elements (headings, keys) the
  * scene reads and lights up through the ledger; Recall gives it back. It is the poster too.
  */
 export const pageFigure = (e) =>
-  `<figure class="ae-slot gal-fig gal-tap gal-page" data-slot-target="gallery#${esc(e.id)}" role="img" aria-label="${esc(e.title)}: ${esc(e.prompt)}" style="aspect-ratio: ${esc(e.aspect ?? "16 / 9")}">` +
+  `<figure class="ae-slot gal-fig gal-tap${e.phone ? " gal-re" : ""} gal-page" data-slot-target="gallery#${esc(e.id)}" role="img" aria-label="${esc(e.title)}: ${esc(e.prompt)}" ${figStyle(e)}>` +
   `<span class="gal-mini" aria-hidden="true"><b class="gal-mini-h1" data-fizlet-heading>Hello, page.</b><span class="gal-mini-p">Real elements under a Fizlet scene.</span>` +
   `<b class="gal-mini-h2" data-fizlet-heading>Every heading is real</b><span class="gal-mini-row"><span class="gal-mini-key" data-fizlet-target>Hover me</span><span class="gal-mini-key" data-fizlet-target>Or me</span></span>` +
   `<b class="gal-mini-h2" data-fizlet-heading>Recall gives it back</b></span>` +
@@ -34,7 +49,7 @@ export const pageFigure = (e) =>
  * the real elements its scene plays on. Every piece looks like itself; no shared page.
  */
 export const ownFigure = (e) =>
-  `<figure class="ae-slot gal-fig gal-tap gal-own" data-slot-target="gallery#${esc(e.id)}" role="img" aria-label="${esc(e.title)}: ${esc(e.prompt)}" style="aspect-ratio: ${esc(e.aspect ?? "16 / 9")}">${e.stageHtml}</figure>`;
+  `<figure class="ae-slot gal-fig gal-tap${e.phone ? " gal-re" : ""} gal-own" data-slot-target="gallery#${esc(e.id)}" role="img" aria-label="${esc(e.title)}: ${esc(e.prompt)}" ${figStyle(e)}>${e.stageHtml}</figure>`;
 
 /** The figure for an entry: its own poster (`figures[e.figure]`), its own stage, a page scene or the prompt. */
 export const entryFigure = (e, figures) => figures[e.figure] ?? (e.stage === "own" ? ownFigure : e.stage === "page" ? pageFigure : plainFigure)(e);
@@ -53,7 +68,7 @@ const card = (e, { loader, figures, base, people, themeTitle, winners, tooBig = 
     measured ? `<li><b>${measured.framesSettled}</b> frames a second once still · <b>${measured.framesOffscreen}</b> off screen · Recall ${measured.recallExact ? "exact" : "not exact"} <small>(Chromium ${esc(measured.chromium.split(".")[0])})</small></li>` : "",
   ].join("");
   return `<li class="panel gal-item" id="${esc(e.id)}" data-demo-host data-kind="${esc(e.kind)}">
-      <div class="gal-stage">${fig}</div>
+      <div class="gal-stage">${fig}${e.phone ? shapeKey(e) : ""}</div>
       <div class="gal-meta">
         <p class="eyebrow"><span class="index">#${e.archived ? "A" : ""}${String(e.no).padStart(3, "0")}</span> ${esc(e.date)} · ${e.kind === "hero" ? "HERO · " : ""}${esc(themeTitle.toUpperCase())} · ${e.made === "fe anim" ? `MADE BY FE ANIM · RECIPE ${esc(e.recipe.toUpperCase())}` : "HAND-BUILT"}</p>
         <h3>${esc(e.title)}${winners.has(e.id) ? ` ${winnerBadge()}` : ""}${tooBig.has(e.id) ? ` ${tooBigBadge()}` : ""}</h3>
