@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- **Website: one brick component, three sizes** (`site/brick-ui.mjs` and one CSS block in
+  `site/site.css`, tokens only). **Full** (the bricks index): the name in display type, the one-line
+  what-it-does, the live toy, mono stat chips (gzip, budget, exports, all from the build) and the
+  budget bar. **Compact** (the home page): the name, one size chip with the colour dot, a smaller
+  sticker. **Mini** (docs recipes, the roadmap's needs; ≤ 28 px): colour dot, name, size, status dot.
+  Every size: no top colour bar; the neutral card border and hard shadow at rest, the brick's colour
+  on hover and focus (with a 2 px lift, colour only under reduced motion); the status as a tilted
+  sticker like the people and gallery cards (also on a brick page and the status legend); the kernel
+  distinct (wide card, KERNEL sticker, double hard shadow, its bytes against its 4,096 B budget).
+  `tests/brick-cards.mjs` checks the frame, sticker, hover/focus colour, kernel, mini height, tokens.
+
 - **Minifier bake-off (size sprint, dev only).** `scripts/size-bakeoff.mjs` bundles every
   `scripts/sizes.mjs` entry with esbuild and minifies it with each minifier it finds (esbuild,
   terser, oxc-minify, swc, uglify-js, Closure, Bun; none added to package.json, missing ones are
