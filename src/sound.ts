@@ -86,8 +86,10 @@ export function sound(e: Engine, o: SoundOptions) {
   const system = e.add({
     render(eng: Engine) {
       for (let i = 0; i < eng.events.size; i++) {
-        const ev = eng.events.at(i)!, cue = o.cues[ev.type];
-        if (cue) play(cue, ev.v || 1);
+        // Own keys only: a prototype name ("constructor") would hand play() a function, and its
+        // own-key check would stringify that function's source on every such event.
+        const ev = eng.events.at(i)!;
+        if (Object.hasOwn(o.cues, ev.type)) play(o.cues[ev.type]!, ev.v || 1);
       }
     },
   });
