@@ -269,7 +269,7 @@ test("grid: a cell id that is not an integer on the board throws a named error, 
 
 test("grid: zero-size or invalid boards are refused at construction with a named error (S6 P2-02)", () => {
   const bad = [[0, 12], [null, 12], [12, null], [-0, 12], [undefined, 3], [2.5, 3], ["4", 3], [-1, 3], [{}, 3], [true, 3]];
-  for (const [c, r] of bad) assert.throws(() => board(c, r), { name: "RangeError", message: /^fizlet\/grid: cols, rows must be positive integers and cell > 0/ }, `${c}, ${r}`);
+  for (const [c, r] of bad) assert.throws(() => board(c, r), { name: "RangeError", message: /^fizlet\/grid: cols .*, rows .*, cell .* is not a board$/ }, `${c}, ${r}`);
   // On main 0.20.0, Board(null, 12) and Board(0, 12) built a 0-cell board whose searches never ended.
-  for (const l of probe(["board(null, 12).flood(0, 3, new Int32Array(64))", "board(0, 12).path(0, 1, new Int32Array(64))"])) assert.match(l, /^RangeError: fizlet\/grid: cols/);
+  for (const l of probe(["board(null, 12).flood(0, 3, new Int32Array(64))", "board(0, 12).path(0, 1, new Int32Array(64))"])) assert.match(l, /^RangeError: fizlet\/grid: cols .* is not a board$/);
 });
