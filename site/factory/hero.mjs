@@ -157,10 +157,10 @@ html.bui[data-theme="light"] .fac-hint{color:var(--k-fire-ink)}
 .fac-y{--tw:92px;--th:46px;--fh:330px;--ly:388px;--lw:56%;--ls:calc(var(--tw) * .66);--mx:48%;--mw:150px;--my:350px;--mh:150px;position:absolute;inset:0}
 .fac-floor{position:absolute;inset:0 0 auto;height:var(--fh)}
 @media (min-width:900px){.fac-floor{left:-7%;right:-3%;top:-24px}}
-.fac-hero .fac-b{position:absolute;z-index:2;left:calc(var(--x) * 1%);top:calc(var(--y) * var(--fh) / 100);width:var(--tw);height:var(--th);margin:calc(var(--th) / -2) 0 0 calc(var(--tw) / -2);rotate:var(--r);display:grid;place-content:center;gap:2px;padding:0;font:800 13px/1 var(--mono);color:var(--ink);text-align:center;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;background:color-mix(in srgb,var(--t) 20%,var(--surface));border:2px solid var(--t);border-radius:8px;box-shadow:0 4px 0 color-mix(in srgb,var(--t) 50%,var(--rim))}
+.fac-hero .fac-b{position:absolute;z-index:2;left:calc(var(--x) * 1%);top:calc(var(--y) * var(--fh) / 100);width:var(--tw);height:var(--th);margin:calc(var(--th) / -2) 0 0 calc(var(--tw) / -2);rotate:var(--r);display:grid;place-content:center;gap:2px;padding:0;font:800 13px/1 var(--mono);color:var(--ink);text-align:center;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;background:color-mix(in srgb,var(--t) 20%,var(--surface));border:2px solid var(--t);border-radius:8px;box-shadow:calc(4px * var(--shadow-x, 0)) calc(4px * var(--shadow-y, 1)) 0 color-mix(in srgb,var(--t) 50%,var(--rim))}
 .fac-hero .fac-b small{font:700 10px/1 var(--mono);color:var(--muted);letter-spacing:.04em}
 .fac-hero .fac-b:focus-visible{outline:3px solid var(--k-sys-ink);outline-offset:3px;z-index:4}
-.fac-hero .fac-b.fac-drag{z-index:5;rotate:0deg;cursor:grabbing;box-shadow:0 10px 0 color-mix(in srgb,var(--t) 40%,var(--rim))}
+.fac-hero .fac-b.fac-drag{z-index:5;rotate:0deg;cursor:grabbing;box-shadow:calc(10px * var(--shadow-x, 0)) calc(10px * var(--shadow-y, 1)) 0 color-mix(in srgb,var(--t) 40%,var(--rim))}
 @media (hover:hover) and (pointer:fine){.fac-b[data-at=floor]:hover{border-color:var(--ink)}}
 .fac-hero .fac-z{--t:var(--hurt);background:var(--hurt);color:var(--rim)}
 .fac-hero .fac-z b{font-size:22px;line-height:.9}.fac-hero .fac-z small{color:var(--rim);font-size:9px}
@@ -169,7 +169,7 @@ html.bui[data-theme="light"] .fac-hint{color:var(--k-fire-ink)}
 .fac-hero .fac-b[data-at=in]{left:calc(var(--mx) + var(--mw) / 2);top:calc(var(--my) + var(--mh) / 2);visibility:hidden}
 .fac-lane{position:absolute;left:0;width:calc(var(--lw) + 12px);top:calc(var(--ly) + 8px);height:22px;border:2px solid var(--line);border-radius:12px;background:var(--rim);overflow:hidden}
 .fac-lane i{position:absolute;inset:4px;background:repeating-linear-gradient(90deg,var(--line) 0 10px,transparent 10px 22px);background-position-x:var(--belt,0px)}
-.fac-machine{position:absolute;z-index:1;left:var(--mx);top:var(--my);width:var(--mw);height:var(--mh);display:grid;grid-template-rows:auto 1fr;gap:10px;padding:10px;background:var(--surface);border:2px solid var(--line);border-radius:12px;box-shadow:0 6px 0 var(--raised)}
+.fac-machine{position:absolute;z-index:1;left:var(--mx);top:var(--my);width:var(--mw);height:var(--mh);display:grid;grid-template-rows:auto 1fr;gap:10px;padding:10px;background:var(--surface);border:2px solid var(--line);border-radius:12px;box-shadow:calc(6px * var(--shadow-x, 0)) calc(6px * var(--shadow-y, 1)) 0 var(--raised)}
 .fac-sign{display:flex;justify-content:center;gap:2px;padding:6px 4px;font:900 20px/1 var(--mono);background:var(--rim);border:2px solid var(--line);border-radius:6px;color:var(--k-go)}
 .fac-sign i{font-style:normal;min-width:.7em;text-align:center;text-shadow:0 0 12px color-mix(in srgb,var(--k-go) 60%,transparent)}
 .fac-sign .fac-zs{color:transparent;text-shadow:none;outline:2px dashed color-mix(in srgb,var(--ink) 30%,transparent);outline-offset:-1px;border-radius:3px}
@@ -181,7 +181,7 @@ html.bui[data-theme="light"] .fac-sign{color:var(--k-go)}
 .fac-mouth{position:absolute;left:-2px;top:calc(var(--ly) - var(--my) - 12px);width:16px;height:48px;background:var(--rim);border:2px solid var(--line);border-left:0;border-radius:0 6px 6px 0}
 .fac-machine::after{content:"";position:absolute;left:10px;right:10px;bottom:10px;height:14px;border-radius:3px;background:repeating-linear-gradient(135deg,var(--hurt) 0 8px,var(--rim) 8px 16px);opacity:.85}
 .fac-chute{position:absolute;right:-12px;bottom:18px;width:12px;height:56px;background:var(--raised);border:2px solid var(--line);border-left:0;border-radius:0 6px 6px 0}
-.fac-run .fac-machine{border-color:var(--k-attack);box-shadow:0 6px 0 var(--raised),0 0 32px color-mix(in srgb,var(--k-attack) 45%,transparent)}
+.fac-run .fac-machine{border-color:var(--k-attack);box-shadow:calc(6px * var(--shadow-x, 0)) calc(6px * var(--shadow-y, 1)) 0 var(--raised),0 0 32px color-mix(in srgb,var(--k-attack) 45%,transparent)}
 .fac-run .fac-lamps i,.fac-made .fac-lamps i{background:var(--k-go);border-color:var(--k-go)}
 .fac-out{position:absolute;z-index:4;left:calc(var(--mx) + var(--mw) + 16px);top:calc(var(--my) - 40px);width:128px}
 /* The HUD: counters, Shake it, mute. */
