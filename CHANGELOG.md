@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Site and README: `@fzlt/core` is on npm (0.21.2, 2026-10-31), so the home quick start, the brick
+  pages and the docs drop "coming soon" / "not published yet", and the README's pre-publish note
+  says when it went out. Building from source stays as the no-npm option.
+
 ## 0.21.2
 
 - 0.21.2 — first npm release, published as `@fzlt/core` (npm refused `fizlet` and `fzlt` as too similar to
