@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **Minifier bake-off (size sprint, dev only).** `scripts/size-bakeoff.mjs` bundles every
+  `scripts/sizes.mjs` entry with esbuild and minifies it with each minifier it finds (esbuild,
+  terser, oxc-minify, swc, uglify-js, Closure, Bun; none added to package.json, missing ones are
+  skipped), printing gzip and brotli per entry. `sizes.mjs` exports its esbuild options
+  (`ESBUILD_JS`) so the bake-off's esbuild column is the CI number. No shipped byte changes.
+
 - **Website: the home reveals end at the foot of the page too** (`site/home-motion.ts`). The home
   engine paused itself when `main` left the viewport (the kernel's off-screen rule), and at the very
   bottom the footer can fill it: a reveal still playing froze mid-way (parts at opacity 0.5–0.999)
