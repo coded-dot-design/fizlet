@@ -7,7 +7,7 @@ import { gzipSync } from "node:zlib";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "./sizes.mjs";
 import { llmsFull } from "./llms-full.mjs";
-import { page, mark, SITE, ROOT, REPO, PERSON, ORG, WEBSITE } from "../site/layout.mjs";
+import { page, mark, fillSiteMap, SITE, ROOT, REPO, PERSON, ORG, WEBSITE } from "../site/layout.mjs";
 import { home } from "../site/pages/index.mjs";
 import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
@@ -20,7 +20,7 @@ import { playFigure } from "../site/pages/index.mjs";
 import { buildGallery, personPath } from "./gallery.mjs";
 import { buildMake, snippetFor, TABLE as MAKE_TABLE } from "./make.mjs";
 import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
-import { CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
+import { AGENT_NOTE, CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
 import { BRICKS, PLANNED, brickPath } from "../site/bricks.mjs";
@@ -277,15 +277,15 @@ const pages = [
   })],
   ["people/index.html", page({
     title: "People: the maker and the house personas · Fizlet",
-    description: `Who makes Fizlet animations: Chris Cooley, and ${PEOPLE.length - 1} house personas (Fizlet characters, not real people), with their entries and bytes.`,
+    description: `Who makes Fizlet animations: Chris Cooley, ${PEOPLE.filter((p) => p.kind === "persona").length} house personas (Fizlet characters, not real people) and the team's AI agents, with their entries and bytes.`,
     base: "../", version, path: "people/", body: peopleIndex({ rows: people, base: "../" }), scripts: ["site.js"],
   })],
   ...people.map(({ person: p, stats }) => [`${personPath(p.id)}index.html`, page({
-    title: `${p.name}: ${p.kind === "owner" ? "maker of Fizlet" : "a house persona"} · Fizlet`,
+    title: `${p.name}: ${{ owner: "maker of Fizlet", persona: "a house persona", agent: "an AI agent on the team" }[p.kind]} · Fizlet`,
     description: p.description,
     base: "../../", version, path: personPath(p.id),
     ld: [{ "@type": "ProfilePage", "@id": `${SITE}${personPath(p.id)}#page`, url: SITE + personPath(p.id), name: p.name,
-      ...(p.kind === "owner" ? { mainEntity: { "@id": PERSON["@id"] } } : { about: { "@type": "Thing", name: p.name, description: `${PERSONA_NOTE}. ${p.bio}` } }) }],
+      ...(p.kind === "owner" ? { mainEntity: { "@id": PERSON["@id"] } } : { about: { "@type": "Thing", name: p.name, description: `${p.kind === "agent" ? AGENT_NOTE : PERSONA_NOTE}. ${p.bio}` } }) }],
     body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners }), scripts: ["site.js"],
   })]),
   ["contest/index.html", page({
@@ -361,6 +361,25 @@ const indexable = readdirSync(OUT, { recursive: true }).map((f) => f.replace(/\\
   .sort((a, b) => (a.url < b.url ? -1 : 1))
   .filter((p) => !/<meta name="robots" content="[^"]*noindex/i.test(p.html));
 const unesc = (s) => s.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+const unescTitle = (html) => unesc(html.match(/<title>([^<]*)<\/title>/)?.[1] ?? "").split(/:| · /)[0];
+// The footer's site map, from the same list (site/layout.mjs siteMap): every page's footer marker
+// is filled once all pages exist, so a new page is in every footer on the next build. Order: the
+// order pages are built in above (docs in reading order, releases newest first), then the rest.
+// Labels: the short name a section's data gives a page, else its title up to the first ":" or " · ".
+const routeOf = (f) => f.replace(/(^|\/)index\.html$/, "$1");
+const LABEL = new Map([
+  ...DOCS.map((d) => [docPath(d), d.nav]), ...NOTES.map((n) => [notePath(n), n.title]), ...RELEASES.map((r) => [releasePath(r), r.version]),
+  ...bricks.map((b) => [brickPath(b), b.id]), ...gallery.pages.slice(1).map((p) => [p.path, `Page ${p.n}`]), ...PEOPLE.map((p) => [personPath(p.id), p.name]),
+  ["", "Home"], ["examples/quick-start.html", "Quick start"], ["demos/layers/", "The layers story"], ["demos/fizz/", "The fizz proof piece"], ["examples/fizz/", "The fizz hero example"],
+]);
+const built = pages.map(([f]) => routeOf(f));
+const order = (r) => (built.includes(r) ? built.indexOf(r) : built.length);
+const routes = indexable.map((p) => ({ path: routeOf(p.f), label: LABEL.get(routeOf(p.f)) ?? unescTitle(p.html) }))
+  .sort((a, b) => order(a.path) - order(b.path));
+for (const f of readdirSync(OUT, { recursive: true }).map((x) => x.replace(/\\/g, "/")).filter((x) => x.endsWith(".html") && !x.startsWith("dist/"))) {
+  const html = readFileSync(`${OUT}/${f}`, "utf8"), filled = fillSiteMap(html, routes);
+  if (filled !== html) writeFileSync(`${OUT}/${f}`, filled);
+}
 const meta = (html, re) => unesc(html.match(re)?.[1] ?? "");
 writeFileSync(`${OUT}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexable.map((p) => `  <url><loc>${p.url}</loc></url>`).join("\n")}\n</urlset>\n`);
 const AI_CRAWLERS = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User", "anthropic-ai", "PerplexityBot", "Perplexity-User",
