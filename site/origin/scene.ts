@@ -1,29 +1,35 @@
-// The Origin PLACEHOLDER scene: it meets the mount contract (contract.ts, README.md) until the
-// origin-story scene replaces this file. It clones the poster into the slot's stage and plays a short
-// idle loop on the kernel: steam rises off the coffee, notes float off the headphones, the cursor
-// blinks and the screen types. Then it settles: no requestAnimationFrame at all until a tap or a
-// mode flip plays it again. A tap makes a soft blip only when the sound gate is on.
+// The Origin PLACEHOLDER scene: the fallback for a build without the origin scene
+// (site/demos/origin/, fizlet#218). Same shape as that scene (contract.ts: mountSlot, setMode,
+// setSound, state, origin:state). It clones the poster into the slot's stage and plays a short idle
+// loop on the kernel: steam rises off the coffee, notes float off the headphones, the cursor blinks
+// and the screen types. Then it settles: no requestAnimationFrame at all until a tap or a mode flip
+// plays it again. A tap clicks through fizlet/sound only when sound is on (and after a gesture).
 // Everything it adds is inside the stage the slot made (gone on destroy) or a listener on the engine's
 // signal, so destroy() gives the page back exactly.
 import { createEngine } from "../../src/kernel/index";
-import { MODE_EVENT, type OriginMount } from "./contract";
+import { sound } from "../../src/sound";
+import type { SlotMount } from "../../src/slot";
+import { STATE_EVENT, type OriginMode, type OriginScene } from "./contract";
 
 const RUN = 4.5; // seconds of idle loop after each wake
 
-export const mount: OriginMount = (figure, { reduced, sound, stage, first }) => {
+export const mountSlot: SlotMount = (stage, figure) => {
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const engine = createEngine({ root: stage, settle: 0.5, fps: 30 });
-  const src = figure.querySelector("svg.og-poster")!;
+  const snd = sound(engine, { cues: {}, on: figure.dataset.sound === "1" });
+  let mode: OriginMode = figure.dataset.mode === "design" ? "design" : "code";
+  const src = figure.querySelector("svg.ogs-poster")!;
   const art = src.cloneNode(true) as SVGSVGElement;
   art.classList.remove("ae-slot__placeholder");
-  art.classList.add("og-live");
+  art.classList.add("ogs-live");
   art.style.cssText = "position:absolute;inset:0;width:100%;height:100%";
   stage.append(art);
 
-  const steam = [...art.querySelectorAll<SVGElement>(".og-steam")];
-  const notes = [...art.querySelectorAll<SVGElement>(".og-note")];
-  const lines = [...art.querySelectorAll<SVGRectElement>(".og-ln")];
+  const steam = [...art.querySelectorAll<SVGElement>(".ogs-steam")];
+  const notes = [...art.querySelectorAll<SVGElement>(".ogs-note")];
+  const lines = [...art.querySelectorAll<SVGRectElement>(".ogs-ln")];
   const full = lines.map((l) => Number(l.getAttribute("width")));
-  const cursor = art.querySelector<SVGElement>(".og-cursor")!;
+  const cursor = art.querySelector<SVGElement>(".ogs-cursor")!;
   let t = reduced ? RUN : 0, drawn = -1;
 
   engine.add({
@@ -59,29 +65,27 @@ export const mount: OriginMount = (figure, { reduced, sound, stage, first }) => 
     t = 0;
     engine.wake();
   };
-  const blip = () => {
-    const ctx = sound.ctx();
-    if (!ctx) return;
-    const o = ctx.createOscillator(), g = ctx.createGain();
-    o.type = "triangle";
-    o.frequency.setValueAtTime(660, ctx.currentTime);
-    o.frequency.exponentialRampToValueAtTime(330, ctx.currentTime + 0.12);
-    g.gain.setValueAtTime(0.08, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-    o.connect(g).connect(ctx.destination);
-    o.start();
-    o.stop(ctx.currentTime + 0.16);
-  };
   const on = { signal: engine.signal };
-  figure.addEventListener("pointerdown", () => (replay(), blip()), on);
-  figure.addEventListener(MODE_EVENT, replay, on);
-  if (first) blip();
-  engine.start();
-
-  return {
-    destroy() {
-      engine.destroy();
-      art.remove();
+  figure.addEventListener("pointerdown", () => (replay(), snd.play("click", 1)), on);
+  const tell = () => figure.dispatchEvent(new CustomEvent(STATE_EVENT, { detail: scene.state, bubbles: true }));
+  const scene: OriginScene = {
+    destroy: () => engine.destroy(),
+    setMode(m) {
+      mode = m;
+      replay();
+      tell();
+    },
+    setSound(v) {
+      snd.on = v;
+      tell();
+    },
+    pause: () => engine.stop(),
+    play: () => engine.start(),
+    get state() {
+      return { mode, open: true, bricks: false, sound: snd.on, paused: !engine.running };
     },
   };
+  engine.start();
+
+  return scene;
 };

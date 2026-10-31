@@ -113,8 +113,7 @@ const fizz = { figure: fizzFigure, sizes: fizzSizes, live: "demos/fizz/scene.js"
 // The origin hero (Code. Sleep. Drink. Repeat.): its own page; its home page section is a separate change.
 await import("../site/demos/origin/build.mjs");
 // The Origin section (site/origin/): its loader and the scene the slot loads, measured by its build.
-const { sizes: originSizes } = await import("../site/origin/build.mjs");
-const originHero = { sizes: originSizes };
+const { origin: originHero } = await import("../site/origin/build.mjs");
 
 // The "how it works" labs (site/labs/, the scenes DOM VIRUS's Under the hood vendors): their
 // still posters are the gallery figures (each in its own accent), their sheet goes on the page.

@@ -551,7 +551,7 @@ try {
   // ---------- Origin (site/origin/): order, the title toggle, the sound gate, settle, Recall, reduced motion ----------
   where = "origin";
   {
-    const FIG = "figure.ae-slot[data-slot-target='home#origin']", LIVE = "[data-fizlet-slot='home#origin'] svg";
+    const FIG = "figure.ae-slot[data-slot-target='home#origin']", LIVE_ROOT = "[data-fizlet-slot='home#origin']", LIVE = `${LIVE_ROOT} > *`;
     const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
     // Count every AudioContext made and every requestAnimationFrame asked for, from the first byte.
     await context.addInitScript(() => {
@@ -568,44 +568,65 @@ try {
     assert.deepEqual(order.slice(0, 4), ["hero", "stats", "origin", "page-toc"], "Origin sits right after the hero band");
     // The scene is not part of first load: the page links only the loader, which imports it lazily.
     assert.equal(await page.locator("script[src*='origin/scene']").count(), 0, "no scene script tag");
-    assert.match(readFileSync(`${ROOT}/origin/main.js`, "utf8"), /import\("\.\/scene\.js"\)/, "the loader imports the scene lazily");
+    assert.match(readFileSync(`${ROOT}/origin/main.js`, "utf8"), /import\("[./a-z]*scene\.js"\)/, "the loader imports the scene lazily");
     // Recall: the figure before the scene, and after destroy(), byte for byte.
     const before = await page.$eval(FIG, (el) => el.outerHTML);
     await page.$eval(FIG, (el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
     await page.waitForSelector(LIVE, { timeout: 8000 });
-    // Settle: the idle loop plays, then the page asks for no frames at all.
-    for (let i = 0, last = -1; i < 30; i++) {
-      const n = await page.evaluate(() => window.__raf);
-      if (n === last) break;
-      last = n;
-      await page.waitForTimeout(700);
-    }
-    const r0 = await page.evaluate(() => window.__raf);
-    await page.waitForTimeout(1000);
-    assert.equal(await page.evaluate(() => window.__raf) - r0, 0, "the origin scene settles to 0 frames");
+    await page.waitForFunction(() => window.fizletOrigin.scene);
     assert.equal(await page.evaluate(() => window.__audio), 0, "no AudioContext before a gesture");
-    await page.evaluate(() => window.fizletOrigin.slot.destroy());
-    assert.equal(await page.$eval(FIG, (el) => el.outerHTML), before, "Recall gives the figure back exactly");
-    // The toggle: a real 44 px switch, by mouse and by keyboard, flipping data-mode on the figure.
+    // The toggle: a real 44 px switch, by mouse and by keyboard; it flips data-mode and drives the scene.
     const mode = page.locator("[data-origin-mode]");
     const box = await mode.boundingBox();
     assert.ok(box.height >= 44 && box.width >= 44, `toggle is ${box.width}x${box.height}`);
     await mode.click();
-    assert.deepEqual(await page.evaluate((f) => [document.querySelector(f).dataset.mode, document.querySelector("[data-origin-mode]").getAttribute("aria-checked"), document.querySelector("[data-origin-word]").textContent], FIG), ["design", "true", "Design."]);
+    assert.deepEqual(await page.evaluate((f) => [document.querySelector(f).dataset.mode, document.querySelector("[data-origin-mode]").getAttribute("aria-checked"), document.querySelector("[data-origin-word]").textContent, window.fizletOrigin.scene.state.mode], FIG), ["design", "true", "Design.", "design"]);
     await mode.focus();
     await page.keyboard.press("Space");
-    assert.equal(await page.$eval(FIG, (el) => el.dataset.mode), "code", "Space flips it back");
-    // Sound: off until pressed; the press is the gesture that makes the one AudioContext; it persists.
+    assert.deepEqual(await page.evaluate((f) => [document.querySelector(f).dataset.mode, window.fizletOrigin.scene.state.mode], FIG), ["code", "code"], "Space flips it back");
+    // The scene's own keys stay in step with the section's (origin:state).
+    const own = page.locator(`${LIVE_ROOT} button[data-k='mode']`);
+    if (await own.count()) {
+      // (the scene reports on its next frame)
+      await own.click();
+      await page.waitForFunction(() => document.querySelector("[data-origin-mode]").getAttribute("aria-checked") === "true", null, { timeout: 3000 });
+      await own.click();
+      await page.waitForFunction(() => document.querySelector("[data-origin-mode]").getAttribute("aria-checked") === "false", null, { timeout: 3000 });
+    }
+    // Sound: off until pressed, and still no AudioContext until a gesture after that; then it plays.
     const snd = page.locator("[data-origin-sound]");
     const sb = await snd.boundingBox();
     assert.ok(sb.height >= 44 && sb.width >= 44, `sound key is ${sb.width}x${sb.height}`);
     assert.equal(await snd.getAttribute("aria-pressed"), "false");
+    assert.equal(await page.evaluate(() => [window.__audio, window.fizletOrigin.scene.state.sound].join()), "0,false", "muted by default, no audio");
     await snd.click();
     assert.equal(await snd.getAttribute("aria-pressed"), "true");
-    assert.equal(await page.evaluate(() => [window.__audio, window.fizletOrigin.sound.on].join()), "1,true", "sound on after the press");
+    assert.equal(await page.evaluate(() => window.fizletOrigin.scene.state.sound), true, "the Sound key arms the scene");
+    await page.locator(FIG).click({ position: { x: 20, y: 20 } });
+    assert.ok(await page.evaluate(() => window.__audio) <= 1, "one AudioContext at most, made on a gesture");
+    // Settle: paused, and again off screen, the page asks for no frames at all.
+    const quiet = async (what) => {
+      for (let i = 0, last = -1; i < 30; i++) {
+        const n = await page.evaluate(() => window.__raf);
+        if (n === last) break;
+        last = n;
+        await page.waitForTimeout(700);
+      }
+      const r0 = await page.evaluate(() => window.__raf);
+      await page.waitForTimeout(1000);
+      assert.equal(await page.evaluate(() => window.__raf) - r0, 0, what);
+    };
+    await page.evaluate(() => window.fizletOrigin.scene.pause());
+    await quiet("paused, the origin scene settles to 0 frames");
+    await page.evaluate(() => window.fizletOrigin.scene.play());
+    await page.evaluate(() => scrollTo(0, document.body.scrollHeight));
+    await quiet("off screen, the origin scene asks for 0 frames");
+    await page.evaluate(() => window.fizletOrigin.slot.destroy());
+    assert.equal(await page.$eval(FIG, (el) => el.outerHTML), before.replace('data-sound="0"', 'data-sound="1"'), "Recall gives the figure back exactly");
+    // The choice persists; a new visit is silent until its own gesture.
     await page.reload({ waitUntil: "load" });
     assert.equal(await page.locator("[data-origin-sound]").getAttribute("aria-pressed"), "true", "the choice persists");
-    assert.equal(await page.evaluate(() => [window.__audio, window.fizletOrigin.sound.on].join()), "0,false", "still no audio before this visit's first gesture");
+    assert.equal(await page.evaluate(() => window.__audio), 0, "still no audio before this visit's first gesture");
     await page.locator("[data-origin-sound]").click();
     await page.reload({ waitUntil: "load" });
     assert.equal(await page.locator("[data-origin-sound]").getAttribute("aria-pressed"), "false", "muted persists");
@@ -614,12 +635,12 @@ try {
     // Reduced motion: the scene never loads; the poster is the still frame.
     const still = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
     const asked = [];
-    still.on("request", (r) => r.url().includes("/origin/scene") && asked.push(r.url()));
+    still.on("request", (r) => /origin\/scene\.js/.test(r.url()) && asked.push(r.url()));
     const s2 = await open(still, "");
     await s2.page.$eval(FIG, (el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
     await s2.page.waitForTimeout(1500);
     assert.equal(await s2.page.locator(LIVE).count(), 0, "no scene under reduced motion");
-    assert.equal(await s2.page.locator(`${FIG} > svg.og-poster`).isVisible(), true, "the poster shows");
+    assert.equal(await s2.page.locator(`${FIG} > .ae-slot__placeholder`).isVisible(), true, "the poster shows");
     assert.deepEqual(asked, [], "scene.js never requested");
     assert.equal(await s2.page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 0, "no horizontal scroll at 390");
     assert.deepEqual(s2.errors, []);

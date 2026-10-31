@@ -50,7 +50,7 @@ Types: `contract.ts`. What the scene must do:
    `busy(sec)`. A tap (`pointerdown` on the figure) or a mode flip may wake it again.
 4. **Read the mode.** `figure.dataset.mode` is `"code"` or `"design"`. Every flip also dispatches
    `origin:mode` on the figure (`detail`: the new mode). The poster's CSS already shows the matching
-   laptop screen (`[data-mode] .og-code / .og-design`).
+   laptop screen (`[data-mode] .ogs-code / .ogs-design`).
 5. **Sound only through the gate.** Never create an `AudioContext`. Call `opts.sound.ctx()` when a cue
    plays. It returns `null` until the viewer turns sound on with a real press (and while muted), so
    nothing can play before a gesture. Never autoplay. The viewer's choice is saved by the loader
