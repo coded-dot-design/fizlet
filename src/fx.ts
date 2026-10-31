@@ -81,7 +81,7 @@ export function effects(o: FxOptions = {}) {
   const [X, Y, VX, VY, ROT, SPIN, SIZE, LIFE, MAX] = f as [Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array, Float32Array];
   const kind = new Uint8Array(cap), col = new Uint8Array(cap), word = new Uint8Array(cap);
   const SX = new Float32Array(sc), SY = new Float32Array(sc), SR = new Float32Array(sc), SL = new Float32Array(sc);
-  const U = new Float64Array(6);
+  const U = new Float64Array(6), FONT: string[] = [];
   const st = new Float64Array(5); // live count, next scorch, shake, dropped, gravity
   // The kind table: one row of numbers per kind (shape, drag, gravity share, then emitter() ranges),
   // read by id in the hot path. Ids 0-5 are the blast's own parts (its debris falls); emitter() adds 6+.
@@ -239,7 +239,7 @@ export function effects(o: FxOptions = {}) {
     /** Every live particle, on top of the actors. */
     draw(ctx: CanvasRenderingContext2D, light = false) {
       const n = st[0]!;
-      for (let i = 0; i < n; i++) {
+      for (let i = 0, z = 0; i < n; i++) {
         const k = LIFE[i]! / MAX[i]!, c = colors[col[i]!]!, s = SIZE[i]!, sh = K[kind[i]! * 11], a = ROT[i]!;
         let x = X[i]!, y = Y[i]!;
         // A turned particle draws about its own origin (one save/restore, only when it is turned).
@@ -283,7 +283,9 @@ export function effects(o: FxOptions = {}) {
           }
           case WORD:
             ctx.globalAlpha = Math.min(1, k * 2);
-            ctx.font = `900 ${Math.round(s * (1 + (1 - k) * 0.3))}px ui-monospace, SFMono-Regular, monospace`;
+            // One font string per pixel size, built once and kept (fizlet#209: a new string per
+            // word per frame was most of a page's allocation). The canvas skips an unchanged font.
+            ctx.font = FONT[z = Math.round(s * (1 + (1 - k) * 0.3))] ??= `900 ${z}px ui-monospace, SFMono-Regular, monospace`;
             ctx.textAlign = "center";
             ctx.lineWidth = 5;
             ctx.strokeStyle = light ? "#fff" : "#07060f";
