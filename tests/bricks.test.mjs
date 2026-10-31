@@ -560,7 +560,22 @@ test("fx: drawing a word spray allocates nothing (the font string is not rebuilt
   assert.ok(minor <= 1, `young-generation GCs over 100k word-spray frames: ${minor}`);
 });
 
-test("K5:no plain-sqrt distance in a brick; the exact hypot (fizlet/steer) is the one place", async () => {
+test("fx: a word draws at 0, 0 about its own origin (Chromium boxes fractional fillText coordinates)", () => {
+  // fillText and strokeText have no fast path in Chromium 153: a fractional x or y is a 12 B heap
+  // number per call (2 calls per word, every frame). translate() and 0, 0 allocate nothing.
+  const calls = [];
+  const ctx = {
+    save() {}, restore() {}, rotate() {}, translate: (x, y) => calls.push(["translate", x, y]),
+    strokeText: (w, x, y) => calls.push(["strokeText", x, y]), fillText: (w, x, y) => calls.push(["fillText", x, y]),
+  };
+  const fx = effects({ cap: 4, words: ["♪"] });
+  const { ids, emit } = emitter(fx, { note: { ...KINDS.bubble, shape: "word" } });
+  emit(ids.note, 10.25, 20.75, 1); // emitted words are square to the page: no rotation
+  fx.draw(ctx);
+  assert.deepEqual(calls, [["translate", 10.25, 20.75], ["strokeText", 0, 0], ["fillText", 0, 0]]);
+});
+
+test("K5: no plain-sqrt distance in a brick; the exact hypot (fizlet/steer) is the one place", async () => {
   // Math.sqrt(x * x + y * y) differs from Math.hypot in the last bit for ~40% of inputs, and a
   // replay that keeps every bit needs the same distance everywhere (fizlet-engine context/06 K5).
   const { readdirSync, readFileSync } = await import("node:fs");
