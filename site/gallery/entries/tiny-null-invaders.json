@@ -1,0 +1,26 @@
+{
+  "id": "tiny-null-invaders",
+  "date": "2026-10-31",
+  "prompt": "a tiny Null Invaders: an interceptor under a little web page fires up through the headline (every letter it hits turns to binary), two buttons are factories releasing aliens, and XP upgrades the gun mid-round: Pulse, Twin, Trident, Overdrive; at the end Recall puts every letter back",
+  "title": "Tiny Null Invaders",
+  "kind": "micro",
+  "theme": "dom-virus",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/sound",
+    "fizlet/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/tiny-null-invaders.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "teaser": {
+    "game": "null-invaders",
+    "title": "Null Invaders",
+    "url": "https://domvirus.com/games/null-invaders/"
+  }
+}

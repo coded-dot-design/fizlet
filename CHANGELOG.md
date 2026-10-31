@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Gallery: Tiny Null Invaders (pending owner review).** A ten-second taste of Null Invaders by Pip:
+  an interceptor under a little web page shoots its headline into binary (real text, through the
+  ledger), two buttons are alien factories, and XP upgrades the gun mid-round (Pulse, Twin, Trident,
+  Overdrive); Recall puts every letter back. Keys, tap or drag; 44 px mute key after a gesture.
+  9,412 B gzip live; zero-alloc step; settles; reduced motion keeps the poster.
 - **Gallery, Boxing (pending owner review): Toast Tell.** A three-counter bout with Crumbtron, a
   chrome toaster bot who always tells: toast pops up before his hook (duck it), his dial eyes go red
   before a jab (slip it); the right dodge leaves him open for a counter, three and he's down for the
