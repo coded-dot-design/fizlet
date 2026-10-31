@@ -1,0 +1,21 @@
+{
+  "id": "hill-bomb",
+  "date": "2026-10-31",
+  "prompt": "a downhill bomb seen from above, faster every second: hold to carve up the road, let go to drift down it; thread the cones for close-pass points, a cone to the wheels wobbles you and the curb is worse",
+  "title": "Hill Bomb",
+  "kind": "micro",
+  "theme": "skate-sesh",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/slot",
+    "fizlet/sound"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/skate/hill-bomb.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}

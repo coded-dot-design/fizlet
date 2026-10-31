@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- **Gallery: skate-sesh, three ten-second skate minis by Pip (pending owner review).** Pump Pipe:
+  a stadium halfpipe under the lights (decks, flags, palms, a crowd stand that jumps for a landed
+  trick, a skater waiting a turn); hold on the drops to pump speed (holding on the climbs bleeds
+  it), get over the coping and tap in the air to flip the board, land it under your feet or bail;
+  three tries, a height meter that marks the best air, our own bottom bar. Rail Run: a
+  night street line; press to ollie, hold to float, clear cones and gaps, land on rails to grind, a
+  clean line grows the multiplier. Hill Bomb: a winding hill path from above in
+  chunky pixels, the camera rolling down with you, faster every second; hold to carve right, let go
+  to carve left, stay off the dithered grass, shoot the gaps in the wooden fences, pick a side where
+  the path forks round a rocky island; slalom flags, a START banner, our own time and total bar. Own stages, one shared rig
+  (`site/gallery/pieces/skate/kit.ts`): Space/Enter/↑ ride key, M mute, 44 px keys, no audio before a
+  gesture. Live (gzip): Pump Pipe 9,849 B, Rail Run 9,721 B, Hill Bomb 9,323 B. Steps allocate
+  nothing (`tests/skate-sesh.test.mjs`); mount, settle, keys, Recall and reduced motion in
+  `tests/skate-sesh.mjs`.
 - **Gallery: Tiny Byte Runner (pending owner review).** A ten-second taste of Byte Runner by Pip:
   the round green frog chomps along crumb trails in a little web page's gutters, leaves them to eat
   the page's letters (gone through the ledger till Recall) and dodges three flies (chaser,
