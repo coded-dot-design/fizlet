@@ -198,6 +198,106 @@ test("presence: bounded window, lost seats, destroy", () => {
     assert.throws(() => presence(createEngine(), { transport: hub.ends[0], slot, players, input: () => 0, step() {} }), RangeError, `slot ${slot} of ${players}`);
 });
 
+test("presence: a resumed link: AWAY then RESUME, the inputs lost while it was down are resent, lockstep goes on", () => {
+  const RESUME = 5, AWAY = 6, hub = memory({ peers: 2, latency: 1 });
+  let cut = false;
+  const ends = hub.ends.map((e) => ({ ...e, send: (d) => cut || e.send(d) })); // a link that drops what it's given while cut
+  const a = client(0, 2, ends[0], { log: true }), b = client(1, 2, ends[1], { log: true });
+  run(hub, [a, b], 30);
+  const room = (k, slot, to) => hub.ends[1 - to].send(Uint8Array.of(k, slot, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0)); // the room's word, delivered to `to`
+  cut = true;
+  room(AWAY, 0, 1);
+  run(hub, [a, b], 40);
+  assert.equal(b.net.away, 1, "b sees seat 0 reconnecting");
+  assert.equal(b.net.lost, 0, "not left");
+  const fa = a.net.frame, fb = b.net.frame;
+  assert.ok(a.net.stalls > 20 && b.net.stalls > 20, "both stall: inputs were lost on the way");
+  cut = false;
+  room(RESUME, 0, 0); // the rejoined peer's own RESUME (after its WELCOME)
+  room(RESUME, 0, 1); // and the others'
+  run(hub, [a, b], 120);
+  assert.equal(b.net.away, 0);
+  assert.ok(a.net.frame > fa + 100 && b.net.frame > fb + 100, `lockstep goes on: ${fa} -> ${a.net.frame}, ${fb} -> ${b.net.frame}`);
+  assert.equal(a.net.desync, -1);
+  const f = Math.min(a.net.frame, b.net.frame) - 1;
+  assert.equal(a.hashes[f], b.hashes[f], "byte-identical after the resume");
+  a.e.destroy(), b.e.destroy();
+});
+
+test("presence: join() reconnects a dropped seat with its resume token, in memory only; START from the lobby", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const real = globalThis.WebSocket, made = [];
+  globalThis.WebSocket = class extends EventTarget {
+    constructor(url, protocols) {
+      super();
+      made.push(this);
+      Object.assign(this, { url, protocols, readyState: 1, sent: [], closed: null });
+    }
+    send(d) {
+      this.sent.push(Uint8Array.from(d));
+    }
+    close(code) {
+      this.closed = code;
+    }
+    fire(type, props = {}) {
+      const ev = Object.assign(new Event(type), props);
+      this.dispatchEvent(ev);
+      this["on" + type]?.(ev);
+    }
+    deliver(bytes) {
+      this.fire("message", { data: Uint8Array.from(bytes).buffer });
+    }
+  };
+  try {
+    const { join } = await import("../src/presence.ts");
+    const url = "wss://rooms.example/room/1?players=4", P = ["fizlet-rooms", "invite.ABCD-EFGH-JK"];
+    const p = join(url, undefined, P, { retry: 3, lobby: (start) => start(2, 9) });
+    made[0].fire("open");
+    assert.deepEqual([...made[0].sent[0]], [7, 0, 2, 9, 0, 0, 0, 0, 0, 0, 0, 0], "the host's START: begin with 2, mode 9");
+    made[0].deliver([3, 1, 2, 9, 0x2a, 0, 0, 0, 0xd4, 0xc3, 0xb2, 0xa1]);
+    const j = await p;
+    assert.deepEqual([j.slot, j.players, j.seed, j.mode], [1, 2, 42, 9]);
+    assert.ok(!made[0].url.includes("a1b2c3d4"), "the token is never in the URL");
+    const got = [];
+    j.transport.listen((d) => got.push([d[0], d[1]]));
+    made[0].deliver([1, 0, 0, 0, 5, 0, 0, 0, 1, 0, 0, 0]);
+    made[0].fire("close", { code: 1006 }); // a Wi-Fi blip
+    assert.deepEqual(got, [[1, 0], [6, 1]], "the input, then AWAY for this seat");
+    t.mock.timers.tick(250);
+    assert.equal(made.length, 2, "it reconnects");
+    assert.deepEqual(made[1].protocols, [...P, "resume.a1b2c3d4"], "with the seat's token as a subprotocol");
+    made[1].deliver([3, 1, 2, 9, 0x2a, 0, 0, 0, 0xd4, 0xc3, 0xb2, 0xa1]); // WELCOME again: eaten
+    made[1].deliver([5, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // RESUME
+    assert.deepEqual(got.at(-1), [5, 1]);
+    j.transport.send(Uint8Array.of(1, 1, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0));
+    assert.equal(made[1].sent.length, 1, "sends go to the new socket");
+    // Drops again; the retries run out (3): LEAVE for this seat, and no more sockets.
+    made[1].fire("close", { code: 1006 });
+    for (let i = 0; i < 3; i++) t.mock.timers.tick(4000), made.at(-1).fire("close", { code: 1006 });
+    assert.equal(made.length, 5);
+    assert.deepEqual(got.at(-1), [4, 1]);
+    t.mock.timers.tick(10000);
+    assert.equal(made.length, 5);
+    // The room's own close (seat gone, idle, the caps) is not retried; destroy closes with 1000 (a leave).
+    const q = join(url, undefined, P);
+    made.at(-1).deliver([3, 0, 2, 0, 1, 0, 0, 0, 7, 0, 0, 0]);
+    const k = await q;
+    made.at(-1).fire("close", { code: 1001 });
+    t.mock.timers.tick(5000);
+    assert.equal(made.length, 6);
+    const r = join(url, undefined, P);
+    made.at(-1).deliver([3, 0, 2, 0, 1, 0, 0, 0, 7, 0, 0, 0]);
+    (await r).transport.close();
+    assert.equal(made.at(-1).closed, 1000);
+    made.at(-1).fire("close", { code: 1006 });
+    t.mock.timers.tick(5000);
+    assert.equal(made.length, 7, "a closed transport never reconnects");
+    k.transport.close();
+  } finally {
+    globalThis.WebSocket = real;
+  }
+});
+
 // A WebSocket stand-in: send copies the bytes before it returns (as browsers and Workers do).
 function fakeSocket() {
   const got = new Uint8Array(12), n = new Int32Array(1);
