@@ -1,6 +1,6 @@
 // Same behaviour as 2015: same sheets, same frames, same timings, same click (a class flip that
-// restarts a clip). The 2015 @keyframes are the clips below, number for number (see the dissection in
-// fizlet-engine reference/chriscooley-me-2015/fizlet/README.md).
+// restarts a clip). The 2015 @keyframes are the clips below, number for number (2015 values from
+// css/sprites.css in this folder).
 import { strip, type Clip } from "./strip";
 
 const once = (c: Clip["segs"]) => ({ segs: c });

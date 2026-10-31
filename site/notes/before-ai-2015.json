@@ -1,5 +1,5 @@
 {
-  "$comment": "PLACEHOLDER so the companion page's link to the note resolves on this branch. The real note is written in fizlet-engine and replaces this file; do not publish as is.",
+  "$comment": "Generated from the content model; do not edit by hand.",
   "id": "blog-before-ai-2015",
   "site": "fizlet",
   "brand": "fizlet",
@@ -7,14 +7,166 @@
   "type": "blog",
   "slug": "before-ai-2015",
   "title": "Before AI: 2015",
-  "eyebrow": "Field notes · Origin",
-  "tags": ["fizlet", "history", "css", "sprites"],
+  "subtitle": "Three micro animations, drawn by hand. Eleven years later, rebuilt in Fizlet.",
+  "tags": [
+    "fizlet",
+    "origin",
+    "micro-animation",
+    "css",
+    "sprites"
+  ],
   "date": "2026-11-01",
   "status": "scheduled",
-  "lead": ["Draft: copy coming from fizlet-engine. Meanwhile, [play the three 2015 sprites beside their Fizlet rebuilds](/demos/before-ai-2015/)."],
-  "blocks": [],
+  "lead": [
+    "Fizlet started long before Fizlet. In 2015, years before AI coding tools, Chris Cooley drew three clickable micro animations by hand: headphones that plug in and play, a cup of coffee that fills, a laptop that opens and types. The Wayback Machine captured them on 23 April 2015. We pulled them out of the archive, took them apart, and rebuilt them in Fizlet."
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "heading": "The artifact",
+      "body": [
+        {
+          "type": "p",
+          "text": "The original files were lost to new computers and dead drives. The [Wayback Machine capture of 23 April 2015 ↗](https://web.archive.org/web/20150423171151/http://chriscooley.me/projects/css-animations) kept them: the page, the CSS and every sprite sheet. Nobody can fake a capture date, so it is our proof that the micro animation idea is more than eleven years old."
+        },
+        {
+          "type": "p",
+          "text": "We restored the three exactly. The CSS on the companion page is the 2015 file, byte for byte. Angular is gone; four lines of plain JavaScript do what its clicks did."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "How it worked in 2015",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**One strip of frames.** Every frame drawn in Illustrator and laid side by side on one sheet, exactly one frame-width apart. Shift a frame by a pixel and the animation jumps.",
+            "**A window onto the strip.** A fixed box (the cup is 84 × 84 px) with the sheet as its background.",
+            "**`steps(n)` does the cutting.** The keyframes slide `background-position` from the first frame to the last, and `steps(n)` makes it jump frame to frame. The cup fills in `steps(11)`: 11 jumps of 84 px in 0.6 s.",
+            "**Stages chained by delay.** The laptop opens (`steps(13)`, 1.2 s), then types (`steps(8)`), then scrolls code forever (`steps(10)`, infinite).",
+            "**A class is the state.** A click adds or removes one class: `paused`, `close`, `drinkMe`. The class swaps the animation."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "It took about a week, as an experiment (Chris's estimate). Most of that week was drawing the frames."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "Same art. / *New engine.*",
+      "body": [
+        {
+          "type": "p",
+          "text": "We rebuilt each one twice on the same hand-drawn sheets. **Same behaviour** copies 2015 exactly, so the comparison is fair. **Better** adds what we know now: ♪ notes rise out of the headphones while the music plays (`fizlet/fx`), steam lifts off the full cup, and a click mid-move turns the laptop or the cup back from the frame it is on. Real buttons, keyboard, and a still frame under reduced motion. `destroy()` gives the page back exactly as it was."
+        }
+      ]
+    },
+    {
+      "type": "stats",
+      "heading": "2015 vs Fizlet, measured",
+      "items": [
+        {
+          "value": "60 → 0",
+          "label": "style recalculations a second with the music paused and the lid left open: the 2015 loop never stops, Fizlet better goes fully idle"
+        },
+        {
+          "value": "1,895 B",
+          "label": "the 2015 code, gzip: CSS plus a four-line script"
+        },
+        {
+          "value": "8,004 B",
+          "label": "Fizlet better, gzip: the kernel and `fizlet/fx` are most of it"
+        },
+        {
+          "value": "0",
+          "label": "requestAnimationFrame calls a second at rest, in all three versions"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "Bigger code, / *quieter page.*",
+      "body": [
+        {
+          "type": "p",
+          "text": "The bytes go the other way, and we say so. 2015 is pure CSS, so it ships the least code. Fizlet ships its kernel, and the better version adds the particle pool for the notes and the steam."
+        },
+        {
+          "type": "p",
+          "text": "What the bytes buy: CSS sprite animations cost no JavaScript, but the browser recalculates style on every frame while one loops. In 2015 that meant 60 times a second for as long as the laptop stayed open. Fizlet writes only when a frame changes and stops completely when nothing moves. The same-behaviour rebuild keeps the endless loop on purpose, because 2015 had it; the quiet page comes with the better version."
+        },
+        {
+          "type": "p",
+          "text": "Time is not like for like either. 2015 was about a week, mostly drawing. The rebuild reused those drawings and took minutes of code. That is the point: eleven years of craft, now a few minutes of code."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "In Chris's words",
+      "body": [
+        {
+          "type": "p",
+          "text": "\"It's the origin of the passion that has not left, only got stronger. With the engine it means the sky's the limit: time and complexity are removed and I can create all the cool things I can think of. Just walking my dog I can chat into my phone and create a new game, all because of the power of Fizlet, which started from my passion to make the DOM more interesting. Even when it was hard I still had the passion, and it's just stronger now that we built such a strong tool.\""
+        },
+        {
+          "type": "p",
+          "text": "In 2015 the DOM was harder to animate. Getting it fast meant knowing which properties were cheap to move and which made the browser work. Fizlet is that knowledge, written down once and tested."
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "q": "Is the 2015 version really the original code?",
+          "a": "The CSS is cut byte for byte from the stylesheet the Wayback Machine captured, and the sprite sheets are the archived files. Only Angular is replaced, by four lines of plain JavaScript that toggle the same classes."
+        },
+        {
+          "q": "Why is the Fizlet version bigger?",
+          "a": "It ships the kernel, and the better version ships `fizlet/fx` for the notes and the steam. In return the page goes fully idle when nothing moves, and `destroy()` restores it exactly."
+        },
+        {
+          "q": "Who made the art?",
+          "a": "Chris Cooley, by hand in Illustrator, in 2015. Every version on the companion page uses those same sheets."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "The only blocker",
+      "body": [
+        {
+          "type": "p",
+          "text": "\"Fizlet makes creativity the only blocker, and I have a lot of that!\" (Chris Cooley)"
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "Play all three, 2015 vs Fizlet",
+          "href": "/demos/before-ai-2015/"
+        },
+        {
+          "label": "The 2015 capture on the Wayback Machine ↗",
+          "href": "https://web.archive.org/web/20150423171151/http://chriscooley.me/projects/css-animations"
+        },
+        {
+          "label": "The fx brick",
+          "href": "/bricks/fx.html"
+        }
+      ]
+    }
+  ],
   "seo": {
-    "title": "Before AI: 2015, hand-drawn sprites · Fizlet",
-    "description": "Draft placeholder for the note on three CSS sprite animations Chris Cooley drew by hand in 2015, and their Fizlet rebuilds."
-  }
+    "title": "Before AI: 2015, three micro animations · Fizlet",
+    "description": "Three CSS sprite micro animations Chris Cooley drew by hand in 2015, recovered from the Wayback Machine and rebuilt in Fizlet. Measured side by side."
+  },
+  "publishAt": "2026-11-01"
 }
