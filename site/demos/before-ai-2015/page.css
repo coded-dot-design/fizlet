@@ -121,3 +121,7 @@
 .bt-swap { margin: 6px 0 0; font-size: 13px !important; }
 .bt-fine { margin: 14px 0 0; font-size: 13px; color: var(--muted); max-width: 900px; }
 .bt-arcade .bt-stage .desk { overflow: visible; } /* the code spray rises past the desk; the stage still clips */
+/* 2015's switch glyph is 1.5rem on a 1em root (24px; 0.8em root, 19.2px, below 41.7rem). This site's root
+   is smaller, so the wrapper pins the 2015 size; sprites.css itself stays byte for byte. */
+.bt-2015 .beats .switch::after, .bt-2015 .beats .switch::before { font-size: 19.2px; }
+@media screen and (min-width: 41.7rem) { .bt-2015 .beats .switch::after, .bt-2015 .beats .switch::before { font-size: 24px; } }
