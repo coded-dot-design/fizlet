@@ -471,6 +471,16 @@ test("fx: gravity pulls each kind by its share; kinds are data", () => {
   assert.ok(Math.abs(calm.raw.f[3][5]) <= Math.abs(v0));
 });
 
+test("fx: emit picks words from a range, like colours (a word kind is not stuck on words[0])", () => {
+  const fx = effects({ cap: 400, words: ["BOOM", "♪", "♫", "♬", "NOPE"] });
+  const { ids, emit } = emitter(fx, { note: { ...KINDS.bubble, shape: "word" } });
+  emit(ids.note, 0, 0, 100); // no range: words[0], as before
+  emit(ids.note, 0, 0, 300, 0, 1, 1, 1, 3); // words 1-3
+  const { word } = fx.raw, first = new Set(word.slice(0, 100)), seen = new Set(word.slice(100, 400));
+  assert.deepEqual([...first], [0]);
+  assert.deepEqual([...seen].sort(), [1, 2, 3], "every word in the range shows, none outside it");
+});
+
 test("fx: emit is bounded, validated, and a second emitter adds after the first", () => {
   const fx = effects({ cap: 10 }), a = emitter(fx, { bubble: KINDS.bubble });
   a.emit(a.ids.bubble, 5, 5, 4, 1, 3);
