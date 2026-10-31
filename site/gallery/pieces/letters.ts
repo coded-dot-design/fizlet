@@ -36,6 +36,8 @@ export function letters(engine: Engine, slot: HTMLElement, select: string, stiff
   return {
     n,
     els,
+    /** The springs' positions (5 channels a letter: shift x, shift y in % of the letter, …). */
+    p,
     x,
     y,
     w,

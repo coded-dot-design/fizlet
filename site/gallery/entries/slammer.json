@@ -1,0 +1,24 @@
+{
+  "id": "slammer",
+  "date": "2026-10-31",
+  "prompt": "Outbreak, act 1 (2003): 376-byte packets flood every port of the firewall and only UDP 1434 lets them in; race to find and close it, then reboot the infected servers before they hit each other again",
+  "title": "Slammer",
+  "kind": "micro",
+  "theme": "dom-virus",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "fizlet/kernel",
+    "fizlet/steer",
+    "fizlet/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/slammer.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "16 / 9",
+  "pageCost": {
+    "settles": true
+  },
+  "approved": "2026-10-30"
+}

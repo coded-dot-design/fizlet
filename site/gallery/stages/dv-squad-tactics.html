@@ -1,0 +1,12 @@
+<style>
+/* Squad tactics: DOM Battlefield's display card from domvirus.com, vendored (site/vendor/dom-virus/,
+   one source: scripts/vendor-dom-virus.mjs). Its own @keyframes run on fizlet/css-clock. This frame
+   only seats the card in the figure. */
+.dvp { position: absolute; inset: 0; display: grid; place-items: center; background: #100a1b; container-type: size; overflow: hidden; }
+.dvp .battlefield-display.battlefield-display.battlefield-display { width: min(90cqw, calc((92cqh - 82px) * 420 / 240 + 36px)); min-height: 0; max-width: none; margin: 0; }
+/* dom-virus#23 pauses .field's animations, then each element's \`animation\` shorthand (later, same
+   specificity) sets them running again with no delay, so they ignore the clock. Held here until
+   that is fixed upstream: paused, on --fz-t. */
+.dvp .field * { animation-play-state: paused !important; animation-delay: calc(var(--fz-t, 0s) + var(--d, 0s)) !important; }
+/* The card is its own poster (the scene moves it in place); the slot marker below steps aside when live. */
+</style><span class="ae-slot__placeholder" aria-hidden="true" hidden></span><div class="dvp"><!-- vendor: dom-virus/squad-tactics --></div>
