@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Gallery, Boxing (pending owner review): Toast Tell.** A three-counter bout with Crumbtron, a
+  chrome toaster bot who always tells: toast pops up before his hook (duck it), his dial eyes go red
+  before a jab (slip it); the right dodge leaves him open for a counter, three and he's down for the
+  count. Keyboard and 44 px buttons, M mutes, settles between bouts. 9,681 B gzip live. Tests:
+  tests/toast-tell.mjs, tests/toast-tell.test.mjs.
+- **Gallery, Boxing (pending owner review): Bag Beat.** A speed bag on a swivel: punch, it slaps the
+  board and swings back; punch right as it returns (a ring closes on it) and it goes faster; early or
+  late is a CLUNK and the streak is gone. Ten seconds, hits and best streak at the bell. 8,143 B gzip
+  live. Tests: tests/bag-beat.mjs, tests/bag-beat.test.mjs.
 - **Gallery, Motocross (pending owner review): Dirt Lab.** Build an eight-slot track from ramps,
   bumps and gaps, then race it: hold gas, lean in the air, land flat or go over the bars. The track
   rides in the address as `#t=` (eight known letters, refused whole otherwise; no server). Keyboard
