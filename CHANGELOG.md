@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Website: the people page as one illustrated set.** All six avatars (Chris, Quill, Pip, Frame
+  Zero, DJ Mempool, Hex Hazel) are redrawn in one style: a full bust in the 32 × 32 frame, a 1-px
+  rim outline, 2–3 shades per colour, a bright prop and sparkles on a dark ground. Each has 2 frames
+  (`avatars`, replacing `avatar`) that cross-fade every 4 s on the card and the profile; frames turn
+  only on screen and while the tab is visible, never under reduced motion (site.js +250 B gzip).
+  Cards: the title alone in mono caps, a tagline, "↳ reports to" its own linked line, stats as
+  chips. "House persona" is now **Studio crew** (`reportsTo: quill`); Quill and Pip report to
+  Chris. The long "not a real person" line is a sticker on the avatar's corner (AI AGENT,
+  CHARACTER, MAKER) whose accessible name keeps the honesty. Avatar colours are site.css `--av-*`
+  tokens: Board UI colours or a mix of two, fixed in both themes.
 - **Tests: the layers story's "play resumes" check counts frames, not wall time.** It failed under
   CPU load: it passed 3 of 10 runs at load 42–72 (4 of 10 with the timeline pause fix, which the
   layers scene doesn't use). Traced: play does resume (the key reads Pause and the story moves on);
