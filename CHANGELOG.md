@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Release train 0.21.3 (#206 + #212, with #194, #215, #213 and #226's CueName fix), measured
+  together on main.** gz, main → train: kernel 3,413 → 3,372 B, page build 7,128 → 7,094 B (10 B under
+  its 7,104 budget), perf 2,064 → 2,019 B (budget 2,064 → 2,022), grid 1,603 → 1,652 B (budget 1,637 →
+  1,664), fx 2,797 → 2,792 B, slot 1,819 → 1,849 B, timeline 2,120 → 2,137 B, presence 2,224 → 2,197 B,
+  presence/check 4,994 → 4,870 B, arcade 24,327 → 24,143 B (budget 24,399 → 24,150), arcade card
+  18,334 → 18,192 B (budget 18,361 → 18,201: #206's 18,179 plus #218's +22 B), board-page 4,136 →
+  4,103 B, css-clock 5,368 B (budget 5,632 → 5,566). The per-PR numbers below are each PR on its own base.
 - **Size (S8, size/treeshake; supersedes #205): the page build has 154 B of headroom under its 7 KB cap.**
   No behaviour change. esbuild keeps a top-level `const` as a variable in any file with imports (and
   a local one declared after other code), so the numbers the engine and the bricks index with now
