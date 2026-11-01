@@ -130,7 +130,8 @@ const PROJECT = [
 export const HEADLINE = { line: "Logic & style.", accent: "The bricks do the rest." };
 // The home hero: the first thing a visitor reads, so it sells the whole engine (size + speed), not
 // one idea. The lead under it backs it with the measured kernel size.
-export const HOME_HEADLINE = { line: "Small footprint.", accent: "Big performance." };
+// Non-breaking spaces: each phrase is one unit, so a line never strands "Big" (CI's fonts run wider).
+export const HOME_HEADLINE = { line: "Small\u00a0footprint.", accent: "Big\u00a0performance." };
 export const headline = (sep = "<br>", h = HEADLINE) => `${esc(h.line).replace("&amp;", '<span class="amp">&amp;</span>')}${sep}<em>${esc(h.accent)}</em>`;
 // The family line: the same four sites, in the same order, in every family footer (domvirus.com,
 // battlefield.domvirus.com and battlefieldblitz.domvirus.com list it too). Production URLs; Fizlet is

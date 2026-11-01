@@ -826,8 +826,8 @@ a.bui-sticker-key {
 .hero h1 {
   margin: 22px 0 24px;
   /* sized so each phrase of HOME_HEADLINE ("Small footprint." / "Big performance.", about 8.3em
-     each) holds one line in the copy column, phone to 1920 */
-  font-size: clamp(min(42px, 10.6vw), 5.2vw, 84px);
+     each, with headroom for wider fallback fonts) holds one line in the copy column, phone to 1920 */
+  font-size: clamp(min(40px, 10.2vw), 4.9vw, 80px);
   line-height: 0.92;
   letter-spacing: -0.05em;
   text-wrap: balance;
