@@ -5,11 +5,13 @@
    Dark: fight night. Light: an afternoon gym. Colours: Board UI token roles. */
 .rg{position:absolute;inset:0;--rg-back:#0c0a1c;--rg-crowd:#2a1c4a;--rg-mat:#3f296a;--rg-rope:#ff2e88;--rg-ink:#07060f;--rg-paper:#f6f3ff;--rg-red:#ff2b4e;--rg-cyan:#19f0ff;--rg-gold:#ffc21a;--rg-go:#39ffb0;--rg-purple:#9a63ff;--rg-pink:#ff7389;--rg-steel:#b9b4d6;--rg-dark:1;background:#0c0a1c}
 html[data-theme="light"] .rg{--rg-back:#e9e4ff;--rg-crowd:#c9bdf5;--rg-mat:#9a63ff;--rg-go:#0f9e6a;--rg-steel:#cfcbe6;--rg-dark:0;background:#e9e4ff}
-/* The art's 16:9 box (the poster and the live canvas): the whole of a wide stage; on a square or
-   tall one, just over the keys' 56 px strip (keys.ts); on a short wide one (a phone pinned wide),
-   smaller and centred over the strip. The skin's colours fill around it. */
-.rg-poster,.rg~[data-fizlet-slot]>canvas{position:absolute;left:0;width:100%;height:56.25cqw;top:max(0px,100cqh - 56.25cqw - 56px);pointer-events:none}
-@container stage (max-height:330px){.rg-poster,.rg~[data-fizlet-slot]>canvas{top:0;height:calc(100cqh - 56px);width:calc((100cqh - 56px) * 16 / 9);left:calc(50cqw - (100cqh - 56px) * 8 / 9)}}
+/* The art's 16:9 box (the poster and the live canvas): the whole of a wide stage; on a short wide
+   one (a phone pinned wide), smaller and centred over the keys' 56 px strip (keys.ts); on a square or
+   tall one, as wide as fits (keeping 50 px on top for mute and TAP TO PLAY), centred, on the strip.
+   The skin's colours fill around it. */
+.rg-poster,.rg~[data-fizlet-slot]>canvas{position:absolute;left:0;top:0;width:100%;height:56.25cqw;pointer-events:none}
+@container stage (aspect-ratio<7/5){.rg-poster,.rg~[data-fizlet-slot]>canvas{--w:min(100cqw,(100cqh - 106px)*16/9);width:var(--w);height:calc(var(--w)*9/16);left:calc(50cqw - var(--w)/2);top:calc(100cqh - 56px - var(--w)*9/16)}}
+@container stage (aspect-ratio>=7/5) and (max-height:330px){.rg-poster,.rg~[data-fizlet-slot]>canvas{top:0;height:calc(100cqh - 56px);width:calc((100cqh - 56px) * 16 / 9);left:calc(50cqw - (100cqh - 56px) * 8 / 9)}}
 .rg{box-shadow:inset 0 -56px var(--rg-mat)}
 [data-fizlet-slot]:focus-visible{outline:3px solid #19f0ff;outline-offset:-3px}
 </style></div>

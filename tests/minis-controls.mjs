@@ -24,6 +24,9 @@ const all = entries();
 const MINIS = all.filter((e) => e.no >= 71 && e.no <= 86).sort((a, b) => a.no - b.no);
 assert.equal(MINIS.length, 16, "sixteen genre minis");
 const FLOOR = { redline: 66, "dirt-lab": 76, "bag-beat": 71, "toast-tell": 70 };
+// The art's header and HUD band (a share of the art box from its top): Redline's heat gauge, Dirt Lab's
+// prompt, the ring's timer and pips, Freeze Plan's orders and legs.
+const HUD = { redline: 16 / 90, "dirt-lab": 16 / 90, "bag-beat": 16 / 90, "toast-tell": 16 / 90, "freeze-plan-radio-platoon": 20 / 108 };
 for (const id of Object.keys(FLOOR)) assert.ok(MINIS.find((e) => e.id === id)?.phone, `${id}: lays itself out per stage class (phone shape)`);
 
 const fnOf = (e) => "m" + e.no;
@@ -60,6 +63,8 @@ async function open(e, w, h, touch, force) {
   const errs = [];
   p.on("pageerror", (x) => errs.push(x.message));
   await p.goto(`http://minis.test/${e.id}/`);
+  // Live, as the gallery marks it (gallery.ts): TAP TO PLAY shows.
+  await p.evaluate(() => (document.querySelector("figure").dataset.live = "1"));
   if (force) await p.evaluate((r) => document.querySelector("figure").style.setProperty("aspect-ratio", r, "important"), RATIO[force]);
   await p.evaluate((fn) => {
     window.before = document.body.cloneNode(true);
@@ -72,7 +77,7 @@ async function open(e, w, h, touch, force) {
 
 /** The stage, its visible controls (a see-through key over the whole stage is the stage itself) and the play's boxes. */
 const measure = (p, floor, id) =>
-  p.evaluate(({ floor, id }) => {
+  p.evaluate(({ floor, id, hud }) => {
     const st = document.querySelector("[data-fizlet-slot]"), s = st.getBoundingClientRect();
     const keys = [...st.querySelectorAll("button")].map((b) => ({ b, r: b.getBoundingClientRect(), cs: getComputedStyle(b) }))
       .filter(({ r, cs }) => r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && !(r.width * r.height > 0.8 * s.width * s.height && cs.backgroundColor === "rgba(0, 0, 0, 0)"))
@@ -84,17 +89,24 @@ const measure = (p, floor, id) =>
     for (let i = 0; i < grid.length; i++) area += grid[i];
     const play = [];
     const cv = st.querySelector("canvas"), c = cv && cv.getBoundingClientRect();
+    // The art box as the kits draw it: the canvas's own width, 9 / 16 of it down (160 × 90 units).
+    const art = c && id in hud && { x: c.left - s.left, y: c.top - s.top, w: c.width, h: c.width * (floor ? 9 / 16 : 108 / 192), ch: c.height };
+    // TAP TO PLAY (the live figure's ::after), in stage space.
+    const fig = st.closest("figure"), f = fig.getBoundingClientRect(), a = getComputedStyle(fig, "::after");
+    const tap = a.content === '"TAP TO PLAY"' && a.display !== "none"
+      ? { name: "TAP TO PLAY", x: f.left - s.left + parseFloat(a.left), y: f.top - s.top + parseFloat(a.top), w: parseFloat(a.width), h: parseFloat(a.height) }
+      : null;
     if (floor && c) {
       // The art box (160 × 90 units): everything above the floor line is play.
-      play.push({ name: "play above the floor", x: c.left - s.left, y: c.top - s.top, w: c.width, h: (floor / 90) * c.height });
+      play.push({ name: "play above the floor", x: art.x, y: art.y, w: art.w, h: (floor / 90) * art.h });
     } else if (id === "freeze-plan-radio-platoon" && c) {
       // The board (192 × 108 units): the six tanks (alive) and the HQ flag.
       const u = c.width / 192;
       for (let i = 0; i < 6; i++) if (scene.HP[i] > 0) play.push({ name: `tank ${i}`, x: c.left - s.left + (scene.X[i] - 8) * u, y: c.top - s.top + (scene.Y[i] - 8) * u, w: 16 * u, h: 16 * u });
       play.push({ name: "flag", x: c.left - s.left + 172 * u, y: c.top - s.top + 44 * u, w: 16 * u, h: 20 * u });
     }
-    return { w: s.width, h: s.height, keys, area, play };
-  }, { floor, id });
+    return { id, w: s.width, h: s.height, keys, area, play, art, tap };
+  }, { floor, id, hud: HUD });
 const hit = (a, b) => a.x < b.x + b.w - 0.5 && b.x < a.x + a.w - 0.5 && a.y < b.y + b.h - 0.5 && b.y < a.y + a.h - 0.5;
 
 function check(m, at, touch, keyed) {
@@ -103,7 +115,26 @@ function check(m, at, touch, keyed) {
   assert.ok(share <= 0.2, `${at}: the controls cover ${(share * 100).toFixed(1)}% of the stage (at most 20%)`);
   if (touch) for (const k of m.keys) assert.ok(k.w >= 43.5 && k.h >= 43.5, `${at}: ${k.name} is 44 px or more on touch (${k.w.toFixed(1)} × ${k.h.toFixed(1)})`);
   for (const k of m.keys) for (const a of m.play) assert.ok(!hit(k, a), `${at}: ${k.name} never covers ${a.name}`);
+  placed(m, at);
   return share;
+}
+/** The art box and TAP TO PLAY: where the stage sheet puts them. */
+function placed(m, at) {
+  const r = m.art;
+  if (r) {
+    // The art box: drawn whole (the canvas is the art's own shape), inside the stage, centred across it.
+    const px = (n) => n.toFixed(1);
+    assert.ok(Math.abs(r.ch - r.h) <= 2, `${at}: the canvas is the art's shape (${px(r.w)} × ${px(r.ch)}, the art ${px(r.w)} × ${px(r.h)})`);
+    // (2 px: a wide figure's stage is a px or two short of 16:9 once its border is off.)
+    const inside = (a) => a.x >= -2 && a.y >= -2 && a.x + a.w <= m.w + 2 && a.y + a.h <= m.h + 2;
+    assert.ok(inside(r), `${at}: the art box is inside the stage (${px(r.x)}, ${px(r.y)}, ${px(r.w)} × ${px(r.h)} in ${px(m.w)} × ${px(m.h)})`);
+    const gap = Math.abs(r.x - (m.w - r.x - r.w));
+    assert.ok(gap <= 2, `${at}: the art box is centred across the stage (left ${px(r.x)}, right ${px(m.w - r.x - r.w)})`);
+    for (const a of m.play) assert.ok(inside(a), `${at}: ${a.name} is inside the stage, not clipped`);
+    // TAP TO PLAY never covers the game's header and HUD (the art's top band: scores, gauges, prompts).
+    const hud = { name: "the header and HUD", x: r.x, y: r.y, w: r.w, h: r.h * HUD[m.id] };
+    if (m.tap) assert.ok(!hit(m.tap, hud), `${at}: TAP TO PLAY never covers ${hud.name} (${px(m.tap.x)}, ${px(m.tap.y)} vs the art's top ${px(hud.y + hud.h)})`);
+  }
 }
 
 /** The game's own numbers: a scene's state, its sim's, or its own state array. */
@@ -245,6 +276,7 @@ try {
       const m = await measure(p, floor, e.id), at = `#${e.no} ${e.id} at 390, pinned wide`;
       for (const k of m.keys) assert.ok(k.w >= 43.5 && k.h >= 43.5, `${at}: ${k.name} is 44 px or more`);
       for (const k of m.keys) for (const a of m.play) assert.ok(!hit(k, a), `${at}: ${k.name} never covers ${a.name}`);
+      placed(m, at);
       rows.push(`${at}: controls ${((m.area / (m.w * m.h)) * 100).toFixed(1)}% (a 181 px stage: the owner's pick)`);
       assert.deepEqual(errs, [], `${at}: no page errors`);
       await p.close();

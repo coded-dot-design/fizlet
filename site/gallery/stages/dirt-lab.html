@@ -5,11 +5,13 @@
    Dark: a night track under the stars. Light: a dry afternoon. Colours: Board UI token roles. */
 .mx{position:absolute;inset:0;--mx-sky:#0c0a1c;--mx-sky2:#2a1c4a;--mx-hill:#1d1640;--mx-dirt:#6b3f25;--mx-dirt2:#9a5f34;--mx-ink:#07060f;--mx-paper:#f6f3ff;--mx-bike:#ff2b4e;--mx-rider:#19f0ff;--mx-gold:#ffc21a;--mx-go:#39ffb0;--mx-cmd:#9a63ff;--mx-hot:#ff8a1f;--mx-dark:1;background:#0c0a1c}
 html[data-theme="light"] .mx{--mx-sky:#9fe8ff;--mx-sky2:#f6f3ff;--mx-hill:#b9a3ff;--mx-dirt:#b5703d;--mx-dirt2:#d99456;--mx-go:#0f9e6a;--mx-dark:0;background:#9fe8ff}
-/* The art's 16:9 box (the poster and the live canvas): the whole of a wide stage; on a square or
-   tall one, just over the keys' 56 px strip (keys.ts); on a short wide one (a phone pinned wide),
-   smaller and centred over the strip. The skin's colours fill around it. */
-.mx-poster,.mx~[data-fizlet-slot]>canvas{position:absolute;left:0;width:100%;height:56.25cqw;top:max(0px,100cqh - 56.25cqw - 56px);pointer-events:none}
-@container stage (max-height:330px){.mx-poster,.mx~[data-fizlet-slot]>canvas{top:0;height:calc(100cqh - 56px);width:calc((100cqh - 56px) * 16 / 9);left:calc(50cqw - (100cqh - 56px) * 8 / 9)}}
+/* The art's 16:9 box (the poster and the live canvas): the whole of a wide stage; on a short wide
+   one (a phone pinned wide), smaller and centred over the keys' 56 px strip (keys.ts); on a square or
+   tall one, as wide as fits (keeping 50 px on top for mute and TAP TO PLAY), centred, on the strip.
+   The skin's colours fill around it. */
+.mx-poster,.mx~[data-fizlet-slot]>canvas{position:absolute;left:0;top:0;width:100%;height:56.25cqw;pointer-events:none}
+@container stage (aspect-ratio<7/5){.mx-poster,.mx~[data-fizlet-slot]>canvas{--w:min(100cqw,(100cqh - 106px)*16/9);width:var(--w);height:calc(var(--w)*9/16);left:calc(50cqw - var(--w)/2);top:calc(100cqh - 56px - var(--w)*9/16)}}
+@container stage (aspect-ratio>=7/5) and (max-height:330px){.mx-poster,.mx~[data-fizlet-slot]>canvas{top:0;height:calc(100cqh - 56px);width:calc((100cqh - 56px) * 16 / 9);left:calc(50cqw - (100cqh - 56px) * 8 / 9)}}
 .mx{box-shadow:inset 0 -56px var(--mx-dirt)}
 [data-fizlet-slot]:focus-visible{outline:3px solid #19f0ff;outline-offset:-3px}
 </style></div>
