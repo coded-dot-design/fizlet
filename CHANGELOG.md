@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Site: a brand page at `/brand/`.** The FIZLET wordmark and the fzlt short mark, the lockups
+  (Fizlet™ · fzlt™, `npm i @fzlt/core`, fzlt.dev), a sticker set, why fzlt, the two voices, ™ and casing rules,
+  clear space and minimum sizes, don'ts, the colour tokens as swatches (read from
+  `src/ui/tokens.json`) and the Board UI kit live. Every mark downloads as a self-contained SVG on
+  dark and light, generated at build time from one source (`scripts/brand-marks.mjs`) that the page
+  also draws inline. The page rests at 0 rAF; the sticker slam is the kit's own and settles, and
+  stays still under reduced motion.
 - **Both marks on npm: a `fzlt` bin, Fizlet™ (fzlt™) in the description, and a fzlt.dev page.**
   `npx @fzlt/core` (or `fzlt` once installed) prints the version, the install line, fizlet.com and
   every brick's gzip size against its budget (`--json` for machines). Zero dependencies, `node:` only;
