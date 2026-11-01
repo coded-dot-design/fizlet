@@ -1,15 +1,20 @@
-# Fizlet
+# Fizlet™
 
-By [Chris Cooley](https://coded.design/). **Tiny physics for your page.** A micro game and animation engine for the DOM: one shared loop,
-bounded everything, zero allocation in the steady state, and the page always comes back exactly as
-it was. No runtime dependencies, ever.
+[![npm @fzlt/core](https://img.shields.io/npm/v/@fzlt/core?label=npm%20%40fzlt%2Fcore)](https://www.npmjs.com/package/@fzlt/core)
+
+By [Chris Cooley](https://coded.design/). **Fizlet is the building blocks for animation and games
+on the DOM.** Each brick is a task we wrote hundreds of times over two decades,
+now kept by AI and human developers who chase performance at all costs. You bring the logic and
+style, even from a prompt. One shared loop, bounded everything, zero allocation in the steady state,
+and the page always comes back exactly as it was. No runtime dependencies, ever.
 
 **Website, live demo and quick start: https://coded-dot-design.github.io/fizlet/**
 
 The "fiz" is fizz (the pop of an effect) and a nod to physics; the "-let" is small, like an applet.
 Fizlet runs every DOM VIRUS game: Battlefield Blitz, [DOM Battlefield](https://coded-dot-design.github.io/dom-battlefield/)
 1.0, and the [DOM VIRUS](https://coded-dot-design.github.io/dom-virus/) arcade (Null Invaders,
-Byte Runner and Sherman Bytes 1.0, Swarm Protocol 1.4).
+Byte Runner and Sherman Bytes 1.0, Swarm Protocol 1.4). "The page is the board" is DOM VIRUS's
+approach: one use of the bricks.
 
 > **Public beta (0.x).** Fizlet 0.x is a public beta: every brick carries a status flag, and a 0.x
 > minor release may change a BETA brick's API (the CHANGELOG says how). COMPLETE bricks keep
@@ -443,7 +448,7 @@ link and returns `{ ok, frames, diverged, stalls }`, where `diverged` is the fir
 differed (or -1). `setup(e, slot, players)` returns `{ input(), step(e, inputs, frame), state }`, where
 `state` is a byte view of the sim's typed arrays.
 
-`net.frame`, `net.stalls`, `net.desync`, `net.lost`, `net.confirmed(slot, frame)` (the input log
+`net.frame`, `net.stalls`, `net.desync`, `net.lost`, `net.away` (seats reconnecting), `net.confirmed(slot, frame)` (the input log
 a rollback layer can replay). A transport is `{ send(bytes), listen(fn), close() }`. Presence is
 in-house / experimental: our games run it against our own room server, which isn't a hosted
 service. [Build your own room server](https://fizlet.com/guides/build-your-own-room-server/) specs
