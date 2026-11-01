@@ -127,7 +127,7 @@ try {
         border: cs.borderTopColor, sides: new Set([cs.borderTopColor, cs.borderRightColor, cs.borderBottomColor, cs.borderLeftColor]).size,
         widths: new Set([cs.borderTopWidth, cs.borderRightWidth, cs.borderBottomWidth, cs.borderLeftWidth]).size,
         bar: bar.content !== "none" && bar.content !== "normal", line: tok("var(--line)"), tone: tok("var(--tone)"),
-        name: li.querySelector(".brick-name")?.textContent ?? "", sticker: li.querySelector(".brick-stickers > .brick-sticker[data-flag]")?.textContent ?? "",
+        name: li.querySelector(".brick-name")?.textContent ?? "", sticker: li.querySelector(".brick-head .brick-sticker")?.textContent ?? "", stickers: li.querySelectorAll(".brick-sticker").length,
         pill: li.querySelectorAll(".status-pill, .brick-top, .brick-tag").length, lift: cs.transform,
       };
     });
@@ -152,7 +152,8 @@ try {
         assert.equal(f.widths, 1, `card ${i}: one border width all round`);
         assert.equal(f.border, f.line, `card ${i}: at rest, the neutral card border`);
         assert.equal(f.pill, 0, `card ${i}: no pill or top row`);
-        assert.match(f.sticker, /^(COMPLETE|BETA|EXPERIMENTAL|DEPRECATED)$/, `card ${i}: the status is a sticker`);
+        assert.match(f.sticker, i === 0 ? /^KERNEL$/ : /^(COMPLETE|BETA|EXPERIMENTAL|DEPRECATED)$/, `card ${i}: the status is a sticker (the kernel's is KERNEL)`);
+        assert.equal(f.stickers, 1, `card ${i}: one sticker`);
         assert.ok(!f.name.includes(f.sticker), `card ${i}: the status is not in the name`);
       }
       // Hover and focus: the brick's colour on the border (and its shadow); reduced motion: no lift.
@@ -176,6 +177,7 @@ try {
       assert.match(await k.getAttribute("class"), /\bbrick-kernel\b/, "the first card is the kernel card");
       assert.equal(await page.locator("li.brick-kernel").count(), 1, "one kernel card");
       assert.equal(await k.locator(".brick-sticker-kernel").textContent(), "KERNEL");
+      assert.deepEqual(await k.locator(".brick-sticker").allTextContents(), ["KERNEL"], "the kernel renders exactly one sticker, KERNEL");
       assert.match(await k.locator("[data-size]").textContent(), /^[\d,]+ B$/, "the kernel shows its measured bytes");
       assert.match(await k.textContent(), /of (a )?4,096 B/, "against its budget");
       assert.match(await k.getAttribute("class"), path ? /\bbrick-full\b/ : /\bbrick-compact\b/, path ? "full cards on the bricks index" : "compact cards on the home page");
@@ -206,6 +208,15 @@ try {
       assert.ok(rows.length >= IDS.length, `${where}: cards`);
       const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
       for (const c of rows) {
+        if (c.id === "kernel") {
+          // The kernel: only KERNEL (the core goes without saying complete), at the head row's far end.
+          assert.equal(c.sticker, null, `${where}: the kernel has no status sticker`);
+          assert.equal(c.ktext, "KERNEL", `${where}: the kernel's slab`);
+          assert.ok(c.kernel.left > c.tile.right && c.kernel.right > (c.card.left + c.card.right) / 2, `${where}: the kernel slab sits at the head row's far end, the card's top-right`);
+          for (const o of [c.name, ...c.chips, c.tile]) assert.ok(!hit(c.kernel, o), `${where}: the kernel slab overlaps nothing on the card`);
+          continue;
+        }
+        assert.equal(c.kernel, null, `${where} ${c.id}: only the kernel has a slab`);
         assert.ok(c.tile && c.sticker, `${where} ${c.id}: a symbol tile and a status sticker in the head row`);
         const mid = (c.sticker.top + c.sticker.bottom) / 2;
         // Beside the tile, centred on its row; on a phone, a label too long for the row wraps under it.
@@ -220,14 +231,10 @@ try {
         if (c.peel) assert.deepEqual(c.pseudo, ['""', '""'], `${where} ${c.id}: the curl and the wear are empty (the label is read once)`);
         assert.match(c.text, /^(COMPLETE|BETA|EXPERIMENTAL|DEPRECATED)$/, `${where} ${c.id}: the label is the sticker's only text`);
         for (const o of [c.name, ...c.chips]) assert.ok(!hit(c.sticker, o), `${where} ${c.id}: the sticker overlaps no name or chip`);
-        if (c.id === "kernel") {
-          assert.equal(c.ktext, "KERNEL", `${where}: the kernel's slab`);
-          assert.ok(c.kernel.left > c.sticker.right && c.kernel.right > (c.card.left + c.card.right) / 2, `${where}: the kernel slab sits at the head row's far end, the card's top-right`);
-          for (const o of [c.name, ...c.chips, c.sticker, c.tile]) assert.ok(!hit(c.kernel, o), `${where}: the kernel slab overlaps nothing on the card`);
-        } else assert.equal(c.kernel, null, `${where} ${c.id}: only the kernel has a slab`);
       }
-      // No sticker hangs off its container: every sticker on the page (brick cards, the roadmap's
-      // cards, the status key) sits inside its card's box, tilt and nudge included.
+      // No sticker hangs off its card: every sticker on a card (brick cards, the roadmap's cards, the
+      // status key) sits inside the card's box, tilt and nudge included. (The periodic table's small
+      // tiles are exempt: their sticker sits on the tile's top edge.)
       const out = await page.evaluate(() => [...document.querySelectorAll(".brick .brick-sticker, .status-card .brick-sticker")].flatMap((s) => {
         const card = s.closest(".brick, .status-card"), a = s.getBoundingClientRect(), b = card.getBoundingClientRect(), bw = parseFloat(getComputedStyle(card).borderTopWidth);
         return a.left < b.left + bw || a.right > b.right - bw || a.top < b.top + bw || a.bottom > b.bottom - bw ? [`${card.dataset.brick ?? card.dataset.flag}: ${s.textContent}`] : [];

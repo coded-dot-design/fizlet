@@ -115,10 +115,16 @@ export const statusSticker = (status, id) => {
 export const KERNEL_STICKER = '<span class="brick-sticker brick-sticker-kernel">KERNEL</span>';
 
 /**
- * The card's head row: the symbol tile, then the status sticker in the open space beside it; on the
- * kernel, the KERNEL slab at the row's far end (the card's top-right, inside its border).
+ * A brick's one sticker: its status, or on the kernel only KERNEL (the core: complete goes without
+ * saying; its status stays `complete` in site/bricks.mjs). Every placement uses this.
  */
-const head = (brick) => `<div class="brick-head">${elSquare(brick)}<span class="brick-stickers">${statusSticker(brick.status, brick.id)}</span>${brick.id === "kernel" ? KERNEL_STICKER : ""}</div>`;
+export const brickSticker = (brick) => (brick.id === "kernel" ? KERNEL_STICKER : statusSticker(brick.status, brick.id));
+
+/**
+ * The card's head row: the symbol tile, then the status sticker in the open space beside it; on the
+ * kernel, only the KERNEL slab, at the row's far end (the card's top-right, inside its border).
+ */
+const head = (brick) => `<div class="brick-head">${elSquare(brick)}${brick.id === "kernel" ? KERNEL_STICKER : `<span class="brick-stickers">${statusSticker(brick.status, brick.id)}</span>`}</div>`;
 
 /** A size budget's progress: the brick's colour fills the share of its budget it uses. */
 const meter = (gzip, budget) => `<span class="meter brick-meter" role="img" aria-label="${kb(gzip)} KB of a ${kb(budget)} KB budget"><i style="--v:${(gzip / budget).toFixed(3)}"></i></span>`;

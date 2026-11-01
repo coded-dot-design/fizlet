@@ -32,8 +32,10 @@
   stamp's inner ring and the kernel card's double shadow. Hover
   and focus press the stickers flat (no motion under reduced motion). The same rules at every size:
   the periodic table's tiles, the quick view, a brick's page and the roadmap cards. On phones a long
-  label wraps under the tile, never over the name. On a periodic table tile the status sticker sits
-  in the top-left corner and the kernel's KERNEL stamp takes its name's place. A sub-heading after a
+  label wraps under the tile, never over the name. No sticker hangs off a card; on the periodic
+  table's small tiles the sticker still sits on the top edge. The kernel shows only its KERNEL sticker
+  everywhere (card, tile, legend, quick view, its page): it is the core, so complete goes without
+  saying (its status stays `complete` in the data). A sub-heading after a
   brick grid ("In-house / experimental") keeps the page's 48 px block gap. Text contrast on every sticker face is 5.4:1 or
   more in both themes.
 

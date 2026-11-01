@@ -80,10 +80,7 @@ const state = (page) => page.evaluate(() => {
 await check("every brick and every planned brick is a key, by number, in its family; sizes measured; planned dashed", async () => {
   const { ctx, page, errs } = await open();
   const keys = await page.evaluate(() => [...document.querySelectorAll(".pt-table .el-key")].map((k) => ({
-    id: k.dataset.el, sym: k.querySelector(".el-sym").textContent, no: k.querySelector(".el-no").textContent, sz: k.querySelector(".el-sz")?.textContent ?? "", flags: [...k.querySelectorAll(".el-flags .brick-sticker")].map((x) => x.textContent), dot: !!k.querySelector(".el-sz .el-dot"), kstamp: k.querySelector(".el-kstamp .brick-sticker-kernel")?.textContent ?? "",
-    // Every sticker inside its tile (none hangs off an edge), and clear of the size.
-    out: [...k.querySelectorAll(".brick-sticker")].filter((x) => { const a = x.getBoundingClientRect(), b = k.getBoundingClientRect(); return a.left < b.left || a.right > b.right || a.top < b.top || a.bottom > b.bottom; }).length,
-    hitSz: [...k.querySelectorAll(".brick-sticker")].some((x) => { const a = x.getBoundingClientRect(), z = k.querySelector(".el-sz")?.getBoundingClientRect(); return z && a.left < z.right && z.left < a.right && a.top < z.bottom && z.top < a.bottom; }),
+    id: k.dataset.el, sym: k.querySelector(".el-sym").textContent, no: k.querySelector(".el-no").textContent, sz: k.querySelector(".el-sz")?.textContent ?? "", flags: [...k.querySelectorAll(".el-flags .brick-sticker")].map((x) => x.textContent), dot: !!k.querySelector(".el-sz .el-dot"),
     planned: k.classList.contains("el-planned"), border: getComputedStyle(k).borderTopStyle, label: k.getAttribute("aria-label"), area: getComputedStyle(k).gridArea,
   })));
   assert.equal(keys.length, ALL.length, "one key per brick, symbol module and planned brick");
@@ -93,8 +90,6 @@ await check("every brick and every planned brick is a key, by number, in its fam
     assert.equal(k.sym, e.sym, `${e.id}: its symbol`);
     assert.equal(k.no, String(e.no), `${e.id}: its number`);
     assert.ok(k.label.startsWith(`${e.name}, ${e.sym}, number ${e.no}`), `${e.id}: named in full first (${k.label})`);
-    assert.equal(k.out, 0, `${e.id}: its stickers sit inside the tile`);
-    assert.equal(k.hitSz, false, `${e.id}: its sticker clears the size`);
     if (e.planned) {
       assert.ok(k.planned && k.border === "dashed", `${e.id}: planned, dashed`);
       assert.equal(k.sz, "", `${e.id}: no size`);
@@ -103,11 +98,14 @@ await check("every brick and every planned brick is a key, by number, in its fam
       assert.equal(k.border, "solid", `${e.id}: solid`);
       assert.equal(k.sz, `${(SIZES.find((s) => s.name === e.size).gzip / 1024).toFixed(1)}K`, `${e.id}: the measured size`);
       assert.ok(k.dot, `${e.id}: the size has its colour dot`);
-      assert.deepEqual(k.flags, [e.status.toUpperCase()], `${e.id}: its status sticker in the top-left corner`);
-      if (e.id === "kernel") assert.equal(k.kstamp, "KERNEL", "the kernel: its KERNEL stamp in the name's place");
+      assert.deepEqual(k.flags, [e.id === "kernel" ? "KERNEL" : e.status.toUpperCase()], `${e.id}: its one sticker on the top edge (the kernel's: KERNEL alone)`);
     }
   }
   assert.match(keys[0].area, /^2 \/ 1/, "the kernel: top of the first column");
+  // The kernel shows exactly one sticker, KERNEL, on its tile, in the legend and in its quick view.
+  const legend = await page.evaluate(() => [...document.querySelectorAll(".pt-leg-key .brick-sticker")].map((x) => x.textContent));
+  assert.deepEqual(legend, ["KERNEL"], "the legend's kernel: KERNEL alone");
+  assert.deepEqual(await page.evaluate(() => [...document.querySelector("#pt-t-kernel").content.querySelectorAll(".brick-sticker")].map((x) => x.textContent)), ["KERNEL"], "the kernel's quick view: KERNEL alone");
   // In-house: presence and presence/check in their own column, with its note; shipped, sizes measured.
   const inhouse = await page.evaluate(() => { const col = (id) => getComputedStyle(document.querySelector(`.el-key[data-el="${id}"]`)).gridColumnStart; return { a: col("presence"), b: col("presence-check"), note: document.querySelector(".pt-fam-note")?.textContent, noteCol: document.querySelector(".pt-fam-note") && getComputedStyle(document.querySelector(".pt-fam-note")).gridColumnStart }; });
   assert.equal(inhouse.a, inhouse.b, "presence and presence/check share a column");

@@ -3,7 +3,7 @@
 import { crumbs, esc, icon, REPO, SITE } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { STATUS, BETA_LINE, IN_HOUSE, exportStatus, inHouse } from "../bricks.mjs";
-import { brickTile, brickMini, brickOf, elSquare, prose, statusSticker } from "../brick-ui.mjs";
+import { brickSticker, brickTile, brickMini, brickOf, elSquare, prose, statusSticker } from "../brick-ui.mjs";
 
 export { prose };
 
@@ -108,7 +108,7 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
     ${crumbs("../", [["bricks/", "Bricks"]], brick.name)}
     <div class="split bp-top" style="--tone: var(--k-${brick.role})">
       <div>
-        <p class="eyebrow bp-eyebrow"><span class="index">${esc(brick.tag)}</span> V${esc(version)} ${statusSticker(brick.status, brick.id)}</p>
+        <p class="eyebrow bp-eyebrow"><span class="index">${esc(brick.tag)}</span> V${esc(version)} ${brickSticker(brick)}</p>
         <h1 id="bp-title" class="bp-title"><code>${esc(brick.name)}</code></h1>
         <p class="lead">${prose(lead.summary)}</p>
         <div class="split-keys"><a class="bui-key bui-arcade bui-sys" href="#api">${icon("code", 16)}API</a><a class="bui-key bui-arcade bui-cmd" href="${REPO}/blob/main/${lead.src}">${icon("github", 16)}Source ↗</a></div>

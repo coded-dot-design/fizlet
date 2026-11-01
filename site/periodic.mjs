@@ -9,7 +9,7 @@
 // view, arrow keys and Esc. Nothing here runs a frame loop: the page settles at 0 frames.
 import { esc, icon } from "./layout.mjs";
 import { FAMILIES, STATUS } from "./bricks.mjs";
-import { KERNEL_STICKER, elSquare, nameParts, prose, statusSticker, toneOf } from "./brick-ui.mjs";
+import { brickSticker, elSquare, nameParts, prose, toneOf } from "./brick-ui.mjs";
 import { sizeBadge } from "./size-badge.mjs";
 
 const kb = (n) => (n / 1024).toFixed(1);
@@ -50,17 +50,14 @@ export function places(els) {
 }
 
 /**
- * A tile's face, like a brick card at tile scale, every sticker inside the tile: the status sticker in
- * the top-left corner, the measured size with the colour dot under it on the right (a planned brick
- * has no size), the symbol big in the middle, the number and the name along the bottom (on the
- * kernel, its KERNEL stamp in the name's place), PRESSED when down.
+ * A tile's face, like a brick card at tile scale: its one sticker on the top edge (it may hang off a
+ * tile this small; the kernel's is KERNEL alone), the measured size with the colour dot in the
+ * top-right corner (a planned brick has no size), the symbol big in the middle, the number and the
+ * name along the bottom, PRESSED when down.
  */
-const face = (e) => `<span class="el-flags" aria-hidden="true">${statusSticker(e.status, e.id)}</span>` +
+const face = (e) => `<span class="el-flags" aria-hidden="true">${brickSticker(e)}</span>` +
   (e.planned ? "" : `<i class="el-sz" aria-hidden="true"><i class="el-dot"></i>${kb(e.gzip)}K</i>`) +
-  `<b class="el-sym" aria-hidden="true">${esc(e.sym)}</b><i class="el-no" aria-hidden="true">${e.no}</i>` +
-  // The kernel's name is "kernel": its KERNEL stamp takes the name's place along the bottom.
-  (e.id === "kernel" ? `<span class="el-kstamp" aria-hidden="true">${KERNEL_STICKER}</span>` : `<span class="el-name" aria-hidden="true">${esc(e.id)}</span>`) +
-  `<span class="el-on" aria-hidden="true">PRESSED</span>`;
+  `<b class="el-sym" aria-hidden="true">${esc(e.sym)}</b><i class="el-no" aria-hidden="true">${e.no}</i><span class="el-name" aria-hidden="true">${esc(e.id)}</span><span class="el-on" aria-hidden="true">PRESSED</span>`;
 
 /** The hero key for one element (a Board UI key), named in full for screen readers. */
 function tile(e, [col, row]) {
@@ -76,7 +73,7 @@ function quick(e) {
   const link = e.planned
     ? `<a class="bui-key bui-arcade bui-cmd pt-q-go" href="#planned">${icon("down", 16)}On the roadmap</a>`
     : `<a class="bui-key bui-arcade bui-go pt-q-go" href="${esc(e.href)}">${icon("right", 16)}The full page</a>`;
-  return `<template id="pt-t-${esc(e.id)}"><div class="pt-q-head" style="--tone:${e.tone}">${elSquare(e)}<p class="pt-q-meta">${statusSticker(e.status, e.id)}<span>No. ${e.no} · ${esc(FAMILIES.find((f) => f.id === e.family).label)}${e.planned ? ` · ${esc(e.phase)}` : ""}</span></p></div><h2 class="pt-q-name"><code>${nameParts(e.name)}</code></h2>
+  return `<template id="pt-t-${esc(e.id)}"><div class="pt-q-head" style="--tone:${e.tone}">${elSquare(e)}<p class="pt-q-meta">${brickSticker(e)}<span>No. ${e.no} · ${esc(FAMILIES.find((f) => f.id === e.family).label)}${e.planned ? ` · ${esc(e.phase)}` : ""}</span></p></div><h2 class="pt-q-name"><code>${nameParts(e.name)}</code></h2>
       ${e.planned ? `<p class="pt-q-size pt-q-planned"><b>Planned</b> <span>not in the package yet: no size until it ships</span></p>` : meter}
       <p class="pt-q-what">${prose(e.purpose)}</p>
       <p class="pt-q-import"><span class="bui-label"><b>IMPORT</b></span><code>${e.planned ? "not yet: " : ""}${esc(e.name)}</code></p>
@@ -162,14 +159,13 @@ html.bui[data-theme="light"] .pt-hint{color:var(--hl)}
 /* A tile: a Board UI key. Neutral at rest; the brick's colour on hover (border and base) and when
    pressed (the kit's press: down onto its base), lit in its colour, PRESSED. */
 .bui .el-key{--py:4px;--edge:var(--line);--border-hover:var(--tone);--edge-hover:color-mix(in srgb,var(--tone) 55%,var(--rim));--glow-press:0 0 22px color-mix(in srgb,var(--tone) 55%,transparent);position:relative;display:grid;place-items:center;width:var(--ts);height:var(--ts);min-height:0;padding:0;font-family:var(--mono);background:var(--surface);border-color:var(--line);border-radius:8px;overflow:visible}
-.el-face .el-flags{position:absolute;top:4px;left:4px;right:4px;display:flex;gap:2px;pointer-events:none}
-.el-face .brick-sticker{--bw:1.5px;--fold:4px;padding:2px 2px 1px;font-size:calc(var(--ts) * .09);letter-spacing:.02em;border-radius:3px;box-shadow:calc(1.5px * var(--shadow-x, 0)) calc(1.5px * var(--shadow-y, 1)) 0 var(--sticker-shadow);rotate:calc(var(--tilt, -4deg) * .7);translate:none}
+.el-face .el-flags{position:absolute;top:-8px;left:3px;right:3px;display:flex;gap:2px;pointer-events:none}
+.el-face .brick-sticker{--bw:1.5px;--fold:4px;padding:2px 3px 1px;font-size:6.5px;letter-spacing:.06em;border-radius:3px;box-shadow:calc(1.5px * var(--shadow-x, 0)) calc(1.5px * var(--shadow-y, 1)) 0 var(--sticker-shadow);rotate:calc(var(--tilt, -4deg) * .7);translate:none}
 .el-face .brick-sticker-peel{padding-right:5px}
-.el-face .el-kstamp{position:absolute;right:4px;bottom:4px;display:flex;pointer-events:none}
-.el-face .el-kstamp .brick-sticker-kernel{rotate:-5deg;border-radius:2px;letter-spacing:.12em}
-.el-face .el-sz{position:absolute;top:calc(var(--ts) * .27);right:5px;display:flex;align-items:center;gap:3px;font:700 8.5px/1 var(--mono);font-style:normal;color:var(--ink)}
+.el-face .brick-sticker-kernel{rotate:-5deg;border-radius:3px;letter-spacing:.14em}
+.el-face .el-sz{position:absolute;top:7px;right:5px;display:flex;align-items:center;gap:3px;font:700 8.5px/1 var(--mono);font-style:normal;color:var(--ink)}
 .el-face .el-dot{width:6px;height:6px;background:var(--tone);border:1.5px solid var(--rim);border-radius:50%}
-.el-face .el-sym{margin-top:calc(var(--ts) * .16);font:900 calc(var(--ts) * .34)/1 var(--mono);letter-spacing:-.04em;color:var(--ink)}
+.el-face .el-sym{margin-top:2px;font:900 calc(var(--ts) * .38)/1 var(--mono);letter-spacing:-.04em;color:var(--ink)}
 .el-face .el-no{position:absolute;left:5px;bottom:5px;font:700 8px/1 var(--mono);font-style:normal;color:var(--muted)}
 .el-face .el-name,.el-face .el-on{position:absolute;left:22px;right:4px;bottom:5px;overflow:hidden;font:700 8px/1 var(--mono);text-align:right;white-space:nowrap;text-overflow:ellipsis;color:var(--muted)}
 .el-face .el-on{display:none;left:3px;right:3px;text-align:center;font-weight:900;letter-spacing:.06em;text-overflow:clip}
@@ -179,7 +175,7 @@ html.bui[data-theme="light"] .pt-hint{color:var(--hl)}
 .bui .el-key[aria-expanded="true"]{background:var(--tone);border-color:var(--rim);border-style:solid}
 .el-key[aria-expanded="true"] :is(.el-no,.el-sz,.el-sym){color:var(--rim)}
 .el-key[aria-expanded="true"] .el-dot{background:var(--rim)}
-.el-key[aria-expanded="true"] :is(.el-name,.el-no,.el-kstamp){display:none}
+.el-key[aria-expanded="true"] :is(.el-name,.el-no){display:none}
 .el-key[aria-expanded="true"] .el-on{display:block;color:var(--rim)}
 html.bui[data-theme="light"] .el-key[aria-expanded="true"]{--glow-press:0 0 0 transparent}
 /* The legend: in the table's gap (columns 1-3, rows 5-8), the key of a periodic table. */
