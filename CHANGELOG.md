@@ -8,6 +8,17 @@
   proves it). The pass server side is in-house; the subprotocols and the sign-in check are in
   [Build your own room server](https://fizlet.com/guides/build-your-own-room-server/). The tests'
   WebSocket stand-in for `join()` is one helper now.
+- **Site: the launch logo animation, Fizlet → fzlt (the name shift).** Two Board UI keys, FIZ and LET,
+  read FIZLET, ride into a press and come out as fiz + lt; the E and the i drop out on the floor and
+  the pair reads fzlt; the press stacks it on a wall of bricks (input, collide, sprite, timeline, fx)
+  and it ends on the lockup Fizlet™ · fzlt™, with one caption line. A gallery hero (launch day) with
+  its own full-screen page, `demos/name-shift/`. Kernel + `@fzlt/core/timeline`, one timeline moving a
+  few custom properties through the ledger; it plays once in view, settles to 0 rAF, and the Replay
+  key plays it again. Reduced motion: the final lockup, still (the poster). Recall exact. Embeddable
+  in any slot. The lockup fits its frame with any fonts: capped by the frame's width in CSS (the
+  poster), and measured once at layout and scaled down to fit in the live scene. Live chunk 5,729 B
+  gzip, 7,944 B with the gallery loader (budget 9,728 B). Test:
+  `tests/name-shift.mjs` (in `npm run test:browser`).
 - **@fzlt/core/presence: the lobby and resume on the client (pending owner review).** `join()` takes
   `{ retry, lobby }`: `lobby(start, seat, seated, size)` on each `LOBBY` before the start, and the
   host's `start(seats, mode)` sends `START`; the join result carries the host's `mode`. A dropped link
@@ -75,6 +86,26 @@
   it writes; a test keeps every stage packed): 17 of the 34 posters packed. The pages' inline `<style>`
   blocks are minified at build like site.css. Gallery page 1 first load 531,997 → 520,651 B gzip,
   page 2 92,521 → 76,754 B; all HTML 1,465,898 → 1,428,045 B gzip. No JS or CSS file changes.
+- **Site: /bricks/ has a new hero, the Fizlet periodic table.** Every brick, 27 shipped and 8 planned,
+  is a Board UI key in a column for its family (kernel, input, network, motion, render, game, page),
+  showing its number, its two-letter symbol and, for a shipped brick, its size measured on this build.
+  `presence` and `presence/check` (in-house) have their own In-house column, with its note.
+  Planned bricks are dashed. Press one (click, tap, Enter or Space) and the key goes down, lights in its
+  colour, says PRESSED, and a short quick view flies in: name, status, size against budget, one line,
+  its import and a link to its page. On phones it is a bottom sheet, and the table scrolls inside its
+  own box. Arrow keys move between bricks and Esc closes. It runs 0 frames at rest and after use;
+  under reduced motion the quick view just appears. Its script is 914 B gzip (`periodic.js`, measured).
+  Each tile follows the brick cards: the status sticker on its top edge and the size with a colour dot
+  in the top-right corner. Each brick's symbol, number and family live in `site/bricks.mjs`, with the symbol rule in a comment.
+  Symbols are lowercase like the fzlt mark: the first letter, then the next consonant (`kr` kernel,
+  `fx` fx, `sl` slot). Brick chips show the symbol and open to the name on hover and focus: footer
+  chips, gallery "bricks used", roadmap needs and docs recipes. Brick cards carry the symbol as a small
+  tile. One sticker per brick, in the kit's sticker style, is drawn at build time as a downloadable SVG
+  (`bricks/stickers/`) and shown on a sticker sheet. The FILET factory moves down the page as a smaller
+  animation section.
+- **Site fix: brick card names no longer break inside a word on phones** (they showed "collid e",
+  "came ra"). A name now breaks only after a "/", and phones get a smaller size; a test checks every
+  card at 360 and 390 px.
 
 ## 0.21.2
 
