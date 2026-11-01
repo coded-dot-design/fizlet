@@ -1,9 +1,10 @@
 // Shared by the motocross minis (Dirt Lab, Redline): the side-on dirt world. One canvas over the
 // stage (art units: 160 across, 90 down), its colours read from the stage's own wrapper (light and
-// dark), dust and clods, the bike and its rider, and the controls: real <button>s (44 px or more)
-// and keys while focus is in the stage, with M for mute. Sound is @fzlt/core/sound: silent until a
-// gesture. Nothing here writes the page outside the slot's stage; the canvas and the buttons go
-// through the engine's ledger, so Recall gives the page back exactly. Steps allocate nothing.
+// dark), dust and clods, the bike and its rider. The stage's sheet places the canvas: the art's
+// 16:9 box, just over the keys' strip (keys.ts) on a square or tall stage. Sound is
+// @fzlt/core/sound: silent until a gesture. Nothing here writes the page outside the slot's stage;
+// the canvas goes through the engine's ledger, so Recall gives the page back exactly. Steps
+// allocate nothing.
 import type { Engine } from "../../../src/kernel/index";
 import { sound } from "../../../src/sound";
 import type { Cue } from "../../../src/sound";
@@ -19,7 +20,6 @@ export type Rig = ReturnType<typeof rig>;
 export function rig(engine: Engine, stage: HTMLElement, skin: HTMLElement, cues: Record<string, Cue>) {
   const L = engine.ledger, R = engine.random;
   const canvas = L.add(document.createElement("canvas"));
-  canvas.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none";
   canvas.setAttribute("aria-hidden", "true");
   stage.append(canvas);
   const g = canvas.getContext("2d")!;
@@ -47,7 +47,7 @@ export function rig(engine: Engine, stage: HTMLElement, skin: HTMLElement, cues:
     read() {
       if (!V[3]) return false;
       V[3] = 0;
-      const r = stage.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1) * (V[8] || 1);
+      const r = canvas.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1) * (V[8] || 1);
       (V[0] = r.width), (V[1] = r.height), (V[2] = dpr), (V[4] = r.width / W);
       canvas.width = Math.max(1, Math.round(r.width * dpr));
       canvas.height = Math.max(1, Math.round(r.height * dpr));
@@ -61,7 +61,7 @@ export function rig(engine: Engine, stage: HTMLElement, skin: HTMLElement, cues:
     },
     /** A pointer's position in art units (one layout read, outside any frame). */
     at(e: { clientX: number; clientY: number }, out: Float64Array) {
-      const r = stage.getBoundingClientRect();
+      const r = canvas.getBoundingClientRect();
       out[0] = ((e.clientX - r.left) / (r.width || 1)) * W;
       out[1] = ((e.clientY - r.top) / (r.height || 1)) * H;
     },
@@ -221,28 +221,4 @@ export function rig(engine: Engine, stage: HTMLElement, skin: HTMLElement, cues:
     },
   };
   return k;
-}
-
-/** A tiny control bar: real buttons in the stage, styled by the stage's sheet (.mx-b). `hold` buttons
- *  report press and release (gas, lean); the others a press. Returns the buttons in order. */
-export function controls(engine: Engine, stage: HTMLElement, defs: { label: string; aria: string; id: number; hold?: boolean }[], on: (id: number, down: boolean) => void) {
-  const bar = engine.ledger.add(document.createElement("div"));
-  bar.className = "mx-bar";
-  const out: HTMLButtonElement[] = [];
-  for (const d of defs) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "mx-b";
-    b.textContent = d.label;
-    b.setAttribute("aria-label", d.aria);
-    b.dataset.id = String(d.id);
-    if (d.hold) {
-      b.addEventListener("pointerdown", (e) => (e.preventDefault(), b.setPointerCapture?.(e.pointerId), on(d.id, true)), { signal: engine.signal });
-      for (const t of ["pointerup", "pointercancel", "lostpointercapture"]) b.addEventListener(t, () => on(d.id, false), { signal: engine.signal });
-    } else b.addEventListener("click", () => on(d.id, true), { signal: engine.signal });
-    bar.append(b);
-    out.push(b);
-  }
-  stage.append(bar);
-  return out;
 }

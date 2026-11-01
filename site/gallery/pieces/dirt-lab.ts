@@ -11,7 +11,8 @@
 // controls), @fzlt/core/sound and @fzlt/core/slot. The sim (`lab`) is plain numbers: no DOM, no allocation a step.
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../src/slot";
-import { controls, rig, BIKE, CMD, DIRT, DIRT2, GO, GOLD, H, HOT, INK, PAPER, W } from "./moto-kit";
+import { keys } from "./keys";
+import { rig, BIKE, CMD, DIRT, DIRT2, GO, GOLD, H, HOT, INK, PAPER, W } from "./moto-kit";
 
 /** Piece letters, by id: flat, ramp, bump, gap. A track is eight of them. */
 export const PIECES = "-rbg", SLOTS = 8;
@@ -21,7 +22,7 @@ const X0 = 16, SW = 16, GY = 66, END = X0 + SLOTS * SW, FINISH = END + 6, G = 12
 export const BUILD = 0, RACE = 1, CRASH = 2, DONE = 3;
 // State slots.
 const MODE = 0, T = 1, X = 2, Y = 3, VX = 4, VY = 5, A = 6, AV = 7, AIR = 8, SPD = 9, GAS = 10, LEAN = 11, CUR = 12, PICK = 13;
-const CLOCK = 14, AIRT = 15, CLEAN = 16, BX = 17, BY = 18, BVX = 19, BVY = 20, BA = 21, SPIN = 22, BOT = 23, BEST = 24, RACES = 25, CRASHES = 26, FINISHES = 27, LAND = 28, LANDT = 29, MAXAIR = 30;
+const CLOCK = 14, AIRT = 15, BX = 17, BY = 18, BVX = 19, BVY = 20, BA = 21, SPIN = 22, BOT = 23, BEST = 24, CRASHES = 26, FINISHES = 27, LAND = 28, LANDT = 29;
 
 /** The track as its hash value: eight letters. */
 export function encodeTrack(t: ArrayLike<number>) {
@@ -32,12 +33,9 @@ export function encodeTrack(t: ArrayLike<number>) {
 /** Read `#t=<8 letters>` (or `…&t=…`) into `out`. Anything else (too long, unknown letters, a wrong
  *  count) is refused whole: false, and `out` is left as it was. */
 export function decodeTrack(hash: string, out: Uint8Array) {
-  if (typeof hash !== "string" || hash.length > 64) return false;
-  const m = /(?:^#?|&)t=([^&]*)/.exec(hash);
-  if (!m || m[1]!.length !== SLOTS) return false;
-  const s = m[1]!;
-  for (let i = 0; i < SLOTS; i++) if (PIECES.indexOf(s[i]!) < 0) return false;
-  for (let i = 0; i < SLOTS; i++) out[i] = PIECES.indexOf(s[i]!);
+  const m = typeof hash == "string" && hash.length <= 64 && /(?:^#?|&)t=([-rbg]{8})(?:&|$)/.exec(hash); // PIECES' letters
+  if (!m) return false;
+  for (let i = 0; i < SLOTS; i++) out[i] = PIECES.indexOf(m[1]![i]!);
   return true;
 }
 
@@ -63,7 +61,7 @@ export function lab(emit: (type: string, v: number) => void) {
   }
   const height = (x: number) => (hz(x), Z[0]!);
   const reset = () => {
-    (S[X] = 7), (S[Y] = GY), (S[VX] = S[VY] = S[A] = S[AV] = S[AIR] = S[SPD] = 0), (S[CLOCK] = S[AIRT] = S[CLEAN] = S[MAXAIR] = 0);
+    (S[X] = 7), (S[Y] = GY), (S[VX] = S[VY] = S[A] = S[AV] = S[AIR] = S[SPD] = 0), (S[CLOCK] = S[AIRT] = 0);
   };
   reset();
   S[PICK] = RAMP;
@@ -139,8 +137,6 @@ export function lab(emit: (type: string, v: number) => void) {
             S[AV] = 0;
             S[LAND] = d < 0.25 ? 2 : 1;
             S[LANDT] = 0;
-            if (S[AIRT]! > S[MAXAIR]!) S[MAXAIR] = S[AIRT]!;
-            if (d < 0.25 && S[AIRT]! > 0.3) S[CLEAN] = S[CLEAN]! + 1;
             emit(d < 0.25 ? "land" : "sketch", Math.min(1.5, S[AIRT]! * 2));
           }
         }
@@ -222,7 +218,6 @@ export function lab(emit: (type: string, v: number) => void) {
       S[MODE] = RACE;
       S[T] = 0;
       S[BOT] = bot ? 1 : 0;
-      S[RACES] = S[RACES]! + 1;
       emit("go", 1);
       return true;
     },
@@ -251,20 +246,20 @@ export function dirtLab(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
     } catch {}
   };
   // Words that pop: index, age, x, y.
-  const WORDS = ["CLEAN!", "SKETCHY", "BAIL!", "FINISH!", "GO!", "SENT IT", "SHARED"], WD = new Float64Array(4);
+  const WORDS = ["CLEAN!", "SKETCHY", "BAIL!", "FINISH!", "GO!", "SENT IT"], WD = new Float64Array(4);
   WD[1] = 9;
   const say = (w: number, x: number, y: number) => ((WD[0] = w), (WD[1] = 0), (WD[2] = x), (WD[3] = y));
 
-  // Controls: the palette and RACE while building; LEAN, LEAN and GAS while racing; mute.
-  const B = controls(engine, stage, [
-    { id: 0, label: "▬ FLAT", aria: "Flat" },
-    { id: 1, label: "◢ RAMP", aria: "Ramp" },
-    { id: 2, label: "◠ BUMP", aria: "Bump" },
-    { id: 3, label: "▢ GAP", aria: "Gap" },
-    { id: 4, label: "RACE ▶", aria: "Race" },
+  // Controls (keys.ts): the palette row and RACE while building; LEAN, LEAN and GAS while racing; mute.
+  const B = keys(engine, stage, [
+    { id: 0, label: "FLAT" },
+    { id: 1, label: "RAMP" },
+    { id: 2, label: "BUMP" },
+    { id: 3, label: "GAP" },
+    { id: 4, label: "RACE", c: "bui-arcade bui-fire" },
     { id: 5, label: "◀ LEAN", aria: "Lean back", hold: true },
     { id: 6, label: "LEAN ▶", aria: "Lean forward", hold: true },
-    { id: 7, label: "GAS", aria: "Gas", hold: true },
+    { id: 7, label: "GAS", hold: true, c: "bui-arcade bui-go" },
     { id: 8, label: "♪", aria: "Mute" },
   ], (id, down) => {
     if (id < 4) (S[BOT] && sim.stop(), sim.pick(id), showBar());
@@ -332,7 +327,7 @@ export function dirtLab(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
     if (S[MODE] !== BUILD) return;
     k.at(e, P);
     const s = sim.slotAt(P[0]!);
-    if (s >= 0 && P[1]! > 30 && P[1]! < GY + 12) sim.place(s);
+    if (s >= 0 && P[1]! > 30 && P[1]! < GY + 10) sim.place(s);
     engine.wake();
   };
   stage.addEventListener("pointerup", (e) => e.isPrimary && drop(e), { signal: engine.signal });
@@ -428,7 +423,7 @@ export function dirtLab(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
           g.setLineDash([]);
           if (on) {
             g.globalAlpha = 0.9;
-            k.word(B[S[PICK]!]!.textContent!.slice(2), x + SW / 2, GY - 28, 4, GO);
+            k.word(B[S[PICK]!]!.textContent!, x + SW / 2, GY - 28, 4, GO);
           }
         }
         g.globalAlpha = 1;

@@ -18,6 +18,7 @@
   "module": "pieces/dirt-lab.ts",
   "export": "mount",
   "aspect": "16 / 9",
+  "phone": "1 / 1",
   "stage": "own",
   "approved": "2026-10-31"
 }

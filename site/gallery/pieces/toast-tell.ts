@@ -9,7 +9,8 @@
 // numbers: no DOM, no allocation a step.
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../src/slot";
-import { controls, ring, CYAN, GO, GOLD, INK, PAPER, PINK, PURPLE, RED, STEEL } from "./ring-kit";
+import { keys } from "./keys";
+import { ring, CYAN, GO, GOLD, INK, PAPER, PINK, PURPLE, RED, STEEL } from "./ring-kit";
 
 /** Modes: waiting (no bout), the bout, his count (he's down), your count. */
 export const WAIT = 0, FIGHT = 1, KO = 2, DOWN = 3;
@@ -130,12 +131,13 @@ export function toastTell(stage: HTMLElement, slot: HTMLElement, first: SlotTap 
   WD[1] = 9;
   const say = (w: number, x: number, y: number) => ((WD[0] = w), (WD[1] = 0), (WD[2] = x), (WD[3] = y));
 
-  const B = controls(engine, stage, [
+  // SLIP, DUCK, PUNCH (or a tap anywhere on the stage) and mute.
+  const B = keys(engine, stage, [
     { id: SLIP, label: "◀ SLIP", aria: "Slip (left arrow)" },
     { id: DUCK, label: "▼ DUCK", aria: "Duck (down arrow)" },
-    { id: PUNCH, label: "PUNCH ▶", aria: "Punch (space)" },
+    { id: PUNCH, label: "PUNCH ▶", aria: "Punch (space)", c: "bui-arcade bui-fire" },
     { id: 9, label: "♪", aria: "Mute (M)" },
-  ], (id) => (id === 9 ? mute() : move(id), engine.wake()));
+  ], (id) => (id === 9 ? mute() : move(id), engine.wake()), PUNCH);
   const mute = () => {
     k.snd.on = !k.snd.on;
     B[3]!.textContent = k.snd.on ? "♪" : "✕";
