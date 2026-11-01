@@ -4,7 +4,7 @@
 import { esc, icon } from "../layout.mjs";
 import { block, inline } from "./notes.mjs";
 import { sizeBadge } from "../size-badge.mjs";
-import { brickMini, brickOf } from "../brick-ui.mjs";
+import { brickMini, brickOf, elSquare, sizeBrick } from "../brick-ui.mjs";
 import { CONTRACT } from "./index.mjs";
 import { SECTIONS, docPath } from "../../scripts/docs.mjs";
 
@@ -32,8 +32,9 @@ function docBlock(b, { base, sizes, bricks, recipes }) {
     case "sizes": {
       const brickOf = (name) => bricks.find((x) => x.sizes.includes(name));
       const rows = sizes.map((s) => {
-        const br = brickOf(s.name);
-        const name = br ? `<a href="${base}bricks/${br.id}.html"><code>${esc(s.name)}</code></a>` : `<code>${esc(s.name)}</code>`;
+        const br = brickOf(s.name), own = sizeBrick(bricks, s.name);
+        const sym = own ? elSquare({ ...own.brick, sym: own.sym }, "chip") : "";
+        const name = br ? `${sym}<a href="${base}bricks/${br.id}.html"><code>${esc(s.name)}</code></a>` : `<code>${esc(s.name)}</code>`;
         return `<tr><td>${name}</td><td data-size="${esc(s.name)}">${num(s.gzip)} B</td><td>${num(s.budget)} B</td><td>${Math.round((s.gzip / s.budget) * 100)}%</td></tr>`;
       }).join("");
       return `<section class="note-block doc-wide">${b.heading ? `<h2>${inline(b.heading, base)}</h2>` : ""}<div class="panel lit ledger doc-table"><div class="table-scroll"><table><thead><tr><th>Entry</th><th>Gzip</th><th>Budget</th><th>Used</th></tr></thead><tbody>${rows}</tbody></table></div></div>${b.note ? `<p class="body bp-note">${inline(b.note, base)}</p>` : ""}</section>`;
