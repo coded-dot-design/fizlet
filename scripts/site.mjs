@@ -218,6 +218,14 @@ mkdirSync(`${OUT}/guides/multiplayer-rooms`, { recursive: true }); // moved: red
 const spMod = await build({ entryPoints: ["site/gallery/pieces/small-packages/poster.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
 const SP = await import("data:text/javascript;base64," + Buffer.from(spMod.outputFiles[0].text).toString("base64"));
 for (const e of gallery.entries.filter((x) => x.module === "pieces/small-packages/scene.ts")) figures[e.figure] = SP.figure(e, sizes.find((s) => s.name === "@fzlt/core (kernel)").gzip);
+// The name shift (Fizlet → fzlt, the launch logo; gallery): its figure is its poster, the final
+// lockup, from its own art (site/gallery/pieces/name-shift/art.ts); its own page is demos/name-shift/.
+const nsMod = await build({ entryPoints: ["site/gallery/pieces/name-shift/art.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
+const NS = await import("data:text/javascript;base64," + Buffer.from(nsMod.outputFiles[0].text).toString("base64"));
+for (const e of gallery.entries.filter((x) => x.module === "pieces/name-shift/scene.ts"))
+  figures[e.figure] = NS.figure(`gallery#${e.id}`, { cls: " gal-fig gal-re", style: `aspect-ratio: ${e.aspect}; --phone: ${e.phone}` });
+const { buildNameShift } = await import("../site/demos/name-shift/build.mjs");
+buildNameShift({ out: OUT, version, gallery, art: NS });
 // Launch-day pieces (gallery): their stages carry {{…}} slots for numbers measured on this build
 // (brick and bundle gzip sizes, the packed tarball, the dependency count): scripts/launch-facts.mjs.
 for (const e of gallery.entries.filter((x) => x.stageHtml?.includes("{{"))) e.stageHtml = fillStage(e.stageHtml, await launchFacts());
@@ -437,7 +445,7 @@ const routeOf = (f) => f.replace(/(^|\/)index\.html$/, "$1");
 const LABEL = new Map([
   ...DOCS.map((d) => [docPath(d), d.nav]), ...NOTES.map((n) => [notePath(n), n.title]), ...RELEASES.map((r) => [releasePath(r), r.version]),
   ...bricks.map((b) => [brickPath(b), b.id]), ...gallery.pages.slice(1).map((p) => [p.path, `Page ${p.n}`]), ...PEOPLE.map((p) => [personPath(p.id), p.name]),
-  ["", "Home"], ["examples/quick-start.html", "Quick start"], ["privacy/", "Privacy"], ["brand/", "Brand"], ["cookies/", "Cookies"], ["demos/layers/", "The layers story"], ["demos/fizz/", "The fizz proof piece"], ["demos/before-ai-2015/", "Before AI: 2015, live"], ["demos/origin/", "The origin hero"], ["examples/fizz/", "The fizz hero example"],
+  ["", "Home"], ["examples/quick-start.html", "Quick start"], ["privacy/", "Privacy"], ["brand/", "Brand"], ["cookies/", "Cookies"], ["demos/layers/", "The layers story"], ["demos/fizz/", "The fizz proof piece"], ["demos/before-ai-2015/", "Before AI: 2015, live"], ["demos/origin/", "The origin hero"], ["demos/name-shift/", "The name shift"], ["examples/fizz/", "The fizz hero example"],
 ]);
 const built = pages.map(([f]) => routeOf(f));
 const order = (r) => (built.includes(r) ? built.indexOf(r) : built.length);
