@@ -33,7 +33,7 @@ import { controls } from "../../../src/input";
 import { spriteURL, type SpriteDef } from "../../../src/sprite";
 import type { SlotMount, SlotScene } from "../../../src/slot";
 import { ORIGIN_WHY, ORIGIN_WHY_BEATS, ORIGIN_CREDIT, ORIGIN_LOOKS } from "./copy";
-import { why, art, CSS, BOX, C, VB, DESK, CUP, SH, head, headT, hands, neck, arm, reach, carry, cupT, cupShT, LIQUID, brew, phonesT, band, cord, screenT, coverT, sqT, type OriginLook } from "./art";
+import { why, art, CSS, BOX, C, VB, DESK, CUP, SH, PLANT, BOOK, KEYS_HOME, TIPS_HOME, head, headT, hands, neck, armD, reach, carry, cupT, cupShT, LIQUID, brew, phonesT, band, cord, screenT, coverT, sqT, type OriginLook } from "./art";
 
 export type { OriginLook } from "./art";
 declare const __ORIGIN_BRICKS__: Record<string, number> | undefined;
@@ -60,6 +60,8 @@ export interface OriginOptions {
   cup?: string;
   /** Brick sizes for the labels (default: the build's measured numbers). */
   bricks?: Record<string, number>;
+  /** The seed for his typing and doodles (default 2015): the same seed types the same keys. */
+  seed?: number;
 }
 export interface OriginState {
   mode: OriginMode;
@@ -93,7 +95,11 @@ export interface OriginScene extends SlotScene {
   nudge(): void;
   /** Live particles and Zs so far; the cup (its top left in art units, its level, spilled); `toys`:
    *  how many of the cup's own motions are still running (0 once they have all settled). */
-  stats(): { particles: number; zzz: number; cup: { x: number; y: number; level: number; spilled: boolean; lifted: boolean }; toys: number };
+  stats(): { particles: number; zzz: number; cup: { x: number; y: number; level: number; spilled: boolean; lifted: boolean }; toys: number; drops: number; pages: number; lamp: boolean; lit: number; keys: number[] };
+  /** Water the plant; write or doodle in the notebook; switch the lamp. */
+  water(): void;
+  write(): void;
+  setLamp(on: boolean): void;
 }
 
 // The day, in seconds of a 24 s loop (one second an hour).
@@ -106,9 +112,11 @@ const FZ_TOKENS: [string, string][] = [["--k-flag", "#f6f3ff"], ["--k-attack", "
 const WORDS = ["♪", "♫", "z", "Z", "{ }", "</>", ";", "=>", "#"];
 const WORD = 4; // fx's word-shaped part
 // The parts a press can land on (squash slots too).
-const CUPP = 1, LAP = 2, PHONE = 3, PHONES = 4, PERSON = 5, SPILLP = 6;
+const CUPP = 1, LAP = 2, PHONE = 3, PHONES = 4, PERSON = 5, SPILLP = 6, PLANTP = 7, BOOKP = 8, LAMPP = 9;
 // What the status line says (polite): an index, set in the step, written in render.
-const SAY = ["", "Sip.", "Refilling the cup.", "Refilled: hot coffee.", "Knocked over! Tap the spill, or wait: it rights itself.", "Back up. Refilling.", "Picked up the cup.", "Cup set down.", "Back on the saucer.", "He is asleep. Tap him to wake him.", "Out of his reach: move the cup closer.", "Cup moved.", "Fizlet look.", "2015 look.", "Nearly empty: double-tap or press R to refill."];
+const SAY = ["", "Sip.", "Refilling the cup.", "Refilled: hot coffee.", "Knocked over! Tap the spill, or wait: it rights itself.", "Back up. Refilling.", "Picked up the cup.", "Cup set down.", "Back on the saucer.", "He is asleep. Tap him to wake him.", "Out of his reach: move the cup closer.", "Cup moved.", "Fizlet look.", "2015 look.", "Nearly empty: double-tap or press R to refill.", "Watering the plant.", "Lamp on.", "Lamp off.", ""];
+// The notebook: a line of code, or one of these doodles (24 units square), drawn as one stroke path.
+const DOODLES: [string, string][] = [["a star", "M12 1l3.4 7.2 7.9.9-5.9 5.4 1.6 7.8L12 18.4l-7 3.9 1.6-7.8L.7 9.1l7.9-.9Z"], ["a heart", "M12 21C4 15.5 0 11 2.5 6 4.5 2 9.5 2 12 6c2.5-4 7.5-4 9.5 0 2.5 5-1.5 9.5-9.5 15Z"], ["a happy face", "M23 12A11 11 0 1 1 1 12 11 11 0 1 1 23 12ZM8 9v2M16 9v2M7 15q5 4 10 0"], ["a lightning bolt", "M14 1 4 13h7l-3 10 12-14h-7l3-8Z"], ["a triangle", "M12 1 23 22H1Z"], ["a square", "M2 2h20v20H2Z"], ["a house", "M2 23V11L12 2l10 9v12ZM9 23v-7h6v7"], ["a sun", "M17 12a5 5 0 1 1-10 0 5 5 0 1 1 10 0M12 0v3M12 21v3M0 12h3M21 12h3M3.5 3.5l2 2M18.5 18.5l2 2M3.5 20.5l2-2M18.5 5.5l2-2"]];
 const FLICK = 1300; // CSS px/s at release: faster than this knocks it over
 let uid = 0; // each mount's own SVG ids (a poster or a second scene on the page has its own)
 
@@ -151,7 +159,9 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const qa = (s: string) => [...svg.querySelectorAll<SVGElement>(s)];
   const neckEl = q(".og-neck"), napeEl = q(".og-nape"), headEl = q(".og-head"), phonesEl = q(".og-phones"), bandEls = qa(".og-band"), cordEl = q(".og-cord"), cupEl = q(".og-cup"), cupImg = q(".og-cupimg"), liquid = q(".og-liquid"), body = q(".og-body");
   const cupSh = q(".og-cupsh"), upEl = q(".og-up"), upG = q(".og-upg"), tipEl = q(".og-tip"), pudEl = q(".og-pud"), potEl = q(".og-pot"), potB = q(".og-potb"), stream = q(".og-stream"), sqp = q(".og-sqp");
-  const arms = [-1, 1].map((s) => { const g = q(s < 0 ? ".og-arm-l" : ".og-arm-r"); return { s, ua: g.querySelector(".og-ua")!, fa: g.querySelector(".og-fa")!, fm: g.querySelector(".og-fm")!, sl: g.querySelector(".og-sl")!, hd: g.querySelector(s < 0 ? ".og-hand-l" : ".og-hand-r")! }; });
+  const arms = [-1, 1].map((s) => { const g = q(s < 0 ? ".og-arm-l" : ".og-arm-r"); return { s, skin: g.querySelector(".og-skin")!, sl: g.querySelector(".og-sl")!, hem: g.querySelector(".og-hem")!, hd: g.querySelector(s < 0 ? ".og-hand-l" : ".og-hand-r")! }; });
+  const pen = q(".og-pen"), plantEl = q(".og-plant"), sqf = q(".og-sqf"), leaves = q(".og-leaves"), bookEl = q(".og-book"), sqb = q(".og-sqb"), lampEl = q(".og-lamp"), sqm = q(".og-sqm");
+  const inks = qa(".og-ink"), drops = qa(".og-drops circle"), canEl = q(".og-can"), canB = q(".og-canb"), wstream = q(".og-wstream"), klit = qa(".o-klit");
   const screen = q(".og-screen"), cover = q(".og-cover"), scrl = q(".og-scrl"), laptop = q(".og-laptop");
   const scroll = q(".og-scroll"), caret = q(".og-caret"), arrow = q(".og-arrow"), sel = q(".og-sel"), shape = q(".og-shape");
   const pix = q(".og-pix"), codeEls = qa(".og-code"), desEls = qa(".og-des");
@@ -170,8 +180,8 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   engine.signal.addEventListener("abort", () => ro.disconnect());
   function fit() {
     const W = wrap.clientWidth || 1, H = wrap.clientHeight || 1, a = W / H;
-    // Keep x 140..660 and y 0..500 in view; past 16:9 crop the window and the person a little.
-    let w = a >= 1.04 ? Math.min(VB.h * a, 900) : 520, h = w / a;
+    // Keep x 110..690 and y 0..500 in view (the lamp, the plant); past 16:9 crop the window and the person a little.
+    let w = a >= 1.04 ? Math.min(VB.h * a, 900) : 580, h = w / a;
     if (a > 1.8) (w = 800 + (a - 1.8) * 50), (h = w / a);
     const vx = 400 - w / 2, vy = 250 - h / 2 + (a < 1 ? 30 : 0);
     svg.setAttribute("viewBox", `${vx.toFixed(1)} ${vy.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}`);
@@ -201,7 +211,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
 
   // ---------- sound: events → cues (silent until a gesture; the Sound key mutes) ----------
   const snd = sound(engine, {
-    cues: { beat: "kick", key: "tick", slurp: "slurp", clink: "clink", wake: "yawn", sleep: "end", nudge: "nudge", tap: "pop", pour: "pour", spill: "spill", set: "clink", lift: "tick" }, on: o.sound ?? true, volume: 0.3,
+    cues: { beat: "kick", key: "tick", slurp: "slurp", clink: "clink", wake: "yawn", sleep: "end", nudge: "nudge", tap: "pop", pour: "pour", spill: "spill", set: "clink", lift: "tick", lamp: "click", scribble: "scribble" }, on: o.sound ?? true, volume: 0.3,
     notes: {
       kick: [[150, 48, 0.2, 0, "sine", 0.9], [2400, 1800, 0.03, 0, "square", 0.04]],
       tick: [[2200, 1500, 0.018, 0, "square", 0.12]],
@@ -210,14 +220,15 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       yawn: [[380, 240, 0.55, 0, "sine", 0.5], [240, 300, 0.5, 0.5, "triangle", 0.35]],
       nudge: [[300, 200, 0.1, 0, "triangle", 0.5]],
       pop: [[520, 900, 0.05, 0, "triangle", 0.35]],
+      scribble: [[1800, 2600, 0.05, 0, "sawtooth", 0.05], [2200, 1600, 0.06, 0.12, "sawtooth", 0.05], [1900, 2500, 0.05, 0.26, "sawtooth", 0.05]],
       pour: [[300, 620, 0.22, 0, "sine", 0.3], [420, 760, 0.2, 0.2, "sine", 0.25], [520, 940, 0.2, 0.4, "sine", 0.2], [640, 1100, 0.18, 0.6, "sine", 0.16]],
       spill: [[620, 110, 0.32, 0, "sawtooth", 0.22], [2600, 900, 0.1, 0, "square", 0.06], [2600, 2500, 0.1, 0.05, "triangle", 0.3]],
     },
   });
 
   // ---------- input: the pointer (taps, the drag, the flick), the lid key, the cup's keys ----------
-  const ctl = controls(engine, { keys: { lid: [], sip: [], music: [], nudge: [], refill: [], knock: [] }, target: layer });
-  const LIDK = ctl.id("lid"), SIPK = ctl.id("sip"), MUSK = ctl.id("music"), NUDK = ctl.id("nudge"), REFK = ctl.id("refill"), KNKK = ctl.id("knock");
+  const ctl = controls(engine, { keys: { lid: [], sip: [], music: [], nudge: [], refill: [], knock: [], water: [], write: [], lamp: [] }, target: layer });
+  const LIDK = ctl.id("lid"), SIPK = ctl.id("sip"), MUSK = ctl.id("music"), NUDK = ctl.id("nudge"), REFK = ctl.id("refill"), KNKK = ctl.id("knock"), WATK = ctl.id("water"), WRTK = ctl.id("write"), LMPK = ctl.id("lamp");
   const tap = (k: string) => (ctl.press(k), ctl.press(k, false));
   const enter = (el: Element, k: string) => el.addEventListener("keydown", (ev) => {
     if ((ev as KeyboardEvent).key !== "Enter" && (ev as KeyboardEvent).key !== " ") return;
@@ -226,6 +237,9 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   }, { signal: engine.signal });
   enter(body, "nudge");
   enter(laptop, "lid");
+  enter(plantEl, "water");
+  enter(bookEl, "write");
+  enter(lampEl, "lamp");
   // The cup's keys: Enter (or Space) sips, R refills, K knocks it over, the arrows move it.
   const MV = new Float64Array(2);
   const ARROWS: Record<string, number[]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
@@ -251,7 +265,6 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     .to(wrap, { "--night": ["0.62", "0"] }, { at: DAWN + 0.2, dur: 2.4, ...io }).to(wrap, { "--night": "0.62" }, { at: DUSK, dur: 3, ...io })
     .to(wrap, { "--sun": ["0", "1"] }, { at: DAWN + 0.6, dur: DUSK + 1.6 - DAWN, ease: "linear" })
     .to(wrap, { "--beam": ["0", "1"] }, { at: WAKE, dur: 2, ...io }).to(wrap, { "--beam": "0" }, { at: DUSK - 1, dur: 2, ...io })
-    .to(wrap, { "--lamp": ["0", "1"] }, { at: DUSK + 0.8, dur: 0.3 }).to(wrap, { "--lamp": "0" }, { at: SLEEP + 1.2, dur: 0.3 })
     .to(new Float64Array(1), { 0: [0, 1] }, { at: DAY - 0.01, dur: 0.01 }) // the day is 24 s long
     .label("dawn", DAWN).label("wake", WAKE).label("sip", WAKE + 1.6).label("sip", 12.5).label("sleep", SLEEP);
   // Wake (reversed: sleep): head up, headphones on, the lid opens, hands to the keys.
@@ -270,12 +283,30 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const SPL = new Float64Array(2);
   const spill = timeline(engine, { motion: true, id: 8 }).to(SPL, { 0: [0, 1] }, { dur: 0.3, ease: "back" }).to(SPL, { 1: [0, 1] }, { at: 0.12, dur: 0.9 });
 
+  // The watering can: it comes in, pours (drops spill around the pot, the plant perks up), goes.
+  const CAN = new Float64Array(2);
+  const can = timeline(engine, { motion: true, id: 9 })
+    .to(CAN, { 0: [0, 1] }, { at: 0, dur: 0.35 }).to(CAN, { 1: [0, 1] }, { at: 0.3, dur: 0.12 })
+    .to(CAN, { 1: 0 }, { at: 1.45, dur: 0.15 }).to(CAN, { 0: 0 }, { at: 1.5, dur: 0.35, ease: "in" }).label("pour", 0.3).label("perk", 0.7);
+
   // ---------- state ----------
   // N: clocks and counters (typed: the step writes them every frame without boxing).
   const N = new Float64Array(16);
   const BEAT = 0, BEATS = 1, KEY = 2, STEAM = 3, ZZZ = 4, LEVEL = 5, SCROLL = 6, DES = 7, HOLD = 8, CLOCK = 9, WDIR = 10, TYPE = 11, HEAT = 12, STIR = 13, ZN = 14, ZC = 15;
   N[LEVEL] = 0.15;
-  const T = new Float64Array(2); // typing offsets for the two hands
+  // Typing: each hand's position (lx, ly, rx, ry), its target, its press dip; the key lights (x, y,
+  // width, glow) in a pool of 4; the keys typed so far (the first 32: r * 12 + c, 99 the trackpad).
+  const HP = Float64Array.from(KEYS_HOME), HT = Float64Array.from(KEYS_HOME), PRS = new Float64Array(2), KL = new Float64Array(16), TYPED = new Uint8Array(32);
+  // Typing and doodles draw from their own seeded generator (never Math.random, never the clock).
+  const SEED = new Uint32Array([(o.seed ?? 2015) >>> 0 || 1]);
+  const lcg = () => ((SEED[0] = Math.imul(SEED[0]!, 1664525) + 1013904223), SEED[0]! / 4294967296);
+  // X: the other toys. Lamp (target, value), the can's clock, the drop timer, the plant's perk (value,
+  // velocity, rest), writing (clock, slot), pages written, the hand that typed last, keys typed.
+  const X = new Float64Array(12), LT = 0, LV = 1, DRT = 2, PK = 3, PKV = 4, PKR = 5, WT = 6, WS = 7, PAGES = 8, LASTH = 9, NTYPED = 10;
+  X[LT] = X[LV] = 1, X[PK] = X[PKR] = 1, X[WT] = -1;
+  // The water drops around the plant: x, y, age, life (0: free), radius.
+  const DX = new Float64Array(16), DY = new Float64Array(16), DA = new Float64Array(16), DL = new Float64Array(16), DR = new Float64Array(16);
+  let drew = "";
   // Q: the cup and the pointer. The cup's top left (art units), its lift and target, the part under
   // the pointer, dragging, the press point, the grab offset, velocity (art units/s), the last move,
   // the clock, the last tap, spilled, the spill timer, the fall angle, the slide, righting, the line to say.
@@ -283,7 +314,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const CX = 0, CY = 1, LIFT = 2, LIFTT = 3, GRAB = 4, DRAG = 5, SX = 6, SY = 7, OX = 8, OY = 9, VX = 10, VY = 11, PX = 12, PY = 13, PT = 14, CLK = 15, TAPT = 16, SPILL = 17, SPT = 18, DIR = 19, KVX = 20, KVY = 21, RIGHT = 22, MSG = 23;
   Q[CX] = CUP.x, Q[CY] = CUP.y, Q[TAPT] = -9;
   // Squash springs, one per part: offset (-1 pressed), velocity, target.
-  const SQ = new Float64Array(7), SQV = new Float64Array(7), SQT = new Float64Array(7);
+  const SQ = new Float64Array(10), SQV = new Float64Array(10), SQT = new Float64Array(10);
   let saidAt = -1, timer = 0;
   engine.signal.addEventListener("abort", () => clearTimeout(timer));
 
@@ -321,7 +352,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const pouring = () => pour.playing;
   // In reach: the cup's centre within his arm's stretch (plus the cup's own half) of a shoulder.
   const reachable = () => Math.min(Math.hypot(Q[CX]! + CUP.r - SH.lx, Q[CY]! + CUP.r - SH.y), Math.hypot(Q[CX]! + CUP.r - SH.rx, Q[CY]! + CUP.r - SH.y)) < SH.ua + SH.fa + 44;
-  const canSip = () => P[AW]! > 0.9 && !sip.playing && !Q[SPILL] && !Q[DRAG] && !pouring() && reachable();
+  const canSip = () => X[WT]! < 0 && P[AW]! > 0.9 && !sip.playing && !Q[SPILL] && !Q[DRAG] && !pouring() && reachable();
   function drink() {
     if (Q[SPILL]) return right();
     if (P[AW]! <= 0.9) return say(9);
@@ -373,6 +404,63 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     refill();
     say(reduce ? 3 : 5);
   }
+  // ---------- the plant, the notebook, the lamp ----------
+  const pop = (i: number) => void (reduce || ((SQ[i] = -0.6), (SQV[i] = 0)));
+  function water() {
+    pop(PLANTP);
+    say(15);
+    if (reduce) return void (X[PK] = X[PKR] = 1.07);
+    can.seek(0), can.play();
+  }
+  let inkD = "", inkX = 122, inkW = 60, inkCode = false;
+  function write() {
+    pop(BOOKP);
+    if (P[AW]! <= 0.9) return say(9);
+    if (X[WT]! >= 0) return;
+    // A line of code (three rows of strokes) or a doodle, from the seeded generator.
+    if (lcg() < 0.4) {
+      inkD = "";
+      for (let r = 0, x = 0; r < 3; r++, x = 6 * ((lcg() * 3) | 0))
+        for (let w = 6 + ((lcg() * 22) | 0); x + w <= 76; x += w + 5, w = 6 + ((lcg() * 22) | 0)) inkD += `M${x} ${4 + r * 8}h${w}`;
+      (inkX = 122), (inkW = 72), (inkCode = true), (drew = "He wrote a line of code.");
+    } else {
+      const [name, d] = DOODLES[(lcg() * DOODLES.length) | 0]!;
+      (inkD = d), (inkX = 122 + ((lcg() * 50) | 0)), (inkW = 24), (inkCode = false), (drew = `He drew ${name}.`);
+    }
+    X[WS] = X[PAGES]! % 3;
+    X[PAGES]!++;
+    X[11] = 1;
+    X[WT] = reduce ? -1 : 0;
+    engine.events.emit("scribble");
+    say(18);
+  }
+  function lamp(on: boolean) {
+    pop(LAMPP);
+    X[LT] = +on;
+    if (reduce) X[LV] = X[LT]!;
+    engine.events.emit("lamp");
+    say(on ? 16 : 17);
+  }
+  // One key press: a hand (mostly the other one) goes to a random key in its half, or in design mode
+  // the right hand goes to the trackpad now and then; the key lights up.
+  function typeKey() {
+    const h = X[WT]! >= 0 ? 1 : lcg() < 0.7 ? 1 - X[LASTH]! : X[LASTH]!;
+    X[LASTH] = h;
+    PRS[h] = 1;
+    let code = 99;
+    if (mode === "design" && h === 1 && lcg() < 0.35) (HT[2] = 386 + lcg() * 34), (HT[3] = 370 + lcg() * 12);
+    else {
+      let c = h * 6 + ((lcg() * 6) | 0);
+      const r = (lcg() * 5) | 0, sp = r === 4 && c > 3 && c < 8, kx = sp ? 367.6 : 302 + c * 16.4, ky = 262 + r * 15, kw = sp ? 62.6 : 13, j = (X[NTYPED]! % 4) * 4;
+      if (sp) c = 4;
+      HT[h * 2] = KEYS_HOME[h * 2]! + (kx + kw / 2 - TIPS_HOME[h * 2]!) * 0.6;
+      HT[h * 2 + 1] = KEYS_HOME[h * 2 + 1]! + (ky + 5.5 - TIPS_HOME[h * 2 + 1]!) * 0.6;
+      (KL[j] = kx), (KL[j + 1] = ky), (KL[j + 2] = kw), (KL[j + 3] = 1);
+      code = r * 12 + c;
+    }
+    if (X[NTYPED]! < 32) TYPED[X[NTYPED]!] = code;
+    X[NTYPED]!++;
+  }
   // The cup's centre may go anywhere on the desk that is on screen.
   const clampX = (x: number) => Math.min(Math.max(x, Math.max(DESK[0], view[1]! + 34) - CUP.r), Math.min(DESK[2], view[1]! + view[5]! - 34) - CUP.r);
   const clampY = (y: number) => Math.min(Math.max(y, Math.max(DESK[1], view[2]! + 34) - CUP.r), Math.min(DESK[3], view[2]! + view[6]! - 34) - CUP.r);
@@ -383,7 +471,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     const inBox = (b: readonly number[]) => x >= b[0]! - pad(b) && x <= b[0]! + b[2]! + pad(b) && y >= b[1]! - pad(b) && y <= b[1]! + b[3]! + pad(b);
     const r = Math.max(40, 24 / k), mx = Q[CX]! + CUP.r + Math.cos(Q[DIR]!) * 56, my = Q[CY]! + CUP.r + Math.sin(Q[DIR]!) * 56;
     const g = Math.hypot(x - cupAt(0), y - cupAt(1)) < r ? (Q[SPILL] ? SPILLP : CUPP) : Q[SPILL] && Math.hypot(x - mx, y - my) < 44 ? SPILLP
-      : inBox(BOX.laptop) ? LAP : inBox(BOX.person) ? PERSON : inBox(BOX.phone) ? PHONE : inBox(BOX.phones) ? PHONES : 0;
+      : inBox(BOX.laptop) ? LAP : inBox(BOX.person) ? PERSON : inBox(BOX.phone) ? PHONE : inBox(BOX.phones) ? PHONES : inBox(BOX.plant) ? PLANTP : inBox(BOX.book) ? BOOKP : inBox(BOX.lamp) ? LAMPP : 0;
     Q[GRAB] = g;
     if (!g) return;
     const s = g === SPILLP ? CUPP : g;
@@ -414,6 +502,9 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     if (g === SPILLP) return right();
     if (g === LAP) tap("lid");
     else if (g === PERSON) P[AW]! < 0.5 && tap("nudge");
+    else if (g === PLANTP) tap("water");
+    else if (g === BOOKP) tap("write");
+    else if (g === LAMPP) tap("lamp");
     else if (g) tap("music");
   }
 
@@ -470,6 +561,9 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
         day.play();
         N[CLOCK] = 1;
       }
+      if (ctl.hit(WATK)) water();
+      if (ctl.hit(WRTK)) write();
+      if (ctl.hit(LMPK)) lamp(!X[LT]);
       if (ctl.hit(LIDK)) setLaptop(P[LID]! < 0.5 && N[WDIR]! <= 0);
       if (ctl.hit(MUSK)) music = !music;
       if (ctl.hit(SIPK)) {
@@ -480,7 +574,32 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       if (N[HOLD] && N[CLOCK] && !reduce && day.time % DAY >= REST) (day.pause(), (N[CLOCK] = 0));
       if (reduce) return;
       // The toys' own motion: squash springs, the lift, the knocked cup sliding, the spill timer, the pour.
-      for (let i = 1; i < 7; i++) {
+      if (X[LV] !== X[LT]) {
+        X[LV]! += (X[LT]! - X[LV]!) * Math.min(1, dt * 14);
+        if (Math.abs(X[LV]! - X[LT]!) < 0.004) X[LV] = X[LT]!;
+        e.busy();
+      }
+      // The can's drops: one every 60 ms while it pours, around the pot; each fades in 1 to 3 s.
+      if (CAN[1]! > 0.5 && (X[DRT]! -= dt) <= 0) {
+        X[DRT] = 0.06;
+        for (let i = 0; i < 16; i++)
+          if (!DL[i]) {
+            const a = lcg() * 6.283, rr = 30 + lcg() * 28;
+            (DX[i] = PLANT.x + Math.cos(a) * rr), (DY[i] = PLANT.y + Math.sin(a) * rr * 0.9), (DA[i] = 0), (DL[i] = 1 + lcg() * 2), (DR[i] = 2 + lcg() * 2.5);
+            break;
+          }
+      }
+      for (let i = 0; i < 16; i++) if (DL[i]) ((DA[i]! += dt) >= DL[i]! && (DL[i] = 0), e.busy());
+      if (X[PK] !== X[PKR] || X[PKV]) {
+        X[PKV]! += (260 * (X[PKR]! - X[PK]!) - 9 * X[PKV]!) * dt;
+        X[PK]! += X[PKV]! * dt;
+        if (Math.abs(X[PK]! - X[PKR]!) < 0.001 && Math.abs(X[PKV]!) < 0.01) (X[PK] = X[PKR]!), (X[PKV] = 0);
+        e.busy();
+      }
+      if (X[WT]! >= 0 && (X[WT]! += dt) >= 1.3) X[WT] = -1;
+      if (X[WT]! >= 0) e.busy();
+      for (let j = 3; j < 16; j += 4) if (KL[j]) (KL[j] = Math.max(0, KL[j]! - dt * 2.4)), e.busy();
+      for (let i = 1; i < 10; i++) {
         if (!SQ[i] && !SQV[i] && !SQT[i]) continue;
         SQV[i]! += (520 * (SQT[i]! - SQ[i]!) - 13 * SQV[i]!) * dt;
         SQ[i]! += SQV[i]! * dt;
@@ -524,16 +643,18 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
           N[KEY] = 0.09 + rand() * 0.22;
           e.events.emit("key", 0, 0, 0, 0, 0.5);
           N[SCROLL]! += 3.5;
+          typeKey();
           if (rand() < 0.3) {
             const x = 320 + rand() * 160;
-            if (mode === "code") sfx(x, 132, 4 + ((rand() * 5) | 0), 3 + ((rand() * 2) | 0) * 2 - 2, 12, -50 - rand() * 30);
-            else emit(chip, x, 134, 1, 1, 4);
+            if (mode === "code") sfx(x, 162, 4 + ((rand() * 5) | 0), 3 + ((rand() * 2) | 0) * 2 - 2, 12, -50 - rand() * 30);
+            else emit(chip, x, 164, 1, 1, 4);
           }
         }
-        T[0] = Math.sin(N[TYPE]! * 31) * 3;
-        T[1] = Math.sin(N[TYPE]! * 27 + 1.7) * 3;
+        // The hands glide to their keys and dip as they press.
+        for (let i = 0; i < 4; i++) HP[i]! += (HT[i]! - HP[i]!) * Math.min(1, dt * 22);
+        (PRS[0] = Math.max(0, PRS[0]! - dt * 7)), (PRS[1] = Math.max(0, PRS[1]! - dt * 7));
         e.busy();
-      } else T[0] = T[1] = 0;
+      }
       N[DES]! += dt * speed;
       // The coffee: filled at dawn, a little gone each sip; it steams while there is some.
       if (P[SIP]! > 0.6) N[LEVEL] = Math.max(0.18, N[LEVEL]! - dt * speed * 0.18);
@@ -568,6 +689,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
         else if (ev.type === "sip" && canSip()) sip.play();
         else if (ev.type === "full") ((N[LEVEL] = 1), (N[HEAT] = 1), say(3), emit(puff, cupAt(0), cupAt(1) - 6, 10, 0, 1, 1.3));
         else if (ev.type === "timeline:end" && ev.a === 8 && Q[RIGHT]) upright();
+        else if (ev.type === "perk") (X[PKR] = 1.07), (X[PKV]! += 1.6);
       }
       if (resized) (fit(), (resized = false));
       const aw = P[AW]!, ph = P[PH]!, lid = P[LID]!, s = P[SIP]!, bob = aw > 0.9 && ph > 0.95 && music && !reduce ? Math.max(0, Math.cos((0.5 - N[BEAT]!) * Math.PI * 4)) * -2 : 0;
@@ -582,14 +704,44 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       set(laptop, "transform", sqT(400, 255, SQ[LAP]!)), set(sqp, "transform", sqT(0, 0, SQ[PHONE]!));
       // Arms: the hands' targets (the keys, the desk, folded asleep), the nearer hand to the cup on a
       // sip; two bones each, the elbows out.
-      const hn = hands(aw, P[HD]!, T[0]!, T[1]!), rc = reach(s), side = Q[CX]! + CUP.r < 400 ? 0 : 1, gx = cupAt(0) + (side ? 22 : -22), gy = cupAt(1) + 8;
+      const hn = hands(aw, P[HD]!, HP), rc = reach(s), side = Q[CX]! + CUP.r < 400 ? 0 : 1, gx = cupAt(0) + (side ? 22 : -22), gy = cupAt(1) + 8;
+      hn.ly += PRS[0]! * 2.5, hn.ry += PRS[1]! * 2.5;
+      // Writing: the left hand goes to the book, the pen follows the stroke, then it comes back.
+      const wt = X[WT]!, wb = wt < 0 ? 0 : wt < 0.25 ? wt / 0.25 : wt > 1.05 ? (1.3 - wt) / 0.25 : 1, wp = Math.min(1, Math.max(0, (wt - 0.25) / 0.8)), we = wb * wb * (3 - 2 * wb);
+      if (we > 0) {
+        const bx = inkX + 4 + wp * inkW - BOOK.cx, by = BOOK.y[X[WS]!]! + 12 + Math.sin(wp * 19) * 5 - BOOK.cy, ca = Math.cos(BOOK.a), sa = Math.sin(BOOK.a);
+        hn.lx += (BOOK.cx + bx * ca - by * sa + 12 - hn.lx) * we, hn.ly += (BOOK.cy + bx * sa + by * ca + 18 - hn.ly) * we;
+      }
+      set(pen, "style", we > 0.5 ? "" : "display:none");
       for (const a of arms) {
-        const i = a.s < 0 ? 0 : 1, tx = i ? hn.rx : hn.lx, ty = i ? hn.ry : hn.ly, k = arm(a.s, i === side ? tx + (gx - tx) * rc : tx, i === side ? ty + (gy - ty) * rc : ty);
-        set(a.ua, "x2", `${k.ex}`), set(a.ua, "y2", `${k.ey}`), set(a.fa, "x1", `${k.ex}`), set(a.fa, "y1", `${k.ey}`), set(a.fa, "x2", `${k.hx}`), set(a.fa, "y2", `${k.hy}`);
-        set(a.fm, "x1", `${k.ex}`), set(a.fm, "y1", `${k.ey}`), set(a.fm, "x2", `${Math.round((k.ex + (k.hx - k.ex) * 0.45) * 10) / 10}`), set(a.fm, "y2", `${Math.round((k.ey + (k.hy - k.ey) * 0.45) * 10) / 10}`);
-        set(a.sl, "x2", `${Math.round((k.sx + (k.ex - k.sx) * 0.72) * 10) / 10}`), set(a.sl, "y2", `${Math.round((SH.y + (k.ey - SH.y) * 0.72) * 10) / 10}`);
+        const i = a.s < 0 ? 0 : 1, tx = i ? hn.rx : hn.lx, ty = i ? hn.ry : hn.ly, d = armD(a.s, i === side ? tx + (gx - tx) * rc : tx, i === side ? ty + (gy - ty) * rc : ty), k = d.k;
+        set(a.skin, "d", d.skin), set(a.sl, "d", d.sleeve), set(a.hem, "d", d.hem);
         set(a.hd, "transform", `translate(${k.hx} ${k.hy}) rotate(${k.deg})`);
       }
+      // The key lights, the drops, the can, the plant's perk, the notebook's ink, the lamp.
+      for (let j = 0; j < 4; j++) {
+        const el = klit[j]!, g = KL[j * 4 + 3]!;
+        set(el, "opacity", g.toFixed(2));
+        if (g) set(el, "x", `${KL[j * 4]}`), set(el, "y", `${KL[j * 4 + 1]}`), set(el, "width", `${KL[j * 4 + 2]}`);
+      }
+      for (let i = 0; i < 16; i++) {
+        const el = drops[i]!, f = DL[i] ? (DA[i]! < 0.15 ? DA[i]! / 0.15 : 1 - (DA[i]! - 0.15) / (DL[i]! - 0.15)) : 0;
+        set(el, "r", (DR[i]! * f).toFixed(1));
+        if (f) set(el, "cx", DX[i]!.toFixed(1)), set(el, "cy", (DY[i]! - 6 + Math.min(1, DA[i]! / 0.2) * 6).toFixed(1)), set(el, "opacity", f.toFixed(2));
+      }
+      const cd = 260 - 164 * CAN[0]!;
+      set(canEl, "style", CAN[0]! > 0.001 ? "" : "display:none"), set(canEl, "transform", `translate(${(PLANT.x + 0.766 * cd).toFixed(1)} ${(PLANT.y - 0.643 * cd).toFixed(1)}) rotate(140)`);
+      set(canB, "transform", `rotate(${Math.round(CAN[1]! * -14)})`), set(wstream, "stroke-width", (CAN[1]! * 4).toFixed(1)), set(wstream, "stroke-dashoffset", CAN[1] ? ((Q[CLK]! * -60) % 9).toFixed(1) : "0");
+      set(sqf, "transform", sqT(0, 0, SQ[PLANTP]!)), set(leaves, "transform", X[PK] === 1 ? "" : `scale(${X[PK]!.toFixed(3)})`);
+      set(sqb, "transform", sqT(155, 416, SQ[BOOKP]!)), set(sqm, "transform", sqT(118, 195, SQ[LAMPP]!));
+      if (X[11]) {
+        const el = inks[X[WS]!]!;
+        set(el, "d", inkD), set(el, "transform", `translate(${inkX} ${BOOK.y[X[WS]!]})`), set(el, "class", inkCode ? "og-ink o-code" : "og-ink");
+        X[11] = 0;
+      }
+      set(inks[X[WS]!]!, "stroke-dashoffset", wt < 0 ? "0" : (1 - wp).toFixed(3));
+      wrap.style.setProperty("--lamp", `${Math.round(X[LV]! * 100) / 100}`);
+      set(lampEl, "aria-label", X[LT] ? "Turn the lamp off" : "Turn the lamp on");
       set(screen, "transform", screenT(lid)), set(scrl, "transform", screenT(lid)), set(cover, "transform", coverT(lid));
       // The cup: on the desk, lifted, at his mouth, tipped over; the puddle, the pot.
       const tip = SPL[0]!, pud = SPL[1]!, deg = Math.round((Q[DIR]! * 180) / Math.PI), lift = Q[LIFT]!, c = carry(s);
@@ -631,7 +783,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       }
       // The status line (polite): what just changed. The same line again is said again.
       if (Q[MSG]) {
-        status.textContent = SAY[Q[MSG]!]! + (saidAt === Q[MSG] ? " " : "");
+        status.textContent = (Q[MSG] === 18 ? drew : SAY[Q[MSG]!]!) + (saidAt === Q[MSG] ? " " : "");
         saidAt = saidAt === Q[MSG] ? -1 : Q[MSG]!;
         Q[MSG] = 0;
       }
@@ -704,7 +856,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     },
     pause() {
       paused = true;
-      day.pause(), wake.pause(), sip.pause(), pour.pause(), spill.pause();
+      day.pause(), wake.pause(), sip.pause(), pour.pause(), spill.pause(), can.pause();
       engine.wake(); // one frame to update the keys, then it settles
     },
     play() {
@@ -714,6 +866,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       if (N[WDIR] && wake.time > 0 && wake.time < wake.duration) goWake(N[WDIR]!);
       if (sip.time > 0 && sip.time < sip.duration) sip.play();
       if (pour.time > 0 && pour.time < pour.duration) pour.play();
+      if (can.time > 0 && can.time < can.duration) can.play();
       if (Q[RIGHT]) spill.reverse();
       else if (Q[SPILL] && spill.time < spill.duration) spill.play();
       engine.wake();
@@ -729,9 +882,16 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     },
     nudge: () => tap("nudge"),
     stats() {
-      let toys = +pour.playing + +spill.playing + +!!Q[DRAG] + +(Q[LIFT] !== Q[LIFTT]) + +!!(Q[KVX] || Q[KVY]) + +(Q[SPILL] === 1);
-      for (let i = 1; i < 7; i++) toys += +!!(SQ[i] || SQV[i]);
-      return { particles: fx.live, zzz: N[ZC]!, cup: { x: Q[CX]!, y: Q[CY]!, level: N[LEVEL]!, spilled: !!Q[SPILL], lifted: Q[LIFT]! > 0.5 }, toys };
+      let toys = +pour.playing + +spill.playing + +can.playing + +!!Q[DRAG] + +(Q[LIFT] !== Q[LIFTT]) + +!!(Q[KVX] || Q[KVY]) + +(Q[SPILL] === 1) + +(X[WT]! >= 0) + +(X[PK] !== X[PKR] || !!X[PKV]) + +(X[LV] !== X[LT]), drops = 0, lit = 0;
+      for (let i = 1; i < 10; i++) toys += +!!(SQ[i] || SQV[i]);
+      for (let i = 0; i < 16; i++) drops += +!!DL[i];
+      for (let j = 3; j < 16; j += 4) lit += +(KL[j]! > 0.01);
+      return { particles: fx.live, zzz: N[ZC]!, cup: { x: Q[CX]!, y: Q[CY]!, level: N[LEVEL]!, spilled: !!Q[SPILL], lifted: Q[LIFT]! > 0.5 }, toys: toys + drops, drops, pages: X[PAGES]!, lamp: !!X[LT], lit, keys: [...TYPED.subarray(0, Math.min(32, X[NTYPED]!))] };
+    },
+    water: () => tap("water"),
+    write: () => tap("write"),
+    setLamp(on) {
+      if (on !== !!X[LT]) tap("lamp");
     },
   };
 

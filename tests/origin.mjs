@@ -104,6 +104,7 @@ try {
     // The sip: the cup lifts, the saucer stays; the slurp (260 Hz sawtooth start) plays after the gesture above.
     const fill0 = await p.evaluate(() => document.querySelector(".og-liquid").getAttribute("fill"));
     const sau = () => p.evaluate(() => JSON.stringify(document.querySelector(".og-saucer").getBoundingClientRect()));
+    await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(196 268) rotate(0 "), null, { timeout: 4000 }); // the morning sip is over
     const s0 = await sau(), cup0 = await p.evaluate(() => JSON.stringify(document.querySelector(".og-cup").getBoundingClientRect()));
     await p.evaluate(() => (window.__hz.length = 0, window.scene.sip()));
     await p.waitForTimeout(500);
@@ -291,6 +292,97 @@ try {
     await p.close();
   }
 
+  // ---------- The desk's other toys: the notebook, the plant, the lamp, the key lights; seeded typing ----------
+  {
+    const p = await browser.newPage({ viewport: { width: 900, height: 700 } });
+    const errs = [];
+    p.on("pageerror", (e) => errs.push(e.message));
+    await p.setContent(PAGE);
+    const before = await p.evaluate(() => document.body.innerHTML);
+    // Speed 1: he is awake for 15 s, long enough to write three times.
+    await p.evaluate((cup) => (window.scene = og.mount(document.getElementById("root"), { speed: 1, cup, reducedMotion: false })), CUP);
+    const st = () => p.evaluate(() => window.scene.stats());
+    const said = () => p.evaluate(() => document.querySelector(".og [role=status]").textContent);
+    const settles = async (what) => {
+      await p.waitForFunction(() => window.scene.stats().toys === 0, null, { timeout: 9000 });
+      await p.evaluate(() => window.scene.pause());
+      await p.waitForTimeout(800);
+      assert.equal(await rafPerSec(p, 600), 0, `settled after ${what}`);
+      await p.evaluate(() => window.scene.play());
+    };
+    const centre = (sel) => p.evaluate((s) => { const r = document.querySelector(s).getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2, w: r.width, h: r.height }; }, sel);
+    await p.waitForFunction(() => window.scene.state.awake && window.scene.state.open, null, { timeout: 9000 });
+    await p.waitForTimeout(1200);
+
+    // Typing: the keys he presses light up (in a pool of four) and fade.
+    await p.waitForFunction(() => [...document.querySelectorAll(".o-klit")].some((k) => +k.getAttribute("opacity") > 0.5), null, { timeout: 4000 });
+    assert.ok((await st()).lit > 0, "a key is lit");
+
+    // The notebook: a click (press, then release) and two more from code; each is a line of code or a
+    // doodle, drawn on; the last three stay.
+    for (const sel of [".og-book", ".og-plant", ".og-lamp"]) {
+      const c = await centre(sel);
+      assert.ok(c.w >= 44 && c.h >= 44, `${sel} is ${c.w}x${c.h}`);
+    }
+    const b = await centre(".og-book");
+    await p.mouse.click(b.x, b.y);
+    await p.waitForFunction(() => window.scene.stats().pages === 1, null, { timeout: 2000 });
+    assert.match(await said(), /He (wrote a line of code|drew )/, "what he wrote is said");
+    await settles("writing");
+    for (let i = 2; i <= 3; i++) {
+      await p.evaluate(() => window.scene.write());
+      await p.waitForFunction((n) => window.scene.stats().pages === n, i, { timeout: 2000 });
+      await settles("writing");
+    }
+    const inks = await p.evaluate(() => [...document.querySelectorAll(".og-ink")].map((e) => [!!e.getAttribute("d"), e.getAttribute("stroke-dashoffset")]));
+    assert.deepEqual(inks, [[true, "0"], [true, "0"], [true, "0"]], `three drawings, fully drawn: ${JSON.stringify(inks)}`);
+    await p.evaluate(() => window.scene.write());
+    await p.waitForFunction(() => window.scene.stats().pages === 4);
+    await settles("a fourth drawing (it reuses the first line)");
+
+    // The plant: watered, drops spill around it and clear; it perks up.
+    const pl = await centre(".og-plant");
+    await p.mouse.click(pl.x, pl.y);
+    await p.waitForFunction(() => window.scene.stats().drops > 3, null, { timeout: 3000 });
+    assert.match(await said(), /Watering/);
+    await p.waitForFunction(() => window.scene.stats().drops === 0, null, { timeout: 6000 });
+    assert.match(await p.evaluate(() => document.querySelector(".og-leaves").getAttribute("transform")), /scale\(1\.07/, "the plant perks up");
+    await settles("watering");
+
+    // The lamp: Enter on it switches it off (the light goes), and back on.
+    await p.focus(".og-lamp");
+    await p.keyboard.press("Enter");
+    await p.waitForFunction(() => getComputedStyle(document.querySelector(".og")).getPropertyValue("--lamp").trim() === "0", null, { timeout: 2000 });
+    assert.deepEqual([(await st()).lamp, await p.evaluate(() => document.querySelector(".og-lamp").getAttribute("aria-label")), await said()], [false, "Turn the lamp on", "Lamp off."]);
+    await settles("the lamp off");
+    await p.keyboard.press(" ");
+    await p.waitForFunction(() => getComputedStyle(document.querySelector(".og")).getPropertyValue("--lamp").trim() === "1", null, { timeout: 2000 });
+    assert.equal((await st()).lamp, true);
+    await settles("the lamp on");
+
+    // He sleeps: the typing stops and the key lights fade out.
+    await p.evaluate(() => window.scene.setLaptop(false));
+    await p.waitForFunction(() => window.scene.stats().lit === 0, null, { timeout: 6000 });
+    await p.evaluate(() => window.scene.destroy());
+    assert.equal(await p.evaluate(() => document.body.innerHTML), before, "Recall after the desk's toys");
+
+    // Seeded typing: the same seed types the same keys; another seed types others.
+    const typed = async (seed) => {
+      await p.evaluate(([cup, seed]) => (window.scene = og.mount(document.getElementById("root"), { speed: 4, cup, reducedMotion: false, seed })), [CUP, seed]);
+      await p.waitForFunction(() => window.scene.stats().keys.length >= 16, null, { timeout: 15000 });
+      const k = (await st()).keys.slice(0, 16);
+      await p.evaluate(() => window.scene.destroy());
+      return k;
+    };
+    const a = await typed(7), a2 = await typed(7), b2 = await typed(8);
+    assert.deepEqual(a2, a, `seed 7 types the same keys: ${a}`);
+    assert.notDeepEqual(b2, a, "seed 8 types others");
+    assert.ok(a.every((k) => k === 99 || (k >= 0 && k < 60)), "keys on the keyboard");
+    assert.equal(await p.evaluate(() => document.body.innerHTML), before, "Recall");
+    assert.deepEqual(errs, []);
+    await p.close();
+  }
+
   // ---------- Reduced motion: still frames, no particles, settles; the laptop still works ----------
   {
     const p = await browser.newPage({ viewport: { width: 900, height: 700 }, reducedMotion: "reduce" });
@@ -345,6 +437,19 @@ try {
     await p.waitForTimeout(100);
     assert.equal(await p.evaluate(() => getComputedStyle(document.querySelector(".og-pot")).display), "none", "a refill with no pour");
     await still("a refill");
+    // The notebook, the plant, the lamp: whole at once, no hand, no can, no drops, no fade.
+    await p.evaluate(() => window.scene.write());
+    await p.waitForTimeout(100);
+    assert.deepEqual(await p.evaluate(() => [window.scene.stats().pages, document.querySelector(".og-ink").getAttribute("stroke-dashoffset"), !!document.querySelector(".og-ink").getAttribute("d"), getComputedStyle(document.querySelector(".og-pen")).display]), [1, "0", true, "none"], "drawn at once");
+    await still("writing");
+    await p.evaluate(() => window.scene.water());
+    await p.waitForTimeout(100);
+    assert.deepEqual(await p.evaluate(() => [window.scene.stats().drops, getComputedStyle(document.querySelector(".og-can")).display, document.querySelector(".og-leaves").getAttribute("transform")]), [0, "none", "scale(1.070)"], "perked at once, no can, no drops");
+    await still("watering");
+    await p.evaluate(() => window.scene.setLamp(false));
+    await p.waitForTimeout(100);
+    assert.equal(await p.evaluate(() => getComputedStyle(document.querySelector(".og")).getPropertyValue("--lamp").trim()), "0", "the lamp is off at once");
+    await still("the lamp");
     await p.evaluate(() => window.scene.destroy());
     assert.equal(await p.evaluate(() => document.body.innerHTML), before, "Recall under reduced motion");
     assert.deepEqual(errs, []);

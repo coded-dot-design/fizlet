@@ -32,9 +32,9 @@ const FZ = `.og--fz{--r:var(--rim,#07060f);--s:var(--k-sys,#19f0ff);--m:var(--k-
 .og--fz .o-shirt{fill:var(--m)}.og--fz line.o-shirt{stroke:var(--m)}.og--fz .o-shirtD{stroke:color-mix(in srgb,var(--m) 55%,var(--r))}
 .og--fz .o-mesh{fill:var(--r)}.og--fz .o-dot{fill:var(--s)}.og--fz .o-foam{fill:var(--a)}.og--fz .o-bill{fill:color-mix(in srgb,var(--a) 45%,var(--r))}.og--fz .o-billE{stroke:var(--w)}.og--fz .o-btn{fill:var(--s)}.og--fz .o-seam{stroke:color-mix(in srgb,var(--a) 45%,var(--r))}.og--fz .o-strap{stroke:var(--s)}
 .og--fz .o-band{stroke:var(--r)}.og--fz .o-band2{stroke:var(--s)}.og--fz .o-hcup{fill:var(--r);stroke:var(--s);stroke-width:2}.og--fz .o-pad{fill:var(--a)}.og--fz .o-cord{stroke:var(--a)}
-.og--fz .o-lid{fill:var(--r);stroke:var(--s);stroke-width:2.5}.og--fz .o-glow{stroke:var(--s);opacity:.22}.og--fz .o-neon{stroke:var(--s)}.og--fz .o-grid{stroke:color-mix(in srgb,var(--s) 13%,transparent)}
+.og--fz .o-lid{fill:var(--r);stroke:var(--s);stroke-width:2.5}.og--fz .o-hinge{fill:var(--b)}.og--fz .o-klit{fill:var(--s);stroke:var(--s);stroke-width:2}.og--fz .o-water{fill:var(--s);stroke:var(--s)}.og--fz .og-ink{stroke:var(--s)}.og--fz .og-ink.o-code{stroke:var(--g)}.og-ink.o-code{stroke:${C.red}}.og--fz .o-glow{stroke:var(--s);opacity:.22}.og--fz .o-neon{stroke:var(--s)}.og--fz .o-grid{stroke:color-mix(in srgb,var(--s) 13%,transparent)}
 .og--fz .o-pix{fill:var(--v)}.og--fz .o-pud{fill:color-mix(in srgb,var(--v) 30%,var(--r));stroke:var(--v);stroke-width:2}.og--fz .o-pot{fill:var(--fc);stroke:var(--s);stroke-width:2}.og--fz .o-brew{fill:var(--v)}.og--fz .o-pour{stroke:var(--v)}
-.og--fz .og-night{fill:var(--r);opacity:calc(var(--night) * .75)}.og--fz .og-liquid{fill:var(--lq,var(--v))}
+.og--fz .og-night{fill:var(--r);opacity:calc(var(--night) * (.75 - var(--lamp) * .25))}.og--fz .og-liquid{fill:var(--lq,var(--v))}
 .og--fz .og-tag rect{fill:var(--r);stroke:var(--s)}.og--fz .og-tag text{fill:var(--w)}.og--fz .og-tag text+text{fill:var(--s)}
 .og--fz .og-why{background:color-mix(in srgb,var(--r) 86%,transparent);border:2px solid var(--m);border-radius:6px;box-shadow:calc(4px * var(--shadow-x, 0)) calc(4px * var(--shadow-y, 1)) 0 color-mix(in srgb,var(--m) 50%,var(--r));color:var(--w)}.og--fz .og-why b{color:var(--s)}
 .og--fz .og-bar button{background:var(--fc);color:var(--w);border:2px solid color-mix(in srgb,var(--m) 60%,var(--r));border-radius:6px;box-shadow:calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--r);text-transform:uppercase;font-weight:700;letter-spacing:.06em}
@@ -42,13 +42,13 @@ const FZ = `.og--fz{--r:var(--rim,#07060f);--s:var(--k-sys,#19f0ff);--m:var(--k-
 .og--fz .og-bar button[aria-pressed=true]:not([data-k=look]){background:var(--s);color:var(--r);border-color:var(--r);transform:translate(calc(3px * var(--shadow-x, 0)),calc(3px * var(--shadow-y, 1)));box-shadow:0 0 14px color-mix(in srgb,var(--s) 45%,transparent)}
 .og--fz [data-k=look] span+span{background:var(--s);color:var(--r)}.og--fz .og-grip:hover{box-shadow:0 0 0 2px var(--s),0 0 14px color-mix(in srgb,var(--s) 45%,transparent)}
 .og--fz .og-body:focus-visible .o-mesh,.og--fz .og-laptop:focus-visible>.o-face{stroke:var(--s);stroke-width:4}
-@media (hover:hover){.og--fz .og-l [data-p]:is([data-p=laptop],[data-p=phone],[data-p=phones],[data-p=person]):hover{filter:drop-shadow(0 0 5px var(--s))}}`;
+@media (hover:hover){.og--fz .og-l [data-p]:is([data-p=laptop],[data-p=phone],[data-p=phones],[data-p=person],[data-p=plant],[data-p=book],[data-p=lamp]):hover{filter:drop-shadow(0 0 5px var(--s))}}`;
 
 /** The scene's styles (the poster carries them too). Lighting is custom properties on .og. */
-export const CSS = `.og{position:absolute;inset:0;overflow:hidden;background:${C.teal};--sky:rgb(29,27,52);--night:.62;--lamp:0;--sun:0;--beam:0;--glow:0;font:600 10.5px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;-webkit-tap-highlight-color:transparent;user-select:none}
+export const CSS = `.og{position:absolute;inset:0;overflow:hidden;background:${C.teal};--sky:rgb(29,27,52);--night:.62;--lamp:1;--sun:0;--beam:0;--glow:0;font:600 10.5px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;-webkit-tap-highlight-color:transparent;user-select:none}
 .og-l{position:absolute;inset:0}.og-svg,.og canvas{position:absolute;inset:0;width:100%;height:100%;display:block}.og canvas{pointer-events:none;filter:brightness(calc(1 - var(--night) * .8))}
-.og-night{opacity:var(--night);mix-blend-mode:multiply;pointer-events:none}
-.og-lampg{opacity:var(--lamp);mix-blend-mode:screen;pointer-events:none}
+.og-night{opacity:calc(var(--night) * (1 - var(--lamp) * .3));mix-blend-mode:multiply;pointer-events:none}
+.og-lampg,.og-cone{opacity:calc(var(--lamp) * (.4 + var(--night)));mix-blend-mode:screen;pointer-events:none}.og-cone{opacity:calc(var(--lamp) * (.3 + var(--night) * .6))}
 .og-scrg{opacity:calc(var(--night) * var(--glow) * 1.3);mix-blend-mode:screen;pointer-events:none}
 .og-scrl{opacity:calc(var(--night) * var(--glow) * .3);mix-blend-mode:screen;pointer-events:none}
 .og-beam{opacity:calc(var(--beam) * .2);transform:translateX(calc((.5 - var(--sun)) * 240px));pointer-events:none}
@@ -57,11 +57,11 @@ export const CSS = `.og{position:absolute;inset:0;overflow:hidden;background:${C
 .og-bulb{opacity:calc(.35 + var(--lamp) * .65)}
 .og-tag{opacity:0;transition:opacity .2s;pointer-events:none}.og-tag text{font:inherit}
 .og--tags .og-tag${["laptop", "phone", "cup", "phones", "lamp", "sky", "person"].map((p) => `,.og:has([data-p=${p}]:hover) [data-t=${p}]`).join("")}{opacity:1}
-[data-p=laptop],[data-p=phone],[data-p=cup],[data-p=phones],[data-p=person]{cursor:pointer}.og-body{outline:none}.og-body:focus-visible .o-mesh{stroke:#2f80ed;stroke-width:4}
+[data-p=laptop],[data-p=phone],[data-p=cup],[data-p=phones],[data-p=person],[data-p=plant],[data-p=book],[data-p=lamp]{cursor:pointer;outline:none}.og-l [data-p]:focus-visible{filter:drop-shadow(0 0 3px #2f80ed)}.og-body{outline:none}.og-body:focus-visible .o-mesh{stroke:#2f80ed;stroke-width:4}
 .og-laptop{outline:none}.og-laptop:focus-visible>rect:nth-child(2){stroke:#2f80ed;stroke-width:4}
-@media (hover:hover){.og-l [data-p]:is([data-p=laptop],[data-p=phone],[data-p=phones],[data-p=person]):hover{filter:drop-shadow(0 0 4px ${C.cream})}}
+@media (hover:hover){.og-l [data-p]:is([data-p=laptop],[data-p=phone],[data-p=phones],[data-p=person],[data-p=plant],[data-p=book],[data-p=lamp]):hover{filter:drop-shadow(0 0 4px ${C.cream})}}
 .og-grip{position:absolute;left:0;top:0;width:44px;height:44px;border-radius:50%;cursor:grab;touch-action:none;outline:none;z-index:1}.og-grip:active{cursor:grabbing}.og-grip:hover{box-shadow:0 0 0 2px ${C.cream}}.og-grip:focus-visible{box-shadow:0 0 0 3px #2f80ed}
-.og--reduce .og-night,.og--reduce .og-lampg,.og--reduce .og-scrg{transition:opacity 1.6s}
+.og--reduce .og-night,.og--reduce .og-scrg{transition:opacity 1.6s}
 .og-bar{position:absolute;right:10px;bottom:10px;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px 6px;z-index:2}
 .og-bar button{all:unset;position:relative;box-sizing:border-box;min-height:32px;display:inline-flex;align-items:center;font:inherit;font-size:11px;letter-spacing:.03em;padding:7px 11px;border-radius:999px;border:1.5px solid ${C.ink};background:${C.cream};color:${C.ink};cursor:pointer;touch-action:manipulation}
 .og-bar button::before{content:"";position:absolute;inset:-6px -3px}
@@ -85,21 +85,26 @@ export const why = (full: string, beat: string, step: string, credit = "") =>
 export const VB = { w: 800, h: 500 };
 /** The parts a tap or a label points at: x, y, w, h in art units. */
 export const BOX = {
-  laptop: [286, 124, 228, 262],
+  laptop: [286, 150, 228, 236],
   phone: [566, 236, 82, 140],
   cup: [196, 268, 78, 78],
   phones: [540, 120, 130, 90],
-  lamp: [50, 120, 110, 110],
+  lamp: [62, 136, 100, 108],
+  plant: [616, 384, 72, 72],
+  book: [92, 342, 128, 148],
   sky: [0, -200, 800, 296],
   person: [300, 340, 200, 260],
 } as const;
+/** The plant (its pot's centre), where the can pours from, and the notebook's writing lines (in its
+ *  own rotated frame: x, the top of each line; the book turns -9° about BOOK.cx, cy). */
+export const PLANT = { x: 650, y: 420 } as const, BOOK = { cx: 155, cy: 416, x: 122, y: [362, 398, 434], a: (-9 * Math.PI) / 180 } as const;
 /** Where the cup can stand: the desk, inside the window's sill (x0, y0, x1, y1, cup centres). */
 export const DESK = [44, 140, 756, 470] as const;
 /** The cup's home (its top left on the saucer) and where it sits when he drinks. */
 export const CUP = { x: 196, y: 268, mx: 345, my: 352, r: 39 } as const;
 
-/** Shoulders, upper arm (seen from above it hangs down, so it is short) and forearm lengths. */
-export const SH = { lx: 310, rx: 490, y: 478, ua: 52, fa: 108 } as const;
+/** Shoulders, upper arm (seen from above it hangs down a little, foreshortened) and forearm lengths. */
+export const SH = { lx: 314, rx: 486, y: 474, ua: 66, fa: 116 } as const;
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 const r1 = (v: number) => Math.round(v * 10) / 10;
 const ease = (t: number) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
@@ -116,11 +121,15 @@ export const headT = (aw: number, sip: number, bob = 0) => {
  *  as one at every pose (asleep the head leans forward onto the arms; the back follows it). */
 export function neck(aw: number, sip: number) {
   const h = head(aw, sip), top = h.y + 8;
-  return { cx: 400, cy: r1((top + 480) / 2), ry: r1((480 - top) / 2 + 12) };
+  return { cx: 400, cy: r1((top + 466) / 2), ry: r1((466 - top) / 2 + 6) };
 }
-/** Hand targets: asleep folded under the head; awake on the keys (hd) or resting by the laptop. */
-export function hands(aw: number, hd: number, tl: number, tr: number) {
-  return { lx: mix(mix(434, 352, aw), 350, hd), ly: mix(mix(400, 404, aw), 336, hd) + tl, rx: mix(mix(368, 452, aw), 448, hd), ry: mix(mix(408, 404, aw), 336, hd) + tr };
+/** The hands' home on the keys (centres) and the key under each one's fingers (tips): typing moves
+ *  a hand part of the way from its home toward the key it hits. */
+export const KEYS_HOME = [342, 314, 458, 314] as const, TIPS_HOME = [342, 294, 458, 294] as const;
+/** Hand targets: asleep folded under the head; awake on the keys (hd, at `k`: lx, ly, rx, ry) or
+ *  resting by the laptop. */
+export function hands(aw: number, hd: number, k: ArrayLike<number> = KEYS_HOME) {
+  return { lx: mix(mix(434, 352, aw), k[0]!, hd), ly: mix(mix(400, 404, aw), k[1]!, hd), rx: mix(mix(368, 452, aw), k[2]!, hd), ry: mix(mix(408, 404, aw), k[3]!, hd) };
 }
 /** The sip in two moves: the hand reaches for the cup (sip 0..0.35), then brings it up (0.35..1). */
 export const reach = (sip: number) => ease(sip / 0.35);
@@ -134,6 +143,23 @@ export function arm(s: number, tx: number, ty: number) {
   const th = Math.atan2(dy, dx), a = Math.acos((A * A + dd * dd - B * B) / (2 * A * dd)), e = th + (s < 0 ? -a : a);
   const ex = sx + Math.cos(e) * A, ey = SH.y + Math.sin(e) * A, hx = sx + (dx / d) * dd, hy = SH.y + (dy / d) * dd;
   return { sx, ex: r1(ex), ey: r1(ey), hx: r1(hx), hy: r1(hy), deg: r1((Math.atan2(hy - ey, hx - ex) * 180) / Math.PI) };
+}
+/** A limb segment seen from above: two circles (radii r1, r2) and the hull between them, as a path. */
+const limb = (x1: number, y1: number, a: number, x2: number, y2: number, b: number) => {
+  const d = Math.hypot(x2 - x1, y2 - y1) || 1, nx = ((y1 - y2) / d), ny = ((x2 - x1) / d);
+  return `M${r1(x1 + nx * a)} ${r1(y1 + ny * a)}L${r1(x2 + nx * b)} ${r1(y2 + ny * b)}A${b} ${b} 0 1 0 ${r1(x2 - nx * b)} ${r1(y2 - ny * b)}L${r1(x1 - nx * a)} ${r1(y1 - ny * a)}A${a} ${a} 0 1 0 ${r1(x1 + nx * a)} ${r1(y1 + ny * a)}Z`;
+};
+/** One arm's shapes for a pose: the sleeve over the deltoid, the upper arm (the biceps swell, then
+ *  the elbow), the forearm (the muscle near the elbow, tapering to the wrist), and where the hand goes. */
+export function armD(s: number, tx: number, ty: number) {
+  const k = arm(s, tx, ty), sy = SH.y, at = (t: number, ax: number, ay: number, bx: number, by: number) => [ax + (bx - ax) * t, ay + (by - ay) * t] as const;
+  const b = at(0.55, k.sx, sy, k.ex, k.ey), f = at(0.32, k.ex, k.ey, k.hx, k.hy), w = at(0.8, k.ex, k.ey, k.hx, k.hy), h = at(0.5, k.sx, sy, k.ex, k.ey);
+  return {
+    k,
+    skin: limb(b[0], b[1], 20, k.ex, k.ey, 14) + limb(k.ex, k.ey, 14, f[0], f[1], 16.5) + limb(f[0], f[1], 16.5, w[0], w[1], 10.5),
+    sleeve: limb(k.sx, sy, 24, h[0], h[1], 20),
+    hem: `M${r1(h[0] + ((sy - k.ey) / SH.ua) * 19)} ${r1(h[1] + ((k.ex - k.sx) / SH.ua) * 19)}L${r1(h[0] - ((sy - k.ey) / SH.ua) * 19)} ${r1(h[1] - ((k.ex - k.sx) / SH.ua) * 19)}`,
+  };
 }
 /** Where the cup is drawn: on the desk at (x, y) (its top left), lifted by `lift` (0..1, a drag), or
  *  carried to his mouth by the sip. `sq` squashes it (a press: -1, a pop: > 0). */
@@ -167,7 +193,13 @@ export function cord(ph: number, aw: number, sip: number) {
   const x = mix(604 + 48, h.x + 52, e), y = mix(170 + 18, h.y + 20, e);
   return `M${r1(x)} ${r1(y)}C${r1(x + 40)} ${r1(y + 40)} 616 390 607 372`;
 }
-/** The laptop lid: above 0.5 the screen unfolds up from the hinge; below, the lid covers the keys. */
+/** The laptop lid: above 0.5 the screen unfolds up from the hinge; below, the lid covers the keys.
+ *  Open, seen from above, the lid is as wide as the base at the hinge, a little narrower at its far
+ *  edge, and foreshortened to about two thirds of the base's depth (LID: its far edge's y). */
+export const LID = 160;
+const LIDP = `M286 250H514L506 ${LID + 7}Q505 ${LID} 498 ${LID}H302Q295 ${LID} 294 ${LID + 7}Z`;
+// The display inside the bezel, and the map from the screens' drawing box (304, 140, 192 x 100) onto it.
+const SCR = `M298 241H502L497 ${LID + 9}H303Z`, SCRT = `translate(300 ${LID + 9}) scale(1.0417 .72) translate(-304 -140)`;
 export const screenT = (lid: number) => `translate(0 250) scale(1 ${r1(Math.max(0, lid * 2 - 1) * 100) / 100}) translate(0 -250)`;
 export const coverT = (lid: number) => `translate(0 250) scale(1 ${r1(Math.max(0, 1 - lid * 2) * 100) / 100}) translate(0 -250)`;
 /** A part's press: squash (sq < 0) and pop (sq > 0) around its centre. */
@@ -175,6 +207,7 @@ export const sqT = (cx: number, cy: number, sq: number) => (sq ? `translate(${cx
 
 // ---------- static parts ----------
 const keys = () => {
+  // (typeKey() in scene.ts lights the same rects.)
   let s = "";
   for (let r = 0; r < 5; r++)
     for (let c = 0; c < 12; c++) {
@@ -193,10 +226,14 @@ const PHONE_CODE = [[0, 30, 2], [6, 22, 0], [6, 34, 1], [0, 16, 3], [0, 28, 0], 
 // A hand seen from above (the back of it), pointing along +x: palm, fingers, the thumb on the
 // inner side (+y for the left hand; the right is mirrored).
 const HAND = (m: string) => `<g${m}><rect x="-5" y="6" width="17" height="9" rx="4.5" fill="${C.skin}" stroke="${C.skinD}" stroke-width="1.4" transform="rotate(22 -5 10)"/><rect x="-13" y="-12" width="26" height="24" rx="9" fill="${C.skin}"/><rect x="3" y="-11.5" width="20" height="23" rx="7" fill="${C.skin}"/><path d="M13-5.6h8M13 0h9M13 5.6h8" stroke="${C.skinD}" stroke-width="1.6" stroke-linecap="round"/></g>`;
-/** One arm's markup at its pose: the upper arm under the sleeve, the forearm, the hand. */
+// His back from above: the trapezius sloping from the neck to the shoulders, broad shoulders, the
+// lats tapering toward the waist (out of frame).
+const TORSO = "M376 452C354 455 332 458 314 466C296 474 286 490 288 512L304 640H496L512 512C514 490 504 474 486 466C468 458 446 455 424 452Z";
+/** One arm's markup at its pose: the skin (upper arm, forearm), the sleeve and its hem, the hand
+ *  (the left one can hold the pen). */
 const armEl = (s: number, tx: number, ty: number) => {
-  const k = arm(s, tx, ty), side = s < 0 ? "l" : "r";
-  return `<g class="og-arm-${side}"><line class="og-ua" x1="${k.sx}" y1="${SH.y}" x2="${k.ex}" y2="${k.ey}" stroke="${C.skinD}" stroke-width="26" stroke-linecap="round"/><line class="og-fa" x1="${k.ex}" y1="${k.ey}" x2="${k.hx}" y2="${k.hy}" stroke="${C.skin}" stroke-width="20" stroke-linecap="round"/><line class="og-fm" x1="${k.ex}" y1="${k.ey}" x2="${r1(mix(k.ex, k.hx, 0.45))}" y2="${r1(mix(k.ey, k.hy, 0.45))}" stroke="${C.skin}" stroke-width="25" stroke-linecap="round"/><line class="og-sl o-shirt" x1="${k.sx}" y1="${SH.y}" x2="${r1(mix(k.sx, k.ex, 0.72))}" y2="${r1(mix(SH.y, k.ey, 0.72))}" stroke="${C.red}" stroke-width="36" stroke-linecap="round"/><g class="og-hand-${side}" transform="translate(${k.hx} ${k.hy}) rotate(${k.deg})">${HAND(s < 0 ? "" : ' transform="scale(1 -1)"')}</g></g>`;
+  const a = armD(s, tx, ty), k = a.k, side = s < 0 ? "l" : "r";
+  return `<g class="og-arm-${side}"><path class="og-skin" d="${a.skin}" fill="${C.skin}"/><path class="og-sl o-shirt" d="${a.sleeve}" fill="${C.red}"/><path class="og-hem o-shirtD" d="${a.hem}" stroke="${C.redD}" stroke-width="3" stroke-linecap="round"/><g class="og-hand-${side}" transform="translate(${k.hx} ${k.hy}) rotate(${k.deg})">${s < 0 ? `<rect class="og-pen o-red" x="2" y="7" width="26" height="4.5" rx="2.2" fill="${C.red}" transform="rotate(16 2 9)" style="display:none"/>` : ""}${HAND(s < 0 ? "" : ' transform="scale(1 -1)"')}</g></g>`;
 };
 
 /** The whole scene as SVG markup. `p`: the pose to draw (the scene then moves it); `mode`: what
@@ -206,7 +243,7 @@ export function art(p: { aw: number; ph: number; lid: number; hd: number }, mode
     const a = bricks.map((b) => `${b === "kernel" ? "kernel" : "@fzlt/core/" + b}${sizes[b] ? ` ${sizes[b]!.toLocaleString("en-US")} B` : ""}`).join(" + "), w = Math.max(a.length, what.length) * 6.3 + 16;
     return `<g class="og-tag" data-t="${id}" transform="translate(${x} ${y})"><rect width="${r1(w)}" height="34" rx="5" fill="${C.ink}" stroke="${C.cream}" stroke-width="1"/><text x="8" y="14" fill="${C.cream}">${a}</text><text x="8" y="27" fill="${C.tealL}">${what}</text></g>`;
   };
-  const hn = hands(p.aw, p.hd, 0, 0), design = mode === "design", nk = neck(p.aw, 0);
+  const hn = hands(p.aw, p.hd), design = mode === "design", nk = neck(p.aw, 0);
   return `<svg class="og-svg" viewBox="0 0 ${VB.w} ${VB.h}" preserveAspectRatio="xMidYMid slice" role="group" aria-label="A desk seen from above: he sleeps at night, wakes with the sun, puts the headphones on, drinks his coffee and codes all day">
 <defs>
 <radialGradient id="${id}lampg"><stop offset="0" stop-color="#ffe2a0" stop-opacity=".9"/><stop offset=".55" stop-color="#ffcf7a" stop-opacity=".35"/><stop offset="1" stop-color="#ffcf7a" stop-opacity="0"/></radialGradient>
@@ -231,25 +268,27 @@ export function art(p: { aw: number; ph: number; lid: number; hd: number }, mode
 <rect class="og-15" x="-300" y="102" width="1400" height="10" fill="${C.tealD}" opacity=".6"/>
 <path class="og-fz o-glow" d="M-300 103.5H1100" stroke-width="8"/><path class="og-fz o-neon" d="M-300 103.5H1100" stroke-width="2"/>
 <path class="og-beam o-beam" fill="${C.cream}" d="M150 102h230l120 400H270Z"/>
-<g data-p="lamp"><circle class="o-sh" cx="104" cy="176" r="34" fill="${C.ink}" opacity=".18"/><circle class="o-face" cx="100" cy="172" r="32" fill="${C.cream}"/><path class="o-redS" d="M100 172L132 214" stroke="${C.inkL}" stroke-width="6" stroke-linecap="round"/><circle class="o-red" cx="136" cy="218" r="22" fill="${C.red}"/><circle cx="136" cy="218" r="12" class="og-bulb o-star" fill="${C.cream}"/></g>
-<g transform="rotate(-9 128 380)"><rect class="o-face" x="70" y="320" width="118" height="132" rx="4" fill="${C.cream}"/><rect class="o-faceD" x="70" y="320" width="12" height="132" fill="${C.creamD}"/><path class="o-rule" d="M96 354h70M96 372h56M96 390h64" stroke="${C.creamD}" stroke-width="3" stroke-linecap="round"/><circle class="o-redS" cx="148" cy="420" r="16" fill="none" stroke="${C.red}" stroke-width="3"/><rect class="o-tealD" x="176" y="340" width="7" height="92" rx="2" fill="${C.red}" transform="rotate(12 180 386)"/></g>
-<g transform="translate(724 210)"><circle class="o-face" r="30" fill="${C.cream}"/><ellipse class="o-l2" rx="34" ry="13" fill="#3f8f6f" transform="rotate(30)"/><ellipse class="o-l1" rx="34" ry="13" fill="#4ea27d" transform="rotate(-40)"/><ellipse class="o-l3" rx="30" ry="11" fill="#5fb48c" transform="rotate(95)"/><circle class="o-l2" r="6" fill="#3f8f6f"/></g>
+<g data-p="lamp" class="og-lamp" tabindex="0" role="button" aria-label="Turn the lamp off"><g class="og-sqm"><circle class="o-sh" cx="104" cy="176" r="34" fill="${C.ink}" opacity=".18"/><circle class="o-face" cx="100" cy="172" r="32" fill="${C.cream}"/><path class="o-redS" d="M100 172L132 214" stroke="${C.inkL}" stroke-width="6" stroke-linecap="round"/><circle class="o-red" cx="136" cy="218" r="22" fill="${C.red}"/><circle cx="136" cy="218" r="12" class="og-bulb o-star" fill="${C.cream}"/></g></g>
+<g data-p="book" class="og-book" tabindex="0" role="button" aria-label="The notebook: he writes in it" transform="rotate(-9 155 416)"><g class="og-sqb"><rect class="o-sh" x="100" y="354" width="118" height="132" rx="4" fill="${C.ink}" opacity=".16"/><rect class="o-face" x="96" y="350" width="118" height="132" rx="4" fill="${C.cream}"/><rect class="o-faceD" x="96" y="350" width="12" height="132" fill="${C.creamD}"/><path class="o-rule" d="M120 388h80M120 424h80M120 460h80" stroke="${C.creamD}" stroke-width="2" stroke-linecap="round"/>${[362, 398, 434].map((y) => `<path class="og-ink" transform="translate(122 ${y})" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" fill="none" stroke="${C.inkL}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`).join("")}</g></g><rect class="o-tealD" x="222" y="372" width="7" height="92" rx="2" fill="${C.red}" transform="rotate(12 226 418)"/>
+<g data-p="plant" class="og-plant" tabindex="0" role="button" aria-label="Water the plant" transform="translate(${PLANT.x} ${PLANT.y})"><g class="og-sqf"><circle class="o-sh" cx="4" cy="5" r="30" fill="${C.ink}" opacity=".16"/><circle class="o-face" r="30" fill="${C.cream}"/><g class="og-leaves"><ellipse class="o-l2" rx="34" ry="13" fill="#3f8f6f" transform="rotate(30)"/><ellipse class="o-l1" rx="34" ry="13" fill="#4ea27d" transform="rotate(-40)"/><ellipse class="o-l3" rx="30" ry="11" fill="#5fb48c" transform="rotate(95)"/><circle class="o-l2" r="6" fill="#3f8f6f"/></g></g></g>
 <svg class="og-saucer" x="${CUP.x}" y="${CUP.y}" width="78" height="78" viewBox="0 0 84 84" overflow="visible">${SAUCER}</svg>
 <g data-p="laptop" class="og-laptop" tabindex="0" role="button" aria-label="Close the laptop">
 <rect class="o-sh" x="290" y="252" width="224" height="134" rx="10" fill="${C.ink}" opacity=".16"/>
 <rect class="o-face" x="286" y="248" width="228" height="134" rx="10" fill="${C.cream}"/>
 <rect class="og-fz o-glow" x="286" y="248" width="228" height="134" rx="10" fill="none" stroke-width="8"/>
 <g class="o-faceD" fill="${C.creamD}">${keys()}</g><rect class="o-faceD" x="366" y="344" width="68" height="30" rx="5" fill="${C.creamD}"/>
+<g class="og-klit">${`<rect class="o-klit" x="302" y="262" width="13" height="11" rx="2" fill="${C.red}" opacity="0"/>`.repeat(4)}</g>
 <g class="og-cover" transform="${coverT(p.lid)}"><rect class="o-lid" x="286" y="248" width="228" height="134" rx="10" fill="#cfc8b2"/><circle class="o-face" cx="400" cy="315" r="9" fill="${C.cream}"/></g>
 <g class="og-screen" transform="${screenT(p.lid)}">
-<rect class="og-fz o-glow" x="292" y="128" width="216" height="122" rx="9" fill="none" stroke-width="8"/>
-<rect class="o-lid" x="292" y="128" width="216" height="122" rx="9" fill="${C.ink}"/>
-<rect class="o-scr" x="304" y="140" width="192" height="100" fill="${C.code}"/>
-<g clip-path="url(#${id}dsp)">
+<path class="og-fz o-glow" d="${LIDP}" fill="none" stroke-width="8"/>
+<path class="o-lid" d="${LIDP}" fill="${C.ink}"/>
+<path class="o-scr" d="${SCR}" fill="${C.code}"/>
+<g transform="${SCRT}"><g clip-path="url(#${id}dsp)">
 <g class="og-code" ${design ? 'style="display:none"' : ""}><rect class="o-ink" x="304" y="140" width="192" height="12" fill="${C.ink}"/><circle class="o-red" cx="312" cy="146" r="2.4" fill="${C.red}"/><circle class="o-sun" cx="320" cy="146" r="2.4" fill="${C.sun}"/><circle class="o-tealD" cx="328" cy="146" r="2.4" fill="${C.tealL}"/><g class="og-scroll">${codePage(158)}${codePage(158 + CODE.length * 7)}</g><rect class="og-caret o-star" x="316" y="230" width="5" height="6" fill="${C.cream}"/></g>
 <g class="og-des" ${design ? "" : 'style="display:none"'}><rect class="o-scr" x="304" y="140" width="192" height="100" fill="#efe9d6"/><g class="o-red" fill="${C.red}" opacity=".12">${[0, 1, 2, 3, 4, 5].map((i) => `<rect x="${330 + i * 24}" y="146" width="18" height="88"/>`).join("")}</g><rect class="o-teal" x="330" y="150" width="138" height="34" rx="3" fill="${C.teal}"/><rect class="o-cream" x="338" y="160" width="60" height="5" rx="2.5" fill="${C.cream}"/><rect class="o-cream" x="338" y="170" width="38" height="4" rx="2" fill="${C.cream}" opacity=".7"/><circle class="og-shape o-sun" cx="444" cy="167" r="10" fill="${C.sun}"/><rect class="o-red" x="330" y="192" width="42" height="34" rx="3" fill="${C.red}"/><rect class="o-faceD" x="378" y="192" width="42" height="34" rx="3" fill="${C.ink}"/><rect class="o-tealD" x="426" y="192" width="42" height="34" rx="3" fill="${C.tealD}"/><rect class="og-sel" x="374" y="188" width="50" height="42" fill="none" stroke="#2f80ed" stroke-width="1.4"/><path class="og-arrow" d="M0 0v12l3.4-3 2.4 5.4 2-1-2.4-5.2h4.6Z" fill="${C.ink}" stroke="${C.cream}" stroke-width=".8"/></g>
-</g>
-<circle cx="400" cy="134" r="1.8" fill="${C.inkL}"/>
+</g></g>
+<circle cx="400" cy="${LID + 4.5}" r="1.8" fill="${C.inkL}"/>
+<rect class="o-hinge" x="292" y="246" width="216" height="7" rx="3.5" fill="${C.inkL}"/>
 </g>
 </g>
 <path class="og-cord o-cord" d="${cord(p.ph, p.aw, 0)}" fill="none" stroke="${C.red}" stroke-width="3" stroke-linecap="round"/>
@@ -266,10 +305,10 @@ export function art(p: { aw: number; ph: number; lid: number; hd: number }, mode
 <rect class="o-faceD" x="-8" y="-54" width="16" height="3" rx="1.5" fill="${C.creamD}"/><circle class="o-faceD" cy="52" r="5" fill="${C.creamD}"/>
 </g></g>
 <g class="og-body" data-p="person" tabindex="0" role="button" aria-label="Nudge him">
-<path class="o-sh" d="M298 508Q300 466 342 460H458Q500 466 502 508L512 640H288Z" fill="${C.ink}" opacity=".16"/>
-<path class="o-shirt" d="M294 504Q296 462 338 456H462Q504 462 506 504L516 640H284Z" fill="${C.red}"/>
-<ellipse class="og-neck o-shirt" cx="400" cy="${nk.cy}" rx="50" ry="${nk.ry}" fill="${C.red}"/><ellipse class="og-nape" cx="400" cy="${r1(nk.cy - nk.ry + 30)}" rx="18" ry="14" fill="${C.skinD}"/>
-<path class="o-shirtD" d="M370 466q30 16 60 0" fill="none" stroke="${C.redD}" stroke-width="5" stroke-linecap="round"/>
+<path class="o-sh" d="${TORSO}" transform="translate(4 6)" fill="${C.ink}" opacity=".16"/>
+<path class="o-shirt" d="${TORSO}" fill="${C.red}"/>
+<ellipse class="og-neck o-shirt" cx="400" cy="${nk.cy}" rx="80" ry="${nk.ry}" fill="${C.red}"/><ellipse class="og-nape" cx="400" cy="${r1(nk.cy - nk.ry + 30)}" rx="14" ry="11" fill="${C.skinD}"/>
+<path class="o-shirtD" d="M376 458q24 13 48 0M342 500q18 24 46 18M458 500q-18 24-46 18M400 478V640" fill="none" stroke="${C.redD}" stroke-width="3" stroke-linecap="round" opacity=".7"/>
 ${armEl(-1, hn.lx, hn.ly)}${armEl(1, hn.rx, hn.ry)}
 <g class="og-head" transform="${headT(p.aw, 0)}"><ellipse cx="-43" cy="5" rx="7" ry="11" fill="${C.skinD}"/><ellipse cx="43" cy="5" rx="7" ry="11" fill="${C.skinD}"/><circle r="44" fill="${C.ink}"/>
 <circle class="o-mesh" cy="-2" r="41" fill="${C.inkL}"/><circle cy="-2" r="41" fill="url(#${id}mesh)"/>
@@ -285,10 +324,13 @@ ${armEl(-1, hn.lx, hn.ly)}${armEl(1, hn.rx, hn.ry)}
 <g data-p="cup" class="og-cup" transform="${cupT(0)}"><g class="og-upg"><svg class="og-up" width="78" height="78" viewBox="0 0 84 84" overflow="visible"><clipPath id="${id}cupc"><circle cx="42" cy="43.5" r="27.6"/><rect x="3.5" y="35.5" width="20" height="13" rx="6.5"/></clipPath><g class="og-15" clip-path="url(#${id}cupc)"><image class="og-cupimg" href="${cup}" x="${-11 * 84}" y="${design ? -84 : 0}" width="1008" height="168"/></g><g class="og-fz"><rect class="o-neon" x="3" y="35" width="22" height="15" rx="7.5" fill="none" stroke-width="3.5"/><circle class="o-glow" cx="42" cy="43.5" r="28" fill="none" stroke-width="8"/><circle class="o-face" cx="42" cy="43.5" r="27.5" stroke-width="2.5"/><circle class="o-scr" cx="42" cy="43.5" r="23.5"/></g><ellipse class="og-liquid" cx="42" cy="43.5" rx="22.6" ry="20.1" fill="${brew(design, 0.8)}"/></svg></g>
 <g class="og-tip" style="display:none"><rect class="o-face" x="9" y="16" width="60" height="48" rx="9" fill="${C.cream}"/><rect class="o-faceD" x="9" y="16" width="12" height="48" rx="6" fill="${C.creamD}"/><rect x="26" y="31" width="20" height="18" rx="8" fill="none" class="o-redS" stroke="${C.creamD}" stroke-width="4"/><ellipse class="o-face" cx="70" cy="40" rx="8" ry="24" fill="${C.cream}"/><ellipse class="o-brew" cx="70" cy="40" rx="5" ry="19" fill="${C.ink}"/></g></g>
 <g class="og-pot" style="display:none"><path class="o-pour og-stream" d="M40 0H66" stroke="#5a3526" stroke-width="0" stroke-linecap="round"/><g class="og-potb"><circle class="o-csh" cx="4" cy="6" r="27" fill="${C.ink}" opacity=".16"/><circle class="o-pot" r="27" fill="${C.cream}"/><circle class="o-brew" r="19" fill="#5a3526"/><path class="o-pot" d="M24-8L44 0L24 8Z" fill="${C.cream}"/><rect class="o-pot" x="-44" y="-7" width="18" height="14" rx="6" fill="${C.ink}"/></g></g>
+<g class="og-drops">${`<circle class="o-water" r="0" fill="${C.cream}"/>`.repeat(16)}</g>
+<g class="og-can" style="display:none"><path class="o-water og-wstream" d="M50-4Q64-26 84 0" fill="none" stroke="${C.cream}" stroke-width="0" stroke-dasharray="4 5" stroke-linecap="round"/><g class="og-canb"><rect class="o-csh" x="-20" y="-12" width="44" height="34" rx="9" fill="${C.ink}" opacity=".16"/><path class="o-pot" d="M14-4L48-12" stroke="${C.tealD}" stroke-width="7" stroke-linecap="round" fill="none"/><circle class="o-pot" cx="50" cy="-12" r="6" fill="${C.tealD}"/><rect class="o-pot" x="-24" y="-17" width="44" height="34" rx="9" fill="${C.tealD}"/><path class="o-redS" d="M-16-17Q-2-34 12-17" stroke="${C.ink}" stroke-width="4" fill="none"/></g></g>
 <rect class="og-night o-night" x="-300" y="-300" width="1400" height="1100" fill="#1d1a3c"/>
+<path class="og-cone" d="M128 208L340 330Q330 478 120 490Z" fill="url(#${id}lampg)"/>
 <circle class="og-lampg" cx="150" cy="250" r="230" fill="url(#${id}lampg)"/>
 <ellipse class="og-scrg" cx="400" cy="250" rx="170" ry="140" fill="url(#${id}scrg)"/>
-<rect class="og-scrl" x="304" y="140" width="192" height="100" fill="#bff3ea" transform="${screenT(p.lid)}"/>
+<path class="og-scrl" d="${SCR}" fill="#bff3ea" transform="${screenT(p.lid)}"/>
 <g class="og-tags" aria-hidden="true">${tag("sky", 290, 108, ["timeline"], "the day and night cycle")}${tag("person", 300, 452, ["timeline"], "wake, sip, sleep")}${tag("phones", 476, 100, ["fx", "sound"], "notes and the beat")}${tag("cup", 120, 352, ["input", "timeline", "fx"], "drag, flick, refill")}${tag("laptop", 304, 196, ["input", "fx"], "the lid, keys, code sparks")}${tag("phone", 520, 384, ["sprite"], "the pixel coder")}${tag("lamp", 40, 250, ["kernel"], "one loop, settle, Recall")}</g>
 </svg>`;
 }
