@@ -2,12 +2,14 @@
 // is the scene itself at `posterAt` seconds with no tap (run by hand on its engine: deterministic,
 // the engine's random is seeded), saved as a small PNG into the poster <img data-poster> of its
 // site/gallery/stages/<id>.html. So the poster, the reduced-motion still and the live scene are
-// one drawing. Run after changing a piece's art: `node scripts/gallery-posters.mjs [id…]`.
+// one drawing. The PNG is packed losslessly (scripts/png-pack.mjs: indexed, about a third of the
+// bytes). Run after changing a piece's art: `node scripts/gallery-posters.mjs [id…]`.
 import { readFileSync, writeFileSync } from "node:fs";
 import { build } from "esbuild";
 import { chromium } from "playwright";
 import { launchOptions } from "../tests/chromium.mjs";
 import { entries } from "./gallery.mjs";
+import { packHtml } from "./png-pack.mjs";
 
 const DIR = "site/gallery";
 const want = process.argv.slice(2);
@@ -23,7 +25,7 @@ try {
     // The host holds the piece's own stage markup, as the gallery figure does (a piece may read it).
     const stage = readFileSync(`${DIR}/stages/${e.id}.html`, "utf8");
     await page.setContent(`<!doctype html><body style="margin:0;--sans:system-ui,sans-serif;--mono:ui-monospace,monospace"><div id="host" style="position:relative;width:640px;height:360px">${stage}</div><script>${js}</script></body>`);
-    const png = await page.evaluate(() => {
+    const png = packHtml(await page.evaluate(() => {
       const host = document.getElementById("host");
       const scene = piece.mount(host, host, null);
       scene.engine.stop();
@@ -36,7 +38,7 @@ try {
       const g = out.getContext("2d");
       for (const c of [c0, ...more]) g.drawImage(c, 0, 0);
       return out.toDataURL("image/png");
-    });
+    }));
     await page.close();
     const f = `${DIR}/stages/${e.id}.html`, html = readFileSync(f, "utf8");
     const next = html.replace(/(<img[^>]*data-poster[^>]*src=")[^"]*(")/, `$1${png}$2`);

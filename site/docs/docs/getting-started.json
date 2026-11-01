@@ -24,7 +24,7 @@
           "items": [
             "**One script tag.** `https://fizlet.com/fizlet.js` puts the kernel and every brick but `@fzlt/core/debug` on `window.fizlet`. No build step. The [quick start](/examples/quick-start.html) runs it as is.",
             "**ES modules, only what you use.** Import each brick from `https://fizlet.com/dist/`: `index.js` is the kernel, `fx.js` is `@fzlt/core/fx`, and so on. A page that imports the kernel and `@fzlt/core/fx` ships only those.",
-            "**npm (coming soon).** `npm install @fzlt/core` is not published yet. Until it is: `git clone`, `npm ci`, `npm run build` gives you `dist/` with every subpath export (`@fzlt/core`, `@fzlt/core/fx`, `@fzlt/core/slot` …) and its TypeScript types."
+            "**npm.** `npm install @fzlt/core` gives you every subpath export (`@fzlt/core`, `@fzlt/core/fx`, `@fzlt/core/slot` …) and its TypeScript types. Or build from source: `git clone`, `npm ci`, `npm run build` gives you the same `dist/`."
           ]
         }
       ]

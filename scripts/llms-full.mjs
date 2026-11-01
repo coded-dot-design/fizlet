@@ -2,7 +2,7 @@
 // pages (scripts/api.mjs, run at site build time), so it never drifts from the code. One section per
 // brick (its import, status, measured size and summary), then every export: kind, status flag, doc
 // comment, signatures with parameters and return types, and the declaration as published.
-import { STATUS, BETA_LINE, brickPath, exportStatus } from "../site/bricks.mjs";
+import { STATUS, BETA_LINE, IN_HOUSE, brickPath, exportStatus, inHouse } from "../site/bricks.mjs";
 
 /** `bricks`: the catalog with `mods` ([{ name, summary, decls }]); `sizes` from scripts/sizes.mjs. */
 export function llmsFull({ bricks, sizes, version, site, description }) {
@@ -12,6 +12,7 @@ export function llmsFull({ bricks, sizes, version, site, description }) {
   for (const b of bricks) {
     const size = sizes.find((s) => s.name === b.sizes[0]);
     out.push(`## ${b.name}`, "", `Status: ${STATUS[b.status].label}. Size: ${size.gzip} B gzip (budget ${size.budget} B). Page: ${site}${brickPath(b)}`, "");
+    if (inHouse(b)) out.push(`${IN_HOUSE.label}: ${IN_HOUSE.line} Build your own room server: ${site}${IN_HOUSE.guide}`, "");
     for (const m of b.mods) {
       out.push(`Import: \`import { … } from "${m.name}"\``, "", m.summary, "");
       for (const d of m.decls) {

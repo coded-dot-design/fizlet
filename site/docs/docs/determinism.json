@@ -51,8 +51,8 @@
       "type": "cta",
       "links": [
         {
-          "label": "Multiplayer rooms guide",
-          "href": "/guides/multiplayer-rooms/"
+          "label": "Build your own room server",
+          "href": "/guides/build-your-own-room-server/"
         },
         {
           "label": "@fzlt/core/presence",

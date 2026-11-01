@@ -12,6 +12,43 @@
   title), the footer lockup shows the short mark `fzlt™` beside FIZLET, and the footer says "Fizlet and
   fzlt are trademarks of Chris Cooley." The footer copyright
   reads "© 2026 Chris Cooley" (was coded.design); the byline still links coded.design as his site.
+- **Both marks on npm: a `fzlt` bin, Fizlet™ (fzlt™) in the description, and a fzlt.dev page.**
+  `npx @fzlt/core` (or `fzlt` once installed) prints the version, the install line, fizlet.com and
+  every brick's gzip size against its budget (`--json` for machines). Zero dependencies, `node:` only;
+  its numbers are `dist/sizes.json`, written by the build from `scripts/sizes.mjs` (the same
+  measurement as `npm run size`), never measured at run time. Not an export; no budget moves.
+  Keywords add `fzlt` and `fizlet`; the README gets an npm badge. `npm run site:fzlt` builds the
+  fzlt.dev landing page into `site-dist-fzlt/` (static, no script, light and dark from the system,
+  on the kit tokens); not deployed. `npm run test:pack` now also runs the bin installed and through
+  `npx` from the tarball.
+- **Site: the brick graph fits phones** (/bricks/). Labels no longer overlap: when the layout rests,
+  a one-shot pass moves each label to the cheapest of four sides of its brick (nudged up or down a
+  little), on typed arrays, deterministic, no allocation. Nothing clips: the view fits the world box
+  grown round any dot or label (widths measured once) that sticks out of it, so desktop looks the
+  same. `tests/brick-graph.mjs` checks every label inside the canvas and no two overlapping at 360,
+  390 and 1440, also with the longest label held at the right edge. No brick changes.
+
+- **Multiplayer is in-house; a guide to build your own room server.** `@fzlt/core/presence` and
+  `@fzlt/core/presence/check` stay in the package unchanged (MIT, BETA) and move into an
+  "In-house / experimental" group wherever bricks are listed (the bricks page, the home page, the
+  README table, llms-full.txt): "Used in our games. Not a supported multiplayer service." The room
+  server (`rooms/`) leaves this repo; its history stays here, and we keep running it for our own
+  games, privately. Its CI step and the `rooms-load` / `rooms-wake` stress wrappers go with it.
+  `/guides/multiplayer-rooms/` becomes **Build your own room server**
+  (`/guides/build-your-own-room-server/`; the old URL redirects): what presence speaks, the full
+  wire protocol as the contract (subprotocol `fizlet-rooms`, the 12-byte message and its eight kinds,
+  seats, the lobby, resume, the access check), the one-room-one-object pattern and a threat
+  checklist. The roadmap says "Multiplayer: in-house. DIY guide for your own server."; E12 builds on
+  presence (in-house). The lockstep note links the guide.
+- Site and README: `@fzlt/core` is on npm (0.21.2, 2026-10-31), so the home quick start, the brick
+  pages and the docs drop "coming soon" / "not published yet", and the README's pre-publish note
+  says when it went out. Building from source stays as the no-npm option.
+- **Site: smaller gallery pages, same pixels** (size sprint, re-based #208). The gallery stages' inline
+  PNG posters are packed losslessly (`scripts/png-pack.mjs`: an indexed PNG at the smallest bit depth,
+  pixels compared after packing; kept as-is past 256 colours; `scripts/gallery-posters.mjs` packs what
+  it writes; a test keeps every stage packed): 17 of the 34 posters packed. The pages' inline `<style>`
+  blocks are minified at build like site.css. Gallery page 1 first load 531,997 → 520,651 B gzip,
+  page 2 92,521 → 76,754 B; all HTML 1,465,898 → 1,428,045 B gzip. No JS or CSS file changes.
 
 ## 0.21.2
 

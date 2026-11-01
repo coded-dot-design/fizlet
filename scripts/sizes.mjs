@@ -127,3 +127,10 @@ export async function measure() {
   }
   return out;
 }
+
+/** dist/sizes.json (scripts/build.mjs; read by bin/fzlt.mjs): the measured entries, gzip bytes and budget. */
+export const sizesJson = (sizes, version) => ({
+  version,
+  measured: "minified + gzip at build, everything each entry pulls in",
+  entries: sizes.map(({ name, gzip, budget }) => ({ name, gzip, budget })),
+});
