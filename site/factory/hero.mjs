@@ -190,7 +190,7 @@ html.bui[data-theme="light"] .fac-sign{color:var(--k-go)}
 .fac-c+.fac-c b{color:var(--hurt)}
 html.bui[data-theme="light"] .fac-c b{color:var(--k-fire-ink)}
 .bui .fac-shake{--c:var(--k-attack)}
-.bui .fac-mute{flex:none;width:44px;height:44px;padding:0;justify-content:center}
+.bui .fac-mute{flex:none;display:inline-flex;align-items:center;width:44px;height:44px;padding:0;justify-content:center}
 .fac-side .hero-link{min-height:44px;display:inline-flex;align-items:center}
 .bui .fac-hud .fac-shake{min-height:44px}
 .fac-mute .fac-off,.fac-mute[aria-pressed=true] .fac-on{display:none}.fac-mute[aria-pressed=true] .fac-off{display:block}

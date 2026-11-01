@@ -4,7 +4,7 @@ import { esc, icon, REPO, SITE, HUB, BATTLEFIELD, BLITZ, ENGINE_PLAN, AUTHOR } f
 import { sizeBadge } from "../size-badge.mjs";
 import { QUICK_START } from "./quick-start.mjs";
 import { BETA_LINE, IN_HOUSE, inHouse } from "../bricks.mjs";
-import { brickCompact } from "../brick-ui.mjs";
+import { brickCompact, sizeChips } from "../brick-ui.mjs";
 import { LAUNCH_LAST, phases } from "../roadmap.mjs";
 import { originSection } from "../origin/section.mjs";
 
@@ -135,7 +135,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
     [kb(kernel.gzip) + " KB", "kernel gzip", `Of a ${kb(kernel.budget)} KB budget, checked on every push.`],
   ].map(([n, label, note]) => `<li class="panel spec-card"><b>${n}</b><span>${label}</span><small>${esc(note)}</small></li>`).join("\n      ");
 
-  const chips = sizes.map((s) => `<li><i style="--v:${(s.gzip / s.budget).toFixed(3)}"></i><span>${esc(s.name)}</span><b>${(s.gzip / 1024).toFixed(2)}<small> KB</small></b></li>`).join("");
+  const chips = sizeChips({ sizes, bricks: catalog });
 
   const pipeline = PIPELINE.map(([t, s], i) => `<li><em>${String(i + 1).padStart(2, "0")}</em><b>${esc(t)}</b><span>${esc(s)}</span></li>`).join("");
   const ledger = LEDGER_ROWS.map(([c, what, eg]) => `<tr><td><code>${esc(c)}</code></td><td>${esc(what)}</td><td>${esc(eg)}</td></tr>`).join("");
@@ -359,8 +359,8 @@ ${originSection(origin)}
     <ul class="spec-grid">
       ${specs}
     </ul>
-    <ul class="size-chips" aria-label="Every module, gzip">${chips}</ul>
-    <p class="spec-note">Sizes measured on this build of v${esc(version)}, minified and gzipped (1 KB = 1024 bytes), the same way <code>npm run size</code> checks them in CI. The bar is the share of each module's budget. The one-file script-tag bundle (kernel and every brick but debug) is ${kb(bundle)} KB.</p>
+    ${chips}
+    <p class="spec-note">Sizes measured on this build of v${esc(version)}, minified and gzipped (1 KB = 1024 bytes), the same way <code>npm run size</code> checks them in CI. Each tile fills to the share of its module's budget (hover a chip for the number). The one-file script-tag bundle (kernel and every brick but debug) is ${kb(bundle)} KB.</p>
   </div>
 </section>
 

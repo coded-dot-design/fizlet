@@ -11,3 +11,9 @@ export const ORIGIN_WHY_BEATS = ORIGIN_WHY.split(/(?<=\.)\s+/);
 
 /** The title and its design-mode twin. */
 export const ORIGIN_TITLE = { code: "Code. Sleep. Drink. Repeat.", design: "Design. Sleep. Drink. Repeat." } as const;
+
+/** What the scene is after: the caption under the why, the poster and the demo page. */
+export const ORIGIN_CREDIT = "Inspired by the original 2015 portfolio, with Fizlet flair";
+
+/** The two looks, as the look key names them: the 2015 portfolio's flat palette, or Fizlet's. */
+export const ORIGIN_LOOKS = { "2015": "2015", fizlet: "Fizlet" } as const;

@@ -28,6 +28,56 @@
   until they land) so they read on both themes (on
   phones it drops under FIZLET, a size down, so the 44 px header keys keep their room). Clear space is now
   the mark's outlined square; minimum 24 px for both logos.
+- **Site: the origin hero in two looks, a redrawn coder, and a cup you can play with (pending owner
+  review).** "Code. Sleep. Drink. Repeat." is now inspired by the original 2015 portfolio, with
+  Fizlet flair: a 2015 / Fizlet key in the scene's key row (`aria-pressed`, `look` in `origin:state`,
+  `look` in mount, `data-look` on the slot) switches the flat 2015 palette and the Fizlet look,
+  cyberpunk × Tron from the Board UI tokens with the desk grid, neon edges and pixel patterns
+  (default). He wears a backwards trucker cap seen from above (mesh, foam panel, the bill toward
+  you), the headphones' band goes over it with a cup on each ear, and his arms bend at the elbow
+  (two bones, a tapered forearm, hands). Every tap squashes on the next frame and pops; hit areas
+  are 44 px or more. The cup: tap to sip, double-tap to refill (a pour, then steam), drag to move
+  it (it lifts, its shadow grows), flick to knock it over (it spills, then rights itself, refilled);
+  Enter, R, K and the arrows on the cup. Reduced motion changes state with no animation; every toy
+  settles. Live chunk 20,922 → 28,156 B gzip; inline poster 3,775 → 5,120 B (one markup, both
+  looks; the poster's saucer shows again). Test: `tests/origin.mjs`.
+- **Site: 3D stickers keep their edge and shadow on the dark theme (pending owner review).** Every
+  sticker's die-cut edge and hard shadow read from one token pair, `--sticker-edge` and
+  `--sticker-shadow` (site.css :root): the light ink and the muted light on the dark theme, the ink
+  rim on the light theme. The brick status stickers and the kernel slab, section and gallery numbers
+  (`.eyebrow .index`), the gallery's NEW / APPROVED / HERO / WINNER stickers, the phase and people
+  stickers, the win badge, the status and phase pills, the periodic tiles' stickers and the kit's
+  slam sticker on the site all use it. Text stays the dark ink on the bright face.
+
+- **Home: the spec sheet's size chips are small brick tiles (pending owner review).** The wall of
+  "@fzlt/core/… KB" chips with a green bar under each is now two tidy grids (`sizeChips` in
+  site/brick-ui.mjs): the bricks you import, each with its symbol tile in its own colour (from
+  site/bricks.mjs, the same as the cards and the periodic table), its short name ("input",
+  "presence/check") and its gzip size as the number, with "@fzlt/core/…" said once in the heading;
+  then the kernel, the split sizes (ui js, ui css) and the builds (the arcade card, the page build),
+  where a build gets a neutral dashed tile and no symbol. The bar is gone: each tile fills from the
+  bottom to the share of its budget, and the share is in the chip's text for screen readers and in
+  its title on hover. The docs budgets table shows the same symbol tiles. Sizes stay the build's.
+
+- **Bricks: status stickers sit beside the symbol tile, each slapped on its own way; BETA peels; the
+  kernel gets a stamped slab (pending owner review).** On the home page's brick cards and on bricks/,
+  the status sticker moves off the card's top border into the open space right of the symbol tile,
+  centred on its row. Its tilt (2 to 6 degrees either way) and a nudge of a few px come from the
+  brick's id (`stickerLook` in site/brick-ui.mjs, a hash: the same on every build, no Math.random,
+  and translate/rotate never move the layout). BETA stickers peel: one corner cut and folded back as a
+  lighter underside with a soft shadow, and two faint scuffs, in CSS only (the DOM VIRUS game sticker's
+  recipe); the label is still the only text. The kernel's KERNEL sticker is a bigger purple slab
+  in the card's top-right corner, inside its border (no sticker hangs off a card or a tile), with a
+  stamp's inner ring and the kernel card's double shadow. Hover
+  and focus press the stickers flat (no motion under reduced motion). The same rules at every size:
+  the periodic table's tiles, the quick view, a brick's page and the roadmap cards. On phones a long
+  label wraps under the tile, never over the name. No sticker hangs off a card; on the periodic
+  table's small tiles the sticker still sits on the top edge. The kernel shows only its KERNEL sticker
+  everywhere (card, tile, legend, quick view, its page): it is the core, so complete goes without
+  saying (its status stays `complete` in the data). A sub-heading after a
+  brick grid ("In-house / experimental") keeps the page's 48 px block gap. Text contrast on every sticker face is 5.4:1 or
+  more in both themes.
+
 - **Gallery: the genre minis are playable: compact keys that never cover the action (pending owner
   review).** In Redline, Dirt Lab, Bag Beat and Toast Tell the keys were sized in container units on a
   figure that was no size container, so they grew with the window (GAS took half the stage), and the
