@@ -7,8 +7,10 @@
  * drip and debris (or your own) and sprays them; a page that never calls it never ships it. Visual only: its own random (seeded from Math.random), never the
  * simulation's seeded random.
  */
-const TAU = Math.PI * 2;
+// Shape numbers first: esbuild inlines a top-level const only while nothing that runs code (here
+// Math.PI) comes before it.
 const DEBRIS = 0, DISC = 1, RING = 2, SQUARE = 3, WORD = 4, SMOKE = 5, STREAK = 6;
+const TAU = Math.PI * 2;
 /** Shapes a kind can draw as (a streak trails its velocity: sparks, drips). */
 export const SHAPES = ["square", "disc", "ring", "frame", "word", "smoke", "streak"] as const;
 

@@ -22,10 +22,12 @@ interface Entry {
   style?: Map<string, StyleRec>;
   attr?: Map<string, Rec<string | null>>;
   cls?: Map<string, Rec<boolean>>;
-  hadStyle: boolean;
+  /** Had a style attribute before our first write. */
+  hs: boolean;
   /** The style attribute text before our first write (restored verbatim when we still own it all). */
   os: string | null;
-  hadClass: boolean;
+  /** Had a class attribute before our first write. */
+  hc: boolean;
 }
 
 let probe: HTMLElement | undefined;
@@ -49,7 +51,7 @@ export class Ledger {
 
   private e(el: El) {
     let e = this.m.get(el);
-    if (!e) this.m.set(el, (e = { hadStyle: el.hasAttribute("style"), os: el.getAttribute("style"), hadClass: el.hasAttribute("class") }));
+    if (!e) this.m.set(el, (e = { hs: el.hasAttribute("style"), os: el.getAttribute("style"), hc: el.hasAttribute("class") }));
     return e;
   }
 
@@ -139,8 +141,8 @@ export class Ledger {
       });
       // Still ours end to end: put the original attribute text back byte for byte.
       if (e.style && all && e.os !== null && el.style.cssText === withStyle(e.os, el)) el.setAttribute("style", e.os);
-      if (e.style && !e.hadStyle && !el.getAttribute("style")) el.removeAttribute("style");
-      if (e.cls && !e.hadClass && el.getAttribute("class") === "") el.removeAttribute("class");
+      if (e.style && !e.hs && !el.getAttribute("style")) el.removeAttribute("style");
+      if (e.cls && !e.hc && el.getAttribute("class") === "") el.removeAttribute("class");
     }
     this.a.length = 0;
     this.t.clear();

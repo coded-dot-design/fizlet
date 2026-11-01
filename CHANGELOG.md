@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+- **Size (S8, size/treeshake; supersedes #205): the page build has 154 B of headroom under its 7 KB cap.**
+  No behaviour change. esbuild keeps a top-level `const` as a variable in any file with imports (and
+  a local one declared after other code), so the numbers the engine and the bricks index with now
+  ship as literals named in a comment (`2 /* STEP */`): the engine's slots, pause bits and phases, and
+  the slots and kinds in hud, match, pad, perf, presence, camera, board-page and arcade (exported
+  values unchanged). `EventRing` and `Pool` private fields are one letter (`s`, `f`: the API snapshot
+  shows them, the public API is unchanged), the ledger entry's flags are `hs`/`hc`, and fx's shape
+  numbers come before `TAU`. Measured gz: kernel 3,413 → 3,332 B, page build 7,128 → 7,014 B, arcade
+  24,280 → 24,031 B, arcade card 18,295 → 18,113 B, presence/check −176 B, camera −69 B. Budgets
+  lowered to lock it in: page build 7,168 → 7,104, arcade 24,399 → 24,150, arcade card 18,361 → 18,179,
+  css-clock 5,632 → 5,566, board-page 4,193 → 4,160, perf 2,048 → 2,022, pad 2,126 → 2,120.
+- **src/ is erasable TypeScript, enforced.** `tsconfig.json` sets `erasableSyntaxOnly` and
+  `tests/erasable.test.mjs` runs every source file through Node's type stripper, so a `const enum`, an
+  `enum`, a namespace or a parameter property fails CI instead of breaking games that vendor `src/`
+  (byte-runner, null-invaders, sherman-bytes). `@fzlt/core/perf`'s `FrameRing` had a parameter property;
+  `cap` is now a plain field (same API). The site's own tsconfig turns the flag off for gallery pieces.
 - **Gallery: the genre minis are playable: compact keys that never cover the action (pending owner
   review).** In Redline, Dirt Lab, Bag Beat and Toast Tell the keys were sized in container units on a
   figure that was no size container, so they grew with the window (GAS took half the stage), and the
