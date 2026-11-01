@@ -141,7 +141,7 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
     <div class="section-head">
       <p class="eyebrow"><span class="index">${all.length}</span> PIECES · NEWEST FIRST${pages.length > 1 ? ` · PAGE ${page.n} OF ${pages.length}` : ""}</p>
       <h1 id="gal-title">Daily.<br><em>Tiny examples, made every day.</em></h1>
-      <p class="lead">It's how we test the engine. We turned it into a contest. Each piece is made from Fizlet bricks, runs live once it nears the screen and wears its size, measured on this build: still once it settles, asleep off screen, and the page always comes back. Take any made from a prompt home as one file, or <a href="${base}make/">make your own</a>. By <a href="https://coded.design/">Chris Cooley ↗</a>.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/" rel="nofollow">the archive</a>.` : ""}</p>
+      <p class="lead">It's how we test the engine. We turned it into a contest. Each piece is logic and style on Fizlet bricks. It runs live once it nears the screen and wears its size, measured on this build: still once it settles, asleep off screen, and the page always comes back. Take any made from a prompt home as one file, or <a href="${base}make/">make your own</a>. By <a href="https://coded.design/">Chris Cooley ↗</a>.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/" rel="nofollow">the archive</a>.` : ""}</p>
       ${page.n === 1 ? `<div class="panel gal-contest"><p>${contestStory(contributors, base)}</p><div class="split-keys">${enterKey(week)}<a class="bui-key bui-arcade bui-sys" href="${base}contest/">${icon("book", 16)}Contest rules</a></div></div>` : ""}
     </div>
     <nav class="gal-themes" aria-label="Themes">${chips}</nav>

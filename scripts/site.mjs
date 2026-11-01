@@ -35,6 +35,8 @@ import { releases as loadReleases, releasePath, parse as parseRelease, releaseDe
 import { newsIndex, releasePage, releaseLd } from "../site/pages/news.mjs";
 import { brickCard, CARDS } from "../site/brick-cards.mjs";
 import { buildFactory } from "../site/factory/build.mjs";
+import { brandPage } from "../site/pages/brand.mjs";
+import { brandMarks, brandStickers } from "./brand-marks.mjs";
 
 const OUT = "site-dist";
 const { version } = JSON.parse(readFileSync("package.json", "utf8"));
@@ -45,7 +47,7 @@ mkdirSync(`${OUT}/examples`, { recursive: true });
 mkdirSync(`${OUT}/bricks`, { recursive: true });
 mkdirSync(`${OUT}/gallery`, { recursive: true });
 mkdirSync(`${OUT}/make`, { recursive: true });
-for (const d of ["privacy", "cookies"]) mkdirSync(`${OUT}/${d}`, { recursive: true });
+for (const d of ["privacy", "cookies", "brand"]) mkdirSync(`${OUT}/${d}`, { recursive: true });
 const NOTES = loadNotes();
 for (const n of NOTES) mkdirSync(`${OUT}/${notePath(n)}`, { recursive: true });
 const RELEASES = loadReleases();
@@ -63,7 +65,7 @@ const bundle = gzipSync(iife.outputFiles[0].contents).length;
 
 // Page scripts: the demo (bundled from src/, as a game would) and the shared site script.
 await build({
-  entryPoints: { demo: "site/demo.ts", site: "site/site.ts", "home-motion": "site/home-motion.ts", "brick-graph": "site/brick-graph.ts" },
+  entryPoints: { demo: "site/demo.ts", site: "site/site.ts", "home-motion": "site/home-motion.ts", "brick-graph": "site/brick-graph.ts", brand: "site/brand.ts" },
   outdir: OUT, bundle: true, minify: true, format: "esm", target: "es2022", legalComments: "none", logLevel: "warning",
 });
 
@@ -100,9 +102,19 @@ cpSync("dist", `${OUT}/dist`, { recursive: true });
 const minCss = async (from, to) => writeFileSync(to, (await transform(readFileSync(from, "utf8"), { loader: "css", minify: true })).code);
 await minCss("src/ui/board-ui.css", `${OUT}/board-ui.css`);
 await minCss("site/site.css", `${OUT}/site.css`);
+// The pages' inline <style> blocks (the gallery stages' own CSS, the layers and labs sheets), minified
+// the same way once every page is written (below, with the footer's site map): the sources keep
+// their comments. Gallery page 1: 57,361 → 55,896 B gzip (2026-10-31).
+const minInlineCss = async (html) => {
+  const parts = html.split(/(<style>[\s\S]*?<\/style>)/);
+  for (let i = 1; i < parts.length; i += 2) parts[i] = `<style>${(await transform(parts[i].slice(7, -8), { loader: "css", minify: true })).code.trimEnd()}</style>`;
+  return parts.join("");
+};
 writeFileSync(`${OUT}/icon.svg`, mark(64).replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" style="color:#39ffb0;background:#07060f" '));
 writeFileSync(`${OUT}/og.png`, ogImage());
 writeFileSync(`${OUT}/.nojekyll`, "");
+// The brand marks (/brand/): every SVG download, from the one source the brand page draws inline.
+for (const m of [...brandMarks(), ...brandStickers(mark)]) writeFileSync(`${OUT}/brand/${m.file}`, `<?xml version="1.0" encoding="UTF-8"?>\n${m.svg}\n`);
 
 // The two story demos, each built by its own script: layers (the home hero) and fizz (the name).
 // Their markup and sizes come from those builds; the home page embeds them.
@@ -197,6 +209,7 @@ for (const f of readdirSync("site/recipes").filter((x) => x.endsWith(".js"))) {
 const DOCS = loadDocs().map((d) => fill(d, { sizes, version }));
 for (const d of DOCS) mkdirSync(`${OUT}/${docPath(d)}`, { recursive: true });
 for (const s of ["docs", "guides"]) mkdirSync(`${OUT}/${s}`, { recursive: true });
+mkdirSync(`${OUT}/guides/multiplayer-rooms`, { recursive: true }); // moved: redirects to build-your-own-room-server
 // Big things, small packages (gallery): its figure and its punchline carry the kernel's gzip size,
 // measured just above (never typed). The posters are painted here by the scene's own world.
 const spMod = await build({ entryPoints: ["site/gallery/pieces/small-packages/poster.ts"], bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
@@ -217,7 +230,7 @@ const bricks = BRICKS.map((b) => {
 const factory = await buildFactory({ out: OUT, base: "../", bricks: BRICKS, sizes, version });
 // JSON-LD: the engine's source code (home), each brick as a part of it. Facts from the page only.
 const CODE = `${SITE}#code`;
-const homeDescription = `A micro game engine for the DOM: one shared loop, bounded everything, and the page always comes back. Kernel ${(kernel.gzip / 1024).toFixed(1)} KB gzip, no dependencies.`;
+const homeDescription = `Fizlet™: building blocks for DOM animation and games, kept for performance, so you bring only logic and style. Kernel ${(kernel.gzip / 1024).toFixed(1)} KB gzip, no dependencies.`;
 const code = { "@type": "SoftwareSourceCode", "@id": CODE, name: "Fizlet", description: homeDescription, url: SITE, codeRepository: REPO,
   license: `${REPO}/blob/main/LICENSE`, softwareVersion: version, author: { "@id": PERSON["@id"] }, publisher: { "@id": ORG["@id"] } };
 // A brick's description, from its source comment (the lead on its page) and its measured size,
@@ -247,7 +260,7 @@ const brickDescription = (b, max = 155) => {
 };
 const pages = [
   ["index.html", page({
-    title: "Fizlet · Tiny physics for your page",
+    title: "Fizlet · Building blocks for DOM animation and games",
     description: homeDescription,
     base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast, origin: originHero }), scripts: ["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js", "origin/main.js"],
   })],
@@ -261,6 +274,11 @@ const pages = [
     title: "Cookies and storage: none until you say yes · Fizlet",
     description: "Every cookie and storage key fizlet.com may use, what each holds, how long it lasts, and how to change your choice or clear them.",
     base: "../", version, path: "cookies/", body: cookiesPage({ base: "../", analytics: ANALYTICS }), scripts: ["site.js"],
+  })],
+  ["brand/index.html", page({
+    title: "Brand: Fizlet™ marks, lockups and colour · Fizlet",
+    description: "The Fizlet™ and fzlt™ marks, lockups, ™ and casing rules, clear space, colour tokens and the Board UI kit, live, with every mark as an SVG download.",
+    base: "../", version, path: "brand/", body: brandPage({ version, kernel: kernel.gzip }), scripts: ["site.js", "brand.js"],
   })],
   ["examples/quick-start.html", page({
     title: "Quick start: ten lines to a blast · Fizlet",
@@ -276,7 +294,7 @@ const pages = [
   ...gallery.pages.map((p) => [`${p.path}index.html`, page({
     title: p.n === 1 ? "Daily: tiny examples, made every day · Fizlet" : `Daily, page ${p.n}: tiny examples, made every day · Fizlet`,
     description: p.n === 1
-      ? `Tiny Fizlet examples, made every day to test the engine, now a contest: ${gallery.entries.length} so far, each live with its size measured on this build.`
+      ? `Tiny Fizlet examples, logic and style on the bricks, made daily as a contest: ${gallery.entries.length} so far, each live with its size measured on this build.`
       : `Fizlet Daily page ${p.n} of ${gallery.pages.length}: older tiny examples by theme, each with its brief, its live demo and its size measured on this build.`,
     base: GB(p), version, path: p.path,
     body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length, contributors: PEOPLE, week: now?.week, today: TODAY }),
@@ -295,6 +313,15 @@ const pages = [
     description: "The Fizlet heroes page has moved: every hero animation is an entry on Daily, the gallery, with its size measured on this build.",
     base: "../", version, path: "heroes/", redirect: "gallery/",
     body: `<section class="section"><div class="wrap"><div class="section-head"><h1>Heroes moved to <em>Daily</em>.</h1><p class="lead">Every hero is an entry on <a href="../gallery/">Daily, the gallery</a>. Taking you there now.</p></div></div></section>`,
+    scripts: ["site.js"],
+  })],
+  // /guides/multiplayer-rooms/ moved (2026-10-31: multiplayer is in-house; the room server left this
+  // repo): it redirects to the guide that replaced it.
+  ["guides/multiplayer-rooms/index.html", page({
+    title: "Multiplayer rooms moved: build your own room server · Fizlet",
+    description: "The Fizlet multiplayer rooms guide has moved: Build your own room server specs the wire protocol @fzlt/core/presence speaks, so you can run one like ours.",
+    base: "../../", version, path: "guides/multiplayer-rooms/", redirect: "guides/build-your-own-room-server/",
+    body: `<section class="section"><div class="wrap"><nav class="bp-crumbs" aria-label="Breadcrumb"><a href="../../">Fizlet</a> / <a href="../">Guides</a> / <span aria-current="page">Multiplayer rooms (moved)</span></nav><div class="section-head"><h1>This guide moved to <em>Build your own room server</em>.</h1><p class="lead">Our room server is in-house now. <a href="../build-your-own-room-server/">Build your own room server</a> has the wire protocol presence speaks. Taking you there now.</p></div></div></section>`,
     scripts: ["site.js"],
   })],
   ["make/index.html", page({
@@ -322,7 +349,7 @@ const pages = [
   })],
   ["notes/index.html", page({
     title: "Notes: what the games taught the engine · Fizlet",
-    description: `Field notes from building games on Fizlet, newest first: ports, lessons and the numbers behind them, each one measured (${NOTES.length} so far, by Chris Cooley).`,
+    description: `Field notes from building on Fizlet's bricks, newest first: ports, lessons and the numbers behind them, each one measured (${NOTES.length} so far, by Chris Cooley).`,
     base: "../", version, path: "notes/", body: notesIndex({ notes: NOTES, base: "../" }), scripts: ["site.js"],
   })],
   ...NOTES.map((n) => [`${notePath(n)}index.html`, page({
@@ -332,14 +359,14 @@ const pages = [
   })]),
   ["docs/index.html", page({
     title: "Docs: the contract, the loop, Recall, budgets · Fizlet",
-    description: `How the Fizlet DOM game engine works: getting started, the nine-rule contract, the loop, Recall, size budgets and determinism, with numbers from v${version}.`,
+    description: `How Fizlet's kernel and bricks work: getting started, the nine-rule contract, the loop, Recall, size budgets and determinism, with numbers from v${version}.`,
     base: "../", version, path: "docs/", ld: [{ "@type": "CollectionPage", "@id": `${SITE}docs/#page`, url: `${SITE}docs/`, name: "Fizlet docs", isPartOf: { "@id": WEBSITE["@id"] }, about: { "@id": CODE } }],
-    body: sectionIndex({ section: "docs", all: DOCS, base: "../", head: { eyebrow: "DOCS · READ IN ORDER", title: "How it works.", accent: "Each claim tested.", lead: "Fizlet is a micro game and animation engine for the DOM. Start with the five-minute setup, then the ideas everything else rests on: the contract, the loop, Recall, the budgets and determinism. Every brick's API is in [Bricks](/bricks/)." } }),
+    body: sectionIndex({ section: "docs", all: DOCS, base: "../", head: { eyebrow: "DOCS · READ IN ORDER", title: "How it works.", accent: "Each claim tested.", lead: "Fizlet is the building blocks for animation and games on the DOM: a small kernel and bricks, so a piece boils down to logic and style. Start with the five-minute setup, then the ideas everything else rests on: the contract, the loop, Recall, the budgets and determinism. Every brick's API is in [Bricks](/bricks/)." } }),
     scripts: ["site.js"],
   })],
   ["guides/index.html", page({
     title: "Guides: build with Fizlet, step by step · Fizlet",
-    description: "Step-by-step Fizlet guides: build a micro game, fill an Astro slot with a scene, port a game onto the kernel and run lockstep multiplayer rooms.",
+    description: "Step-by-step Fizlet guides: build a micro game, fill an Astro slot with a scene, port a game onto the kernel and build your own lockstep room server.",
     base: "../", version, path: "guides/", ld: [{ "@type": "CollectionPage", "@id": `${SITE}guides/#page`, url: `${SITE}guides/`, name: "Fizlet guides", isPartOf: { "@id": WEBSITE["@id"] }, about: { "@id": CODE } }],
     body: sectionIndex({ section: "guides", all: DOCS, base: "../", head: { eyebrow: "GUIDES · ONE JOB EACH", title: "Build something.", accent: "Ship it small.", lead: "Each guide does one job end to end with real code: the APIs on the [brick pages](/bricks/), the ideas in the [docs](/docs/)." } }),
     scripts: ["site.js"],
@@ -397,14 +424,14 @@ const routeOf = (f) => f.replace(/(^|\/)index\.html$/, "$1");
 const LABEL = new Map([
   ...DOCS.map((d) => [docPath(d), d.nav]), ...NOTES.map((n) => [notePath(n), n.title]), ...RELEASES.map((r) => [releasePath(r), r.version]),
   ...bricks.map((b) => [brickPath(b), b.id]), ...gallery.pages.slice(1).map((p) => [p.path, `Page ${p.n}`]), ...PEOPLE.map((p) => [personPath(p.id), p.name]),
-  ["", "Home"], ["examples/quick-start.html", "Quick start"], ["privacy/", "Privacy"], ["cookies/", "Cookies"], ["demos/layers/", "The layers story"], ["demos/fizz/", "The fizz proof piece"], ["demos/before-ai-2015/", "Before AI: 2015, live"], ["demos/origin/", "The origin hero"], ["examples/fizz/", "The fizz hero example"],
+  ["", "Home"], ["examples/quick-start.html", "Quick start"], ["privacy/", "Privacy"], ["brand/", "Brand"], ["cookies/", "Cookies"], ["demos/layers/", "The layers story"], ["demos/fizz/", "The fizz proof piece"], ["demos/before-ai-2015/", "Before AI: 2015, live"], ["demos/origin/", "The origin hero"], ["examples/fizz/", "The fizz hero example"],
 ]);
 const built = pages.map(([f]) => routeOf(f));
 const order = (r) => (built.includes(r) ? built.indexOf(r) : built.length);
 const routes = indexable.map((p) => ({ path: routeOf(p.f), label: LABEL.get(routeOf(p.f)) ?? unescTitle(p.html) }))
   .sort((a, b) => order(a.path) - order(b.path));
 for (const f of readdirSync(OUT, { recursive: true }).map((x) => x.replace(/\\/g, "/")).filter((x) => x.endsWith(".html") && !x.startsWith("dist/"))) {
-  const html = readFileSync(`${OUT}/${f}`, "utf8"), filled = fillSiteMap(html, routes);
+  const html = readFileSync(`${OUT}/${f}`, "utf8"), filled = await minInlineCss(fillSiteMap(html, routes));
   if (filled !== html) writeFileSync(`${OUT}/${f}`, filled);
 }
 const meta = (html, re) => unesc(html.match(re)?.[1] ?? "");

@@ -13,7 +13,7 @@ import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
 import { checkHtml } from "../scripts/check-html.mjs";
 import { checkNav } from "../scripts/check-nav.mjs";
-import { FAMILY_LINE, SITE, ROOT as SITE_ROOT } from "../site/layout.mjs";
+import { FAMILY_LINE, SITE, ROOT as SITE_ROOT, mark as fizletMark } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
 import { entries as galleryEntries, isLive, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
@@ -23,6 +23,8 @@ import { gzipSync } from "node:zlib";
 import { checkKeys, checkTaps } from "./keys.mjs";
 import { snippetable, snippetFor, TABLE as MAKE_TABLE } from "../scripts/make.mjs";
 import { slug as makeSlug } from "../site/make/make.mjs";
+import { brandMarks, brandStickers, STICKERS } from "../scripts/brand-marks.mjs";
+import { inline as inlineMark } from "../site/pages/brand.mjs";
 
 const slug = (prompt) => makeSlug(MAKE_TABLE, prompt);
 
@@ -470,7 +472,7 @@ try {
 
   // ---------- Page keys: every in-page key presses (face drops) and clicks on face and base ----------
   let keyCount = 0;
-  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", "contest/", "make/", ...siteNotes().map(notePath)]) {
+  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", "contest/", "make/", "brand/", ...siteNotes().map(notePath)]) {
     where = `page keys ${path || "index"}`;
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const { page, errors } = await open(context, path);
@@ -484,6 +486,77 @@ try {
     await revealAll(tap.page);
     await checkTaps(tap.page, `${where} (phone)`);
     await phone.close();
+  }
+
+  // ---------- Brand (/brand/): every mark served as a valid, self-contained SVG download, the same
+  // file the page draws inline; the page rests at 0 rAF, and the slam settles (still under reduced motion) ----------
+  where = "brand";
+  {
+    const STICK = brandStickers(fizletMark), MARKS = [...brandMarks(), ...STICK], html = readFileSync(fileOf("brand/"), "utf8");
+    // The sticker set: every entry live in the kit's own classes, with its download(s).
+    for (const s of STICKERS) {
+      assert.ok(s.kind === "sticker" ? html.includes(`<b>${s.word}${s.tm ? "™" : ""}</b>`) : html.includes(`aria-label="Sticker key: ${s.word}"`), `brand: the ${s.id} sticker is live`);
+      assert.ok(STICK.some((f) => f.id === s.id), `brand: the ${s.id} sticker downloads`);
+    }
+    assert.ok(MARKS.length >= 10 && new Set(MARKS.map((m) => m.file)).size === MARKS.length, "a file per mark and ground");
+    for (const theme of ["dark", "light"]) for (const id of ["wordmark", "short-mark", "lockup", "npm", "dev"]) assert.ok(MARKS.some((m) => m.id === id && m.theme === theme), `brand: ${id} on ${theme}`);
+    assert.ok(html.includes("Fizlet and fzlt are trademarks of Chris Cooley."), "brand: the trademark note");
+    assert.equal(html.match(/(Fizlet|fzlt)®/gi)?.length, 1, "brand: ® next to a name only once, as a don't");
+    assert.ok(html.includes("Fizlet™") && html.includes("fzlt™"), "brand: ™ on first use");
+    assert.ok(html.includes("npm i @fzlt/core"), "brand: the install line");
+    for (const m of MARKS) {
+      const res = await fetch(`${ORIGIN}${BASE}brand/${m.file}`);
+      assert.equal(res.status, 200, `brand: ${m.file} is served`);
+      assert.equal(res.headers.get("content-type"), "image/svg+xml", `brand: ${m.file} is served as SVG`);
+      const body = await res.text();
+      assert.ok(body.includes(m.svg), `brand: ${m.file} is the mark the page draws`);
+      if (!STICK.includes(m)) assert.ok(html.includes(inlineMark(m)), `brand: the page draws ${m.file} inline`);
+      assert.ok(html.includes(`href="${m.file}" download="${m.file}"`), `brand: a download key for ${m.file}`);
+      // Self-contained: no outside reference (no href, no url(), no @import, no script).
+      assert.doesNotMatch(body, /\shref=|xlink:|url\(|@import|<script|<image|<foreignObject/i, `brand: ${m.file} is self-contained`);
+    }
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    await context.addInitScript(() => {
+      const raw = requestAnimationFrame.bind(window);
+      window.__raf = 0;
+      window.requestAnimationFrame = (cb) => (window.__raf++, raw(cb));
+    });
+    const { page, errors } = await open(context, "brand/");
+    // Each file parses as SVG and renders as an image.
+    const bad = await page.evaluate(async (files) => {
+      const out = [];
+      for (const f of files) {
+        const text = await (await fetch(f)).text();
+        const doc = new DOMParser().parseFromString(text, "image/svg+xml");
+        if (doc.querySelector("parsererror") || doc.documentElement.nodeName !== "svg") { out.push(`${f}: not valid SVG`); continue; }
+        const img = new Image();
+        img.src = f;
+        await img.decode().catch(() => {});
+        if (!(img.naturalWidth > 0)) out.push(`${f}: does not render`);
+      }
+      return out;
+    }, MARKS.map((m) => m.file));
+    assert.deepEqual(bad, [], "brand: every SVG is valid and renders");
+    const rest = async (ms) => { await page.evaluate(() => (window.__raf = 0)); await page.waitForTimeout(ms); return page.evaluate(() => window.__raf); };
+    const running = () => page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length);
+    assert.equal(await rest(800), 0, "brand: no frames at rest");
+    await page.click("[data-slam-key]");
+    assert.ok(await page.isVisible("[data-slam] .bui-sticker"), "brand: the slam shows the sticker");
+    await page.waitForSelector("[data-slam]", { state: "hidden", timeout: 4000 });
+    await page.mouse.move(2, 2);
+    assert.equal(await rest(800), 0, "brand: no frames after the slam");
+    assert.equal(await running(), 0, "brand: nothing animates once the slam has landed");
+    assert.deepEqual(errors, [], `${where}: errors`);
+    await context.close();
+    const still = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+    const s2 = await open(still, "brand/");
+    await s2.page.click("[data-slam-key]");
+    assert.ok(await s2.page.isVisible("[data-slam] .bui-sticker"), "brand (reduced motion): the sticker shows");
+    assert.equal(await s2.page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length), 0, "brand (reduced motion): it shows still");
+    await s2.page.waitForSelector("[data-slam]", { state: "hidden", timeout: 4000 });
+    assert.equal(await s2.page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 0, "brand: no horizontal scroll at 390");
+    assert.deepEqual(s2.errors, [], `${where} (reduced motion): errors`);
+    await still.close();
   }
 
   // ---------- 404 at any depth ----------
@@ -579,7 +652,7 @@ try {
       window.requestAnimationFrame = (cb) => (window.__raf++, raw(cb));
     });
     const { page, errors } = await open(context, "");
-    // In order: the hero ("The page is the board."), its stats strip, Origin, then the rest of the page.
+    // In order: the hero ("Logic and style."), its stats strip, Origin, then the rest of the page.
     const order = await page.$$eval("#main > *", (els) => els.map((el) => el.id || el.className.split(" ")[0]));
     assert.deepEqual(order.slice(0, 4), ["hero", "stats", "origin", "page-toc"], "Origin sits right after the hero band");
     // The scene is not part of first load: the page links only the loader, which imports it lazily.

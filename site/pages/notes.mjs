@@ -92,7 +92,7 @@ export function notesIndex({ notes, base }) {
     <div class="section-head">
       <p class="eyebrow"><span class="index">${notes.length}</span> NOTES · NEWEST FIRST</p>
       <h1 id="notes-title">Field notes.<br><em>Measured, then written.</em></h1>
-      <p class="lead">What building games on Fizlet teaches the engine: the ports, the lessons and the numbers behind them, each one measured. By <a href="${AUTHOR}/">Chris Cooley ↗</a>.</p>
+      <p class="lead">Why each brick exists and what keeping it fast takes: the ports, the lessons and the numbers behind them, each one measured. By <a href="${AUTHOR}/">Chris Cooley ↗</a>.</p>
     </div>
     <ol class="gal note-cards">
     ${cards}

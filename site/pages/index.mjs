@@ -3,7 +3,7 @@
 import { esc, icon, REPO, SITE, HUB, BATTLEFIELD, BLITZ, ENGINE_PLAN, AUTHOR } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { QUICK_START } from "./quick-start.mjs";
-import { BETA_LINE } from "../bricks.mjs";
+import { BETA_LINE, IN_HOUSE, inHouse } from "../bricks.mjs";
 import { brickCompact } from "../brick-ui.mjs";
 import { LAUNCH_LAST, phases } from "../roadmap.mjs";
 import { originSection } from "../origin/section.mjs";
@@ -116,8 +116,11 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
   const css = size("@fzlt/core/ui (css)");
   const pageBuild = size("page build (kernel+slot+input+fx)");
   // Compact on the home page: the snippet and the whole API live on each brick's own page.
-  const bricks = catalog.map((b) => brickCompact({ brick: b, size: size(b.sizes[0]), href: `bricks/${b.id}.html`,
-    extra: b.id === "ui" ? `<li>+ <b>${kb(css.gzip)} KB</b> css</li>` : "" })).join("\n      ");
+  const compact = (b, h) => brickCompact({ brick: b, size: size(b.sizes[0]), href: `bricks/${b.id}.html`, h,
+    extra: b.id === "ui" ? `<li>+ <b>${kb(css.gzip)} KB</b> css</li>` : "" });
+  const bricks = catalog.filter((b) => !inHouse(b)).map((b) => compact(b)).join("\n      ");
+  // In-house / experimental (site/bricks.mjs IN_HOUSE): listed apart, with its label.
+  const ours = catalog.filter(inHouse).map((b) => compact(b, "h4")).join("\n      ");
 
   const contract = CONTRACT.map(([t, b], i) => `<li class="panel rule"><b>${String(i + 1).padStart(2, "0")}</b><h3>${esc(t)}</h3><p>${esc(b)}</p></li>`).join("\n      ");
 
@@ -143,11 +146,11 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
   <div class="hero-field" aria-hidden="true"></div>
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <p class="eyebrow"><span class="dot"></span>MICRO GAME ENGINE <span>/</span> <b>FOR THE DOM</b></p>
-      <h1 id="hero-title">The page<br><em>is the board.</em></h1>
+      <p class="eyebrow"><span class="dot"></span>ANIMATION + GAME BRICKS <span>/</span> <b>FOR THE DOM</b></p>
+      <h1 id="hero-title">Logic and style.<br><em>The bricks do the rest.</em></h1>
       <p class="byline">by <a href="${AUTHOR}">Chris Cooley ↗</a></p>
       <p class="beta-line"><span class="status-pill" data-flag="beta">PUBLIC BETA</span> v${esc(version)} · a 0.x public beta: <a href="bricks/#status">every brick carries its status</a></p>
-      <p class="lead">Fizlet is a tiny game engine that plays on the page you already have: one shared loop, bounded everything, and the page always comes back exactly as it was. The kernel is <b>${kb(kernel.gzip)} KB</b> gzipped. No runtime dependencies, ever.</p>
+      <p class="lead">Fizlet™ is the building blocks for animation and games on the DOM. Each brick is a task we wrote hundreds of times over two decades, now kept by AI and human developers who chase performance at all costs. You bring the logic and style, even from a prompt. The kernel is <b>${kb(kernel.gzip)} KB</b> gzipped. No runtime dependencies, ever.</p>
       <div class="hero-keys">
         <a class="bui-key bui-arcade bui-go" href="#start">${icon("play", 16)}Quick start</a>
         <a class="bui-key bui-arcade bui-sys" href="#contract">${icon("down", 16)}The contract</a>
@@ -182,7 +185,7 @@ ${originSection(origin)}
 
 <!-- ON THIS PAGE: one jump per numbered section (the long page's own table of contents), then the weekly contest (its own page; it and Roadmap left the header) -->
 <nav class="page-toc" aria-label="On this page">
-  <div class="wrap"><span class="bui-label"><b>ON THIS PAGE</b></span><ol><li><a href="#contract"><b>01</b>Contract</a></li><li><a href="#bricks"><b>02</b>Bricks</a></li><li><a href="#board"><b>03</b>The board</a></li><li><a href="#loop"><b>04</b>The loop</a></li><li><a href="#recall"><b>05</b>Recall</a></li><li><a href="#specs"><b>06</b>Specs</a></li><li><a href="#ship"><b>07</b>Ship</a></li><li><a href="#games"><b>08</b>Games</a></li><li><a href="#roadmap"><b>09</b>Roadmap</a></li><li><a href="#start"><b>10</b>Quick start</a></li><li><a href="contest/"><b>→</b>Weekly contest</a></li></ol></div>
+  <div class="wrap"><span class="bui-label"><b>ON THIS PAGE</b></span><ol><li><a href="#contract"><b>01</b>Contract</a></li><li><a href="#bricks"><b>02</b>Bricks</a></li><li><a href="#board"><b>03</b>The frame</a></li><li><a href="#loop"><b>04</b>The loop</a></li><li><a href="#recall"><b>05</b>Recall</a></li><li><a href="#specs"><b>06</b>Specs</a></li><li><a href="#ship"><b>07</b>Ship</a></li><li><a href="#games"><b>08</b>Games</a></li><li><a href="#roadmap"><b>09</b>Roadmap</a></li><li><a href="#start"><b>10</b>Quick start</a></li><li><a href="contest/"><b>→</b>Weekly contest</a></li></ol></div>
 </nav>
 
 <!-- PLAY: the live board, running on Fizlet itself -->
@@ -268,19 +271,26 @@ ${originSection(origin)}
     <ul class="bricks compact">
       ${bricks}
     </ul>
+    <div class="section-head" id="in-house">
+      <h3>${esc(IN_HOUSE.label)}</h3>
+      <p class="body">${esc(IN_HOUSE.line)} <a href="${IN_HOUSE.guide}">Build your own room server</a>.</p>
+    </div>
+    <ul class="bricks compact in-house">
+      ${ours}
+    </ul>
     <div class="split-keys"><a class="bui-key bui-arcade bui-sys" href="bricks/">${icon("grid", 16)}Every brick, every export</a></div>
   </div>
 </section>
 
-<!-- 03 THE PAGE BECOMES THE BOARD -->
+<!-- 03 ONE FRAME, THREE PHASES -->
 <section id="board" class="section" data-reveal aria-labelledby="board-title">
   <span class="sec-rule" aria-hidden="true"></span>
   <span class="sec-num" aria-hidden="true">03</span>
   <div class="wrap split">
     <div>
-      <p class="eyebrow"><span class="index">03</span> THE PAGE BECOMES THE BOARD</p>
+      <p class="eyebrow"><span class="index">03</span> ONE FRAME, THREE PHASES</p>
       <h2 id="board-title">Read. Step.<br><em>Render.</em></h2>
-      <p class="lead">A web page is a surprisingly good game map. The trick is reading it cheaply, changing only what you own and leaving cleanly. Every frame runs three phases, in order, for every system.</p>
+      <p class="lead">Every brick works the DOM the same way: read it cheaply, change only what it owns, leave cleanly. That is the part we stopped rewriting. Every frame runs three phases, in order, for every system.</p>
       <p class="body">Geometry is read once in <code>read</code> and cached. The simulation runs in <code>step</code> on plain numbers, at a fixed 60 Hz, with no DOM at all. <code>render</code> writes only what changed, through the ledger. The demo above counts layout reads made during a step with <code>@fzlt/core/debug</code>: the number stays at zero.</p>
     </div>
     <ol class="phases panel lit" aria-label="One frame">
@@ -398,7 +408,7 @@ ${originSection(origin)}
       <article class="panel game">
         <p class="eyebrow"><b>THE ARCADE</b> · ON FIZLET</p>
         <h3>DOM VIRUS</h3>
-        <p>Tiny games that turn your page into the game board. Fizlet is the engine they proved out, and now they run on it: Null Invaders, Byte Runner and Sherman Bytes at 1.0 on <code>@fzlt/core/arcade</code>, Swarm Protocol 1.4 on the kernel.</p>
+        <p>The arcade's approach is “the page is the board”: tiny games that play on the page you are reading. It is one use of Fizlet, and the arcade the bricks were proved out on. Now its games run on them: Null Invaders, Byte Runner and Sherman Bytes at 1.0 on <code>@fzlt/core/arcade</code>, Swarm Protocol 1.4 on the kernel.</p>
         <div class="game-keys"><a class="bui-key bui-arcade bui-cmd" href="${HUB}">${icon("cart", 16)}Visit DOM VIRUS ↗</a></div>
       </article>
       <article class="panel game">
@@ -425,7 +435,7 @@ ${roadmapSection()}
       <ol class="start-steps">
         <li><b>Script tag.</b> <code>fizlet.js</code> (${kb(bundle)} KB gzip), one file, no build step.</li>
         <li><b>Modules.</b> Import only the bricks you use from <code>${SITE}dist/</code>.</li>
-        <li><b>npm.</b> <span class="soon-tag">COMING SOON</span> <code>npm install @fzlt/core</code> is not published yet. Until then: <code>git clone</code>, <code>npm ci</code>, <code>npm run build</code> gives you <code>dist/</code> with the subpath exports.</li>
+        <li><b>npm.</b> <code>npm install @fzlt/core</code>, with the subpath exports.</li>
       </ol>
       <div class="split-keys">
         <a class="bui-key bui-arcade bui-go" href="examples/quick-start.html">${icon("play", 16)}Run the example</a>
@@ -448,7 +458,7 @@ ${roadmapSection()}
   <span class="sec-rule" aria-hidden="true"></span>
   <div class="wrap final-inner">
     <p class="eyebrow">MIT · NO DEPENDENCIES · V${esc(version)}</p>
-    <h2 id="final-title">Make the page play.</h2>
+    <h2 id="final-title">Bring the logic and style.</h2>
     <div class="final-keys">
       <a class="bui-key bui-arcade bui-go" href="#start">${icon("play", 16)}Quick start</a>
       <a class="bui-key bui-arcade bui-sys" href="${REPO}">${icon("github", 16)}Source on GitHub ↗</a>

@@ -1,15 +1,20 @@
-# Fizlet
+# Fizlet™
 
-By [Chris Cooley](https://coded.design/). **Tiny physics for your page.** A micro game and animation engine for the DOM: one shared loop,
-bounded everything, zero allocation in the steady state, and the page always comes back exactly as
-it was. No runtime dependencies, ever.
+[![npm @fzlt/core](https://img.shields.io/npm/v/@fzlt/core?label=npm%20%40fzlt%2Fcore)](https://www.npmjs.com/package/@fzlt/core)
+
+By [Chris Cooley](https://coded.design/). **Fizlet is the building blocks for animation and games
+on the DOM.** Each brick is a task we wrote hundreds of times over two decades,
+now kept by AI and human developers who chase performance at all costs. You bring the logic and
+style, even from a prompt. One shared loop, bounded everything, zero allocation in the steady state,
+and the page always comes back exactly as it was. No runtime dependencies, ever.
 
 **Website, live demo and quick start: https://coded-dot-design.github.io/fizlet/**
 
 The "fiz" is fizz (the pop of an effect) and a nod to physics; the "-let" is small, like an applet.
 Fizlet runs every DOM VIRUS game: Battlefield Blitz, [DOM Battlefield](https://coded-dot-design.github.io/dom-battlefield/)
 1.0, and the [DOM VIRUS](https://coded-dot-design.github.io/dom-virus/) arcade (Null Invaders,
-Byte Runner and Sherman Bytes 1.0, Swarm Protocol 1.4).
+Byte Runner and Sherman Bytes 1.0, Swarm Protocol 1.4). "The page is the board" is DOM VIRUS's
+approach: one use of the bricks.
 
 > **Public beta (0.x).** Fizlet 0.x is a public beta: every brick carries a status flag, and a 0.x
 > minor release may change a BETA brick's API (the CHANGELOG says how). COMPLETE bricks keep
@@ -38,12 +43,11 @@ every brick you don't import. Releases are published from CI with
 [npm provenance](https://docs.npmjs.com/generating-provenance-statements), so
 `npm audit signatures` can check that the tarball was built from this repo.
 
-> The first npm publish goes out with the first release tag after the repository's `NPM_TOKEN`
-> secret is set (`.github/workflows/release.yml`). Until `npm view @fzlt/core version` prints a
-> version, use the hosted builds or build from source: `git clone
+> On npm since 0.21.2 (2026-10-31), published from CI on tag (`.github/workflows/release.yml`).
+> No npm? The site hosts the same builds (see the
+> [quick start](https://coded-dot-design.github.io/fizlet/)), or build from source: `git clone
 > https://github.com/coded-dot-design/fizlet && cd fizlet && npm ci && npm run build` gives you
-> `dist/` with the same subpath exports. No npm? The site hosts the same builds (see the
-> [quick start](https://coded-dot-design.github.io/fizlet/)).
+> `dist/` with the same subpath exports.
 
 ```ts
 import { createEngine } from "@fzlt/core";
@@ -111,8 +115,6 @@ in included, 1 KB = 1024 bytes.
 | `@fzlt/core/sound` | COMPLETE | `sound(engine, { cues })`: event ring → synth cues `fire`, `hit`, `boom`, `hurt`, `power`, `ready`, `win`, `end`, `click` (or your own player), at most 8 voices, unlock on gesture, `dispose` | 1.0 KB |
 | `@fzlt/core/embed` | COMPLETE | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | 2.0 KB |
 | `@fzlt/core/slot` | COMPLETE | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | 1.8 KB |
-| `@fzlt/core/presence` | BETA | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | 1.8 KB |
-| `@fzlt/core/presence/check` | BETA | `syncCheck(setup, opts)`: runs a sim as lockstep clients and finds the first diverged frame (tests only) | 4.8 KB |
 | `@fzlt/core/hud` | BETA | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | 1.3 KB |
 | `@fzlt/core/match` | BETA | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.6 KB |
 | `@fzlt/core/rules` | COMPLETE | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
@@ -127,6 +129,16 @@ in included, 1 KB = 1024 bytes.
 | `@fzlt/core/arcade` | COMPLETE | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard chosen per game with `hud` (`arcadeHud()`: the card, the default; `skirmishHud()`: Blitz's bar with clock, rank, armor bar, feed, banner, its flow on `@fzlt/core/match`, aim toggles, counted keys), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 17.9 KB for a card game with every brick it composes; 23.8 KB with `skirmishHud` (in-page art via `ctx.attach`) |
 | `@fzlt/core/ui` + `@fzlt/core/ui/board-ui.css` | COMPLETE | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.8 KB + 5.0 KB css |
 | `@fzlt/core/ui/tokens.json` | COMPLETE | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
+
+**In-house / experimental.** Used in our games. Not a supported multiplayer service. These bricks
+stay in the package (MIT, flagged as below), but there is no hosted room server: to run your own,
+follow [Build your own room server](https://fizlet.com/guides/build-your-own-room-server/) (the wire
+protocol presence speaks, the one-room-one-object pattern and a threat checklist).
+
+| Import | Status | What | Size (min + gzip) |
+|---|---|---|---|
+| `@fzlt/core/presence` | BETA | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | 1.8 KB |
+| `@fzlt/core/presence/check` | BETA | `syncCheck(setup, opts)`: runs a sim as lockstep clients and finds the first diverged frame (tests only) | 4.8 KB |
 
 ### Status flags
 
@@ -419,7 +431,7 @@ for it is here, so peers can't drift. Keep the sim on `engine.random` and typed 
 import { createEngine } from "@fzlt/core";
 import { presence, join, hash32 } from "@fzlt/core/presence";
 
-const { transport, slot, players, seed } = await join("wss://your-rooms.example/room/abc?players=2");
+const { transport, slot, players, seed } = await join("wss://your-rooms.example/room/0?players=2", undefined, ["fizlet-rooms"]);
 const e = createEngine({ seed }), state = new Float64Array(64), bytes = new Uint8Array(state.buffer);
 const net = presence(e, {
   transport, slot, players, delay: 2,
@@ -437,8 +449,10 @@ differed (or -1). `setup(e, slot, players)` returns `{ input(), step(e, inputs, 
 `state` is a byte view of the sim's typed arrays.
 
 `net.frame`, `net.stalls`, `net.desync`, `net.lost`, `net.confirmed(slot, frame)` (the input log
-a rollback layer can replay). A transport is `{ send(bytes), listen(fn), close() }`; the room server
-prototype (Cloudflare Worker + Durable Object) is in [`rooms/`](rooms/README.md).
+a rollback layer can replay). A transport is `{ send(bytes), listen(fn), close() }`. Presence is
+in-house / experimental: our games run it against our own room server, which isn't a hosted
+service. [Build your own room server](https://fizlet.com/guides/build-your-own-room-server/) specs
+the wire protocol, so a server you write interoperates.
 
 ### HUD
 

@@ -5,6 +5,7 @@ import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { checkTokens, readTokenSources } from "./tokens.mjs";
+import { measure, sizesJson } from "./sizes.mjs";
 
 export const ENTRIES = ["src/index.ts", "src/kernel/index.ts", "src/debug.ts", "src/perf.ts", "src/input.ts", "src/collide.ts", "src/fx.ts", "src/camera.ts", "src/sound.ts", "src/embed.ts", "src/slot.ts", "src/grid.ts", "src/sprite.ts", "src/pad.ts", "src/presence.ts", "src/presence-check.ts", "src/hud.ts", "src/match.ts", "src/rules.ts", "src/steer.ts", "src/coach.ts", "src/timeline.ts", "src/touch.ts", "src/css-clock.ts", "src/layout.ts", "src/view-canvas.ts", "src/arcade.ts", "src/board-page.ts", "src/ui/board-ui.ts"];
 // tokens.json is the authoritative token source: refuse to build when the CSS or the palette map drifts.
@@ -28,4 +29,7 @@ for (const f of readdirSync("dist", { recursive: true })) {
 }
 cpSync("src/ui/board-ui.css", "dist/ui/board-ui.css");
 cpSync("src/ui/tokens.json", "dist/ui/tokens.json");
+// The measured brick sizes the `fzlt` bin prints (bin/fzlt.mjs): the same numbers as `npm run size`
+// and the site, written once here so the bin never measures or types a number. Not an export.
+writeFileSync("dist/sizes.json", JSON.stringify(sizesJson(await measure(), JSON.parse(readFileSync("package.json", "utf8")).version), null, 1) + "\n");
 console.log(`Built dist/: ${ENTRIES.length} entries`);
