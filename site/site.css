@@ -4650,3 +4650,483 @@ html.bui[data-theme="light"] .ogs-vs {
 .bgraph-key i { display: inline-block; width: 18px; height: 0; margin: 0 6px 3px 0; border-top: 2px solid var(--muted); vertical-align: middle; }
 .bgraph-key i.k1 { border-top-style: dotted; }
 .bgraph-key i.k2 { border-top-style: dashed; border-color: var(--line); }
+
+/* ======================================================================
+   BRAND (/brand/, site/pages/brand.mjs): the marks, lockups, colour and
+   the live kit. Tokens and kit classes only; the marks are the SVGs from
+   scripts/brand-marks.mjs, drawn inline.
+   ====================================================================== */
+.brand-hero h1 {
+  margin: 16px 0 18px;
+  font-size: clamp(44px, 6.4vw, 88px);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+.brand-tm,
+.brand-cap,
+.brand-note {
+  margin: 14px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.brand-cap {
+  margin: 6px 0 0;
+}
+.brand-cards,
+.brand-donts,
+.brand-swatches,
+.brand-rules,
+.brand-grids,
+.brand-min {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.brand-cards {
+  display: grid;
+  gap: 26px;
+}
+.brand-card,
+.brand-block {
+  padding: 22px;
+}
+.brand-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+.brand-fig {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.brand-art {
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.brand-on-dark .brand-art {
+  background: var(--rim);
+}
+.brand-art {
+  padding: 12px;
+}
+.brand-art svg {
+  height: auto;
+}
+.brand-fig figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.brand-note {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 26px;
+}
+.brand-note a {
+  color: var(--k-sys-ink);
+}
+.brand-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px;
+  align-items: start;
+}
+.brand-rules {
+  display: grid;
+  gap: 12px;
+}
+.brand-rules li {
+  padding: 12px 16px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-left: 4px solid var(--k-sys);
+  border-radius: 8px;
+}
+.brand-case li {
+  border-left-color: var(--k-cmd);
+}
+.brand-rules b {
+  color: var(--ink);
+}
+/* Clear space: the wordmark, its X margin dashed around it. */
+.brand-cs {
+  margin: 0;
+  padding: 18px;
+}
+.brand-cs svg {
+  width: 100%;
+  height: auto;
+}
+.brand-cs .cs-out,
+.brand-cs .cs-in {
+  fill: none;
+  stroke: var(--k-sys-ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+.brand-cs .cs-in {
+  stroke: var(--k-attack);
+  stroke-dasharray: none;
+}
+.brand-cs .cs-x {
+  font: 700 14px var(--mono);
+  fill: var(--k-sys-ink);
+}
+.brand-min {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+}
+.brand-min li {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+.brand-min p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.brand-min p b {
+  color: var(--ink);
+}
+.brand-min-16 b {
+  font-size: 16px;
+}
+.brand-min-38 {
+  width: 38px;
+  height: 38px;
+}
+.brand-min-38 svg {
+  width: 34px;
+  height: 34px;
+}
+.brand-min-12 {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+}
+/* The header lockup, live, on each ground (a nested kit root per theme). */
+.brand-hl {
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+  background: var(--bg);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+}
+.brand-header-lockup {
+  margin-top: 26px;
+}
+.brand-header-lockup a {
+  color: var(--k-sys-ink);
+}
+/* Why fzlt and the two voices. */
+.brand-why {
+  max-width: 860px;
+  padding: 22px 26px;
+}
+.brand-why p {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.brand-why b,
+.brand-why a {
+  color: var(--ink);
+}
+.brand-voice {
+  padding: 22px;
+}
+.brand-voice h3 code {
+  font-size: inherit;
+}
+.brand-ex {
+  list-style: none;
+  display: grid;
+  gap: 16px;
+  margin: 18px 0 0;
+  padding: 0;
+}
+.brand-ex li {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.brand-say {
+  margin: 0;
+  font: 800 24px/1.15 var(--sans);
+  letter-spacing: -0.03em;
+}
+.brand-say em {
+  font-style: normal;
+  color: var(--k-attack);
+}
+.brand-code {
+  margin: 0;
+  padding: 12px 14px;
+  white-space: pre-wrap;
+  background: var(--code-bg);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+}
+/* Stickers shown still: the kit's sticker, set in the flow, its slam and blink off, so the page rests. */
+.brand-still {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  padding: 10px 6px;
+}
+.brand-still .bui-sticker {
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
+  animation: none;
+}
+.brand-still .bui-sticker span {
+  animation: none;
+}
+.brand-stage .brand-still {
+  justify-content: center;
+}
+.brand-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 0;
+}
+/* Don'ts: the mark, done wrong on purpose, under a DON'T sticker. */
+.brand-donts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 22px;
+}
+.brand-dont {
+  padding: 16px;
+}
+.brand-dont p {
+  margin: 12px 0 0;
+}
+.brand-dont-art {
+  display: grid;
+  place-items: center;
+  height: 96px;
+  background: var(--rim);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.brand-dont-word {
+  font: 700 22px var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--k-flag);
+}
+.brand-dont-stretch {
+  scale: 1.4 1;
+}
+.brand-dont-hue {
+  color: var(--k-go);
+  filter: hue-rotate(150deg);
+}
+.brand-no {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  font: 800 10px var(--mono);
+  letter-spacing: 0.12em;
+  color: var(--rim);
+  background: var(--k-fire);
+  border: 2px solid var(--rim);
+  border-radius: 5px;
+  rotate: -4deg;
+}
+.brand-no svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 3;
+}
+/* Colour swatches. */
+.brand-sub {
+  margin: 30px 0 14px;
+}
+.brand-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+.brand-sw {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 14px;
+  padding: 14px;
+  font-size: 14px;
+}
+.brand-sw i {
+  width: 52px;
+  height: 52px;
+  border: 2px solid var(--rim);
+  border-radius: 8px;
+  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--rim);
+}
+.brand-sw code {
+  font-size: 12px;
+}
+.brand-hex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  margin-top: 4px;
+  font: 12px var(--mono);
+  color: var(--muted);
+}
+.brand-sw small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+/* The board: the live kit. */
+.brand-board {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px;
+}
+.brand-props {
+  grid-column: 1 / -1;
+}
+.brand-keys,
+.brand-prop-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+}
+/* The props are pictures of a board, not page controls (inert, and the pointer passes through). */
+.brand-prop-row[inert] {
+  pointer-events: none;
+}
+.brand-props .bui-toast {
+  margin-top: 18px;
+}
+.brand-stage {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  align-content: center;
+  min-height: 150px;
+  margin-top: 18px;
+  padding: 18px;
+  background: var(--grid-bg);
+  background-size: 22px 22px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+}
+.brand-stage p {
+  margin: 0;
+}
+.brand-slam {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.brand-slam[hidden] {
+  display: none;
+}
+.brand-slam .bui-sticker b {
+  font-size: 26px;
+}
+.brand-grids {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+.brand-grids li {
+  display: grid;
+  gap: 8px;
+}
+.brand-grid {
+  display: block;
+  aspect-ratio: 1;
+  background: var(--grid-bg);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+}
+@media (max-width: 860px) {
+  .brand-pair,
+  .brand-split,
+  .brand-board {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .brand-grids {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* Each mark at its minimum size, on its own ground (a nested kit root per theme). */
+.brand-at-min {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+}
+.brand-min-word {
+  font: 700 16px var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--ink);
+}
+.brand-min-fzlt {
+  font: 700 12px var(--mono);
+  color: var(--ink);
+}
+/* The sticker set. */
+.brand-stickers {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 22px;
+  margin: 0;
+  padding: 0;
+}
+.brand-sticker {
+  display: grid;
+  align-content: space-between;
+  justify-items: center;
+  gap: 18px;
+  padding: 26px 18px 18px;
+}
+.brand-sticker .brand-keys {
+  margin-top: 0;
+}
+.brand-sticker-dl {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.bui .bui-sticker.brand-sticker-small b {
+  font-size: 22px;
+  letter-spacing: 0;
+}
+/* ====================== END BRAND ====================== */
