@@ -80,7 +80,10 @@ const state = (page) => page.evaluate(() => {
 await check("every brick and every planned brick is a key, by number, in its family; sizes measured; planned dashed", async () => {
   const { ctx, page, errs } = await open();
   const keys = await page.evaluate(() => [...document.querySelectorAll(".pt-table .el-key")].map((k) => ({
-    id: k.dataset.el, sym: k.querySelector(".el-sym").textContent, no: k.querySelector(".el-no").textContent, sz: k.querySelector(".el-sz")?.textContent ?? "", flags: [...k.querySelectorAll(".el-flags .brick-sticker")].map((x) => x.textContent), dot: !!k.querySelector(".el-sz .el-dot"),
+    id: k.dataset.el, sym: k.querySelector(".el-sym").textContent, no: k.querySelector(".el-no").textContent, sz: k.querySelector(".el-sz")?.textContent ?? "", flags: [...k.querySelectorAll(".el-flags .brick-sticker")].map((x) => x.textContent), dot: !!k.querySelector(".el-sz .el-dot"), kstamp: k.querySelector(".el-kstamp .brick-sticker-kernel")?.textContent ?? "",
+    // Every sticker inside its tile (none hangs off an edge), and clear of the size.
+    out: [...k.querySelectorAll(".brick-sticker")].filter((x) => { const a = x.getBoundingClientRect(), b = k.getBoundingClientRect(); return a.left < b.left || a.right > b.right || a.top < b.top || a.bottom > b.bottom; }).length,
+    hitSz: [...k.querySelectorAll(".brick-sticker")].some((x) => { const a = x.getBoundingClientRect(), z = k.querySelector(".el-sz")?.getBoundingClientRect(); return z && a.left < z.right && z.left < a.right && a.top < z.bottom && z.top < a.bottom; }),
     planned: k.classList.contains("el-planned"), border: getComputedStyle(k).borderTopStyle, label: k.getAttribute("aria-label"), area: getComputedStyle(k).gridArea,
   })));
   assert.equal(keys.length, ALL.length, "one key per brick, symbol module and planned brick");
@@ -90,6 +93,8 @@ await check("every brick and every planned brick is a key, by number, in its fam
     assert.equal(k.sym, e.sym, `${e.id}: its symbol`);
     assert.equal(k.no, String(e.no), `${e.id}: its number`);
     assert.ok(k.label.startsWith(`${e.name}, ${e.sym}, number ${e.no}`), `${e.id}: named in full first (${k.label})`);
+    assert.equal(k.out, 0, `${e.id}: its stickers sit inside the tile`);
+    assert.equal(k.hitSz, false, `${e.id}: its sticker clears the size`);
     if (e.planned) {
       assert.ok(k.planned && k.border === "dashed", `${e.id}: planned, dashed`);
       assert.equal(k.sz, "", `${e.id}: no size`);
@@ -98,7 +103,8 @@ await check("every brick and every planned brick is a key, by number, in its fam
       assert.equal(k.border, "solid", `${e.id}: solid`);
       assert.equal(k.sz, `${(SIZES.find((s) => s.name === e.size).gzip / 1024).toFixed(1)}K`, `${e.id}: the measured size`);
       assert.ok(k.dot, `${e.id}: the size has its colour dot`);
-      assert.deepEqual(k.flags, [...(e.id === "kernel" ? ["KERNEL"] : []), e.status.toUpperCase()], `${e.id}: its status sticker on the top edge`);
+      assert.deepEqual(k.flags, [e.status.toUpperCase()], `${e.id}: its status sticker in the top-left corner`);
+      if (e.id === "kernel") assert.equal(k.kstamp, "KERNEL", "the kernel: its KERNEL stamp in the name's place");
     }
   }
   assert.match(keys[0].area, /^2 \/ 1/, "the kernel: top of the first column");
@@ -133,6 +139,16 @@ await check("a click opens that brick's quick view (pressed, lit, PRESSED); one 
   assert.equal(lit.bg, lit.tone, "lit in its colour");
   assert.notEqual(lit.on, "none", "says PRESSED");
   assert.ok(lit.t > 0, "the key is down");
+  // The quick view's sticker sits inside the card (a BETA one peels there too).
+  for (const id of ["fx", "grid"]) {
+    if (id !== "fx") { await page.click(`.el-key[data-el="${id}"]`); await page.mouse.move(2, 2); await page.waitForTimeout(400); }
+    const q = await page.evaluate(() => { const c = document.querySelector(".pt-card"), x = c.querySelector(".pt-q-meta .brick-sticker"), a = x.getBoundingClientRect(), b = c.getBoundingClientRect(); return { inside: a.left >= b.left && a.right <= b.right && a.top >= b.top && a.bottom <= b.bottom, peel: x.classList.contains("brick-sticker-peel"), flag: x.dataset.flag }; });
+    assert.ok(q.inside, `${id}: the quick view's sticker sits inside the card`);
+    assert.equal(q.peel, q.flag === "beta", `${id}: only BETA peels in the quick view`);
+  }
+  await page.click('.el-key[data-el="fx"]');
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(400);
   await page.click('.el-key[data-el="actor"]');
   s = await state(page);
   assert.deepEqual(s.expanded, ["actor"], "one open at a time");

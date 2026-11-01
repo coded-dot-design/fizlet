@@ -194,7 +194,7 @@ try {
       const where = `${path || "home"} at ${w}`;
       const rows = await page.evaluate(() => [...document.querySelectorAll("ul.bricks:not(.planned) > li.brick")].map((li) => {
         const r = (el) => { const b = el.getBoundingClientRect(); return { top: b.top, bottom: b.bottom, left: b.left, right: b.right }; };
-        const s = li.querySelector(".brick-stickers > .brick-sticker"), tile = li.querySelector(".brick-head > .el-card"), k = li.querySelector(":scope > .brick-sticker-kernel");
+        const s = li.querySelector(".brick-stickers > .brick-sticker"), tile = li.querySelector(".brick-head > .el-card"), k = li.querySelector(".brick-head > .brick-sticker-kernel");
         const pseudo = (el) => [getComputedStyle(el, "::before").content, getComputedStyle(el, "::after").content];
         return {
           id: li.dataset.brick, flag: li.dataset.flag, card: r(li), border: parseFloat(getComputedStyle(li).borderTopWidth), tile: tile && r(tile), sticker: s && r(s),
@@ -222,12 +222,34 @@ try {
         for (const o of [c.name, ...c.chips]) assert.ok(!hit(c.sticker, o), `${where} ${c.id}: the sticker overlaps no name or chip`);
         if (c.id === "kernel") {
           assert.equal(c.ktext, "KERNEL", `${where}: the kernel's slab`);
-          assert.ok(c.kernel.top < c.card.top && c.kernel.bottom > c.card.top, `${where}: the kernel slab sits across the card's top edge`);
+          assert.ok(c.kernel.left > c.sticker.right && c.kernel.right > (c.card.left + c.card.right) / 2, `${where}: the kernel slab sits at the head row's far end, the card's top-right`);
           for (const o of [c.name, ...c.chips, c.sticker, c.tile]) assert.ok(!hit(c.kernel, o), `${where}: the kernel slab overlaps nothing on the card`);
         } else assert.equal(c.kernel, null, `${where} ${c.id}: only the kernel has a slab`);
       }
+      // No sticker hangs off its container: every sticker on the page (brick cards, the roadmap's
+      // cards, the status key) sits inside its card's box, tilt and nudge included.
+      const out = await page.evaluate(() => [...document.querySelectorAll(".brick .brick-sticker, .status-card .brick-sticker")].flatMap((s) => {
+        const card = s.closest(".brick, .status-card"), a = s.getBoundingClientRect(), b = card.getBoundingClientRect(), bw = parseFloat(getComputedStyle(card).borderTopWidth);
+        return a.left < b.left + bw || a.right > b.right - bw || a.top < b.top + bw || a.bottom > b.bottom - bw ? [`${card.dataset.brick ?? card.dataset.flag}: ${s.textContent}`] : [];
+      }));
+      assert.deepEqual(out, [], `${where}: every sticker sits inside its card`);
       assert.ok(rows.some((c) => c.peel), `${where}: a BETA card peels`);
       assert.ok(new Set(rows.map((c) => c.tilt)).size > 3, `${where}: the tilts vary card to card`);
+      assert.deepEqual(errors, []);
+      await page.close();
+    }
+  }
+  // A sub-heading after a brick grid ("In-house / experimental", home and bricks/): its top sits at
+  // least the page's 48 px block gap below the grid's bottom, never butting into the last row.
+  for (const [w, h] of [[1440, 900], [390, 844]]) {
+    for (const path of ["", "bricks/"]) {
+      const { page, errors } = await open(path, { viewport: { width: w, height: h } });
+      const gaps = await page.evaluate(() => [...document.querySelectorAll("ul.bricks + .section-head")].map((head) => {
+        const grid = head.previousElementSibling.getBoundingClientRect().bottom, t = head.querySelector("h2, h3").getBoundingClientRect().top;
+        return { id: head.id, gap: Math.round(t - grid) };
+      }));
+      assert.ok(gaps.some((g) => g.id === "in-house"), `${path || "home"} at ${w}: the in-house heading follows a brick grid`);
+      for (const g of gaps) assert.ok(g.gap >= 48, `${path || "home"} at ${w}: #${g.id} sits ${g.gap} px below the grid (at least 48)`);
       assert.deepEqual(errors, []);
       await page.close();
     }

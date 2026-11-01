@@ -1282,6 +1282,11 @@ html.bui[data-theme="light"] .dl.hot {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 22px;
 }
+/* A sub-heading after a brick grid (In-house / experimental, Status flags, On the roadmap) keeps the
+   page's 48 px block gap, clear of the cards' hard shadows. */
+.bricks + .section-head {
+  margin-top: 48px;
+}
 /* ---------- Brick component (site/brick-ui.mjs): full, compact and mini, tokens only ---------- */
 /* Full brick cards (brickTile): one solid 3D object, no top bar. At rest the
    neutral card border and hard shadow (.panel); on hover and focus both take the brick's colour
@@ -1392,16 +1397,14 @@ html.bui[data-theme="light"] .brick:focus-within {
     linear-gradient(104deg, transparent 22%, color-mix(in srgb, var(--k-flag) 30%, transparent) 30%, transparent 38%),
     linear-gradient(170deg, transparent 58%, color-mix(in srgb, var(--k-flag) 18%, transparent) 64%, transparent 70%);
 }
-/* The kernel's sticker is not a status: a stamped purple slab across the card's top edge (a stamp's
-   inner ring, the kernel card's double hard shadow), tilted the other way. Its COMPLETE sticker
-   follows the status rule beside the tile. */
+/* The kernel's sticker is not a status: a bigger stamped purple slab at the head row's far end, the
+   card's top-right, inside its border (a sticker never hangs off its card), with a stamp's inner
+   ring and the kernel card's double hard shadow, tilted the other way. Its COMPLETE sticker follows
+   the status rule beside the tile. */
 .brick-sticker-kernel { --tone: var(--k-cmd); }
-.brick > .brick-sticker-kernel {
+.brick-head > .brick-sticker-kernel {
   --bw: 3px;
-  position: absolute;
-  top: -15px;
-  right: 28px;
-  z-index: 2;
+  margin: 0 8px 0 auto;
   padding: 7px 14px 6px;
   font-size: 14px;
   letter-spacing: 0.24em;
@@ -1420,8 +1423,8 @@ html.bui[data-theme="light"] .brick:focus-within {
     rotate: calc(var(--tilt, -6deg) * 0.3);
     translate: var(--dx, 0) calc(var(--dy, 0px) + 1px);
   }
-  .brick:hover > .brick-sticker-kernel,
-  .brick:focus-within > .brick-sticker-kernel {
+  .brick:hover .brick-head > .brick-sticker-kernel,
+  .brick:focus-within .brick-head > .brick-sticker-kernel {
     rotate: 1deg;
     translate: 0 2px;
   }
@@ -1549,10 +1552,9 @@ html.bui[data-theme="light"] .brick.brick-kernel:focus-within {
 .brick-compact .brick-sticker-peel {
   --fold: 9px;
 }
-.brick-compact > .brick-sticker-kernel {
+.brick-compact .brick-head > .brick-sticker-kernel {
   --bw: 2.5px;
-  top: -13px;
-  right: 22px;
+  margin-right: 6px;
   padding: 6px 12px 5px;
   font-size: 12px;
   box-shadow: inset 0 0 0 2px var(--tone), inset 0 0 0 3px var(--rim), calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--rim), calc(6px * var(--shadow-x, 0)) calc(6px * var(--shadow-y, 1)) 0 color-mix(in srgb, var(--tone) 45%, var(--rim));
@@ -1682,12 +1684,16 @@ html.bui[data-theme="light"] .brick.brick-kernel:focus-within {
     grid-template-rows: auto auto auto 1fr auto auto;
     column-gap: 32px;
   }
-  .brick-full.brick-kernel > :not(.bc, .brick-sticker-kernel) {
+  .brick-full.brick-kernel > :not(.bc) {
     grid-column: 1;
+  }
+  /* The head row spans both columns, so the KERNEL slab takes the card's top-right corner above the toy. */
+  .brick-full.brick-kernel > .brick-head {
+    grid-column: 1 / -1;
   }
   .brick-full.brick-kernel > .bc {
     grid-column: 2;
-    grid-row: 1 / -1;
+    grid-row: 2 / -1;
     margin: 0;
   }
 }

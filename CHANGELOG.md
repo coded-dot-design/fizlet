@@ -20,10 +20,13 @@
   and translate/rotate never move the layout). BETA stickers peel: one corner cut and folded back as a
   lighter underside with a soft shadow, and two faint scuffs, in CSS only (the DOM VIRUS game sticker's
   recipe); the label is still the only text. The kernel's KERNEL sticker is a bigger purple slab
-  across the card's top edge with a stamp's inner ring and the kernel card's double shadow. Hover
+  in the card's top-right corner, inside its border (no sticker hangs off a card or a tile), with a
+  stamp's inner ring and the kernel card's double shadow. Hover
   and focus press the stickers flat (no motion under reduced motion). The same rules at every size:
   the periodic table's tiles, the quick view, a brick's page and the roadmap cards. On phones a long
-  label wraps under the tile, never over the name. Text contrast on every sticker face is 5.4:1 or
+  label wraps under the tile, never over the name. On a periodic table tile the status sticker sits
+  in the top-left corner and the kernel's KERNEL stamp takes its name's place. A sub-heading after a
+  brick grid ("In-house / experimental") keeps the page's 48 px block gap. Text contrast on every sticker face is 5.4:1 or
   more in both themes.
 
 - **Gallery: the genre minis are playable: compact keys that never cover the action (pending owner
