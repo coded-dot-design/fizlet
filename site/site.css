@@ -4008,7 +4008,7 @@ html.bui[data-theme="light"] .phases b {
    (the kit's invisible ::before). */
 @media (pointer: coarse) {
   .foot-map a:not(.map-chips a),
-  .bui .foot-map button.text-btn:not(:disabled),
+  .bui .foot-base button.text-btn:not(:disabled),
   .site-foot p a,
   .foot-base a,
   .brick h3 a,
@@ -4416,12 +4416,12 @@ html.bui[data-theme="light"] .phases b {
   outline: 3px solid var(--k-sys-ink);
   outline-offset: 3px;
 }
-.foot-map li:has(> .text-btn[hidden]) {
+/* In the footer's meta line, after the licence; its separator goes when the build has no analytics. */
+.foot-cc:has(> [hidden]) {
   display: none;
 }
-.foot-map .map-sec > ul .text-btn:not(:disabled) {
-  color: var(--muted);
-  text-decoration: none;
+.bui .foot-base button.text-btn:not(:disabled) {
+  color: var(--ink);
 }
 
 /* ======================================================================

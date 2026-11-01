@@ -159,14 +159,13 @@ export const FAMILY_LINE = [[HUB, "DOM VIRUS"], [BATTLEFIELD, "DOM Battlefield"]
  *  plain text link (site.css .text-btn), never a key. */
 export const cookieSettings = `<button type="button" class="text-btn" data-cookie-settings hidden>Cookie settings</button>`;
 /** Columns of sections. `head`: the section's index page; `match`: a section with no page of its
- *  own; `chips`: short labels in a wrapped grid; `fold`: children behind a disclosure; `links`: external;
- *  `after`: one more item at the end of the list (Cookie settings, after Privacy and Cookies). */
+ *  own; `chips`: short labels in a wrapped grid; `fold`: children behind a disclosure; `links`: external. */
 export const SITE_MAP = [
   ["Learn", [{ head: "docs/" }, { head: "guides/" }, { head: "examples/quick-start.html" }]],
   ["Engine", [{ head: "bricks/", chips: true }, { label: "Demos", match: /^(demos|examples)\// }]],
   ["Daily", [{ head: "gallery/" }, { head: "contest/" }, { head: "make/" }, { head: "people/" }]],
   ["Notes", [{ head: "notes/" }, { head: "news/", chips: true, fold: "releases" }]],
-  ["Project", [{ label: "More", match: /./, after: cookieSettings }, { label: "Source", links: PROJECT }, { label: "DOM VIRUS family", links: FAMILY_LINE }]],
+  ["Project", [{ label: "More", match: /./ }, { label: "Source", links: PROJECT }, { label: "DOM VIRUS family", links: FAMILY_LINE }]],
 ];
 
 /**
@@ -183,7 +182,7 @@ export function siteMap(routes, base, path) {
     const rs = take(s.head ? (p) => p === s.head || (s.head.endsWith("/") && p.startsWith(s.head)) : (p) => s.match.test(p));
     const head = rs.find((r) => r.path === s.head), kids = rs.filter((r) => r !== head);
     if (!head && !kids.length) return "";
-    let list = kids.length ? `<ul${s.chips ? ' class="map-chips"' : ""}>${kids.map((r) => `<li>${a(r)}</li>`).join("")}${s.after ? `<li>${s.after}</li>` : ""}</ul>` : "";
+    let list = kids.length ? `<ul${s.chips ? ' class="map-chips"' : ""}>${kids.map((r) => `<li>${a(r)}</li>`).join("")}</ul>` : "";
     if (s.fold && kids.length) list = `<details class="map-fold"${kids.some((r) => r.path === path) ? " open" : ""}><summary>All ${kids.length} ${s.fold}</summary>${list}</details>`;
     return `<li class="map-sec">${head ? a(head, ' class="map-head"') : `<span class="map-label">${esc(s.label)}</span>`}${list}</li>`;
   };
@@ -263,7 +262,7 @@ ${body}
     <!--site-map ${base} ${path}-->
   </div>
   <div class="foot-base">
-    <div class="wrap"><span>© 2026 Chris Cooley · MIT licence · no runtime dependencies</span><span>By <a href="${AUTHOR}">Chris Cooley ↗</a> · coded.design</span></div>
+    <div class="wrap"><span>© 2026 Chris Cooley · MIT licence · no runtime dependencies<span class="foot-cc"> · ${cookieSettings}</span></span><span>By <a href="${AUTHOR}">Chris Cooley ↗</a> · coded.design</span></div>
   </div>
 </footer>
 ${scripts.map((s) => `<script type="module" src="${base}${s}"></script>`).join("\n")}
