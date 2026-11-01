@@ -1,4 +1,5 @@
-// The FILET game factory: the full-screen hero at the top of /bricks/. Static HTML and CSS (the
+// The FILET game factory: a small animation section on /bricks/, under the periodic table (it was the
+// page's full-screen hero until the table took that place). Static HTML and CSS (the
 // poster: it plays as is, and under reduced motion it is the whole thing), the inline controller
 // (controller.js) and the loader for the live scene (scene.ts, through @fzlt/core/slot).
 //
@@ -86,7 +87,7 @@ export async function factoryHero({ bricks, sizes, version, live, liveBytes, nam
   // an idle main thread) or on the first tap; never under reduced motion.
   const loader = `{const h=document.querySelector(".fac-hero"),m=matchMedia("(prefers-reduced-motion: reduce)");let d=0;const go=()=>{d++||(o.disconnect(),import(${JSON.stringify(live)}))},o=new IntersectionObserver(e=>e.some(x=>x.isIntersecting)&&go(),{rootMargin:"200px"}),arm=()=>{o.observe(h);h.addEventListener("pointerdown",go,{once:true})};h&&(m.matches?m.addEventListener("change",arm,{once:true}):arm())}`;
   const html = `
-<section class="ae-slot fac-hero has-grid" data-slot-target="bricks#factory" aria-labelledby="fac-title" data-names="${esc(JSON.stringify(list))}">
+<section class="ae-slot fac-hero has-grid" id="factory" data-slot-target="bricks#factory" aria-labelledby="fac-title" data-names="${esc(JSON.stringify(list))}">
   <div class="wrap fac-grid">
     <div class="fac-copy">
       <div class="fac-top">
@@ -98,7 +99,7 @@ export async function factoryHero({ bricks, sizes, version, live, liveBytes, nam
       <div class="fac-keys">
         <button type="button" class="bui-key bui-sticker-key fac-go">${SKULL}<b>BUILD A GAME</b></button>
         <div class="fac-side">
-          <a class="bui-key bui-arcade bui-sys" href="#bricks">${icon("down", 16)}See the bricks</a>
+          <a class="bui-key bui-arcade bui-sys" href="#table">${icon("grid", 16)}The periodic table</a>
           <a class="hero-link" href="${HUB}">${icon("cart", 16)}Pick a cartridge on DOM VIRUS ↗</a>
         </div>
       </div>
@@ -126,22 +127,21 @@ export async function factoryHero({ bricks, sizes, version, live, liveBytes, nam
   </div>
   <p class="fac-say" role="status" aria-live="polite"></p>
   <script type="module">${script}${loader}</script>
-</section>
-<div id="bricks"></div>`;
+</section>`;
   return { html, css: CSS + spots, bytes };
 }
 
 // Tokens only (Board UI kit + site.css). The grid is the shared hero grid (site/origin-section's
 // .has-grid and --grid-bg, once it lands); until then the same pattern from site.css's tokens.
 const CSS = `
-.fac-hero{position:relative;isolation:isolate;display:grid;align-items:center;min-height:100svh;padding:clamp(28px,6vh,72px) 0 clamp(28px,5vh,56px);overflow:hidden;border-bottom:2px solid var(--line)}
+.fac-hero{position:relative;isolation:isolate;display:grid;align-items:center;padding:clamp(40px,7vh,80px) 0 clamp(36px,6vh,64px);overflow:hidden;border-top:2px solid var(--line);border-bottom:2px solid var(--line)}
 .fac-hero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:var(--grid-bg,linear-gradient(var(--grid) 1px,transparent 1px) 0 0/44px 44px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/44px 44px);-webkit-mask-image:radial-gradient(ellipse 110% 95% at 60% 45%,#000 45%,transparent 100%);mask-image:radial-gradient(ellipse 110% 95% at 60% 45%,#000 45%,transparent 100%)}
 .fac-hero>[data-fizlet-slot]{pointer-events:none;z-index:3}
 .fac-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:clamp(24px,4vw,56px);align-items:center;width:100%}
 .fac-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 18px;align-items:center}
 .fac-top .eyebrow{margin:0}
 .fac-meta{margin:0;color:var(--muted)}
-.fac-hero h2{margin:18px 0 18px;font-size:clamp(46px,6.6vw,100px);line-height:.92;letter-spacing:-.05em}
+.fac-hero h2{margin:16px 0 16px;font-size:clamp(36px,4.6vw,64px);line-height:.94;letter-spacing:-.05em}
 .fac-hero h2 em{font-style:normal;color:var(--k-attack);text-shadow:0 0 40px color-mix(in srgb,var(--k-attack) 30%,transparent)}
 html.bui[data-theme="light"] .fac-hero h2 em{color:color-mix(in srgb,var(--k-attack) 78%,var(--ink));text-shadow:none}
 .fac-lead{max-width:34em;margin:0 0 22px}

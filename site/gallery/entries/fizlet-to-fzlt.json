@@ -1,0 +1,23 @@
+{
+  "id": "fizlet-to-fzlt",
+  "date": "2026-10-31",
+  "prompt": "the launch logo: two keys, FIZ and LET, go into a press and come out as fzlt; the vowels drop out, the press stacks fzlt on a wall of bricks, and it ends on the lockup Fizlet™ · fzlt™",
+  "title": "Fizlet → fzlt",
+  "kind": "hero",
+  "theme": "launch-day",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/timeline",
+    "@fzlt/core/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/name-shift/scene.ts",
+  "export": "mount",
+  "figure": "fizlet-to-fzlt",
+  "aspect": "16 / 9",
+  "phone": "1 / 1",
+  "link": "demos/name-shift/",
+  "approved": "2026-10-31"
+}

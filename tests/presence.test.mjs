@@ -227,27 +227,7 @@ test("presence: a resumed link: AWAY then RESUME, the inputs lost while it was d
 test("presence: join() reconnects a dropped seat with its resume token, in memory only; START from the lobby", async (t) => {
   t.mock.timers.enable({ apis: ["setTimeout"] });
   const real = globalThis.WebSocket, made = [];
-  globalThis.WebSocket = class extends EventTarget {
-    constructor(url, protocols) {
-      super();
-      made.push(this);
-      Object.assign(this, { url, protocols, readyState: 1, sent: [], closed: null });
-    }
-    send(d) {
-      this.sent.push(Uint8Array.from(d));
-    }
-    close(code) {
-      this.closed = code;
-    }
-    fire(type, props = {}) {
-      const ev = Object.assign(new Event(type), props);
-      this.dispatchEvent(ev);
-      this["on" + type]?.(ev);
-    }
-    deliver(bytes) {
-      this.fire("message", { data: Uint8Array.from(bytes).buffer });
-    }
-  };
+  globalThis.WebSocket = fakeWebSocket(made);
   try {
     const { join } = await import("../src/presence.ts");
     const url = "wss://rooms.example/room/1?players=4", P = ["fizlet-rooms", "invite.ABCD-EFGH-JK"];
@@ -302,6 +282,25 @@ test("presence: join() reconnects a dropped seat with its resume token, in memor
   }
 });
 
+test("presence: join() keeps a play pass and device key on a resume (pass.<pass>, device.<key>, then resume.<token>)", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const real = globalThis.WebSocket, made = [];
+  globalThis.WebSocket = fakeWebSocket(made);
+  try {
+    const { join } = await import("../src/presence.ts");
+    const P = ["fizlet-rooms", "pass.eyJ2IjoxfQ.c2ln", "device.AAAAAAAAAAAAAAAAAAAA"];
+    const p = join("wss://rooms.example/room/2?players=2", undefined, P);
+    made[0].deliver([3, 0, 2, 0, 7, 0, 0, 0, 0xef, 0xbe, 0xad, 0x0e]);
+    const j = await p;
+    made[0].fire("close", { code: 1006 });
+    t.mock.timers.tick(250);
+    assert.deepEqual(made[1].protocols, [...P, "resume.eadbeef"], "the pass and device key ride again, the token after them");
+    assert.ok(!made.some((w) => /pass|device|resume|eadbeef/.test(w.url)), "none of them in a URL");
+    j.transport.close();
+  } finally {
+    globalThis.WebSocket = real;
+  }
+});
 // The guide's close codes: a drop (1006, or a server restart: 1011, 1012, 1014) resumes the seat; the
 // rest end the match. 1038 is 1006 + 32: JS takes shift counts mod 32, so the range guard must catch it.
 for (const [code, resumes] of [[1006, 1], [1011, 1], [1012, 1], [1014, 1], [1000, 0], [1001, 0], [1005, 0], [1008, 0], [1009, 0], [4000, 0], [4001, 0], [4002, 0], [1038, 0]]) {
