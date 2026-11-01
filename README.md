@@ -448,7 +448,7 @@ link and returns `{ ok, frames, diverged, stalls }`, where `diverged` is the fir
 differed (or -1). `setup(e, slot, players)` returns `{ input(), step(e, inputs, frame), state }`, where
 `state` is a byte view of the sim's typed arrays.
 
-`net.frame`, `net.stalls`, `net.desync`, `net.lost`, `net.confirmed(slot, frame)` (the input log
+`net.frame`, `net.stalls`, `net.desync`, `net.lost`, `net.away` (seats reconnecting), `net.confirmed(slot, frame)` (the input log
 a rollback layer can replay). A transport is `{ send(bytes), listen(fn), close() }`. Presence is
 in-house / experimental: our games run it against our own room server, which isn't a hosted
 service. [Build your own room server](https://fizlet.com/guides/build-your-own-room-server/) specs
