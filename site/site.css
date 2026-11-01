@@ -4001,6 +4001,7 @@ html.bui[data-theme="light"] .phases b {
    (the kit's invisible ::before). */
 @media (pointer: coarse) {
   .foot-map a:not(.map-chips a),
+  .bui .foot-map button.text-btn:not(:disabled),
   .site-foot p a,
   .foot-base a,
   .brick h3 a,
@@ -4383,9 +4384,37 @@ html.bui[data-theme="light"] .phases b {
   --cc-btn-border: 1px solid var(--line);
   --cc-focus: var(--k-sys);
 }
-.foot-base .foot-cookies {
+/* "Cookie settings" (layout.mjs cookieSettings): a <button> that reads as a plain text link, in
+   running text and in the footer's More list. No key face, base, lift or press (it outranks the kit's
+   .bui button rules); keyboard focus is the site's own ring. */
+.bui button.text-btn:not(:disabled) {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
   color: inherit;
-  min-height: 24px;
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+  transition: none;
+}
+.bui button.text-btn:not(:disabled):hover {
+  color: var(--k-sys-ink);
+}
+.bui button.text-btn:focus-visible {
+  outline: 3px solid var(--k-sys-ink);
+  outline-offset: 3px;
+}
+.foot-map li:has(> .text-btn[hidden]) {
+  display: none;
+}
+.foot-map .map-sec > ul .text-btn:not(:disabled) {
+  color: var(--muted);
+  text-decoration: none;
 }
 
 /* ======================================================================

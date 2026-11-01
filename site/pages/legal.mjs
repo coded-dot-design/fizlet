@@ -2,7 +2,7 @@
 // for Fizlet (MIT, by Chris Cooley). For Chris: PENDING LEGAL REVIEW, not legal advice; have a lawyer
 // read both pages before the analytics ids go live. Check before launch: GA4 data retention set to
 // 14 months, PostHog project on the US cloud, and the PostHog plan's retention.
-import { AUTHOR, HUB, REPO, crumbs, esc } from "../layout.mjs";
+import { AUTHOR, HUB, REPO, cookieSettings, crumbs, esc } from "../layout.mjs";
 
 export const LEGAL_UPDATED = "2026-10-31";
 
@@ -35,7 +35,7 @@ const shell = ({ base, id, eyebrow, title, sub, lead, blocks }) => `
   </div>
 </article>`;
 
-const settings = `<button type="button" data-cookie-settings hidden>Cookie settings</button>`;
+const settings = cookieSettings;
 
 export function privacyPage({ base, analytics = OFF }) {
   const t = tools(analytics);

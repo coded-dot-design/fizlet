@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **Site: "Cookie settings" is a plain text link (pending owner review).** In the footer it was a
+  Board UI key between the copyright and the byline, taller than the line and off its baseline; on
+  the privacy and cookies pages it drew as underlined text on a key base. One control now
+  (`site/layout.mjs` cookieSettings, `.text-btn` in site.css): still a `<button>` that reopens the
+  consent banner, styled as a text link with no face, base or lift. The footer lists it after
+  Privacy, Cookies and Brand in the site map's More list; in running text it is an ordinary link.
 - **Brand: the owner's new FIZLET and fzlt logos, and one mark and lockup everywhere (pending owner
   review).** /brand/ draws the two new logos (redrawn as outlines from the owner's art, one function
   each in `scripts/brand-marks.mjs`) on dark and light, as live art and SVG downloads: FIZLET, the
