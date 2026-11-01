@@ -1,6 +1,6 @@
 // Pumpkin Smash: jack-o'-lanterns pop up out of the patch; tap one to smash it flat in a burst of
 // pixel goo and seeds. Every smash buys the round time; when it ends the patch goes quiet and the
-// scene sleeps. Bricks: the kernel, fizlet/fx (goo, chunks, shake), fizlet/sprite (the pumpkin and
+// scene sleeps. Bricks: the kernel, @fzlt/core/fx (goo, chunks, shake), @fzlt/core/sprite (the pumpkin and
 // its smashed frame, baked once), on the Halloween hero core (./hero).
 import { effects, emitter } from "../../../src/fx";
 import { sprites } from "../../../src/sprite";

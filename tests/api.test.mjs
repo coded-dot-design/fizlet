@@ -23,7 +23,7 @@ test("the catalog covers every public module in package.json, once", () => {
   assert.equal(new Set(listed).size, listed.length, "a module is listed twice");
   const exported = Object.keys(pkg.exports)
     .filter((k) => !/\.(css|json)$/.test(k) && k !== "./kernel")
-    .map((k) => (k === "." ? "fizlet" : `fizlet/${k.slice(2)}`));
+    .map((k) => (k === "." ? "@fzlt/core" : `@fzlt/core/${k.slice(2)}`));
   assert.deepEqual([...listed].sort(), exported.sort());
   for (const b of BRICKS) for (const m of b.modules) assert.ok(existsSync(m.src) && existsSync(m.dts), `${m.name}: ${m.src}, ${m.dts}`);
 });
@@ -74,7 +74,7 @@ test("declarations: re-exports, multi-name consts, doc comments", () => {
   for (const n of ["createEngine", "Ledger", "Pool", "EventRing", "seeded", "IDLE", "RENDER", "Engine", "System"]) assert.ok(names.includes(n), n);
   assert.deepEqual(declarations("dist/grid.d.ts").find((d) => d.name === "BLOCKED").names, ["BLOCKED", "COVER", "OCCUPIED"]);
   assert.match(declarations("dist/grid.d.ts").find((d) => d.name === "board").doc, /cols × rows/);
-  assert.match(leadComment("src/presence.ts"), /^fizlet\/presence: lockstep/); // `//` comments too
+  assert.match(leadComment("src/presence.ts"), /^@fzlt\/core\/presence: lockstep/); // `//` comments too
 });
 
 test("a brick page shows the measured size and every export", async () => {
@@ -82,15 +82,16 @@ test("a brick page shows the measured size and every export", async () => {
   const b = BRICKS.find((x) => x.id === "grid");
   const mods = b.modules.map((m) => ({ ...m, ...api(m) }));
   const html = brickPage({ brick: { ...b, summary: "x" }, mods, sizes, version: pkg.version });
-  const s = sizes.find((x) => x.name === "fizlet/grid");
-  assert.ok(html.includes(`data-size="fizlet/grid">${s.gzip.toLocaleString("en-US")} B</b>`), "the measured gzip bytes");
-  for (const d of mods[0].decls) assert.ok(html.includes(`id="api-fizlet-grid-${d.name}"`), d.name);
+  const s = sizes.find((x) => x.name === "@fzlt/core/grid");
+  assert.ok(html.includes(`data-size="@fzlt/core/grid">${s.gzip.toLocaleString("en-US")} B</b>`), "the measured gzip bytes");
+  for (const d of mods[0].decls) assert.ok(html.includes(`id="api-fzlt-core-grid-${d.name}"`), d.name);
   // Each export: its status flag, and a function's signature, parameters and return type.
   assert.equal(html.match(/<article class="bp-decl"[\s\S]*?<\/article>/g).filter((a) => a.includes('class="status-pill" data-flag="beta"')).length, mods[0].decls.length);
   assert.ok(html.includes("<code>board(cols: number, rows: number, opts?: BoardOptions): Board</code>"), "the signature");
-  assert.match(html, /<dt>Returns<\/dt><dd><code><a href="#api-fizlet-grid-Board">Board<\/a><\/code><\/dd>/);
-  assert.match(html, /npm install fizlet {3}# not published yet/);
-  const full = page({ title: "fizlet/grid · Fizlet", description: "The game board: typed-array tiles, A* paths and line of sight, measured.", base: "../", version: pkg.version, path: "bricks/grid.html", body: html });
+  assert.match(html, /<dt>Returns<\/dt><dd><code><a href="#api-fzlt-core-grid-Board">Board<\/a><\/code><\/dd>/);
+  assert.match(html, /npm install @fzlt\/core\n/);
+  assert.ok(!html.includes("not published"), "npm is live: no 'not published' note");
+  const full = page({ title: "@fzlt/core/grid · Fizlet", description: "The game board: typed-array tiles, A* paths and line of sight, measured.", base: "../", version: pkg.version, path: "bricks/grid.html", body: html });
   assert.deepEqual(checkHtml(full, "bricks/grid.html"), []);
 });
 
@@ -121,4 +122,12 @@ test("checkHtml catches the basics", () => {
   has(good.replace(/<meta name="description"[^>]*>/, ""), /description/);
   has(good.replace("<main", "<div").replace("</main>", "</div>"), /<main>/);
   has(good.replace("<h2>Sub</h2>", '<p id="dup"></p><p id="dup"></p>'), /unique ids/);
+});
+
+test("checkHtml: a moved page (meta refresh) names its new home as canonical", () => {
+  const moved = page({ title: "Moved · Fizlet", description: "A page that moved, sending its visitors to the new address straight away.", base: "../", version: "1.0.0", path: "old/", redirect: "new/", body: "<section><h1>Moved</h1></section>" });
+  assert.match(moved, /<meta http-equiv="refresh" content="0; url=\.\.\/new\/">/);
+  assert.match(moved, /<meta name="robots" content="noindex">/);
+  assert.deepEqual(checkHtml(moved, "old/"), []);
+  assert.ok(checkHtml(moved.replace(/new\/">\n<meta name="robots"/, 'other/">\n<meta name="robots"'), "old/").some((p) => /canonical/.test(p)), "a canonical that is not the target fails");
 });

@@ -1,4 +1,4 @@
-// fizlet/timeline in Chromium: real elements animate on the kernel clock (transform, opacity,
+// @fzlt/core/timeline in Chromium: real elements animate on the kernel clock (transform, opacity,
 // clip-path, a custom property, a stagger), values are right mid-way, the engine settles to zero
 // frames when the timeline ends, a looping scene stops asking for frames when paused, Recall mid-play
 // restores the page byte for byte (a host inline style included), and with reduced motion play()

@@ -1,5 +1,5 @@
 /**
- * fizlet/embed: drop a game onto any page with one small config.
+ * @fzlt/core/embed: drop a game onto any page with one small config.
  *   palette   - hex colours for the Board UI roles (anything else is ignored: no CSS injection)
  *   easterEgg - false: open now. true / {...}: stay dormant (tiny listeners only) until a trigger
  *               (key sequence, gesture on a selector, click on a selector), then lazy-load the game.
@@ -38,7 +38,7 @@ export interface Mounted {
 export type Mount = (host: HTMLElement, config: EmbedConfig) => Mounted;
 
 const KONAMI = ["arrowup", "arrowup", "arrowdown", "arrowdown", "arrowleft", "arrowright", "arrowleft", "arrowright", "b", "a", "enter"];
-const TOGGLE_CSS = ":host{all:initial;position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:2147483600}button{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;font:800 12px/1 ui-monospace,monospace;letter-spacing:.08em;color:#07060f;background:#39ffb0;border:2px solid #07060f;border-radius:10px;box-shadow:0 4px 0 #1d6a40;cursor:pointer}button:active{transform:translateY(4px);box-shadow:none}button.open{background:#f6f3ff;box-shadow:0 4px 0 #8f88b8}";
+const TOGGLE_CSS = ":host{all:initial;position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:2147483600}button{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;font:800 12px/1 ui-monospace,monospace;letter-spacing:.08em;color:#07060f;background:#39ffb0;border:2px solid #07060f;border-radius:10px;box-shadow:calc(4px*var(--shadow-x,0)) calc(4px*var(--shadow-y,1)) 0 #1d6a40;cursor:pointer}button:active{transform:translate(calc(4px*var(--shadow-x,0)),calc(4px*var(--shadow-y,1)));box-shadow:none}button.open{background:#f6f3ff;box-shadow:calc(4px*var(--shadow-x,0)) calc(4px*var(--shadow-y,1)) 0 #8f88b8}";
 
 /** Drop a game onto the page: `load` is called (and awaited) only when the game opens, at once or when
  *  the easter egg fires. Returns the controls: `open()`, `close()`, `unlock()`, `opened`, `unlocked`

@@ -1,6 +1,6 @@
 // Docs code (shown on /docs/determinism/): a sim that replays from a seed, checked as lockstep peers.
-import type { Engine } from "fizlet";
-import { syncCheck } from "fizlet/presence/check";
+import type { Engine } from "@fzlt/core";
+import { syncCheck } from "@fzlt/core/presence/check";
 // ---
 // The sim: typed arrays, e.random, inputs as bits. No Math.random, no clock, no DOM.
 function sim(e: Engine, players: number) {

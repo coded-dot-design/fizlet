@@ -8,7 +8,7 @@
 // with all five and you still get a small one. Then it sleeps until the next tap.
 // Bricks: the kernel (fixed step, settle: it sleeps once he is dry and seated and the last ball has
 // stopped rolling; busy(sec) holds the intro; its ledger for every page write, so Recall gives the
-// page back byte for byte) and fizlet/slot. The booth, particles and prize: midway.ts; the letters:
+// page back byte for byte) and @fzlt/core/slot. The booth, particles and prize: midway.ts; the letters:
 // letters.ts.
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../src/slot";

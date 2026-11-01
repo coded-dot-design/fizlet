@@ -9,9 +9,9 @@
   "author": "chris-cooley",
   "recipe": "hand-built",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/steer",
-    "fizlet/slot"
+    "@fzlt/core/kernel",
+    "@fzlt/core/steer",
+    "@fzlt/core/slot"
   ],
   "made": "by hand",
   "module": "pieces/terminal-virus.ts",

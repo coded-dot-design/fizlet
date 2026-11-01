@@ -1,4 +1,4 @@
-// fizlet/perf (Node, on a tiny fake DOM): the frame ring, fps and dropped-frame math, the kernel's
+// @fzlt/core/perf (Node, on a tiny fake DOM): the frame ring, fps and dropped-frame math, the kernel's
 // frame facts (timing, live), show/hide through the ledger, the key, and zero allocation
 // while shown. The real DOM (chart pixels, Recall byte for byte, settle) is in tests/browser.mjs.
 import test from "node:test";

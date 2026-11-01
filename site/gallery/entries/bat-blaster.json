@@ -9,10 +9,10 @@
   "author": "chris-cooley",
   "recipe": "bats",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/fx",
-    "fizlet/sprite",
-    "fizlet/slot"
+    "@fzlt/core/kernel",
+    "@fzlt/core/fx",
+    "@fzlt/core/sprite",
+    "@fzlt/core/slot"
   ],
   "pageCost": {
     "settles": true,

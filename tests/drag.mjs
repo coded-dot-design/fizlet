@@ -1,4 +1,4 @@
-// fizlet/arcade's drag() on a board that is not the viewport: under a page header, mid-page and
+// @fzlt/core/arcade's drag() on a board that is not the viewport: under a page header, mid-page and
 // scrolled, inside a bordered box (the Blitz case). The card follows the pointer exactly (no jump on
 // the first move) and stays inside its board. The arcade overlay itself (fixed to the viewport) is
 // covered by tests/arcade.mjs.

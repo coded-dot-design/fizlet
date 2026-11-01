@@ -1,8 +1,8 @@
 // Recipe: an action on the page. A click on a real button bursts sparks out of it and counts; the
 // engine sleeps half a second after the last spark. Kernel, fx and hud. Runs as is with action.html.
-import { createEngine } from "fizlet";
-import { effects } from "fizlet/fx";
-import { hud } from "fizlet/hud";
+import { createEngine } from "@fzlt/core";
+import { effects } from "@fzlt/core/fx";
+import { hud } from "@fzlt/core/hud";
 
 const root = document.getElementById("action");
 const button = root.querySelector("button");

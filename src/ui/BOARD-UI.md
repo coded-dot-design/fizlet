@@ -1,6 +1,6 @@
 # Board UI: the game board and controls design system
 
-**Status:** v1.1 (2026-10-28). Lives in Fizlet (`src/ui/`, published as `fizlet/ui`); DOM
+**Status:** v1.1 (2026-10-28). Lives in Fizlet (`src/ui/`, published as `@fzlt/core/ui`); DOM
 Battlefield keeps a copy in `board-ui/` until it imports the package. Live guide:
 https://coded-dot-design.github.io/dom-battlefield/style-guide/ (built from the kit only). Kit:
 `src/ui/board-ui.css` + `src/ui/board-ui.ts`. Tokens: `src/ui/tokens.json`.
@@ -18,9 +18,10 @@ building, then section 16 (lessons: mistakes we already paid for) and section 17
 
 ## 1. Principles (the rules everything else follows)
 
-1. **Everything you can press is a 3D key.** A face over a hard base *straight below* it. Never a
-   diagonal or side shadow on the board (the hub's marketing site uses diagonal shadows; the
-   board does not).
+1. **Everything you can press is a 3D key.** A face over a hard base in the **domain's shadow
+   direction** (section 4.1): straight below by default and on every Battlefield board, 45°
+   down-right on the DOM VIRUS hub. A component never hard-codes a shadow direction; the domain
+   sets it once, so a key, card or cartridge moved to another site takes that site's angle.
 2. **One physical travel.** Face and base move together on one curve (transform + box-shadow,
    120ms ease-out, 50ms on press). They never snap separately.
 3. **Colour is the job.** One colour per job (section 3). The same job is the same colour on
@@ -48,7 +49,7 @@ building, then section 16 (lessons: mistakes we already paid for) and section 17
 |---|---|
 | `src/ui/board-ui.css` | Tokens and every component, scoped under `.bui`. CSS containment (Fizlet contract rule 8): the pad and the overlay are `contain: layout style` |
 | `src/ui/board-ui.ts` | `mount`, `applyPalette`, `press`, `pressCue`, `slam`, `toast`, `launch` (2.9 KB gzip; the CSS is 4.9 KB gzip, as `npm run size` measures them). The mount root is `contain: style`, the launch burst `contain: layout style` |
-| `src/ui/tokens.json` | Machine-readable tokens, timings, breakpoints, z-layers, storage keys. **Authoritative**: published as `fizlet/ui/tokens.json`; the build (`scripts/tokens.mjs`) fails when a `board-ui.css` default (every palette role, ink, surface, `--k-*`, `--u`, motion curve) or `applyPalette`'s variable map disagrees with it |
+| `src/ui/tokens.json` | Machine-readable tokens, timings, breakpoints, z-layers, storage keys. **Authoritative**: published as `@fzlt/core/ui/tokens.json`; the build (`scripts/tokens.mjs`) fails when a `board-ui.css` default (every palette role, ink, surface, `--k-*`, `--u`, motion curve) or `applyPalette`'s variable map disagrees with it |
 | `src/ui/BOARD-UI.md` | This spec |
 | `/style-guide/` (Battlefield site) | Live guide built from the kit only |
 
@@ -154,6 +155,47 @@ applyPalette(root, { cmd: "#8573ee", teamA: "#4bce82" });   // returns restore()
 - **Borders:** key 2u, sticker key 3u (white), card 2.5u (cmd), sticker 2.5u (rim).
 - **Touch targets:** ≥ 44u on phones (keys are 44u; stick and fire are larger).
 
+### 4.1 Shadow direction: a domain token, never a component's choice
+
+Every hard shadow (key bases, sticker, cards, toast, HUD, coach card) and every press travel reads
+three page-level tokens. **The domain sets them once at its root; components never hard-code a
+direction.** A component moved from one site to another takes the new site's angle with it.
+
+| Token | Type | Meaning | Kit fallback |
+|---|---|---|---|
+| `--shadow-x` | number (unitless) | horizontal share of a component's depth: the hard shadow's x offset is `depth × --shadow-x` | `0` |
+| `--shadow-y` | number (unitless) | vertical share of the depth: y offset = `depth × --shadow-y` | `1` |
+| `--shadow-color` | colour | the colour of rim-coloured hard shadows (sticker, toast, cards' ink, arcade edge mix) | `var(--rim)` |
+
+- **Depth stays the component's own** (`--py`: base key 3u, arcade 4u, sticker 5u; card 5u…). The
+  direction is a unit vector per unit of depth, so a 3u key and a 14px console extrusion follow the
+  same angle at their own depth: `box-shadow: calc(var(--py) * var(--shadow-x)) calc(var(--py) *
+  var(--shadow-y)) 0 <colour>`, or `calc(12px * var(--shadow-x)) …` for a fixed-pixel component.
+- **Unitless, on purpose.** Kit depths are in `--u` (a length that scales on phones), so the
+  direction must be a number: `length × length` is not valid CSS.
+- **The press follows the shadow.** A pressed face drops toward its base by the same vector
+  (`translate(depth × x, depth × y)`) and the base shrinks to `0 0`; hover lifts the opposite way.
+- **Angle:** x and y are a direction, not normalised: `1 1` is the classic "4px 4px" 45° hard
+  shadow (each axis gets the full depth). For a true angle, a site can write
+  `--shadow-x: cos(45deg); --shadow-y: sin(45deg)` (CSS trig; angles turn clockwise from "right",
+  because y points down: 90deg is straight below).
+- **Not directional, so not tokens:** soft glows, spread focus rings, the planning-art outline
+  (four equal drop shadows) and inset bands.
+- **Inside the kit** the tokens are read once on the `.bui` root as `--bui-sx`, `--bui-sy` and
+  `--bui-shadow` (tokens.json `shadow.aliases`), and every key derives `--bx` / `--by` from its `--py`.
+  A brick's CSS outside a `.bui` root (the perf overlay, the embed toggle) reads
+  `var(--shadow-x, 0)` / `var(--shadow-y, 1)` directly.
+- **Where to set it:** `:root` of the site (light and dark alike). Custom properties inherit into
+  shadow roots, so `mount()`ed boards and the arcade's shadow-DOM UI follow the page with no extra
+  wiring. The kit itself never writes `:root` (embed-safe, rule 10): the defaults are `var()`
+  fallbacks on the `.bui` root.
+
+| Domain | Setting |
+|---|---|
+| Battlefield, Blitz, any board (default) | none needed, or `:root { --shadow-x: 0; --shadow-y: 1; }` |
+| DOM VIRUS hub | `:root { --shadow-x: 1; --shadow-y: 1; }` (45° down-right) |
+| fizlet.com | `:root { --shadow-x: 0; --shadow-y: 1; }` (straight below, its keys and cards today) |
+
 ---
 
 ## 5. The 3D key
@@ -164,12 +206,13 @@ applyPalette(root, { cmd: "#8573ee", teamA: "#4bce82" });   // returns restore()
  ┌──────────────┐  face: background var(--c) (arcade) or --surface (base key), 2u rim border
  │ ◆ Label  [K] │  icon 18u (stroke 2) · label · shortcut chip pushed to the right edge
  └──────────────┘
- ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  base: box-shadow 0 var(--py) 0 var(--edge)  (straight below)
+ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  base: box-shadow var(--bx) var(--by) 0 var(--edge)  (--py along the domain direction, 4.1)
 ```
 
 | Variable | Base key | Arcade | Sticker key | Meaning |
 |---|---|---|---|---|
-| `--py` | 3u | 4u | 5u | base height (resting travel) |
+| `--py` | 3u | 4u | 5u | base depth (resting travel), along the domain's shadow direction |
+| `--bx`, `--by` | derived | derived | derived | the base offset: `--py × --shadow-x / -y` (never set them; set `--py`) |
 | `--hy` | 1u | 2u | 2u | hover lift |
 | `--edge` | `--line` | `--c` 45% into rim | `#f6f3ff` | base colour |
 | `--c` | n/a | role colour | n/a | face colour |
@@ -180,13 +223,13 @@ applyPalette(root, { cmd: "#8573ee", teamA: "#4bce82" });   // returns restore()
 
 | State | Selector | Face | Base | Extra |
 |---|---|---|---|---|
-| rest | — | `transform: none` | `0 py 0 edge` | glow |
-| hover | `:hover` on `(hover: hover) and (pointer: fine)` only, not locked/disabled/pressed | `translateY(-hy)` | `0 (py+hy) 0 edge-hover` | border `--border-hover` |
-| press | `:active`, `.down` (always beats hover) | `translateY(py)` | `0 0 0 edge` | 50ms; reduced motion: no tween, face `brightness(.82)` |
-| locked | `[aria-pressed=true]`, `[aria-expanded=true]`, `.active` | `translateY(py)` | `0 0 0` | background `--lock`; `breath` 1.8s |
+| rest | — | `transform: none` | `bx by 0 edge` | glow |
+| hover | `:hover` on `(hover: hover) and (pointer: fine)` only, not locked/disabled/pressed | `translate(-hy × dir)` | `(py+hy) × dir, 0 edge-hover` | border `--border-hover` |
+| press | `:active`, `.down` (always beats hover) | `translate(bx, by)` | `0 0 0 edge` | 50ms; reduced motion: no tween, face `brightness(.82)` |
+| locked | `[aria-pressed=true]`, `[aria-expanded=true]`, `.active` | `translate(bx, by)` | `0 0 0` | background `--lock`; `breath` 1.8s |
 | call | `.bui-call` | up | normal | `::after` ring from the base bottom, 1.4s; never on a locked key |
 | disabled | `:disabled`; link keys `aria-disabled="true"` | rest | rest | opacity .45, `not-allowed`; a disabled link key takes no pointer (drop its `href` too) |
-| focus | `:focus-visible` | as state | as state | ring: 3u `--bg` gap + 6u `--k-sys-ink`, on face **and** base (two spread shadows, one at y=0, one at y=py); pressed keys get the face ring only |
+| focus | `:focus-visible` | as state | as state | ring: 3u `--bg` gap + 6u `--k-sys-ink`, on face **and** base (two spread shadows, one at 0 0, one at the base offset bx by); pressed keys get the face ring only |
 
 Transitions: `transform 120ms ease-out, box-shadow 120ms ease-out, background-color 140ms,
 border-color 140ms`. Locked keys in a footer bar keep a steady glow (no breath) so the bar stays
@@ -216,7 +259,7 @@ calm: `animation: none` on locked footer keys.
 - **Pager** (`.bui-pager`): ‹ ★ › as one sys bar; ★ = your own unit, pressed when you are selected.
 - **Shortcut chip** (`kbd`): 9u mono, 1u currentColor border, 88% opacity (`--bui-kbd-alpha`: rim ink stays AA on every face), always right-aligned.
 
-### 5.5 Touch pad (`fizlet/pad`, CSS section 11)
+### 5.5 Touch pad (`@fzlt/core/pad`, CSS section 11)
 
 - **`.bui-pad`**: absolute along the board's bottom edge, notch-safe, 14u in from the edges; the
   move control under one thumb, the action keys under the other (right; `data-hand="left"` swaps).
@@ -242,8 +285,9 @@ never restate its states. `bui-key` gives, on top of the family:
   the key rests while the face travels, so a click or tap on the base, or just under the top edge
   (which the dropping face leaves), lands on the key. (The base is a box-shadow, which never takes
   a pointer.) Don't use `::before` on a page key for anything else.
-- **Press beats hover.** On a mouse, the face drops by `--py` on `:active` even while hovered.
-- **Keyboard and iOS.** Call `pressCue(document)` once per page (`fizlet/ui`): Enter (and Space on
+- **Press beats hover.** On a mouse, the face drops by its base (`--py` along the domain's shadow
+  direction, section 4.1) on `:active` even while hovered.
+- **Keyboard and iOS.** Call `pressCue(document)` once per page (`@fzlt/core/ui`): Enter (and Space on
   a button) shows the pressed face (`.down`) until release or blur, and a passive `touchstart`
   listener lets iOS Safari apply `:active`. Activation stays native: links navigate, buttons click.
 - **Focus** rings face and base; **disabled** is `:disabled` (button) or `aria-disabled="true"`
@@ -282,7 +326,7 @@ Rename per game (e.g. SQUAD, CREW, SHIPS) but keep the grammar.
 
 ### 7.1 Anatomy
 
-- Card: `--card` at 94%, 2.5u cmd border, 10u radius, base `0 5u 0 --k-cmd-base`.
+- Card: `--card` at 94%, 2.5u cmd border, 10u radius, base 5u deep (section 4.1) in `--k-cmd-base`.
 - **Grip**: a 36 × 12u cmd tab centred on the top edge (dot pattern). Drag by it or any empty part
   (5px threshold before a drag starts; a mouse drag never becomes a click). A dragged card gets
   `data-moved` and keeps its place until the stage changes.
@@ -435,9 +479,9 @@ own action** (a reset that cancels effects must be told to keep it).
 - **Settings switch** (`setting(button, key, change, signal)` in `board-ui.ts`): a base key that rests
   locked (`aria-pressed="true"`) while on. Its state lives in localStorage as `"1"` / `"0"` under a
   key from `tokens.json` `storage`; storage that throws is ignored (the switch works, it forgets).
-- **Performance overlay** (`fizlet/perf`, switch label "Performance overlay", key `dom-virus:perf`,
+- **Performance overlay** (`@fzlt/core/perf`, switch label "Performance overlay", key `dom-virus:perf`,
   **off by default**, F9 toggles it): a flat card in a corner of the board, `--surface` on a 2u
-  `--rim` border with a 3u rim base straight below, 9u/700 mono caps, numbers in `--ink`, labels in
+  `--rim` border with a 3u rim base in the page's shadow direction, 9u/700 mono caps, numbers in `--ink`, labels in
   `--muted`. One 120 × 36u chart on `--bg`: a bar per frame, `--k-go` within 1.25 frame budgets,
   `--hurt` within 2, `--critical` beyond, the budget line in `--line` over the bars. z-index 60
   (between gate and boot), `pointer-events: none`, never covers a key the player needs.
@@ -540,7 +584,7 @@ Reduced motion: no loops, no bursts, no slams (static end states), instant trans
 | win | `win` (three notes) |
 | lose / surrender | `end` |
 
-Cue names are `fizlet/sound`'s (`src/sound.ts`); it also has `boom`, `power` and `click`.
+Cue names are `@fzlt/core/sound`'s (`src/sound.ts`); it also has `boom`, `power` and `click`.
 
 Audio unlocks on the first trusted gesture; cues have cooldowns; at most 8 voices; muted state is
 remembered (`dom-virus:<game>:sound`).
@@ -584,6 +628,9 @@ remembered (`dom-virus:<game>:sound`).
     screen, both themes, both sides, 4 and 12 units.
 11. Reduced motion, keyboard (focus ring, Esc, shortcuts), screen reader names.
 12. Size budget in CI; no layout reads in the frame loop; one `AbortSignal` teardown.
+13. No shadow direction in the board's CSS: every hard shadow is `depth × var(--bui-sx) / (--bui-sy)`
+    (or `var(--bx) var(--by)` on a key) and every press travels the same vector (section 4.1). The
+    site sets `--shadow-x` / `--shadow-y` once at its `:root`.
 
 ## 18. Readouts (CSS section 12, `readouts()`)
 
@@ -598,11 +645,11 @@ pressed, never focusable.
 - **Tone** (`data-tone`): `team` paints the value `--team-ink`, `enemy` paints it `--team-b`, and no tone leaves it ink. That matches Battlefield: ARMOR is team, HOSTILE is enemy.
 - **On the map** (`.bui-on-map`, the phone cockpit's panel): a flat plate of `--surface` at 74% with a 1.5u `--line` rim and a 5u radius. Use it whenever readouts sit over a playfield.
 - **JS:** `readouts(parent, [["Score", "team"], ["Time"]], onMap?)` builds the group and returns `{ group, values }`.
-  - Bind `values` with `fizlet/hud` (`num(values[0], [state, SCORE])`): change-only and allocation-free.
+  - Bind `values` with `@fzlt/core/hud` (`num(values[0], [state, SCORE])`): change-only and allocation-free.
   - Add the group through the engine's ledger, or mount it inside a kit root the game owns, so Recall removes it.
 - **Placement is the game's layout:** where the group sits (corner, rail, header) may vary per game. The look may not.
 
-## 19. Game HUD presets (`fizlet/arcade` `hud`)
+## 19. Game HUD presets (`@fzlt/core/arcade` `hud`)
 
 The standard game UI is DOM Battlefield / Blitz's, scoped per game: a game keeps its own rules and
 picks its controls and scoreboard from one set. `arcade(def)` takes `hud`, a preset; every piece is
@@ -618,14 +665,14 @@ names. Leaving `hud` out keeps the card byte for byte.
 
 - **Readouts** are section 18's: label, value, tone. A `bar` readout is a track with the fill as
   the `progressbar`, `low` turning it to `--hurt`.
-- **Overlays** are section 9's, run by `fizlet/match` (one owner of the phase): one dim layer, one
+- **Overlays** are section 9's, run by `@fzlt/core/match` (one owner of the phase): one dim layer, one
   sticker, at most two sticker keys, the toast for the explanation. Pause: BATTLE PAUSED / GIVE UP?
   (KEEP FIGHTING · SURRENDER). Result: INSERT COIN / GAME OVER, WHITE FLAG / GAME OVER or
   STAGE CLEAR / MISSION COMPLETE (REMATCH · EXIT), with the chosen stats and the best on this
   device; it stays up after the run until dismissed. Countdown: GET READY 3, 2, 1 on the flow's
   clock, then the game's engine starts.
 - **Counts** are the kit's badge (`.bui-badge`, section 7) on the action's bar key and pad key.
-- **Values** go through `fizlet/hud` from typed-array slots: change-only, no layout reads, nothing
+- **Values** go through `@fzlt/core/hud` from typed-array slots: change-only, no layout reads, nothing
   allocated in the steady state. The game fills `hud(out)` in readout order, then the count slots.
 - **Recall** is exact with any preset: the page comes back at once when a run ends, and the
   overlay host goes on Escape or the exit key (full screen too).

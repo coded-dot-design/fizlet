@@ -13,16 +13,18 @@ import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
 import { checkHtml } from "../scripts/check-html.mjs";
 import { checkNav } from "../scripts/check-nav.mjs";
-import { SITE, ROOT as SITE_ROOT } from "../site/layout.mjs";
+import { FAMILY_LINE, SITE, ROOT as SITE_ROOT, mark as fizletMark } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
 import { entries as galleryEntries, isLive, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
 import { notes as siteNotes, notePath } from "../scripts/notes.mjs";
-import { STICKER, authorOf, contributors as profiles } from "../scripts/people.mjs";
+import { CONTEST, STICKER, authorOf, contributors as profiles } from "../scripts/people.mjs";
 import { gzipSync } from "node:zlib";
 import { checkKeys, checkTaps } from "./keys.mjs";
 import { snippetable, snippetFor, TABLE as MAKE_TABLE } from "../scripts/make.mjs";
 import { slug as makeSlug } from "../site/make/make.mjs";
+import { brandMarks, brandStickers, STICKERS } from "../scripts/brand-marks.mjs";
+import { inline as inlineMark } from "../site/pages/brand.mjs";
 
 const slug = (prompt) => makeSlug(MAKE_TABLE, prompt);
 
@@ -64,7 +66,7 @@ for (const b of BRICKS) assert.ok(PAGES.includes(`bricks/${b.id}.html`), `a page
 // What counts as a live demo: the home blast board, slot scenes (layers, fizz), brick demos and the
 // quick start's canvas. The demos' own standalone pages (built by site/demos/*) have no badge yet.
 const DEMOS = "[data-demo], figure.ae-slot, [data-brick-demo], figure[data-recipe], canvas.qs-canvas";
-const NO_BADGE = { "demos/fizz/": 1, "demos/layers/": 1, "examples/fizz/": 1 };
+const NO_BADGE = { "demos/fizz/": 1, "demos/origin/": 1, "demos/layers/": 1, "examples/fizz/": 1 };
 let badges = 0, sizeCache = null;
 const measured = async () => (sizeCache ??= await measure());
 const browser = await chromium.launch(launchOptions());
@@ -100,7 +102,10 @@ async function open(context, path) {
   const errors = [];
   page.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));
   page.on("console", (m) => m.type() === "error" && !m.text().includes("404 (Not Found)") && errors.push(`console: ${m.text()}`));
-  page.on("requestfailed", (r) => r.url().startsWith(ORIGIN) && errors.push(`requestfailed: ${r.url()}`));
+  // A request the page itself abandoned (closed or navigated away while a lazy chunk such as
+  // demos/origin/scene.js was still loading) is not a broken URL: ERR_ABORTED is skipped, every
+  // other network failure still counts.
+  page.on("requestfailed", (r) => r.url().startsWith(ORIGIN) && !/ERR_ABORTED|NS_BINDING_ABORTED/.test(r.failure()?.errorText ?? "") && errors.push(`requestfailed: ${r.url()} (${r.failure()?.errorText})`));
   page.on("response", (r) => r.url().startsWith(ORIGIN) && r.status() >= 400 && !r.url().endsWith("/missing/page") && errors.push(`${r.status()}: ${r.url()}`));
   await page.goto(ORIGIN + BASE + path, { waitUntil: "load" });
   return { page, errors };
@@ -185,6 +190,9 @@ try {
         hits.set(to, (hits.get(to) ?? 0) + 1);
         if (to === path && path !== "") assert.match(attrs, /aria-current="page"/, `${path}: its own footer link is aria-current="page"`);
       }
+      // The family line (layout.mjs FAMILY_LINE): the four family sites, in order, ↗ on all but this one.
+      const family = foot.match(/<span class="map-label">DOM VIRUS family<\/span><ul>([\s\S]*?)<\/ul>/)?.[1] ?? "";
+      assert.deepEqual([...family.matchAll(/<a href="([^"]*)">([^<]*)<\/a>/g)].map((m) => [m[1], m[2]]), FAMILY_LINE.map(([href, label]) => [href, href === SITE ? label : `${label} ↗`]), `${path || "index"}: the family line`);
       for (const r of routes) assert.equal(hits.get(r) ?? 0, 1, `${path || "index"}: footer links ${r || "home"} exactly once`);
       for (const h of hidden) assert.ok(!hits.has(h), `${path || "index"}: footer does not link the hidden page ${h}`);
       for (const to of hits.keys()) assert.ok(routes.includes(to), `${path || "index"}: footer links ${to}, which is not in the sitemap`);
@@ -233,15 +241,22 @@ try {
       // The chips: All, then every theme that has entries (with its count), linking to its first section.
       const chips = [...html.matchAll(/data-theme-chip="([^"]+)"[^>]*>[^<]*<small>(\d+)<\/small>/g)].map((m) => [m[1], Number(m[2])]);
       assert.deepEqual(chips, [["all", GALLERY.length], ...THEMES.filter((t) => GALLERY.some((e) => e.theme === t.id)).map((t) => [t.id, GALLERY.filter((e) => e.theme === t.id).length])], `${gp.path}: theme chips and counts`);
-      if (GPAGES.length > 1) assert.match(html, /<nav class="gal-pages" aria-label="Gallery pages">/, `${gp.path}: page links`);
+      if (GPAGES.length > 1) assert.match(html, /<nav class="gal-pages" aria-label="Daily pages">/, `${gp.path}: page links`);
       for (const e of gp.entries) {
         const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
         assert.ok(html.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `${e.id}: its badge shows ${bytes} B`);
-        assert.ok(html.includes(`data-total="gallery:${e.id}">live ${bytes.toLocaleString("en-US")} B · total <b>${(bytes + loader).toLocaleString("en-US")} B</b>`), `${e.id}: live and total, one size`);
+        const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</div>\n    </li>")[0]; // a card ends at its own </li> (a poster may hold lists)
+        // The stat chips: live and total (with the shared loader), measured on this build.
+        assert.ok(card.includes(`data-live-bytes="gallery:${e.id}"><b>${bytes.toLocaleString("en-US")} B</b> live</li>`), `${e.id}: its live chip shows ${bytes} B`);
+        assert.match(card, new RegExp(`data-total="gallery:${e.id}"[^>]*><b>${(bytes + loader).toLocaleString("en-US")} B</b> total with the ${loader.toLocaleString("en-US")} B loader</li>`), `${e.id}: its total chip, live + loader`);
+        // Stickers: one status (NEW this week, else APPROVED, with the owner's date); HERO on a hero; TOO BIG TO WIN only over the cap, with the bytes over.
+        const status = [...card.matchAll(/class="gal-sticker gal-sticker-(new|ok)" role="img" aria-label="([^"]+)"/g)];
+        assert.ok(status.length === 1 && status[0][2].includes(`approved by the owner on ${e.approved}`), `${e.id}: one status sticker, with its approval date`);
+        assert.equal(card.includes(">HERO</span>"), e.kind === "hero", `${e.id}: a HERO sticker only on a hero`);
+        if (card.includes(">TOO BIG TO WIN</span>")) assert.ok(bytes > CONTEST.maxLive && card.includes(`<b>+${(bytes - CONTEST.maxLive).toLocaleString("en-US")} B</b> over the`), `${e.id}: too big to win only over the cap, by its measured bytes`);
         assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
         // Attribution: "by <name>", linked to the contributor's profile.
-        const card = html.slice(html.indexOf(`<li class="panel gal-item" id="${e.id}"`)).split("</div>\n    </li>")[0]; // a card ends at its own </li> (a poster may hold lists)
-        assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">studio crew</small>' : ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
+        assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${{ persona: ' <small class="gal-persona">studio crew</small>', agent: ' <small class="gal-persona">AI agent</small>' }[PEOPLE[e.author].kind] ?? ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
       }
     }
     // The generated index: every entry once, newest first, on the page that holds it, its sizes measured on this build.
@@ -269,20 +284,20 @@ try {
     }
   }
 
-  // ---------- Heroes and people: every hero has a large card; every contributor a profile ----------
+  // ---------- Heroes and people: /heroes/ is archived (it redirects to Daily, where every hero is an
+  // entry); every contributor has a profile ----------
   where = "heroes and people";
   const HEROES = GALLERY.filter((e) => e.kind === "hero");
   {
     assert.ok(HEROES.length >= 2, "at least two heroes");
     const html = readFileSync(pageFile("heroes/"), "utf8");
-    assert.deepEqual([...html.matchAll(/<li class="hero-card panel" id="hero-([^"]+)"/g)].map((m) => m[1]), HEROES.map((e) => e.id), "heroes: every hero, newest first");
-    for (const e of HEROES) {
-      const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
-      const card = html.slice(html.indexOf(`id="hero-${e.id}"`)).split("</li>")[0];
-      assert.ok(card.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `hero ${e.id}: its badge shows ${bytes} B`);
-      assert.ok(card.includes(`<p class="hero-by">by <a href="../${personPath(e.author)}">${PEOPLE[e.author].name}</a>${PEOPLE[e.author].kind === "persona" ? ' <small class="gal-persona">studio crew</small>' : ""}</p>`), `hero ${e.id}: by ${PEOPLE[e.author].name}, linked`);
-      assert.ok(!/data-slot-target/.test(card), `hero ${e.id}: no gallery slot wiring on its poster`);
-    }
+    assert.match(html, /<meta http-equiv="refresh" content="0; url=\.\.\/gallery\/">/, "heroes/: redirects to Daily (meta refresh)");
+    assert.match(html, new RegExp(`<link rel="canonical" href="${SITE}gallery/">`), "heroes/: canonical is Daily");
+    assert.match(html, /<meta name="robots" content="noindex">/, "heroes/: noindex");
+    assert.ok(!readFileSync(`${ROOT}/sitemap.xml`, "utf8").includes(`${SITE}heroes/`), "heroes/: not in the sitemap");
+    assert.deepEqual(PAGES.filter((p) => /href="(\.\.\/|\.\/)*heroes\/"/.test(readFileSync(fileOf(p), "utf8"))), [], "no page links heroes/");
+    const daily = GPAGES.map((gp) => readFileSync(pageFile(gp.path), "utf8")).join("");
+    for (const e of HEROES) assert.ok(daily.includes(`<li class="panel gal-item" id="${e.id}"`), `hero ${e.id}: an entry on Daily`);
     assert.ok(PEOPLE["chris-cooley"], "the owner's profile");
     for (const person of Object.values(PEOPLE)) {
       assert.ok(PAGES.includes(personPath(person.id)), `${person.id}: a profile page`);
@@ -356,15 +371,22 @@ try {
     assert.match(contest, /10 KB gzip or less/);
     assert.match(contest, /Too big to win/);
     assert.doesNotMatch(contest, /characters or fewer/, "the prompt length is not a rule");
-    assert.match(contest, /One winner a week/);
-    assert.match(contest, /Not live yet/, "open prompts are planned, not live");
+    assert.match(contest, /One weekly winner/);
+    assert.match(contest, /one monthly winner/);
+    assert.match(contest, /Not live yet/, "an entry form is planned, not live");
+    // Daily says the same story, with the same prefilled entry link.
+    const daily = readFileSync(`${ROOT}/gallery/index.html`, "utf8");
+    for (const html of [contest, daily]) for (const rule of ["Up to <b>40 entries a day</b>", "<b>top 1 to 5</b>", "<b>posted at the end of the week</b>", "<b>monthly winner</b>", "backfills", "10,240 B live, a piece can't win"]) assert.ok(html.includes(rule), `contest story: ${rule}`);
+    assert.match(daily, /<title>Daily: tiny examples, made every day · Fizlet<\/title>/);
+    assert.match(daily, /<h1 id="gal-title">Daily\.<br><em>Tiny examples, made every day\.<\/em><\/h1>/);
   }
 
   // ---------- Every page, desktop and phone: errors, links, overflow ----------
   const checked = new Set();
   for (const [label, viewport] of [["desktop", { width: 1280, height: 860 }], ["phone", { width: 360, height: 740 }]]) {
     const context = await browser.newContext({ viewport });
-    for (const path of PAGES) {
+    // A moved page (heroes/) leaves at once: tests/site-nav.mjs follows its redirect.
+    for (const path of PAGES.filter((p) => !/<meta http-equiv="refresh"/.test(readFileSync(fileOf(p), "utf8")))) {
       where = `${label} ${path || "index"}`;
       const { page, errors } = await open(context, path);
       await page.waitForTimeout(300);
@@ -450,7 +472,7 @@ try {
 
   // ---------- Page keys: every in-page key presses (face drops) and clicks on face and base ----------
   let keyCount = 0;
-  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", "heroes/", "contest/", "make/", ...siteNotes().map(notePath)]) {
+  for (const path of ["", "bricks/", "bricks/kernel.html", "bricks/sound.html", "examples/quick-start.html", "gallery/", "contest/", "make/", "brand/", ...siteNotes().map(notePath)]) {
     where = `page keys ${path || "index"}`;
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const { page, errors } = await open(context, path);
@@ -462,12 +484,79 @@ try {
     const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const tap = await open(phone, path);
     await revealAll(tap.page);
-    // Heroes: the skip below needs the centre card (aria-current), which an IntersectionObserver sets.
-    if (path === "heroes/") await tap.page.waitForSelector("[data-hero][aria-current]");
-    // Heroes: on a phone the other cards sit off to the side, and a scroll to one of their keys snaps the
-    // row to that card (the key moves under the tap); the centre card's keys are tapped.
-    await checkTaps(tap.page, `${where} (phone)`, { skip: path === "heroes/" ? "[data-hero]:not([aria-current])" : "" });
+    await checkTaps(tap.page, `${where} (phone)`);
     await phone.close();
+  }
+
+  // ---------- Brand (/brand/): every mark served as a valid, self-contained SVG download, the same
+  // file the page draws inline; the page rests at 0 rAF, and the slam settles (still under reduced motion) ----------
+  where = "brand";
+  {
+    const STICK = brandStickers(fizletMark), MARKS = [...brandMarks(), ...STICK], html = readFileSync(fileOf("brand/"), "utf8");
+    // The sticker set: every entry live in the kit's own classes, with its download(s).
+    for (const s of STICKERS) {
+      assert.ok(s.kind === "sticker" ? html.includes(`<b>${s.word}${s.tm ? "™" : ""}</b>`) : html.includes(`aria-label="Sticker key: ${s.word}"`), `brand: the ${s.id} sticker is live`);
+      assert.ok(STICK.some((f) => f.id === s.id), `brand: the ${s.id} sticker downloads`);
+    }
+    assert.ok(MARKS.length >= 10 && new Set(MARKS.map((m) => m.file)).size === MARKS.length, "a file per mark and ground");
+    for (const theme of ["dark", "light"]) for (const id of ["wordmark", "short-mark", "lockup", "npm", "dev"]) assert.ok(MARKS.some((m) => m.id === id && m.theme === theme), `brand: ${id} on ${theme}`);
+    assert.ok(html.includes("Fizlet and fzlt are trademarks of Chris Cooley."), "brand: the trademark note");
+    assert.equal(html.match(/(Fizlet|fzlt)®/gi)?.length, 1, "brand: ® next to a name only once, as a don't");
+    assert.ok(html.includes("Fizlet™") && html.includes("fzlt™"), "brand: ™ on first use");
+    assert.ok(html.includes("npm i @fzlt/core"), "brand: the install line");
+    for (const m of MARKS) {
+      const res = await fetch(`${ORIGIN}${BASE}brand/${m.file}`);
+      assert.equal(res.status, 200, `brand: ${m.file} is served`);
+      assert.equal(res.headers.get("content-type"), "image/svg+xml", `brand: ${m.file} is served as SVG`);
+      const body = await res.text();
+      assert.ok(body.includes(m.svg), `brand: ${m.file} is the mark the page draws`);
+      if (!STICK.includes(m)) assert.ok(html.includes(inlineMark(m)), `brand: the page draws ${m.file} inline`);
+      assert.ok(html.includes(`href="${m.file}" download="${m.file}"`), `brand: a download key for ${m.file}`);
+      // Self-contained: no outside reference (no href, no url(), no @import, no script).
+      assert.doesNotMatch(body, /\shref=|xlink:|url\(|@import|<script|<image|<foreignObject/i, `brand: ${m.file} is self-contained`);
+    }
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    await context.addInitScript(() => {
+      const raw = requestAnimationFrame.bind(window);
+      window.__raf = 0;
+      window.requestAnimationFrame = (cb) => (window.__raf++, raw(cb));
+    });
+    const { page, errors } = await open(context, "brand/");
+    // Each file parses as SVG and renders as an image.
+    const bad = await page.evaluate(async (files) => {
+      const out = [];
+      for (const f of files) {
+        const text = await (await fetch(f)).text();
+        const doc = new DOMParser().parseFromString(text, "image/svg+xml");
+        if (doc.querySelector("parsererror") || doc.documentElement.nodeName !== "svg") { out.push(`${f}: not valid SVG`); continue; }
+        const img = new Image();
+        img.src = f;
+        await img.decode().catch(() => {});
+        if (!(img.naturalWidth > 0)) out.push(`${f}: does not render`);
+      }
+      return out;
+    }, MARKS.map((m) => m.file));
+    assert.deepEqual(bad, [], "brand: every SVG is valid and renders");
+    const rest = async (ms) => { await page.evaluate(() => (window.__raf = 0)); await page.waitForTimeout(ms); return page.evaluate(() => window.__raf); };
+    const running = () => page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length);
+    assert.equal(await rest(800), 0, "brand: no frames at rest");
+    await page.click("[data-slam-key]");
+    assert.ok(await page.isVisible("[data-slam] .bui-sticker"), "brand: the slam shows the sticker");
+    await page.waitForSelector("[data-slam]", { state: "hidden", timeout: 4000 });
+    await page.mouse.move(2, 2);
+    assert.equal(await rest(800), 0, "brand: no frames after the slam");
+    assert.equal(await running(), 0, "brand: nothing animates once the slam has landed");
+    assert.deepEqual(errors, [], `${where}: errors`);
+    await context.close();
+    const still = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+    const s2 = await open(still, "brand/");
+    await s2.page.click("[data-slam-key]");
+    assert.ok(await s2.page.isVisible("[data-slam] .bui-sticker"), "brand (reduced motion): the sticker shows");
+    assert.equal(await s2.page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length), 0, "brand (reduced motion): it shows still");
+    await s2.page.waitForSelector("[data-slam]", { state: "hidden", timeout: 4000 });
+    assert.equal(await s2.page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 0, "brand: no horizontal scroll at 390");
+    assert.deepEqual(s2.errors, [], `${where} (reduced motion): errors`);
+    await still.close();
   }
 
   // ---------- 404 at any depth ----------
@@ -548,6 +637,139 @@ try {
     await context.close();
   }
 
+  // ---------- Origin (site/origin/): order, the title toggle, the sound gate, settle, Recall, reduced motion ----------
+  where = "origin";
+  {
+    const FIG = "figure.ae-slot[data-slot-target='home#origin']", LIVE_ROOT = "[data-fizlet-slot='home#origin']", LIVE = `${LIVE_ROOT} > *`;
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    // Count every AudioContext made and every requestAnimationFrame asked for, from the first byte.
+    await context.addInitScript(() => {
+      window.__audio = 0;
+      const A = window.AudioContext;
+      window.AudioContext = class extends A { constructor(...a) { super(...a); window.__audio++; } };
+      const raw = requestAnimationFrame.bind(window);
+      window.__raf = 0;
+      window.requestAnimationFrame = (cb) => (window.__raf++, raw(cb));
+    });
+    const { page, errors } = await open(context, "");
+    // In order: the hero ("Logic and style."), its stats strip, Origin, then the rest of the page.
+    const order = await page.$$eval("#main > *", (els) => els.map((el) => el.id || el.className.split(" ")[0]));
+    assert.deepEqual(order.slice(0, 4), ["hero", "stats", "origin", "page-toc"], "Origin sits right after the hero band");
+    // The scene is not part of first load: the page links only the loader, which imports it lazily.
+    assert.equal(await page.locator("script[src*='origin/scene']").count(), 0, "no scene script tag");
+    assert.match(readFileSync(`${ROOT}/origin/main.js`, "utf8"), /import\("[./a-z]*scene\.js"\)/, "the loader imports the scene lazily");
+    // Recall: the figure before the scene, and after destroy(), byte for byte.
+    const before = await page.$eval(FIG, (el) => el.outerHTML);
+    await page.$eval(FIG, (el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
+    await page.waitForSelector(LIVE, { timeout: 8000 });
+    await page.waitForFunction(() => window.fizletOrigin.scene);
+    assert.equal(await page.evaluate(() => window.__audio), 0, "no AudioContext before a gesture");
+    // The toggle: a real 44 px switch, by mouse and by keyboard; it flips data-mode and drives the scene.
+    const mode = page.locator("[data-origin-mode]");
+    const box = await mode.boundingBox();
+    assert.ok(box.height >= 44 && box.width >= 44, `toggle is ${box.width}x${box.height}`);
+    await mode.click();
+    assert.deepEqual(await page.evaluate((f) => [document.querySelector(f).dataset.mode, document.querySelector("[data-origin-mode]").getAttribute("aria-checked"), document.querySelector("[data-origin-word]").textContent, window.fizletOrigin.scene.state.mode], FIG), ["design", "true", "Design.", "design"]);
+    await mode.focus();
+    await page.keyboard.press("Space");
+    assert.deepEqual(await page.evaluate((f) => [document.querySelector(f).dataset.mode, window.fizletOrigin.scene.state.mode], FIG), ["code", "code"], "Space flips it back");
+    // The scene's own keys stay in step with the section's (origin:state).
+    const own = page.locator(`${LIVE_ROOT} button[data-k='mode']`);
+    if (await own.count()) {
+      // (the scene reports on its next frame)
+      await own.click();
+      await page.waitForFunction(() => document.querySelector("[data-origin-mode]").getAttribute("aria-checked") === "true", null, { timeout: 3000 });
+      await own.click();
+      await page.waitForFunction(() => document.querySelector("[data-origin-mode]").getAttribute("aria-checked") === "false", null, { timeout: 3000 });
+    }
+    // Sound: off until pressed, and still no AudioContext until a gesture after that; then it plays.
+    const snd = page.locator("[data-origin-sound]");
+    const sb = await snd.boundingBox();
+    assert.ok(sb.height >= 44 && sb.width >= 44, `sound key is ${sb.width}x${sb.height}`);
+    assert.equal(await snd.getAttribute("aria-pressed"), "false");
+    assert.equal(await page.evaluate(() => [window.__audio, window.fizletOrigin.scene.state.sound].join()), "0,false", "muted by default, no audio");
+    await snd.click();
+    assert.equal(await snd.getAttribute("aria-pressed"), "true");
+    assert.equal(await page.evaluate(() => window.fizletOrigin.scene.state.sound), true, "the Sound key arms the scene");
+    await page.locator(FIG).click({ position: { x: 20, y: 20 } });
+    assert.ok(await page.evaluate(() => window.__audio) <= 1, "one AudioContext at most, made on a gesture");
+    // Settle: paused, and again off screen, the page asks for no frames at all.
+    const quiet = async (what) => {
+      for (let i = 0, last = -1; i < 30; i++) {
+        const n = await page.evaluate(() => window.__raf);
+        if (n === last) break;
+        last = n;
+        await page.waitForTimeout(700);
+      }
+      const r0 = await page.evaluate(() => window.__raf);
+      await page.waitForTimeout(1000);
+      assert.equal(await page.evaluate(() => window.__raf) - r0, 0, what);
+    };
+    await page.evaluate(() => window.fizletOrigin.scene.pause());
+    await quiet("paused, the origin scene settles to 0 frames");
+    await page.evaluate(() => window.fizletOrigin.scene.play());
+    await page.evaluate(() => scrollTo(0, document.body.scrollHeight));
+    await quiet("off screen, the origin scene asks for 0 frames");
+    await page.evaluate(() => window.fizletOrigin.slot.destroy());
+    assert.equal(await page.$eval(FIG, (el) => el.outerHTML), before.replace('data-sound="0"', 'data-sound="1"'), "Recall gives the figure back exactly");
+    // The choice persists; a new visit is silent until its own gesture.
+    await page.reload({ waitUntil: "load" });
+    assert.equal(await page.locator("[data-origin-sound]").getAttribute("aria-pressed"), "true", "the choice persists");
+    assert.equal(await page.evaluate(() => window.__audio), 0, "still no audio before this visit's first gesture");
+    await page.locator("[data-origin-sound]").click();
+    await page.reload({ waitUntil: "load" });
+    assert.equal(await page.locator("[data-origin-sound]").getAttribute("aria-pressed"), "false", "muted persists");
+    assert.deepEqual(errors, []);
+    await context.close();
+    // Reduced motion: the scene never loads; the poster is the still frame.
+    const still = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+    const asked = [];
+    still.on("request", (r) => /origin\/scene\.js/.test(r.url()) && asked.push(r.url()));
+    const s2 = await open(still, "");
+    await s2.page.$eval(FIG, (el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
+    await s2.page.waitForTimeout(1500);
+    assert.equal(await s2.page.locator(LIVE).count(), 0, "no scene under reduced motion");
+    assert.equal(await s2.page.locator(`${FIG} > .ae-slot__placeholder`).isVisible(), true, "the poster shows");
+    assert.deepEqual(asked, [], "scene.js never requested");
+    assert.equal(await s2.page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 0, "no horizontal scroll at 390");
+    assert.deepEqual(s2.errors, []);
+    await still.close();
+  }
+
+  // ---------- The grid on every hero: the shared .has-grid treatment (site.css GRID block) ----------
+  where = "grid";
+  {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    for (const path of ["", "docs/", "bricks/", "gallery/", "notes/", "people/", "news/", ...siteNotes().map(notePath).slice(0, 1)]) {
+      const { page } = await open(context, path);
+      const got = await page.evaluate(() => {
+        const hero = document.querySelector("#main > section, #main > article");
+        if (!hero?.classList.contains("has-grid")) return `first section: ${hero?.className}`;
+        const paint = hero.matches(".hero") ? getComputedStyle(hero.querySelector(".hero-field")).backgroundImage : getComputedStyle(hero, "::before").backgroundImage;
+        return /linear-gradient/.test(paint) ? "grid" : `no grid paint: ${paint}`;
+      });
+      assert.equal(got, "grid", `${path || "home"}: the grid on its hero`);
+      // The Origin section carries it too.
+      if (path === "") assert.match(await page.$eval("#origin", (el) => el.className + getComputedStyle(el, "::before").backgroundImage), /has-grid.*linear-gradient/);
+      await page.close();
+    }
+    await context.close();
+  }
+
+  // ---------- Home 03, three phases: 3D cards with a sticker each, no accent border on one side ----------
+  where = "phases";
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    const context = await browser.newContext({ viewport });
+    const { page } = await open(context, "");
+    const cards = await page.$$eval("#board .phases > li", (lis) => lis.map((li) => {
+      const cs = getComputedStyle(li);
+      return { sides: [cs.borderTopWidth, cs.borderRightWidth, cs.borderBottomWidth, cs.borderLeftWidth], sticker: li.querySelector(".phase-sticker")?.textContent };
+    }));
+    assert.deepEqual(cards.map((c) => c.sticker), ["PHASE 1", "PHASE 2", "PHASE 3"], `${viewport.width}: a sticker per phase`);
+    for (const c of cards) assert.ok(c.sides.every((w) => w === c.sides[0]), `${viewport.width}: no left accent border (${c.sides})`);
+    await context.close();
+  }
+
   // ---------- Gallery: each live demo loads only near the screen, plays, and gives the page back ----------
   // ---------- Ambient slots: the fps cap holds on the page's own frame count ----------
   where = "slot fps cap";
@@ -567,6 +789,155 @@ try {
     const n = (await page.evaluate(() => window.__raf)) - n0;
     // fps: 30 means ~30 requestAnimationFrame calls a second, not one per vsync with frames skipped.
     assert.ok(n > 5 && n <= 33, `the fizz story asks for ${n} frames a second (cap 30)`);
+    await context.close();
+  }
+  // ---------- Before AI: 2015: the three columns play, then the page rests at 0 frames a second ----------
+  // The page says so (demos/before-ai-2015/): at rest it asks for no animation frames, and under
+  // reduced motion no column animates.
+  where = "before-ai-2015 settles";
+  for (const reducedMotion of ["no-preference", "reduce"]) {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 }, reducedMotion });
+    const page = await context.newPage();
+    await page.addInitScript(() => {
+      const raw = requestAnimationFrame.bind(window);
+      window.__raf = 0;
+      window.requestAnimationFrame = (cb) => (window.__raf++, raw(cb));
+    });
+    await page.goto(`${ORIGIN}${BASE}demos/before-ai-2015/`);
+    await page.locator(".bt-row").scrollIntoViewIfNeeded();
+    await page.waitForTimeout(2500);
+    const count = async () => { const n0 = await page.evaluate(() => window.__raf); await page.waitForTimeout(1000); return (await page.evaluate(() => window.__raf)) - n0; };
+    assert.equal(await count(), 0, `${where} (${reducedMotion}): no frames at rest after load`);
+    // A round in the arcade: slam the lid open and type, hit the cups (the music starts), fill the
+    // cup, then pause the music. Everything plays, then the column rests again: the steam (3 s on
+    // a full cup, its last puffs up to 1.9 s more) and the laptop's scroll run out (~6 s), the
+    // combo, the shake and every particle end.
+    const A = ".bt-arcade ";
+    await page.click(A + ".fz-keys");
+    await page.waitForTimeout(500);
+    for (let i = 0; i < 4; i++) await page.click(A + ".fz-keys"), await page.waitForTimeout(80);
+    for (let i = 0; i < 3; i++) await page.click(A + ".fz-cups"), await page.waitForTimeout(80);
+    await page.click(A + ".fz-coffee button");
+    if (reducedMotion === "no-preference") assert.ok((await count()) > 5, `${where}: the arcade plays`);
+    await page.click(A + ".fz-play");
+    assert.ok(Number(await page.textContent(A + ".fz-best")) >= 2, `${where} (${reducedMotion}): the HUD counts the combo`);
+    // Particles, squash and shake: what any canvas of the column has drawn, and the stage's styles.
+    const motion = () => page.evaluate(() => {
+      let ink = 0;
+      for (const c of document.querySelectorAll(".bt-arcade canvas")) {
+        const d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+        for (let i = 3; i < d.length; i += 4) if (d[i]) ink++;
+      }
+      const s = document.querySelector(".bt-arcade .bt-stage").style, b = document.querySelector(".bt-arcade .fz-beats").style;
+      return { ink, shake: s.translate, squash: b.scale };
+    });
+    if (reducedMotion === "reduce") assert.deepEqual(await motion(), { ink: 0, shake: "", squash: "" }, `${where}: reduced motion draws no particles, no squash, no shake`);
+    // (Reduced motion still counts the combo: its 1.1 s window, then the 0.5 s settle.)
+    await page.waitForTimeout(reducedMotion === "reduce" ? 2500 : 7500);
+    assert.equal(await count(), 0, `${where} (${reducedMotion}): rests after a round on all three`);
+    assert.deepEqual(await motion(), { ink: 0, shake: "", squash: "" }, `${where} (${reducedMotion}): at rest no particle, squash or shake is left`);
+    if (reducedMotion === "reduce") assert.equal(await page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length), 0, `${where}: no CSS animation runs under reduced motion`);
+    await context.close();
+  }
+  // ---------- Before AI: 2015: the scroll tells the story; sound waits for a press; Recall is exact ----------
+  where = "before-ai-2015 story";
+  {
+    const URL_ = `${ORIGIN}${BASE}demos/before-ai-2015/`;
+    const counters = () => {
+      const raw = requestAnimationFrame.bind(window);
+      window.__raf = 0;
+      window.requestAnimationFrame = (cb) => (window.__raf++, raw(cb));
+      window.__audio = 0;
+      const AC = window.AudioContext;
+      if (AC) window.AudioContext = class extends AC { constructor(...a) { super(...a); window.__audio++; } };
+    };
+    const frames = async (page) => { const n0 = await page.evaluate(() => window.__raf); await page.waitForTimeout(1000); return (await page.evaluate(() => window.__raf)) - n0; };
+    const looks = (page) => page.$$eval("[data-reveal]", (els) => els.map((el) => `${el.style.opacity}|${el.style.translate}`));
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    const page = await context.newPage();
+    await page.addInitScript(counters);
+    await page.goto(URL_);
+    await page.waitForTimeout(600);
+    // Scrubbed by the scroll: an act part-way into view is part-way revealed, and the same scroll
+    // position gives the same frame, whichever way it was reached.
+    const actTop = await page.$eval(".bt-same", (el) => el.getBoundingClientRect().top + scrollY);
+    const y1 = Math.round(actTop - 860 * 0.9);
+    await page.mouse.wheel(0, y1);
+    await page.waitForTimeout(700);
+    await page.evaluate((y) => scrollTo(0, y), y1);
+    await page.waitForTimeout(700);
+    const at1 = await looks(page);
+    const op = await page.$eval(".bt-same", (el) => Number(getComputedStyle(el).opacity));
+    assert.ok(op > 0 && op < 1, `${where}: the remake is part-way in at part-way scroll (opacity ${op})`);
+    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+    await page.waitForTimeout(700);
+    await page.evaluate(() => scrollTo(0, 0));
+    await page.waitForTimeout(700);
+    await page.evaluate((y) => scrollTo(0, y), y1);
+    await page.waitForTimeout(700);
+    assert.deepEqual(await looks(page), at1, `${where}: the same scroll position, the same frame`);
+    assert.equal(await frames(page), 0, `${where}: settles to 0 frames once the scroll stops`);
+    // Sound waits for a press: scrolling (wheel) made no audio context; a press does.
+    assert.equal(await page.evaluate(() => window.__audio), 0, `${where}: no audio before a gesture`);
+    await page.locator(".bt-arcade .fz-cups").scrollIntoViewIfNeeded();
+    await page.click(".bt-arcade .fz-cups");
+    assert.equal(await page.evaluate(() => window.__audio), 1, `${where}: the first press starts the synth`);
+    // The chip lights in the engine's next render (a frame after the press), for 0.45 s.
+    assert.ok(await page.waitForFunction(() => document.querySelector(".bt-arcade [data-brick=hud]").classList.contains("lit"), null, { timeout: 1000 }).then(() => true, () => false), `${where}: the hud chip lights on a hit`);
+    // Mute is kept: off, reload, still off, and a press makes no audio context.
+    await page.click(".bt-arcade .fz-mute");
+    assert.equal(await page.evaluate(() => localStorage.getItem("fizlet:before-ai-2015:sound")), "off", `${where}: mute is stored`);
+    await page.reload();
+    await page.waitForTimeout(400);
+    assert.equal(await page.getAttribute(".bt-arcade .fz-mute", "aria-pressed"), "false", `${where}: mute persists`);
+    await page.locator(".bt-arcade .fz-cups").scrollIntoViewIfNeeded();
+    await page.click(".bt-arcade .fz-cups");
+    assert.equal(await page.evaluate(() => window.__audio), 0, `${where}: muted, a press makes no sound`);
+    await page.click(".bt-arcade .fz-mute");
+    await context.close();
+  }
+  // Recall: the page as it was before Fizlet touched it (the same page with before.js blocked), and
+  // the page after a scroll through, a round in the arcade and the Recall key: the same markup.
+  where = "before-ai-2015 recall";
+  {
+    const URL_ = `${ORIGIN}${BASE}demos/before-ai-2015/`;
+    const snap = (page) => page.$eval(".bt", (el) => el.outerHTML);
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    const bare = await context.newPage();
+    await bare.route("**/before.js", (r) => r.abort());
+    await bare.goto(URL_);
+    await bare.waitForTimeout(500);
+    const before = await snap(bare);
+    const page = await context.newPage();
+    await page.goto(URL_);
+    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight / 3));
+    await page.waitForTimeout(500);
+    const A = ".bt-arcade ";
+    await page.click(A + ".fz-keys");
+    await page.waitForTimeout(400);
+    for (let i = 0; i < 3; i++) await page.click(A + ".fz-keys");
+    for (let i = 0; i < 3; i++) await page.click(A + ".fz-cups");
+    await page.click(A + ".fz-coffee button");
+    await page.click(A + ".fz-mute");
+    await page.click(A + ".fz-mute");
+    await page.click("[data-recall]");
+    await page.waitForTimeout(300);
+    assert.equal(await snap(page), before, `${where}: Recall gives the page back exactly`);
+    await context.close();
+  }
+  // Reduced motion: a calm, complete page. Every part shown as written, nothing moves, no frames.
+  where = "before-ai-2015 reduced motion";
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+    const page = await context.newPage();
+    await page.goto(`${ORIGIN}${BASE}demos/before-ai-2015/`);
+    for (let y = 0; y < 6000; y += 700) await page.evaluate((y) => scrollTo(0, y), y), await page.waitForTimeout(40);
+    await page.waitForTimeout(600);
+    const styled = await page.$$eval("[data-reveal]", (els) => els.filter((el) => el.getAttribute("style")).length);
+    assert.equal(styled, 0, `${where}: no part is hidden or moved`);
+    const n = await page.evaluate(() => new Promise((r) => { let n = 0; const raf = window.requestAnimationFrame; window.requestAnimationFrame = (f) => (n++, raf(f)); setTimeout(() => ((window.requestAnimationFrame = raf), r(n)), 1000); }));
+    assert.equal(n, 0, `${where}: no frames`);
+    assert.equal(await page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length), 0, `${where}: no CSS animation runs`);
     await context.close();
   }
   // ---------- Gallery at phone width: a slot's CSS animation stops once it is off screen ----------
@@ -689,80 +1060,6 @@ try {
     await context.close();
   }
 
-  // ---------- Heroes: the centre card plays, the rest are posters; keys move; full screen and back ----------
-  where = "heroes";
-  {
-    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
-    const { page, errors } = await open(context, "heroes/");
-    const playing = () => page.$$eval("[data-hero]", (l) => l.filter((c) => c.dataset.playing && c.querySelector("[data-fizlet-slot]")).map((c) => c.dataset.hero));
-    const centre = () => page.$eval("[data-hero-track]", (t) => t.querySelector("[aria-current]")?.dataset.hero ?? null);
-    await page.$eval("[data-hero-track]", (t) => t.scrollIntoView({ block: "center" }));
-    const box = await page.locator(".hero-stage figure").first().boundingBox();
-    assert.ok(box.width >= 300 && box.height >= 300, `hero cards are large (${box.width}×${box.height})`);
-    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[0].id, { timeout: 8000 });
-    assert.deepEqual(await playing(), [HEROES[0].id], "the first hero is in the centre and plays alone");
-    assert.equal(await page.getAttribute(`[data-hero="${HEROES[0].id}"] [data-hero-play]`, "aria-pressed"), "true");
-    assert.equal(await page.isDisabled("[data-hero-prev]"), true, "prev is off at the first card");
-    // Next: the second card comes to the centre and plays; the first goes back to its poster.
-    await page.click("[data-hero-next]");
-    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[1].id, { timeout: 8000 });
-    await page.waitForFunction((id) => !document.querySelector(`[data-hero="${id}"] [data-fizlet-slot]`), HEROES[0].id);
-    assert.equal(await centre(), HEROES[1].id);
-    assert.equal(await page.isVisible(`[data-hero="${HEROES[0].id}"] .ae-slot__placeholder, [data-hero="${HEROES[0].id}"] .fz-poster`), true, "the first is its poster again");
-    // Arrow keys on the row move a card.
-    await page.focus("[data-hero-track]");
-    await page.keyboard.press("ArrowLeft");
-    await page.waitForFunction((id) => document.querySelector(`[data-hero-track] [aria-current]`)?.dataset.hero === id, HEROES[0].id, { timeout: 4000 });
-    // Its Play key pauses it (and the centre does not restart it) and plays it again.
-    const key = `[data-hero="${HEROES[0].id}"] [data-hero-play]`;
-    await page.waitForFunction((k) => document.querySelector(k).getAttribute("aria-pressed") === "true", key);
-    await page.click(key);
-    assert.equal(await page.getAttribute(key, "aria-pressed"), "false");
-    await page.waitForTimeout(300);
-    assert.deepEqual(await playing(), [], "paused by hand: a poster");
-    await page.click(key);
-    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[0].id, { timeout: 8000 });
-    // Full screen (or the overlay), Esc closes, focus back on the key that opened it.
-    const openKey = `[data-hero="${HEROES[0].id}"] [data-hero-open]`;
-    await page.focus(openKey);
-    await page.keyboard.press("Enter");
-    await page.waitForFunction(() => document.fullscreenElement?.matches("[data-hero-stage]") || document.querySelector(".hero-stage.hero-full"), null, { timeout: 4000 });
-    assert.equal(await page.evaluate(() => document.activeElement?.matches("[data-hero-close]")), true, "focus on Close in full screen");
-    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[0].id, { timeout: 8000 });
-    await page.keyboard.press("Escape");
-    await page.waitForFunction(() => !document.fullscreenElement && !document.querySelector(".hero-full"), null, { timeout: 4000 });
-    await page.waitForFunction((k) => document.activeElement === document.querySelector(k), openKey, { timeout: 2000 }); // focus returns to the key that opened it
-    assert.equal(await page.isHidden(`[data-hero="${HEROES[0].id}"] [data-hero-close]`), true);
-    // The overlay, where the Fullscreen API is missing.
-    await page.evaluate(() => Object.defineProperty(Document.prototype, "fullscreenEnabled", { get: () => false }));
-    await page.click(openKey);
-    await page.waitForSelector(".hero-stage.hero-full[role=dialog][aria-modal=true]");
-    await page.keyboard.press("Tab");
-    assert.equal(await page.evaluate(() => document.activeElement?.matches("[data-hero-close]")), true, "the overlay keeps focus");
-    await page.keyboard.press("Escape");
-    await page.waitForFunction(() => !document.querySelector(".hero-full"));
-    await page.waitForFunction((k) => document.activeElement === document.querySelector(k), openKey, { timeout: 2000 }); // focus returns after the overlay
-    assert.deepEqual(errors, []);
-    await context.close();
-  }
-  where = "heroes, reduced motion";
-  {
-    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
-    const { page, errors } = await open(context, "heroes/");
-    const loaded = [];
-    page.on("request", (r) => /\/gallery\/[^/]+\.js$/.test(r.url()) && !r.url().endsWith("heroes.js") && loaded.push(r.url()));
-    await page.$eval("[data-hero-track]", (t) => t.scrollIntoView({ block: "center" }));
-    await page.waitForTimeout(500);
-    assert.deepEqual(loaded, [], "reduced motion: posters, nothing loads");
-    const box = await page.locator(".hero-stage figure").first().boundingBox();
-    assert.ok(box.width >= 300 && box.height >= 300, `hero cards stay large on a phone (${box.width}×${box.height})`);
-    await page.click(`[data-hero="${HEROES[0].id}"] [data-hero-play]`);
-    await page.waitForFunction((id) => document.querySelector(`[data-hero="${id}"][data-playing] [data-fizlet-slot]`), HEROES[0].id, { timeout: 8000 });
-    assert.equal(loaded.length, 1, "Play loads that hero, on request");
-    assert.deepEqual(errors, []);
-    await context.close();
-  }
-
   // ---------- Make one: a prompt in, the same snippet the build (and fe anim --snippet) makes, nothing sent ----------
   where = "make";
   {
@@ -833,7 +1130,7 @@ try {
     await context.close();
   }
 
-  // ---------- Home rhythm (site/home-motion.ts): reveals and parallax on fizlet/timeline ----------
+  // ---------- Home rhythm (site/home-motion.ts): reveals and parallax on @fzlt/core/timeline ----------
   // Off-screen sections wait hidden and play in on screen; once the scroll stops, everything is
   // shown and still. With reduced motion nothing is ever hidden or moved. No layout shift either way.
   where = "home rhythm";
@@ -856,7 +1153,13 @@ try {
       // the last reveals can take longer than any fixed wait. A part that never shows still fails.
       await page.waitForFunction(() => ![...document.querySelectorAll("section[data-reveal] *")]
         .some((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1")), null, { polling: "raf", timeout: 15000 }).catch(() => {});
-      assert.deepEqual(await moved(page), [], `${reducedMotion}: every part shown once the reveals end`);
+      // Name what is still hidden (section id, class, opacity) in the message: CI shows only the first
+      // lines of a failure, so a bare deepEqual diff never reached the annotations.
+      const left = await page.evaluate(() => [...document.querySelectorAll("section[data-reveal] *, .hero-field")]
+        .filter((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1"))
+        .map((el) => `${el.closest("section")?.id || "-"}:${el.className || el.tagName}@${el.style.opacity}`));
+      if (left.length) console.log(`home rhythm actual hidden (${reducedMotion}): ${left.join(" | ")}`);
+      assert.deepEqual(left, [], `${reducedMotion}: every part shown once the reveals end (${left.length} hidden: ${left.slice(0, 12).join(" | ")})`);
       if (reducedMotion === "reduce") {
         assert.equal(await page.evaluate(() => document.querySelector(".sec-num").style.translate), "", "reduced motion: no parallax");
       } else {
@@ -869,6 +1172,22 @@ try {
         assert.ok(frames <= 2, `settled: ${frames} frames asked for in 1.2 s of stillness`);
       }
       assert.ok(await page.evaluate(() => window.__cls) < 0.01, "no layout shift from the reveals");
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
+    // One jump down the page (an anchor, a fling, or a slow runner landing several scrolls in one
+    // frame) can cross no observer threshold for a section it passes over: it still plays in.
+    // Whether a jump skips one depends on where the sections sit, so try a few depths. The foot of
+    // the page (1) is where the footer can fill the viewport: the reveals still end there.
+    const passed = () => [...document.querySelectorAll("section[data-reveal]")].filter((s) => s.getBoundingClientRect().top < innerHeight * 0.85)
+      .flatMap((s) => [...s.querySelectorAll("*")]).filter((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1")).map((el) => el.className || el.tagName);
+    for (const depth of [0.3, 0.4, 0.5, 0.6, 0.7, 1]) {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+      const { page, errors } = await open(context, "");
+      await page.waitForTimeout(300);
+      await page.evaluate((d) => scrollTo(0, Math.round(document.documentElement.scrollHeight * d)), depth);
+      await page.waitForFunction(`(${passed})().length === 0`, null, { polling: "raf", timeout: 15000 }).catch(() => {});
+      assert.deepEqual(await page.evaluate(`(${passed})()`), [], `a jump to ${depth} of the page: every section passed over is shown`);
       assert.deepEqual(errors, []);
       await context.close();
     }

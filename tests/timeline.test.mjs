@@ -1,4 +1,4 @@
-// fizlet/timeline in Node: interpolation, easings, keyframes, sequencing (end, "<", labels, delay,
+// @fzlt/core/timeline in Node: interpolation, easings, keyframes, sequencing (end, "<", labels, delay,
 // stagger), seek, reverse, finish, repeat and yoyo, events and done(), reduced motion (motion:
 // false), settle, revert and Recall, plain numbers, and zero allocation while it plays. The DOM half
 // (real elements, computed values mid-way, prefers-reduced-motion, Recall byte for byte) is

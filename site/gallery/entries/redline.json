@@ -1,0 +1,24 @@
+{
+  "no": 81,
+  "id": "redline",
+  "date": "2026-10-31",
+  "prompt": "a drag sprint against a pace ghost on an engine that runs hot: hold gas to pull, let off to cool, past the red it pops and stalls; puddles cool it with a splash; beat the ghost to the flag",
+  "title": "Redline",
+  "kind": "micro",
+  "theme": "motocross",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/sound",
+    "@fzlt/core/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/redline.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "1 / 1",
+  "stage": "own",
+  "approved": "2026-10-31"
+}

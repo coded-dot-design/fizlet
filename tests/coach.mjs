@@ -1,4 +1,4 @@
-// fizlet/coach card in Chromium: hidden until shown, shows the step with DOM Battlefield's dashed
+// @fzlt/core/coach card in Chromium: hidden until shown, shows the step with DOM Battlefield's dashed
 // look on the kit tokens, writes nothing when the same card is shown again, rings the control it is
 // about, ends, and hide clears the ring.
 import assert from "node:assert/strict";
@@ -22,7 +22,7 @@ try {
     const host = document.getElementById("host"), fire = document.getElementById("fire");
     let ended = 0, muts = 0;
     const c = coach.card(host, { onEnd: () => ended++ });
-    const hidden0 = c.el.hidden;
+    const hidden0 = [c.el.hidden, getComputedStyle(c.el).display];
     c.show("2/10", "FIRE", "Click, Space, or hold FIRE.", fire);
     await frame();
     const shown = [c.el.hidden, c.el.textContent, fire.style.outline, getComputedStyle(c.el).borderStyle];
@@ -34,6 +34,7 @@ try {
     obs.disconnect();
     c.el.querySelector("button").click();
     c.hide();
+    const drawn = getComputedStyle(c.el).display;
     // Recall is exact: a control with its own inline outline gets it back when the ring moves on.
     const own = host.appendChild(document.createElement("button"));
     own.style.cssText = "outline: 2px solid red; outline-offset: 1px";
@@ -47,19 +48,19 @@ try {
     const gone = new AbortController();
     gone.abort();
     const late = coach.card(host, { signal: gone.signal });
-    return { hidden0, shown, same, ended, after: [c.el.hidden, fire.style.outline], ringedOwn, ownBack, lateOn: late.el.isConnected };
+    return { hidden0, shown, same, ended, after: [c.el.hidden, fire.style.outline, drawn], ringedOwn, ownBack, lateOn: late.el.isConnected };
   });
   assert.match(r.ringedOwn, /dashed/, "a control with its own outline is ringed too");
   assert.equal(r.ownBack, true, "its own inline outline comes back exactly");
   assert.equal(r.lateOn, false, "an already-aborted signal leaves no card");
   assert.deepEqual(errs, []);
-  assert.equal(r.hidden0, true, "hidden until shown");
+  assert.deepEqual(r.hidden0, [true, "none"], "hidden until shown, and not drawn (the kit's [hidden] rule beats its inline grid)");
   assert.deepEqual(r.shown.slice(0, 2), [false, "2/10FIREClick, Space, or hold FIRE.END PRACTICE"]);
   assert.match(r.shown[2], /dashed/, "the control it is about gets the dashed ring");
   assert.equal(r.shown[3], "dashed", "DOM Battlefield's dashed card border");
   assert.equal(r.same, 0, "showing the same card again writes nothing");
   assert.equal(r.ended, 1, "End runs onEnd");
-  assert.deepEqual(r.after, [true, ""], "hide clears the ring");
+  assert.deepEqual(r.after, [true, "", "none"], "hide clears the ring and the card is not drawn");
   console.log("coach card: shows, change-only, rings, ends, hides (Chromium) ok");
 } finally {
   await browser.close();

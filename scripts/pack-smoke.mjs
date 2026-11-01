@@ -40,9 +40,9 @@ try {
 
   const [{ filename, files }] = JSON.parse(run("npm", ["pack", "--json", "--ignore-scripts", "--pack-destination", dir]));
   const paths = files.map((f) => f.path);
-  const leaked = paths.filter((p) => !/^(dist\/|package\.json$|README\.md$|LICENSE$|CHANGELOG\.md$)/.test(p) || /\.map$/.test(p) || (/\.ts$/.test(p) && !p.endsWith(".d.ts")));
+  const leaked = paths.filter((p) => !/^(dist\/|bin\/fzlt\.mjs$|package\.json$|README\.md$|LICENSE$|CHANGELOG\.md$)/.test(p) || /\.map$/.test(p) || (/\.ts$/.test(p) && !p.endsWith(".d.ts")));
   if (leaked.length) fail(`files outside the whitelist: ${leaked.join(", ")}`);
-  const required = ["package.json", "README.md", "LICENSE", "CHANGELOG.md", ...Object.values(pkg.exports).flatMap((v) => Object.values(target(v))).map((p) => p.slice(2))];
+  const required = ["package.json", "README.md", "LICENSE", "CHANGELOG.md", ...Object.values(pkg.bin ?? {}).map((p) => p.replace(/^\.\//, "")), "dist/sizes.json", ...Object.values(pkg.exports).flatMap((v) => Object.values(target(v))).map((p) => p.slice(2))];
   const missing = [...new Set(required)].filter((p) => !paths.includes(p));
   if (missing.length) fail(`the tarball is missing: ${missing.join(", ")}`);
 
@@ -80,8 +80,8 @@ console.log(out.join("\\n"));`;
     const left = (await bundle(`import "${s}";`, { minify: true, ignoreAnnotations: true })).outputFiles[0].text;
     if (HOST.test(left)) fail(`${s}: importing it runs code that touches the page, so sideEffects must list it:\n${left.slice(0, 400)}`);
   }
-  const kept = await bundle(`import "fizlet/ui/board-ui.css";`, { outdir: join(dir, "out") });
-  if (!kept.outputFiles.some((f) => f.path.endsWith(".css") && f.text.includes(".bui-"))) fail("a bundler dropped fizlet/ui/board-ui.css: sideEffects must keep *.css");
+  const kept = await bundle(`import "@fzlt/core/ui/board-ui.css";`, { outdir: join(dir, "out") });
+  if (!kept.outputFiles.some((f) => f.path.endsWith(".css") && f.text.includes(".bui-"))) fail("a bundler dropped @fzlt/core/ui/board-ui.css: sideEffects must keep *.css");
 
   // Types: each JS subpath resolves to its .d.ts under the consumer's own settings, with Node
   // (NodeNext) and bundler (Bundler) resolution.
@@ -91,7 +91,19 @@ console.log(out.join("\\n"));`;
     writeFileSync(join(dir, "tsconfig.json"), JSON.stringify({ compilerOptions: { ...options, module, moduleResolution }, files: ["types.ts"] }));
     run(resolve("node_modules/.bin/tsc"), ["-p", "tsconfig.json"], dir);
   }
-  console.log(`Pack smoke: ${filename}, ${files.length} files; ${js.length} JS subpaths import, touch nothing on import and typecheck (NodeNext, Bundler); ${css.length} data subpaths (CSS/JSON) resolve.`);
+  // The `fzlt` bin: installed it runs as `fzlt`, and `npx <tarball>` runs it straight from the pack.
+  // It prints this version and every measured entry of the build's dist/sizes.json.
+  const measured = JSON.parse(readFileSync("dist/sizes.json", "utf8")).entries;
+  const checkBin = (how, text, json) => {
+    if (!text.includes(pkg.version)) fail(`${how}: no version ${pkg.version} in:\n${text}`);
+    const missed = measured.filter((e) => !text.includes(e.name));
+    if (missed.length) fail(`${how}: missing sizes for ${missed.map((e) => e.name).join(", ")}`);
+    if (JSON.parse(json).sizes.length !== measured.length) fail(`${how} --json: expected ${measured.length} sizes`);
+  };
+  checkBin("fzlt", run(join(dir, "node_modules/.bin/fzlt"), [], dir), run(join(dir, "node_modules/.bin/fzlt"), ["--json"], dir));
+  const npx = (args) => run("npx", ["--yes", "--prefer-offline", "--package", join(dir, filename), "--", "fzlt", ...args], dir);
+  checkBin("npx <tarball>", npx([]), npx(["--json"]));
+  console.log(`Pack smoke: ${filename}, ${files.length} files; ${js.length} JS subpaths import, touch nothing on import and typecheck (NodeNext, Bundler); ${css.length} data subpaths (CSS/JSON) resolve; the fzlt bin runs installed and from npx.`);
 } finally {
   rmSync(dir, { recursive: true, force: true });
 }

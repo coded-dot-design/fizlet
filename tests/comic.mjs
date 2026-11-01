@@ -1,6 +1,6 @@
 // The three hand-built comic pieces of the gallery (#20 POW BAM ZAP, #21 speed lines, #22 halftone
 // press), each on its own stage markup (site/gallery/stages/<id>.html) in Chromium: it mounts
-// through fizlet/slot (the poster steps aside), plays its first move by itself and settles (no
+// through @fzlt/core/slot (the poster steps aside), plays its first move by itself and settles (no
 // frames), clicks have their consequences (hits and a KO, letters bowled over, plates printed and
 // a cover finished), real letters move only while hit and keep no inline property once they rest,
 // and destroy() mid-move gives the page back exactly.

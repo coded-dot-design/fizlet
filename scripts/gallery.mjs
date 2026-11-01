@@ -1,7 +1,7 @@
 // The gallery's data and build. Data, one file each: entries (site/gallery/entries/<id>.json),
 // themes (site/gallery/themes/<id>.json: adding a theme is a data file, never code) and
 // contributors (site/contributors/<id>.json). The build writes site-dist/gallery/: the loader
-// (fizlet/slot, armed on every figure), one bundle per entry (its live chunk, self-contained: the
+// (@fzlt/core/slot, armed on every figure), one bundle per entry (its live chunk, self-contained: the
 // bytes on its size badge, measured here, on this build), the browse script (theme filter and
 // search) and index.json, the generated index every page and the search read (never hand-written).
 import { build } from "esbuild";
@@ -22,6 +22,18 @@ const readDir = (dir, what) => (existsSync(dir) ? readdirSync(dir).filter((f) =>
   if (`${d.id}.json` !== f || !ID.test(d.id)) throw new Error(`${what}/${f}: id is ${d.id}`);
   return d;
 });
+
+/**
+ * A stage may pull in a vendored piece (scripts/vendor-dom-virus.mjs writes site/vendor/<repo>/):
+ * `<!-- vendor: dom-virus/under-attack -->` becomes its stylesheet and markup, so a piece has one
+ * copy whoever shows it (the gallery's stage, a hero).
+ */
+export const vendorIncludes = (html) =>
+  html.replace(/<!-- vendor: ([a-z0-9-]+\/[a-z0-9-]+) -->/g, (_, name) => {
+    const at = `site/vendor/${name}`;
+    if (!existsSync(`${at}.html`) || !existsSync(`${at}.css`)) throw new Error(`vendor include ${name}: ${at}.html and .css are missing (scripts/vendor-dom-virus.mjs)`);
+    return `<style>${readFileSync(`${at}.css`, "utf8").replace(/^\/\*[^]*?\*\/\n/, "").trim()}</style>${readFileSync(`${at}.html`, "utf8").trim()}`;
+  });
 
 /** The themes, in their order. Each: { id, title, blurb, order }. */
 export function themes(dir = `${DIR}/themes`, what = "gallery/themes") {
@@ -56,11 +68,13 @@ export function entries({ dir = `${DIR}/entries`, what = "gallery/entries", them
     if (!people[e.author]) throw new Error(`${at}: author ${e.author} has no site/contributors/${e.author}.json`);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(e.date)) throw new Error(`${at}: date ${e.date}`);
     if (e.approved !== undefined && !(typeof e.approved === "string" && /^\d{4}-\d{2}-\d{2}$/.test(e.approved))) throw new Error(`${at}: approved is the date the owner approved it (YYYY-MM-DD), or unset while pending`);
+    if (e.phone !== undefined && !(/^\d+ \/ [1-9]\d*$/.test(e.phone) && e.phone.split(" / ").reduce((a, b) => a / b) <= 1.4)) throw new Error(`${at}: phone is the figure's square or portrait shape on a phone ("1 / 1", "3 / 4"), not ${e.phone}`);
     if (e.stage === "own") {
       const f = `${DIR}/stages/${e.id}.html`;
       if (!existsSync(f)) throw new Error(`${at}: stage "own" needs ${f}`);
-      e.stageHtml = readFileSync(f, "utf8").trim();
+      e.stageHtml = vendorIncludes(readFileSync(f, "utf8")).trim();
     }
+    if (e.source !== undefined && !(e.source && /^https:\/\//.test(e.source.url) && e.source.label)) throw new Error(`${at}: source is { url: "https://…", label } (where the piece comes from)`);
     return e;
   });
   // Numbers are given at land time (scripts/gallery-number.mjs): an archived entry has its own; a
@@ -136,7 +150,6 @@ export async function buildGallery(out) {
   const loader = await build({ ...common, entryPoints: [`${DIR}/gallery.ts`] });
   write(loader, join(out, "gallery", "gallery.js"));
   write(await build({ ...common, entryPoints: [`${DIR}/browse.ts`] }), join(out, "gallery", "browse.js"));
-  write(await build({ ...common, entryPoints: [`${DIR}/heroes.ts`] }), join(out, "gallery", "heroes.js"));
   const pages = paginate(live);
   const index = galleryIndex(live, { pages, people, themeList, loader: gz(loader) });
   writeFileSync(join(out, "gallery", "index.json"), JSON.stringify(index) + "\n");

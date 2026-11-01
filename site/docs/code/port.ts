@@ -1,5 +1,5 @@
 // Docs code (shown on /guides/port-a-game/): an existing loop handed to the kernel.
-import { createEngine } from "fizlet";
+import { createEngine } from "@fzlt/core";
 declare const host: HTMLElement, seed: number;
 declare const game: { measure(): void; update(dt: number, rand: () => number): void; draw(write: (el: HTMLElement, prop: string, v: string) => void): void };
 // ---

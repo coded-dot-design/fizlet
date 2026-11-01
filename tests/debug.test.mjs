@@ -1,4 +1,4 @@
-// fizlet/debug (Node): guardLayout counts layout reads made in the STEP phase only, per engine,
+// @fzlt/core/debug (Node): guardLayout counts layout reads made in the STEP phase only, per engine,
 // and stops on its off switch or the engine's destroy; reads still return the real values; a
 // guarded getter allocates nothing. The browser suite runs it on real elements in Chromium.
 import test from "node:test";

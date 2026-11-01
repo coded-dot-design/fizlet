@@ -38,7 +38,7 @@
         },
         {
           "title": "Swap in bricks",
-          "body": "Only where one does the same job: `fizlet/collide` for a spatial hash, `fizlet/steer` for movers, `fizlet/rules` for waves, drops and score, `fizlet/board-page` for the page as terrain, `fizlet/arcade` for the whole shell of a page arcade game."
+          "body": "Only where one does the same job: `@fzlt/core/collide` for a spatial hash, `@fzlt/core/steer` for movers, `@fzlt/core/rules` for waves, drops and score, `@fzlt/core/board-page` for the page as terrain, `@fzlt/core/arcade` for the whole shell of a page arcade game."
         },
         {
           "title": "Measure again",

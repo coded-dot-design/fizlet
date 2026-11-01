@@ -6,8 +6,8 @@
 // he hit light up as the neighbours wake) and the mast; aim him at the water tower and he hits it
 // (it rocks; three times and it springs a leak), aim him at the moon and he hits that (it rocks;
 // keep at it and the moon gets cross). Everything settles to no frames until the next tap.
-// Bricks: the kernel (fixed step, settle), fizlet/sprite (the hero, baked once; a silhouette
-// palette), fizlet/fx (puffs, crumbs, the leak: kinds as data). The pennants, windows, tower and
+// Bricks: the kernel (fixed step, settle), @fzlt/core/sprite (the hero, baked once; a silhouette
+// palette), @fzlt/core/fx (puffs, crumbs, the leak: kinds as data). The pennants, windows, tower and
 // moon are the stage's own elements (site/gallery/stages/red-cape-whooshes-top.html), changed only
 // through the engine's ledger in render, so Recall gives the page back exactly.
 import { createEngine } from "../../../src/kernel/index";

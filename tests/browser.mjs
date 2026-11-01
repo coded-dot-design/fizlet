@@ -1,6 +1,6 @@
 // Browser contract tests (Playwright + Chromium): the ledger gives the page back exactly, auto-pause
 // rules, one real requestAnimationFrame for many engines, destroy leaves nothing running, and the
-// debug guard catches layout reads in a step, and fizlet/slot (lazy, reduced motion, a11y, Recall).
+// debug guard catches layout reads in a step, and @fzlt/core/slot (lazy, reduced motion, a11y, Recall).
 // debug guard catches layout reads in a step. Sprites: pixel-exact Sherman tile, drawn pixels, cache
 // cap, SVG for page characters, and no JS heap allocation in a draw loop (sampled heap profiler).
 // rules, one real requestAnimationFrame for many engines, destroy leaves nothing running, the
@@ -25,7 +25,7 @@ const PAGE = `<!doctype html><meta charset="utf-8"><body>
 <script>${bundle}</script></body>`;
 
 const CSS = readFileSync("src/ui/board-ui.css", "utf8");
-/** fizlet/pad on a phone-sized board: names, scheme swaps (no new listeners), fire while steering
+/** @fzlt/core/pad on a phone-sized board: names, scheme swaps (no new listeners), fire while steering
  *  with two real fingers, the d-pad, move keys, toggles, keyboard, reduced motion, exact Recall. */
 async function padTest() {
   const ctx = await browser.newContext({ viewport: { width: 844, height: 390 }, hasTouch: true, reducedMotion: "reduce" });
@@ -240,7 +240,7 @@ async function containTest() {
   await ctx.close();
 }
 
-/** fizlet/perf on a real board: off by default, the kit's Settings switch (persisted, storage
+/** @fzlt/core/perf on a real board: off by default, the kit's Settings switch (persisted, storage
  *  failures ignored) and the key toggle it in step, the chart moves with real frames, it settles
  *  with the engine (no frames, no dropped-frame burst on wake), no layout reads in a step, and
  *  Recall gives the board back byte for byte. */

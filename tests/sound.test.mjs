@@ -1,4 +1,4 @@
-// fizlet/sound (Node): which events and cues make a sound. The browser suite plays the real synth.
+// @fzlt/core/sound (Node): which events and cues make a sound. The browser suite plays the real synth.
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -225,5 +225,13 @@ test("sound: zero allocation per frame reading the ring (mapped, unmapped and pr
   assert.ok(control >= 5, `the method sees a 1-object-per-play allocation: ${control} young GCs`);
   assert.ok(still <= 1, `reading the ring and calling the player: ${still} young GCs`);
   assert.ok(fraction < control, `a fractional intensity costs less than one object per cue: ${fraction} vs ${control}`);
+  e.destroy();
+});
+
+test("sound: your own notes add cues (and win over a built-in name); unknown names still play nothing", () => {
+  const e = engineWith(["sip", "shot", "nope"]), heard = [];
+  sound(e, { cues: { sip: "slurp", shot: "fire", nope: "nothing" }, notes: { slurp: [[300, 900, 0.12, 0, "sawtooth", 0.1]] }, play: (cue) => heard.push(cue) });
+  e.advance(1 / 60);
+  assert.deepEqual(heard, ["slurp", "fire"]);
   e.destroy();
 });

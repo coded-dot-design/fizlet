@@ -57,21 +57,22 @@ export const TILT = 56, TURN = -36, GAP = 46;
 
 /** The slot's text alternative: the whole sequence in words. */
 export const ARIA =
-  "A stylised mobile tank game plays for a few seconds. The board turns and fans out into its eight stacked layers, " +
+  "A stylised mobile tank game. The board turns and its eight stacked layers lift off one by one, " +
   "each labelled with its measured size: board grid, characters, movement, collision, rules, effects, input and HUD. " +
   "The collision layer turns red with a fault, a scan passes over it and patches it, it flashes green, " +
-  "and the stack folds back into the game. It loops.";
+  "and the stack snaps back into the game. It plays on its own, three times round; the play key pauses and replays it, and scrolling " +
+  "or swiping over it (or the arrow keys, once it has focus) steps through the layers by hand.";
 
 /** Width the labels take beside the exploded stack (screen px): the longest label, "Input intents ·
- *  2,627 B gz" (26 mono characters at 11px ≈ 172px), plus padding, border and the 10px margin. */
-export const LABEL_W = 204;
+ *  2,627 B gz" (26 mono characters at 12px, the phone size, ≈ 188px), plus padding, border and the
+ *  10px margin (the poster's own fit; the scene measures its labels). */
+export const LABEL_W = 222;
 /** Label pitch (screen px): one label is 21px tall (11px text, 3px padding, 2px border, each side);
  *  the exploded gap between layers widens so labels never sit closer than this. 28, not 22: the
  *  perspective draws the far (lower) layers a few % smaller, so their pitch shrinks a little too. */
 export const PITCH = 28;
-/** Room the controls keep (screen px): a column on each side in landscape (play key, slider), a row
- *  at the bottom in portrait. */
-export const RESERVE = 56;
+/** Room kept under the stack for the controls row (the play key and the scroll cue), screen px. */
+export const UI_H = 52;
 /** sin(TILT): how much of the layer gap shows as vertical spacing on screen. */
 export const SIN_TILT = Math.sin((TILT * Math.PI) / 180);
 
@@ -101,7 +102,8 @@ export const BOUNDS = { w: 358.14, h: 479.09, hb: 212.14 };
  */
 export const gap = (se: number) => Math.max(GAP, PITCH / (SIN_TILT * se));
 /** `lw`: the labels' width beside the stack (screen px), measured by the scene; LABEL_W by default. */
-export function fit(W: number, H: number, lw = LABEL_W) {
+export function fit(W: number, H0: number, lw = LABEL_W) {
+  const H = H0 - UI_H;
   const sp = Math.min((W - 24) / (BW + 16), (H - 24) / (BH + 20));
   // Height: the stack at GAP, and the board plus 7 label pitches when the gap has to widen.
   const se = Math.min((W - 28 - lw) / BOUNDS.w, (H - 24) / BOUNDS.h, (H - 24 - 7 * PITCH) / BOUNDS.hb);

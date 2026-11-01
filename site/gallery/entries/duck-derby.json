@@ -1,4 +1,5 @@
 {
+  "no": 68,
   "id": "duck-derby",
   "date": "2026-10-30",
   "prompt": "a tin duck shooting gallery: ducks ride two rails, tap to pop a cork at one, tap twice for a BOOM that knocks down every duck in reach; misses ping the booth's sign, and tickets win a plush",
@@ -8,8 +9,8 @@
   "author": "chris-cooley",
   "recipe": "hand-built",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/slot"
+    "@fzlt/core/kernel",
+    "@fzlt/core/slot"
   ],
   "fizlet": "0.20.0",
   "made": "by hand",

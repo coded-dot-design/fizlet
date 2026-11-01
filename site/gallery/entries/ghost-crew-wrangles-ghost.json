@@ -1,4 +1,5 @@
 {
+  "no": 55,
   "id": "ghost-crew-wrangles-ghost",
   "date": "2026-10-30",
   "prompt": "a ghost-catching crew fires wobbling scrub streams: tap the ghost to latch on, drag it struggling through the library, and pull it into the bucket trap that snaps shut with a burst",
@@ -8,9 +9,9 @@
   "author": "chris-cooley",
   "recipe": "hand-built",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/sprite",
-    "fizlet/slot"
+    "@fzlt/core/kernel",
+    "@fzlt/core/sprite",
+    "@fzlt/core/slot"
   ],
   "fizlet": "0.20.0",
   "made": "by hand",

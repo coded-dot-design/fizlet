@@ -8,7 +8,7 @@
 // sits, and every chunk flies home: the page puts itself back together. The steel SECURE badge
 // does not break: CLANG, and he sits there seeing stars.
 // Bricks: the kernel (fixed step, settle: it sleeps once the page is whole and he is calm; its
-// ledger for every page write, so Recall gives the page back byte for byte) and fizlet/sprite (the
+// ledger for every page write, so Recall gives the page back byte for byte) and @fzlt/core/sprite (the
 // giant, the flower, the heart, baked once). Shared with #50: the giant (krunch.ts).
 import { createEngine } from "../../../src/kernel/index";
 import { sprites } from "../../../src/sprite";

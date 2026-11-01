@@ -1,4 +1,4 @@
-// fizlet/arcade (Node): the controller's contract where no page is needed: the snapshot before a
+// @fzlt/core/arcade (Node): the controller's contract where no page is needed: the snapshot before a
 // run, a start that fails part-way leaving the page exactly as it was (Recall on failure: no host,
 // no listener, no engine), destroy for good, and the card preset's markup escaping. A run (the page
 // as the board, the overlay, the HUD, Recall after a run, zero allocation in the HUD write) needs

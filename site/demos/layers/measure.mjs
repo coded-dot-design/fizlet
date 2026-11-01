@@ -1,6 +1,6 @@
 // Measure the layers story and write site/demos/layers/measured.json (the only numbers its caption
-// prints): gzip bytes, script time per frame under 4× CPU throttle, layout shift, frames once
-// settled, and JS fetched before the slot nears the viewport (the inline loader is in the poster bytes). Budgets: fizlet-engine docs/LAYERS.md.
+// prints): gzip bytes, script time per frame under 4× CPU throttle while the story plays on its own
+// (one whole loop), layout shift, frames once it is paused, and JS fetched before the slot nears the viewport (the inline loader is in the poster bytes). Budgets: fizlet-engine docs/LAYERS.md.
 // Run: node site/demos/layers/measure.mjs (builds first).
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -29,7 +29,10 @@ const PROBE = () => {
 const pct = (a, p) => a.slice().sort((x, y) => x - y)[Math.min(a.length - 1, Math.floor(a.length * p))] ?? 0;
 const r2 = (v) => Math.round(v * 100) / 100;
 
-// 1. One full cycle at 1440 × 900, CPU throttled 4×.
+// The story plays on its own: one whole loop (12.4 s of story), the figure in view.
+const loop = (p) => p.waitForTimeout(12600);
+
+// 1. One loop of the story at 1440 × 900, CPU throttled 4×.
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
 const page = await ctx.newPage();
 await page.addInitScript(PROBE);
@@ -37,23 +40,25 @@ const cdp = await ctx.newCDPSession(page);
 await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
 await page.goto(srv.url);
 await page.waitForSelector("[data-fizlet-slot] .lz", { timeout: 15000 });
+await page.evaluate(() => document.querySelector("figure.lyr").scrollIntoView({ block: "center" }));
+await page.waitForFunction(() => document.querySelector(".lyr__play").getAttribute("aria-label") === "Pause");
 await page.evaluate(() => (window.__f.length = 0));
-await page.waitForTimeout(13000);
+await loop(page);
 const frames = await page.evaluate(() => window.__f);
 const ms = frames.map((f) => f[1]), gaps = frames.slice(1).map((f, i) => f[0] - frames[i][0]);
 const cls = await page.evaluate(() => window.__cls);
 await ctx.close();
 
-// 2. Settles: one quick cycle (data-loops=1), then count frames over 2 s.
+// 2. Settles: pause it with the play key, then count frames over 2 s.
 const p2 = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 await p2.addInitScript(PROBE);
-await p2.route(srv.url, async (route) => {
-  const res = await route.fetch();
-  route.fulfill({ response: res, body: (await res.text()).replace('<figure class=', '<figure data-loops="1" data-speed="4" class=') });
-});
 await p2.goto(srv.url);
 await p2.waitForSelector("[data-fizlet-slot] .lz", { timeout: 15000 });
-await p2.waitForTimeout(13000 / 4 + 2000);
+await p2.evaluate(() => document.querySelector("figure.lyr").scrollIntoView({ block: "center" }));
+await p2.waitForFunction(() => document.querySelector(".lyr__play").getAttribute("aria-label") === "Pause");
+await p2.waitForTimeout(1500);
+await p2.click(".lyr__play");
+await p2.waitForTimeout(1500);
 const n0 = await p2.evaluate(() => window.__f.length);
 await p2.waitForTimeout(2000);
 const settled = (await p2.evaluate(() => window.__f.length)) - n0;
@@ -85,7 +90,7 @@ await browser.close();
 srv.close();
 writeFileSync("site/demos/layers/measured.json", JSON.stringify(measured, null, 2) + "\n");
 console.log(JSON.stringify(measured, null, 2));
-const BUDGET = { poster: 6144, live: 10240 };
+const BUDGET = { poster: 6144, live: 9728 };
 console.log(`poster ${sizes.poster} B gz (hero budget ${BUDGET.poster}): ${sizes.poster <= BUDGET.poster ? "ok" : "OVER"}`);
 console.log(`live chunk ${sizes.live} B gz (hero budget ${BUDGET.live}): ${sizes.live <= BUDGET.live ? "ok" : "OVER"}`);
 console.log(`CLS ${measured.cls} (budget 0) · frames once settled ${settled} (budget 0) · JS fetched before the slot is near ${before} B (budget 0)`);

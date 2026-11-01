@@ -28,6 +28,16 @@ jobs:
       - run: npx playwright install --with-deps chromium
       # Every page at desktop and 360px: no errors, links resolve, no overflow, the demo runs.
       - run: npm run test:site
+      # The deployed build: GA4 + PostHog behind the consent banner (site/analytics) when the public ids
+      # are set as repository Variables (not Secrets); unset = off, no analytics code. The tests above
+      # ran on the id-less build (no banner in their way); this checks the runtime is on every page once.
+      - name: Build with analytics ids
+        if: ${{ vars.PUBLIC_GA4_ID != '' || vars.PUBLIC_POSTHOG_KEY != '' }}
+        run: npm run site && node tests/site-analytics.mjs
+        env:
+          PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
+          PUBLIC_POSTHOG_KEY: ${{ vars.PUBLIC_POSTHOG_KEY }}
+          PUBLIC_POSTHOG_HOST: ${{ vars.PUBLIC_POSTHOG_HOST }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -42,7 +42,7 @@
         },
         {
           "title": "`read` measures, `step` simulates",
-          "body": "The canvas's CSS width is read in `read`, once a frame. The step moves the squares at a fixed 60 Hz and checks the click with `circles` from `fizlet/collide`: no layout reads (rule 4)."
+          "body": "The canvas's CSS width is read in `read`, once a frame. The step moves the squares at a fixed 60 Hz and checks the click with `circles` from `@fzlt/core/collide`: no layout reads (rule 4)."
         },
         {
           "title": "One click, one step",
@@ -68,7 +68,7 @@
       "body": [
         {
           "type": "p",
-          "text": "Each import is its own module with its own budget. Measured on this build, gzip, each with everything it imports: the kernel {size:fizlet (kernel)}, `fizlet/input` {size:fizlet/input}, `fizlet/fx` {size:fizlet/fx}, `fizlet/hud` {size:fizlet/hud}, `fizlet/collide` {size:fizlet/collide}. The kernel is shared, so a bundle of all five is smaller than their sum; bundle and gzip your build to see your exact number."
+          "text": "Each import is its own module with its own budget. Measured on this build, gzip, each with everything it imports: the kernel {size:@fzlt/core (kernel)}, `@fzlt/core/input` {size:@fzlt/core/input}, `@fzlt/core/fx` {size:@fzlt/core/fx}, `@fzlt/core/hud` {size:@fzlt/core/hud}, `@fzlt/core/collide` {size:@fzlt/core/collide}. The kernel is shared, so a bundle of all five is smaller than their sum; bundle and gzip your build to see your exact number."
         }
       ]
     },
@@ -79,19 +79,19 @@
       "items": [
         {
           "title": "Sound",
-          "body": "`sound(e, { cues: { pop: \"boom\" } })` plays a synth cue for every `pop` on the ring: no audio files, at most 8 voices. [fizlet/sound](/bricks/sound.html)."
+          "body": "`sound(e, { cues: { pop: \"boom\" } })` plays a synth cue for every `pop` on the ring: no audio files, at most 8 voices. [@fzlt/core/sound](/bricks/sound.html)."
         },
         {
           "title": "A start screen and a clock",
-          "body": "`match(e, root, { count: 3, seconds: 30 })` adds PRESS START, a 3-2-1, pause on Escape or P, and a result with REMATCH. [fizlet/match](/bricks/match.html)."
+          "body": "`match(e, root, { count: 3, seconds: 30 })` adds PRESS START, a 3-2-1, pause on Escape or P, and a result with REMATCH. [@fzlt/core/match](/bricks/match.html)."
         },
         {
           "title": "Touch controls",
-          "body": "`pad(e, input, { scheme: \"stick\" })` adds an on-screen stick and arcade keys that drive the same intents. [fizlet/pad](/bricks/pad.html)."
+          "body": "`pad(e, input, { scheme: \"stick\" })` adds an on-screen stick and arcade keys that drive the same intents. [@fzlt/core/pad](/bricks/pad.html)."
         },
         {
           "title": "The page as the board",
-          "body": "`boardPage(e)` turns the page's own letters into terrain and its buttons into targets, and Recall gives every one back. [fizlet/board-page](/bricks/board-page.html)."
+          "body": "`boardPage(e)` turns the page's own letters into terrain and its buttons into targets, and Recall gives every one back. [@fzlt/core/board-page](/bricks/board-page.html)."
         }
       ]
     }

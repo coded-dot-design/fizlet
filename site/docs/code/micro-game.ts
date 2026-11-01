@@ -1,10 +1,10 @@
 // Docs code (shown on /guides/micro-game/): the whole game, typechecked against the source.
 // ---
-import { createEngine } from "fizlet";
-import { controls } from "fizlet/input";
-import { effects } from "fizlet/fx";
-import { hud } from "fizlet/hud";
-import { circles } from "fizlet/collide";
+import { createEngine } from "@fzlt/core";
+import { controls } from "@fzlt/core/input";
+import { effects } from "@fzlt/core/fx";
+import { hud } from "@fzlt/core/hud";
+import { circles } from "@fzlt/core/collide";
 
 const W = 640, H = 360, N = 12, R = 14;
 const board = document.querySelector<HTMLElement>("#game")!;

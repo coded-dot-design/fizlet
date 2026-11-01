@@ -1,4 +1,4 @@
-// fizlet/css-clock in Node: the clock property runs from 0s down to -(span × loops)s, rests there
+// @fzlt/core/css-clock in Node: the clock property runs from 0s down to -(span × loops)s, rests there
 // (the first frame of every animation whose duration divides span) and the engine settles; a
 // pointer plays it again; hold keeps the frame; reduced motion lands on the rest frame at once;
 // destroy gives the root's style back. Real @keyframes in Chromium: tests/css-clock.mjs.
@@ -67,7 +67,7 @@ test("css-clock: zero allocation in its steps while it plays, and in whole frame
   if (typeof gc !== "function") return t.skip("needs node --expose-gc");
   const { minorGCs } = await import("./gc.mjs");
   const root = el(), c = cssClock(root, { span: 2, loops: 1e6, motion: true });
-  // Steps only: render writes one style string a frame (outside the step), as fizlet/timeline does.
+  // Steps only: render writes one style string a frame (outside the step), as @fzlt/core/timeline does.
   const steps = (n) => { for (let i = 0; i < n; i++) c.tl.step(c.engine, 1 / 60); };
   steps(20000);
   gc();
