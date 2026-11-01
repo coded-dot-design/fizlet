@@ -22,8 +22,16 @@
   /* A frame that keeps the page's scroll, while its note shows (scroll-hint.ts): the kit's red, the
      "too big to win" badge's (themed: #ff2b4e dark, #c01033 light). */
   --frame-warn: var(--k-fire-ink);
+  /* Every 3D sticker's die-cut edge and hard shadow (status stickers, the kernel slab, section
+     numbers, gallery numbers and stickers, phase and people stickers, badges): light on the dark
+     theme, so the edge and the shadow read on the dark page; the ink rim on the light theme. A
+     sticker's text stays the dark ink on its bright face. */
+  --sticker-edge: var(--ink);
+  --sticker-shadow: var(--muted);
 }
 html.bui[data-theme="light"] {
+  --sticker-edge: var(--rim);
+  --sticker-shadow: var(--rim);
   --base: color-mix(in srgb, var(--k-cmd) 30%, var(--line));
   --grid: color-mix(in srgb, var(--k-cmd) 9%, transparent);
   --code-bg: #f6f5fd;
@@ -121,15 +129,20 @@ code {
   color: var(--k-sys-ink);
   font-weight: 800;
 }
-/* The section number: a little sticker, tilted, on the ink rim. */
+/* The kit's slam sticker (.bui-sticker, src/ui/board-ui.css) on the site: the sticker edge and shadow. */
+html.bui .bui-sticker {
+  border-color: var(--sticker-edge);
+  box-shadow: calc(5 * var(--u) * var(--bui-sx)) calc(5 * var(--u) * var(--bui-sy)) 0 var(--sticker-shadow);
+}
+/* The section number: a little sticker, tilted, on the sticker edge. */
 .eyebrow .index {
   display: inline-block;
   padding: 3px 7px;
   color: var(--rim);
   background: var(--k-sys);
-  border: 2px solid var(--rim);
+  border: 2px solid var(--sticker-edge);
   border-radius: 5px;
-  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--bui-shadow);
+  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--sticker-shadow);
   rotate: -4deg;
   letter-spacing: 0.08em;
 }
@@ -1352,9 +1365,9 @@ html.bui[data-theme="light"] .brick:focus-within {
   white-space: nowrap;
   color: var(--rim);
   background: var(--tone);
-  border: var(--bw) solid var(--rim);
+  border: var(--bw) solid var(--sticker-edge);
   border-radius: 6px;
-  box-shadow: calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--rim);
+  box-shadow: calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--sticker-shadow);
   rotate: var(--tilt, -6deg);
   translate: var(--dx, 0) var(--dy, 0);
 }
@@ -1409,7 +1422,7 @@ html.bui[data-theme="light"] .brick:focus-within {
   font-size: 14px;
   letter-spacing: 0.24em;
   border-radius: 4px;
-  box-shadow: inset 0 0 0 2px var(--tone), inset 0 0 0 3.5px var(--rim), calc(4px * var(--shadow-x, 0)) calc(4px * var(--shadow-y, 1)) 0 var(--rim), calc(8px * var(--shadow-x, 0)) calc(8px * var(--shadow-y, 1)) 0 color-mix(in srgb, var(--tone) 45%, var(--rim));
+  box-shadow: inset 0 0 0 2px var(--tone), inset 0 0 0 3.5px var(--rim), calc(4px * var(--shadow-x, 0)) calc(4px * var(--shadow-y, 1)) 0 var(--sticker-shadow), calc(8px * var(--shadow-x, 0)) calc(8px * var(--shadow-y, 1)) 0 color-mix(in srgb, var(--tone) 45%, var(--sticker-shadow));
   rotate: 3deg;
   translate: none;
   pointer-events: none;
@@ -1547,7 +1560,7 @@ html.bui[data-theme="light"] .brick.brick-kernel:focus-within {
   --bw: 2px;
   padding: 3px 6px 2px;
   font-size: 9.5px;
-  box-shadow: calc(2px * var(--shadow-x, 0)) calc(2px * var(--shadow-y, 1)) 0 var(--rim);
+  box-shadow: calc(2px * var(--shadow-x, 0)) calc(2px * var(--shadow-y, 1)) 0 var(--sticker-shadow);
 }
 .brick-compact .brick-sticker-peel {
   --fold: 9px;
@@ -1557,7 +1570,7 @@ html.bui[data-theme="light"] .brick.brick-kernel:focus-within {
   margin-right: 6px;
   padding: 6px 12px 5px;
   font-size: 12px;
-  box-shadow: inset 0 0 0 2px var(--tone), inset 0 0 0 3px var(--rim), calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--rim), calc(6px * var(--shadow-x, 0)) calc(6px * var(--shadow-y, 1)) 0 color-mix(in srgb, var(--tone) 45%, var(--rim));
+  box-shadow: inset 0 0 0 2px var(--tone), inset 0 0 0 3px var(--rim), calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--sticker-shadow), calc(6px * var(--shadow-x, 0)) calc(6px * var(--shadow-y, 1)) 0 color-mix(in srgb, var(--tone) 45%, var(--sticker-shadow));
 }
 /* A peeling sticker keeps its label clear of the curl, at every size. */
 .brick-sticker.brick-sticker-peel {
@@ -2202,7 +2215,7 @@ html.bui[data-theme="light"] .phases b {
   letter-spacing: 0.12em;
   color: var(--rim);
   background: var(--tone);
-  border: 1.5px solid var(--rim);
+  border: 1.5px solid var(--sticker-edge);
   border-radius: 5px;
   white-space: nowrap;
 }
@@ -3575,9 +3588,9 @@ html.bui[data-theme="light"] .phases b {
   white-space: nowrap;
   color: var(--rim);
   background: var(--tone);
-  border: 2.5px solid var(--rim);
+  border: 2.5px solid var(--sticker-edge);
   border-radius: 6px;
-  box-shadow: calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--rim);
+  box-shadow: calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--sticker-shadow);
   rotate: -6deg;
 }
 .ppl-sticker {
@@ -3838,9 +3851,9 @@ html.bui[data-theme="light"] .phases b {
   letter-spacing: 0.1em;
   color: var(--rim);
   background: var(--hurt);
-  border: 2px solid var(--rim);
+  border: 2px solid var(--sticker-edge);
   border-radius: 5px;
-  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--bui-shadow);
+  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--sticker-shadow);
   rotate: -3deg;
   vertical-align: middle;
 }
@@ -4379,7 +4392,7 @@ html.bui[data-theme="light"] .phases b {
   letter-spacing: 0.12em;
   color: var(--rim);
   background: var(--tone);
-  border: 1.5px solid var(--rim);
+  border: 1.5px solid var(--sticker-edge);
   border-radius: 5px;
   white-space: nowrap;
   vertical-align: middle;

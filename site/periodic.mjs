@@ -163,7 +163,7 @@ html.bui[data-theme="light"] .pt-hint{color:var(--hl)}
    pressed (the kit's press: down onto its base), lit in its colour, PRESSED. */
 .bui .el-key{--py:4px;--edge:var(--line);--border-hover:var(--tone);--edge-hover:color-mix(in srgb,var(--tone) 55%,var(--rim));--glow-press:0 0 22px color-mix(in srgb,var(--tone) 55%,transparent);position:relative;display:grid;place-items:center;width:var(--ts);height:var(--ts);min-height:0;padding:0;font-family:var(--mono);background:var(--surface);border-color:var(--line);border-radius:8px;overflow:visible}
 .el-face .el-flags{position:absolute;top:4px;left:4px;right:4px;display:flex;gap:2px;pointer-events:none}
-.el-face .brick-sticker{--bw:1.5px;--fold:4px;padding:2px 2px 1px;font-size:calc(var(--ts) * .09);letter-spacing:.02em;border-radius:3px;box-shadow:calc(1.5px * var(--shadow-x, 0)) calc(1.5px * var(--shadow-y, 1)) 0 var(--rim);rotate:calc(var(--tilt, -4deg) * .7);translate:none}
+.el-face .brick-sticker{--bw:1.5px;--fold:4px;padding:2px 2px 1px;font-size:calc(var(--ts) * .09);letter-spacing:.02em;border-radius:3px;box-shadow:calc(1.5px * var(--shadow-x, 0)) calc(1.5px * var(--shadow-y, 1)) 0 var(--sticker-shadow);rotate:calc(var(--tilt, -4deg) * .7);translate:none}
 .el-face .brick-sticker-peel{padding-right:5px}
 .el-face .el-kstamp{position:absolute;right:4px;bottom:4px;display:flex;pointer-events:none}
 .el-face .el-kstamp .brick-sticker-kernel{rotate:-5deg;border-radius:2px;letter-spacing:.12em}

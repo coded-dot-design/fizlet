@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Site: 3D stickers keep their edge and shadow on the dark theme (pending owner review).** Every
+  sticker's die-cut edge and hard shadow read from one token pair, `--sticker-edge` and
+  `--sticker-shadow` (site.css :root): the light ink and the muted light on the dark theme, the ink
+  rim on the light theme. The brick status stickers and the kernel slab, section and gallery numbers
+  (`.eyebrow .index`), the gallery's NEW / APPROVED / HERO / WINNER stickers, the phase and people
+  stickers, the win badge, the status and phase pills, the periodic tiles' stickers and the kit's
+  slam sticker on the site all use it. Text stays the dark ink on the bright face.
+
 - **Home: the spec sheet's size chips are small brick tiles (pending owner review).** The wall of
   "@fzlt/core/… KB" chips with a green bar under each is now two tidy grids (`sizeChips` in
   site/brick-ui.mjs): the bricks you import, each with its symbol tile in its own colour (from

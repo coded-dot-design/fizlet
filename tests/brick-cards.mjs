@@ -298,6 +298,33 @@ try {
       await page.close();
     }
   }
+  // ---------- Sticker edges by theme (--sticker-edge / --sticker-shadow): on the dark theme every 3D
+  // sticker's border and hard shadow are light (lighter than the page), on the light theme the ink
+  // rim; the text stays the dark ink on the bright face either way. ----------
+  {
+    const lum = (c) => { const m = c.match(/[\d.]+/g).slice(0, 3).map(Number); const [r, g, b] = (c.startsWith("color(") ? m : m.map((v) => v / 255)).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+    const SEL = [".brick-sticker:not([data-flag=roadmap])", ".brick-sticker-kernel", ".eyebrow .index", ".gal-sticker", ".phase-sticker"];
+    for (const [path, want] of [["", [0, 1, 2, 4]], ["gallery/", [2, 3]]]) {
+      for (const theme of ["dark", "light"]) {
+        const { page, errors } = await open(path);
+        await page.evaluate((t) => (document.documentElement.dataset.theme = t), theme);
+        const got = await page.evaluate((sels) => {
+          const bg = getComputedStyle(document.body).backgroundColor;
+          return sels.map((sel) => { const el = document.querySelector(sel); if (!el) return null; const cs = getComputedStyle(el); return { sel, border: cs.borderTopColor, shadow: cs.boxShadow.match(/(rgb|color)\([^)]*\)/g)?.at(-1) ?? "", text: cs.color, face: cs.backgroundColor, bg }; });
+        }, SEL);
+        for (const i of want) {
+          const g = got[i];
+          assert.ok(g, `${path || "home"}: a ${SEL[i]} sticker`);
+          const [b, sh, bg, tx, fc] = [lum(g.border), lum(g.shadow), lum(g.bg), lum(g.text), lum(g.face)];
+          if (theme === "dark") assert.ok(b > bg && sh > bg, `${path || "home"} dark: ${g.sel}'s edge and shadow are light (${g.border}, ${g.shadow} on ${g.bg})`);
+          else assert.ok(b < bg && sh < bg, `${path || "home"} light: ${g.sel}'s edge and shadow are the ink rim (${g.border}, ${g.shadow})`);
+          assert.ok(tx < fc, `${path || "home"} ${theme}: ${g.sel}'s text stays dark ink on its bright face`);
+        }
+        assert.deepEqual(errors, []);
+        await page.close();
+      }
+    }
+  }
   // ---------- Tokens only: the brick component's CSS block names no colour of its own ----------
   {
     const css = readFileSync("site/site.css", "utf8");
