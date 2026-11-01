@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Notes: new note, **Why fzlt** (31 October 2026): why Fizlet's short mark and npm scope is fzlt, the
+  `npm i @fzlt/core` install line, the `fzlt` alias, and the planned fzlt.dev and fzlt.app. The notes are
+  regenerated from the content model, so a brick label in the lockstep note now reads `@fzlt/core/presence/check`.
 - **Site: Fizlet positioning, with ™ marks.** fizlet.com and the README now say what Fizlet is: the
   building blocks for animation and games on the DOM, each brick a task written hundreds of times,
   so a piece boils down to logic and style. New hero ("Logic and style. / *The bricks do the
