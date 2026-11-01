@@ -12,6 +12,42 @@
   inputs. The room server side is in-house; the protocol is in
   [Build your own room server](https://fizlet.com/guides/build-your-own-room-server/), whose
   "what presence speaks" now describes this. presence 1,834 → 2,207 B gz (budget 2,048 → 2,240).
+- Notes: new note, **Why fzlt** (31 October 2026): why Fizlet's short mark and npm scope is fzlt, the
+  `npm i @fzlt/core` install line, the `fzlt` alias, and the planned fzlt.dev and fzlt.app. The notes are
+  regenerated from the content model, so a brick label in the lockstep note now reads `@fzlt/core/presence/check`.
+- **Site: Fizlet positioning, with ™ marks.** fizlet.com and the README now say what Fizlet is: the
+  building blocks for animation and games on the DOM, each brick a task written hundreds of times,
+  so a piece boils down to logic and style. New hero ("Logic and style. / *The bricks do the
+  rest.*"), final call, section 03 ("One frame, three phases"), footer, social card text, the home,
+  docs, notes and gallery intros and descriptions. The old "Tiny physics for your page" tagline is gone from the footer,
+  the home title and the README. "The page is the board" is credited to DOM VIRUS
+  as its approach, one use of Fizlet. Fizlet™ on first prominent use (home hero, footer, README
+  title), the footer lockup shows the short mark `fzlt™` beside FIZLET, and the footer says "Fizlet and
+  fzlt are trademarks of Chris Cooley." The footer copyright
+  reads "© 2026 Chris Cooley" (was coded.design); the byline still links coded.design as his site.
+- **Site: a brand page at `/brand/`.** The FIZLET wordmark and the fzlt short mark, the lockups
+  (Fizlet™ · fzlt™, `npm i @fzlt/core`, fzlt.dev), a sticker set, why fzlt, the two voices, ™ and casing rules,
+  clear space and minimum sizes, don'ts, the colour tokens as swatches (read from
+  `src/ui/tokens.json`) and the Board UI kit live. Every mark downloads as a self-contained SVG on
+  dark and light, generated at build time from one source (`scripts/brand-marks.mjs`) that the page
+  also draws inline. The page rests at 0 rAF; the sticker slam is the kit's own and settles, and
+  stays still under reduced motion.
+- **Both marks on npm: a `fzlt` bin, Fizlet™ (fzlt™) in the description, and a fzlt.dev page.**
+  `npx @fzlt/core` (or `fzlt` once installed) prints the version, the install line, fizlet.com and
+  every brick's gzip size against its budget (`--json` for machines). Zero dependencies, `node:` only;
+  its numbers are `dist/sizes.json`, written by the build from `scripts/sizes.mjs` (the same
+  measurement as `npm run size`), never measured at run time. Not an export; no budget moves.
+  Keywords add `fzlt` and `fizlet`; the README gets an npm badge. `npm run site:fzlt` builds the
+  fzlt.dev landing page into `site-dist-fzlt/` (static, no script, light and dark from the system,
+  on the kit tokens); not deployed. `npm run test:pack` now also runs the bin installed and through
+  `npx` from the tarball.
+- **Site: the brick graph fits phones** (/bricks/). Labels no longer overlap: when the layout rests,
+  a one-shot pass moves each label to the cheapest of four sides of its brick (nudged up or down a
+  little), on typed arrays, deterministic, no allocation. Nothing clips: the view fits the world box
+  grown round any dot or label (widths measured once) that sticks out of it, so desktop looks the
+  same. `tests/brick-graph.mjs` checks every label inside the canvas and no two overlapping at 360,
+  390 and 1440, also with the longest label held at the right edge. No brick changes.
+
 - **Multiplayer is in-house; a guide to build your own room server.** `@fzlt/core/presence` and
   `@fzlt/core/presence/check` stay in the package unchanged (MIT, BETA) and move into an
   "In-house / experimental" group wherever bricks are listed (the bricks page, the home page, the
