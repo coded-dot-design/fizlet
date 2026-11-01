@@ -1304,7 +1304,7 @@ html.bui[data-theme="light"] .dl.hot {
 /* Full brick cards (brickTile): one solid 3D object, no top bar. At rest the
    neutral card border and hard shadow (.panel); on hover and focus both take the brick's colour
    (--tone) and the card lifts like a key (transform, so it never fights the home reveal's translate). The brick's colour at rest (and on touch, with no hover)
-   is its budget bar. The status is a tilted sticker beside the symbol tile (.brick-head). */
+   is its budget bar. The status is a tilted sticker at the far end of the symbol tile's row (.brick-head). */
 .brick {
   display: flex;
   flex-direction: column;
@@ -1334,10 +1334,12 @@ html.bui[data-theme="light"] .brick:focus-within {
   box-shadow: calc(6px * var(--shadow-x, 0)) calc(6px * var(--shadow-y, 1)) 0 var(--base);
   transform: none;
 }
-/* The head row: the symbol tile, then the status sticker in the open space beside it, centred on
-   the tile. Each sticker is slapped on by hand: its brick's id sets its tilt and nudge (brick-ui.mjs
-   stickerLook: --tilt, --dx, --dy), so a row of cards looks random and every build looks the same.
-   translate and rotate never move the layout. On hover and focus the sticker presses flat. */
+/* The head row: the symbol tile, then the status sticker at the row's far end (the card's top-right,
+   inside its border and padding, where the kernel's slab sits; the open space reads balanced),
+   centred on the tile. Each sticker is slapped on by hand: its brick's id sets its tilt and nudge
+   (brick-ui.mjs stickerLook: --tilt, --dx, --dy), so a row of cards looks random and every build
+   looks the same. translate and rotate never move the layout. On hover and focus the sticker presses
+   flat. */
 .brick-head {
   display: flex;
   flex-wrap: wrap;
@@ -1351,6 +1353,7 @@ html.bui[data-theme="light"] .brick:focus-within {
 .brick-stickers {
   display: flex;
   gap: 6px;
+  margin-left: auto;
   pointer-events: none;
 }
 .brick-sticker {
@@ -1604,6 +1607,13 @@ html.bui[data-theme="light"] .brick.brick-kernel:focus-within {
   /* Phones: the name takes the card's width, a size smaller. */
   .brick-full:not(.brick-kernel) .brick-name {
     font-size: clamp(18px, 5.6vw, 24px);
+  }
+}
+/* Small phones: the two-up compact cards have no spare room, so the sticker falls back beside the
+   tile (or under it), never pinned right on a row of its own. Full cards keep the right. */
+@media (max-width: 420px) {
+  .brick-compact .brick-stickers {
+    margin-left: 0;
   }
 }
 /* Mini: an inline chip, at most 28 px tall. The same rules at chip scale: neutral border and hard

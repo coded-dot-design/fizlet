@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Bricks: the status sticker sits at the card's top-right (pending owner review).** On the brick
+  cards (home 02 and /bricks/, the roadmap cards too) the status sticker moves from beside the symbol
+  tile to the far end of the tile's row: the card's top-right corner, inside the border and padding,
+  where the kernel's KERNEL slab sits. The per-brick tilt and nudge, the BETA peel and the
+  kernel's single KERNEL sticker are unchanged. On small phones (≤ 420 px) the two-up home cards
+  keep the sticker beside the tile; /bricks/ cards keep the right. The quick view, the brick page
+  eyebrow, the status key and the periodic tiles are unchanged (no spare room there). Test:
+  `tests/brick-cards.mjs`, the sticker's right edge within the card's padding of its right edge at
+  1440 and 1024.
 - **Site: the origin hero in two looks, a redrawn coder, and a cup you can play with (pending owner
   review).** "Code. Sleep. Drink. Repeat." is now inspired by the original 2015 portfolio, with
   Fizlet flair: a 2015 / Fizlet key in the scene's key row (`aria-pressed`, `look` in `origin:state`,

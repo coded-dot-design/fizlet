@@ -121,7 +121,7 @@ export const KERNEL_STICKER = '<span class="brick-sticker brick-sticker-kernel">
 export const brickSticker = (brick) => (brick.id === "kernel" ? KERNEL_STICKER : statusSticker(brick.status, brick.id));
 
 /**
- * The card's head row: the symbol tile, then the status sticker in the open space beside it; on the
+ * The card's head row: the symbol tile, then the status sticker at the row's far end; on the
  * kernel, only the KERNEL slab, at the row's far end (the card's top-right, inside its border).
  */
 const head = (brick) => `<div class="brick-head">${elSquare(brick)}${brick.id === "kernel" ? KERNEL_STICKER : `<span class="brick-stickers">${statusSticker(brick.status, brick.id)}</span>`}</div>`;

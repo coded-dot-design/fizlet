@@ -187,9 +187,10 @@ try {
       await page.close();
     }
   }
-  // ---------- Status stickers: beside the symbol tile (not on the border), a tilt set by the brick's
-  // id, BETA peels, the label read once; the kernel's slab on the top edge; nothing overlaps at 390 ----------
-  for (const [w, h] of [[1440, 900], [390, 844]]) {
+  // ---------- Status stickers: in the symbol tile's row at its far end (the card's top-right, inside
+  // the border and padding; not on the border), a tilt set by the brick's id, BETA peels, the label
+  // read once; the kernel's slab at the same corner; nothing overlaps at 390 ----------
+  for (const [w, h] of [[1440, 900], [1024, 768], [390, 844]]) {
     for (const path of ["", "bricks/"]) {
       const { page, errors } = await open(path, { viewport: { width: w, height: h } });
       await page.addStyleTag({ content: "[data-reveal]{opacity:1!important;transform:none!important}" });
@@ -199,7 +200,7 @@ try {
         const s = li.querySelector(".brick-stickers > .brick-sticker"), tile = li.querySelector(".brick-head > .el-card"), k = li.querySelector(".brick-head > .brick-sticker-kernel");
         const pseudo = (el) => [getComputedStyle(el, "::before").content, getComputedStyle(el, "::after").content];
         return {
-          id: li.dataset.brick, flag: li.dataset.flag, card: r(li), border: parseFloat(getComputedStyle(li).borderTopWidth), tile: tile && r(tile), sticker: s && r(s),
+          id: li.dataset.brick, flag: li.dataset.flag, card: r(li), border: parseFloat(getComputedStyle(li).borderTopWidth), pad: parseFloat(getComputedStyle(li).paddingRight) + parseFloat(getComputedStyle(li).borderRightWidth), tile: tile && r(tile), sticker: s && r(s),
           text: s?.textContent, tilt: s?.style.getPropertyValue("--tilt"), dx: s?.style.getPropertyValue("--dx"), dy: s?.style.getPropertyValue("--dy"),
           peel: s?.classList.contains("brick-sticker-peel"), pseudo: s ? pseudo(s) : [], name: r(li.querySelector(".brick-name")),
           chips: [...li.querySelectorAll(".brick-chips > li")].map(r), kernel: k && r(k), ktext: k?.textContent,
@@ -224,6 +225,9 @@ try {
         assert.ok(beside || (w < 600 && c.sticker.top >= c.tile.bottom - 4), `${where} ${c.id}: the sticker sits beside the tile, centred on its row`);
         if (w >= 600) assert.ok(beside, `${where} ${c.id}: on a wide screen, always beside the tile`);
         assert.ok(c.sticker.top > c.card.top + c.border && c.sticker.right < c.card.right - c.border, `${where} ${c.id}: the sticker is inside the card, not on its border`);
+        // Wide screens: the sticker sits at the row's far end, its right edge within the card's
+        // padding of the card's right edge (the open space reads balanced, like the kernel's slab).
+        if (w >= 1024) assert.ok(c.card.right - c.sticker.right <= c.pad, `${where} ${c.id}: the sticker's right edge sits ${(c.card.right - c.sticker.right).toFixed(1)} px from the card's right edge (at most its padding, ${c.pad} px)`);
         const look = stickerLook(c.id);
         assert.deepEqual([c.tilt, c.dx, c.dy], [`${look.tilt}deg`, `${look.dx}px`, `${look.dy}px`], `${where} ${c.id}: its tilt and nudge come from its id`);
         assert.ok(Math.abs(look.tilt) >= 2 && Math.abs(look.tilt) <= 6 && look.dx <= 6 && Math.abs(look.dy) <= 2, `${c.id}: a small tilt and nudge`);
