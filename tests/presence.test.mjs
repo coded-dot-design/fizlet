@@ -301,6 +301,36 @@ test("presence: join() keeps a play pass and device key on a resume (pass.<pass>
     globalThis.WebSocket = real;
   }
 });
+// The guide's close codes: a drop (1006, or a server restart: 1011, 1012, 1014) resumes the seat; the
+// rest end the match. 1038 is 1006 + 32: JS takes shift counts mod 32, so the range guard must catch it.
+for (const [code, resumes] of [[1006, 1], [1011, 1], [1012, 1], [1014, 1], [1000, 0], [1001, 0], [1005, 0], [1008, 0], [1009, 0], [4000, 0], [4001, 0], [4002, 0], [1038, 0]]) {
+  test(`presence: join() ${resumes ? "resumes" : "ends"} on a close ${code}`, async (t) => {
+    t.mock.timers.enable({ apis: ["setTimeout"] });
+    const real = globalThis.WebSocket, made = [];
+    globalThis.WebSocket = fakeWebSocket(made);
+    try {
+      const { join } = await import("../src/presence.ts");
+      const P = ["fizlet-rooms", "invite.ABCD-EFGH-JK"];
+      const p = join("wss://rooms.example/room/3?players=2", undefined, P);
+      made[0].deliver([3, 1, 2, 0, 7, 0, 0, 0, 0xef, 0xbe, 0xad, 0x0e]);
+      const j = await p, got = [];
+      j.transport.listen((d) => got.push([d[0], d[1]]));
+      made[0].fire("close", { code });
+      t.mock.timers.tick(16000);
+      if (resumes) {
+        assert.deepEqual(got, [[6, 1]], "AWAY for this seat, no LEAVE");
+        assert.equal(made.length, 2, "it reconnects");
+        assert.deepEqual(made[1].protocols, [...P, "resume.eadbeef"], "with the resume token");
+      } else {
+        assert.deepEqual(got, [[4, 1]], "LEAVE for this seat at once");
+        assert.equal(made.length, 1, "no retry");
+      }
+      j.transport.close();
+    } finally {
+      globalThis.WebSocket = real;
+    }
+  });
+}
 
 // A browser WebSocket stand-in for join(): records each socket made (url, protocols, what it sent, its
 // close code); `deliver(bytes)` is a message from the room, `fire("close", { code })` a close.
