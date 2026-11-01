@@ -5,6 +5,8 @@
 // menu key; it opens a full-width panel, focus stays inside it (Tab and Shift+Tab wrap), every
 // header link is in it with a 44 px target, Escape and a tap outside close it; opening it moves
 // nothing on the page (no layout shift). /heroes/ redirects to Daily (/gallery/).
+// Footer brick chips (360, 390, 1440): compact symbol chips that never overlap or overflow, a 44 px
+// touch target on phones, the brick's name as each one's accessible name.
 // SITE_NAV_SHOTS=<dir> saves the header, a menu, the phone menu, Daily and the contest page at 1440
 // and 390, light and dark.
 import assert from "node:assert/strict";
@@ -168,6 +170,48 @@ try {
     const { ctx, page } = await open(DESKTOP, "heroes/");
     await page.waitForURL(/\/gallery\/$/);
     assert.match(await page.locator("h1").textContent(), /^Daily\./, "lands on Daily");
+    await ctx.close();
+  }
+
+  // ---------- Footer brick chips: compact symbols, no overlap, named in full ----------
+  // The footer's "Kernel and bricks" chips (site/brick-ui.mjs symChip) at 360, 390 (touch) and 1440:
+  // each one a chip (≤ 40 px tall), none overlapping another, all inside the footer, a touch target of
+  // at least 44 px on a phone, and its brick's name as its accessible name.
+  where = "footer brick chips";
+  for (const [w, opts] of [[360, { ...PHONE, viewport: { width: 360, height: 780 } }], [390, PHONE], [1440, DESKTOP]]) {
+    const { ctx, page, errors } = await open(opts, "", "light");
+    await page.evaluate(() => document.querySelectorAll(".foot-map details").forEach((d) => (d.open = true)));
+    const chips = page.locator(".foot-map .map-chips a.sym-chip");
+    await chips.first().scrollIntoViewIfNeeded();
+    const boxes = await chips.evaluateAll((as) => as.map((a) => {
+      const r = a.getBoundingClientRect(), foot = a.closest(".site-foot > .wrap").getBoundingClientRect();
+      return { id: a.getAttribute("href").match(/([^/]+)\.html$/)[1], x: r.x, y: r.y, r: r.right, b: r.bottom, h: r.height, footL: foot.left, footR: foot.right };
+    }));
+    assert.ok(boxes.length >= 20, `${w}: the footer lists the bricks as chips (${boxes.length})`);
+    for (const c of boxes) {
+      assert.ok(c.h <= 40, `${w}: ${c.id} is a chip, not a tile (${c.h} px tall)`);
+      assert.ok(c.x >= c.footL - 0.5 && c.r <= c.footR + 0.5 && c.r <= w, `${w}: ${c.id} stays inside the footer (${c.x}–${c.r} of ${c.footL}–${c.footR})`);
+    }
+    for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
+      const a = boxes[i], b = boxes[j];
+      const overlap = Math.min(a.r, b.r) - Math.max(a.x, b.x) > 0.5 && Math.min(a.b, b.b) - Math.max(a.y, b.y) > 0.5;
+      assert.ok(!overlap, `${w}: ${a.id} and ${b.id} overlap`);
+    }
+    for (const c of boxes) {
+      const link = page.locator(".foot-map").getByRole("link", { name: c.id, exact: true });
+      assert.equal(await link.count(), 1, `${w}: ${c.id} is the chip's accessible name`);
+    }
+    if (opts.hasTouch) {
+      // The hit area (the chip's ::before): 44 x 44, and a tap 21 px from the centre in any direction
+      // lands on the chip itself, not a neighbour (whole pixels: hit testing snaps sub-pixel edges).
+      const short = await chips.evaluateAll((as) => as.filter((a) => {
+        const r = a.getBoundingClientRect(), cx = r.x + r.width / 2, cy = r.y + r.height / 2, hit = getComputedStyle(a, "::before");
+        const big = Math.max(r.height, parseFloat(hit.height) || 0) >= 44 && Math.max(r.width, parseFloat(hit.width) || 0) >= 44;
+        return !big || [[cx, cy - 21], [cx, cy + 21], [cx - 21, cy], [cx + 21, cy]].some(([x, y]) => !a.contains(document.elementFromPoint(x, y)));
+      }).map((a) => a.getAttribute("href")));
+      assert.deepEqual(short, [], `${w}: every chip is a 44 px touch target`);
+    }
+    assert.deepEqual(errors, []);
     await ctx.close();
   }
 

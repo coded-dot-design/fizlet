@@ -14,7 +14,18 @@
   is back under the contest line: 10,245 → 10,199 B live. Redline 8,825 → 8,888 B, Bag Beat 8,167 →
   8,278 B, Toast Tell 9,706 → 9,813 B; Freeze Plan's keys (CSS only, 0 B) are a 44 px pair at the
   bottom centre. Test: `tests/minis-controls.mjs` (in `test:site`), all 16 minis at 1440, 390 and 360.
-
+- **Site: the home page's three-phase cards (03) lose their left border (pending owner review).**
+  READ, STEP and RENDER are plain Board UI 3D cards now: a neutral rim, the phase colour on the hard
+  base below and on a "PHASE 1/2/3" sticker on the top edge (the people and gallery sticker look).
+  STEP's "× 0–4" is a small chip; the purple frame and grid around the cards are gone. A site test
+  checks every side of each card has the same border width.
+- **Site: footer brick chips, compact symbols with no overlap on phones (pending owner review).** On
+  a touch screen the footer's "Kernel and bricks" chips drew as tall, overlapping tiles: the footer's
+  44 px text-link rule (`.foot-map ul:not(.map-chips) a`) also matched the chips, and the chip rule
+  turned them into two-row grids. Each chip is now the symbol in its brick's colour (30 px tall, 44 px
+  wide on touch, the hit area grown into the row gap), wrapping with a small gap; hover and focus show
+  the name as a tooltip, and the name stays the accessible name. The release chips under Notes lose
+  the same overlap. A test at 360, 390 and 1440 (tests/site-nav.mjs).
 - **@fzlt/core/presence: resume after a server restart (pending owner review).** `join()` resumes on
   `1011`, `1012` and `1014` as well as `1006`, as the guide says (the server holds the seat); `1000`,
   `1001`, `1005`, `1008`, `1009` and `3000` to `4999` still end the match. A test per code.

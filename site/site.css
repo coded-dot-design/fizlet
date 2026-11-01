@@ -1612,36 +1612,42 @@ html.bui[data-theme="light"] .brick.brick-kernel:focus-within {
 }
 
 /* 03 phases */
+/* Three Board UI cards, no frame around them. Each card has the kit's neutral ink
+   rim; its phase colour is the hard base below it and the sticker on its top edge (one sticker look:
+   .ppl-sticker), so no side of the card is an accent border. */
 .phases {
   list-style: none;
   margin: 0;
-  padding: 22px;
+  padding: 12px 6px 6px 0;
   display: grid;
-  gap: 14px;
-  background:
-    linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 30px 30px,
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 30px 30px,
-    var(--card);
+  gap: 26px;
 }
 .phases li {
   position: relative;
   display: grid;
   grid-template-columns: 150px minmax(0, 1fr);
   gap: 4px 18px;
-  padding: 16px 18px;
-  background: var(--surface);
+  padding: 22px 20px 18px;
+  background: var(--card);
   border: 2px solid var(--rim);
-  border-left: 6px solid var(--tone);
-  border-radius: 10px;
-  box-shadow: calc(4px * var(--bui-sx)) calc(4px * var(--bui-sy)) 0 color-mix(in srgb, var(--tone) 45%, var(--bui-shadow));
+  border-radius: 12px;
+  box-shadow: calc(6px * var(--bui-sx)) calc(6px * var(--bui-sy)) 0 color-mix(in srgb, var(--tone) 60%, var(--bui-shadow));
 }
+.phases .phase-sticker {
+  --tone: inherit;
+  position: absolute;
+  top: -13px;
+  left: 16px;
+  font-style: normal;
+}
+/* The frame runs top to bottom: a short rail from each card's base to the next card. */
 .phases li + li::before {
   content: "";
   position: absolute;
-  left: 40px;
-  top: -16px;
+  right: 40px;
+  top: -28px;
   width: 2px;
-  height: 14px;
+  height: 20px;
   background: var(--line);
 }
 .phases b {
@@ -1652,9 +1658,18 @@ html.bui[data-theme="light"] .brick.brick-kernel:focus-within {
 html.bui[data-theme="light"] .phases b {
   color: var(--ink);
 }
+/* STEP's catch-up count (× 0–4) as a small chip in the phase colour. */
 .phases b small {
-  font-size: 12px;
-  color: var(--muted);
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 6px;
+  vertical-align: 3px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--tone) 16%, transparent);
+  border: 2px solid var(--tone);
+  border-radius: 6px;
 }
 .phases span {
   grid-column: 1;
@@ -3413,9 +3428,10 @@ html.bui[data-theme="light"] .phases b {
   align-self: start;
 }
 /* The sticker on the avatar's corner, tilted, styled like the kit's slam sticker (.bui-sticker).
-   One look for every sticker: the avatar's and the gallery card's status stickers. */
+   One look for every sticker: the avatar's, the gallery card's status stickers and the home phase cards'. */
 .ppl-sticker,
-.gal-sticker {
+.gal-sticker,
+.phase-sticker {
   --tone: var(--k-cmd);
   padding: 4px 8px 3px;
   font: 900 11px/1 var(--mono);
@@ -3943,7 +3959,7 @@ html.bui[data-theme="light"] .phases b {
    collapse). Keys with a face can't grow without looking bigger: their hit area grows instead
    (the kit's invisible ::before). */
 @media (pointer: coarse) {
-  .foot-map ul:not(.map-chips) a,
+  .foot-map a:not(.map-chips a),
   .site-foot p a,
   .foot-base a,
   .brick h3 a,
@@ -3959,15 +3975,30 @@ html.bui[data-theme="light"] .phases b {
     padding-block: 15px;
     margin-block: -15px;
   }
-  .foot-map ul:not(.map-chips) a {
+  .foot-map a:not(.map-chips a) {
     padding-inline: 8px;
     margin-inline: -8px;
   }
-  .map-chips a {
+  .map-chips a:not(.sym-chip) {
     min-width: 44px;
     min-height: 44px;
     display: inline-grid;
     place-items: center;
+  }
+  /* Footer symbol chips stay chips (30 px tall, 44 px wide): the hit area grows to 44 px into the
+     row gap (site.css "Footer symbol chips"), so the chip never looks tall. */
+  .map-chips:has(> li > .sym-chip) {
+    row-gap: 14px;
+  }
+  .map-chips a.sym-chip {
+    min-width: 44px;
+    min-height: 30px;
+    justify-content: center;
+  }
+  .map-chips a.sym-chip::before {
+    content: "";
+    position: absolute;
+    inset: -8px -1px; /* from the padding box: 44 x 44 around the 1 px border */
   }
   .map-fold summary {
     padding-block: 13px;
@@ -4829,13 +4860,39 @@ html.bui[data-theme="light"] .ogs-vs {
 .brick-mini:is(:hover, :focus-visible) .sym-name {
   margin: 0;
 }
+/* Footer symbol chips: compact inline chips, the symbol only, wrapping with a small gap. The name
+   (always the accessible name) shows on hover and focus as a tooltip above the chip, placed by
+   anchor positioning and kept inside the viewport; without it, the chip opens to its name. */
 .map-chips a.sym-chip {
-  padding: 2px;
+  position: relative;
+  display: inline-flex;
+  padding: 3px;
   border: 1px solid var(--line);
 }
 .foot-map .map-chips a.sym-chip:hover,
 .foot-map .map-chips a.sym-chip:focus-visible {
   border-color: var(--tone);
+}
+@supports (anchor-scope: all) and (position-area: top) {
+  .map-chips a.sym-chip {
+    anchor-name: --sym-chip;
+    anchor-scope: --sym-chip;
+  }
+  .map-chips a.sym-chip:is(:hover, :focus-visible) .sym-name {
+    position: fixed;
+    position-anchor: --sym-chip;
+    position-area: top;
+    position-try-fallbacks: top span-right, top span-left, bottom;
+    z-index: 5;
+    max-width: none;
+    margin: 0 0 6px;
+    padding: 5px 8px;
+    color: var(--ink);
+    background: var(--raised);
+    border: 1px solid var(--tone);
+    border-radius: 6px;
+    pointer-events: none;
+  }
 }
 .gal-bricks > li:has(> .sym-chip) {
   padding: 0;
