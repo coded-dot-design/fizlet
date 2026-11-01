@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **@fzlt/core/presence: the lobby and resume on the client (pending owner review).** `join()` takes
+  `{ retry, lobby }`: `lobby(start, seat, seated, size)` on each `LOBBY` before the start, and the
+  host's `start(seats, mode)` sends `START`; the join result carries the host's `mode`. A dropped link
+  (`1006`) reconnects on its own with the seat's resume token from `WELCOME` (subprotocol
+  `resume.<hex>` next to the access token, never the URL; 6 tries from 250 ms, about 16 s; the token
+  in memory only); a transport's `close()` closes `1000`, a leave. `net.away` shows seats
+  reconnecting (`AWAY`, this one too while its link retries); on `RESUME` presence resends its recent
+  inputs. The room server side is in-house; the protocol is in
+  [Build your own room server](https://fizlet.com/guides/build-your-own-room-server/), whose
+  "what presence speaks" now describes this. presence 1,834 → 2,207 B gz (budget 2,048 → 2,240).
 - Notes: new note, **Why fzlt** (31 October 2026): why Fizlet's short mark and npm scope is fzlt, the
   `npm i @fzlt/core` install line, the `fzlt` alias, and the planned fzlt.dev and fzlt.app. The notes are
   regenerated from the content model, so a brick label in the lockstep note now reads `@fzlt/core/presence/check`.
