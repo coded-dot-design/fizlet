@@ -11,6 +11,7 @@ import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
 
 import { CARD_IDS as IDS } from "../site/brick-cards.mjs";
+import { stickerLook } from "../site/brick-ui.mjs";
 
 const ROOT = "site-dist";
 if (!existsSync(`${ROOT}/brick-cards.js`)) throw new Error("site-dist/brick-cards.js is missing: run `npm run site` first");
@@ -183,6 +184,56 @@ try {
       await page.close();
     }
   }
+  // ---------- Status stickers: beside the symbol tile (not on the border), a tilt set by the brick's
+  // id, BETA peels, the label read once; the kernel's slab on the top edge; nothing overlaps at 390 ----------
+  for (const [w, h] of [[1440, 900], [390, 844]]) {
+    for (const path of ["", "bricks/"]) {
+      const { page, errors } = await open(path, { viewport: { width: w, height: h } });
+      await page.addStyleTag({ content: "[data-reveal]{opacity:1!important;transform:none!important}" });
+      const where = `${path || "home"} at ${w}`;
+      const rows = await page.evaluate(() => [...document.querySelectorAll("ul.bricks:not(.planned) > li.brick")].map((li) => {
+        const r = (el) => { const b = el.getBoundingClientRect(); return { top: b.top, bottom: b.bottom, left: b.left, right: b.right }; };
+        const s = li.querySelector(".brick-stickers > .brick-sticker"), tile = li.querySelector(".brick-head > .el-card"), k = li.querySelector(":scope > .brick-sticker-kernel");
+        const pseudo = (el) => [getComputedStyle(el, "::before").content, getComputedStyle(el, "::after").content];
+        return {
+          id: li.dataset.brick, flag: li.dataset.flag, card: r(li), border: parseFloat(getComputedStyle(li).borderTopWidth), tile: tile && r(tile), sticker: s && r(s),
+          text: s?.textContent, tilt: s?.style.getPropertyValue("--tilt"), dx: s?.style.getPropertyValue("--dx"), dy: s?.style.getPropertyValue("--dy"),
+          peel: s?.classList.contains("brick-sticker-peel"), pseudo: s ? pseudo(s) : [], name: r(li.querySelector(".brick-name")),
+          chips: [...li.querySelectorAll(".brick-chips > li")].map(r), kernel: k && r(k), ktext: k?.textContent,
+        };
+      }));
+      assert.ok(rows.length >= IDS.length, `${where}: cards`);
+      const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+      for (const c of rows) {
+        assert.ok(c.tile && c.sticker, `${where} ${c.id}: a symbol tile and a status sticker in the head row`);
+        const mid = (c.sticker.top + c.sticker.bottom) / 2;
+        // Beside the tile, centred on its row; on a phone, a label too long for the row wraps under it.
+        const beside = mid > c.tile.top && mid < c.tile.bottom && c.sticker.left >= c.tile.right;
+        assert.ok(beside || (w < 600 && c.sticker.top >= c.tile.bottom - 4), `${where} ${c.id}: the sticker sits beside the tile, centred on its row`);
+        if (w >= 600) assert.ok(beside, `${where} ${c.id}: on a wide screen, always beside the tile`);
+        assert.ok(c.sticker.top > c.card.top + c.border && c.sticker.right < c.card.right - c.border, `${where} ${c.id}: the sticker is inside the card, not on its border`);
+        const look = stickerLook(c.id);
+        assert.deepEqual([c.tilt, c.dx, c.dy], [`${look.tilt}deg`, `${look.dx}px`, `${look.dy}px`], `${where} ${c.id}: its tilt and nudge come from its id`);
+        assert.ok(Math.abs(look.tilt) >= 2 && Math.abs(look.tilt) <= 6 && look.dx <= 6 && Math.abs(look.dy) <= 2, `${c.id}: a small tilt and nudge`);
+        assert.equal(c.peel, c.flag === "beta", `${where} ${c.id}: ${c.flag === "beta" ? "BETA peels" : "only BETA peels"}`);
+        if (c.peel) assert.deepEqual(c.pseudo, ['""', '""'], `${where} ${c.id}: the curl and the wear are empty (the label is read once)`);
+        assert.match(c.text, /^(COMPLETE|BETA|EXPERIMENTAL|DEPRECATED)$/, `${where} ${c.id}: the label is the sticker's only text`);
+        for (const o of [c.name, ...c.chips]) assert.ok(!hit(c.sticker, o), `${where} ${c.id}: the sticker overlaps no name or chip`);
+        if (c.id === "kernel") {
+          assert.equal(c.ktext, "KERNEL", `${where}: the kernel's slab`);
+          assert.ok(c.kernel.top < c.card.top && c.kernel.bottom > c.card.top, `${where}: the kernel slab sits across the card's top edge`);
+          for (const o of [c.name, ...c.chips, c.sticker, c.tile]) assert.ok(!hit(c.kernel, o), `${where}: the kernel slab overlaps nothing on the card`);
+        } else assert.equal(c.kernel, null, `${where} ${c.id}: only the kernel has a slab`);
+      }
+      assert.ok(rows.some((c) => c.peel), `${where}: a BETA card peels`);
+      assert.ok(new Set(rows.map((c) => c.tilt)).size > 3, `${where}: the tilts vary card to card`);
+      assert.deepEqual(errors, []);
+      await page.close();
+    }
+  }
+  // The same id gives the same look, every time (no Math.random): a fixed sample, pinned.
+  assert.deepEqual(stickerLook("kernel"), stickerLook("kernel"));
+  assert.deepEqual(["kernel", "fx", "grid"].map((id) => stickerLook(id).tilt), [3.5, 2.5, 2.5]);
   // ---------- Tokens only: the brick component's CSS block names no colour of its own ----------
   {
     const css = readFileSync("site/site.css", "utf8");

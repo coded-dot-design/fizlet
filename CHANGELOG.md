@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- **Bricks: status stickers sit beside the symbol tile, each slapped on its own way; BETA peels; the
+  kernel gets a stamped slab (pending owner review).** On the home page's brick cards and on bricks/,
+  the status sticker moves off the card's top border into the open space right of the symbol tile,
+  centred on its row. Its tilt (2 to 6 degrees either way) and a nudge of a few px come from the
+  brick's id (`stickerLook` in site/brick-ui.mjs, a hash: the same on every build, no Math.random,
+  and translate/rotate never move the layout). BETA stickers peel: one corner cut and folded back as a
+  lighter underside with a soft shadow, and two faint scuffs, in CSS only (the DOM VIRUS game sticker's
+  recipe); the label is still the only text. The kernel's KERNEL sticker is a bigger purple slab
+  across the card's top edge with a stamp's inner ring and the kernel card's double shadow. Hover
+  and focus press the stickers flat (no motion under reduced motion). The same rules at every size:
+  the periodic table's tiles, the quick view, a brick's page and the roadmap cards. On phones a long
+  label wraps under the tile, never over the name. Text contrast on every sticker face is 5.4:1 or
+  more in both themes.
+
 - **Gallery: the genre minis are playable: compact keys that never cover the action (pending owner
   review).** In Redline, Dirt Lab, Bag Beat and Toast Tell the keys were sized in container units on a
   figure that was no size container, so they grew with the window (GAS took half the stage), and the

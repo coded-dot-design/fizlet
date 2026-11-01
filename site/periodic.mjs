@@ -9,7 +9,7 @@
 // view, arrow keys and Esc. Nothing here runs a frame loop: the page settles at 0 frames.
 import { esc, icon } from "./layout.mjs";
 import { FAMILIES, STATUS } from "./bricks.mjs";
-import { elSquare, nameParts, prose, statusSticker, toneOf } from "./brick-ui.mjs";
+import { KERNEL_STICKER, elSquare, nameParts, prose, statusSticker, toneOf } from "./brick-ui.mjs";
 import { sizeBadge } from "./size-badge.mjs";
 
 const kb = (n) => (n / 1024).toFixed(1);
@@ -54,7 +54,7 @@ export function places(els) {
  * the kernel), the measured size with the colour dot in the top-right corner (a planned brick has no
  * size), the symbol big in the middle, the number and the name along the bottom, PRESSED when down.
  */
-const face = (e) => `<span class="el-flags" aria-hidden="true">${e.id === "kernel" ? '<span class="brick-sticker brick-sticker-kernel">KERNEL</span>' : ""}${statusSticker(e.status)}</span>` +
+const face = (e) => `<span class="el-flags" aria-hidden="true">${e.id === "kernel" ? KERNEL_STICKER : ""}${statusSticker(e.status, e.id)}</span>` +
   (e.planned ? "" : `<i class="el-sz" aria-hidden="true"><i class="el-dot"></i>${kb(e.gzip)}K</i>`) +
   `<b class="el-sym" aria-hidden="true">${esc(e.sym)}</b><i class="el-no" aria-hidden="true">${e.no}</i><span class="el-name" aria-hidden="true">${esc(e.id)}</span><span class="el-on" aria-hidden="true">PRESSED</span>`;
 
@@ -72,7 +72,7 @@ function quick(e) {
   const link = e.planned
     ? `<a class="bui-key bui-arcade bui-cmd pt-q-go" href="#planned">${icon("down", 16)}On the roadmap</a>`
     : `<a class="bui-key bui-arcade bui-go pt-q-go" href="${esc(e.href)}">${icon("right", 16)}The full page</a>`;
-  return `<template id="pt-t-${esc(e.id)}"><div class="pt-q-head" style="--tone:${e.tone}">${elSquare(e)}<p class="pt-q-meta">${statusSticker(e.status)}<span>No. ${e.no} · ${esc(FAMILIES.find((f) => f.id === e.family).label)}${e.planned ? ` · ${esc(e.phase)}` : ""}</span></p></div><h2 class="pt-q-name"><code>${nameParts(e.name)}</code></h2>
+  return `<template id="pt-t-${esc(e.id)}"><div class="pt-q-head" style="--tone:${e.tone}">${elSquare(e)}<p class="pt-q-meta">${statusSticker(e.status, e.id)}<span>No. ${e.no} · ${esc(FAMILIES.find((f) => f.id === e.family).label)}${e.planned ? ` · ${esc(e.phase)}` : ""}</span></p></div><h2 class="pt-q-name"><code>${nameParts(e.name)}</code></h2>
       ${e.planned ? `<p class="pt-q-size pt-q-planned"><b>Planned</b> <span>not in the package yet: no size until it ships</span></p>` : meter}
       <p class="pt-q-what">${prose(e.purpose)}</p>
       <p class="pt-q-import"><span class="bui-label"><b>IMPORT</b></span><code>${e.planned ? "not yet: " : ""}${esc(e.name)}</code></p>
@@ -159,8 +159,9 @@ html.bui[data-theme="light"] .pt-hint{color:var(--hl)}
    pressed (the kit's press: down onto its base), lit in its colour, PRESSED. */
 .bui .el-key{--py:4px;--edge:var(--line);--border-hover:var(--tone);--edge-hover:color-mix(in srgb,var(--tone) 55%,var(--rim));--glow-press:0 0 22px color-mix(in srgb,var(--tone) 55%,transparent);position:relative;display:grid;place-items:center;width:var(--ts);height:var(--ts);min-height:0;padding:0;font-family:var(--mono);background:var(--surface);border-color:var(--line);border-radius:8px;overflow:visible}
 .el-face .el-flags{position:absolute;top:-8px;left:3px;right:3px;display:flex;gap:2px;pointer-events:none}
-.el-face .brick-sticker{padding:2px 3px 1px;font-size:6.5px;letter-spacing:.06em;border-width:1.5px;border-radius:3px;box-shadow:calc(1.5px * var(--shadow-x, 0)) calc(1.5px * var(--shadow-y, 1)) 0 var(--rim);rotate:-4deg}
-.el-face .brick-sticker+.brick-sticker{rotate:3deg}
+.el-face .brick-sticker{--bw:1.5px;--fold:4px;padding:2px 3px 1px;font-size:6.5px;letter-spacing:.06em;border-radius:3px;box-shadow:calc(1.5px * var(--shadow-x, 0)) calc(1.5px * var(--shadow-y, 1)) 0 var(--rim);rotate:calc(var(--tilt, -4deg) * .7);translate:none}
+.el-face .brick-sticker-peel{padding-right:5px}
+.el-face .brick-sticker-kernel{rotate:-5deg;border-radius:2px}
 .el-kernel .el-flags{left:1px;right:1px;gap:1px}
 .el-kernel .brick-sticker{padding:2px 2px 1px;font-size:5.5px;letter-spacing:.02em}
 .el-face .el-sz{position:absolute;top:7px;right:5px;display:flex;align-items:center;gap:3px;font:700 8.5px/1 var(--mono);font-style:normal;color:var(--ink)}
@@ -198,7 +199,8 @@ html.bui[data-theme="light"] .el-key[aria-expanded="true"]{--glow-press:0 0 0 tr
 .pt-q-name .nw{white-space:nowrap}
 .pt-q-name code{font:inherit;color:var(--ink);background:none;padding:0}
 .pt-q-meta{display:grid;justify-items:start;gap:6px;margin:0;font:10px/1.3 var(--mono);color:var(--muted)}
-.pt-q-meta .brick-sticker{font-size:9px;padding:3px 6px 2px;border-width:2px}
+.pt-q-meta .brick-sticker{--bw:2px;--fold:7px;font-size:9px;padding:3px 6px 2px;translate:none}
+.pt-q-meta .brick-sticker-peel{padding-right:8px}
 .pt-q-size{margin:0;font:12px/1.3 var(--mono);color:var(--muted)}
 .pt-q-size b{font:900 20px/1 var(--sans);letter-spacing:-.03em;color:var(--ink)}
 .pt-q-size span{display:block;margin-top:3px}

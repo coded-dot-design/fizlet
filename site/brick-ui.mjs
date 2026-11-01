@@ -1,7 +1,7 @@
 // The brick component: one brick, in three sizes, from this one module and one CSS block
 // (site/site.css "Brick component"). Every size follows the same rules: no top bar; the neutral
 // card border and hard shadow at rest, the brick's colour (--tone) on hover and focus; the status as
-// a tilted sticker (a tiny dot in mini); a distinct kernel variant. Numbers come from the build
+// a tilted sticker beside the symbol tile (a tiny dot in mini); a distinct kernel variant. Numbers come from the build
 // (`size`: a scripts/sizes.mjs entry), never typed in.
 //
 //   full     brickTile({ brick, size, href, toy })   the bricks index: name, what it does, live toy,
@@ -46,12 +46,34 @@ const num = (n) => n.toLocaleString("en-US");
 export const prose = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
 
 /**
- * A brick's status flag as a tilted sticker (the people and gallery cards' sticker): it sits on the
- * card's corner, never in the title, so it never competes with the brick's name.
+ * A sticker's hand-slapped look, from its brick's id (FNV-1a), so it is the same on every build and
+ * every render, never Math.random: a tilt of 2 to 6 degrees either way and a nudge of a few px.
+ * `{ tilt, dx, dy }` in deg and px. No id: the default look (-4deg, no nudge).
  */
-export const statusSticker = (status) => `<span class="brick-sticker" data-flag="${status}" title="${esc(STATUS[status].line)}">${STATUS[status].label}</span>`;
+export function stickerLook(id) {
+  if (!id) return { tilt: -4, dx: 0, dy: 0 };
+  let h = 0x811c9dc5;
+  for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 0x01000193) >>> 0;
+  const tilt = (2 + (h % 9) / 2) * ((h >>> 4) & 1 ? 1 : -1);
+  return { tilt, dx: (h >>> 8) % 7, dy: ((h >>> 12) % 5) - 2 };
+}
 
-const stickers = (brick) => `<span class="brick-stickers">${brick.id === "kernel" ? '<span class="brick-sticker brick-sticker-kernel">KERNEL</span>' : ""}${statusSticker(brick.status)}</span>`;
+/**
+ * A brick's status flag as a sticker, never in the title, so it never competes with the brick's
+ * name. On a card it sits in the symbol tile's row, tilted and nudged by its brick's id (stickerLook).
+ * BETA peels: a corner curls up (.brick-sticker-peel, CSS only: the DOM VIRUS game sticker's recipe).
+ * The label is the only text; the peel and the wear are empty pseudo-elements.
+ */
+export const statusSticker = (status, id) => {
+  const { tilt, dx, dy } = stickerLook(id);
+  return `<span class="brick-sticker${status === "beta" ? " brick-sticker-peel" : ""}" data-flag="${status}"${id ? ` style="--tilt:${tilt}deg;--dx:${dx}px;--dy:${dy}px"` : ""} title="${esc(STATUS[status].line)}">${STATUS[status].label}</span>`;
+};
+
+/** The kernel's own sticker: a stamped slab on the card's top edge, not a status. */
+export const KERNEL_STICKER = '<span class="brick-sticker brick-sticker-kernel">KERNEL</span>';
+
+/** The card's head row: the symbol tile, then the status sticker in the open space beside it. */
+const head = (brick) => `<div class="brick-head">${elSquare(brick)}<span class="brick-stickers">${statusSticker(brick.status, brick.id)}</span></div>${brick.id === "kernel" ? KERNEL_STICKER : ""}`;
 
 /** A size budget's progress: the brick's colour fills the share of its budget it uses. */
 const meter = (gzip, budget) => `<span class="meter brick-meter" role="img" aria-label="${kb(gzip)} KB of a ${kb(budget)} KB budget"><i style="--v:${(gzip / budget).toFixed(3)}"></i></span>`;
@@ -72,9 +94,9 @@ const tone = (brick) => `--tone: var(--k-${brick.role})`;
 export function brickTile({ brick, size, href, h = "h2", toy = "", extra = "", what = brick.summary }) {
   const n = exportCount(brick), kernel = brick.id === "kernel";
   const budget = kernel ? `<p class="brick-budget"><b data-size="${esc(size.name)}">${num(size.gzip)} B</b> <span>of a ${num(size.budget)} B budget</span></p>` : "";
-  return `<li class="panel ${cls(brick, "full")}" data-flag="${brick.status}" style="${tone(brick)}">
-        ${stickers(brick)}
-        <${h} class="brick-name">${elSquare(brick)}<a href="${esc(href)}">${nameParts(brick.name)}</a></${h}>
+  return `<li class="panel ${cls(brick, "full")}" data-brick="${brick.id}" data-flag="${brick.status}" style="${tone(brick)}">
+        ${head(brick)}
+        <${h} class="brick-name"><a href="${esc(href)}">${nameParts(brick.name)}</a></${h}>
         <p class="brick-what">${prose(what)}</p>
         ${toy}${budget}<ul class="brick-chips" aria-label="Measured on this build">
           ${kernel ? "" : `<li><b>${kb(size.gzip)} KB</b> gzip</li><li>of <b>${kb(size.budget)} KB</b></li>`}${extra}${n ? `<li><b>${n}</b> ${n === 1 ? "export" : "exports"}</li>` : ""}
@@ -91,9 +113,9 @@ export function brickTile({ brick, size, href, h = "h2", toy = "", extra = "", w
 export function brickCompact({ brick, size, href, h = "h3", extra = "" }) {
   const kernel = brick.id === "kernel";
   const chip = kernel ? `<b data-size="${esc(size.name)}">${num(size.gzip)} B</b> of ${num(size.budget)} B gzip` : `<b>${kb(size.gzip)} KB</b> gzip`;
-  return `<li class="panel ${cls(brick, "compact")}" data-flag="${brick.status}" style="${tone(brick)}">
-        ${stickers(brick)}
-        <${h} class="brick-name">${elSquare(brick)}<a href="${esc(href)}">${nameParts(brick.name)}</a></${h}>
+  return `<li class="panel ${cls(brick, "compact")}" data-brick="${brick.id}" data-flag="${brick.status}" style="${tone(brick)}">
+        ${head(brick)}
+        <${h} class="brick-name"><a href="${esc(href)}">${nameParts(brick.name)}</a></${h}>
         <ul class="brick-chips" aria-label="Measured on this build"><li><i class="brick-dot" aria-hidden="true"></i>${chip}</li>${extra}</ul>
       </li>`;
 }
