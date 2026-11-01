@@ -3863,7 +3863,7 @@ html.bui[data-theme="light"] .phases b {
    collapse). Keys with a face can't grow without looking bigger: their hit area grows instead
    (the kit's invisible ::before). */
 @media (pointer: coarse) {
-  .foot-map ul:not(.map-chips) a,
+  .foot-map a:not(.map-chips a),
   .site-foot p a,
   .foot-base a,
   .brick h3 a,
@@ -3879,15 +3879,30 @@ html.bui[data-theme="light"] .phases b {
     padding-block: 15px;
     margin-block: -15px;
   }
-  .foot-map ul:not(.map-chips) a {
+  .foot-map a:not(.map-chips a) {
     padding-inline: 8px;
     margin-inline: -8px;
   }
-  .map-chips a {
+  .map-chips a:not(.sym-chip) {
     min-width: 44px;
     min-height: 44px;
     display: inline-grid;
     place-items: center;
+  }
+  /* Footer symbol chips stay chips (30 px tall, 44 px wide): the hit area grows to 44 px into the
+     row gap (site.css "Footer symbol chips"), so the chip never looks tall. */
+  .map-chips:has(> li > .sym-chip) {
+    row-gap: 14px;
+  }
+  .map-chips a.sym-chip {
+    min-width: 44px;
+    min-height: 30px;
+    justify-content: center;
+  }
+  .map-chips a.sym-chip::before {
+    content: "";
+    position: absolute;
+    inset: -8px -1px; /* from the padding box: 44 x 44 around the 1 px border */
   }
   .map-fold summary {
     padding-block: 13px;
@@ -4749,13 +4764,39 @@ html.bui[data-theme="light"] .ogs-vs {
 .brick-mini:is(:hover, :focus-visible) .sym-name {
   margin: 0;
 }
+/* Footer symbol chips: compact inline chips, the symbol only, wrapping with a small gap. The name
+   (always the accessible name) shows on hover and focus as a tooltip above the chip, placed by
+   anchor positioning and kept inside the viewport; without it, the chip opens to its name. */
 .map-chips a.sym-chip {
-  padding: 2px;
+  position: relative;
+  display: inline-flex;
+  padding: 3px;
   border: 1px solid var(--line);
 }
 .foot-map .map-chips a.sym-chip:hover,
 .foot-map .map-chips a.sym-chip:focus-visible {
   border-color: var(--tone);
+}
+@supports (anchor-scope: all) and (position-area: top) {
+  .map-chips a.sym-chip {
+    anchor-name: --sym-chip;
+    anchor-scope: --sym-chip;
+  }
+  .map-chips a.sym-chip:is(:hover, :focus-visible) .sym-name {
+    position: fixed;
+    position-anchor: --sym-chip;
+    position-area: top;
+    position-try-fallbacks: top span-right, top span-left, bottom;
+    z-index: 5;
+    max-width: none;
+    margin: 0 0 6px;
+    padding: 5px 8px;
+    color: var(--ink);
+    background: var(--raised);
+    border: 1px solid var(--tone);
+    border-radius: 6px;
+    pointer-events: none;
+  }
 }
 .gal-bricks > li:has(> .sym-chip) {
   padding: 0;
