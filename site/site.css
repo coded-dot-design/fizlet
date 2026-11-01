@@ -257,6 +257,16 @@ html.bui[data-theme="light"] .panel.lit {
   font-size: 19px;
   letter-spacing: 0.1em;
 }
+/* The short mark beside the wordmark in the footer lockup: mono, lowercase, small. */
+.brand-text .brand-fzlt {
+  margin-left: 8px;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--k-sys-ink);
+}
 /* The header nav (layout.mjs navTree, site/nav.ts): top-level links and small click-to-open menus.
    On a phone it is one full-width panel under the bar, behind the menu key; it overlays the page,
    so opening it moves nothing (no layout shift), and it never slides. */
@@ -495,7 +505,7 @@ a.bui-sticker-key {
   border-bottom: 1px solid var(--line);
 }
 .foot-brand .brand {
-  grid-row: span 2;
+  grid-row: span 3;
 }
 .site-foot .foot-brand p {
   margin: 0;

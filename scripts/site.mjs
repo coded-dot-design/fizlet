@@ -230,7 +230,7 @@ const bricks = BRICKS.map((b) => {
 const factory = await buildFactory({ out: OUT, base: "../", bricks: BRICKS, sizes, version });
 // JSON-LD: the engine's source code (home), each brick as a part of it. Facts from the page only.
 const CODE = `${SITE}#code`;
-const homeDescription = `A micro game engine for the DOM: one shared loop, bounded everything, and the page always comes back. Kernel ${(kernel.gzip / 1024).toFixed(1)} KB gzip, no dependencies.`;
+const homeDescription = `Fizlet™: building blocks for DOM animation and games, kept for performance, so you bring only logic and style. Kernel ${(kernel.gzip / 1024).toFixed(1)} KB gzip, no dependencies.`;
 const code = { "@type": "SoftwareSourceCode", "@id": CODE, name: "Fizlet", description: homeDescription, url: SITE, codeRepository: REPO,
   license: `${REPO}/blob/main/LICENSE`, softwareVersion: version, author: { "@id": PERSON["@id"] }, publisher: { "@id": ORG["@id"] } };
 // A brick's description, from its source comment (the lead on its page) and its measured size,
@@ -260,7 +260,7 @@ const brickDescription = (b, max = 155) => {
 };
 const pages = [
   ["index.html", page({
-    title: "Fizlet · Tiny physics for your page",
+    title: "Fizlet · Building blocks for DOM animation and games",
     description: homeDescription,
     base: "./", version, path: "", ld: [code], body: home({ version, sizes, bundle, bricks, layers, fizz, blast, origin: originHero }), scripts: ["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js", "origin/main.js"],
   })],
@@ -294,7 +294,7 @@ const pages = [
   ...gallery.pages.map((p) => [`${p.path}index.html`, page({
     title: p.n === 1 ? "Daily: tiny examples, made every day · Fizlet" : `Daily, page ${p.n}: tiny examples, made every day · Fizlet`,
     description: p.n === 1
-      ? `Tiny Fizlet examples, made every day to test the engine, now a contest: ${gallery.entries.length} so far, each live with its size measured on this build.`
+      ? `Tiny Fizlet examples, logic and style on the bricks, made daily as a contest: ${gallery.entries.length} so far, each live with its size measured on this build.`
       : `Fizlet Daily page ${p.n} of ${gallery.pages.length}: older tiny examples by theme, each with its brief, its live demo and its size measured on this build.`,
     base: GB(p), version, path: p.path,
     body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length, contributors: PEOPLE, week: now?.week, today: TODAY }),
@@ -349,7 +349,7 @@ const pages = [
   })],
   ["notes/index.html", page({
     title: "Notes: what the games taught the engine · Fizlet",
-    description: `Field notes from building games on Fizlet, newest first: ports, lessons and the numbers behind them, each one measured (${NOTES.length} so far, by Chris Cooley).`,
+    description: `Field notes from building on Fizlet's bricks, newest first: ports, lessons and the numbers behind them, each one measured (${NOTES.length} so far, by Chris Cooley).`,
     base: "../", version, path: "notes/", body: notesIndex({ notes: NOTES, base: "../" }), scripts: ["site.js"],
   })],
   ...NOTES.map((n) => [`${notePath(n)}index.html`, page({
@@ -359,9 +359,9 @@ const pages = [
   })]),
   ["docs/index.html", page({
     title: "Docs: the contract, the loop, Recall, budgets · Fizlet",
-    description: `How the Fizlet DOM game engine works: getting started, the nine-rule contract, the loop, Recall, size budgets and determinism, with numbers from v${version}.`,
+    description: `How Fizlet's kernel and bricks work: getting started, the nine-rule contract, the loop, Recall, size budgets and determinism, with numbers from v${version}.`,
     base: "../", version, path: "docs/", ld: [{ "@type": "CollectionPage", "@id": `${SITE}docs/#page`, url: `${SITE}docs/`, name: "Fizlet docs", isPartOf: { "@id": WEBSITE["@id"] }, about: { "@id": CODE } }],
-    body: sectionIndex({ section: "docs", all: DOCS, base: "../", head: { eyebrow: "DOCS · READ IN ORDER", title: "How it works.", accent: "Each claim tested.", lead: "Fizlet is a micro game and animation engine for the DOM. Start with the five-minute setup, then the ideas everything else rests on: the contract, the loop, Recall, the budgets and determinism. Every brick's API is in [Bricks](/bricks/)." } }),
+    body: sectionIndex({ section: "docs", all: DOCS, base: "../", head: { eyebrow: "DOCS · READ IN ORDER", title: "How it works.", accent: "Each claim tested.", lead: "Fizlet is the building blocks for animation and games on the DOM: a small kernel and bricks, so a piece boils down to logic and style. Start with the five-minute setup, then the ideas everything else rests on: the contract, the loop, Recall, the budgets and determinism. Every brick's API is in [Bricks](/bricks/)." } }),
     scripts: ["site.js"],
   })],
   ["guides/index.html", page({

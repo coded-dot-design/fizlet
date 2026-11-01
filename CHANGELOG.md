@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Site: Fizlet positioning, with ™ marks.** fizlet.com and the README now say what Fizlet is: the
+  building blocks for animation and games on the DOM, each brick a task written hundreds of times,
+  so a piece boils down to logic and style. New hero ("Logic and style. / *The bricks do the
+  rest.*"), final call, section 03 ("One frame, three phases"), footer, social card text, the home,
+  docs, notes and gallery intros and descriptions. The old "Tiny physics for your page" tagline is gone from the footer,
+  the home title and the README. "The page is the board" is credited to DOM VIRUS
+  as its approach, one use of Fizlet. Fizlet™ on first prominent use (home hero, footer, README
+  title), the footer lockup shows the short mark `fzlt™` beside FIZLET, and the footer says "Fizlet and
+  fzlt are trademarks of Chris Cooley." The footer copyright
+  reads "© 2026 Chris Cooley" (was coded.design); the byline still links coded.design as his site.
 - **Site: a brand page at `/brand/`.** The FIZLET wordmark and the fzlt short mark, the lockups
   (Fizlet™ · fzlt™, `npm i @fzlt/core`, fzlt.dev), a sticker set, why fzlt, the two voices, ™ and casing rules,
   clear space and minimum sizes, don'ts, the colour tokens as swatches (read from

@@ -108,7 +108,7 @@ export const social = ({ title, description, path, canonical = path }) => `<link
 <meta property="og:image" content="${SITE}og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Fizlet: the page is the board.">
+<meta property="og:image:alt" content="Fizlet™: building blocks for animation and games on the DOM.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="author" content="Chris Cooley">`;
 
@@ -225,15 +225,16 @@ ${body}
     <div class="foot-brand">
       <a class="brand" href="${home}">
         <span class="brand-mark">${mark(40)}</span>
-        <span class="brand-text"><small>DOM ENGINE</small><b>FIZLET</b></span>
+        <span class="brand-text"><small>DOM ENGINE</small><b>FIZLET<i class="brand-fzlt">fzlt™</i></b></span>
       </a>
-      <p>Tiny physics for your page. A micro game engine for the DOM by <a href="${AUTHOR}">Chris Cooley ↗</a>: the page is the board, and it always comes back.</p>
-      <p class="foot-note">Fizlet is the engine; the games are on <a href="${HUB}">DOM VIRUS ↗</a>.</p>
+      <p>Fizlet™ is the building blocks for animation and games on the DOM, by <a href="${AUTHOR}">Chris Cooley ↗</a>. Bring the logic and style; the bricks do the rest, and the page always comes back.</p>
+      <p class="foot-note"><a href="${HUB}">DOM VIRUS ↗</a> is one use of the bricks: its games run on Fizlet.</p>
+      <p class="foot-note">Fizlet and fzlt are trademarks of Chris Cooley.</p>
     </div>
     <!--site-map ${base} ${path}-->
   </div>
   <div class="foot-base">
-    <div class="wrap"><span>© 2026 coded.design · MIT licence · no runtime dependencies</span><button type="button" class="foot-cookies" data-cookie-settings hidden>Cookie settings</button><span>By <a href="${AUTHOR}">Chris Cooley ↗</a> · coded.design</span></div>
+    <div class="wrap"><span>© 2026 Chris Cooley · MIT licence · no runtime dependencies</span><button type="button" class="foot-cookies" data-cookie-settings hidden>Cookie settings</button><span>By <a href="${AUTHOR}">Chris Cooley ↗</a> · coded.design</span></div>
   </div>
 </footer>
 ${scripts.map((s) => `<script type="module" src="${base}${s}"></script>`).join("\n")}

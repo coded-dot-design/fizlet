@@ -652,7 +652,7 @@ try {
       window.requestAnimationFrame = (cb) => (window.__raf++, raw(cb));
     });
     const { page, errors } = await open(context, "");
-    // In order: the hero ("The page is the board."), its stats strip, Origin, then the rest of the page.
+    // In order: the hero ("Logic and style."), its stats strip, Origin, then the rest of the page.
     const order = await page.$$eval("#main > *", (els) => els.map((el) => el.id || el.className.split(" ")[0]));
     assert.deepEqual(order.slice(0, 4), ["hero", "stats", "origin", "page-toc"], "Origin sits right after the hero band");
     // The scene is not part of first load: the page links only the loader, which imports it lazily.
