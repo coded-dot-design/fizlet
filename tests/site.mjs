@@ -580,8 +580,10 @@ try {
     // The blast demo sits below the hero: it runs only once on screen.
     const toDemo = () => page.evaluate(() => document.querySelector("[data-demo]").scrollIntoView({ block: "center" }));
     await toDemo();
-    await page.waitForFunction(() => window.fizletDemo?.engine.stats().frames > 20);
-    // Untouched, it settles: no frames at all while nothing moves, and the HUD says so.
+    // On screen it runs (frames on the engine's own count, not a frame quota in a time window: a
+    // loaded runner draws fewer in the same half second), then, untouched, it settles: no frames at
+    // all while nothing moves, and the HUD says so.
+    await page.waitForFunction(() => window.fizletDemo?.engine.stats().frames > 0);
     await page.waitForFunction(() => window.fizletDemo.engine.paused.includes("settled"), null, { timeout: 4000 });
     const still = (await stats()).frames;
     await page.waitForTimeout(400);
@@ -591,18 +593,22 @@ try {
     const box = await board.boundingBox();
     await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.25);
     await page.waitForFunction(() => window.fizletDemo.fx.live > 0);
+    const f0 = (await stats()).frames;
     await page.click("[data-demo] [data-blast]");
-    await page.waitForTimeout(700);
+    // Wait on what the blast does (steps, ledger writes, knocked letters), not on a fixed time.
+    await page.waitForFunction((f0) => {
+      const s = window.fizletDemo.engine.stats();
+      return s.frames > f0 && s.steps > 30 && s.ledger > 0 && [...document.querySelectorAll("[data-body]")].filter((el) => el.style.transform).length > 3;
+    }, f0);
     let s = await stats();
-    assert.ok(s.steps > 30 && s.frames > 20, "the engine steps");
+    assert.ok(s.steps > 30 && s.frames > f0, "the engine steps");
     assert.ok(s.ledger > 0, "blasts changed the page through the ledger");
     assert.equal(s.pools.waves.cap, 8);
     assert.equal(await page.evaluate(() => window.fizletDemo.engine.violations), 0, "no layout reads in a step");
     const moved = await page.evaluate(() => [...document.querySelectorAll("[data-body]")].filter((el) => el.style.transform).length);
     assert.ok(moved > 3, `letters were knocked (${moved})`);
     assert.equal(await page.locator("[data-demo] [data-state]").textContent(), "RUNNING");
-    await page.waitForTimeout(150);
-    assert.notEqual(await page.locator('[data-demo] [data-stat="frames"]').textContent(), "0", "the HUD shows live stats");
+    await page.waitForFunction(() => document.querySelector('[data-demo] [data-stat="frames"]').textContent !== "0"); // the HUD shows live stats
     // Recall: the page comes back exactly.
     await page.click("[data-demo] [data-recall]");
     const back = await page.evaluate(() => ({
