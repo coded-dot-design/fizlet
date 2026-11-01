@@ -756,6 +756,20 @@ try {
     await context.close();
   }
 
+  // ---------- Home 03, three phases: 3D cards with a sticker each, no accent border on one side ----------
+  where = "phases";
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    const context = await browser.newContext({ viewport });
+    const { page } = await open(context, "");
+    const cards = await page.$$eval("#board .phases > li", (lis) => lis.map((li) => {
+      const cs = getComputedStyle(li);
+      return { sides: [cs.borderTopWidth, cs.borderRightWidth, cs.borderBottomWidth, cs.borderLeftWidth], sticker: li.querySelector(".phase-sticker")?.textContent };
+    }));
+    assert.deepEqual(cards.map((c) => c.sticker), ["PHASE 1", "PHASE 2", "PHASE 3"], `${viewport.width}: a sticker per phase`);
+    for (const c of cards) assert.ok(c.sides.every((w) => w === c.sides[0]), `${viewport.width}: no left accent border (${c.sides})`);
+    await context.close();
+  }
+
   // ---------- Gallery: each live demo loads only near the screen, plays, and gives the page back ----------
   // ---------- Ambient slots: the fps cap holds on the page's own frame count ----------
   where = "slot fps cap";

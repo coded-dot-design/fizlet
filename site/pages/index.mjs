@@ -293,10 +293,10 @@ ${originSection(origin)}
       <p class="lead">Every brick works the DOM the same way: read it cheaply, change only what it owns, leave cleanly. That is the part we stopped rewriting. Every frame runs three phases, in order, for every system.</p>
       <p class="body">Geometry is read once in <code>read</code> and cached. The simulation runs in <code>step</code> on plain numbers, at a fixed 60 Hz, with no DOM at all. <code>render</code> writes only what changed, through the ledger. The demo above counts layout reads made during a step with <code>@fzlt/core/debug</code>: the number stays at zero.</p>
     </div>
-    <ol class="phases panel lit" aria-label="One frame">
-      <li style="--tone: var(--k-sys)"><b>READ</b><span>once a frame</span><p>Cached geometry, input edges latched. The only phase that may measure the page.</p></li>
-      <li style="--tone: var(--k-go)"><b>STEP <small>× 0–4</small></b><span>fixed dt = 1/60 s</span><p>The simulation. No DOM reads, no DOM writes, no allocation. Events go into the ring.</p></li>
-      <li style="--tone: var(--k-attack)"><b>RENDER</b><span>once a frame · alpha</span><p>Change-only writes through engine.ledger. Sound and effects read the event ring.</p></li>
+    <ol class="phases" aria-label="One frame">
+      <li style="--tone: var(--k-sys)"><i class="phase-sticker" aria-hidden="true">PHASE 1</i><b>READ</b><span>once a frame</span><p>Cached geometry, input edges latched. The only phase that may measure the page.</p></li>
+      <li style="--tone: var(--k-go)"><i class="phase-sticker" aria-hidden="true">PHASE 2</i><b>STEP <small>× 0–4</small></b><span>fixed dt = 1/60 s</span><p>The simulation. No DOM reads, no DOM writes, no allocation. Events go into the ring.</p></li>
+      <li style="--tone: var(--k-attack)"><i class="phase-sticker" aria-hidden="true">PHASE 3</i><b>RENDER</b><span>once a frame · alpha</span><p>Change-only writes through engine.ledger. Sound and effects read the event ring.</p></li>
     </ol>
   </div>
 </section>
