@@ -20,7 +20,7 @@
     "cloudflare"
   ],
   "lead": [
-    "`fizlet/presence` is 1,834 bytes gzip. Every peer runs the same fixed-step game from the same seed, and only inputs cross the wire, 12 bytes a message. The room server is a Cloudflare Worker with one Durable Object per room. It seats players and relays messages; it never runs the game. This note covers only what has shipped, and how each part is tested."
+    "`@fzlt/core/presence` is 1,834 bytes gzip. Every peer runs the same fixed-step game from the same seed, and only inputs cross the wire, 12 bytes a message. Our room server is in-house: a Cloudflare Worker with one Durable Object per room, run for our own games. It seats players and relays messages; it never runs the game. It isn't a hosted service, so the [Build your own room server](/guides/build-your-own-room-server/) guide specs its protocol for yours. This note covers only what has shipped, and how each part is tested."
   ],
   "blocks": [
     {
@@ -29,7 +29,7 @@
       "items": [
         {
           "value": "1,834 B",
-          "label": "`fizlet/presence`, gzip (budget 2,048 B)"
+          "label": "`@fzlt/core/presence`, gzip (budget 2,048 B)"
         },
         {
           "value": "12 B",
@@ -75,17 +75,17 @@
         },
         {
           "type": "p",
-          "text": "`syncCheck` from `fizlet/presence/check` is the same check for your own game: it runs your sim as lockstep clients over a jittery in-memory link and returns the first frame whose state differed, or -1. It is test-only code and never ships to players."
+          "text": "`syncCheck` from `@fzlt/core/presence/check` is the same check for your own game: it runs your sim as lockstep clients over a jittery in-memory link and returns the first frame whose state differed, or -1. It is test-only code and never ships to players."
         }
       ]
     },
     {
       "type": "text",
-      "heading": "The room server",
+      "heading": "Our room server (in-house)",
       "body": [
         {
           "type": "p",
-          "text": "One Durable Object per numbered room seats players in arrival order. Once the room is full it sends each one a WELCOME with their seat, the player count and one shared seed, then relays every message, stamped with the sender's real seat. WebSockets use the hibernation API, so an idle room holds no running object, and rooms store nothing."
+          "text": "We run it for our own games; it is not a service you can sign up for. One Durable Object per numbered room seats players in arrival order. Once the room is full it sends each one a WELCOME with their seat, the player count and one shared seed, then relays every message, stamped with the sender's real seat. WebSockets use the hibernation API, so an idle room holds no running object, and rooms store nothing."
         },
         {
           "type": "p",
@@ -115,6 +115,10 @@
           "a": "No. It seats, seeds and relays. The game runs in each browser, the same on every one."
         },
         {
+          "q": "Can I use your room server?",
+          "a": "No. It is in-house: it runs our games and isn't a hosted service. The [Build your own room server](/guides/build-your-own-room-server/) guide has the wire protocol presence speaks, the one-room-one-object pattern and a threat checklist, so you can run one like it."
+        },
+        {
           "q": "Which game uses it first?",
           "a": "Battlefield Blitz, on DOM VIRUS: its step can be driven by presence, with a fixed arena so every screen runs the same match."
         }
@@ -124,11 +128,11 @@
       "type": "cta",
       "links": [
         {
-          "label": "Multiplayer rooms guide",
-          "href": "/guides/multiplayer-rooms/"
+          "label": "Build your own room server",
+          "href": "/guides/build-your-own-room-server/"
         },
         {
-          "label": "fizlet/presence",
+          "label": "@fzlt/core/presence",
           "href": "/bricks/presence.html"
         },
         {
@@ -140,6 +144,6 @@
   ],
   "seo": {
     "title": "Lockstep multiplayer in a few KB · Fizlet",
-    "description": "fizlet/presence is 1,834 B gzip: lockstep inputs, 12 bytes a message, a hash check every 30 frames, and a Cloudflare Worker room server with hard caps."
+    "description": "@fzlt/core/presence is 1,834 B gzip: lockstep inputs, 12 bytes a message, a hash check every 30 frames, and how to build a room server like ours."
   }
 }
