@@ -98,6 +98,49 @@ try {
   assert.ok(r.recall, "Recall gives the figure back byte for byte");
   console.log(`brick graph: rests after ${r.steps} steps; Recall exact ✓`);
   await ctx.close();
+  // 3. Phones and desktop: once it rests, every label and dot is on the canvas (the fit grows round
+  // whatever sticks out of the world box) and no two labels overlap (the one-shot label pass).
+  for (const width of [360, 390, 1440]) {
+    const ctx = await browser.newContext({ viewport: { width, height: 900 } });
+    await ctx.route("**/brick-graph.js", (r) => r.fulfill({ body: "", contentType: "text/javascript" }));
+    await ctx.route("**/brick-cards.js", (r) => r.fulfill({ body: "", contentType: "text/javascript" }));
+    const p = await ctx.newPage();
+    await p.goto(url);
+    await p.addScriptTag({ content: mountJs });
+    const fits = await p.evaluate(async () => {
+      const host = document.querySelector("[data-brick-graph]");
+      host.scrollIntoView();
+      const g = window.__mount(host);
+      const frame = () => new Promise((ok) => requestAnimationFrame(ok));
+      const rest = async () => {
+        for (let i = 0; i < 900 && !g.layout.resting; i++) await frame();
+        await frame();
+        await frame();
+        return g.onCanvas();
+      };
+      const laid = await rest();
+      // The clipping case: the longest label's brick held against the world's right edge (as a drag
+      // can leave it; the world is 800 wide and keeps bricks 28 in).
+      const names = laid.labels.map((l) => l.name), long = names.reduce((a, b, i) => (b.length > names[a].length ? i : a), 0);
+      g.layout.pin(long, 800 - 28, 225);
+      const edge = await rest();
+      g.engine.destroy();
+      return [laid, edge];
+    });
+    for (const [fit, how] of [[fits[0], "as laid out"], [fits[1], "a long label at the edge"]]) {
+      const out = [...fit.labels, ...fit.dots].filter(({ box: [l, t, r, b] }) => l < 0 || t < 0 || r > fit.width || b > fit.height);
+      const hits = [];
+      for (let i = 0; i < fit.labels.length; i++) for (let j = i + 1; j < fit.labels.length; j++) {
+        const a = fit.labels[i].box, b = fit.labels[j].box;
+        if (Math.min(a[2], b[2]) - Math.max(a[0], b[0]) > 0.01 && Math.min(a[3], b[3]) - Math.max(a[1], b[1]) > 0.01) hits.push(`${fit.labels[i].name}/${fit.labels[j].name}`);
+    }
+    console.log(`brick graph at ${width}, ${how}: canvas ${fit.width} × ${fit.height}, ${fit.labels.length} labels, ${out.length} outside, ${hits.length} overlapping`);
+    assert.ok(fit.width > 0 && fit.width <= width, "the canvas fits the viewport");
+    assert.deepEqual(out.map((o) => o.name), [], `at ${width}, ${how}: every label and dot inside the canvas`);
+    assert.deepEqual(hits, [], `at ${width}, ${how}: no two labels overlap`);
+    }
+    await ctx.close();
+  }
 } finally {
   await browser.close();
   await site.close();
