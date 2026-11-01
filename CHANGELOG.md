@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **@fzlt/core/presence: play passes need nothing new on the client (pending owner review).** A page
+  joins with `join(url, signal, ["fizlet-rooms", "pass." + pass, "device." + key])`, and a resume
+  offers the pass and the device key again, with `resume.<token>` after them, never in a URL (a test
+  proves it). The pass server side is in-house; the subprotocols and the sign-in check are in
+  [Build your own room server](https://fizlet.com/guides/build-your-own-room-server/). The tests'
+  WebSocket stand-in for `join()` is one helper now.
 - **@fzlt/core/presence: the lobby and resume on the client (pending owner review).** `join()` takes
   `{ retry, lobby }`: `lobby(start, seat, seated, size)` on each `LOBBY` before the start, and the
   host's `start(seats, mode)` sends `START`; the join result carries the host's `mode`. A dropped link

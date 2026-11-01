@@ -227,27 +227,7 @@ test("presence: a resumed link: AWAY then RESUME, the inputs lost while it was d
 test("presence: join() reconnects a dropped seat with its resume token, in memory only; START from the lobby", async (t) => {
   t.mock.timers.enable({ apis: ["setTimeout"] });
   const real = globalThis.WebSocket, made = [];
-  globalThis.WebSocket = class extends EventTarget {
-    constructor(url, protocols) {
-      super();
-      made.push(this);
-      Object.assign(this, { url, protocols, readyState: 1, sent: [], closed: null });
-    }
-    send(d) {
-      this.sent.push(Uint8Array.from(d));
-    }
-    close(code) {
-      this.closed = code;
-    }
-    fire(type, props = {}) {
-      const ev = Object.assign(new Event(type), props);
-      this.dispatchEvent(ev);
-      this["on" + type]?.(ev);
-    }
-    deliver(bytes) {
-      this.fire("message", { data: Uint8Array.from(bytes).buffer });
-    }
-  };
+  globalThis.WebSocket = fakeWebSocket(made);
   try {
     const { join } = await import("../src/presence.ts");
     const url = "wss://rooms.example/room/1?players=4", P = ["fizlet-rooms", "invite.ABCD-EFGH-JK"];
@@ -301,6 +281,52 @@ test("presence: join() reconnects a dropped seat with its resume token, in memor
     globalThis.WebSocket = real;
   }
 });
+
+test("presence: join() keeps a play pass and device key on a resume (pass.<pass>, device.<key>, then resume.<token>)", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const real = globalThis.WebSocket, made = [];
+  globalThis.WebSocket = fakeWebSocket(made);
+  try {
+    const { join } = await import("../src/presence.ts");
+    const P = ["fizlet-rooms", "pass.eyJ2IjoxfQ.c2ln", "device.AAAAAAAAAAAAAAAAAAAA"];
+    const p = join("wss://rooms.example/room/2?players=2", undefined, P);
+    made[0].deliver([3, 0, 2, 0, 7, 0, 0, 0, 0xef, 0xbe, 0xad, 0x0e]);
+    const j = await p;
+    made[0].fire("close", { code: 1006 });
+    t.mock.timers.tick(250);
+    assert.deepEqual(made[1].protocols, [...P, "resume.eadbeef"], "the pass and device key ride again, the token after them");
+    assert.ok(!made.some((w) => /pass|device|resume|eadbeef/.test(w.url)), "none of them in a URL");
+    j.transport.close();
+  } finally {
+    globalThis.WebSocket = real;
+  }
+});
+
+// A browser WebSocket stand-in for join(): records each socket made (url, protocols, what it sent, its
+// close code); `deliver(bytes)` is a message from the room, `fire("close", { code })` a close.
+function fakeWebSocket(made) {
+  return class extends EventTarget {
+    constructor(url, protocols) {
+      super();
+      made.push(this);
+      Object.assign(this, { url, protocols, readyState: 1, sent: [], closed: null });
+    }
+    send(d) {
+      this.sent.push(Uint8Array.from(d));
+    }
+    close(code) {
+      this.closed = code;
+    }
+    fire(type, props = {}) {
+      const ev = Object.assign(new Event(type), props);
+      this.dispatchEvent(ev);
+      this["on" + type]?.(ev);
+    }
+    deliver(bytes) {
+      this.fire("message", { data: Uint8Array.from(bytes).buffer });
+    }
+  };
+}
 
 // A WebSocket stand-in: send copies the bytes before it returns (as browsers and Workers do).
 function fakeSocket() {
