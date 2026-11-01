@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **@fzlt/core/presence: resume after a server restart (pending owner review).** `join()` resumes on
+  `1011`, `1012` and `1014` as well as `1006`, as the guide says (the server holds the seat); `1000`,
+  `1001`, `1005`, `1008`, `1009` and `3000` to `4999` still end the match. A test per code.
+  presence 2,207 → 2,224 B gz (budget 2,240).
 - **@fzlt/core/presence: play passes need nothing new on the client (pending owner review).** A page
   joins with `join(url, signal, ["fizlet-rooms", "pass." + pass, "device." + key])`, and a resume
   offers the pass and the device key again, with `resume.<token>` after them, never in a URL (a test
