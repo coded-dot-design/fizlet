@@ -22,8 +22,16 @@
   /* A frame that keeps the page's scroll, while its note shows (scroll-hint.ts): the kit's red, the
      "too big to win" badge's (themed: #ff2b4e dark, #c01033 light). */
   --frame-warn: var(--k-fire-ink);
+  /* Every 3D sticker's die-cut edge and hard shadow (status stickers, the kernel slab, section
+     numbers, gallery numbers and stickers, phase and people stickers, badges): light on the dark
+     theme, so the edge and the shadow read on the dark page; the ink rim on the light theme. A
+     sticker's text stays the dark ink on its bright face. */
+  --sticker-edge: var(--ink);
+  --sticker-shadow: var(--muted);
 }
 html.bui[data-theme="light"] {
+  --sticker-edge: var(--rim);
+  --sticker-shadow: var(--rim);
   --base: color-mix(in srgb, var(--k-cmd) 30%, var(--line));
   --grid: color-mix(in srgb, var(--k-cmd) 9%, transparent);
   --code-bg: #f6f5fd;
@@ -121,15 +129,20 @@ code {
   color: var(--k-sys-ink);
   font-weight: 800;
 }
-/* The section number: a little sticker, tilted, on the ink rim. */
+/* The kit's slam sticker (.bui-sticker, src/ui/board-ui.css) on the site: the sticker edge and shadow. */
+html.bui .bui-sticker {
+  border-color: var(--sticker-edge);
+  box-shadow: calc(5 * var(--u) * var(--bui-sx)) calc(5 * var(--u) * var(--bui-sy)) 0 var(--sticker-shadow);
+}
+/* The section number: a little sticker, tilted, on the sticker edge. */
 .eyebrow .index {
   display: inline-block;
   padding: 3px 7px;
   color: var(--rim);
   background: var(--k-sys);
-  border: 2px solid var(--rim);
+  border: 2px solid var(--sticker-edge);
   border-radius: 5px;
-  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--bui-shadow);
+  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--sticker-shadow);
   rotate: -4deg;
   letter-spacing: 0.08em;
 }
@@ -1282,11 +1295,16 @@ html.bui[data-theme="light"] .dl.hot {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 22px;
 }
+/* A sub-heading after a brick grid (In-house / experimental, Status flags, On the roadmap) keeps the
+   page's 48 px block gap, clear of the cards' hard shadows. */
+.bricks + .section-head {
+  margin-top: 48px;
+}
 /* ---------- Brick component (site/brick-ui.mjs): full, compact and mini, tokens only ---------- */
 /* Full brick cards (brickTile): one solid 3D object, no top bar. At rest the
    neutral card border and hard shadow (.panel); on hover and focus both take the brick's colour
    (--tone) and the card lifts like a key (transform, so it never fights the home reveal's translate). The brick's colour at rest (and on touch, with no hover)
-   is its budget bar. The status is a tilted sticker on the corner, the people and gallery cards' look. */
+   is its budget bar. The status is a tilted sticker beside the symbol tile (.brick-head). */
 .brick {
   display: flex;
   flex-direction: column;
@@ -1316,17 +1334,30 @@ html.bui[data-theme="light"] .brick:focus-within {
   box-shadow: calc(6px * var(--shadow-x, 0)) calc(6px * var(--shadow-y, 1)) 0 var(--base);
   transform: none;
 }
+/* The head row: the symbol tile, then the status sticker in the open space beside it, centred on
+   the tile. Each sticker is slapped on by hand: its brick's id sets its tilt and nudge (brick-ui.mjs
+   stickerLook: --tilt, --dx, --dy), so a row of cards looks random and every build looks the same.
+   translate and rotate never move the layout. On hover and focus the sticker presses flat. */
+.brick-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  min-width: 0;
+}
+.brick-head > .el-card {
+  margin: 0;
+}
 .brick-stickers {
-  position: absolute;
-  top: -12px;
-  right: -8px;
-  z-index: 2;
   display: flex;
   gap: 6px;
   pointer-events: none;
 }
 .brick-sticker {
   --tone: var(--k-go);
+  --bw: 2.5px;
+  position: relative;
+  isolation: isolate;
   display: inline-block;
   padding: 4px 8px 3px;
   font: 900 11px/1 var(--mono);
@@ -1334,10 +1365,11 @@ html.bui[data-theme="light"] .brick:focus-within {
   white-space: nowrap;
   color: var(--rim);
   background: var(--tone);
-  border: 2.5px solid var(--rim);
+  border: var(--bw) solid var(--sticker-edge);
   border-radius: 6px;
-  box-shadow: calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--rim);
-  rotate: -6deg;
+  box-shadow: calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--sticker-shadow);
+  rotate: var(--tilt, -6deg);
+  translate: var(--dx, 0) var(--dy, 0);
 }
 .brick-sticker[data-flag="beta"] { --tone: var(--k-sys); }
 .brick-sticker[data-flag="experimental"] { --tone: var(--k-aim); }
@@ -1348,8 +1380,68 @@ html.bui[data-theme="light"] .brick:focus-within {
   border-color: var(--line);
   box-shadow: calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--line);
 }
-.brick-stickers .brick-sticker + .brick-sticker { rotate: 4deg; }
+/* BETA peels (the DOM VIRUS game sticker's recipe): the bottom-right corner is cut off on a diagonal
+   (clip-path, wide enough to keep the hard shadow) and folded back over the face as a lighter
+   underside triangle with a soft shadow (::after); two faint scuffs wear the vinyl
+   (::before, under the text). Both are empty: the label is read once. --fold sets the curl's size. */
+.brick-sticker-peel {
+  --fold: 11px;
+  clip-path: polygon(-12px -12px, calc(100% + 12px) -12px, calc(100% + 12px) calc(100% - var(--fold) - 12px), calc(100% - var(--fold) - 12px) calc(100% + 12px), -12px calc(100% + 12px));
+}
+.brick-sticker-peel::after {
+  content: "";
+  position: absolute;
+  right: calc(-1 * var(--bw));
+  bottom: calc(-1 * var(--bw));
+  width: var(--fold);
+  height: var(--fold);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--k-flag) 94%, var(--tone)) 0 20%, color-mix(in srgb, var(--k-flag) 62%, var(--tone)) 50%, transparent 50%);
+  border-top-left-radius: 3px;
+  filter: drop-shadow(-1px -1px 1px color-mix(in srgb, var(--rim) 60%, transparent));
+}
+.brick-sticker-peel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(104deg, transparent 22%, color-mix(in srgb, var(--k-flag) 30%, transparent) 30%, transparent 38%),
+    linear-gradient(170deg, transparent 58%, color-mix(in srgb, var(--k-flag) 18%, transparent) 64%, transparent 70%);
+}
+/* The kernel's sticker is not a status: a bigger stamped purple slab at the head row's far end, the
+   card's top-right, inside its border (a sticker never hangs off its card), with a stamp's inner
+   ring and the kernel card's double hard shadow, tilted the other way. Its COMPLETE sticker follows
+   the status rule beside the tile. */
 .brick-sticker-kernel { --tone: var(--k-cmd); }
+.brick-head > .brick-sticker-kernel {
+  --bw: 3px;
+  margin: 0 8px 0 auto;
+  padding: 7px 14px 6px;
+  font-size: 14px;
+  letter-spacing: 0.24em;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 2px var(--tone), inset 0 0 0 3.5px var(--rim), calc(4px * var(--shadow-x, 0)) calc(4px * var(--shadow-y, 1)) 0 var(--sticker-shadow), calc(8px * var(--shadow-x, 0)) calc(8px * var(--shadow-y, 1)) 0 color-mix(in srgb, var(--tone) 45%, var(--sticker-shadow));
+  rotate: 3deg;
+  translate: none;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .brick .brick-sticker {
+    transition: rotate 160ms ease, translate 160ms ease;
+  }
+  .brick:hover .brick-stickers .brick-sticker,
+  .brick:focus-within .brick-stickers .brick-sticker {
+    rotate: calc(var(--tilt, -6deg) * 0.3);
+    translate: var(--dx, 0) calc(var(--dy, 0px) + 1px);
+  }
+  .brick:hover .brick-head > .brick-sticker-kernel,
+  .brick:focus-within .brick-head > .brick-sticker-kernel {
+    rotate: 1deg;
+    translate: 0 2px;
+  }
+}
 .brick .brick-name {
   margin: 0;
   font: 900 clamp(24px, 2.4vw, 30px)/1.05 var(--sans);
@@ -1357,15 +1449,9 @@ html.bui[data-theme="light"] .brick:focus-within {
   /* A name breaks only after a "/" (brick-ui.mjs nameParts), never inside a word. */
   overflow-wrap: normal;
   word-break: keep-all;
-  padding-right: 64px;
 }
 .brick-name .nw {
   white-space: nowrap;
-}
-/* The symbol tile sits on its own line over the name. */
-.brick-name > .el-card {
-  display: grid;
-  margin: 0 0 10px;
 }
 .brick .brick-name a {
   color: var(--ink);
@@ -1466,21 +1552,29 @@ html.bui[data-theme="light"] .brick.brick-kernel:focus-within {
 }
 .brick-compact .brick-name {
   font-size: 21px;
-  padding-right: 48px;
 }
 .brick-compact.brick-kernel .brick-name {
   font-size: clamp(26px, 3vw, 34px);
 }
-.brick-compact .brick-stickers {
-  top: -10px;
-  right: -6px;
-  gap: 4px;
-}
 .brick-compact .brick-sticker {
+  --bw: 2px;
   padding: 3px 6px 2px;
   font-size: 9.5px;
-  border-width: 2px;
-  box-shadow: calc(2px * var(--shadow-x, 0)) calc(2px * var(--shadow-y, 1)) 0 var(--rim);
+  box-shadow: calc(2px * var(--shadow-x, 0)) calc(2px * var(--shadow-y, 1)) 0 var(--sticker-shadow);
+}
+.brick-compact .brick-sticker-peel {
+  --fold: 9px;
+}
+.brick-compact .brick-head > .brick-sticker-kernel {
+  --bw: 2.5px;
+  margin-right: 6px;
+  padding: 6px 12px 5px;
+  font-size: 12px;
+  box-shadow: inset 0 0 0 2px var(--tone), inset 0 0 0 3px var(--rim), calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--sticker-shadow), calc(6px * var(--shadow-x, 0)) calc(6px * var(--shadow-y, 1)) 0 color-mix(in srgb, var(--tone) 45%, var(--sticker-shadow));
+}
+/* A peeling sticker keeps its label clear of the curl, at every size. */
+.brick-sticker.brick-sticker-peel {
+  padding-right: calc(var(--fold) + 1px);
 }
 .brick-compact .brick-chips {
   padding: 0;
@@ -1502,10 +1596,12 @@ html.bui[data-theme="light"] .brick.brick-kernel:focus-within {
   .brick-compact .brick-name {
     font-size: clamp(15px, 4.6vw, 18px);
   }
-  /* Phones: the stickers sit on the top edge, so the name takes the card's width, a size smaller. */
-  .brick .brick-name {
-    padding-right: 0;
+  /* Phones: a tighter sticker, so a long label (EXPERIMENTAL) still fits beside the tile; on a
+     narrower card it wraps under the tile, never over the name. */
+  .brick-compact .brick-sticker {
+    letter-spacing: 0.04em;
   }
+  /* Phones: the name takes the card's width, a size smaller. */
   .brick-full:not(.brick-kernel) .brick-name {
     font-size: clamp(18px, 5.6vw, 24px);
   }
@@ -1601,12 +1697,16 @@ html.bui[data-theme="light"] .brick.brick-kernel:focus-within {
     grid-template-rows: auto auto auto 1fr auto auto;
     column-gap: 32px;
   }
-  .brick-full.brick-kernel > :not(.bc, .brick-stickers) {
+  .brick-full.brick-kernel > :not(.bc) {
     grid-column: 1;
+  }
+  /* The head row spans both columns, so the KERNEL slab takes the card's top-right corner above the toy. */
+  .brick-full.brick-kernel > .brick-head {
+    grid-column: 1 / -1;
   }
   .brick-full.brick-kernel > .bc {
     grid-column: 2;
-    grid-row: 1 / -1;
+    grid-row: 2 / -1;
     margin: 0;
   }
 }
@@ -1874,40 +1974,79 @@ html.bui[data-theme="light"] .phases b {
   line-height: 1.5;
   color: var(--muted);
 }
-.size-chips {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 26px 0 12px;
+/* Size chips (site/brick-ui.mjs sizeChips): every measured module as a small brick tile, in two tidy
+   grids. The symbol tile in the brick's colour fills from the bottom to the share of its budget it
+   uses (--v); a build that is no one brick's import has a neutral tile with no symbol. */
+.size-group {
+  margin: 26px 0 0;
+}
+.size-group + .size-group {
+  margin-top: 18px;
+}
+.size-head {
+  margin: 0 0 10px;
+}
+.size-head code {
+  font-size: inherit;
+  text-transform: none;
+  letter-spacing: 0;
+  background: none;
   padding: 0;
 }
-.size-chips li {
-  position: relative;
+.size-chips {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+.size-chip {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 7px 12px;
-  overflow: hidden;
-  font: 12px var(--mono);
+  gap: 10px;
+  min-width: 0;
+  padding: 6px 10px 6px 6px;
   background: var(--surface);
   border: 2px solid var(--line);
   border-radius: 8px;
   box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--base);
 }
-.size-chips li i {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 3px;
-  width: calc(var(--v) * 100%);
-  background: var(--k-go);
+.size-chip-text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
 }
-.size-chips b {
-  font-weight: 800;
-}
-.size-chips small {
+.size-chip-name {
+  font: 11px/1.2 var(--mono);
   color: var(--muted);
+  overflow-wrap: break-word;
+}
+.size-chip b {
+  font: 800 15px/1 var(--mono);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.size-chip small {
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.el.el-size {
+  width: 32px;
+  height: 32px;
+  font-size: 13px;
+  border-width: 1.5px;
+  border-radius: 5px;
+  background: linear-gradient(to top, color-mix(in srgb, var(--tone) 45%, var(--surface)) calc(var(--v) * 100%), color-mix(in srgb, var(--tone) 6%, var(--surface)) 0);
+}
+.el.el-size.el-build {
+  --tone: var(--muted);
+  border-style: dashed;
+  box-shadow: none;
+}
+.size-group + .spec-note {
+  margin-top: 16px;
 }
 .spec-note {
   margin: 0;
@@ -2076,7 +2215,7 @@ html.bui[data-theme="light"] .phases b {
   letter-spacing: 0.12em;
   color: var(--rim);
   background: var(--tone);
-  border: 1.5px solid var(--rim);
+  border: 1.5px solid var(--sticker-edge);
   border-radius: 5px;
   white-space: nowrap;
 }
@@ -3449,9 +3588,9 @@ html.bui[data-theme="light"] .phases b {
   white-space: nowrap;
   color: var(--rim);
   background: var(--tone);
-  border: 2.5px solid var(--rim);
+  border: 2.5px solid var(--sticker-edge);
   border-radius: 6px;
-  box-shadow: calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--rim);
+  box-shadow: calc(3px * var(--shadow-x, 0)) calc(3px * var(--shadow-y, 1)) 0 var(--sticker-shadow);
   rotate: -6deg;
 }
 .ppl-sticker {
@@ -3712,9 +3851,9 @@ html.bui[data-theme="light"] .phases b {
   letter-spacing: 0.1em;
   color: var(--rim);
   background: var(--hurt);
-  border: 2px solid var(--rim);
+  border: 2px solid var(--sticker-edge);
   border-radius: 5px;
-  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--bui-shadow);
+  box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--sticker-shadow);
   rotate: -3deg;
   vertical-align: middle;
 }
@@ -4053,6 +4192,9 @@ html.bui[data-theme="light"] .phases b {
 .doc-table td a {
   color: var(--ink);
 }
+.doc-table td > .el-chip {
+  margin-right: 8px;
+}
 .doc-map {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -4250,7 +4392,7 @@ html.bui[data-theme="light"] .phases b {
   letter-spacing: 0.12em;
   color: var(--rim);
   background: var(--tone);
-  border: 1.5px solid var(--rim);
+  border: 1.5px solid var(--sticker-edge);
   border-radius: 5px;
   white-space: nowrap;
   vertical-align: middle;

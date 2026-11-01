@@ -3,7 +3,7 @@
 import { crumbs, esc, icon, REPO, SITE } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { STATUS, BETA_LINE, IN_HOUSE, exportStatus, inHouse } from "../bricks.mjs";
-import { brickTile, brickMini, brickOf, prose, statusSticker } from "../brick-ui.mjs";
+import { brickSticker, brickTile, brickMini, brickOf, elSquare, prose, statusSticker } from "../brick-ui.mjs";
 
 export { prose };
 
@@ -108,7 +108,7 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
     ${crumbs("../", [["bricks/", "Bricks"]], brick.name)}
     <div class="split bp-top" style="--tone: var(--k-${brick.role})">
       <div>
-        <p class="eyebrow bp-eyebrow"><span class="index">${esc(brick.tag)}</span> V${esc(version)} ${statusSticker(brick.status)}</p>
+        <p class="eyebrow bp-eyebrow"><span class="index">${esc(brick.tag)}</span> V${esc(version)} ${brickSticker(brick)}</p>
         <h1 id="bp-title" class="bp-title"><code>${esc(brick.name)}</code></h1>
         <p class="lead">${prose(lead.summary)}</p>
         <div class="split-keys"><a class="bui-key bui-arcade bui-sys" href="#api">${icon("code", 16)}API</a><a class="bui-key bui-arcade bui-cmd" href="${REPO}/blob/main/${lead.src}">${icon("github", 16)}Source ↗</a></div>
@@ -198,7 +198,7 @@ export function bricksIndex({ bricks, sizes, version, planned = [], graph }) {
     </div>
     <ul class="bricks planned">
       ${planned.map((p) => `<li class="panel brick" data-flag="roadmap">
-        <span class="brick-stickers">${statusSticker("roadmap")}</span>
+        <div class="brick-head">${elSquare(p)}<span class="brick-stickers">${statusSticker("roadmap", p.name)}</span></div>
         <h3 class="brick-name">${esc(p.name)}</h3>
         <p class="brick-what">${esc(p.purpose)}</p>
         <ul class="brick-chips" aria-label="Planned"><li><b>${esc(p.phase)}</b></li><li>target <b>≤ ${kb(p.target)} KB</b> gzip</li></ul>
