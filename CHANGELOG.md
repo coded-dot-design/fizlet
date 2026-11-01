@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Both marks on npm: a `fzlt` bin, Fizlet™ (fzlt™) in the description, and a fzlt.dev page.**
+  `npx @fzlt/core` (or `fzlt` once installed) prints the version, the install line, fizlet.com and
+  every brick's gzip size against its budget (`--json` for machines). Zero dependencies, `node:` only;
+  its numbers are `dist/sizes.json`, written by the build from `scripts/sizes.mjs` (the same
+  measurement as `npm run size`), never measured at run time. Not an export; no budget moves.
+  Keywords add `fzlt` and `fizlet`; the README gets an npm badge. `npm run site:fzlt` builds the
+  fzlt.dev landing page into `site-dist-fzlt/` (static, no script, light and dark from the system,
+  on the kit tokens); not deployed. `npm run test:pack` now also runs the bin installed and through
+  `npx` from the tarball.
 - **Site: the brick graph fits phones** (/bricks/). Labels no longer overlap: when the layout rests,
   a one-shot pass moves each label to the cheapest of four sides of its brick (nudged up or down a
   little), on typed arrays, deterministic, no allocation. Nothing clips: the view fits the world box
