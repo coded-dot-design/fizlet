@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **fizlet/timeline: `steps(n)` lands on whole steps only.** Every easing is sampled into a 256-step
+  table and read by blending two neighbouring samples; for a steps easing, the cell across a step's
+  edge blended two steps, so a 13-frame sprite strip (`steps(13)` over 0..13, 1.4 s) read 1.619,
+  5.857, 6.143 and 10.381 at 60 Hz. A steps track now reads `floor(p × n) / n` straight from its
+  progress (no table, no call, no allocation): whole steps only, all n + 1, the last one at the
+  end, as CSS `steps(n, end)`. Other easings are unchanged. Test: `timeline: steps(n) lands on whole
+  steps only` (fails on 0.20.0). Timeline 2,060 → 2,085 B gz (budget 2,304).
 - **Gallery: the genre minis are playable: compact keys that never cover the action (pending owner
   review).** In Redline, Dirt Lab, Bag Beat and Toast Tell the keys were sized in container units on a
   figure that was no size container, so they grew with the window (GAS took half the stage), and the
