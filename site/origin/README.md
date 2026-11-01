@@ -40,14 +40,14 @@ interface OriginScene {
   setMode(m: "code" | "design"): void;
   setSound(on: boolean): void;    // arms sound; @fzlt/core/sound still waits for a trusted gesture
   pause(): void; play(): void;    // while paused: 0 requestAnimationFrame calls
-  readonly state: { mode; open; bricks; sound; paused };
+  readonly state: { mode; look?; open; bricks; sound; paused }; // look: "fizlet" | "2015"
   accessible?: boolean;           // true when the scene has real buttons
 }
 ```
 
 | Brief | As built |
 |---|---|
-| `mount(figure, opts)` | `mountSlot(stage, figure)` through `@fzlt/core/slot`. It reads `data-mode` and `data-sound` from the figure when it mounts |
+| `mount(figure, opts)` | `mountSlot(stage, figure)` through `@fzlt/core/slot`. It reads `data-mode`, `data-sound` and `data-look` (`2015`; without it, the Fizlet look) from the figure when it mounts |
 | `opts.sound: SoundGate` | `data-sound="0"/"1"` plus `setSound()`. The loader saves the choice in `localStorage` (`fizlet:origin-sound`, inside try/catch). `@fzlt/core/sound` creates the AudioContext only on a trusted gesture. Sound is off by default |
 | `opts.reduced` | The loader never mounts the scene under reduced motion. The scene also checks for reduced motion itself (`reducedMotion`) |
 | `data-mode` on the figure | Kept. Mode changes go to `setMode()`. The scene reports its own changes with a bubbling `origin:state` event (`detail`: the state), and the section's keys follow it |
@@ -55,7 +55,7 @@ interface OriginScene {
 | Recall exact | Yes. **The figure has no `role="img"`**: the scene's buttons make it `accessible: true`, and slot does not hand `role` back byte for byte (fizlet#215) |
 | Poster | The scene's `poster()` and `POSTER_CSS` (`demos/origin/build.mjs`), inline. Under reduced motion the Code/Design switch swaps the poster's screens |
 
-The scene's own key row stays on (`controls: true`): Design mode, Show bricks, Sound, Pause. It
+The scene's own key row stays on (`controls: true`): the look (2015 / Fizlet), Design mode, Show bricks, Sound, Pause. It
 duplicates mode and sound, but it is what makes the scene `accessible: true`. With `controls: false`,
 the slot would hide the whole stage from assistive tech, the laptop button included. The scene's keys
 and the section's keys stay in step through `origin:state`.
