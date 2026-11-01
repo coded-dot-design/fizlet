@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Site: the header nav is quiet text, with more room between items (pending owner review).** The
+  top-level items and the menu rows no longer draw as half-raised keys (a filled face with a cyan
+  base edge) on hover, open or the current page. Hover lights the text; an open menu flips its
+  chevron and takes `--k-sys-ink`; the current page or section has a thin `--k-sys-ink` underline
+  (`aria-current` unchanged); a menu row gets a faint tint on hover. Keyboard focus keeps the site's
+  ring. The gap between items is 14 px (was 4), and the nav still fits on one line at 961 px, just
+  above the phone menu. GitHub, theme and Start stay keys.
 - **Site: "Cookie settings" is a plain text link (pending owner review).** In the footer it was a
   Board UI key between the copyright and the byline, taller than the line and off its baseline; on
   the privacy and cookies pages it drew as underlined text on a key base. One control now

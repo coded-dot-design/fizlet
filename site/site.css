@@ -292,20 +292,22 @@ html.bui[data-theme="light"] .panel.lit {
 .nav-list {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 14px;
 }
 .nav-item {
   position: relative;
 }
-/* The group buttons are nav text, not kit keys: flat, no base, no lift (board-ui.css styles every
-   .bui button as a key, so this outranks it); keyboard focus keeps a ring. */
+/* Nav items are text, not kit keys, in every state: no face, base, lift or box (board-ui.css styles
+   every .bui button as a key, so this outranks it). Hover: the text lights to --ink. Open: the
+   chevron flips and the text takes --k-sys-ink. Current page or section: a thin --k-sys-ink
+   underline. Keyboard focus: the site's ring, only on :focus-visible. */
 .site-nav a,
 .bui .site-head .site-nav .nav-btn {
   display: flex;
   align-items: center;
   gap: 6px;
   min-height: 36px;
-  padding: 8px 12px;
+  padding: 8px 10px;
   font: 700 11px var(--mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -322,9 +324,16 @@ html.bui[data-theme="light"] .panel.lit {
 .site-nav a:hover,
 .bui .site-head .site-nav .nav-btn:is(:hover, [aria-expanded="true"]) {
   color: var(--ink);
-  background: var(--surface);
+  background: none;
   transform: none;
   box-shadow: none;
+}
+.bui .site-head .site-nav .nav-btn[aria-expanded="true"] {
+  color: var(--k-sys-ink);
+}
+/* A menu row: a faint tint on hover, never a base. */
+.nav-menu a:hover {
+  background: color-mix(in srgb, var(--k-sys) 10%, transparent);
 }
 .bui .site-head .site-nav .nav-btn:focus-visible,
 .site-nav a:focus-visible {
@@ -338,9 +347,11 @@ html.bui[data-theme="light"] .panel.lit {
 .nav-btn[aria-expanded="true"] .nav-chev {
   rotate: 180deg;
 }
-.bui .site-head .nav-item:has([aria-current]) > .nav-btn {
+.bui .site-head .nav-item:has([aria-current]) > .nav-btn,
+.site-nav a[aria-current] {
   color: var(--ink);
-  box-shadow: inset 0 -2px 0 var(--k-sys);
+  text-decoration: underline 2px var(--k-sys-ink);
+  text-underline-offset: 6px;
 }
 .nav-label,
 .head-keys .menu-key,
@@ -630,12 +641,8 @@ a.bui-sticker-key {
 .map-fold[open] summary {
   margin-bottom: 8px;
 }
-/* Where you are: the page itself, or the section it belongs to (layout.mjs current()). */
-.site-nav a[aria-current] {
-  color: var(--ink);
-  background: var(--surface);
-  box-shadow: inset 0 -2px 0 var(--k-sys);
-}
+/* Where you are: the page itself, or the section it belongs to (layout.mjs current()); the header
+   nav marks it with an underline (above). */
 .foot-map a[aria-current] {
   color: var(--ink);
   font-weight: 700;
