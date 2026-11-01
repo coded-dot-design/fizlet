@@ -1955,40 +1955,79 @@ html.bui[data-theme="light"] .phases b {
   line-height: 1.5;
   color: var(--muted);
 }
-.size-chips {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 26px 0 12px;
+/* Size chips (site/brick-ui.mjs sizeChips): every measured module as a small brick tile, in two tidy
+   grids. The symbol tile in the brick's colour fills from the bottom to the share of its budget it
+   uses (--v); a build that is no one brick's import has a neutral tile with no symbol. */
+.size-group {
+  margin: 26px 0 0;
+}
+.size-group + .size-group {
+  margin-top: 18px;
+}
+.size-head {
+  margin: 0 0 10px;
+}
+.size-head code {
+  font-size: inherit;
+  text-transform: none;
+  letter-spacing: 0;
+  background: none;
   padding: 0;
 }
-.size-chips li {
-  position: relative;
+.size-chips {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+.size-chip {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 7px 12px;
-  overflow: hidden;
-  font: 12px var(--mono);
+  gap: 10px;
+  min-width: 0;
+  padding: 6px 10px 6px 6px;
   background: var(--surface);
   border: 2px solid var(--line);
   border-radius: 8px;
   box-shadow: calc(3px * var(--bui-sx)) calc(3px * var(--bui-sy)) 0 var(--base);
 }
-.size-chips li i {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 3px;
-  width: calc(var(--v) * 100%);
-  background: var(--k-go);
+.size-chip-text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
 }
-.size-chips b {
-  font-weight: 800;
-}
-.size-chips small {
+.size-chip-name {
+  font: 11px/1.2 var(--mono);
   color: var(--muted);
+  overflow-wrap: break-word;
+}
+.size-chip b {
+  font: 800 15px/1 var(--mono);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.size-chip small {
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.el.el-size {
+  width: 32px;
+  height: 32px;
+  font-size: 13px;
+  border-width: 1.5px;
+  border-radius: 5px;
+  background: linear-gradient(to top, color-mix(in srgb, var(--tone) 45%, var(--surface)) calc(var(--v) * 100%), color-mix(in srgb, var(--tone) 6%, var(--surface)) 0);
+}
+.el.el-size.el-build {
+  --tone: var(--muted);
+  border-style: dashed;
+  box-shadow: none;
+}
+.size-group + .spec-note {
+  margin-top: 16px;
 }
 .spec-note {
   margin: 0;
@@ -4133,6 +4172,9 @@ html.bui[data-theme="light"] .phases b {
 }
 .doc-table td a {
   color: var(--ink);
+}
+.doc-table td > .el-chip {
+  margin-right: 8px;
 }
 .doc-map {
   display: grid;

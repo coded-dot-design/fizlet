@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Home: the spec sheet's size chips are small brick tiles (pending owner review).** The wall of
+  "@fzlt/core/… KB" chips with a green bar under each is now two tidy grids (`sizeChips` in
+  site/brick-ui.mjs): the bricks you import, each with its symbol tile in its own colour (from
+  site/bricks.mjs, the same as the cards and the periodic table), its short name ("input",
+  "presence/check") and its gzip size as the number, with "@fzlt/core/…" said once in the heading;
+  then the kernel, the split sizes (ui js, ui css) and the builds (the arcade card, the page build),
+  where a build gets a neutral dashed tile and no symbol. The bar is gone: each tile fills from the
+  bottom to the share of its budget, and the share is in the chip's text for screen readers and in
+  its title on hover. The docs budgets table shows the same symbol tiles. Sizes stay the build's.
+
 - **Bricks: status stickers sit beside the symbol tile, each slapped on its own way; BETA peels; the
   kernel gets a stamped slab (pending owner review).** On the home page's brick cards and on bricks/,
   the status sticker moves off the card's top border into the open space right of the symbol tile,

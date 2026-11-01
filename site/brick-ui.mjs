@@ -33,6 +33,48 @@ export const elSquare = (brick, size = "card") =>
   `<span class="el el-${size}" style="--tone: ${toneOf(brick)}" aria-hidden="true">${size === "card" ? `<i class="el-no">${brick.no}</i>` : ""}<b class="el-sym">${esc(brick.sym)}</b></span>`;
 
 /**
+ * A measured size row's brick: { brick, sym } when the row is one of a brick's own sizes (a module's
+ * import, its `size` name or a brick's extra size such as "@fzlt/core/ui (css)"), with the module's own
+ * symbol where it has one (presence/check: pc), else the brick's. Builds that are no brick's own
+ * (the arcade card build, the page build) are undefined: they get no symbol.
+ */
+export const sizeBrick = (bricks, name) => {
+  for (const b of bricks) {
+    const m = b.modules.find((x) => x.size === name || x.name === name);
+    if (m) return { brick: b, sym: m.sym ?? b.sym };
+    if ((b.sizes ?? []).includes(name)) return { brick: b, sym: b.sym };
+  }
+};
+
+/** A size row's short name: the import path after "@fzlt/core/" ("input", "presence/check"); the kernel is "kernel". */
+export const shortName = (name) => name.replace(/^@fzlt\/core\/?/, "").trim().replace(/^\((.+)\)$/, "$1");
+
+/**
+ * Size chips (the home page's spec sheet): every measured module as a small brick tile. The brick's
+ * symbol in its colour (from site/bricks.mjs, never retyped), its short name, its gzip size as the
+ * number. The tile fills from the bottom to the share of its budget it uses; the share is in the
+ * chip's text for screen readers and in its title on hover. Two tidy grids: the bricks you import
+ * (one per import path), then the kernel, the split sizes and the builds, which are no one brick's
+ * import (a build has a neutral tile, no symbol).
+ */
+export function sizeChips({ sizes, bricks }) {
+  const chip = (s) => {
+    const own = sizeBrick(bricks, s.name), share = s.gzip / s.budget, pct = Math.round(share * 100);
+    const tile = own
+      ? `<span class="el el-size" style="--tone: ${toneOf(own.brick)}; --v: ${share.toFixed(3)}" aria-hidden="true"><b class="el-sym">${esc(own.sym)}</b></span>`
+      : `<span class="el el-size el-build" style="--v: ${share.toFixed(3)}" aria-hidden="true"></span>`;
+    const budget = `${pct}% of its ${kb(s.budget)} KB budget`;
+    return `<li class="size-chip${own ? "" : " size-build"}" data-size="${esc(s.name)}"${own ? ` data-sym="${esc(own.sym)}"` : ""} title="${esc(`${s.name}: ${budget}`)}">${tile}<span class="size-chip-text"><span class="size-chip-name">${esc(shortName(s.name)).replace(/\+/g, "+<wbr>")}</span><b>${(s.gzip / 1024).toFixed(2)}<small> KB</small></b></span><span class="sr">, ${budget}</span></li>`;
+  };
+  const isImport = (s) => bricks.some((b) => b.modules.some((m) => m.name === s.name && m.size === s.name));
+  const imports = sizes.filter(isImport), rest = sizes.filter((s) => !isImport(s));
+  return `<div class="size-group"><p class="size-head bui-label"><b>BRICKS</b> · <code>@fzlt/core/…</code> · gzip</p>
+    <ul class="size-chips" aria-label="Every brick, gzip">${imports.map(chip).join("")}</ul></div>
+    <div class="size-group"><p class="size-head bui-label"><b>KERNEL, SPLITS AND BUILDS</b> · gzip</p>
+    <ul class="size-chips" aria-label="The kernel, split sizes and builds, gzip">${rest.map(chip).join("")}</ul></div>`;
+}
+
+/**
  * A linked symbol chip, for bricks in a group (gallery "uses" lists, the footer): the symbol shows;
  * hover or focus opens the chip to its name. The link's accessible name is the name (`label`), always.
  */

@@ -12,6 +12,7 @@ import { launchOptions } from "./chromium.mjs";
 
 import { CARD_IDS as IDS } from "../site/brick-cards.mjs";
 import { stickerLook } from "../site/brick-ui.mjs";
+import { BRICKS } from "../site/bricks.mjs";
 
 const ROOT = "site-dist";
 if (!existsSync(`${ROOT}/brick-cards.js`)) throw new Error("site-dist/brick-cards.js is missing: run `npm run site` first");
@@ -234,6 +235,47 @@ try {
   // The same id gives the same look, every time (no Math.random): a fixed sample, pinned.
   assert.deepEqual(stickerLook("kernel"), stickerLook("kernel"));
   assert.deepEqual(["kernel", "fx", "grid"].map((id) => stickerLook(id).tilt), [3.5, 2.5, 2.5]);
+  // ---------- Size chips (home 06): each brick's symbol and colour from site/bricks.mjs, builds get
+  // none, the budget share in text (checked against docs/budgets/'s table of the same build) ----------
+  {
+    const { page: docs } = await open("docs/budgets/");
+    const table = Object.fromEntries(await docs.evaluate(() => [...document.querySelectorAll(".doc-table tbody tr")].map((tr) => {
+      const td = [...tr.cells].map((c) => Number(c.textContent.replace(/[^\d]/g, "")));
+      return [tr.querySelector("[data-size]").dataset.size, { gzip: td[1], budget: td[2] }];
+    })));
+    await docs.close();
+    for (const w of [1440, 390]) {
+      const { page, errors } = await open("", { viewport: { width: w, height: 900 } });
+      const chips = await page.evaluate(() => [...document.querySelectorAll("#specs .size-chip")].map((li) => {
+        const tile = li.querySelector(".el-size"), p = document.createElement("i");
+        p.style.color = "var(--tone)"; tile.append(p); const tone = getComputedStyle(p).color; p.remove();
+        const r = li.getBoundingClientRect();
+        return { size: li.dataset.size, sym: li.dataset.sym ?? null, tileSym: tile.querySelector(".el-sym")?.textContent ?? null, tone, text: li.textContent, name: li.querySelector(".size-chip-name").textContent,
+          bar: !!li.querySelector(":scope > i"), box: [r.left, r.top, r.width, r.height] };
+      }));
+      const roles = await page.evaluate((rs) => Object.fromEntries(rs.map((r) => { const p = document.createElement("i"); p.style.color = `var(--k-${r})`; document.body.append(p); const c = getComputedStyle(p).color; p.remove(); return [r, c]; })), [...new Set(BRICKS.map((b) => b.role))]);
+      assert.equal(chips.length, Object.keys(table).length, `home at ${w}: one chip per measured size`);
+      for (const c of chips) {
+        const b = BRICKS.find((x) => x.modules.some((m) => m.size === c.size || m.name === c.size) || x.sizes.includes(c.size));
+        const m = b?.modules.find((x) => x.size === c.size || x.name === c.size);
+        if (b) {
+          assert.equal(c.sym, m?.sym ?? b.sym, `${c.size}: its symbol is site/bricks.mjs's`);
+          assert.equal(c.tileSym, c.sym, `${c.size}: the tile shows it`);
+          assert.equal(c.tone, roles[b.role], `${c.size}: in its brick's colour`);
+        } else assert.equal(c.tileSym, null, `${c.size}: a build gets no symbol`);
+        assert.ok(!c.name.includes("@fzlt/core/"), `${c.size}: the short name (${c.name})`);
+        assert.equal(c.bar, false, `${c.size}: no budget bar`);
+        const t = table[c.size], pct = Math.round((t.gzip / t.budget) * 100);
+        assert.ok(c.text.includes(`${pct}% of its`), `${c.size}: the budget share (${pct}%) is in the chip's text`);
+        assert.ok(c.text.includes(`${(t.gzip / 1024).toFixed(2)} KB`), `${c.size}: its measured size`);
+      }
+      // A tidy grid: the chips in a row share a top edge and a width.
+      const widths = new Set(chips.map((c) => Math.round(c.box[2])));
+      assert.equal(widths.size, 1, `home at ${w}: every chip the same width (${[...widths]})`);
+      assert.deepEqual(errors, []);
+      await page.close();
+    }
+  }
   // ---------- Tokens only: the brick component's CSS block names no colour of its own ----------
   {
     const css = readFileSync("site/site.css", "utf8");
