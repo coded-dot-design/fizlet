@@ -1,4 +1,4 @@
-// fizlet/camera in Chromium: the page is the camera. A zoom keeps its point fixed on screen, eases
+// @fzlt/core/camera in Chromium: the page is the camera. A zoom keeps its point fixed on screen, eases
 // and settles (the engine sleeps), the page never scrolls sideways (contain clips the parent), Recall
 // mid-move gives the page back byte for byte, and with reduced motion every move jumps.
 import assert from "node:assert/strict";
@@ -53,6 +53,35 @@ try {
     await p.close();
   }
   {
+    // A drag pan reads no layout per frame; a stage that resizes is measured again (ResizeObserver).
+    const p = await browser.newPage({ viewport: { width: 900, height: 700 } });
+    await p.setContent(PAGE);
+    const r = await p.evaluate(async () => {
+      const frame = () => new Promise((ok) => requestAnimationFrame(() => ok()));
+      const page = document.getElementById("page");
+      let reads = 0;
+      const box = page.getBoundingClientRect.bind(page);
+      page.getBoundingClientRect = () => (reads++, box());
+      const e = fz.createEngine(), cam = fz.camera(e, page);
+      e.start();
+      fz.zoomAt(cam, 300, 200, 2);
+      for (let i = 0; i < 5; i++) await frame();
+      const r0 = reads;
+      for (let i = 0; i < 30; i++) cam.pan(4, 2), await frame();
+      const panReads = reads - r0, w0 = cam.width;
+      page.style.width = "450px";
+      for (let i = 0; i < 4; i++) await frame();
+      const out = { panReads, w0, w1: cam.width };
+      e.destroy();
+      return out;
+    });
+    assert.equal(r.panReads, 0, `30 frames of drag pan read the stage's layout ${r.panReads} times`);
+    assert.equal(r.w0, 900);
+    // Measured through the transform (÷ its zoom, written to 4 decimals): within a 20th of a pixel.
+    assert.ok(Math.abs(r.w1 - 450) < 0.05, `a resized stage is measured again (${r.w1})`);
+    await p.close();
+  }
+  {
     const ctx = await browser.newContext({ viewport: { width: 900, height: 700 }, reducedMotion: "reduce" });
     const p = await ctx.newPage();
     await p.setContent(PAGE);
@@ -72,7 +101,7 @@ try {
     assert.deepEqual(r, { zoom: 2, moving: false, steps: true }, "reduced motion: the move jumps, no easing");
     await ctx.close();
   }
-  console.log("camera: eases, zoom point fixed, settles, contained (no sideways scroll), Recall exact mid-move, reduced motion jumps — ok");
+  console.log("camera: eases, zoom point fixed, settles, contained (no sideways scroll), Recall exact mid-move, a drag pan reads no layout, a resize re-measures, reduced motion jumps — ok");
 } finally {
   await browser.close();
 }

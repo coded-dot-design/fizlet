@@ -1,0 +1,30 @@
+{
+  "no": 61,
+  "id": "dv-squad-tactics",
+  "date": "2026-10-30",
+  "prompt": "squad tactics on a DOM grid: two tanks a side patrol between walls and HQ zones, turrets sweep, shells fly and blast; lock, order, breach",
+  "title": "Squad tactics",
+  "kind": "micro",
+  "theme": "dom-virus",
+  "author": "chris-cooley",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/css-clock",
+    "@fzlt/core/timeline",
+    "@fzlt/core/kernel",
+    "@fzlt/core/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/dv-squad-tactics.ts",
+  "export": "mount",
+  "stage": "own",
+  "aspect": "4 / 3",
+  "source": {
+    "url": "https://domvirus.com/games/battlefield/",
+    "label": "domvirus.com"
+  },
+  "pageCost": {
+    "settles": true
+  },
+  "approved": "2026-10-30"
+}

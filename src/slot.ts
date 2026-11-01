@@ -1,5 +1,5 @@
 /**
- * fizlet/slot: mount a Fizlet scene into an astro-base-engine slot: the element carrying
+ * @fzlt/core/slot: mount a Fizlet scene into an astro-base-engine slot: the element carrying
  *   class="ae-slot" data-slot-target="<page>#<slot>" role="img" aria-label="…". Both shapes the engine
  *   has rendered are found: the figure itself (`<figure class="ae-slot">`), or a box inside one
  *   (`<figure class="ae-slot-figure"><div class="ae-slot">…</div><figcaption class="ae-slot__fallback">`,
@@ -91,7 +91,7 @@ export function slot(target: string | HTMLElement, load: () => Promise<SlotMount
     const make = await load();
     if (id !== run || !el || ctl.signal.aborted || motion.matches) return;
     if (getComputedStyle(el).position === "static") ledger.style(el, "position", "relative");
-    for (const c of el.querySelectorAll<HTMLElement>(":scope > .ae-slot__placeholder, :scope > .ae-slot__fallback")) ledger.style(c, "display", "none");
+    for (const c of el.querySelectorAll<HTMLElement>(":scope>.ae-slot__placeholder,:scope>.ae-slot__fallback")) ledger.style(c, "display", "none");
     const stage = ledger.add(document.createElement("div"));
     stage.setAttribute("data-fizlet-slot", el.dataset.slotTarget ?? "");
     stage.style.cssText = "position:absolute;inset:0;contain:strict;overflow:hidden;content-visibility:auto";

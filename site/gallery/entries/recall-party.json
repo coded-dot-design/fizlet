@@ -1,0 +1,23 @@
+{
+  "no": 80,
+  "id": "recall-party",
+  "date": "2026-10-31",
+  "prompt": "a launch party on the page: tap and a party popper fires confetti that knocks the headline's letters loose into a heap on the floor; press Recall and every letter flies home, measured back to the pixel",
+  "title": "Recall Party",
+  "kind": "micro",
+  "theme": "launch-day",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/sound",
+    "@fzlt/core/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/launch/recall-party.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "approved": "2026-10-31"
+}

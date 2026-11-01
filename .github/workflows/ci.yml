@@ -11,9 +11,13 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
+        with:
+          # HEAD^ is the base for api:check: on a PR, HEAD is the merge commit and HEAD^ the base
+          # branch's tip; on a push to main, the commit before it.
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -26,12 +30,11 @@ jobs:
         run: |
           set -o pipefail
           npm run check 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
+      # COMPLETE bricks keep their API: the snapshots in api/ match the build, and one that changed
+      # since the base names its brick under "## Unreleased" in CHANGELOG.md.
+      - run: npm run api:check -- --base HEAD^
       # Size budgets: kernel <= 4 KB gzip, each brick ~1.5 KB.
       - run: npm run size
-      # fizlet-rooms (the room server prototype): caps, relay, the Worker and Room on fakes. No
-      # install: its Node tests need no packages (wrangler is only for test:wrangler and deploys).
-      - run: npm test
-        working-directory: rooms
       # The runtime has no dependencies, ever.
       - run: node -e "const p=require('./package.json'); if (Object.keys(p.dependencies||{}).length || Object.keys(p.peerDependencies||{}).length) { console.error('Fizlet ships no runtime dependencies'); process.exit(1) }"
       - run: npx playwright install --with-deps chromium

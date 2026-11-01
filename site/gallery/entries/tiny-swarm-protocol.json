@@ -1,0 +1,28 @@
+{
+  "no": 84,
+  "id": "tiny-swarm-protocol",
+  "date": "2026-10-31",
+  "prompt": "a tiny Swarm Protocol: bugs crawl onto a little web page and eat its letters into binary, every three letters a bug grows a tier, and grown hunters latch on the buttons and drain their colour; squash them (tap, or arrows and Space) and save the buttons till the bell, then Recall puts every letter back",
+  "title": "Tiny Swarm Protocol",
+  "kind": "micro",
+  "theme": "dom-virus",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/sound",
+    "@fzlt/core/slot"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/tiny-swarm-protocol.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "teaser": {
+    "game": "swarm-protocol",
+    "title": "Swarm Protocol",
+    "url": "https://domvirus.com/games/swarm-protocol/"
+  },
+  "approved": "2026-10-31"
+}

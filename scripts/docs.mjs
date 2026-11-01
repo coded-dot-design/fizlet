@@ -44,7 +44,7 @@ export function docs() {
 export const docPath = (d) => `${d.section}/${d.slug}/`;
 
 /**
- * Fill the build's numbers into every string of a page: `{size:fizlet (kernel)}` → "3,439 B",
+ * Fill the build's numbers into every string of a page: `{size:@fzlt/core (kernel)}` → "3,439 B",
  * `{kb:…}` → "3.4 KB", `{budget:…}` → "4,096 B", `{version}` → "0.19.0".
  */
 export function fill(value, { sizes, version }) {

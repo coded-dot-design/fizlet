@@ -1,4 +1,4 @@
-// fizlet/rules (Node, headless): waves keep the DOM VIRUS core's timing, drops fall / collect /
+// @fzlt/core/rules (Node, headless): waves keep the DOM VIRUS core's timing, drops fall / collect /
 // expire, score combos and levels, every rule reports on the event ring, and none allocates per frame.
 import test from "node:test";
 import assert from "node:assert/strict";

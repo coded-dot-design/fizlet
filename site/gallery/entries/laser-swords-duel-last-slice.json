@@ -1,4 +1,5 @@
 {
+  "no": 57,
   "id": "laser-swords-duel-last-slice",
   "date": "2026-10-30",
   "prompt": "two laser-sword duelists fight over the last pie: blades clash in sparks, parried bolts ricochet off the page's real cards, a palm shove, and they leap across the page's own blocks",
@@ -8,9 +9,9 @@
   "author": "chris-cooley",
   "recipe": "hand-built",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/sprite",
-    "fizlet/slot"
+    "@fzlt/core/kernel",
+    "@fzlt/core/sprite",
+    "@fzlt/core/slot"
   ],
   "fizlet": "0.20.0",
   "made": "by hand",

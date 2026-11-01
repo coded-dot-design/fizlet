@@ -52,7 +52,7 @@
       "items": [
         {
           "title": "A reaction on the page",
-          "body": "A click, a hover, a scroll that should feel alive: `fizlet/fx` for particles, `fizlet/timeline` for choreographed DOM moves, `fizlet/hud` for counts. Settle on.",
+          "body": "A click, a hover, a scroll that should feel alive: `@fzlt/core/fx` for particles, `@fzlt/core/timeline` for choreographed DOM moves, `@fzlt/core/hud` for counts. Settle on.",
           "link": {
             "label": "Recipe 1",
             "href": "#recipe-action"
@@ -60,7 +60,7 @@
         },
         {
           "title": "An arcade game",
-          "body": "`fizlet/input` (and `fizlet/pad` on touch), `fizlet/collide`, `fizlet/fx`, `fizlet/hud`; `fizlet/rules` for waves, drops and score; `fizlet/match` for start, pause and results; `fizlet/arcade` when the page itself is the board.",
+          "body": "`@fzlt/core/input` (and `@fzlt/core/pad` on touch), `@fzlt/core/collide`, `@fzlt/core/fx`, `@fzlt/core/hud`; `@fzlt/core/rules` for waves, drops and score; `@fzlt/core/match` for start, pause and results; `@fzlt/core/arcade` when the page itself is the board.",
           "link": {
             "label": "Recipe 2",
             "href": "#recipe-shooter"
@@ -68,7 +68,7 @@
         },
         {
           "title": "Two or more players",
-          "body": "A deterministic step and `fizlet/presence`: inputs in lockstep, a state hash every 30 frames. `syncCheck` proves it in a test; the rooms server joins two devices.",
+          "body": "A deterministic step and `@fzlt/core/presence`: inputs in lockstep, a state hash every 30 frames. `syncCheck` proves it in a test; a room server you run joins two devices.",
           "link": {
             "label": "Recipe 3",
             "href": "#recipe-duel"
@@ -76,7 +76,7 @@
         },
         {
           "title": "A hero in an Astro slot",
-          "body": "`fizlet/slot` loads the scene near the viewport and keeps the slot's text alternative; `fizlet/camera` pans and zooms a DOM stage.",
+          "body": "`@fzlt/core/slot` loads the scene near the viewport and keeps the slot's text alternative; `@fzlt/core/camera` pans and zooms a DOM stage.",
           "link": {
             "label": "The slot guide",
             "href": "/guides/astro-slot/"
@@ -90,7 +90,7 @@
       "heading": "Recipe 1: an action",
       "headingAccent": "on the page",
       "body": [
-        "A real button on the page, a burst of sparks out of it on every click, and a count. The canvas is added through the ledger, the class through `ledger.cls`, the count through `fizlet/hud`, so `destroy()` leaves the button as it was. Half a second after the last spark, the engine settles: no frames at all until the next click. With reduced motion it counts without the burst."
+        "A real button on the page, a burst of sparks out of it on every click, and a count. The canvas is added through the ledger, the class through `ledger.cls`, the count through `@fzlt/core/hud`, so `destroy()` leaves the button as it was. Half a second after the last spark, the engine settles: no frames at all until the next click. With reduced motion it counts without the burst."
       ],
       "caption": "Click **Like**. The sparks are pooled (cap 160); a full pool refuses new ones instead of growing."
     },
@@ -108,7 +108,7 @@
       "id": "duel",
       "heading": "Recipe 3: two players",
       "body": [
-        "Two peers on one page, each with its own engine, controls and screen, joined by `memory()`: an in-memory link with three ticks of latency and jitter. Only inputs cross it, 12 bytes a message. Each sim runs a frame only when both inputs for it are in, so both screens show the same game, and the hash check every 30 frames says so. Swap `memory()` for `join(url)` and the same code plays across two devices through a [room server](/guides/multiplayer-rooms/)."
+        "Two peers on one page, each with its own engine, controls and screen, joined by `memory()`: an in-memory link with three ticks of latency and jitter. Only inputs cross it, 12 bytes a message. Each sim runs a frame only when both inputs for it are in, so both screens show the same game, and the hash check every 30 frames says so. Swap `memory()` for `join(url)` and the same code plays across two devices through a room server: ours is in-house, so [build your own](/guides/build-your-own-room-server/)."
       ],
       "caption": "Player 1: A/D. Player 2: J/L. On touch, hold the left or right half of a screen. The frame count only moves when both inputs are in."
     },
@@ -120,7 +120,7 @@
           "type": "ul",
           "items": [
             "**Measure it.** Bundle, minify and gzip your piece; that is what a visitor downloads. The badges above are measured that way on every build.",
-            "**Check the step.** No `Math.random`, no clock, no layout reads, nothing allocated. [Determinism](/docs/determinism/) and the [contract](/docs/contract/) list the rules; `fizlet/debug` counts layout reads in a step.",
+            "**Check the step.** No `Math.random`, no clock, no layout reads, nothing allocated. [Determinism](/docs/determinism/) and the [contract](/docs/contract/) list the rules; `@fzlt/core/debug` counts layout reads in a step.",
             "**Check Recall.** Snapshot the page, run the piece, `destroy()` it, and compare: the DOM should match.",
             "**Check stillness.** With `settle`, a piece that is not moving should ask for no frames. The [perf overlay](/bricks/perf.html) shows it."
           ]

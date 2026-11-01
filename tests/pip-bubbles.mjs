@@ -1,5 +1,5 @@
 // Pip's Bubbles (site/gallery/pieces/pip/bubbles.ts) in Chromium, on its own stage
-// (site/gallery/stages/pip-narwhal-blows-bubbles.html), mounted through fizlet/slot as the gallery
+// (site/gallery/stages/pip-narwhal-blows-bubbles.html), mounted through @fzlt/core/slot as the gallery
 // does: Pip swims in and plays the intro (a bubble pops the log's letters, a big one, the tusk pokes
 // it into a spray), it sleeps off screen mid-play and settles to no frames with the page in place.
 // Then, through the real pointer: a tap on Pip blows a small bubble and a second tap puffs it big;

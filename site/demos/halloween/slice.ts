@@ -1,7 +1,7 @@
 // Pumpkin Slice: pumpkins arc up out of the dark; swipe (or drag, or tap) through them to cut
 // them in half, the halves tumble apart and the seeds spill. Every cut buys the round time; when it
 // ends the last pumpkins fall away and the scene sleeps. Original art and rules.
-// Bricks: the kernel, fizlet/fx (seeds, goo), fizlet/sprite (whole, left and right halves; turned
+// Bricks: the kernel, @fzlt/core/fx (seeds, goo), @fzlt/core/sprite (whole, left and right halves; turned
 // as they spin, baked once), on the Halloween hero core (./hero).
 import { effects, emitter } from "../../../src/fx";
 import { sprites } from "../../../src/sprite";
@@ -10,9 +10,13 @@ import { hero, type HeroParams } from "./hero";
 import { PUMPKIN, PAL } from "./art";
 
 const N = 18, B = 8, G = 120;
+// Its layout per stage aspect (wide, square, tall): where a volley leaves from (x from, x span: of
+// the width), how high it peaks (from, span: of the height), how hard it drifts in, most per volley.
+// A phone's portrait stage gets bigger art (100 rows tall), steeper arcs and the score up top centre.
+const LAY = [0.15, 0.7, 0.6, 0.2, 0.4, 2.4, 0.15, 0.7, 0.6, 0.2, 0.35, 2.4, 0.22, 0.56, 0.55, 0.25, 0.25, 1.8];
 
 export function slice(stage: HTMLElement, slot: HTMLElement, first: SlotTap | null, p: HeroParams) {
-  return hero(stage, slot, first, { words: ["+10", "SLICE!", "x2"], touch: "none" }, (h) => {
+  return hero(stage, slot, first, { words: ["+10", "SLICE!", "x2"], touch: "none", rows: [90, 90, 100], hud: [1, 1, 0.5] }, (h) => {
     const S = h.S, R = h.e.random;
     const fx = effects({ cap: 300, colors: PAL, scorch: 0, gravity: G });
     const { ids: { seed }, emit } = emitter(fx, { seed: { shape: "square", drag: 0.6, gravity: 1, angle: -1.5708, spread: 2.2, speed: [20, 70], size: [1, 1.5], life: [0.6, 1.2] } });
@@ -65,14 +69,14 @@ export function slice(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         blade(px, py);
       },
       step(dt) {
-        const W = S[0]!, H = S[1]!;
+        const W = S[0]!, H = S[1]!, l = S[9]! * 6;
         let live = 0;
         // Launch one, two or three in a volley while the round runs; they peak in the top third.
         if (S[4]! > 0.8 && (T[0] = T[0]! - dt) <= 0) {
           T[0] = (p.seconds / p.count) * 1.6;
-          for (let n = 1 + ((R() * 2.4) | 0); n > 0; n--) {
-            const px = W * (0.15 + R() * 0.7);
-            piece(1, px, H + 8, (W / 2 - px) * (0.3 + R() * 0.4), -Math.sqrt(2 * G * H * (0.6 + R() * 0.2)), (R() - 0.5) * 4);
+          for (let n = 1 + ((R() * LAY[l + 5]!) | 0); n > 0; n--) {
+            const px = W * (LAY[l]! + R() * LAY[l + 1]!);
+            piece(1, px, H + 8, (W / 2 - px) * (LAY[l + 4]! * 0.75 + R() * LAY[l + 4]!), -Math.sqrt(2 * G * H * (LAY[l + 2]! + R() * LAY[l + 3]!)), (R() - 0.5) * 4);
           }
         }
         for (let i = 0; i < N; i++) {

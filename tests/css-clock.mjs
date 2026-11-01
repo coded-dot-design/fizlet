@@ -1,4 +1,4 @@
-// fizlet/css-clock in Chromium: a page's own paused @keyframes follow the kernel clock (computed
+// @fzlt/core/css-clock in Chromium: a page's own paused @keyframes follow the kernel clock (computed
 // values mid-way match the keyframes), an own delay composes with calc(), the engine settles to
 // zero frames when the loops end and every animation is back on its first frame, and Recall
 // restores the root byte for byte.

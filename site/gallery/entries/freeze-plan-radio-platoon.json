@@ -1,0 +1,27 @@
+{
+  "no": 73,
+  "id": "freeze-plan-radio-platoon",
+  "date": "2026-10-31",
+  "prompt": "DOM Battlefield in ten seconds: time is frozen, drag a route for each of your three tanks round the walls, radio the platoon and time runs for three seconds while turrets find targets and the enemy fires back; freeze, plan the next leg, take their HQ flag",
+  "title": "Freeze, plan, radio",
+  "kind": "micro",
+  "theme": "dom-virus",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/sound",
+    "@fzlt/core/slot"
+  ],
+  "made": "by hand",
+  "module": "pieces/freeze-plan-radio-platoon.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "teaser": {
+    "game": "DOM Battlefield",
+    "url": "https://battlefield.domvirus.com/",
+    "label": "Play DOM Battlefield"
+  },
+  "approved": "2026-10-31"
+}

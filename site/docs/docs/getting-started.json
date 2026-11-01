@@ -8,7 +8,7 @@
   "subtitle": "to a running engine.",
   "summary": "Load Fizlet with one script tag or only the modules you need, start an engine, and give the page back with `destroy()`.",
   "lead": [
-    "Fizlet is a micro game and animation engine for the DOM: one shared loop, bounded everything, and the page always comes back exactly as it was. The kernel is {size:fizlet (kernel)} gzip ({kb:fizlet (kernel)}), with no runtime dependencies. This page gets an engine running and shows the four calls everything else builds on."
+    "Fizlet is a micro game and animation engine for the DOM: one shared loop, bounded everything, and the page always comes back exactly as it was. The kernel is {size:@fzlt/core (kernel)} gzip ({kb:@fzlt/core (kernel)}), with no runtime dependencies. This page gets an engine running and shows the four calls everything else builds on."
   ],
   "blocks": [
     {
@@ -22,9 +22,9 @@
         {
           "type": "ol",
           "items": [
-            "**One script tag.** `https://fizlet.com/fizlet.js` puts the kernel and every brick but `fizlet/debug` on `window.fizlet`. No build step. The [quick start](/examples/quick-start.html) runs it as is.",
-            "**ES modules, only what you use.** Import each brick from `https://fizlet.com/dist/`: `index.js` is the kernel, `fx.js` is `fizlet/fx`, and so on. A page that imports the kernel and `fizlet/fx` ships only those.",
-            "**npm (coming soon).** `npm install fizlet` is not published yet. Until it is: `git clone`, `npm ci`, `npm run build` gives you `dist/` with every subpath export (`fizlet`, `fizlet/fx`, `fizlet/slot` …) and its TypeScript types."
+            "**One script tag.** `https://fizlet.com/fizlet.js` puts the kernel and every brick but `@fzlt/core/debug` on `window.fizlet`. No build step. The [quick start](/examples/quick-start.html) runs it as is.",
+            "**ES modules, only what you use.** Import each brick from `https://fizlet.com/dist/`: `index.js` is the kernel, `fx.js` is `@fzlt/core/fx`, and so on. A page that imports the kernel and `@fzlt/core/fx` ships only those.",
+            "**npm.** `npm install @fzlt/core` gives you every subpath export (`@fzlt/core`, `@fzlt/core/fx`, `@fzlt/core/slot` …) and its TypeScript types. Or build from source: `git clone`, `npm ci`, `npm run build` gives you the same `dist/`."
           ]
         }
       ]

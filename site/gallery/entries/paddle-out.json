@@ -1,0 +1,23 @@
+{
+  "no": 77,
+  "id": "paddle-out",
+  "date": "2026-10-31",
+  "prompt": "a paddle-out through the sets: walls of whitewater roll in, hold to duck-dive under each one and let go to come up and paddle; dive too early and your breath runs out, too late and it washes you back; reach the lineup in ten seconds",
+  "title": "Paddle Out",
+  "kind": "micro",
+  "theme": "surf-sesh",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.20.0",
+  "made": "by hand",
+  "module": "pieces/surf/paddle-out.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own",
+  "approved": "2026-10-31"
+}

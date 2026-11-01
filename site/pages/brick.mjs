@@ -2,13 +2,13 @@
 // API is its declarations (scripts/api.mjs), the sizes are measured on this build (scripts/sizes.mjs).
 import { crumbs, esc, icon, REPO, SITE } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
-import { STATUS, BETA_LINE, exportStatus } from "../bricks.mjs";
+import { STATUS, BETA_LINE, IN_HOUSE, exportStatus, inHouse } from "../bricks.mjs";
+import { brickTile, brickMini, brickOf, prose, statusSticker } from "../brick-ui.mjs";
+
+export { prose };
 
 const kb = (bytes) => (bytes / 1024).toFixed(1);
 const num = (n) => n.toLocaleString("en-US");
-
-/** `code` spans in doc text, everything else escaped. */
-export const prose = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
 
 /** A brick's status flag as a Board UI status pill (flat: a readout, not a key). */
 export const statusPill = (status) => `<span class="status-pill" data-flag="${status}" title="${esc(STATUS[status].line)}">${STATUS[status].label}</span>`;
@@ -20,6 +20,7 @@ function statusPanel(brick) {
   return `<div class="panel bp-status" data-flag="${brick.status}">
       <div class="code-head"><span class="bui-label"><b>STATUS</b> · <a href="./#status">what the flags mean</a></span>${statusPill(brick.status)}</div>
       <p>${esc(s.line)}${brick.why ? ` ${esc(brick.why)}` : ""}</p>
+      ${inHouse(brick) ? `<p><b>${esc(IN_HOUSE.label.toUpperCase())}.</b> ${esc(IN_HOUSE.line)} <a href="../${IN_HOUSE.guide}">Build your own room server</a>.</p>` : ""}
       <dl>
         <div><dt>SINCE</dt><dd>v${esc(brick.since)}</dd></div>
         <div><dt>SHIPPED IN</dt><dd>${brick.used.length ? `<ul>${list(brick.used)}</ul>` : "no released game or page yet"}</dd></div>
@@ -47,7 +48,7 @@ function sizeCards(brick, sizes) {
 }
 
 /** An export's anchor on its brick page. */
-export const apiId = (mod, name) => `api-${mod.replace(/\W+/g, "-")}-${name}`;
+export const apiId = (mod, name) => `api-${mod.replace(/^@/, "").replace(/\W+/g, "-")}-${name}`;
 
 /**
  * One export: its name, kind and status flag, its doc comment, then (for a function or class) each
@@ -107,7 +108,7 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
     ${crumbs("../", [["bricks/", "Bricks"]], brick.name)}
     <div class="split bp-top" style="--tone: var(--k-${brick.role})">
       <div>
-        <p class="eyebrow"><span class="index">${esc(brick.tag)}</span> V${esc(version)} ${statusPill(brick.status)}</p>
+        <p class="eyebrow bp-eyebrow"><span class="index">${esc(brick.tag)}</span> V${esc(version)} ${statusSticker(brick.status)}</p>
         <h1 id="bp-title" class="bp-title"><code>${esc(brick.name)}</code></h1>
         <p class="lead">${prose(lead.summary)}</p>
         <div class="split-keys"><a class="bui-key bui-arcade bui-sys" href="#api">${icon("code", 16)}API</a><a class="bui-key bui-arcade bui-cmd" href="${REPO}/blob/main/${lead.src}">${icon("github", 16)}Source ↗</a></div>
@@ -119,7 +120,7 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
     ${statusPanel(brick)}
     <div class="bp-use">
       <div class="panel code-card"><div class="code-head"><span class="bui-label"><b>MODULES</b> · hosted on this site</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(esm)}</code></pre></div>
-      <div class="panel code-card bp-npm"><div class="code-head"><span class="bui-label"><b>NPM</b> · <span class="soon-tag">COMING SOON</span></span></div><pre class="code"><code>${esc(`npm install fizlet   # not published yet\n${npm}`)}</code></pre></div>
+      <div class="panel code-card bp-npm"><div class="code-head"><span class="bui-label"><b>NPM</b> · @fzlt/core</span></div><pre class="code"><code>${esc(`npm install @fzlt/core\n${npm}`)}</code></pre></div>
     </div>
     ${brick.example ? `<div class="panel code-card bp-snippet"><div class="code-head"><span class="bui-label"><b>EXAMPLE</b> · typechecked against v${esc(version)}</span><button class="bui-key copy" type="button" data-copy>${icon("copy", 14)}Copy</button></div><pre class="code"><code>${esc(brick.example)}</code></pre></div>` : ""}
     ${brick.snippet ? `<div class="panel code-card bp-snippet"><div class="code-head"><span class="bui-label"><b>IN SHORT</b></span></div><pre class="code"><code>${esc(brick.snippet)}</code></pre></div>` : ""}
@@ -138,34 +139,51 @@ export function brickPage({ brick, mods, sizes, version, prev, next, demoSize })
 function statusLegend(bricks) {
   return Object.entries(STATUS).map(([k, s]) => {
     const n = bricks.filter((b) => b.status === k).length;
-    return `<li class="panel status-card" data-flag="${k}"><div class="brick-top">${statusPill(k)}<small>${n ? `${n} ${n === 1 ? "brick" : "bricks"}` : k === "roadmap" ? "planned below" : "none today"}</small></div>
+    return `<li class="panel status-card" data-flag="${k}"><div class="brick-top">${statusSticker(k)}<small>${n ? `${n} ${n === 1 ? "brick" : "bricks"}` : k === "roadmap" ? "planned below" : "none today"}</small></div>
         <p>${esc(s.line)}</p>
         <ul>${s.criteria.map((c) => `<li>${prose(c)}</li>`).join("")}</ul>
       </li>`;
   }).join("\n      ");
 }
 
+/**
+ * The live diagram: every brick and what it imports, laid out by @fzlt/core/layout and drawn by
+ * @fzlt/core/view-canvas (site/brick-graph.ts). `graph` is site/brick-graph.mjs's data plus the live
+ * chunk's file and measured gzip bytes.
+ */
+const graphFigure = (g) => {
+  const { live, bytes, ...data } = g, kinds = [0, 1, 2].map((k) => data.links.filter((l) => l[2] === k).length);
+  return `<figure class="panel bgraph" data-brick-graph data-graph="${esc(JSON.stringify(data))}">
+      <div class="bgraph-stage" data-graph-stage></div>
+      <figcaption>
+        <span class="bui-label"><b>LIVE</b> · ${data.nodes.length} modules · ${data.links.length} links, read from the source</span>
+        <span class="bgraph-key"><i class="k0"></i>imports (its code ships) ${kinds[0]} · <i class="k1"></i>takes its types ${kinds[1]} · <i class="k2"></i>planned needs ${kinds[2]}</span>
+        <span>Drag a brick; hover one for its links. Laid out by <a href="layout.html"><code>@fzlt/core/layout</code></a>, drawn by <a href="view-canvas.html"><code>@fzlt/core/view-canvas</code></a>: <b>${bytes.toLocaleString("en-US")} B</b> gzip with the kernel, and 0 frames once it settles.</span>
+      </figcaption>
+    </figure>`;
+};
+
 /** bricks/index.html: every brick, with its measured size and its status. */
-export function bricksIndex({ bricks, sizes, version, planned = [] }) {
-  const cards = bricks.map((b) => {
-    const s = sizes.find((x) => x.name === b.sizes[0]);
-    return `<li class="panel brick" style="--tone: var(--k-${b.role})">
-        <div class="brick-top"><span class="brick-tag">${esc(b.tag)}</span>${statusPill(b.status)}<span class="brick-size"><b>${kb(s.gzip)} KB</b><small> / ${kb(s.budget)} KB gzip</small></span></div>
-        <h2><a href="${b.id}.html"><code>${esc(b.name)}</code></a></h2>
-        ${b.card ? b.card("bricks") : ""}
-        <p>${prose(b.summary)}</p>
-      </li>`;
-  }).join("\n      ");
+export function bricksIndex({ bricks, sizes, version, planned = [], graph }) {
+  const cards = bricks.filter((b) => !inHouse(b)).map((b) => brickTile({ brick: b, size: sizes.find((x) => x.name === b.sizes[0]), href: `${b.id}.html`, h: "h3", toy: b.card ? b.card("bricks") : "" })).join("\n      ");
   return `
-<section class="section" aria-labelledby="bi-title">
+<section class="section" id="bricks" aria-labelledby="bi-title">
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow"><span class="index">${bricks.length}</span> BRICKS · V${esc(version)}</p>
-      <h1 id="bi-title">Kernel and<br><em>bricks.</em></h1>
+      <h2 id="bi-title">Kernel and<br><em>bricks.</em></h2>
       <p class="lead">One small kernel and a box of bricks, each its own import with its own size budget. Each page is generated from the source: the API from the type declarations, the size measured on this build.</p>
     </div>
+    ${graph ? graphFigure(graph) : ""}
     <ul class="bricks">
       ${cards}
+    </ul>
+    <div class="section-head" id="in-house">
+      <h2>${esc(IN_HOUSE.label)}</h2>
+      <p class="lead">${esc(IN_HOUSE.line)} These bricks stay in the package (MIT, with their flags), and our games run them against our own room server, which isn't a hosted service. <a href="../${IN_HOUSE.guide}">Build your own room server</a>: the wire protocol, the pattern and a threat checklist.</p>
+    </div>
+    <ul class="bricks in-house">
+      ${bricks.filter(inHouse).map((b) => brickTile({ brick: b, size: sizes.find((x) => x.name === b.sizes[0]), href: `${b.id}.html`, h: "h3", toy: b.card ? b.card("bricks") : "" })).join("\n      ")}
     </ul>
     <div class="section-head" id="status">
       <h2>Status flags</h2>
@@ -180,10 +198,11 @@ export function bricksIndex({ bricks, sizes, version, planned = [] }) {
     </div>
     <ul class="bricks planned">
       ${planned.map((p) => `<li class="panel brick" data-flag="roadmap">
-        <div class="brick-top"><span class="brick-tag">${esc(p.phase)}</span>${statusPill("roadmap")}<span class="brick-size"><small>target ≤ ${kb(p.target)} KB gzip</small></span></div>
-        <h3><code>${esc(p.name)}</code></h3>
-        <p>${esc(p.purpose)}</p>
-        <p class="needs"><small>NEEDS</small> ${p.needs.map((n) => `<code>${esc(n)}</code>`).join(" ")}</p>
+        <span class="brick-stickers">${statusSticker("roadmap")}</span>
+        <h3 class="brick-name">${esc(p.name)}</h3>
+        <p class="brick-what">${esc(p.purpose)}</p>
+        <ul class="brick-chips" aria-label="Planned"><li><b>${esc(p.phase)}</b></li><li>target <b>≤ ${kb(p.target)} KB</b> gzip</li></ul>
+        <p class="brick-needs"><small>NEEDS</small> ${p.needs.map((n) => { const b = brickOf(bricks, n); return b ? brickMini({ brick: b, size: sizes.find((x) => x.name === b.sizes[0]), href: `${b.id}.html` }) : `<code>${esc(n)}</code>`; }).join(" ")}</p>
       </li>`).join("\n      ")}
     </ul>
   </div>

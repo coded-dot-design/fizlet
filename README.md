@@ -1,15 +1,20 @@
-# Fizlet
+# Fizlet™
 
-By [Chris Cooley](https://coded.design/). **Tiny physics for your page.** A micro game and animation engine for the DOM: one shared loop,
-bounded everything, zero allocation in the steady state, and the page always comes back exactly as
-it was. No runtime dependencies, ever.
+[![npm @fzlt/core](https://img.shields.io/npm/v/@fzlt/core?label=npm%20%40fzlt%2Fcore)](https://www.npmjs.com/package/@fzlt/core)
+
+By [Chris Cooley](https://coded.design/). **Fizlet is the building blocks for animation and games
+on the DOM.** Each brick is a task we wrote hundreds of times over two decades,
+now kept by AI and human developers who chase performance at all costs. You bring the logic and
+style, even from a prompt. One shared loop, bounded everything, zero allocation in the steady state,
+and the page always comes back exactly as it was. No runtime dependencies, ever.
 
 **Website, live demo and quick start: https://coded-dot-design.github.io/fizlet/**
 
 The "fiz" is fizz (the pop of an effect) and a nod to physics; the "-let" is small, like an applet.
 Fizlet runs every DOM VIRUS game: Battlefield Blitz, [DOM Battlefield](https://coded-dot-design.github.io/dom-battlefield/)
 1.0, and the [DOM VIRUS](https://coded-dot-design.github.io/dom-virus/) arcade (Null Invaders,
-Byte Runner and Sherman Bytes 1.0, Swarm Protocol 1.4).
+Byte Runner and Sherman Bytes 1.0, Swarm Protocol 1.4). "The page is the board" is DOM VIRUS's
+approach: one use of the bricks.
 
 > **Public beta (0.x).** Fizlet 0.x is a public beta: every brick carries a status flag, and a 0.x
 > minor release may change a BETA brick's API (the CHANGELOG says how). COMPLETE bricks keep
@@ -18,16 +23,34 @@ Byte Runner and Sherman Bytes 1.0, Swarm Protocol 1.4).
 ## Install
 
 ```sh
-npm install fizlet   # coming soon: not published yet
+npm i @fzlt/core
 ```
 
-Until the first npm release, use the hosted builds or build from source (`npm ci && npm run build`
-gives you `dist/` with the subpath exports). One package, one import per piece (`fizlet`, `fizlet/fx`, `fizlet/slot`, ...): you ship only what
-you import. ES modules with TypeScript types; no runtime dependencies. No npm? The site hosts the
-same builds (see the [quick start](https://coded-dot-design.github.io/fizlet/)).
+Fizlet on npm is `@fzlt/core` (the `fzlt` org; npm refused `fizlet` and `fzlt` as too close to existing
+names). The project, repo and site are still Fizlet.
+Fizlet is not affiliated with the `figlet` or `flat` packages.
 
 ```ts
-import { createEngine } from "fizlet";
+import { createEngine } from "@fzlt/core"; // the kernel
+import { effects } from "@fzlt/core/fx";    // one import per brick: you ship only what you import
+import "@fzlt/core/ui/board-ui.css";        // the Board UI stylesheet, when you use @fzlt/core/ui
+```
+
+One package, one subpath per brick (`@fzlt/core`, `@fzlt/core/fx`, `@fzlt/core/slot`, ...; the full list is
+under [What's in the box](#whats-in-the-box)). ES modules with TypeScript types (Node and bundler
+resolution); no runtime dependencies; only the stylesheet has side effects, so a bundler drops
+every brick you don't import. Releases are published from CI with
+[npm provenance](https://docs.npmjs.com/generating-provenance-statements), so
+`npm audit signatures` can check that the tarball was built from this repo.
+
+> On npm since 0.21.2 (2026-10-31), published from CI on tag (`.github/workflows/release.yml`).
+> No npm? The site hosts the same builds (see the
+> [quick start](https://coded-dot-design.github.io/fizlet/)), or build from source: `git clone
+> https://github.com/coded-dot-design/fizlet && cd fizlet && npm ci && npm run build` gives you
+> `dist/` with the same subpath exports.
+
+```ts
+import { createEngine } from "@fzlt/core";
 
 const engine = createEngine({ root: document.querySelector("#game"), seed: 7 });
 const sparks = engine.pool("sparks", 64, () => ({ x: 0, y: 0, vx: 0, vy: 0, el: null }));
@@ -54,7 +77,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
    alone allocates nothing. Hot-path tip: pass typed arrays and indices (`grid.add`, `grid.near`,
    `overlap`) rather than many numbers, so V8 never boxes them in big step functions.
 4. **No layout reads in the step.** Read in `read`, simulate in `step`, write in `render`.
-   `fizlet/debug` counts any layout read made during a step.
+   `@fzlt/core/debug` counts any layout read made during a step.
 5. **Change-only writes.** The ledger skips writes that change nothing.
 6. **Pause by default.** Hidden tab, page leaving, root off screen, typing in the host's own fields
    (reduced motion is opt-in). Zero CPU while paused.
@@ -64,11 +87,11 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
 8. **Embed-safe.** No globals, no global styles, many engines per page. Every root Fizlet owns is
    CSS-contained: the slot stage `contain: strict`; the pad, the match overlay and the launch burst
    `contain: layout style` (each is already positioned, so nothing moves or clips: a browser test
-   compares every box inside with containment on and off); the `fizlet/ui` mount root
+   compares every box inside with containment on and off); the `@fzlt/core/ui` mount root
    `contain: style` (it is static, so layout or paint containment could move or clip a board's own
    layers). `hud` and `board-page` own no box: they write into the host's markup and never add
    containment to it.
-9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,443 bytes); each brick has its own budget,
+9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,413 bytes); each brick has its own budget,
    1.5 to 5 KB, and a page build (kernel + slot + input + fx) ≤ 7 KB (`scripts/sizes.mjs`); over
    budget, the build fails.
 
@@ -79,33 +102,43 @@ in included, 1 KB = 1024 bytes.
 
 | Import | Status | What | Size (min + gzip) |
 |---|---|---|---|
-| `fizlet` / `fizlet/kernel` | COMPLETE | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | 3.4 KB |
-| `fizlet/debug` | COMPLETE | `guardLayout(engine)`: counts layout reads during a step (dev only) | 0.5 KB |
-| `fizlet/perf` | COMPLETE | `perf(engine, { host, corner })`: the players' performance overlay (off by default): fps, a frame-time bar chart, dropped frames, engine work, live entities, JS heap | 1.9 KB |
-| `fizlet/input` | COMPLETE | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer`, `dispose` | 1.3 KB |
-| `fizlet/pad` | COMPLETE | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | 2.0 KB |
-| `fizlet/collide` | COMPLETE | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | 1.3 KB |
-| `fizlet/grid` | BETA | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | 1.5 KB |
-| `fizlet/fx` | COMPLETE | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake, `gravity`; `emitter(fx, KINDS)`: named particle kinds as data (bubble, spark, drip, debris, or your own), tree-shaken when unused | 2.7 KB (`emitter` and `KINDS` tree-shake away when unused) |
-| `fizlet/camera` | BETA | `camera(engine, el, { ease, min, max, contain })`: the page is the camera. `to`, `pan`, `home`, `toWorld`; helpers `zoomAt`, `flyTo`, `fit`, `toScreen` stand alone (a hero that only zooms leaves them out); eased, settles, jumps with reduced motion, contained (no sideways scroll), one transform through the ledger (Recall exact), no allocation per step | 1.4 KB |
-| `fizlet/sprite` | COMPLETE | `sprites(defs, { palettes, cap })`: pixel-art characters as data, re-tinted by palette role, baked once per sprite/frame/scale/palette into a capped cache, `draw()` with no allocation; `spriteSVG()` / `spriteURL()` for page characters, standalone (an SVG-only page ships ~1 KB less) | 1.4 KB |
-| `fizlet/sound` | COMPLETE | `sound(engine, { cues })`: event ring → synth cues `fire`, `hit`, `boom`, `hurt`, `power`, `ready`, `win`, `end`, `click` (or your own player), at most 8 voices, unlock on gesture, `dispose` | 1.0 KB |
-| `fizlet/embed` | COMPLETE | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | 2.0 KB |
-| `fizlet/slot` | COMPLETE | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | 1.8 KB |
-| `fizlet/presence` | BETA | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | 1.8 KB |
-| `fizlet/presence/check` | BETA | `syncCheck(setup, opts)`: runs a sim as lockstep clients and finds the first diverged frame (tests only) | 4.8 KB |
-| `fizlet/hud` | BETA | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | 1.3 KB |
-| `fizlet/match` | BETA | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.6 KB |
-| `fizlet/rules` | COMPLETE | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
-| `fizlet/steer` | BETA | `steer({ cap, speed, turn, blocked, random })`: movers on typed arrays (`x`, `y`, heading `a`) with `seek`, `flee`, `arrive` (or `arriveGoal`, the goal in `gx`/`gy`), `wander` and `patrol`; a turn-rate-limited heading and per-axis wall slide (Blitz's tank drive); DOM-free, zero allocation | 0.9 KB |
-| `fizlet/coach` | BETA | `flag(key)` (a localStorage switch that never throws), `tour(engine, { steps, tips, every })` (tutorial steps, then tips in turn; `coach:step` on the ring; zero allocation) and `card(host, { onEnd })` (the Board UI coach card, rings the control it is about) | 1.2 KB |
-| `fizlet/touch` | BETA | `lockTouch(doc, sel)`: a pinch (iOS gesture events, multi-touch) on a slot, a game host, the pad or `[data-touch-lock]` never zooms the page; one finger untouched; `null` locks the whole page; returns `release()`. The kit CSS adds `touch-action` (no double-tap zoom) | 0.3 KB |
-| `fizlet/timeline` | BETA | `timeline(engine, { repeat, yoyo, rate, motion })`: DOM choreography on the kernel clock. `to(targets, values, { dur, delay, ease, stagger, at })` keyframe tracks on CSS values (transform, opacity, clip-path, custom properties: the numbers change, the words stay) or typed-array numbers; `label`, `play`, `reverse`, `pause`, `seek`, `finish`, `revert`, `done()`; events on the ring; change-only writes through the ledger (Recall exact), settles when done, jumps to the end with reduced motion, no allocation per step | 2.0 KB |
-| `fizlet/css-clock` | BETA | `cssClock(root, { span, loops, prop, fps, motion, signal })`: a page's own CSS `@keyframes` on the kernel clock. Each animation stays in the stylesheet, `paused`, and reads its time from `--fz-t`; a timeline moves that one property through the ledger. One shared frame loop, no frames off screen, rests on frame one after `loops` plays and settles, reduced motion lands on the rest frame, `destroy()` is Recall | 5.3 KB |
-| `fizlet/board-page` | BETA | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 4.1 KB |
-| `fizlet/arcade` | COMPLETE | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard chosen per game with `hud` (`arcadeHud()`: the card, the default; `skirmishHud()`: Blitz's bar with clock, rank, armor bar, feed, banner, its flow on `fizlet/match`, aim toggles, counted keys), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 17.9 KB for a card game with every brick it composes; 23.8 KB with `skirmishHud` (in-page art via `ctx.attach`) |
-| `fizlet/ui` + `fizlet/ui/board-ui.css` | COMPLETE | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.8 KB + 4.9 KB css |
-| `fizlet/ui/tokens.json` | COMPLETE | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
+| `@fzlt/core` / `@fzlt/core/kernel` | COMPLETE | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | 3.3 KB |
+| `@fzlt/core/debug` | COMPLETE | `guardLayout(engine)`: counts layout reads during a step (dev only) | 0.5 KB |
+| `@fzlt/core/perf` | COMPLETE | `perf(engine, { host, corner })`: the players' performance overlay (off by default): fps, a frame-time bar chart, dropped frames, engine work, live entities, JS heap | 2.0 KB |
+| `@fzlt/core/input` | COMPLETE | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer`, `dispose` | 1.3 KB |
+| `@fzlt/core/pad` | COMPLETE | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | 2.0 KB |
+| `@fzlt/core/collide` | COMPLETE | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | 1.2 KB |
+| `@fzlt/core/grid` | BETA | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | 1.6 KB |
+| `@fzlt/core/fx` | COMPLETE | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake, `gravity`; `emitter(fx, KINDS)`: named particle kinds as data (bubble, spark, drip, debris, or your own), tree-shaken when unused | 2.7 KB (`emitter` and `KINDS` tree-shake away when unused) |
+| `@fzlt/core/camera` | BETA | `camera(engine, el, { ease, min, max, contain })`: the page is the camera. `to`, `pan`, `home`, `toWorld`; helpers `zoomAt`, `flyTo`, `fit`, `toScreen` stand alone (a hero that only zooms leaves them out); eased, settles, jumps with reduced motion, contained (no sideways scroll), one transform through the ledger (Recall exact), no allocation per step | 1.4 KB |
+| `@fzlt/core/sprite` | COMPLETE | `sprites(defs, { palettes, cap })`: pixel-art characters as data, re-tinted by palette role, baked once per sprite/frame/scale/palette into a capped cache, `draw()` with no allocation; `spriteSVG()` / `spriteURL()` for page characters, standalone (an SVG-only page ships ~1 KB less) | 1.4 KB |
+| `@fzlt/core/sound` | COMPLETE | `sound(engine, { cues })`: event ring → synth cues `fire`, `hit`, `boom`, `hurt`, `power`, `ready`, `win`, `end`, `click` (or your own player), at most 8 voices, unlock on gesture, `dispose` | 1.0 KB |
+| `@fzlt/core/embed` | COMPLETE | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | 2.0 KB |
+| `@fzlt/core/slot` | COMPLETE | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | 1.8 KB |
+| `@fzlt/core/hud` | BETA | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | 1.3 KB |
+| `@fzlt/core/match` | BETA | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.6 KB |
+| `@fzlt/core/rules` | COMPLETE | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
+| `@fzlt/core/steer` | BETA | `steer({ cap, speed, turn, blocked, random })`: movers on typed arrays (`x`, `y`, heading `a`) with `seek`, `flee`, `arrive` (or `arriveGoal`, the goal in `gx`/`gy`), `wander` and `patrol`; a turn-rate-limited heading and per-axis wall slide (Blitz's tank drive); DOM-free, zero allocation | 1.1 KB |
+| `@fzlt/core/coach` | BETA | `flag(key)` (a localStorage switch that never throws), `tour(engine, { steps, tips, every })` (tutorial steps, then tips in turn; `coach:step` on the ring; zero allocation) and `card(host, { onEnd })` (the Board UI coach card, rings the control it is about) | 1.2 KB |
+| `@fzlt/core/touch` | BETA | `lockTouch(doc, sel)`: a pinch (iOS gesture events, multi-touch) on a slot, a game host, the pad or `[data-touch-lock]` never zooms the page; one finger untouched; `null` locks the whole page; returns `release()`. The kit CSS adds `touch-action` (no double-tap zoom) | 0.3 KB |
+| `@fzlt/core/timeline` | BETA | `timeline(engine, { repeat, yoyo, rate, motion })`: DOM choreography on the kernel clock. `to(targets, values, { dur, delay, ease, stagger, at })` keyframe tracks on CSS values (transform, opacity, clip-path, custom properties: the numbers change, the words stay) or typed-array numbers; `label`, `play`, `reverse`, `pause`, `seek`, `finish`, `revert`, `done()`; events on the ring; change-only writes through the ledger (Recall exact), settles when done, jumps to the end with reduced motion, no allocation per step | 2.1 KB |
+| `@fzlt/core/css-clock` | BETA | `cssClock(root, { span, loops, prop, fps, motion, signal })`: a page's own CSS `@keyframes` on the kernel clock. Each animation stays in the stylesheet, `paused`, and reads its time from `--fz-t`; a timeline moves that one property through the ledger. One shared frame loop, no frames off screen, rests on frame one after `loops` plays and settles, reduced motion lands on the rest frame, `destroy()` is Recall | 5.2 KB |
+| `@fzlt/core/layout` | EXPERIMENTAL | `layout(engine, { cap, links, charge, distance, gravity, theta, ticks, motion })`: force-directed layout on typed arrays (`x`, `y`). Nodes repel through a Barnes-Hut quadtree rebuilt each step (O(n log n)), links pull toward their length, a weak pull holds the centre; `add`, `link`, `pin` / `free` (drags), `heat`, `nearest`, `bounds` (frame it with `@fzlt/core/camera`). Cools over `ticks` steps, then rests and stops calling `busy()`: the engine settles. Replays bit for bit; reduced motion lands on the rest in one step; DOM-free, zero allocation | 1.7 KB |
+| `@fzlt/core/view-canvas` | EXPERIMENTAL | `viewCanvas(engine, root, { draw, maxDpr, label })`: one overlay canvas per root, its backing store the CSS size × devicePixelRatio (capped at 2), drawing in CSS px. `dirty([x, y, w, h])` grows one box; the render phase clears, clips and redraws only those device pixels, and nothing when nothing is dirty. Never keeps the engine awake (a `dirty()` wakes a settled one for one redraw); measures only after a resize or zoom; Recall removes the canvas; zero allocation | 0.9 KB |
+| `@fzlt/core/board-page` | COMPLETE | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 4.0 KB |
+| `@fzlt/core/arcade` | COMPLETE | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard chosen per game with `hud` (`arcadeHud()`: the card, the default; `skirmishHud()`: Blitz's bar with clock, rank, armor bar, feed, banner, its flow on `@fzlt/core/match`, aim toggles, counted keys), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 17.9 KB for a card game with every brick it composes; 23.8 KB with `skirmishHud` (in-page art via `ctx.attach`) |
+| `@fzlt/core/ui` + `@fzlt/core/ui/board-ui.css` | COMPLETE | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.8 KB + 5.0 KB css |
+| `@fzlt/core/ui/tokens.json` | COMPLETE | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
+
+**In-house / experimental.** Used in our games. Not a supported multiplayer service. These bricks
+stay in the package (MIT, flagged as below), but there is no hosted room server: to run your own,
+follow [Build your own room server](https://fizlet.com/guides/build-your-own-room-server/) (the wire
+protocol presence speaks, the one-room-one-object pattern and a threat checklist).
+
+| Import | Status | What | Size (min + gzip) |
+|---|---|---|---|
+| `@fzlt/core/presence` | BETA | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | 1.8 KB |
+| `@fzlt/core/presence/check` | BETA | `syncCheck(setup, opts)`: runs a sim as lockstep clients and finds the first diverged frame (tests only) | 4.8 KB |
 
 ### Status flags
 
@@ -117,14 +150,13 @@ table above, the brick pages and the bricks index read it, and `tests/status.tes
 |---|---|---|
 | COMPLETE | Done, and always getting smaller and faster. | Its own export and CI size budget; tests (Node, and Chromium where it touches the page), with zero allocation per step where it runs per step; a README row and a brick page; used by a released game or production page beyond its own demo; no breaking change since it first shipped (one moves it back to BETA). |
 | BETA | Tested and budgeted; not yet carried by a shipped game, or its API is still moving. | Everything COMPLETE needs except the shipped user or the stable API. Safe to build on; a minor release may change it, and the CHANGELOG says how. |
-| EXPERIMENTAL | In the package to try; no promise yet. | Its own export and budget; tests may be partial; may change or go away in any release. None today. |
+| EXPERIMENTAL | In the package to try; no promise yet. | Its own export and budget; tests may be partial; may change or go away in any release. |
 | ROADMAP | Planned, not shipped. | A name, a purpose, a size target and the bricks it needs; not in the package. |
 | DEPRECATED | Still in the package, replaced by something named. | Removed in the first minor release after its replacement is COMPLETE. None today. |
 
-ROADMAP bricks, each with its phase and size target (a goal until measured): `fizlet/layout` and
-`fizlet/view-canvas` (E10, diagrams), `fizlet/actor`, `fizlet/aim` and `fizlet/view-dom` (E11),
-`fizlet/snapshot` and `fizlet/agent` (E12, multiplayer everywhere), `fizlet/scene` (E13),
-`fizlet/announce` (E14) and `fizlet/music` (E15). The phases, E0 to E16, are the
+ROADMAP bricks, each with its phase and size target (a goal until measured): `@fzlt/core/actor`, `@fzlt/core/aim` and `@fzlt/core/view-dom` (E11),
+`@fzlt/core/snapshot` and `@fzlt/core/agent` (E12, multiplayer everywhere), `@fzlt/core/scene` (E13),
+`@fzlt/core/announce` (E14) and `@fzlt/core/music` (E15). The phases, E0 to E16, are the
 [roadmap on the website](https://fizlet.com/#roadmap).
 
 ### Input, sound and embed semantics
@@ -157,18 +189,18 @@ ROADMAP bricks, each with its phase and size target (a goal until measured): `fi
 astro-base-engine (a page engine for Astro sites) renders each `[slot animation]`
 as a sized, described placeholder:
 `<figure class="ae-slot" data-slot-target="<page>#<slot>" role="img" aria-label="…">`.
-`fizlet/slot` fills it with a scene:
+`@fzlt/core/slot` fills it with a scene:
 
 ```ts
-import { slot } from "fizlet/slot";
+import { slot } from "@fzlt/core/slot";
 
 slot("home#hero", () => import("./hero-scene.js").then((m) => m.mount));
 
 // hero-scene.ts: build inside the stage; return destroy (and accessible: true only when the
 // scene renders real accessible content, which drops the slot's role="img").
-import { createEngine } from "fizlet";
-import { effects } from "fizlet/fx";
-import type { SlotTap } from "fizlet/slot";
+import { createEngine } from "@fzlt/core";
+import { effects } from "@fzlt/core/fx";
+import type { SlotTap } from "@fzlt/core/slot";
 export function mount(stage: HTMLElement, figure: HTMLElement, first: SlotTap | null) {
   // settle: no frames once nothing moves (0.5 s quiet); fps: an ambient hero needs no more than 30.
   const engine = createEngine({ root: stage, pause: { reducedMotion: true }, settle: 0.5, fps: 30 });
@@ -199,15 +231,15 @@ export function mount(stage: HTMLElement, figure: HTMLElement, first: SlotTap | 
 - `findSlot("<page>#<slot>")` returns the figure; `slot(figure, load)` takes the element too. An
   unknown target is inert (`el` is `null`).
 
-### The board (`fizlet/grid`)
+### The board (`@fzlt/core/grid`)
 
 The board layer a board game sits on, separate from the rules. A `cols × rows` grid in typed
 arrays (`terrain` id, move `cost`, `flags`: `BLOCKED`, `COVER`, `OCCUPIED`, bits 8–128 yours).
 Every search reuses buffers made once in `board()`, so paths, sight and ranges never allocate.
 
 ```ts
-import { board, BLOCKED, COVER, OCCUPIED } from "fizlet/grid";
-import { seeded } from "fizlet";
+import { board, BLOCKED, COVER, OCCUPIED } from "@fzlt/core/grid";
+import { seeded } from "@fzlt/core";
 
 const ROCK = 1, HEDGE = 2;                  // your terrain ids (0 = open ground)
 
@@ -227,16 +259,16 @@ const m = b.flood(unit, 4, out);             // movement range, nearest first; b
 
 Costs are per cell entered: an orthogonal step into a cost-1 cell costs 1, a diagonal 1.4 (no
 corner cutting). `path` avoids `BLOCKED | OCCUPIED` by default (an occupied goal is allowed: attack
-it). Not collision: `fizlet/collide` re-buckets moving bodies every step; the board is the ground
+it). Not collision: `@fzlt/core/collide` re-buckets moving bodies every step; the board is the ground
 they cross. Use one cell size for both.
 
 ### Sprites
 
-`fizlet/sprite` is the character layer's drawing primitive: good and bad characters, weapons,
+`@fzlt/core/sprite` is the character layer's drawing primitive: good and bad characters, weapons,
 pickups, written as data a prompt can compose.
 
 ```ts
-import { sprites } from "fizlet/sprite";
+import { sprites } from "@fzlt/core/sprite";
 
 const art = sprites({
   bug: {
@@ -264,14 +296,14 @@ host.innerHTML = art.svg("bug");                      // or <img src={art.url("b
 - **Draw**: one `drawImage` (plus save/rotate/restore when turned), smoothing off, nothing
   allocated once baked (tested in Node and with Chromium's sampling heap profiler).
 
-### Touch pad (`fizlet/pad`)
+### Touch pad (`@fzlt/core/pad`)
 
 On-screen controls that drive your `controls` intents, so game code reads `down`, `hit` and `axis`
 and never knows which control scheme is on screen. Swap it with one call, at any time.
 
 ```ts
-import { controls } from "fizlet/input";
-import { pad } from "fizlet/pad";
+import { controls } from "@fzlt/core/input";
+import { pad } from "@fzlt/core/pad";
 
 const input = controls(e, { keys: { up: ["KeyW"], down: ["KeyS"], left: ["KeyA"], right: ["KeyD"], fire: ["Space"], auto: ["KeyQ"] } });
 const touch = pad(e, input, {
@@ -297,15 +329,15 @@ touch.setScheme("dpad"); // fingers on the old control let go; no listener is ad
   `destroy()` (or `engine.destroy()`) gives the page back exactly. Keys are named buttons;
   Enter / Space taps them; reduced motion turns the kit's transitions off.
 
-### Performance overlay (`fizlet/perf`)
+### Performance overlay (`@fzlt/core/perf`)
 
 A stats panel for players, behind a Settings switch: live fps, a rolling frame-time bar chart,
 dropped frames, the engine's work per frame, live entities and (Chromium) the JS heap. Off by
 default, so shipped gameplay doesn't change until a player turns it on.
 
 ```ts
-import { perf } from "fizlet/perf";
-import { setting, PERF_KEY } from "fizlet/ui";
+import { perf } from "@fzlt/core/perf";
+import { setting, PERF_KEY } from "@fzlt/core/ui";
 
 let opt;
 const overlay = perf(engine, { corner: "tr", change: (on) => opt?.set(on) }); // F9 toggles it too
@@ -332,7 +364,7 @@ opt = setting(settingsKey, PERF_KEY, (on) => overlay.show(on), engine.signal); /
 - **Contained, Recall exact**: one root, `contain: layout paint style`, added through the ledger;
   shows and hides through it too. `destroy()` (or `engine.destroy()`) removes it, its key and its
   system, and the host is back byte for byte.
-- **Settings switch** (`fizlet/ui`): `setting(button, key, change, signal, fallback = false)` keeps a
+- **Settings switch** (`@fzlt/core/ui`): `setting(button, key, change, signal, fallback = false)` keeps a
   kit key `aria-pressed` (the locked state) and stores `"1"` / `"0"` in localStorage; storage that
   throws (private mode, a sandboxed frame) is ignored. `PERF_KEY` is `"dom-virus:perf"`.
 
@@ -389,17 +421,17 @@ Bounded everything (contract 2) means something has to give at capacity. What gi
 - `engine.random()`: seeded; `engine.random.state` snapshots and restores it.
 - `engine.stats()`: frames, steps, dropped time, frame ms, pools, events, ledger size, pause reasons.
 
-### Multiplayer (`fizlet/presence`)
+### Multiplayer (`@fzlt/core/presence`)
 
 Every peer runs the same fixed-step sim from the same seed; only inputs cross the wire (12 bytes
 each). Your input is sent `delay` frames ahead, and a frame runs only once every player's input
 for it is here, so peers can't drift. Keep the sim on `engine.random` and typed arrays.
 
 ```js
-import { createEngine } from "fizlet";
-import { presence, join, hash32 } from "fizlet/presence";
+import { createEngine } from "@fzlt/core";
+import { presence, join, hash32 } from "@fzlt/core/presence";
 
-const { transport, slot, players, seed } = await join("wss://your-rooms.example/room/abc?players=2");
+const { transport, slot, players, seed } = await join("wss://your-rooms.example/room/0?players=2", undefined, ["fizlet-rooms"]);
 const e = createEngine({ seed }), state = new Float64Array(64), bytes = new Uint8Array(state.buffer);
 const net = presence(e, {
   transport, slot, players, delay: 2,
@@ -411,19 +443,21 @@ e.start();
 ```
 
 **Check a game is deterministic** (any test, Node or browser): `syncCheck(setup, { players, frames,
-latency, jitter })` from `fizlet/presence/check` runs your sim as lockstep clients over the memory
+latency, jitter })` from `@fzlt/core/presence/check` runs your sim as lockstep clients over the memory
 link and returns `{ ok, frames, diverged, stalls }`, where `diverged` is the first frame whose state
 differed (or -1). `setup(e, slot, players)` returns `{ input(), step(e, inputs, frame), state }`, where
 `state` is a byte view of the sim's typed arrays.
 
-`net.frame`, `net.stalls`, `net.desync`, `net.lost`, `net.confirmed(slot, frame)` (the input log
-a rollback layer can replay). A transport is `{ send(bytes), listen(fn), close() }`; the room server
-prototype (Cloudflare Worker + Durable Object) is in [`rooms/`](rooms/README.md).
+`net.frame`, `net.stalls`, `net.desync`, `net.lost`, `net.away` (seats reconnecting), `net.confirmed(slot, frame)` (the input log
+a rollback layer can replay). A transport is `{ send(bytes), listen(fn), close() }`. Presence is
+in-house / experimental: our games run it against our own room server, which isn't a hosted
+service. [Build your own room server](https://fizlet.com/guides/build-your-own-room-server/) specs
+the wire protocol, so a server you write interoperates.
 
 ### HUD
 
 ```ts
-import { hud } from "fizlet/hud";
+import { hud } from "@fzlt/core/hud";
 
 const s = new Float64Array(2); // clock, armor (0..1): running fractions live in a typed array
 hud(engine, wrap)
@@ -442,7 +476,7 @@ step), never per-frame state. Writes go through `engine.ledger`; rows or text no
 removed on `destroy()`. It has no visuals of its own: it binds to your markup. A getter V8 doesn't
 inline boxes a fractional double, so pass running fractions as a `[typedArray, index]` slot.
 
-### Match flow (`fizlet/match`)
+### Match flow (`@fzlt/core/match`)
 
 The flow every board shares, on the Board UI kit's overlay ([spec](src/ui/BOARD-UI.md) section 9):
 a grey dim, a sticker that slams in, at most two sticker keys. The overlay is built once inside
@@ -450,8 +484,8 @@ a grey dim, a sticker that slams in, at most two sticker keys. The overlay is bu
 so `destroy()` gives the page back exactly.
 
 ```ts
-import { match } from "fizlet/match";
-import { launch } from "fizlet/ui";
+import { match } from "@fzlt/core/match";
+import { launch } from "@fzlt/core/ui";
 
 const m = match(engine, board, {
   count: 3,          // 3-2-1 beats of one second (0 skips the countdown)
@@ -488,13 +522,13 @@ engine.add({ step() { if (m.phase !== "play") return; /* the game */ } });
 - Your own overlay content (a mode picker, the standings table) goes in `m.el`; style it by
   `[data-phase]`.
 
-### Rules (`fizlet/rules`)
+### Rules (`@fzlt/core/rules`)
 
 The rules every arcade game repeats, as three small systems. They hold no DOM and draw nothing:
 the game decides where and what to spawn, and the HUD, sound and fx react to the events.
 
 ```ts
-import { waves, drops, score } from "fizlet/rules";
+import { waves, drops, score } from "@fzlt/core/rules";
 
 const w = waves(engine, { alive: () => enemies.length }); // prepare → assault → rebuild
 const d = drops(engine, { kinds: ["repair", "charge"], every: 6, place: (out) => spot(out) });
@@ -509,7 +543,7 @@ engine.add({ step() {
 // (blink when d.life - d.age[i] < 2). Event "drop:land" once it touches down (a landing puff).
 ```
 
-### Steer (`fizlet/steer`)
+### Steer (`@fzlt/core/steer`)
 
 How things move toward, away from and around a point. Every mover has a position, a heading that
 turns at most `turn` rad/s, and a speed; walls are checked per axis, so movers slide along them. The
@@ -517,7 +551,7 @@ defaults are DOM Battlefield Blitz's tank numbers (150 px/s, 7 rad/s), and a tes
 `wander` and `arrive` frame by frame against Blitz's own bots and wingmen.
 
 ```ts
-import { steer } from "fizlet/steer";
+import { steer } from "@fzlt/core/steer";
 
 const m = steer({ cap: 16, random: engine.random,                 // seeded: runs replay
   blocked: (i, at) => wall(at[0], at[1]),                         // the spot comes in a typed array
@@ -536,7 +570,7 @@ engine.add({ step(_, dt) {
 // Draw from m.x[i], m.y[i], m.a[i]; m.moved[i] is how far it went (tread marks, dust).
 ```
 
-### Coach (`fizlet/coach`)
+### Coach (`@fzlt/core/coach`)
 
 The hints and tutorial layer. `flag` remembers once-only things (tips turned off, tour seen) in
 localStorage and answers "not set" when storage is blocked. `tour` walks the player through steps,
@@ -544,7 +578,7 @@ then cycles tips; `show()` names the card only when it changes, so `card` writes
 card. The card is DOM Battlefield's coach card on the Board UI tokens (put it inside `.bui`).
 
 ```ts
-import { flag, tour, card } from "fizlet/coach";
+import { flag, tour, card } from "@fzlt/core/coach";
 
 const tips = flag("my-game:tips", "off");
 if (!tips.on) {
@@ -559,7 +593,7 @@ if (!tips.on) {
 }
 ```
 
-### Timeline (`fizlet/timeline`)
+### Timeline (`@fzlt/core/timeline`)
 
 Scripted DOM moves (a cartridge flies in and boots, a screen grows to full size, doors fold open,
 staggered entrances, a looping patrol) on the same clock as the game, instead of WAAPI or CSS
@@ -569,7 +603,7 @@ slot of a typed array (a number your step reads). Easings: `linear`, `in`, `out`
 `back`, `steps(n)` or your own function (sampled once into a table, so the step never calls it).
 
 ```ts
-import { timeline } from "fizlet/timeline";
+import { timeline } from "@fzlt/core/timeline";
 
 const e = createEngine({ settle: 0.5 });
 const boot = timeline(e)                                       // paused until play()
@@ -609,13 +643,13 @@ patrol.play(); // patrol.pause(): no more frames once the engine settles
 
 ### Arcade: a page game's shell
 
-`fizlet/arcade` is what Null Invaders, Byte Runner and Sherman Bytes share: everything but the rules
+`@fzlt/core/arcade` is what Null Invaders, Byte Runner and Sherman Bytes share: everything but the rules
 and the art. The game passes its definition and a `create(ctx)` that adds its own systems to
 `ctx.engine`; the shell writes the controls into `ctx.ctl` in the read phase, so a step only reads
 typed arrays.
 
 ```ts
-import { arcade, MODE, PX, PY, KX, KY, FIRE, VW, VH } from "fizlet/arcade";
+import { arcade, MODE, PX, PY, KX, KY, FIRE, VW, VH } from "@fzlt/core/arcade";
 
 const game = arcade({
   id: "null-invaders", title: "Null Invaders", color: "#06c4ff", css: KIT_CSS, fire: true,
@@ -638,14 +672,14 @@ game.start(); // Escape, the exit key or game.stop(): Recall gives the page back
     the action keys with counts, the text keys a game asks for (`nav`: `auto` Auto fire, `next`
     Next gate, `restart`; none by default) and fullscreen / sound / pause / `fold` / exit; a feed
     and a banner from the event ring. Its flow (countdown, pause / surrender, result: the result
-    lists `stats()` keys and keeps a best on the device) is `fizlet/match` on a small engine that
+    lists `stats()` keys and keeps a best on the device) is `@fzlt/core/match` on a small engine that
     lives as long as the overlay: match owns the phase, the shell's pause, resume and end ask it,
     the countdown runs on its clock while the game's engine waits, and the result stays up after
     the run (the page is already back) until REMATCH, EXIT or Recall; on phones the pad with the aim toggles and counted keys. Values
-    go through `fizlet/hud` from the `hud(out)` slots: change-only, nothing allocated in the steady state.
+    go through `@fzlt/core/hud` from the `hud(out)` slots: change-only, nothing allocated in the steady state.
 
   ```ts
-  import { arcade, skirmishHud } from "fizlet/arcade";
+  import { arcade, skirmishHud } from "@fzlt/core/arcade";
   arcade({ ...def, hud: skirmishHud({
     readouts: [{ label: "Kills", tone: "team" }, { label: "Time", kind: "clock" }, { label: "Rank", kind: "rank" },
                { label: "Armor", kind: "bar", low: 0.3 }, { label: "Streak", tone: "enemy" }],
@@ -667,11 +701,11 @@ game.start(); // Escape, the exit key or game.stop(): Recall gives the page back
 
 ### Board: the page
 
-`fizlet/board-page` is the layer behind every embedded game: the host page's letters become terrain
+`@fzlt/core/board-page` is the layer behind every embedded game: the host page's letters become terrain
 and food, its buttons become targets, and Recall gives every one back.
 
 ```ts
-import { boardPage } from "fizlet/board-page";
+import { boardPage } from "@fzlt/core/board-page";
 
 const board = boardPage(engine, { exclude: ".no-game" }); // root, text, targets, maxGlyphs, maxTargets, letters, reads, still, color
 const near = new Int32Array(16);
@@ -713,6 +747,8 @@ npm run check         # typecheck, contract tests (node), build
 npm run size          # size budgets
 npm run test:browser  # contract tests in Chromium (Playwright)
 npm run test:pack     # pack, install the tarball, import + typecheck every subpath
+npm run api:check     # the COMPLETE bricks' API snapshots (api/) match the build
+npm run api:write     # rewrite them after an intended API change (+ a CHANGELOG line)
 npm run site          # the website, into site-dist/
 ```
 
@@ -741,6 +777,13 @@ Releases: bump `version` in `package.json` (and the lockfile) and add a CHANGELO
 `vX.Y.Z` on `main` after the checks pass, and `.github/workflows/release.yml` publishes that tag to
 npm with provenance (it also runs on a `v*` tag pushed by hand). Publishing needs the `NPM_TOKEN`
 repository secret; without it the release job checks and packs, then skips the publish with a warning.
+
+API snapshots: `api/<brick>.api.txt` holds the public types of each COMPLETE brick (its built
+declarations, comments stripped). CI runs `npm run api:check -- --base HEAD^`: it fails when a
+snapshot no longer matches the build (run `npm run api:write`), and when one changed and the
+CHANGELOG's `## Unreleased` does not name the brick (`@fzlt/core/fx`, or "Kernel" / "Board UI").
+COMPLETE bricks keep their API, so that line says what changed; a breaking change moves the brick
+back to BETA.
 
 ## Licence
 

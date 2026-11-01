@@ -1,13 +1,14 @@
 // The fight scene: two original pixel robots in a tiny one-on-one arcade bout (health bars, hit
 // sparks, pop words, a KO and a winner banner). A bout is data: a gag picks a script of beats
 // (time, move, who, how much) and the scene plays it once, then sleeps on the last frame; a tap
-// plays it again. Bricks: the kernel (settle + fps cap), fizlet/sprite (the fighters, baked once)
-// and fizlet/fx (sparks, pop words, the overflow blast, shake). Mounted through fizlet/slot: it
+// plays it again. Bricks: the kernel (settle + fps cap), @fzlt/core/sprite (the fighters, baked once)
+// and @fzlt/core/fx (sparks, pop words, the overflow blast, shake). Mounted through @fzlt/core/slot: it
 // loads near the viewport, never under reduced motion, and destroy() gives the page back.
 import { createEngine } from "../../../src/kernel/index";
 import { effects, emitter, SPARK } from "../../../src/fx";
 import { sprites } from "../../../src/sprite";
 import type { SlotScene, SlotTap } from "../../../src/slot";
+import { aspect, mark } from "../aspect";
 
 export type Fighter = "transformer" | "diffuser" | "tokenizer" | "hallucinator" | "context" | "overfitter";
 export type Gag = "ko" | "combo" | "overflow" | "hallucinate" | "overfit" | "diffuse";
@@ -61,7 +62,11 @@ const SCRIPTS: Record<Gag, number[]> = {
   overfit: [0.2, WORD, 4, 0, 0.7, BLOCK, 1, 0, 1.2, BLOCK, 1, 0, 1.7, BLOCK, 1, 0, 2.3, HIT, 1, 1, 2.3, WORD, 3, 6, 2.7, KO, 1, 0],
   diffuse: [0, STATIC, 0, 1.6, 1.7, WORD, 0, 7, 2.2, HIT, 0, 0.5, 2.7, HIT, 0, 0.5, 2.7, KO, 0, 0],
 };
-const VW = 160, VH = 90, FLOOR = 78, DARK = "#07060f", PANEL = "#1b1636";
+const DARK = "#07060f", PANEL = "#1b1636";
+// The arena per stage aspect (wide, square, tall: ../aspect): its grid (w, h), how far each fighter
+// stands from the middle, a health bar's width, how far down the opponent's name sits. The grid is
+// scaled to fit, so a square or portrait phone stage gets a narrower arena and much bigger fighters.
+const ARENA = [160, 90, 32, 64, 0, 100, 100, 26, 36, 0, 84, 112, 22, 30, 7];
 
 export function fight(stage: HTMLElement, p: Fight, _first: SlotTap | null = null): FightScene {
   const engine = createEngine({ root: stage, fps: 30, settle: 0.5 });
@@ -84,8 +89,10 @@ export function fight(stage: HTMLElement, p: Fight, _first: SlotTap | null = nul
   canvas.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;image-rendering:pixelated";
   stage.append(canvas);
   const ctx = canvas.getContext("2d")!;
-  // Frame state: width, height, dpr, resized, time, next beat, ghost, winner (+1), loop timer.
-  const s = new Float64Array([0, 0, 1, 1, 0, 0, 0, 0, 0]);
+  // Frame state: width, height, dpr, resized, time, next beat, ghost, winner (+1), loop timer;
+  // the arena: aspect class, grid w, h, floor, stand-off, bar width, name drop, middle, word line, marked.
+  const s = new Float64Array([0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 160, 90, 78, 32, 64, 0, 80, 58, -1]);
+  let banner = "";
   // Per fighter (0 star, 1 opponent): lunge, pose, pose timer, flash, health, shown health, fall,
   // context meter, shown meter, static left, static total, knockback.
   const F = [new Float64Array(12), new Float64Array(12)];
@@ -101,7 +108,7 @@ export function fight(stage: HTMLElement, p: Fight, _first: SlotTap | null = nul
   const play = () => (reset(), engine.wake());
   stage.addEventListener("pointerdown", play, { signal: engine.signal });
 
-  const baseX = (i: number) => (i ? 112 : 48);
+  const baseX = (i: number) => s[16]! + (i ? s[13]! : -s[13]!);
   const punch = (i: number, pose = 1) => {
     const f = F[i]!;
     f[0] = 1;
@@ -115,42 +122,43 @@ export function fight(stage: HTMLElement, p: Fight, _first: SlotTap | null = nul
     f[2] = 0.25;
     f[11] = 1;
     f[4] = Math.max(0, f[4]! - dmg);
-    emit(ids.s, 80 + (i ? -10 : 10), FLOOR - 18, sparks, 2, 1, 0.35);
+    emit(ids.s, s[16]! + (i ? -10 : 10), s[12]! - 18, sparks, 2, 1, 0.35);
     fx.kick(2);
   };
   function beat(t: number, op: number, who: number, arg: number) {
-    const other = 1 - who;
-    if (op === WORD) fx.word(VW / 2, 58, arg, who, arg === 17 || arg === 6 ? 13 : 10);
+    const other = 1 - who, cx = s[16]!, FLOOR = s[12]!, M = s[17]!;
+    if (op === WORD) fx.word(cx, M, arg, who, arg === 17 || arg === 6 ? 13 : 10);
     else if (op === HIT || op === TOK) {
       punch(who);
       struck(who, op === TOK ? 0.07 : arg, op === TOK ? 6 : 14);
-      if (op === TOK) fx.word(80 + (who ? -10 : 10), FLOOR - 26, arg, 3, 7);
+      if (op === TOK) fx.word(cx + (who ? -10 : 10), FLOOR - 26, arg, 3, 7);
     } else if (op === BLOCK) {
       punch(who);
       const f = F[other]!;
       f[1] = 2;
       f[2] = 0.3;
-      emit(ids.s, 80 + (who ? -10 : 10), FLOOR - 20, 6, 4, 1, 0.3);
+      emit(ids.s, cx + (who ? -10 : 10), FLOOR - 20, 6, 4, 1, 0.3);
       fx.word(baseX(other), FLOOR - 34, 2, 4, 8);
-    } else if (op === MISS) punch(who), fx.word(82, FLOOR - 34, arg, 2, 9);
+    } else if (op === MISS) punch(who), fx.word(cx + 2, FLOOR - 34, arg, 2, 9);
     else if (op === KO) {
       F[other]![4] = 0;
-      fx.word(VW / 2, 52, 1, 3, 16);
+      fx.word(cx, M - 6, 1, 3, 16);
       fx.kick(5);
       s[7] = who + 1;
     } else if (op === FILL) F[who]![7] = F[who]![7]! + arg;
-    else if (op === POP) fx.blast(baseX(who), FLOOR - 24, 0.6, 3), fx.word(VW / 2, 46, 5, 3, 11);
+    else if (op === POP) fx.blast(baseX(who), FLOOR - 24, 0.6, 3), fx.word(cx, M - 12, 5, 3, 11);
     else if (op === GHOST) s[6] = arg;
     else if (op === STATIC) (F[who]![9] = F[who]![10] = arg);
     void t;
   }
 
   function paint() {
-    const w = s[0]!, h = s[1]!, d = s[2]!;
+    const w = s[0]!, h = s[1]!, d = s[2]!, VW = s[10]!, VH = s[11]!, FLOOR = s[12]!, cx = s[16]!;
+    if (s[9] !== s[18]) mark(engine.ledger, stage, (s[18] = s[9]!)), (canvas.width = 0);
     if (canvas.width !== Math.round(w * d) || canvas.height !== Math.round(h * d)) {
       canvas.width = Math.round(w * d);
       canvas.height = Math.round(h * d);
-      // The arena is a fixed 160 × 90 grid, centred and scaled to fit: one transform per resize.
+      // The arena is its aspect's grid, centred and scaled to fit: one transform per resize.
       const k = Math.min(canvas.width / VW, canvas.height / VH);
       ctx.setTransform(k, 0, 0, k, (canvas.width - VW * k) / 2, (canvas.height - VH * k) / 2);
     }
@@ -168,13 +176,13 @@ export function fight(stage: HTMLElement, p: Fight, _first: SlotTap | null = nul
     for (let x = 10; x < VW; x += 12) ctx.fillRect(x, FLOOR + 9, 4, 1);
     // Health bars and names.
     for (let i = 0; i < 2; i++) {
-      const f = F[i]!, x = i ? 88 : 8, c = i ? cb : ca;
+      const f = F[i]!, bw = s[14]!, x = i ? VW - 8 - bw : 8, c = i ? cb : ca, iw = bw - 2;
       ctx.fillStyle = PANEL;
-      ctx.fillRect(x, 6, 64, 6);
+      ctx.fillRect(x, 6, bw, 6);
       ctx.fillStyle = cw;
-      ctx.fillRect(i ? x + 1 + 62 * (1 - f[5]!) : x + 1, 7, 62 * f[5]!, 4);
+      ctx.fillRect(i ? x + 1 + iw * (1 - f[5]!) : x + 1, 7, iw * f[5]!, 4);
       ctx.fillStyle = c;
-      ctx.fillRect(i ? x + 1 + 62 * (1 - f[4]!) : x + 1, 7, 62 * f[4]!, 4);
+      ctx.fillRect(i ? x + 1 + iw * (1 - f[4]!) : x + 1, 7, iw * f[4]!, 4);
     }
     ctx.font = "700 5px ui-monospace, monospace";
     ctx.textAlign = "left";
@@ -182,14 +190,14 @@ export function fight(stage: HTMLElement, p: Fight, _first: SlotTap | null = nul
     ctx.fillText(names[0]!, 8, 18);
     ctx.textAlign = "right";
     ctx.fillStyle = cb;
-    ctx.fillText(names[1]!, 152, 18);
+    ctx.fillText(names[1]!, VW - 8, 18 + s[15]!);
     ctx.textAlign = "center";
     ctx.fillStyle = cw;
-    ctx.fillText("VS", 80, 11);
+    ctx.fillText("VS", cx, 11);
     // The hallucinated ghost: a flickering copy of the opponent, too close to be real.
     if (s[6]) {
       ctx.globalAlpha = 0.3 + 0.2 * Math.sin(s[4]! * 31);
-      spr.draw(ctx, 1, 0, 76, FLOOR, 0, 2 * p.scale, 1);
+      spr.draw(ctx, 1, 0, cx - 4, FLOOR, 0, 2 * p.scale, 1);
       ctx.globalAlpha = 1;
     }
     for (let i = 0; i < 2; i++) {
@@ -221,18 +229,27 @@ export function fight(stage: HTMLElement, p: Fight, _first: SlotTap | null = nul
     fx.draw(ctx);
     if (sh) ctx.restore();
     if (s[7] && s[4]! > end - 0.6) {
-      ctx.font = "900 8px ui-monospace, monospace";
+      ctx.font = banner;
       ctx.fillStyle = s[7] === 1 ? ca : cb;
-      ctx.fillText(wins[s[7]! - 1]!, 80, 34);
+      ctx.fillText(wins[s[7]! - 1]!, cx, s[17]! - 24);
     }
   }
   engine.add({
     read() {
       if (!s[3]) return;
       s[3] = 0;
-      s[0] = stage.clientWidth;
-      s[1] = stage.clientHeight;
+      const w = (s[0] = stage.clientWidth), h = (s[1] = stage.clientHeight), k = (s[9] = aspect(w, h)) * 5;
       s[2] = Math.min(2, devicePixelRatio || 1);
+      // The arena for this aspect: grid, floor, stand-off, bars, names; words sit midway up.
+      const VW = (s[10] = ARENA[k]!), VH = (s[11] = ARENA[k + 1]!);
+      s[12] = VH - 12;
+      s[13] = ARENA[k + 2]!;
+      s[14] = ARENA[k + 3]!;
+      s[15] = ARENA[k + 4]!;
+      s[16] = VW / 2;
+      s[17] = VH - 32 - (VH - 90) / 2;
+      // The winner banner at a size that fits the grid (made here, on a resize: never in a frame).
+      banner = `900 ${Math.min(8, (VW - 8) / (Math.max(wins[0]!.length, wins[1]!.length) * 0.62)).toFixed(1)}px ui-monospace, monospace`;
     },
     step(e, dt) {
       const t = (s[4] = s[4]! + dt);

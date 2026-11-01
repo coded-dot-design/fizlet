@@ -1,5 +1,5 @@
 // The brick cards' loader: every <figure data-brick-card="<id>"> on the page (site/brick-cards.mjs)
-// becomes a fizlet/slot; its card's chunk loads only when it nears the viewport, never under
+// becomes a @fzlt/core/slot; its card's chunk loads only when it nears the viewport, never under
 // reduced motion. `mountBrickCards(root)` mounts the cards under `root` and returns their slots
 // (destroy() each to give the page back); this file mounts the whole page on load.
 import { slot } from "../src/slot";
@@ -16,6 +16,20 @@ export const CARDS: Record<string, Load> = {
   sprite: () => import("./cards/sprite"),
   camera: () => import("./cards/camera"),
   timeline: () => import("./cards/timeline"),
+  hud: () => import("./cards/hud"),
+  match: () => import("./cards/match"),
+  sound: () => import("./cards/sound"),
+  presence: () => import("./cards/presence"),
+  pad: () => import("./cards/pad"),
+  slot: () => import("./cards/slot"),
+  "board-page": () => import("./cards/board-page"),
+  ui: () => import("./cards/ui"),
+  rules: () => import("./cards/rules"),
+  coach: () => import("./cards/coach"),
+  perf: () => import("./cards/perf"),
+  "css-clock": () => import("./cards/css-clock"),
+  touch: () => import("./cards/touch"),
+  embed: () => import("./cards/embed"),
 };
 
 const mounted = new WeakSet<Element>(); // not a data attribute: the page stays byte for byte

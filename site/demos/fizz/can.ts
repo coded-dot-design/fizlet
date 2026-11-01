@@ -1,4 +1,4 @@
-// The can, as pixel data for fizlet/sprite, in flat Fizlet tokens with an ink rim. Side view: 20 × 40
+// The can, as pixel data for @fzlt/core/sprite, in flat Fizlet tokens with an ink rim. Side view: 20 × 40
 // sprite pixels; frames 0 sealed, 1 open, 2 crunched and sealed, 3 crunched and open. Top view
 // (looking into the can): 22 × 22; frames 0 sealed, 1 open. Shared by the live scene (baked once
 // onto the canvas) and the build (the same pixels as an SVG for the still poster).

@@ -54,10 +54,11 @@ export const ROADMAP = [
     [0, "No copied shared/ code left in the games"],
     [0, "Frame time equal or better than the E0 baseline, measured per game"],
   ] },
-  { id: "E4", name: "Presence and multiplayer", status: "done", note: "TWO PLAYERS", goal: "A few-KB presence client and a room server: two people play Battlefield Blitz on the live site. Battlefield matches and AI players moved to E12.", items: [
+  { id: "E4", name: "Presence and multiplayer", status: "done", note: "TWO PLAYERS", goal: "A few-KB presence client and a room server: two people play Battlefield Blitz on the live site. Multiplayer: in-house. DIY guide for your own server. Battlefield matches and AI players moved to E12.", items: [
     [1, "presence brick + determinism check"],
-    [1, "Room server: invite gate and hard spend caps"],
-    [1, "Battlefield Blitz two players against the deployed room server"],
+    [1, "Room server (in-house): invite gate and hard spend caps"],
+    [1, "Battlefield Blitz two players against our room server"],
+    [1, "DIY guide: build your own room server, the wire protocol as the contract"],
   ] },
   { id: "E5", name: "Docs for humans and AI", status: "done", goal: "Build a game or micro-interaction in an afternoon, from docs a person or an agent can follow.", items: [
     [1, "One page per brick, generated from the source, with its status"],
@@ -86,10 +87,10 @@ export const ROADMAP = [
     [1, "HUD presets (card, skirmish bar) and swappable touch pads"],
     [1, "match, coach and steer bricks"],
     [0, "Battlefield Blitz on the skirmish preset, steer and coach"],
-    [0, "A released game on fizlet/match"],
+    [0, "A released game on @fzlt/core/match"],
   ] },
-  { id: "E9", name: "On npm", status: "planned", goal: "npm install fizlet: one package, a subpath per brick, published from CI with provenance.", items: [
-    [0, "fizlet@0.x on npm from the release workflow"],
+  { id: "E9", name: "On npm", status: "planned", goal: "npm install @fzlt/core: one package, a subpath per brick, published from CI with provenance.", items: [
+    [0, "@fzlt/core@0.x on npm from the release workflow"],
     [0, "An API snapshot test for every COMPLETE brick"],
   ] },
   { id: "E10", name: "Diagrams", status: "planned", goal: "Interactive diagrams that settle: graphs laid out on the kernel clock.", items: [
@@ -98,18 +99,18 @@ export const ROADMAP = [
   { id: "E11", name: "Actors", status: "planned", goal: "Units, bots and turrets as data: the parts every board game still writes itself.", items: [
     [0, "One board game moves its units onto them, and shrinks"],
   ] },
-  { id: "E12", name: "Multiplayer everywhere", status: "planned", goal: "Authoritative rooms, interpolation, and AI agents that join a room like any player.", items: [
+  { id: "E12", name: "Multiplayer everywhere", status: "planned", goal: "Builds on presence (in-house): authoritative rooms, interpolation, and AI agents that join a room like any player.", items: [
     [0, "A DOM Battlefield match between two networks"],
     [0, "An AI agent joins a room"],
   ] },
   { id: "E13", name: "Animation library", status: "planned", goal: "A recipe used twice becomes data; a recipe used across games becomes a brick.", items: [] },
   { id: "E14", name: "Accessible play", status: "planned", goal: "Every game playable by keyboard and gamepad, and heard by screen readers.", items: [
-    [0, "Gamepad in fizlet/input"],
+    [0, "Gamepad in @fzlt/core/input"],
   ] },
   { id: "E15", name: "Music", status: "planned", goal: "Background loops from the same tiny synth, on the kernel clock.", items: [] },
   { id: "E16", name: "1.0", status: "planned", goal: "Every shipped brick COMPLETE or DEPRECATED, the API frozen, the games on 1.0, and smaller and faster than 0.x by a measured margin.", items: [
     [0, "Every brick COMPLETE or DEPRECATED"],
-    [0, "fizlet@1.0.0"],
+    [0, "@fzlt/core@1.0.0"],
   ] },
 ];
 

@@ -755,31 +755,31 @@
   ],
   "bricks": {
     "spray": [
-      "fizlet/kernel",
-      "fizlet/fx",
-      "fizlet/slot"
+      "@fzlt/core/kernel",
+      "@fzlt/core/fx",
+      "@fzlt/core/slot"
     ],
     "page": [
-      "fizlet/kernel",
-      "fizlet/board-page",
-      "fizlet/slot"
+      "@fzlt/core/kernel",
+      "@fzlt/core/board-page",
+      "@fzlt/core/slot"
     ],
     "decor": [
-      "fizlet/kernel",
-      "fizlet/board-page",
-      "fizlet/slot"
+      "@fzlt/core/kernel",
+      "@fzlt/core/board-page",
+      "@fzlt/core/slot"
     ],
     "fight": [
-      "fizlet/kernel",
-      "fizlet/sprite",
-      "fizlet/fx",
-      "fizlet/slot"
+      "@fzlt/core/kernel",
+      "@fzlt/core/sprite",
+      "@fzlt/core/fx",
+      "@fzlt/core/slot"
     ],
     "meme": [
-      "fizlet/kernel",
-      "fizlet/sprite",
-      "fizlet/fx",
-      "fizlet/slot"
+      "@fzlt/core/kernel",
+      "@fzlt/core/sprite",
+      "@fzlt/core/fx",
+      "@fzlt/core/slot"
     ]
   },
   "defaultRecipe": "burst",

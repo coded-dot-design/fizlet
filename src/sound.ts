@@ -1,5 +1,5 @@
 /**
- * fizlet/sound: the sound adapter. After each frame it reads the engine's event ring and plays the
+ * @fzlt/core/sound: the sound adapter. After each frame it reads the engine's event ring and plays the
  * mapped cues, so collisions and game events make sound without knowing about audio. The default
  * voice is a tiny synth (oscillators, no assets); pass `play` to use your own sounds.
  * Silent until the first trusted gesture, while paused, and when switched off.
@@ -8,7 +8,10 @@ import type { Engine } from "./kernel/engine";
 
 /** A built-in sound cue the synth can play. */
 export type Cue = "fire" | "hit" | "boom" | "hurt" | "power" | "ready" | "win" | "end" | "click";
-type Note = [from: number, to: number, sec: number, delay: number, wave: OscillatorType, vol: number];
+/** A cue name: a built-in Cue, or one of your own `notes`. */
+export type CueName = Cue | (string & {});
+/** One synth voice: pitch from → to (Hz) over `sec`, after `delay`, its wave and volume. */
+export type Note = [from: number, to: number, sec: number, delay: number, wave: OscillatorType, vol: number];
 const NOTES: Record<Cue, Note[]> = {
   fire: [[980, 220, 0.07, 0, "triangle", 0.16]],
   hit: [[190, 45, 0.15, 0, "square", 0.08]],
@@ -24,7 +27,9 @@ const NOTES: Record<Cue, Note[]> = {
 /** Options for `sound()`: which event types play which cue, on or off, volume, or your own player. */
 export interface SoundOptions {
   /** event type → cue, e.g. { shot: "fire", wreck: "boom" }. */
-  cues: Record<string, Cue>;
+  cues: Record<string, CueName>;
+  /** Your own cues for the built-in synth: name → voices (a name here wins over a built-in). */
+  notes?: Record<string, Note[]>;
   /** Start switched on (default true). */
   on?: boolean;
   /** Master volume 0..1 (default 0.12). */
@@ -57,16 +62,17 @@ export function sound(e: Engine, o: SoundOptions) {
   // pointerup: on touch, Chrome grants the gesture on release, not on pointerdown.
   if (!o.play) for (const t of ["pointerdown", "pointerup", "keydown"]) addEventListener(t, unlock, { signal: ctl.signal, capture: true });
 
-  function play(cue: Cue, intensity = 1) {
+  function play(cue: CueName, intensity = 1) {
     // Known cues only, by own key: an event type or cue such as "constructor" would otherwise
     // find Object.prototype's (a function, not notes) and throw in render, stopping the game.
-    if (!on || !e.running || ctl.signal.aborted || !Object.hasOwn(NOTES, cue)) return;
-    if (o.play) return o.play(cue, intensity);
+    const notes = o.notes && Object.hasOwn(o.notes, cue) ? o.notes[cue] : Object.hasOwn(NOTES, cue) ? NOTES[cue as Cue] : null;
+    if (!on || !e.running || ctl.signal.aborted || !notes) return;
+    if (o.play) return o.play(cue as Cue, intensity);
     if (!ctx || !master || ctx.state !== "running") return;
     const now = ctx.currentTime;
     if (now - (last.get(cue) ?? -1) < (cue === "fire" ? 0.07 : 0.12)) return;
     last.set(cue, now);
-    for (const [from, to, sec, delay, wave, vol] of NOTES[cue]) {
+    for (const [from, to, sec, delay, wave, vol] of notes) {
       if (voices >= 8) return;
       const osc = ctx.createOscillator(), g = ctx.createGain(), t0 = now + delay, t1 = t0 + sec;
       osc.type = wave;
@@ -86,8 +92,10 @@ export function sound(e: Engine, o: SoundOptions) {
   const system = e.add({
     render(eng: Engine) {
       for (let i = 0; i < eng.events.size; i++) {
-        const ev = eng.events.at(i)!, cue = o.cues[ev.type];
-        if (cue) play(cue, ev.v || 1);
+        // Own keys only: a prototype name ("constructor") would hand play() a function, and its
+        // own-key check would stringify that function's source on every such event.
+        const ev = eng.events.at(i)!;
+        if (Object.hasOwn(o.cues, ev.type)) play(o.cues[ev.type]!, ev.v || 1);
       }
     },
   });

@@ -9,10 +9,10 @@
   "author": "chris-cooley",
   "recipe": "fight",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/sprite",
-    "fizlet/fx",
-    "fizlet/slot"
+    "@fzlt/core/kernel",
+    "@fzlt/core/sprite",
+    "@fzlt/core/fx",
+    "@fzlt/core/slot"
   ],
   "pageCost": {
     "settles": true,
@@ -31,5 +31,6 @@
   "module": "anims/transformer-fights-diffuser-ko.ts",
   "export": "mount",
   "aspect": "16 / 9",
+  "phone": "1 / 1",
   "approved": "2026-10-30"
 }

@@ -1,19 +1,23 @@
 {
-  "name": "fizlet",
-  "version": "0.20.0",
-  "description": "Tiny physics for your page: a micro game and animation engine for the DOM, by Chris Cooley. One loop, bounded everything, and the page always comes back.",
+  "name": "@fzlt/core",
+  "version": "0.21.2",
+  "description": "Fizlet™ (fzlt™) is the bricks for DOM animation and games, by Chris Cooley: a game or an animation boils down to logic and style, from a prompt. Every brick has a gzip budget in CI, there are no runtime dependencies, and the page always comes back.",
   "license": "MIT",
   "author": "Chris Cooley <https://coded.design>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/coded-dot-design/fizlet.git"
   },
-  "homepage": "https://coded-dot-design.github.io/fizlet/",
+  "homepage": "https://fzlt.dev",
   "type": "module",
   "sideEffects": [
     "*.css"
   ],
+  "bin": {
+    "fzlt": "bin/fzlt.mjs"
+  },
   "files": [
+    "bin",
     "dist",
     "CHANGELOG.md",
     "LICENSE",
@@ -116,6 +120,14 @@
       "types": "./dist/css-clock.d.ts",
       "default": "./dist/css-clock.js"
     },
+    "./layout": {
+      "types": "./dist/layout.d.ts",
+      "default": "./dist/layout.js"
+    },
+    "./view-canvas": {
+      "types": "./dist/view-canvas.d.ts",
+      "default": "./dist/view-canvas.js"
+    },
     "./arcade": {
       "types": "./dist/arcade.d.ts",
       "default": "./dist/arcade.js"
@@ -137,22 +149,26 @@
     "provenance": true
   },
   "scripts": {
-    "typecheck": "tsc --noEmit && tsc --noEmit -p . --exactOptionalPropertyTypes && tsc -p site/tsconfig.json && tsc -p site/demos/fizz/tsconfig.json && tsc -p site/brick-examples/tsconfig.json && tsc -p site/docs/code/tsconfig.json && tsc -p site/recipes/tsconfig.json",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p . --exactOptionalPropertyTypes && tsc -p site/tsconfig.json && tsc -p site/demos/fizz/tsconfig.json && tsc -p site/demos/before-ai-2015/tsconfig.json && tsc -p site/brick-examples/tsconfig.json && tsc -p site/docs/code/tsconfig.json && tsc -p site/recipes/tsconfig.json && tsc -p site/demos/origin/tsconfig.json",
     "test": "node --expose-gc --import tsx --test --test-concurrency=1 tests/*.test.mjs",
     "build": "node scripts/build.mjs",
     "check": "npm run typecheck && npm test && npm run build",
     "size": "node scripts/size.mjs",
     "readme:sizes": "node scripts/readme-sizes.mjs",
-    "test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/drag.mjs && node tests/coach.mjs && node tests/timeline.mjs && node tests/labs.mjs && node tests/virus.mjs && node tests/small-packages.mjs && node tests/touch.mjs && node tests/comic.mjs && node tests/hero-duo.mjs && node tests/pixel-pieces.mjs && node tests/halloween-ghosts.mjs && node tests/pip-bubbles.mjs && node tests/hero-brawl.mjs && node tests/halloween-fights.mjs && node tests/css-clock.mjs",
+"test:browser": "node tests/browser.mjs && node tests/fizz.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/drag.mjs && node tests/coach.mjs && node tests/timeline.mjs && node tests/labs.mjs && node tests/virus.mjs && node tests/small-packages.mjs && node tests/touch.mjs && node tests/comic.mjs && node tests/hero-duo.mjs && node tests/pixel-pieces.mjs && node tests/halloween-ghosts.mjs && node tests/pip-bubbles.mjs && node tests/hero-brawl.mjs && node tests/halloween-fights.mjs && node tests/css-clock.mjs && node tests/carnival.mjs && node tests/shadow.mjs && node tests/dv-pieces.mjs && node tests/outbreak.mjs && node tests/cartoon-gags.mjs && node tests/stage-aspect.mjs && node tests/tiny-dom-battlefield.mjs && node tests/dirt-lab.mjs && node tests/redline.mjs && node tests/bag-beat.mjs && node tests/toast-tell.mjs && node tests/tiny-null-invaders.mjs && node tests/tiny-swarm-protocol.mjs && node tests/tiny-byte-runner.mjs && node tests/skate-sesh.mjs && node tests/launch-day.mjs && node tests/origin.mjs && node tests/surf-sesh.mjs && node tests/view-canvas.mjs && node tests/layout.mjs && node tests/name-shift.mjs",
     "test:layers": "tsc -p site/demos/layers/tsconfig.json && node tests/layers.mjs",
     "test:pack": "node scripts/pack-smoke.mjs",
+    "api:check": "node scripts/api-snapshot.mjs check",
+    "api:write": "node scripts/api-snapshot.mjs write",
     "site": "npm run build && node scripts/site.mjs",
-    "test:site": "node tests/site.mjs && node tests/brick-cards.mjs && node tests/scroll-hint.mjs",
+    "site:fzlt": "node site/fzlt-dev/build.mjs",
+"test:site": "node tests/site.mjs && node tests/minis-controls.mjs && node tests/site-analytics.mjs && node tests/brick-cards.mjs && node tests/scroll-hint.mjs && node tests/stage-touch.mjs && node tests/site-nav.mjs && node tests/factory.mjs && node tests/periodic.mjs && node tests/brick-graph.mjs && node tests/fzlt-dev.mjs",
     "test:settle": "node tests/settle-guard.mjs",
     "prepack": "npm run build",
     "perf": "npm run site && node tests/perf/run.mjs",
     "test:alloc": "node tests/perf/alloc.mjs",
-    "test:alloc:cards": "node tests/brick-cards-alloc.mjs"
+    "test:alloc:cards": "node tests/brick-cards-alloc.mjs",
+    "test:stress": "node tests/stress/run.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",
@@ -168,7 +184,9 @@
     "micro",
     "canvas",
     "astro",
-    "zero-dependencies"
+    "zero-dependencies",
+    "fzlt",
+    "fizlet"
   ],
   "bugs": {
     "url": "https://github.com/coded-dot-design/fizlet/issues"

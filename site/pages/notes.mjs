@@ -69,7 +69,7 @@ export function notePage({ note: n, base, kernel }) {
       <p class="eyebrow"><span class="index">${esc(n.date)}</span> ${esc((n.eyebrow ?? n.type ?? "note").toUpperCase())}</p>
       <h1 id="note-title">${esc(n.title)}${n.subtitle ? `<br><em>${esc(n.subtitle)}</em>` : ""}</h1>
       ${n.lead.map((p) => `<p class="lead">${inline(p, base)}</p>`).join("")}
-      <p class="note-by">By <a href="${AUTHOR}/">Chris Cooley ↗</a> · <time datetime="${esc(n.date)}">${longDate(n.date)}</time> · ${sizeBadge(kernel, "size:fizlet (kernel)", "the kernel on this build")}</p>
+      <p class="note-by">By <a href="${AUTHOR}/">Chris Cooley ↗</a> · <time datetime="${esc(n.date)}">${longDate(n.date)}</time> · ${sizeBadge(kernel, "size:@fzlt/core (kernel)", "the kernel on this build")}</p>
     </header>
     ${n.blocks.map((b) => block(b, base)).join("\n    ")}
     <p class="note-back"><a href="${base}notes/">${icon("book", 16)}All notes</a></p>
@@ -92,7 +92,7 @@ export function notesIndex({ notes, base }) {
     <div class="section-head">
       <p class="eyebrow"><span class="index">${notes.length}</span> NOTES · NEWEST FIRST</p>
       <h1 id="notes-title">Field notes.<br><em>Measured, then written.</em></h1>
-      <p class="lead">What building games on Fizlet teaches the engine: the ports, the lessons and the numbers behind them, each one measured. By <a href="${AUTHOR}/">Chris Cooley ↗</a>.</p>
+      <p class="lead">Why each brick exists and what keeping it fast takes: the ports, the lessons and the numbers behind them, each one measured. By <a href="${AUTHOR}/">Chris Cooley ↗</a>.</p>
     </div>
     <ol class="gal note-cards">
     ${cards}

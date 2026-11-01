@@ -1,9 +1,9 @@
 // The page scene: the second scene type. It reads real page elements (the headings or buttons in
-// its slot) through fizlet/board-page: targets only, re-measured only after a scroll, resize or
+// its slot) through @fzlt/core/board-page: targets only, re-measured only after a scroll, resize or
 // change, so a running frame reads no layout. It draws on a canvas in the slot's stage, and it
 // writes to page elements only through the engine's ledger: one data attribute per element, styled
 // by one sheet the ledger adds, so Recall gives the page back byte for byte. Mounted through
-// fizlet/slot: it loads near the viewport, never under reduced motion. Two effects, chosen by data:
+// @fzlt/core/slot: it loads near the viewport, never under reduced motion. Two effects, chosen by data:
 //   sweep  a scanline sweeps down and lights up every element it passes (tap: it starts there)
 //   pool   rain falls on the element you hover (or tap) and pools along its top edge
 import { createEngine } from "../../../src/kernel/index";

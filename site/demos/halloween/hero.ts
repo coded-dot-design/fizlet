@@ -3,13 +3,14 @@
 // over the page above it, taps and drags as numbers, pop words and the score in the pixel font
 // (./font), and the night backdrop baked once per size. Each game is a small module on top (bats,
 // smash, slice, cauldron; haunt, the page scene, stands alone) built from Fizlet bricks: the kernel
-// (settle + 30 fps cap: still means zero frames), fizlet/sprite (pixel art baked once), fizlet/fx.
-// Mounted through fizlet/slot: it loads near the viewport, never under reduced motion, and every
+// (settle + 30 fps cap: still means zero frames), @fzlt/core/sprite (pixel art baked once), @fzlt/core/fx.
+// Mounted through @fzlt/core/slot: it loads near the viewport, never under reduced motion, and every
 // node and style it adds goes through the engine's ledger, so Recall gives the page back.
 import { createEngine, type Engine } from "../../../src/kernel/index";
 import type { Effects } from "../../../src/fx";
 import type { SlotScene, SlotTap } from "../../../src/slot";
 import { PAL } from "./art";
+import { aspect, mark } from "../../gallery/aspect";
 import { disc, num, text } from "./font";
 
 export { disc, num, text };
@@ -43,9 +44,14 @@ export interface HeroOptions {
   words: string[];
   /** CSS for the stage (e.g. touch-action for a swipe game). */
   touch?: string;
+  /** Per stage aspect (wide, square, tall: ../../gallery/aspect): art rows the stage is tall (the
+   *  pixel size: fewer rows, bigger art; default 90) and where the score's middle sits (a fraction of
+   *  the width; 1 or unset: top right). The game reads the class as S[9] for its own layout. */
+  rows?: number[];
+  hud?: number[];
 }
 export type HeroScene = SlotScene & { engine: Engine; play(x?: number, y?: number): void };
-/** What a game gets: the engine, the state, pops and text. S: [w, h, P, score, round left]. */
+/** What a game gets: the engine, the state, pops and text. S: [w, h, P, score, round left, …, aspect at 9]. */
 export interface Hero {
   e: Engine;
   S: Float64Array;
@@ -92,8 +98,8 @@ export function hero(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
   }
   const ctx = canvas.getContext("2d")!, lx = layer.getContext("2d")!, bx = back.getContext("2d")!;
   // State: w, h (art px), P (CSS px an art px), score, round seconds left, resized, spill (art px),
-  // pressed, frame count. Pops: x, y, life, word, colour. Taps: a queue of (kind, x, y): 1 tap, 2 drag.
-  const S = new Float64Array([0, 0, 3, 0, 0, 1, 0, 0, 0]);
+  // pressed, frame count, aspect class (0 wide, 1 square, 2 tall), the class marked. Pops: x, y, life, word, colour. Taps: a queue of (kind, x, y): 1 tap, 2 drag.
+  const S = new Float64Array([0, 0, 3, 0, 0, 1, 0, 0, 0, 0, -1]);
   const px = new Float32Array(POPS), py = new Float32Array(POPS), pl = new Float32Array(POPS), pw = new Uint8Array(POPS), pc = new Uint8Array(POPS);
   const q = new Float32Array(48);
   let qn = 0, start = 1, sx = -1, sy = -1, full = 0;
@@ -129,7 +135,7 @@ export function hero(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
     read() {
       if (!S[5]) return;
       S[5] = 0;
-      const r = stage.getBoundingClientRect(), P = Math.max(2, Math.round(r.height / 90));
+      const r = stage.getBoundingClientRect(), k = (S[9] = aspect(r.width, r.height)), P = Math.max(2, Math.round(r.height / (o.rows?.[k] ?? 90)));
       const w = Math.floor(r.width / P), hh = Math.ceil(r.height / P), up = spill ? Math.round(hh * spill) : 0;
       S[0] = w;
       S[1] = hh;
@@ -181,7 +187,8 @@ export function hero(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nul
       game.fx?.draw(c);
       for (let i = 0; i < POPS; i++) if (pl[i]! > 0 && (pl[i]! > 0.3 || S[8]! & 2)) text(c, o.words[pw[i]!]!, (px[i]! - o.words[pw[i]!]!.length * 2) | 0, (py[i]! + oy) | 0, pc[i]!);
       c.setTransform(1, 0, 0, 1, 0, 0);
-      if (S[3]!) num(ctx, S[3]!, w - 3, 3, 2);
+      if (S[3]!) num(ctx, S[3]!, (o.hud?.[S[9]!] ?? 1) < 1 ? Math.round(w * o.hud![S[9]!]!) + (S[3]! < 100 ? 4 : S[3]! < 1000 ? 6 : 8) : w - 3, 3, 2);
+      if (S[9] !== S[10]) mark(L, stage, (S[10] = S[9]!));
     },
   });
   engine.start();

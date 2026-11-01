@@ -10,7 +10,7 @@
 // BONK; a pillow: HUSH naps, SNOOZE gets comfy). A KO, a comic victory beat, a sequel tease; then the
 // letters heal (it was all a dream) and it sleeps. Click again for the rematch: a different fight.
 // Bricks: the kernel (fixed step, settle, seeded random; its ledger for every page write, so Recall
-// gives the page back byte for byte) and fizlet/sprite (both fighters and their props, baked once).
+// gives the page back byte for byte) and @fzlt/core/sprite (both fighters and their props, baked once).
 import { createEngine } from "../../../src/kernel/index";
 import { sprites } from "../../../src/sprite";
 import type { SlotScene, SlotTap } from "../../../src/slot";

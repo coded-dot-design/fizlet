@@ -1,4 +1,4 @@
-// fizlet/steer (Node, headless): seek, wander and arrive move exactly like the DOM Battlefield Blitz
+// @fzlt/core/steer (Node, headless): seek, wander and arrive move exactly like the DOM Battlefield Blitz
 // tanks they replace (frame by frame, same seed), flee and patrol are that same drive pointed
 // away / along a route, and none allocates per frame.
 import test from "node:test";
@@ -179,6 +179,34 @@ test("steer: zero allocation across 1M frames (16 movers, every behaviour)", asy
   const bare = await minors(false), withSteer = await minors(true);
   t.diagnostic(`young GCs over 1M frames (best of 3 windows): bare ${bare}, with ${withSteer}`);
   assert.ok(withSteer <= bare + 1, `young-generation GCs over 1M frames: ${withSteer} with steer, ${bare} bare`);
+});
+
+test("steer: options are checked at setup (a bad number throws with its name, never NaN mid-game)", () => {
+  assert.throws(() => steer({ cap: 0 }), /cap/);
+  assert.throws(() => steer({ cap: 2.5 }), /cap/);
+  assert.throws(() => steer({ cap: NaN }), /cap/);
+  assert.throws(() => steer({}), /cap/);
+  for (const k of ["speed", "scale", "turn", "stop", "near", "slow", "fast", "calm", "far", "every", "jitter"]) {
+    assert.throws(() => steer({ cap: 1, [k]: NaN }), new RegExp(k), k);
+    assert.throws(() => steer({ cap: 1, [k]: "3" }), new RegExp(k), k);
+  }
+  assert.throws(() => steer({ cap: 1, area: [0, 0, NaN, 10] }), /area/);
+  assert.throws(() => steer({ cap: 1, area: [0, 0, 10] }), /area/);
+  // The defaults and good values still pass.
+  assert.equal(steer({ cap: 3 }).cap, 3);
+  assert.equal(steer({ cap: 1, speed: 0, turn: 0, area: [-5, -5, 10, 10] }).cap, 1);
+});
+
+test("patrol: no waypoints stands still (never writes NaN)", () => {
+  for (const pts of [[], new Float64Array(0), [5]]) {
+    const s = steer({ cap: 1 });
+    s.place(0, 10, 20, 0.5);
+    s.patrol(0, pts, 1 / 60);
+    assert.deepEqual([s.x[0], s.y[0], s.a[0], s.moved[0]], [10, 20, 0.5, 0], `points ${JSON.stringify([...pts])}`);
+    // One waypoint is a patrol of one: it drives there and stops.
+    s.patrol(0, [100, 20], 1 / 60);
+    assert.ok(s.x[0] > 10 && Number.isFinite(s.a[0]));
+  }
 });
 
 test("arriveGoal: zero allocation for a platoon (each wingman's slot computed every frame)", async (t) => {

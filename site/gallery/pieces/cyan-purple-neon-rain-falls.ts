@@ -7,7 +7,7 @@
 // off and on, spits a few sparks, and its reflection blinks with it. The sign is the only page text,
 // and it changes only then. Then the rain eases to a drizzle, the puddles go still, it settles.
 // Bricks: the kernel (fixed step, settle: no frames once still; the ledger: the sign's flicker and
-// the canvas both go back on Recall) and fizlet/slot. The scene is palette indices in one small
+// the canvas both go back on Recall) and @fzlt/core/slot. The scene is palette indices in one small
 // buffer (./pixel-stage.ts); the sign's box is a clear hole in it, so the real text shows through.
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotTap } from "../../../src/slot";

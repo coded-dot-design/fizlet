@@ -10,7 +10,7 @@
 // hits, the next move); click anywhere else: a drone there. A KO, the winner eats the pie, a sequel
 // tease; the letters mend and it sleeps. Click again for a rematch: a different duel.
 // Bricks: the kernel (fixed step, settle, seeded random; its ledger for every page write, so Recall
-// gives the page back byte for byte) and fizlet/sprite (both duelists, the pie and the drone).
+// gives the page back byte for byte) and @fzlt/core/sprite (both duelists, the pie and the drone).
 import { createEngine } from "../../../src/kernel/index";
 import { sprites } from "../../../src/sprite";
 import type { SlotScene, SlotTap } from "../../../src/slot";

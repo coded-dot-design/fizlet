@@ -1,10 +1,10 @@
 /**
- * fizlet/arcade: the shell every page arcade game repeats, so a game is only its rules and its art.
- * One engine per run over the host page (`fizlet/board-page`: its words are terrain, its buttons are
+ * @fzlt/core/arcade: the shell every page arcade game repeats, so a game is only its rules and its art.
+ * One engine per run over the host page (`@fzlt/core/board-page`: its words are terrain, its buttons are
  * targets), a fixed overlay with a canvas and a scoreboard in the Board UI kit (title, sound, pause,
  * fold and exit keys, readouts, an optional meter, action keys, a comms toast), keys and pointer
- * (`fizlet/input`), the touch pad on coarse pointers (`fizlet/pad`), sound from the event ring
- * (`fizlet/sound`), sparks and stacking score popups, factory health painted into the buttons, and
+ * (`@fzlt/core/input`), the touch pad on coarse pointers (`@fzlt/core/pad`), sound from the event ring
+ * (`@fzlt/core/sound`), sparks and stacking score popups, factory health painted into the buttons, and
  * a controller a hub drives: start, pause, resume, stop, destroy, getSnapshot. While a run is live,
  * a click on the page fires instead of following a link; the scoreboard, fields and
  * `[data-virus-ignore]` / `[data-fizlet-ignore]` keep their clicks. Recall (Escape, the exit key,
@@ -16,7 +16,7 @@
  * `arcadeHud()` is today's card and the default (no `hud` renders it byte for byte);
  * `skirmishHud({...})` is Battlefield Blitz's top bar with a clock, rank and armor bar, a feed, a
  * banner, aim toggles and counted keys, and its flow (countdown, pause / surrender, result) on
- * `fizlet/match`: then match owns the phase, the shell asks it to pause, resume or end and follows
+ * `@fzlt/core/match`: then match owns the phase, the shell asks it to pause, resume or end and follows
  * it (`HudView.ask`, `HudRun.go`). Each preset is its own export, so a game ships only the one it names.
  */
 import { createEngine } from "./kernel/engine";
@@ -216,7 +216,7 @@ export interface HudView {
   hold?(): void;
   /** The run ended and the page is back: show the result. */
   end(won: boolean, notice: string, stats: Record<string, unknown>): void;
-  /** The HUD owns the phase (skirmish: `fizlet/match`): the shell's pause, resume and end are asked of
+  /** The HUD owns the phase (skirmish: `@fzlt/core/match`): the shell's pause, resume and end are asked of
    *  it, and it answers with `HudRun.go` (one owner; the shell keeps the keys and delegates). */
   ask?(to: ArcadeFlow): void;
 }
@@ -225,7 +225,7 @@ const EDIT = 'input,textarea,select,[contenteditable],form,dialog,[role="dialog"
 const PROTECTED = "[data-virus-ignore],[data-fizlet-ignore]";
 // The card (the `arcade` preset): bottom right, folded to the top on phones.
 const CARD = `
-.ar{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));width:min(300px,calc(100% - 24px));display:grid;gap:10px;padding:10px 12px 12px;pointer-events:auto;color:var(--ink);background:color-mix(in srgb,var(--card) 94%,transparent);border:2.5px solid var(--line);border-radius:10px;box-shadow:0 5px 0 var(--rim)}
+.ar{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));width:min(300px,calc(100% - 24px));display:grid;gap:10px;padding:10px 12px 12px;pointer-events:auto;color:var(--ink);background:color-mix(in srgb,var(--card) 94%,transparent);border:2.5px solid var(--line);border-radius:10px;box-shadow:calc(5px*var(--bui-sx)) calc(5px*var(--bui-sy)) 0 var(--bui-shadow)}
 .ar header{display:flex;align-items:center;gap:6px}.ar header b{flex:1;font:900 11px/1 ui-monospace,monospace;letter-spacing:.14em;color:var(--team-a)}
 .ar header button{width:34px;height:34px;min-height:0;padding:0;display:grid;place-items:center}.ar header svg{width:18px;height:18px}
 .ar .bui-readouts{justify-content:space-between;gap:12px}
@@ -658,7 +658,7 @@ export function arcade<S>(def: ArcadeDef<S>, options: ArcadeOptions<S> = {}): Ar
   function resume() {
     if (status === "paused" && !document.hidden) flow("resume");
   }
-  // A HUD with its own flow (skirmish on fizlet/match) owns the phase: it is asked, and answers with go().
+  // A HUD with its own flow (skirmish on @fzlt/core/match) owns the phase: it is asked, and answers with go().
   const flow = (to: ArcadeFlow) => run && (run.view.ask ? run.view.ask(to) : go(to));
   function go(to: ArcadeFlow | "restart" | "exit") {
     if (to === "restart") return void start();

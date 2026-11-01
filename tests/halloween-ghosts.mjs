@@ -1,5 +1,5 @@
 // The three hand-built Halloween ghost pieces (site/gallery/pieces/ghosts/) in Chromium, each on its
-// own stage (site/gallery/stages/<id>.html), mounted through fizlet/slot as the gallery does: it
+// own stage (site/gallery/stages/<id>.html), mounted through @fzlt/core/slot as the gallery does: it
 // plays its intro, a tap has its consequence (Smoosh: goo slimes the letters it hits and they
 // drip clean; Wrangle: a latched ghost dragged into the bucket is bagged; Overflow: stuffed past
 // its limit, the bucket blows and the page's own LEAKS counter goes up), the page's own elements move

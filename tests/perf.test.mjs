@@ -1,4 +1,4 @@
-// fizlet/perf (Node, on a tiny fake DOM): the frame ring, fps and dropped-frame math, the kernel's
+// @fzlt/core/perf (Node, on a tiny fake DOM): the frame ring, fps and dropped-frame math, the kernel's
 // frame facts (timing, live), show/hide through the ledger, the key, and zero allocation
 // while shown. The real DOM (chart pixels, Recall byte for byte, settle) is in tests/browser.mjs.
 import test from "node:test";
@@ -188,3 +188,58 @@ test("perf: shown, it allocates nothing per frame (chart, numbers, ring)", async
   assert.ok(minor <= 1, `young-generation GCs over 200k shown frames: ${minor}`);
   e.destroy();
 });
+
+/** A host element with inline styles (for the ledger) and a computed position. */
+function hostEl(tag, position = "static") {
+  const h = new El(tag), props = new Map();
+  h.position = position;
+  h.style = {
+    getPropertyValue: (p) => props.get(p) ?? "",
+    getPropertyPriority: () => "",
+    setProperty: (p, v) => props.set(p, v),
+    removeProperty: (p) => props.delete(p),
+  };
+  h.props = props;
+  return h;
+}
+function withComputed(fn) {
+  const saved = globalThis.getComputedStyle;
+  globalThis.getComputedStyle = (el) => ({ position: el.position ?? "static", getPropertyValue: () => "" });
+  try {
+    return fn();
+  } finally {
+    if (saved) globalThis.getComputedStyle = saved;
+    else delete globalThis.getComputedStyle;
+  }
+}
+
+test("perf: a canvas or svg host puts the overlay on the page, fixed (P11)", () => {
+  for (const [tag, own] of [["CANVAS", { getContext: () => null }], ["svg", { ownerSVGElement: null }]]) {
+    const host = Object.assign(hostEl(tag), own);
+    const { p, doc } = setup({ host });
+    assert.equal(host.kids, undefined, `${tag}: a child of a replaced element never shows`);
+    assert.deepEqual(doc.body.kids, [p.el], `${tag}: on the body instead`);
+    assert.match(p.el.html, /position:fixed/);
+  }
+});
+
+test("perf: a static host is made relative while shown (through the ledger), so the corner is the host's (P11)", () =>
+  withComputed(() => {
+    const host = hostEl("DIV", "static");
+    const { e, p } = setup({ host, key: null });
+    assert.deepEqual(host.kids, [p.el]);
+    assert.match(p.el.html, /position:absolute/);
+    assert.equal(host.props.get("position"), undefined, "hidden: the host is untouched");
+    p.show(true);
+    assert.equal(host.props.get("position"), "relative", "shown: the overlay's corner is the host's");
+    p.show(false);
+    assert.equal(host.props.get("position"), undefined, "hidden again: given back");
+    p.show(true);
+    e.destroy();
+    assert.equal(host.props.get("position"), undefined, "Recall gives it back");
+    // A host that is already positioned is never touched.
+    const fixed = hostEl("DIV", "fixed");
+    const f = setup({ host: fixed, key: null, on: true });
+    assert.equal(fixed.props.size, 0);
+    f.e.destroy();
+  }));
