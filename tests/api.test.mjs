@@ -89,7 +89,8 @@ test("a brick page shows the measured size and every export", async () => {
   assert.equal(html.match(/<article class="bp-decl"[\s\S]*?<\/article>/g).filter((a) => a.includes('class="status-pill" data-flag="beta"')).length, mods[0].decls.length);
   assert.ok(html.includes("<code>board(cols: number, rows: number, opts?: BoardOptions): Board</code>"), "the signature");
   assert.match(html, /<dt>Returns<\/dt><dd><code><a href="#api-fzlt-core-grid-Board">Board<\/a><\/code><\/dd>/);
-  assert.match(html, /npm install @fzlt\/core {5}# not published yet/);
+  assert.match(html, /npm install @fzlt\/core\n/);
+  assert.ok(!html.includes("not published"), "npm is live: no 'not published' note");
   const full = page({ title: "@fzlt/core/grid · Fizlet", description: "The game board: typed-array tiles, A* paths and line of sight, measured.", base: "../", version: pkg.version, path: "bricks/grid.html", body: html });
   assert.deepEqual(checkHtml(full, "bricks/grid.html"), []);
 });

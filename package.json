@@ -1,7 +1,7 @@
 {
   "name": "@fzlt/core",
   "version": "0.21.2",
-  "description": "Tiny physics for your page: a micro game and animation engine for the DOM, by Chris Cooley. One loop, bounded everything, and the page always comes back.",
+  "description": "Fizlet™ (fzlt™) is the bricks for DOM animation and games, by Chris Cooley: a game or an animation boils down to logic and style, from a prompt. Every brick has a gzip budget in CI, there are no runtime dependencies, and the page always comes back.",
   "license": "MIT",
   "author": "Chris Cooley <https://coded.design>",
   "repository": {
@@ -13,7 +13,11 @@
   "sideEffects": [
     "*.css"
   ],
+  "bin": {
+    "fzlt": "bin/fzlt.mjs"
+  },
   "files": [
+    "bin",
     "dist",
     "CHANGELOG.md",
     "LICENSE",
@@ -157,7 +161,8 @@
     "api:check": "node scripts/api-snapshot.mjs check",
     "api:write": "node scripts/api-snapshot.mjs write",
     "site": "npm run build && node scripts/site.mjs",
-"test:site": "node tests/site.mjs && node tests/site-analytics.mjs && node tests/brick-cards.mjs && node tests/scroll-hint.mjs && node tests/stage-touch.mjs && node tests/site-nav.mjs && node tests/factory.mjs && node tests/brick-graph.mjs",
+    "site:fzlt": "node site/fzlt-dev/build.mjs",
+"test:site": "node tests/site.mjs && node tests/site-analytics.mjs && node tests/brick-cards.mjs && node tests/scroll-hint.mjs && node tests/stage-touch.mjs && node tests/site-nav.mjs && node tests/factory.mjs && node tests/brick-graph.mjs && node tests/fzlt-dev.mjs",
     "test:settle": "node tests/settle-guard.mjs",
     "prepack": "npm run build",
     "perf": "npm run site && node tests/perf/run.mjs",
@@ -179,7 +184,9 @@
     "micro",
     "canvas",
     "astro",
-    "zero-dependencies"
+    "zero-dependencies",
+    "fzlt",
+    "fizlet"
   ],
   "bugs": {
     "url": "https://github.com/coded-dot-design/fizlet/issues"

@@ -1,0 +1,85 @@
+{
+  "$comment": "Generated from the content model; do not edit by hand.",
+  "id": "blog-why-fzlt",
+  "site": "fizlet",
+  "brand": "fizlet",
+  "games": [],
+  "type": "blog",
+  "slug": "why-fzlt",
+  "title": "Why fzlt",
+  "subtitle": "Four letters, picked so nothing else answers to them.",
+  "eyebrow": "Field notes · Naming",
+  "tags": [
+    "fizlet",
+    "fzlt",
+    "npm",
+    "brand"
+  ],
+  "date": "2026-10-31",
+  "status": "published",
+  "lead": [
+    "Fizlet™ is the name you remember. fzlt™ is its short mark: the npm scope, and the mark for tight spaces. We picked it on purpose, so nobody mixes it up with anything else. Today you install Fizlet with `npm i @fzlt/core`."
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "heading": "Unique",
+      "headingAccent": "by design.",
+      "body": [
+        {
+          "type": "ul",
+          "items": [
+            "**No vowels.** fzlt is not a real word, and not a misspelling of one.",
+            "**A z.** It is one of the least-used letters in English.",
+            "**Nothing autocorrects into it.** And nobody types it by accident.",
+            "**It is short.** Four lowercase letters, quick to type in a command."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Fizlet stays the name in prose and headlines. fzlt is always lowercase, and lives where space is tight: npm, badges, the command line."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "heading": "One mark,",
+      "headingAccent": "everywhere you look.",
+      "body": [
+        {
+          "type": "p",
+          "text": "The package is `@fzlt/core`. Bricks are subpaths: `import { arcade } from \"@fzlt/core/arcade\"`."
+        },
+        {
+          "type": "p",
+          "text": "Plain `fzlt` is requested from npm, and not ours yet. Until it is, the alias works: `npm i fzlt@npm:@fzlt/core`."
+        },
+        {
+          "type": "p",
+          "text": "The GitHub org is [github.com/fizlet ↗](https://github.com/fizlet); the code stays at coded-dot-design/fizlet for now. fzlt.dev and fzlt.app are planned, as redirects to fizlet.com."
+        },
+        {
+          "type": "p",
+          "text": "Fizlet and fzlt are trademarks of Chris Cooley."
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "links": [
+        {
+          "label": "Quick start",
+          "href": "https://github.com/coded-dot-design/fizlet#readme"
+        },
+        {
+          "label": "Fizlet on GitHub",
+          "href": "https://github.com/fizlet"
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "title": "Why fzlt: the short mark of Fizlet, the DOM engine",
+    "description": "fzlt is Fizlet's short mark and npm scope: no vowels, a z, nothing autocorrects into it. Install Fizlet with npm i @fzlt/core."
+  }
+}

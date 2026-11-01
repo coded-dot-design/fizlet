@@ -54,10 +54,11 @@ export const ROADMAP = [
     [0, "No copied shared/ code left in the games"],
     [0, "Frame time equal or better than the E0 baseline, measured per game"],
   ] },
-  { id: "E4", name: "Presence and multiplayer", status: "done", note: "TWO PLAYERS", goal: "A few-KB presence client and a room server: two people play Battlefield Blitz on the live site. Battlefield matches and AI players moved to E12.", items: [
+  { id: "E4", name: "Presence and multiplayer", status: "done", note: "TWO PLAYERS", goal: "A few-KB presence client and a room server: two people play Battlefield Blitz on the live site. Multiplayer: in-house. DIY guide for your own server. Battlefield matches and AI players moved to E12.", items: [
     [1, "presence brick + determinism check"],
-    [1, "Room server: invite gate and hard spend caps"],
-    [1, "Battlefield Blitz two players against the deployed room server"],
+    [1, "Room server (in-house): invite gate and hard spend caps"],
+    [1, "Battlefield Blitz two players against our room server"],
+    [1, "DIY guide: build your own room server, the wire protocol as the contract"],
   ] },
   { id: "E5", name: "Docs for humans and AI", status: "done", goal: "Build a game or micro-interaction in an afternoon, from docs a person or an agent can follow.", items: [
     [1, "One page per brick, generated from the source, with its status"],
@@ -98,7 +99,7 @@ export const ROADMAP = [
   { id: "E11", name: "Actors", status: "planned", goal: "Units, bots and turrets as data: the parts every board game still writes itself.", items: [
     [0, "One board game moves its units onto them, and shrinks"],
   ] },
-  { id: "E12", name: "Multiplayer everywhere", status: "planned", goal: "Authoritative rooms, interpolation, and AI agents that join a room like any player.", items: [
+  { id: "E12", name: "Multiplayer everywhere", status: "planned", goal: "Builds on presence (in-house): authoritative rooms, interpolation, and AI agents that join a room like any player.", items: [
     [0, "A DOM Battlefield match between two networks"],
     [0, "An AI agent joins a room"],
   ] },
