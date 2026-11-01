@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Brand: the owner's new FIZLET and fzlt logos, and one mark and lockup everywhere (pending owner
+  review).** /brand/ draws the two new logos (redrawn as outlines from the owner's art, one function
+  each in `scripts/brand-marks.mjs`) on dark and light, as live art and SVG downloads: FIZLET, the
+  mark in its square frame closed by the F; fzlt, the mark's pixels and lowercase fzlt. Ink is
+  `--ink`, the pop `--k-attack`. The site mark (`site/layout.mjs` MARK, mark()) is now that art: frame
+  and squares in the text colour, no tile or grid, in the header, the footer, fzlt.dev, the favicon,
+  og.png and the sticker keys. One lockup function (`lockup()`) draws the header, footer, /brand/ and
+  fzlt.dev lockups; FIZLET sits at 0.075em tracking, nudged -0.06em, and the version is a small
+  tilted `--k-sys` sticker (a smaller one on phones, hidden at 340 px and under). Clear space is now
+  the mark's outlined square; minimum 24 px for both logos.
 - **Gallery: the genre minis are playable: compact keys that never cover the action (pending owner
   review).** In Redline, Dirt Lab, Bag Beat and Toast Tell the keys were sized in container units on a
   figure that was no size container, so they grew with the window (GAS took half the stage), and the

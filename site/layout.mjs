@@ -60,9 +60,34 @@ const PATHS = {
 export const icon = (name, size = 20) =>
   `<svg viewBox="0 0 20 20" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="${PATHS[name]}"/></svg>`;
 
-/** The Fizlet mark: three pixel bubbles fizzing up a grid tile, one popping (pink). */
+/**
+ * The Fizlet mark, one source: pixel bubbles fizzing up a square frame, one popping. Rects on its
+ * 64-unit grid, [x, y, w, h]: the frame, the ink squares (an outlined one, a solid one, a small
+ * one) and the pop, three pink pixels (--k-attack). mark() draws it, the logos on /brand/
+ * (scripts/brand-marks.mjs) and the social card (scripts/og.mjs) take the same rects.
+ */
+export const MARK = {
+  frame: [[0, 0, 64, 2], [0, 62, 64, 2], [0, 2, 2, 60], [62, 2, 2, 60]],
+  ink: [[8, 30, 26, 7], [8, 49, 26, 7], [8, 37, 7, 12], [27, 37, 7, 12], [36, 18, 14, 14], [40, 40, 8, 8]],
+  pop: [[52, 6, 6, 6], [46, 6, 3, 3], [58, 14, 3, 3]],
+  pink: "#ff2e88",
+};
+/** Rects as one path's data, moved by (dx, dy). */
+export const rectPath = (list, dx = 0, dy = 0) => list.map(([x, y, w, h]) => `M${x + dx} ${y + dy}h${w}v${h}h-${w}Z`).join("");
+/** The mark in the text colour (currentColor: --ink in the chrome), the pop in pink, on no tile. */
 export const mark = (size = 40) =>
-  `<svg viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true" shape-rendering="crispEdges"><path d="M0 16h64M0 32h64M0 48h64M16 0v64M32 0v64M48 0v64" stroke="#19f0ff" stroke-opacity=".35"/><rect x="1" y="1" width="62" height="62" fill="none" stroke="#19f0ff" stroke-width="2"/><g fill="currentColor"><path fill-rule="evenodd" d="M8 30h26v26H8Zm7 7v12h12V37Z"/><path d="M36 18h14v14H36ZM40 40h8v8h-8Z"/></g><path d="M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z" fill="#ff2e88"/></svg>`;
+  `<svg viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true" shape-rendering="crispEdges"><path fill="currentColor" d="${rectPath([...MARK.frame, ...MARK.ink])}"/><path fill="${MARK.pink}" d="${rectPath(MARK.pop)}"/></svg>`;
+
+/** The favicon (icon.svg, the site's and fzlt.dev's): the mark in the dark theme's --ink on --bg. */
+export const favicon = () => mark(64).replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" style="color:#f6f3ff;background:#07060f" ');
+
+/**
+ * The site lockup, one source for the header, the footer, /brand/ and fzlt.dev: the mark, the
+ * DOM ENGINE kicker with the version as a little sticker (.brand-ver), and FIZLET. `fzlt`: the
+ * footer's short mark after the wordmark.
+ */
+export const lockup = ({ version = "", size = 40, fzlt = false } = {}) =>
+  `<span class="brand-mark">${mark(size)}</span><span class="brand-text"><small>DOM ENGINE${version ? `<i class="brand-ver">V${esc(version)}</i>` : ""}</small><b>FIZLET${fzlt ? `<i class="brand-fzlt">fzlt™</i>` : ""}</b></span>`;
 
 // Site navigation, one source (brain: fizlet-engine playbooks/content/site-nav.md). The header is the
 // short version: Daily · Docs · Bricks · Notes. A group is a small menu behind a disclosure button
@@ -206,8 +231,7 @@ ${jsonLd(ld)}
 <header class="site-head">
   <div class="wrap">
     <a class="brand" href="${home}" aria-label="Fizlet home">
-      <span class="brand-mark">${mark(40)}</span>
-      <span class="brand-text"><small>DOM ENGINE<i>V${esc(version)}</i></small><b>FIZLET</b></span>
+      ${lockup({ version })}
     </a>
     <nav class="site-nav" aria-label="Site" id="site-nav">${nav}</nav>
     <div class="head-keys">
@@ -225,8 +249,7 @@ ${body}
   <div class="wrap">
     <div class="foot-brand">
       <a class="brand" href="${home}">
-        <span class="brand-mark">${mark(40)}</span>
-        <span class="brand-text"><small>DOM ENGINE</small><b>FIZLET<i class="brand-fzlt">fzlt™</i></b></span>
+        ${lockup({ fzlt: true })}
       </a>
       <p>Fizlet™ is the building blocks for animation and games on the DOM, by <a href="${AUTHOR}">Chris Cooley ↗</a>. Bring the logic and style; the bricks do the rest, and the page always comes back.</p>
       <p class="foot-note"><a href="${HUB}">DOM VIRUS ↗</a> is one use of the bricks: its games run on Fizlet.</p>

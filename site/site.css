@@ -223,15 +223,14 @@ html.bui[data-theme="light"] .panel.lit {
   text-decoration: none;
   color: var(--ink);
 }
+/* The mark (layout.mjs mark()): frame and squares in --ink, the pop pink, on no tile. */
 .brand-mark {
   display: grid;
   place-items: center;
   flex: none;
-  width: 44px;
-  height: 44px;
-  color: var(--team-a);
-  background: var(--rim);
-  border: 2px solid color-mix(in srgb, var(--k-sys) 70%, transparent);
+  width: 40px;
+  height: 40px;
+  color: var(--ink);
 }
 .brand-mark svg {
   width: 40px;
@@ -245,17 +244,28 @@ html.bui[data-theme="light"] .panel.lit {
 .brand-text small {
   font-size: 11px;
   letter-spacing: 0.08em;
+  white-space: nowrap;
 }
-.brand-text small i {
+/* The version: a little sticker, the site's sticker recipe (.eyebrow .index, .brick-sticker). */
+.brand-text .brand-ver {
+  display: inline-block;
   margin-left: 8px;
+  padding: 2px 5px 1px;
+  font: 900 9px/1 var(--mono);
   font-style: normal;
-  font-size: 9px;
-  color: var(--k-sys-ink);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
+  vertical-align: 1px;
+  color: var(--rim);
+  background: var(--k-sys);
+  border: 1.5px solid var(--rim);
+  border-radius: 4px;
+  box-shadow: calc(2px * var(--shadow-x, 0)) calc(2px * var(--shadow-y, 1)) 0 var(--rim);
+  rotate: -4deg;
 }
 .brand-text b {
   font-size: 19px;
-  letter-spacing: 0.1em;
+  transform: translateX(-0.06em);
+  letter-spacing: 0.075em;
 }
 /* The short mark beside the wordmark in the footer lockup: mono, lowercase, small. */
 .brand-text .brand-fzlt {
@@ -440,9 +450,16 @@ html.bui[data-theme="light"] .panel.lit {
   :root {
     --gutter: 18px;
   }
-  .brand-text small i,
   .head-keys .gh {
     display: none;
+  }
+  /* Phones: the version sticker a size down, so the lockup still fits beside the keys. */
+  .brand-text .brand-ver {
+    margin-left: 5px;
+    padding: 1px 4px 0;
+    font-size: 8px;
+    letter-spacing: 0.04em;
+    border-width: 1px;
   }
 }
 @media (max-width: 380px) {
@@ -450,21 +467,35 @@ html.bui[data-theme="light"] .panel.lit {
     gap: 10px;
   }
   .brand-mark {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
   }
   .brand-mark svg {
     width: 34px;
     height: 34px;
   }
+  .site-head .brand {
+    gap: 8px;
+  }
   .brand-text b {
     font-size: 16px;
+  }
+  .brand-text .brand-ver {
+    margin-left: 4px;
+    padding-inline: 3px;
+    letter-spacing: 0;
   }
   .head-keys {
     gap: 8px;
   }
   .start-key-sm {
     padding-inline: 10px;
+  }
+}
+/* The narrowest phones: no room for the version sticker beside the keys. */
+@media (max-width: 340px) {
+  .brand-text .brand-ver {
+    display: none;
   }
 }
 html.bui[data-theme="dark"] .theme-light,
@@ -5062,8 +5093,8 @@ html.bui[data-theme="light"] .ogs-vs {
   font-size: 16px;
 }
 .brand-min-38 {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
 }
 .brand-min-38 svg {
   width: 34px;
@@ -5348,13 +5379,8 @@ html.bui[data-theme="light"] .ogs-vs {
   border: 2px solid var(--line);
   border-radius: 10px;
 }
-.brand-min-word {
-  font: 700 16px var(--mono);
-  letter-spacing: 0.1em;
-  color: var(--ink);
-}
-.brand-min-fzlt {
-  font: 700 12px var(--mono);
+.brand-min-logo {
+  display: inline-flex;
   color: var(--ink);
 }
 /* The sticker set. */
