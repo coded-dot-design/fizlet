@@ -24,7 +24,9 @@
   and squares in the text colour, no tile or grid, in the header, the footer, fzlt.dev, the favicon,
   og.png and the sticker keys. One lockup function (`lockup()`) draws the header, footer, /brand/ and
   fzlt.dev lockups; FIZLET sits at 0.075em tracking, nudged -0.06em, and the version is a small
-  tilted `--k-sys` sticker (a smaller one on phones, hidden at 340 px and under). Clear space is now
+  tilted `--k-sys` sticker, its edge and hard shadow the shared `--sticker-edge` / `--sticker-shadow` tokens (`--ink`
+  until they land) so they read on both themes (on
+  phones it drops under FIZLET, a size down, so the 44 px header keys keep their room). Clear space is now
   the mark's outlined square; minimum 24 px for both logos.
 - **Gallery: the genre minis are playable: compact keys that never cover the action (pending owner
   review).** In Redline, Dirt Lab, Bag Beat and Toast Tell the keys were sized in container units on a

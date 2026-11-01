@@ -246,7 +246,9 @@ html.bui[data-theme="light"] .panel.lit {
   letter-spacing: 0.08em;
   white-space: nowrap;
 }
-/* The version: a little sticker, the site's sticker recipe (.eyebrow .index, .brick-sticker). */
+/* The version: a little sticker, the site's sticker recipe (.eyebrow .index, .brick-sticker). Its
+   edge and hard shadow are the shared sticker tokens (--sticker-edge, --sticker-shadow: light ink on
+   dark, the dark rim on light), --ink until those land, so they never vanish into the page. */
 .brand-text .brand-ver {
   display: inline-block;
   margin-left: 8px;
@@ -257,9 +259,9 @@ html.bui[data-theme="light"] .panel.lit {
   vertical-align: 1px;
   color: var(--rim);
   background: var(--k-sys);
-  border: 1.5px solid var(--rim);
+  border: 1.5px solid var(--sticker-edge, var(--ink));
   border-radius: 4px;
-  box-shadow: calc(2px * var(--shadow-x, 0)) calc(2px * var(--shadow-y, 1)) 0 var(--rim);
+  box-shadow: calc(2px * var(--shadow-x, 0)) calc(2px * var(--shadow-y, 1)) 0 var(--sticker-shadow, var(--ink));
   rotate: -4deg;
 }
 .brand-text b {
@@ -464,9 +466,15 @@ html.bui[data-theme="light"] .panel.lit {
   .head-keys .gh {
     display: none;
   }
-  /* Phones: the version sticker a size down, so the lockup still fits beside the keys. */
+  /* Phones: the version sticker drops under FIZLET, a size down, so the lockup is no wider than its
+     kicker and the 44 px keys keep their room (the kicker's box steps aside: display: contents). */
+  .brand-text small {
+    display: contents;
+  }
   .brand-text .brand-ver {
-    margin-left: 5px;
+    order: 1;
+    justify-self: start;
+    margin: 3px 0 0;
     padding: 1px 4px 0;
     font-size: 8px;
     letter-spacing: 0.04em;
@@ -491,22 +499,11 @@ html.bui[data-theme="light"] .panel.lit {
   .brand-text b {
     font-size: 16px;
   }
-  .brand-text .brand-ver {
-    margin-left: 4px;
-    padding-inline: 3px;
-    letter-spacing: 0;
-  }
   .head-keys {
     gap: 8px;
   }
   .start-key-sm {
     padding-inline: 10px;
-  }
-}
-/* The narrowest phones: no room for the version sticker beside the keys. */
-@media (max-width: 340px) {
-  .brand-text .brand-ver {
-    display: none;
   }
 }
 html.bui[data-theme="dark"] .theme-light,
