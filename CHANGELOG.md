@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Site: the home page's three-phase cards (03) lose their left border (pending owner review).**
+  READ, STEP and RENDER are plain Board UI 3D cards now: a neutral rim, the phase colour on the hard
+  base below and on a "PHASE 1/2/3" sticker on the top edge (the people and gallery sticker look).
+  STEP's "× 0–4" is a small chip; the purple frame and grid around the cards are gone. A site test
+  checks every side of each card has the same border width.
 - **@fzlt/core/presence: play passes need nothing new on the client (pending owner review).** A page
   joins with `join(url, signal, ["fizlet-rooms", "pass." + pass, "device." + key])`, and a resume
   offers the pass and the device key again, with `resume.<token>` after them, never in a URL (a test
