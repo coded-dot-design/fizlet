@@ -125,10 +125,13 @@ const PROJECT = [
   [`${REPO}/blob/main/src/ui/BOARD-UI.md`, "Board UI spec"],
   [ENGINE_PLAN, "Engine plan"],
 ];
-// The headline, one source: the home hero, the /bricks/ hero and fzlt.dev. "&" (not "and") keeps the
-// first line short enough for one line beside the layers card; it wears the .amp accent (site.css).
+// The bricks headline, one source: the /bricks/ hero and fzlt.dev. "&" (not "and") wears the .amp
+// accent (site.css). The home hero has its own, bigger-picture line (HOME_HEADLINE): never the same.
 export const HEADLINE = { line: "Logic & style.", accent: "The bricks do the rest." };
-export const headline = (sep = "<br>") => `${esc(HEADLINE.line).replace("&amp;", '<span class="amp">&amp;</span>')}${sep}<em>${esc(HEADLINE.accent)}</em>`;
+// The home hero: the first thing a visitor reads, so it sells the whole engine (size + speed), not
+// one idea. The lead under it backs it with the measured kernel size.
+export const HOME_HEADLINE = { line: "Small footprint.", accent: "Big performance." };
+export const headline = (sep = "<br>", h = HEADLINE) => `${esc(h.line).replace("&amp;", '<span class="amp">&amp;</span>')}${sep}<em>${esc(h.accent)}</em>`;
 // The family line: the same four sites, in the same order, in every family footer (domvirus.com,
 // battlefield.domvirus.com and battlefieldblitz.domvirus.com list it too). Production URLs; Fizlet is
 // the engine, and this site's own entry (SITE) has no ↗. Other hosts never go in sitemap.xml.

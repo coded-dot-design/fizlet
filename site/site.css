@@ -803,7 +803,7 @@ a.bui-sticker-key {
 }
 .hero-grid {
   display: grid;
-  /* the copy column a little wider than the layers card, so "Logic & style." holds one line */
+  /* the copy column a little wider than the layers card, so each headline phrase holds one line */
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   gap: clamp(30px, 5vw, 64px);
   align-items: center;
@@ -812,8 +812,9 @@ a.bui-sticker-key {
 }
 .hero h1 {
   margin: 22px 0 24px;
-  /* (below 388px wide, a touch under 52px so "Logic & style." still holds one line) */
-  font-size: clamp(min(52px, 13.4vw), 7.4vw, 104px);
+  /* sized so each phrase of HOME_HEADLINE ("Small footprint." / "Big performance.", about 8.3em
+     each) holds one line in the copy column, phone to 1920 */
+  font-size: clamp(min(42px, 10.6vw), 5.2vw, 84px);
   line-height: 0.92;
   letter-spacing: -0.05em;
   text-wrap: balance;

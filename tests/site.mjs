@@ -13,7 +13,7 @@ import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
 import { checkHtml } from "../scripts/check-html.mjs";
 import { checkNav } from "../scripts/check-nav.mjs";
-import { FAMILY_LINE, HEADLINE, SITE, ROOT as SITE_ROOT, mark as fizletMark } from "../site/layout.mjs";
+import { FAMILY_LINE, HEADLINE, HOME_HEADLINE, SITE, ROOT as SITE_ROOT, mark as fizletMark } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
 import { entries as galleryEntries, isLive, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
@@ -770,7 +770,7 @@ try {
     await context.close();
   }
 
-  // ---------- Home hero headline: "Logic & style." holds one line on desktop, never a lone word ----------
+  // ---------- Home hero headline: its own line (never /bricks/'s), one line on desktop, never a lone word ----------
   where = "hero headline";
   for (const viewport of [{ width: 1280, height: 860 }, { width: 1440, height: 900 }, { width: 1920, height: 1080 }, { width: 390, height: 844 }]) {
     const context = await browser.newContext({ viewport });
@@ -797,9 +797,10 @@ try {
       first.setEndBefore(br);
       return { text: h1.textContent, first: lines(before), accent: lines(texts.filter((n) => em.contains(n))), right: first.getBoundingClientRect().right, column: h1.parentElement.getBoundingClientRect().right, wrap: document.querySelector(".hero > .wrap").getBoundingClientRect().width };
     });
-    assert.equal(h.text, HEADLINE.line + HEADLINE.accent, "the headline is the one HEADLINE");
+    assert.equal(h.text, HOME_HEADLINE.line + HOME_HEADLINE.accent, "the home headline is HOME_HEADLINE");
+    assert.notEqual(HOME_HEADLINE.line, HEADLINE.line, "home and /bricks/ never share a headline");
     if (viewport.width >= 1280) {
-      assert.equal(h.first.length, 1, `${viewport.width}: "${HEADLINE.line}" on one line (${JSON.stringify(h.first)})`);
+      assert.equal(h.first.length, 1, `${viewport.width}: "${HOME_HEADLINE.line}" on one line (${JSON.stringify(h.first)})`);
       assert.ok(h.right <= h.column + 0.5, `${viewport.width}: the line fits its column (${h.right} > ${h.column})`);
     }
     for (const line of [...h.first, ...h.accent]) assert.ok(line.length > 1, `${viewport.width}: no lone word (${JSON.stringify([...h.first, ...h.accent])})`);
