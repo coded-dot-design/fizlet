@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- **Site: the origin hero in two looks, a redrawn coder, and a cup you can play with (pending owner
+  review).** "Code. Sleep. Drink. Repeat." is now inspired by the original 2015 portfolio, with
+  Fizlet flair: a 2015 / Fizlet key in the scene's key row (`aria-pressed`, `look` in `origin:state`,
+  `look` in mount, `data-look` on the slot) switches the flat 2015 palette and the Fizlet look,
+  cyberpunk × Tron from the Board UI tokens with the desk grid, neon edges and pixel patterns
+  (default). He wears a backwards trucker cap seen from above (mesh, foam panel, the bill toward
+  you), the headphones' band goes over it with a cup on each ear, and his arms bend at the elbow
+  (two bones, a tapered forearm, hands). Every tap squashes on the next frame and pops; hit areas
+  are 44 px or more. The cup: tap to sip, double-tap to refill (a pour, then steam), drag to move
+  it (it lifts, its shadow grows), flick to knock it over (it spills, then rights itself, refilled);
+  Enter, R, K and the arrows on the cup. Reduced motion changes state with no animation; every toy
+  settles. Live chunk 20,922 → 28,156 B gzip; inline poster 3,775 → 5,120 B (one markup, both
+  looks; the poster's saucer shows again). Test: `tests/origin.mjs`.
 - **Site: 3D stickers keep their edge and shadow on the dark theme (pending owner review).** Every
   sticker's die-cut edge and hard shadow read from one token pair, `--sticker-edge` and
   `--sticker-shadow` (site.css :root): the light ink and the muted light on the dark theme, the ink

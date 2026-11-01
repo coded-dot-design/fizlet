@@ -28,15 +28,17 @@ export const sizes = { loader: gz(`${OUT}/main.js`), chunk: gz(`${OUT}/scene.js`
 // The poster: the same art, mid-morning, awake, code on the screens, rendered here (no JS). It is
 // the placeholder while the scene loads and the still frame for reduced motion.
 const tmp = await build({ stdin: { contents: 'export * from "./art.ts"; export * from "./copy.ts";', resolveDir: DIR, loader: "ts" }, bundle: true, format: "esm", platform: "node", write: false, logLevel: "warning" });
-const { art, CSS, why, ORIGIN_WHY, ORIGIN_TITLE } = await import("data:text/javascript;base64," + Buffer.from(tmp.outputFiles[0].text).toString("base64"));
+const { art, CSS, why, ORIGIN_WHY, ORIGIN_TITLE, ORIGIN_CREDIT } = await import("data:text/javascript;base64," + Buffer.from(tmp.outputFiles[0].text).toString("base64"));
 export const POSTER_CSS = CSS;
-export const poster = (cup = "coffee.png") => `<div class="ae-slot__placeholder og og-poster" aria-hidden="true" style="--sky:rgb(158,214,224);--night:0;--sun:.38;--beam:1;--glow:1">` +
-  art({ aw: 1, ph: 1, lid: 1, hd: 1 }, "code", cup, bricks, "ogp-").replace(' tabindex="0" role="button" aria-label="Close the laptop"', "").replace(' tabindex="0" role="button" aria-label="Nudge him"', "").replace(/ role="group" aria-label="[^"]*"/, ' aria-hidden="true"').replace("<image href", '<image href').replace('viewBox="0 0 84 84"', 'viewBox="924 0 84 84"') + why(esc(ORIGIN_WHY), esc(ORIGIN_WHY), "WHY") + `</div>`;
+// One poster markup for both looks: the look is a class on the wrapper (og--fz: Fizlet, the default).
+export const poster = (cup = "coffee.png", look = "fizlet") => `<div class="ae-slot__placeholder og og-poster${look === "2015" ? "" : " og--fz"}" aria-hidden="true" style="--sky:rgb(158,214,224);--night:0;--sun:.38;--beam:1;--glow:1">` +
+  art({ aw: 1, ph: 1, lid: 1, hd: 1 }, "code", cup, bricks, "ogp-").replace(' tabindex="0" role="button" aria-label="Close the laptop"', "").replace(' tabindex="0" role="button" aria-label="Nudge him"', "").replace(/ role="group" aria-label="[^"]*"/, ' aria-hidden="true"') + why(esc(ORIGIN_WHY), esc(ORIGIN_WHY), "WHY", esc(ORIGIN_CREDIT)) + `</div>`;
 sizes.poster = gzipSync(poster()).length;
+sizes.poster2015 = gzipSync(poster("coffee.png", "2015")).length;
 
 const fmt = (n) => n.toLocaleString("en-US");
-const BRICK_ROWS = [["kernel", "@fzlt/core (kernel)", "One loop at 30 fps; settles when nothing moves; the ledger gives the page back"], ["timeline", "@fzlt/core/timeline", "The day and night cycle (sky, shade, sun, lamp); the wake, sleep and sip sequences"], ["fx", "@fzlt/core/fx", "♪ notes, coffee steam, sparks of code (or swatch chips), the Zzz"], ["sound", "@fzlt/core/sound", "The beat, key clicks, the sip; silent until your first tap or key"], ["input", "@fzlt/core/input", "Taps on the laptop, cup, phone and headphones; the lid key"], ["sprite", "@fzlt/core/sprite", "The pixel coder dancing on the phone"], ["slot", "@fzlt/core/slot", "Loads the scene near the viewport, on an idle main thread (main.js)"]];
-const caption = [`Live chunk <b>${fmt(sizes.chunk)} B</b> gzip (six bricks + the scene)`, `loader <b>${fmt(sizes.loader)} B</b> (@fzlt/core/slot)`, `poster <b>${fmt(sizes.poster)} B</b> inline`, `2015 coffee sheet <b>${fmt(sizes.cup)} B</b> PNG`].join(" · ");
+const BRICK_ROWS = [["kernel", "@fzlt/core (kernel)", "One loop at 30 fps; settles when nothing moves; the ledger gives the page back"], ["timeline", "@fzlt/core/timeline", "The day and night cycle (sky, shade, sun, lamp); the wake, sleep, sip, pour and spill sequences"], ["fx", "@fzlt/core/fx", "♪ notes, coffee steam, sparks of code (or swatch chips), the splash, the Zzz"], ["sound", "@fzlt/core/sound", "The beat, key clicks, the sip, taps, the pour, the spill; silent until your first tap or key"], ["input", "@fzlt/core/input", "Taps on the laptop, cup, phone and headphones; the cup's drag and flick; the lid key"], ["sprite", "@fzlt/core/sprite", "The pixel coder dancing on the phone"], ["slot", "@fzlt/core/slot", "Loads the scene near the viewport, on an idle main thread (main.js)"]];
+const caption = [`Live chunk <b>${fmt(sizes.chunk)} B</b> gzip (six bricks + the scene)`, `loader <b>${fmt(sizes.loader)} B</b> (@fzlt/core/slot)`, `poster <b>${fmt(sizes.poster)} B</b> inline (both looks)`, `2015 coffee sheet <b>${fmt(sizes.cup)} B</b> PNG`].join(" · ");
 
 const STYLE = `<style>
 ${CSS}
@@ -44,7 +46,7 @@ ${CSS}
 .og-title { font-size: clamp(40px, 6vw, 84px); line-height: .95; letter-spacing: -.05em; margin: 10px 0 18px; }
 .og-title button { font: inherit; letter-spacing: inherit; color: var(--k-attack); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-decoration-thickness: .06em; text-underline-offset: .12em; }
 .og-board { position: relative; padding: 14px; margin-top: 28px; }
-.og-page figure.ae-slot { position: relative; margin: 0; width: 100%; aspect-ratio: 16 / 10; border-radius: 10px; overflow: hidden; background: #65b9ad; }
+.og-page figure.ae-slot { position: relative; margin: 0; width: 100%; aspect-ratio: 16 / 10; border-radius: 10px; overflow: hidden; background: var(--rim, #07060f); }
 @media (max-width: 600px) { .og-page figure.ae-slot { aspect-ratio: 4 / 5; } }
 .og-cap { margin: 14px 0 0; font: 12px/1.7 var(--mono); color: var(--muted); }
 .og-cap b { color: var(--ink); }
@@ -62,7 +64,8 @@ const body = `${STYLE}
     <h1 id="og-title" class="og-title"><button type="button" data-og-word aria-label="Switch the screens to design work">Code</button>. Sleep. Drink. Repeat.</h1>
     <p class="lead">A designer's and developer's day as a loop. Night: head down on the desk. The sun comes up, the headphones go on, the coffee goes down, and the laptop and phone run all day. Night falls, the lid closes, repeat. Tap the word to switch the screens between code and design work. Close the laptop and he sleeps; open it and the day starts.</p>
     <p class="lead og-why-lead"><b>Why Fizlet.</b> ${esc(ORIGIN_WHY)}</p>
-    <p class="lead">The headphones, the coffee and the laptop are the props from my 2015 portfolio, back as living things. The cup is the 2015 sprite sheet itself. By <a href="https://coded.design/">Chris Cooley ↗</a>.</p>
+    <p class="lead">${esc(ORIGIN_CREDIT)}. The headphones, the coffee and the laptop are the props from my 2015 portfolio, back as living things; in the 2015 look the cup is the 2015 sprite sheet itself. The look key switches between the 2015 palette and Fizlet's: cyberpunk meets Tron, in the site's own tokens. By <a href="https://coded.design/">Chris Cooley ↗</a>.</p>
+    <p class="lead">The cup is a toy. Tap it for a sip, double-tap it to refill it, drag it anywhere on the desk, flick it to knock it over (tap the spill, or wait). On the keyboard: Enter sips, R refills, the arrow keys move it.</p>
     <div class="panel lit og-board">
       <figure class="ae-slot ae-slot--16x10" data-slot-target="origin#hero" aria-label="Code. Sleep. Drink. Repeat. A desk seen from above through one day: he sleeps, wakes with the sun, puts the headphones on, drinks his coffee, codes all day, and sleeps again">${poster()}</figure>
       <p class="og-cap">${caption}. Measured on this build.</p>
