@@ -252,7 +252,7 @@ export interface JoinOptions {
 /** Join a room (a server speaking the `fizlet-rooms` subprotocol): resolves when the room starts with
  *  your seat, the player count, the shared seed and the host's `mode`. `protocols` go to the WebSocket
  *  handshake: the room reads its access token there (`["fizlet-rooms", "invite." + code]`), so the code stays out of the URL and the
- *  logs. A dropped link (1006) reconnects on its own (`o.retry`) with the seat's resume token, kept in
+ *  logs. A dropped link (1006, or a server restart: 1011, 1012, 1014) reconnects on its own (`o.retry`) with the seat's resume token, kept in
  *  memory only (never in a URL); the room's own closes (idle, full, seat gone, the caps) end it. */
 export function join(url: string, signal?: AbortSignal, protocols?: string | string[], o: JoinOptions = {}) {
   return new Promise<{ transport: Transport; slot: number; players: number; seed: number; mode: number }>((ok, fail) => {
@@ -269,9 +269,11 @@ export function join(url: string, signal?: AbortSignal, protocols?: string | str
           : d[0] === WELCOME && ((tries = 0), me < 0 && ((me = d[1]!), (token = u32(d, 8)), ok({ transport: t, slot: me, players: d[2]!, seed: u32(d, 4), mode: d[3]! })), 1),
       );
       if (fn) cur.listen(fn);
-      ws.onclose = (ev) => {
+      // A drop (1006, 1011, 1012, 1014: the server holds the seat) resumes: bits 0, 5, 6, 8 of 0x161 from
+      // 1006. `>>> 0 > 8` keeps the shift in range (JS takes shift counts mod 32). Any other close ends it.
+      ws.onclose = (ev, c = ev.code - 1006) => {
         if (tries < 0) return;
-        if (me < 0 || !token || tries >= (o.retry ?? 6) || ev.code !== 1006) return bye();
+        if (me < 0 || !token || tries >= (o.retry ?? 6) || c >>> 0 > 8 || !((0x161 >> c) & 1)) return bye();
         tries++ || fn?.(m12(AWAY, me));
         setTimeout(() => tries < 0 || open([...[protocols ?? []].flat(), "resume." + token.toString(16)]), 125 << tries);
       };
