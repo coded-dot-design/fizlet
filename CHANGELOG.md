@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- **Gallery: the genre minis are playable: compact keys that never cover the action (pending owner
+  review).** In Redline, Dirt Lab, Bag Beat and Toast Tell the keys were sized in container units on a
+  figure that was no size container, so they grew with the window (GAS took half the stage), and the
+  page's Board UI button rule outranked their sheets. One small shared helper,
+  `site/gallery/pieces/keys.ts`, now makes them: 44 px Board UI keys in a 56 px strip on the stage's
+  bottom edge, under the floor line (site.css, once); mute at the strip's left end on a wide stage,
+  in the top corner on a square or tall one. The four lay themselves out per stage class (phone shape
+  1 / 1): the art keeps above the strip. A press anywhere on the stage is GAS or PUNCH; Space and the
+  arrows still play. Dirt Lab's palette is a compact text row (FLAT, RAMP, BUMP, GAP, RACE), and it
+  is back under the contest line: 10,245 → 10,199 B live. Redline 8,825 → 8,888 B, Bag Beat 8,167 →
+  8,278 B, Toast Tell 9,706 → 9,813 B; Freeze Plan's keys (CSS only, 0 B) are a 44 px pair at the
+  bottom centre. Test: `tests/minis-controls.mjs` (in `test:site`), all 16 minis at 1440, 390 and 360.
 - **Site: the home page's three-phase cards (03) lose their left border (pending owner review).**
   READ, STEP and RENDER are plain Board UI 3D cards now: a neutral rim, the phase colour on the hard
   base below and on a "PHASE 1/2/3" sticker on the top edge (the people and gallery sticker look).

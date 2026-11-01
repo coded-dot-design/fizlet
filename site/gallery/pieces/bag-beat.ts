@@ -9,7 +9,8 @@
 // no allocation a step.
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../src/slot";
-import { controls, ring, CYAN, GO, GOLD, INK, PAPER, PINK, PURPLE, RED, STEEL } from "./ring-kit";
+import { keys } from "./keys";
+import { ring, CYAN, GO, GOLD, INK, PAPER, PINK, PURPLE, RED, STEEL } from "./ring-kit";
 
 /** Modes: waiting, the round, the bell. */
 export const WAIT = 0, PLAY = 1, DONE = 2;
@@ -88,10 +89,11 @@ export function bagBeat(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
   const g = k.g, col = k.col, { circ, rr } = k;
   const WORDS = ["CLUNK", "GOOD", "PERFECT!"], WD = new Float64Array(3);
   WD[1] = 9;
-  const B = controls(engine, stage, [
-    { id: 1, label: "PUNCH", aria: "Punch (space)" },
+  // PUNCH (or a tap anywhere on the stage) and mute.
+  const B = keys(engine, stage, [
+    { id: 1, label: "PUNCH", aria: "Punch (space)", c: "bui-arcade bui-fire" },
     { id: 9, label: "♪", aria: "Mute (M)" },
-  ], (id) => (id === 9 ? mute() : hit(), engine.wake()));
+  ], (id) => (id === 9 ? mute() : hit(), engine.wake()), 1);
   const mute = () => {
     k.snd.on = !k.snd.on;
     B[1]!.textContent = k.snd.on ? "♪" : "✕";

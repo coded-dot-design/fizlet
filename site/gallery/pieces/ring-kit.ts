@@ -1,9 +1,9 @@
 // Shared by the boxing minis: the ring. One canvas over the stage (art units: 160 across, 90 down),
 // colours from the stage's own wrapper (light and dark), the crowd and the ropes, hit sparks and
-// sweat, pop words, and the controls: real <button>s (44 px or more) and keys while focus is in the
-// stage, M to mute. Sound is @fzlt/core/sound: silent until a gesture. Nothing here writes the page
-// outside the slot's stage (the canvas and the buttons go through the engine's ledger), so Recall
-// gives the page back exactly. Steps allocate nothing.
+// sweat, pop words. The stage's sheet places the canvas: the art's 16:9 box, just over the keys'
+// strip (keys.ts) on a square or tall stage. Sound is @fzlt/core/sound: silent until a gesture.
+// Nothing here writes the page outside the slot's stage (the canvas goes through the engine's
+// ledger), so Recall gives the page back exactly. Steps allocate nothing.
 import type { Engine } from "../../../src/kernel/index";
 import { sound } from "../../../src/sound";
 import type { Cue } from "../../../src/sound";
@@ -17,7 +17,6 @@ const VARS = ["--rg-back", "--rg-crowd", "--rg-mat", "--rg-rope", "--rg-ink", "-
 export function ring(engine: Engine, stage: HTMLElement, skin: HTMLElement, cues: Record<string, Cue>) {
   const R = engine.random;
   const canvas = engine.ledger.add(document.createElement("canvas"));
-  canvas.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none";
   canvas.setAttribute("aria-hidden", "true");
   stage.append(canvas);
   const g = canvas.getContext("2d")!;
@@ -43,7 +42,7 @@ export function ring(engine: Engine, stage: HTMLElement, skin: HTMLElement, cues
     read() {
       if (!V[3]) return false;
       V[3] = 0;
-      const r = stage.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1) * (V[8] || 1);
+      const r = canvas.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1) * (V[8] || 1);
       (V[0] = r.width), (V[1] = r.height), (V[2] = dpr), (V[4] = r.width / W);
       canvas.width = Math.max(1, Math.round(r.width * dpr));
       canvas.height = Math.max(1, Math.round(r.height * dpr));
@@ -173,26 +172,4 @@ export function ring(engine: Engine, stage: HTMLElement, skin: HTMLElement, cues
     },
   };
   return k;
-}
-
-/** A tiny control bar: real buttons in the stage, styled by the stage's sheet (.rg-b). Each reports a press. */
-export function controls(engine: Engine, stage: HTMLElement, defs: { label: string; aria: string; id: number }[], on: (id: number) => void) {
-  const bar = engine.ledger.add(document.createElement("div"));
-  bar.className = "rg-bar";
-  const out: HTMLButtonElement[] = [];
-  for (const d of defs) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "rg-b";
-    b.textContent = d.label;
-    b.setAttribute("aria-label", d.aria);
-    b.dataset.id = String(d.id);
-    // Down, not click: a dodge is about timing.
-    b.addEventListener("pointerdown", (e) => (e.preventDefault(), on(d.id)), { signal: engine.signal });
-    b.addEventListener("click", (e) => e.detail === 0 && on(d.id), { signal: engine.signal });
-    bar.append(b);
-    out.push(b);
-  }
-  stage.append(bar);
-  return out;
 }

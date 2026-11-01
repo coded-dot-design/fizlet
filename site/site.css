@@ -3041,6 +3041,86 @@ html.bui[data-theme="light"] .phases b {
   }
 }
 
+/* ---------- Gallery: the minis' keys (site/gallery/pieces/keys.ts) ----------
+   Small Board UI keys on the stage's bottom edge, in a 56 px strip under the ground line (the kits
+   keep their art above it), so they never cover the play. Wide: mute at the strip's left end, the
+   play keys at its right. Square and tall (the stage aspect contract's classes, by container query
+   on the figure): mute in the top corner, the play keys spread along the bottom. 44 px or more. */
+.gk-bar {
+  position: absolute;
+  inset: 6px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 6px;
+  pointer-events: none;
+}
+.bui .gk {
+  --py: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  font: 700 12px/1 var(--mono);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.bui .gk[hidden] {
+  display: none;
+}
+.bui .gk[aria-label^="Mute"] {
+  order: -1;
+  width: 44px;
+  padding: 0;
+  margin-right: auto;
+}
+/* A picked palette piece: pressed, in the go colour. */
+.bui .gk[aria-pressed="true"]:not([aria-label^="Mute"]) {
+  border-color: var(--rim);
+  background: var(--k-go);
+  color: var(--rim);
+}
+@container stage (aspect-ratio < 7 / 5) {
+  .gk-bar {
+    justify-content: center;
+    gap: 4px;
+  }
+  .bui .gk {
+    flex: 1 1 0;
+    max-width: 168px;
+    padding: 0 4px;
+  }
+  .bui .gk[aria-label^="Mute"] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    flex: none;
+  }
+}
+/* The keys hold the bottom-right corner, so the idle TAP TO PLAY moves: to the strip's left, by the
+   mute key (wide), or to the top-left corner (square, tall). */
+.gal-stage figure.gal-tap:has(.gk-bar)::after {
+  right: auto;
+  left: 60px;
+  bottom: 22px;
+}
+@container stage (aspect-ratio < 7 / 5) {
+  .gal-stage figure.gal-tap:has(.gk-bar)::after {
+    top: 10px;
+    left: 10px;
+    bottom: auto;
+  }
+}
+
 /* ---------- Gallery: theme sections, theme chips, search, pages (site/gallery/browse.ts) ---------- */
 .gal-themes {
   display: flex;

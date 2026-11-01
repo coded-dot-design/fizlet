@@ -8,7 +8,8 @@
 // moto-kit.ts. The sprint (`sprint`) is plain numbers: no DOM, no allocation a step.
 import { createEngine } from "../../../src/kernel/index";
 import type { SlotScene, SlotTap } from "../../../src/slot";
-import { controls, rig, BIKE, CMD, DIRT, DIRT2, GO, GOLD, H, HOT, INK, PAPER, RIDER, W } from "./moto-kit";
+import { keys } from "./keys";
+import { rig, BIKE, CMD, DIRT, DIRT2, GO, GOLD, H, HOT, INK, PAPER, RIDER, W } from "./moto-kit";
 
 /** Modes: on the line, the sprint, at the flag. */
 export const WAIT = 0, RACE = 1, DONE = 2;
@@ -92,10 +93,11 @@ export function redline(stage: HTMLElement, slot: HTMLElement, first: SlotTap | 
   WD[1] = 9;
   const say = (w: number) => ((WD[0] = w), (WD[1] = 0));
   const WORDS = ["GO!", "BLOWN!", "SPLASH", "YOU WIN!", "GHOSTED", "YOUR TURN"];
-  const B = controls(engine, stage, [
-    { id: 7, label: "GAS", aria: "Gas (hold, space)", hold: true },
+  // GAS (or a press anywhere on the stage, held) and mute.
+  const B = keys(engine, stage, [
+    { id: 7, label: "GAS", aria: "Gas (hold, space)", hold: true, c: "bui-arcade bui-go" },
     { id: 8, label: "♪", aria: "Mute (M)" },
-  ], (id, down) => (id === 7 ? gas(down) : mute(), engine.wake()));
+  ], (id, down) => (id === 7 ? gas(down) : mute(), engine.wake()), 7);
   const mute = () => {
     k.snd.on = !k.snd.on;
     B[1]!.textContent = k.snd.on ? "♪" : "✕";

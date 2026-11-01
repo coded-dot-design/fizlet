@@ -1,16 +1,20 @@
-<div class="fpr" aria-hidden="true"><style>.fpr{position:absolute;inset:0;container-type:size;overflow:hidden;background:#120f26 repeating-linear-gradient(0deg,transparent 0 5.15cqw,#1d1738 5.15cqw 5.7cqw),repeating-linear-gradient(90deg,#120f26 0 5.15cqw,#1d1738 5.15cqw 5.7cqw)}
+<div class="fpr" aria-hidden="true"><style>/* The keys (RADIO, sound) sit as a pair at the bottom centre, between the wall columns, where no tank,
+   wall or flag rests; their rules outrank the page's Board UI button rule ([data-fizlet-slot]). */
+.fpr{position:absolute;inset:0;container-type:size;overflow:hidden;background:#120f26 repeating-linear-gradient(0deg,transparent 0 5.15cqw,#1d1738 5.15cqw 5.7cqw),repeating-linear-gradient(90deg,#120f26 0 5.15cqw,#1d1738 5.15cqw 5.7cqw)}
 html[data-theme="light"] .fpr{background:#eef0fb repeating-linear-gradient(0deg,transparent 0 5.15cqw,#e6e4f8 5.15cqw 5.7cqw),repeating-linear-gradient(90deg,#eef0fb 0 5.15cqw,#e6e4f8 5.15cqw 5.7cqw)}
 .fpr-cv{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;touch-action:none}
-.fpr-k{user-select:none;-webkit-user-select:none;position:absolute;bottom:2.4cqw;box-sizing:border-box;min-width:44px;min-height:44px;height:8.5cqw;margin:0;padding:0 2.2cqw;border:max(2px,.45cqw) solid #07060f;border-radius:1.2cqw;font:800 max(12px,2.1cqw)/1 var(--mono,ui-monospace,monospace);letter-spacing:.12em;cursor:pointer;box-shadow:calc(.7cqw * var(--shadow-x, 0)) calc(.7cqw * var(--shadow-y, 1)) 0 #07060f;touch-action:manipulation}
-.fpr-k:active{translate:0 .5cqw;box-shadow:calc(.2cqw * var(--shadow-x, 0)) calc(.2cqw * var(--shadow-y, 1)) 0 #07060f}
-.fpr-k:focus-visible{outline:max(2px,.4cqw) solid #19f0ff;outline-offset:.4cqw}
-.fpr-go{right:2.4cqw;background:#39ffb0;color:#07060f}
-.fpr-go::after{content:"RADIO \25B8"}
-.fpr-go[data-live]{background:#19f0ff}
-.fpr-go[data-live]::after{content:"FREEZE \275A\275A"}
-.fpr-snd{right:24cqw;background:#9a63ff;color:#f6f3ff}
-.fpr-snd::after{content:"\266A ON"}
-.fpr-snd[aria-pressed="true"]::after{content:"\266A OFF"}
-.fpr-snd[hidden]{display:none}
+[data-fizlet-slot] .fpr-k{user-select:none;-webkit-user-select:none;position:absolute;bottom:2.4cqw;box-sizing:border-box;min-width:44px;min-height:44px;height:7cqw;margin:0;padding:0 2.2cqw;border:max(2px,.45cqw) solid #07060f;border-radius:1.2cqw;font:800 max(12px,2.1cqw)/1 var(--mono,ui-monospace,monospace);letter-spacing:.12em;cursor:pointer;box-shadow:calc(.7cqw * var(--shadow-x, 0)) calc(.7cqw * var(--shadow-y, 1)) 0 #07060f;touch-action:manipulation}
+[data-fizlet-slot] .fpr-k:active{translate:0 .5cqw;box-shadow:calc(.2cqw * var(--shadow-x, 0)) calc(.2cqw * var(--shadow-y, 1)) 0 #07060f}
+[data-fizlet-slot] .fpr-k:focus-visible{outline:max(2px,.4cqw) solid #19f0ff;outline-offset:.4cqw}
+[data-fizlet-slot] .fpr-go{left:51cqw;background:#39ffb0;color:#07060f}
+[data-fizlet-slot] .fpr-go::after{content:"RADIO \25B8"}
+[data-fizlet-slot] .fpr-go[data-live]{background:#19f0ff}
+[data-fizlet-slot] .fpr-go[data-live]::after{content:"FREEZE \275A\275A"}
+[data-fizlet-slot] .fpr-snd{right:51cqw;background:#9a63ff;color:#f6f3ff}
+[data-fizlet-slot] .fpr-snd::after{content:"\266A ON"}
+[data-fizlet-slot] .fpr-snd[aria-pressed="true"]::after{content:"\266A OFF"}
+[data-fizlet-slot] .fpr-snd[hidden]{display:none}
+/* A phone-sized board: two 44 px icon keys (their names stay in aria-label), clear of the walls. */
+@container (max-width:480px){[data-fizlet-slot] .fpr-k{width:44px;padding:0}[data-fizlet-slot] .fpr-go{left:calc(50% + 2px)}[data-fizlet-slot] .fpr-snd{right:calc(50% + 2px)}[data-fizlet-slot] .fpr-go::after{content:"\25B8"}[data-fizlet-slot] .fpr-go[data-live]::after{content:"\275A\275A"}[data-fizlet-slot] .fpr-snd::after{content:"\266A"}[data-fizlet-slot] .fpr-snd[aria-pressed="true"]::after{content:"\2715"}}
 .fpr-poster{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}</style></div>
 <img class="ae-slot__placeholder fpr-poster" data-poster alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAABsBAMAAADOLKChAAAAJ1BMVEUAAAAZ8P8HBg+upNaaY/85/7AVECCFc+64JFo7MXD/XI8Ao2328//+k3TcAAAAAXRSTlMAQObYZgAAA0tJREFUeNrtmr1u2zAQx1mCXjRFfIL41KFAN/IFOGhpJi96hbRA9z5Ah8IP0EVbxkJjgHbxFnjKUxWivi2S4mccBGEMwwYY/vS/O1J3J6M88UA3KOn4gG7ANG4d1lIu8CKAnOaU0pxC+wn28nvuA2DAWcEKBsDYHLCXi1IAoEApbd9AfnUHdH9qQHvNOeRA6V6++ykAxgoA4CsAnSmgEKKgl7AEDD6g3fVLn4wAoXoR+boAcNb6gMMlwD+KekyPvV6YcuBQQBtdnX8K6St3gHYns2700VXA+NUVUO0OlRrAgcsluQS0n7mHiVpHmBSwYAU6E3G5ZKEEBDO2oqjg3BaAldezBfhYltaAeznWAD0d4bJ0AHyVQwNQ0h0B99+Ox186BT/kWAHq2gHQ/Gma40+dgu+n0z8vBbi3LQb4ZAB8PlXV38oLwLmMNAvA48rLVoBhjtlEWkBdWwOMTg4w0Qgwh6m/kweVY6gLhzB1UqA7KkwbzWIfbFxE+FFhB/D7ZyI0KkUkgEwpQhUY94FwAhzcTeTkg50HoNxWGaBALh9qossIEbN00QQgKhNVqRUYbibIf86VAXHK2NcEENYzSYAC7JSx9gBVZm9MI/htOh/IwC+vBphsgSGxAvzcNA8dAFtWGmIAfNnMlhAS+PluBKhv+aEKzhNAnbR4AOa2WChQpl0+gJkt8JMYnKxJHHWAuv6tBczSR3wuF4BH291pVjAmwKR8ImuAobNChpPICJhSeFJ6m0gPmBchCwWuTtbtg0WVg8+TgnhhujARmhTE2mhLJ08Ap6aEETCFaZ90+Bx2pn2wskXk03SyRZahh6THdZZl2RygSn3DAM0SgHaRb/rZXbY00SE2IEPNwkSpE69dlRhwpdTRP7u2TB2xRQ63MSesTk5d6b8ugDK/tux4WdbJMRWQt+cDXUPKpuM1zFFXSeG9a0sFEZqCxo5XWFvTRoG2MWu7D+ZeFCl617rkLR5A2ViO2LtWt8Y3nWyzDzrTj2kviR6mEqB5PBHvIdEmIPgxl/r5R2jnV10ZRD5NFQVs3LRFWxmoW8vCG6CpkmYK0qSn5tay4yBmQGoFQ41D3kB2fdELMRudIPNUCwXWv215b46/A5IBUv8U8T+PleHkD6x0IgAAAABJRU5ErkJggg==">

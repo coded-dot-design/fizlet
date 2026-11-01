@@ -14,8 +14,9 @@ const bundle = (await build({
   stdin: { contents: 'export { slot } from "./src/slot.ts"; export { mount, encodeTrack, decodeTrack } from "./site/gallery/pieces/dirt-lab.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "cv", write: false, logLevel: "silent",
 })).outputFiles[0].text;
-const html = `<!doctype html><meta charset="utf-8"><body style="margin:0;--sans:system-ui;--mono:monospace">
-<main><p>Before the piece.</p><figure class="ae-slot" data-slot-target="gallery#dirt-lab" role="img" aria-label="Dirt Lab" style="position:relative;width:720px;aspect-ratio:16/9;margin:0">${readFileSync("site/gallery/stages/dirt-lab.html", "utf8")}</figure><p>After it.</p></main>
+const css = readFileSync("src/ui/board-ui.css", "utf8") + readFileSync("site/site.css", "utf8"); // the gallery's own sheets: the keys are Board UI keys (site/gallery/pieces/keys.ts)
+const html = `<!doctype html><html class="bui" data-theme="dark"><meta charset="utf-8"><style>${css}</style><body style="margin:0;--sans:system-ui;--mono:monospace">
+<main><p>Before the piece.</p><figure class="ae-slot" data-slot-target="gallery#dirt-lab" role="img" aria-label="Dirt Lab" style="position:relative;width:720px;aspect-ratio:16/9;margin:0;container:stage/size">${readFileSync("site/gallery/stages/dirt-lab.html", "utf8")}</figure><p>After it.</p></main>
 <script>${bundle}</script></body>`;
 const ORIGIN = "http://fizlet.test/gallery/";
 const browser = await chromium.launch(launchOptions());

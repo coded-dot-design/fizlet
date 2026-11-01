@@ -13,8 +13,9 @@ const bundle = (await build({
   stdin: { contents: 'export { slot } from "./src/slot.ts"; export { mount } from "./site/gallery/pieces/bag-beat.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "cv", write: false, logLevel: "silent",
 })).outputFiles[0].text;
-const html = `<!doctype html><meta charset="utf-8"><body style="margin:0">
-<main><p>Before the piece.</p><figure class="ae-slot" data-slot-target="gallery#bag-beat" role="img" aria-label="Bag Beat" style="position:relative;width:720px;aspect-ratio:16/9;margin:0">${readFileSync("site/gallery/stages/bag-beat.html", "utf8")}</figure><p>After it.</p></main>
+const css = readFileSync("src/ui/board-ui.css", "utf8") + readFileSync("site/site.css", "utf8"); // the gallery's own sheets: the keys are Board UI keys (site/gallery/pieces/keys.ts)
+const html = `<!doctype html><html class="bui" data-theme="dark"><meta charset="utf-8"><style>${css}</style><body style="margin:0">
+<main><p>Before the piece.</p><figure class="ae-slot" data-slot-target="gallery#bag-beat" role="img" aria-label="Bag Beat" style="position:relative;width:720px;aspect-ratio:16/9;margin:0;container:stage/size">${readFileSync("site/gallery/stages/bag-beat.html", "utf8")}</figure><p>After it.</p></main>
 <script>${bundle}</script></body>`;
 const browser = await chromium.launch(launchOptions());
 const run = (p, sec) => p.evaluate((sec) => { for (let i = 0; i < Math.round(sec * 60); i++) scene.engine.advance(1 / 60); }, sec);
