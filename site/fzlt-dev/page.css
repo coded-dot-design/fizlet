@@ -64,6 +64,7 @@ body {
 }
 .fz h1 em {
   display: block;
+  text-wrap: balance;
   font-style: normal;
   color: var(--k-attack);
 }

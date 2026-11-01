@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Site: the home headline reads "Logic & style." on one line, and the container grows on big
+  screens (pending owner review).** "and" becomes "&" (in the command ink, a step lighter), so the
+  line holds one line beside the layers card at 1280, 1440 and 1920 at the same size; the green line
+  is balanced, never a lone word (390 too). The headline has one source, `HEADLINE` in
+  `site/layout.mjs`, used by the home hero, the /bricks/ hero and fzlt.dev. The container token
+  (`--page`) is 1200 px up to a 1277 px window, then 94vw, capped at 1520 px (1354 px at 1440, 1520 px
+  at 1920); the hero's copy column takes 1.15 parts to the layers card's 1 (was 1 to 1.05). Prose keeps
+  a 70ch measure where it ran full width (gallery prompts, doc recipes, brand captions). Test: the
+  hero headline block in `tests/site.mjs`.
 - **Gallery: the genre minis are playable: compact keys that never cover the action (pending owner
   review).** In Redline, Dirt Lab, Bag Beat and Toast Tell the keys were sized in container units on a
   figure that was no size container, so they grew with the window (GAS took half the stage), and the

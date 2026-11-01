@@ -9,7 +9,9 @@
      and any component vendored in (keys, cards, the console and cartridges), takes it from here. */
   --shadow-x: 0;
   --shadow-y: 1;
-  --page: 1200px;
+  /* The main container: 1200px, growing with the screen from 1277px wide (94vw) to 1520px (reached at
+     1617px), so big screens fill out. Prose keeps its own measure (max-width in ch or px). */
+  --page: clamp(1200px, 94vw, 1520px);
   --gutter: 30px;
   /* The least block space a section gets, and what sits on each side of a section rule (the
      space the closing band's rule had above it). */
@@ -80,6 +82,12 @@ code {
   max-width: var(--page);
   margin: 0 auto;
   padding: 0 var(--gutter);
+}
+/* Prose keeps its measure in the wider container: text that ran the full width of a panel. */
+.gal-prompt,
+.note-block.doc-wide .body,
+.brand-cap {
+  max-width: 70ch;
 }
 .skip {
   position: absolute;
@@ -795,7 +803,8 @@ a.bui-sticker-key {
 }
 .hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  /* the copy column a little wider than the layers card, so "Logic & style." holds one line */
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   gap: clamp(30px, 5vw, 64px);
   align-items: center;
   padding-top: clamp(40px, 7vh, 80px);
@@ -803,11 +812,19 @@ a.bui-sticker-key {
 }
 .hero h1 {
   margin: 22px 0 24px;
-  font-size: clamp(52px, 7.4vw, 104px);
+  /* (below 388px wide, a touch under 52px so "Logic & style." still holds one line) */
+  font-size: clamp(min(52px, 13.4vw), 7.4vw, 104px);
   line-height: 0.92;
   letter-spacing: -0.05em;
+  text-wrap: balance;
+}
+/* The headline's "&" (HEADLINE in layout.mjs): the command ink, a step lighter. Every page with the line. */
+h1 .amp {
+  font-weight: 600;
+  color: var(--k-cmd-ink);
 }
 .hero h1 em {
+  display: block; /* its own block, so text-wrap: balance evens its lines */
   color: var(--team-a);
   text-shadow: 0 0 40px color-mix(in srgb, var(--team-a) 35%, transparent);
 }

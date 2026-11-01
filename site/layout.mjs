@@ -125,6 +125,10 @@ const PROJECT = [
   [`${REPO}/blob/main/src/ui/BOARD-UI.md`, "Board UI spec"],
   [ENGINE_PLAN, "Engine plan"],
 ];
+// The headline, one source: the home hero, the /bricks/ hero and fzlt.dev. "&" (not "and") keeps the
+// first line short enough for one line beside the layers card; it wears the .amp accent (site.css).
+export const HEADLINE = { line: "Logic & style.", accent: "The bricks do the rest." };
+export const headline = (sep = "<br>") => `${esc(HEADLINE.line).replace("&amp;", '<span class="amp">&amp;</span>')}${sep}<em>${esc(HEADLINE.accent)}</em>`;
 // The family line: the same four sites, in the same order, in every family footer (domvirus.com,
 // battlefield.domvirus.com and battlefieldblitz.domvirus.com list it too). Production URLs; Fizlet is
 // the engine, and this site's own entry (SITE) has no ↗. Other hosts never go in sitemap.xml.
