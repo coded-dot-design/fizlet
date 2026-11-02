@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- **Site: the origin hero, the owner's notes (pending owner review).**
+  - **The open laptop** reads from above: the lid is as wide as the base at the hinge, foreshortened, with a hinge bar.
+  - **He is athletic:** broad shoulders, a V-shaped back, and arms with deltoid, biceps and forearm shapes that taper to the wrists. The head and headphones are unchanged.
+  - **Typing:** each hand types on random keys from a seeded generator. Each key lights up in the look's accent and fades. In design mode the right hand goes to the trackpad.
+  - **New buttons:** tap the plant (a can pours, drops fade, it perks up), the notebook (he writes code or draws a doodle) or the lamp (an independent light switch).
+  - **The phone** plays country, rock or pop, each a one-bar loop on the audio clock. A tap changes the style at the next bar line; a double-tap pauses.
+  - Every new part takes Enter and Space and is announced. Under reduced motion it changes state with no animation.
+  - Live chunk 28,156 → 32,755 B gzip; inline poster 5,120 → 5,987 B. Test: `tests/origin.mjs`.
+- **`@fzlt/core/sound`: `play(cue, intensity, at?)` and `time`.** `at` plays a cue at that time on the
+  audio clock, and `time` reads the clock (-1 until it runs). A loop can schedule ahead and never drift.
+  Additive: every existing call plays as before. 1,042 → 1,073 B gzip.
 - **Site: the header nav is quiet text, with more room between items (pending owner review).** The
   top-level items and the menu rows no longer draw as half-raised keys (a filled face with a cyan
   base edge) on hover, open or the current page. Hover lights the text; an open menu flips its

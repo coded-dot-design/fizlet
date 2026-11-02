@@ -8,6 +8,21 @@ The origin hero, by Chris Cooley. A desk seen from above through one day: he sle
 
 **The cup is a toy.** Tap: a sip (the nearer hand reaches it, then brings it up). Double-tap: a refill (a pot pours, the level comes back to full, steam). Drag: it lifts (bigger, its shadow grows and drifts) and goes down anywhere on the desk that is on screen; near the saucer it snaps back on. Flick (faster than 1,300 px/s at release): it knocks over, slides, and a puddle spreads (coffee in 2015, pixels in Fizlet); tap the spill, or wait 5 s, and it rights itself and refills. Out of his reach, he cannot sip. The cup's key target (`.og-grip`, at least 44 px) is focusable: Enter sips, R refills, the arrow keys move it, K knocks it over. Every press squashes on the next frame and pops on release (a spring on the kernel), with a tap sound once sound is unlocked. Changes are said in a polite `role="status"` line.
 
+**The rest of the desk.**
+- **The laptop:** seen from above, the open lid is as wide as the base at the hinge (a hinge bar), a little narrower at its far edge, and foreshortened to about two thirds of the base's depth. The screens are drawn foreshortened onto it.
+- **Him:** broad shoulders and a V-shaped back (trapezius, shoulder blades). Each arm (`armD()` in `art.ts`) is a sleeve over the deltoid, a biceps swell, the elbow, and a forearm that tapers to the wrist.
+- **Typing:** each hand types on random keys in its half, from a seeded generator (the `seed` option; never `Math.random`, no allocation in the step). The key lights up in the look's accent and fades. In design mode the right hand goes to the trackpad now and then.
+- **The plant** (tap, or Enter): a can pours, drops spill around the pot and fade over 1 to 3 s, and it perks up.
+- **The notebook** (tap, or Enter): his hand goes to it and he writes a line of code, or draws a star, a heart, a happy face, a lightning bolt, a triangle, a square, a house or a sun. The stroke draws on; the last three stay.
+- **The lamp** (tap, or Enter): its pool and cone of light go off and on, and the night over the room lifts a little while it is on. It is the visitor's switch, independent of the day: the day no longer turns it on and off.
+- **The phone** (tap, or Enter): the music changes from country to rock to pop and back.
+  - Each genre is a one-bar loop with its own tempo, steps and synth voices, and no samples. It is scheduled 0.2 s ahead on the audio clock (`@fzlt/core/sound`'s `play(cue, 1, at)` and `time`), so it never drifts and has no gap at the seam.
+  - A change waits for the next bar line, which sounded cleaner than a crossfade on these short voices.
+  - The ♪ notes (their words, colours and rate) and his head bob follow the genre. The phone's screen shows the genre.
+  - A double-tap (or Space, or P) pauses and resumes the loop. A tap waits 250 ms before it changes the genre, so a double-tap never does; that is cleaner than changing and reverting.
+  - The button's name is "Music: rock. Change style", with ", paused" when paused.
+  - The Sound key stays the master. Pausing the scene, going off screen, sleep and reduced motion stop the loop.
+
 Page: `demos/origin/` (built by `build.mjs`, run from `scripts/site.mjs`). Test: `tests/origin.mjs` (in `npm run test:browser`).
 
 ## Mount API
@@ -26,11 +41,13 @@ mount(root: HTMLElement, opts?: {
   speed?: number;             // clock speed (default 1: one day is 24 s)
   cup?: string;               // URL of coffee.png (default: next to scene.js)
   bricks?: Record<string, number>; // label sizes (default: measured by the build)
+  seed?: number;              // his typing and doodles (default 2015): the same seed types the same keys
 }) => {
   destroy(); setMode(m); setLook(l); setShowBricks(on); setSound(on); setLaptop(open);
-  sip(); refill(); knock(angle?); nudge(); pause(); play();
+  sip(); refill(); knock(angle?); nudge(); water(); write(); setLamp(on); pause(); play();
   readonly state: { mode, look, open, bricks, sound, paused, awake }; accessible: boolean;
-  stats(): { particles, zzz, cup: { x, y, level, spilled, lifted }, toys }; // toys: 0 once the cup's motions settle
+  stats(): { particles, zzz, cup: { x, y, level, spilled, lifted }, toys, drops, pages, lamp, lit, keys, music: { genre, playing, paused, bars } };
+  // toys: 0 once every toy's motion settles; keys: the first 32 keys typed; bars: when the loop's last bars began
 }
 
 // @fzlt/core/slot (the house way): slot(figure, () => import("./scene.js").then((m) => m.mountSlot))
@@ -48,14 +65,14 @@ mount(root: HTMLElement, opts?: {
 | Brick | Bytes | What it moves |
 |---|---|---|
 | kernel | 3,413 | One loop at 30 fps, settle, auto-pause off screen and in a hidden tab, the ledger |
-| @fzlt/core/timeline | 2,120 | The day/night cycle (sky, shade, sun, window light, lamp) on custom properties; wake/sleep, sip, pour and spill on typed arrays |
+| @fzlt/core/timeline | 2,120 | The day/night cycle (sky, shade, sun, window light) on custom properties; wake/sleep, sip, pour, spill and the watering can on typed arrays |
 | @fzlt/core/fx | 2,797 | ♪ notes, steam, sparks of code (swatch chips in design mode), the splash, the Zzz |
-| @fzlt/core/sound | 1,042 | The beat, key clicks, the sip, taps, the pour, the spill, wake and sleep cues |
-| @fzlt/core/input | 1,335 | The pointer (taps, the cup's drag and flick, double-tap); the lid and cup keys |
+| @fzlt/core/sound | 1,073 | The phone's three looping genres on the audio clock, key clicks, the sip, taps, the pour, the spill, the scribble, the lamp, wake and sleep cues |
+| @fzlt/core/input | 1,335 | The pointer (taps, the cup's drag and flick, double-taps on the cup and the phone); the keys of the lid, cup, plant, notebook, lamp and phone |
 | @fzlt/core/sprite | 1,437 | The pixel coder on the phone (spriteURL) |
 | @fzlt/core/slot | 1,819 | The page's loader (main.js) |
 
-The live chunk (`scene.js`: six bricks + the scene, tree-shaken) is printed by the build and on the page: **28,156 B gzip** on this build (20,922 B before the two looks and the cup's toys: +7,234 B, for the Fizlet look's CSS, the new character and cup art, and the drag, flick, spill, pour, keys and status line); loader 2,100 B; inline poster 5,120 B (3,775 B before), the same markup for both looks.
+The live chunk (`scene.js`: six bricks + the scene, tree-shaken) is printed by the build and on the page: **32,755 B gzip** on this build. It grew from 28,156 B (before the plant, notebook, lamp, key lights and new body: +3,454 B to 31,610 B; the phone's loops: +1,145 B). The loader is 2,100 B, and the inline poster is 5,987 B (5,120 B before), the same markup for both looks.
 
 ## Rules
 
