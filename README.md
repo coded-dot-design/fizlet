@@ -91,7 +91,7 @@ Every brick and every game built on Fizlet keeps these (each one has a test):
    `contain: style` (it is static, so layout or paint containment could move or clip a board's own
    layers). `hud` and `board-page` own no box: they write into the host's markup and never add
    containment to it.
-9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,413 bytes); each brick has its own budget,
+9. **Budgets in CI.** Kernel ≤ 4 KB gzip (measured: 3,372 bytes); each brick has its own budget,
    1.5 to 5 KB, and a page build (kernel + slot + input + fx) ≤ 7 KB (`scripts/sizes.mjs`); over
    budget, the build fails.
 
@@ -126,7 +126,7 @@ in included, 1 KB = 1024 bytes.
 | `@fzlt/core/layout` | EXPERIMENTAL | `layout(engine, { cap, links, charge, distance, gravity, theta, ticks, motion })`: force-directed layout on typed arrays (`x`, `y`). Nodes repel through a Barnes-Hut quadtree rebuilt each step (O(n log n)), links pull toward their length, a weak pull holds the centre; `add`, `link`, `pin` / `free` (drags), `heat`, `nearest`, `bounds` (frame it with `@fzlt/core/camera`). Cools over `ticks` steps, then rests and stops calling `busy()`: the engine settles. Replays bit for bit; reduced motion lands on the rest in one step; DOM-free, zero allocation | 1.7 KB |
 | `@fzlt/core/view-canvas` | EXPERIMENTAL | `viewCanvas(engine, root, { draw, maxDpr, label })`: one overlay canvas per root, its backing store the CSS size × devicePixelRatio (capped at 2), drawing in CSS px. `dirty([x, y, w, h])` grows one box; the render phase clears, clips and redraws only those device pixels, and nothing when nothing is dirty. Never keeps the engine awake (a `dirty()` wakes a settled one for one redraw); measures only after a resize or zoom; Recall removes the canvas; zero allocation | 0.9 KB |
 | `@fzlt/core/board-page` | COMPLETE | `boardPage(engine)`: the host page as the board. Text glyphs (typed arrays, `near` / `hit`), buttons as targets, `consume` writes 0/1 into the page's own text | 4.0 KB |
-| `@fzlt/core/arcade` | COMPLETE | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard chosen per game with `hud` (`arcadeHud()`: the card, the default; `skirmishHud()`: Blitz's bar with clock, rank, armor bar, feed, banner, its flow on `@fzlt/core/match`, aim toggles, counted keys), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 17.9 KB for a card game with every brick it composes; 23.8 KB with `skirmishHud` (in-page art via `ctx.attach`) |
+| `@fzlt/core/arcade` | COMPLETE | `arcade(def, options)`: the shell every page arcade game repeats, so a game is its rules and art. One engine per run over the page (board-page), an overlay canvas and a Board UI scoreboard chosen per game with `hud` (`arcadeHud()`: the card, the default; `skirmishHud()`: Blitz's bar with clock, rank, armor bar, feed, banner, its flow on `@fzlt/core/match`, aim toggles, counted keys), keys, pointer and the touch pad, sound cues, sparks and stacking popups, target health painted into the buttons; the controller a hub drives (`start` · `pause` · `resume` · `stop` · `destroy` · `getSnapshot`) | 17.8 KB for a card game with every brick it composes; 23.6 KB with `skirmishHud` (in-page art via `ctx.attach`) |
 | `@fzlt/core/ui` + `@fzlt/core/ui/board-ui.css` | COMPLETE | Board UI: 3D keys, cards, overlays, launch burst, Settings switch ([spec](src/ui/BOARD-UI.md)) | 2.8 KB + 5.0 KB css |
 | `@fzlt/core/ui/tokens.json` | COMPLETE | The Board UI tokens (palette roles, inks, surfaces, units, motion): the authoritative source; the build fails if `board-ui.css` or `applyPalette` drifts from it | data |
 
@@ -137,7 +137,7 @@ protocol presence speaks, the one-room-one-object pattern and a threat checklist
 
 | Import | Status | What | Size (min + gzip) |
 |---|---|---|---|
-| `@fzlt/core/presence` | BETA | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | 1.8 KB |
+| `@fzlt/core/presence` | BETA | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | 2.1 KB |
 | `@fzlt/core/presence/check` | BETA | `syncCheck(setup, opts)`: runs a sim as lockstep clients and finds the first diverged frame (tests only) | 4.8 KB |
 
 ### Status flags
