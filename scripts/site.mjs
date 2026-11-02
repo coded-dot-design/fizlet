@@ -428,7 +428,7 @@ const pages = [
 ];
 for (const [file, html] of pages) writeFileSync(`${OUT}/${file}`, html);
 // Discovery files, from one source: every built page that is indexable (not the 404, not noindex),
-// at its canonical URL. Same policy as astro-base-engine `abe site-files --target production`:
+// at its canonical URL. Same policy as the Astro page engine's production site files:
 // robots.txt admits crawlers (AI crawlers named), sitemap.xml and llms.txt list exactly those pages.
 const indexable = readdirSync(OUT, { recursive: true }).map((f) => f.replace(/\\/g, "/"))
   .filter((f) => f.endsWith(".html") && f !== "404.html" && !f.startsWith("dist/"))

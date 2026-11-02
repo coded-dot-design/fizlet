@@ -5,7 +5,7 @@
 // fillRects at whole art pixels, so it stays crisp on a pixel canvas scaled up with CSS.
 import type { SpriteDef } from "../../../src/sprite";
 
-/** Brand tokens (fizlet-engine brands/fizlet/style-guide.md). */
+/** Brand tokens (the Fizlet style guide). */
 export const C = {
   rim: "#07060f",
   ink: "#f6f3ff",

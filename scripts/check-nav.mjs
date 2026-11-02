@@ -1,5 +1,5 @@
 // Site navigation rules, checked on the built HTML (tests/site.mjs runs it on site-dist/; the
-// rules are written up in the engine repo: fizlet-engine playbooks/content/site-nav.md). One function per
+// rules are written up in the Fizlet factory). One function per
 // page set, pure: pages in, a list of problems out (empty when every rule holds).
 //
 //   1. one header nav: every page on the site layout carries the same header links;

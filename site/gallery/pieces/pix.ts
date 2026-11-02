@@ -5,7 +5,7 @@
 // Nothing here writes the page: each piece adds its canvas through its engine's ledger.
 import type { Engine } from "../../../src/kernel/index";
 
-/** Brand tokens (fizlet-engine brands/fizlet/style-guide.md). */
+/** Brand tokens (the Fizlet style guide). */
 export const C = {
   rim: "#07060f",
   ink: "#f6f3ff",

@@ -1,6 +1,6 @@
 // Measure the layers story and write site/demos/layers/measured.json (the only numbers its caption
 // prints): gzip bytes, script time per frame under 4× CPU throttle while the story plays on its own
-// (one whole loop), layout shift, frames once it is paused, and JS fetched before the slot nears the viewport (the inline loader is in the poster bytes). Budgets: fizlet-engine docs/LAYERS.md.
+// (one whole loop), layout shift, frames once it is paused, and JS fetched before the slot nears the viewport (the inline loader is in the poster bytes). Budgets: the Fizlet factory's layer budgets.
 // Run: node site/demos/layers/measure.mjs (builds first).
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";

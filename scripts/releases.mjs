@@ -1,6 +1,6 @@
 // Release notes (/news/): one page per version, read from CHANGELOG.md (the only source; nothing is
 // retyped). "## Unreleased" is left out. Dates come from site/releases.json (UTC, by version), which
-// fizlet-engine's `land.py bump` fills in; a version without one is shown without a date.
+// the Fizlet factory's `land.py bump` fills in; a version without one is shown without a date.
 import { readFileSync } from "node:fs";
 
 const VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;

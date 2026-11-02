@@ -1,6 +1,6 @@
 /**
  * The layers the story shows, bottom to top, with Battlefield Blitz's measured bytes.
- * Source: fizlet-engine games/dom-battlefield-blitz/layers/manifest.json ("layers split",
+ * Source: the Fizlet factory's Blitz layer manifest ("layers split",
  * Blitz at c8c8ca4). `gz` is the layer's own game code, minified then gzip. Effects is all
  * brick (no game code of its own), so it shows the bytes the fx brick puts in the bundle (min).
  */

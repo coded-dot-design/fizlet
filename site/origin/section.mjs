@@ -2,7 +2,7 @@
 // (the 2015 desk at night; the scene mounts by the contract in README.md) and, below it, 2015 by hand
 // against Fizlet, with the Before AI: 2015 note.
 // Facts: only from the Before AI: 2015 note (fizlet#209, site/notes/before-ai-2015.json, its numbers
-// measured there) and the fizlet-engine origin-story handoff; the title is Chris's own line.
+// measured there) and the factory's origin-story notes; the title is Chris's own line.
 // The note and the companion page are linked once they are on the site (checked at build time).
 import { existsSync, readFileSync } from "node:fs";
 import { icon } from "../layout.mjs";

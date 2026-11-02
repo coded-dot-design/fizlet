@@ -6,9 +6,9 @@
   "eyebrow": "Guide · a page hero",
   "title": "A hero that costs",
   "subtitle": "nothing while it's still.",
-  "summary": "Fill an astro-base-engine animation slot with a Fizlet scene: lazy, settles to zero frames, keeps the slot's text alternative.",
+  "summary": "Fill an Astro page engine animation slot with a Fizlet scene: lazy, settles to zero frames, keeps the slot's text alternative.",
   "lead": [
-    "An Astro page engine (astro-base-engine) renders each animation slot on a page as a sized, described placeholder. `@fzlt/core/slot` fills it with a scene that loads only near the viewport, never under reduced motion, and settles to zero frames once nothing moves. The heroes on this site's [home page](/) are built this way."
+    "An Astro page engine renders each animation slot on a page as a sized, described placeholder. `@fzlt/core/slot` fills it with a scene that loads only near the viewport, never under reduced motion, and settles to zero frames once nothing moves. The heroes on this site's [home page](/) are built this way."
   ],
   "blocks": [
     {
@@ -90,7 +90,7 @@
   ],
   "seo": {
     "title": "Fill an Astro animation slot with a Fizlet scene",
-    "description": "Fill an astro-base-engine slot with @fzlt/core/slot: loads near the viewport, skips reduced motion, settles to zero frames, keeps the text alternative."
+    "description": "Fill an Astro page engine slot with @fzlt/core/slot: loads near the viewport, skips reduced motion, settles to zero frames, keeps the text alternative."
   },
   "brick": "slot"
 }
