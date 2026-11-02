@@ -34,7 +34,7 @@ try {
   assert.ok(text.includes("Fizlet and fzlt are trademarks of Chris Cooley."));
   assert.match(text, /\b[Bb]y Chris Cooley/);
   assert.ok(text.includes("npm i @fzlt/core"));
-  assert.ok(html.includes("<b>FIZLET</b>") && />fzlt</.test(html), "the FIZLET wordmark and the fzlt mark");
+  assert.ok(html.includes("<b>FIZLET</b>") && html.includes(`aria-label="fzlt, the short mark"><svg`), "the FIZLET lockup and the fzlt logo");
   assert.ok(!/®/.test(html), "nothing is registered");
   assert.ok(!/<script\b/i.test(html), "no script");
   const links = [...html.matchAll(/<a\b[^>]*\shref="([^"]+)"/g)].map((m) => m[1]);

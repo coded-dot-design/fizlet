@@ -57,7 +57,7 @@ try {
     });
     await p.waitForFunction(() => window.scene);
     assert.equal(await p.evaluate(() => getComputedStyle(document.querySelector(".ae-slot__placeholder")).display), "none", "the poster steps aside");
-    assert.equal(await p.evaluate(() => document.querySelector("figure").hasAttribute("role")), false, "accessible: real text and a real key, so the slot drops role=img");
+    assert.equal(await p.evaluate(() => document.querySelector("figure").getAttribute("role")), "figure", "accessible: real text and a real key, so the slot turns role=img into role=figure (#215)");
     await p.waitForTimeout(400);
     const posed = await p.evaluate(() => ({ t: scene.tl.time, playing: scene.tl.playing, a: document.querySelector("[data-fizlet-slot] .ns").style.getPropertyValue("--a") }));
     assert.ok(posed.t === 0 && !posed.playing, `@${w}: off screen it waits ${JSON.stringify(posed)}`);

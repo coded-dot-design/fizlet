@@ -236,7 +236,8 @@ export function headphones(beats: HTMLElement, k: Kit = solo()) {
     if (!started) (started = true), hp.play(PLAY);
     else hp.hold(!on);
   };
-  play.addEventListener("click", () => (toggle(), k.cue(on ? "ready" : "end")));
+  const sig = { signal: hp.engine.signal };
+  play.addEventListener("click", () => (toggle(), k.cue(on ? "ready" : "end")), sig);
   cups.addEventListener("click", () => {
     if (!on) toggle();
     const n = k.hit("boom", 10);
@@ -248,16 +249,17 @@ export function headphones(beats: HTMLElement, k: Kit = solo()) {
     if (n % 5 === 0) pop(fx, 150, -20, W_BEAT, 30, CORAL);
     k.shake(2 + Math.min(n, 10) * 0.6);
     hp.engine.wake();
-  });
+  }, sig);
   return hp;
 }
 
 /** Coffee in `cup` (a .fz-coffee box with its <button>): pour and sip, each turning back from the
  *  frame it is on; the pour streams and splashes, steam curls off the full cup, a sip wobbles it.
+ *  `intro`: the 2015 load intro (the cup drains); off once the cup already shows its empty frame.
  *  → the strip (destroy() to recall). */
-export function coffee(cup: HTMLElement, k: Kit = solo()) {
+export function coffee(cup: HTMLElement, k: Kit = solo(), intro = true) {
   const b = cup.querySelector("button")!;
-  const cf = strip(cup, 84, 11);
+  const cf = strip(cup, 84, intro ? 11 : 0);
   const fx = layer(cf, cup, 84, 84, 90, 36, 520);
   const disc = (angle: number) => ({ shape: "disc" as const, drag: 0.8, gravity: 0, angle, spread: 0.3, speed: [16, 32] as [number, number], size: [2.5, 5] as [number, number], life: [1.1, 1.9] as [number, number] });
   const { ids, emit } = emitter(fx, {
@@ -314,17 +316,18 @@ export function coffee(cup: HTMLElement, k: Kit = solo()) {
     if (full && n > 2) pop(fx, 42, -54, W_REFILL, 15, CORAL);
     k.shake(1 + Math.min(n, 10) * 0.3);
     cf.engine.wake();
-  });
+  }, { signal: cf.engine.signal });
   turn(); // the 2015 intro: the cup drains on load (no .2 s wait)
   return cf;
 }
 
 /** Laptop in `comp` (a .fz-comp box with its .fz-keys and .fz-lid buttons): the keys open it (a
  *  slam and a clack), then type: clicks, code sprays, the screen lights, the code scrolls on. The
- *  screen's button slams it shut. → the strip (destroy() to recall). */
-export function laptop(comp: HTMLElement, k: Kit = solo()) {
+ *  screen's button slams it shut. `intro`: the 2015 load intro (the lid closes); off once the lid
+ *  already shows its closed frame. → the strip (destroy() to recall). */
+export function laptop(comp: HTMLElement, k: Kit = solo(), intro = true) {
   const keys = comp.querySelector<HTMLButtonElement>(".fz-keys")!, lid = comp.querySelector<HTMLButtonElement>(".fz-lid")!;
-  const lp = strip(comp, 210, 15);
+  const lp = strip(comp, 210, intro ? 15 : 0), sig = { signal: lp.engine.signal };
   const TYPE: Seg = { a: 12, b: 20, n: 8, d: 0.5 }, SCROLL: Seg = { a: 20, b: 30, n: 10, d: 1.2 }, RUSH: Seg = { a: 20, b: 30, n: 10, d: 0.45 };
   const g = new Float64Array(1); // the screen's glow
   const fx = layer(lp, comp, 210, 210, 110, 0, 0, {
@@ -374,7 +377,7 @@ export function laptop(comp: HTMLElement, k: Kit = solo()) {
     if (lp.frame >= 20 && !lp.playing) lp.play({ segs: [RUSH], loop: 0, reps: 1, rest: 29 });
     k.shake(1.2);
     lp.engine.wake();
-  });
+  }, sig);
   lid.addEventListener("click", () => {
     open = false;
     flip();
@@ -384,14 +387,15 @@ export function laptop(comp: HTMLElement, k: Kit = solo()) {
     pop(fx, 105, 60, W_CLACK, 26, CREAM);
     if (n > 1) pop(fx, 105, 30, comboWord(n), 22);
     k.shake(6);
-  });
+  }, sig);
   flip(); // the 2015 intro: the lid closes on load
   return lp;
 }
 
-/** Start the arcade column inside `root`. → its kit and the three strips (destroy() each to recall). */
-export function arcade(root: HTMLElement) {
+/** Start the arcade column inside `root` (`intro`: the 2015 load intro; off when started again after
+ *  Recall). → its kit and the three strips (destroy() each to recall). */
+export function arcade(root: HTMLElement, intro = true) {
   const $ = (s: string) => root.querySelector<HTMLElement>(s)!;
   const k = kit($(".bt-stage"), root.querySelector(".fz-hud"), root.querySelector(".fz-mute"), root);
-  return { kit: k, strips: [headphones($(".fz-beats"), k), coffee($(".fz-coffee"), k), laptop($(".fz-comp"), k)] };
+  return { kit: k, strips: [headphones($(".fz-beats"), k), coffee($(".fz-coffee"), k, intro), laptop($(".fz-comp"), k, intro)] };
 }

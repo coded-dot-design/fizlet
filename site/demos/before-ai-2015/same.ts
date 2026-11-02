@@ -1,7 +1,7 @@
 // Same behaviour as 2015: same sheets, same frames, same timings, same click (a class flip that
 // restarts a clip). The 2015 @keyframes are the clips below, number for number (2015 values from
 // css/sprites.css in this folder).
-import { strip, type Clip } from "./strip";
+import { strip, type Clip, type Strip } from "./strip";
 
 const once = (c: Clip["segs"]) => ({ segs: c });
 
@@ -16,20 +16,30 @@ const DRINK = once([{ a: 11, b: 0, n: 11, d: 0.6, w: 0.2 }]);
 const OPEN: Clip = { segs: [{ a: 0, b: 13, n: 13, d: 1.2, w: 0.2 }, { a: 12, b: 20, n: 8, d: 0.8 }, { a: 20, b: 30, n: 10, d: 1.2 }], loop: 2 };
 const CLOSE = once([{ a: 15, b: 0, n: 15, d: 0.8, w: 0.1 }]);
 
-/** Start the "same behaviour" column inside `root`. → the three strips (destroy() each to recall). */
-export function same(root: HTMLElement) {
+/** Start the "same behaviour" column inside `root`. `intro`: play the 2015 load intro (the cup
+ *  drains, the lid closes); off when the column is started again after Recall, where every sprite
+ *  already shows its first frame. → the three strips (destroy() each to recall). Each class flip is
+ *  written through its strip's ledger and each listener goes with its engine, so Recall gives the
+ *  column back as it was and a recalled column answers no press. */
+export function same(root: HTMLElement, intro = true) {
   const $ = (s: string) => root.querySelector<HTMLElement>(s)!;
   const beats = $(".fz-beats"), cup = $(".fz-coffee"), comp = $(".fz-comp");
   const hp = strip(beats, 300), cf = strip(cup, 84), lp = strip(comp, 210);
+  /** Flip a class on a strip's element (2015's ng-class) through the ledger. → it is on now. */
+  const flip = (s: Strip, el: HTMLElement, c: string) => {
+    const on = !el.classList.contains(c);
+    s.engine.ledger.cls(el, c, on);
+    return on;
+  };
+  const press = (el: HTMLElement, s: Strip, f: () => void) => el.firstElementChild!.addEventListener("click", f, { signal: s.engine.signal });
   let started = false;
-  cf.play(DRINK);
-  lp.play(CLOSE);
-  beats.firstElementChild!.addEventListener("click", () => {
-    const p = beats.classList.toggle("paused");
+  if (intro) cf.play(DRINK), lp.play(CLOSE);
+  press(beats, hp, () => {
+    const p = flip(hp, beats, "paused");
     if (!started) (started = true), hp.play(PLAY);
     else hp.hold(p);
   });
-  cup.firstElementChild!.addEventListener("click", () => cf.play(cup.classList.toggle("drinkMe") ? DRINK : FILL));
-  comp.firstElementChild!.addEventListener("click", () => lp.play(comp.classList.toggle("close") ? CLOSE : OPEN));
+  press(cup, cf, () => cf.play(flip(cf, cup, "drinkMe") ? DRINK : FILL));
+  press(comp, lp, () => lp.play(flip(lp, comp, "close") ? CLOSE : OPEN));
   return [hp, cf, lp];
 }
