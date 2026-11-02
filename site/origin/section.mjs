@@ -36,7 +36,7 @@ export function originSection({ real, figure, css, live, sizes, base = "./" }) {
     : "A desk at night in 2015: headphones, a cup of coffee, an open laptop and a phone.";
   const chips = real ? '<span class="ogs-chip">2015 PROPS</span><span class="ogs-chip alt">A DAY AS A LOOP</span>' : '<span class="ogs-chip">2015</span><span class="ogs-chip alt">THE DESK AT NIGHT</span>';
   const cap = real
-    ? `<b>LIVE</b> · inspired by the 2015 original, with Fizlet flair · tap the laptop · drag, flick or double-tap the cup · 2015 / Fizlet switches the look · its code loads only once it nears the screen · <a href="${base}demos/origin/">The origin scene</a>`
+    ? `<b>LIVE</b> · inspired by the 2015 original, with Fizlet flair · tap the laptop, the plant, the notebook, the lamp · tap the phone for country, rock or pop · drag, flick or double-tap the cup · 2015 / Fizlet switches the look · its code loads only once it nears the screen · <a href="${base}demos/origin/">The origin scene</a>`
     : "<b>PLACEHOLDER</b> · the origin scene lands here · tap the desk · it loads only once it nears the screen";
   const note = existsSync("site/notes/before-ai-2015.json"), demo = existsSync("site/demos/before-ai-2015");
   const links = [
