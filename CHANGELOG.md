@@ -41,6 +41,15 @@
   Enter, R, K and the arrows on the cup. Reduced motion changes state with no animation; every toy
   settles. Live chunk 20,922 → 28,156 B gzip; inline poster 3,775 → 5,120 B (one markup, both
   looks; the poster's saucer shows again). Test: `tests/origin.mjs`.
+
+- **Site: Before AI: 2015, the Fizlet columns play again after Recall (pending owner review).**
+  Recall gave the page back but left both Fizlet columns dead, and the remake's play switch stuck on
+  pause: its class flips were not in the ledger and its listeners outlived the engines. Every class
+  flip now goes through the strip's ledger and every listener goes with its engine, so Recall is
+  exact whatever was pressed; after it, a press on a column starts it fresh (no load intro) and acts,
+  any number of times. Site tests: three Recall-then-play rounds (also under reduced motion) and
+  three play/pause rounds on the remake's switch and the arcade's play key.
+
 - **Site: 3D stickers keep their edge and shadow on the dark theme (pending owner review).** Every
   sticker's die-cut edge and hard shadow read from one token pair, `--sticker-edge` and
   `--sticker-shadow` (site.css :root): the light ink and the muted light on the dark theme, the ink
