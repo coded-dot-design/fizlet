@@ -33,7 +33,7 @@ import { controls } from "../../../src/input";
 import { spriteURL, type SpriteDef } from "../../../src/sprite";
 import type { SlotMount, SlotScene } from "../../../src/slot";
 import { ORIGIN_WHY, ORIGIN_WHY_BEATS, ORIGIN_CREDIT, ORIGIN_LOOKS, ORIGIN_HINT } from "./copy";
-import { why, art, CSS, BOX, C, VB, DESK, CUP, SH, PLANT, BOOK, KEYS_HOME, TIPS_HOME, head, headT, hands, neck, armD, reach, carry, cupT, RING, cupShT, LIQUID, brew, phonesT, band, screenT, coverT, sqT, type OriginLook } from "./art";
+import { why, art, CSS, BOX, C, VB, DESK, CUP, SH, PLANT, BOOK, KEYS_HOME, TIPS_HOME, head, headT, hands, neck, armD, reach, carry, cupT, RING, GRIPAT, cupShT, LIQUID, brew, phonesT, band, screenT, coverT, sqT, type OriginLook } from "./art";
 
 export type { OriginLook } from "./art";
 declare const __ORIGIN_BRICKS__: Record<string, number> | undefined;
@@ -127,9 +127,6 @@ const CUPP = 1, LAP = 2, PHONE = 3, PHONES = 4, PERSON = 5, SPILLP = 6, PLANTP =
 const SAY = ["", "Sip.", "Refilling the cup.", "Refilled: hot coffee.", "Knocked over! Tap the spill, or wait: it rights itself.", "Back up. Refilling.", "Picked up the cup.", "Cup set down.", "Back on the saucer.", "He is asleep. Tap him to wake him.", "Out of his reach: move the cup closer.", "Cup moved.", "Fizlet look.", "2015 look.", "Nearly empty: double-tap or press R to refill.", "Watering the plant.", "Lamp on.", "Lamp off.", "", "", "Music paused.", "Too much coffee: still awake.", "One more commit: too wired to sleep.", "The coffee wore off. He sleeps."];
 // Caffeine: a cup for each sip the visitor gives him. It wears off slowly by day and faster at night (he crashes). Three sips
 // close together (2.4 cups' worth; two never are) keep him up into the night until it is under 1.2.
-// The sip's first move (sip 0..RELEASE): his hand comes back off the keys, under the cup; then (to
-// 0.35) out to the handle; then the lift to his mouth (to 1). Each move bends his elbow one way only.
-const RELEASE = 0.14;
 const CAF_UP = 2.4, CAF_DOWN = 1.2, CAF_DAY = 0.05, CAF_NIGHT = 0.25;
 // The notebook: a line of code, or one of these doodles (24 units square), drawn as one stroke path.
 const DOODLES: [string, string][] = [["a star", "M12 1l3.4 7.2 7.9.9-5.9 5.4 1.6 7.8L12 18.4l-7 3.9 1.6-7.8L.7 9.1l7.9-.9Z"], ["a heart", "M12 21C4 15.5 0 11 2.5 6 4.5 2 9.5 2 12 6c2.5-4 7.5-4 9.5 0 2.5 5-1.5 9.5-9.5 15Z"], ["a happy face", "M23 12A11 11 0 1 1 1 12 11 11 0 1 1 23 12ZM8 9v2M16 9v2M7 15q5 4 10 0"], ["a lightning bolt", "M14 1 4 13h7l-3 10 12-14h-7l3-8Z"], ["a triangle", "M12 1 23 22H1Z"], ["a square", "M2 2h20v20H2Z"], ["a house", "M2 23V11L12 2l10 9v12ZM9 23v-7h6v7"], ["a sun", "M17 12a5 5 0 1 1-10 0 5 5 0 1 1 10 0M12 0v3M12 21v3M0 12h3M21 12h3M3.5 3.5l2 2M18.5 18.5l2 2M3.5 20.5l2-2M18.5 5.5l2-2"]];
@@ -176,7 +173,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const neckEl = q(".og-neck"), napeEl = q(".og-nape"), headEl = q(".og-head"), phonesEl = q(".og-phones"), bandEls = qa(".og-band"), cupEl = q(".og-cup"), cupImgs = qa(".og-cupimg"), liquid = q(".og-liquid"), body = q(".og-body");
   const cupSh = q(".og-cupsh"), upEl = q(".og-up"), upG = q(".og-upg"), tipEl = q(".og-tip"), pudEl = q(".og-pud"), potEl = q(".og-pot"), potB = q(".og-potb"), stream = q(".og-stream"), sqp = q(".og-sqp");
   const arms = [-1, 1].map((s) => { const g = q(s < 0 ? ".og-arm-l" : ".og-arm-r"); return { s, skin: g.querySelector(".og-skin")!, sl: g.querySelector(".og-sl")!, hem: g.querySelector(".og-hem")!, hd: g.querySelector(s < 0 ? ".og-hand-l" : ".og-hand-r")! }; });
-  const grips = [q(".og-grip-l"), q(".og-grip-r")], pen = q(".og-pen"), dpen = q(".og-dpen"), plantEl = q(".og-plant"), sqf = q(".og-sqf"), leaves = q(".og-leaves"), bookEl = q(".og-book"), sqb = q(".og-sqb"), lampEl = q(".og-lamp"), sqm = q(".og-sqm");
+  const grips = [q(".og-grip-l"), q(".og-grip-r")], hopen = qa(".og-hopen"), hgrip = qa(".og-hgrip"), hreach = qa(".og-hreach"), pen = q(".og-pen"), dpen = q(".og-dpen"), plantEl = q(".og-plant"), sqf = q(".og-sqf"), leaves = q(".og-leaves"), bookEl = q(".og-book"), sqb = q(".og-sqb"), lampEl = q(".og-lamp"), sqm = q(".og-sqm");
   const inks = qa(".og-ink"), drops = qa(".og-drops circle"), canEl = q(".og-can"), canB = q(".og-canb"), wstream = q(".og-wstream"), klit = qa(".o-klit");
   const screen = q(".og-screen"), cover = q(".og-cover"), scrl = q(".og-scrl"), laptop = q(".og-laptop");
   const scroll = q(".og-scroll"), caret = q(".og-caret"), arrow = q(".og-arrow"), sel = q(".og-sel"), shape = q(".og-shape");
@@ -546,11 +543,11 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     const fx = sx + (dx / d) * dd - (sx + Math.cos(e) * A), fy = SH.y + (dy / d) * dd - (SH.y + Math.sin(e) * A), l = Math.hypot(fx, fy) || 1;
     (FU[0] = fx / l), (FU[1] = fy / l);
   }
-  // The hand whose fingers' middle (13 ahead along the forearm: the wrist straight) is on (rx, ry),
-  // the handle's loop: into AB[o], AB[o + 1].
+  // The hand that holds the loop at (rx, ry) with its grip point (GRIPAT, in the hand's own frame,
+  // which points along the forearm: the wrist straight): into AB[o], AB[o + 1].
   function gripAt(s: number, rx: number, ry: number, o: number) {
-    let hx = rx, hy = ry + 13;
-    for (let i = 0; i < 6; i++) fore(s, hx, hy), (hx = rx - FU[0]! * 13), (hy = ry - FU[1]! * 13);
+    let hx = rx, hy = ry + 8;
+    for (let i = 0; i < 8; i++) fore(s, hx, hy), (hx = rx - (GRIPAT[0] * FU[0]! - GRIPAT[1] * FU[1]!)), (hy = ry - (GRIPAT[0] * FU[1]! + GRIPAT[1] * FU[0]!));
     (AB[o] = hx), (AB[o + 1] = hy);
   }
   // A point t of the way along the arc about the shoulder from (ax, ay) to (bx, by): its distance and
@@ -574,7 +571,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     fore(side, HOUT[0]!, HOUT[1]!);
     const sc = 1 + c * 0.09;
     (POSE[0] = HOUT[0]!), (POSE[1] = HOUT[1]!), (POSE[4] = sc);
-    (POSE[2] = HOUT[0]! + FU[0]! * 13 - RING[0] * sc), (POSE[3] = HOUT[1]! + FU[1]! * 13 - RING[1] * sc);
+    (POSE[2] = HOUT[0]! + GRIPAT[0] * FU[0]! - GRIPAT[1] * FU[1]! - RING[0] * sc), (POSE[3] = HOUT[1]! + GRIPAT[0] * FU[1]! + GRIPAT[1] * FU[0]! - RING[1] * sc);
   }
   const cupAt = (i: 0 | 1) => (pose(), POSE[2 + i]!);
   // The holding arm's bend at the elbow and the hand's angle against the forearm (tests: the arm moves
@@ -878,22 +875,18 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       set(pen, "style", held ? "" : "display:none"), set(dpen, "style", held ? "display:none" : "");
       // Holding the cup, his arm paints over it: the copy above the cup and its shadow shows.
       set(grips[0]!, "style", rc > 0.01 && side === 0 ? "" : "display:none"), set(grips[1]!, "style", rc > 0.01 && side === 1 ? "" : "display:none");
-      // The reach, in two moves around the cup (never over it): the hand comes back off the keys toward
-      // him, under the cup (the elbow bends), then out to the handle from below (it straightens). Each
-      // is an arc about the shoulder, so the elbow moves one way in each. Then the hand carries the cup
-      // on its own arc (pose()). The wrist stays straight throughout.
+      // The reach: one arc about the shoulder from the keys straight to the handle (the hand passes over
+      // the cup, above it), then the hand carries the cup on its own arc (pose()). The elbow bends one
+      // way in each; the wrist stays straight; at the handle the hand takes its holding shape.
       if (s <= 0) SNAP[2] = 0;
       else if (!SNAP[2]) (SNAP[0] = side ? hn.rx : hn.lx), (SNAP[1] = side ? hn.ry : hn.ly), (SNAP[2] = 1);
-      if (s > 0 && rc < 1) {
-        const sg = side ? 1 : -1, sx = side ? SH.rx : SH.lx, ga = Math.atan2(POSE[1]! - SH.y, POSE[0]! - sx), gr = Math.hypot(POSE[0]! - sx, POSE[1]! - SH.y), wa = ga - sg * 0.05, wr = gr - 55;
-        const wx = sx + Math.cos(wa) * wr, wy = SH.y + Math.sin(wa) * wr, w1 = Math.min(1, s / RELEASE), w2 = Math.max(0, (s - RELEASE) / (0.35 - RELEASE));
-        if (s < RELEASE) arc(sg, SNAP[0]!, SNAP[1]!, wx, wy, w1 * w1 * (3 - 2 * w1));
-        else arc(sg, wx, wy, POSE[0]!, POSE[1]!, w2 * w2 * (3 - 2 * w2));
-      }
+      if (s > 0 && rc < 1) arc(side ? 1 : -1, SNAP[0]!, SNAP[1]!, POSE[0]!, POSE[1]!, rc);
       for (const a of arms) {
         const i = a.s < 0 ? 0 : 1, held = i === side && s > 0, tx = held ? (rc < 1 ? HOUT[0]! : POSE[0]!) : i ? hn.rx : hn.lx, ty = held ? (rc < 1 ? HOUT[1]! : POSE[1]!) : i ? hn.ry : hn.ly, d = armD(a.s, tx, ty), k = d.k;
         set(a.skin, "d", d.skin), set(a.sl, "d", d.sleeve), set(a.hem, "d", d.hem);
         set(a.hd, "transform", `translate(${k.hx} ${k.hy}) rotate(${k.deg})`);
+        const g = held ? (rc > 0.9 ? 2 : rc > 0.08 ? 1 : 0) : 0; // open (typing) · reaching · gripping
+        set(hopen[i]!, "style", g ? "display:none" : ""), set(hreach[i]!, "style", g === 1 ? "" : "display:none"), set(hgrip[i]!, "style", g === 2 ? "" : "display:none");
         if (i === side) (ARM[0] = s), (ARM[1] = (Math.acos(((k.sx - k.ex) * (k.hx - k.ex) + (SH.y - k.ey) * (k.hy - k.ey)) / (Math.hypot(k.sx - k.ex, SH.y - k.ey) * Math.hypot(k.hx - k.ex, k.hy - k.ey) || 1)) * 180) / Math.PI), (ARM[2] = k.deg - (Math.atan2(k.hy - k.ey, k.hx - k.ex) * 180) / Math.PI);
       }
       // The key lights, the drops, the can, the plant's perk, the notebook's ink, the lamp.

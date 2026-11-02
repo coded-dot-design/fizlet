@@ -96,7 +96,7 @@ export const VB = { w: 800, h: 500 };
 export const BOX = {
   laptop: [280, 150, 240, 236],
   phone: [566, 236, 82, 140],
-  cup: [201, 277, 78, 78],
+  cup: [207, 287, 78, 78],
   phones: [540, 120, 130, 90],
   lamp: [62, 136, 100, 108],
   plant: [666, 116, 72, 72],
@@ -110,13 +110,15 @@ export const PLANT = { x: 702, y: 152 } as const, BOOK = { cx: 155, cy: 416, x: 
 /** Where the cup can stand: the desk, inside the window's sill (x0, y0, x1, y1, cup centres). */
 export const DESK = [44, 140, 756, 470] as const;
 /** The cup's home (its top left on the saucer) and where it sits when he drinks. */
-export const CUP = { x: 201, y: 277, mx: 345, my: 352, r: 39 } as const;
+export const CUP = { x: 207, y: 287, mx: 345, my: 352, r: 39 } as const;
 /** The handle is nudged this far around the rim from the 2015 drawing's left (degrees, toward him);
  *  the cup body itself is never turned: its top-down perspective stays as drawn. */
-export const HNUDGE = 20;
-/** Where his fingers hold the handle (its outer end, so his palm stays off the cup), from the cup's
- *  middle (78-unit drawing, at rest). */
-export const RING = [-38 * Math.cos((HNUDGE * Math.PI) / 180), 38 * Math.sin((HNUDGE * Math.PI) / 180)] as const;
+export const HNUDGE = 10;
+/** The middle of the handle's loop, where his fingers go through it, from the cup's middle (78-unit
+ *  drawing, at rest). */
+export const RING = [-31 * Math.cos((HNUDGE * Math.PI) / 180), 31 * Math.sin((HNUDGE * Math.PI) / 180)] as const;
+/** That loop's middle in the holding hand's own frame (forward along the forearm, +y toward the cup). */
+export const GRIPAT = [4, 8] as const;
 
 /** Shoulders, upper arm (seen from above it hangs down a little, foreshortened) and forearm lengths. */
 export const SH = { lx: 314, rx: 486, y: 474, ua: 66, fa: 116 } as const;
@@ -243,11 +245,16 @@ const SEATL = "M274 508C278 496 290 492 302 494M526 508C522 496 510 492 498 494"
 // The seat's side bolsters, under him: they show beside his waist and below his shoulders (he sits on them).
 const BOLSTERS = "M256 650V490C256 474 274 466 292 469C312 472 328 485 340 500L338 650ZM544 650V490C544 474 526 466 508 469C488 472 472 485 460 500L462 650Z";
 const BOLSTERL = "M264 484C270 474 284 470 298 473M536 484C530 474 516 470 502 473";
+// The hand holding the cup, seen from above (forward along the forearm, +y toward the cup): the side
+// of the hand beside the handle's end, two fingers curled through the loop, the thumb over its top.
+// The reaching hand: an open palm, the fingers spread a little, the thumb out (shown on the way to the handle).
+const HREACH = (m: string) => `<g${m} fill="${C.skin}" stroke="${C.skinD}" stroke-width="1"><rect x="-13" y="-9" width="22" height="18" rx="7" stroke="none"/>${[-8, -3.5, 1, 5.5].map((y, i) => `<rect x="6" y="${y}" width="15" height="4" rx="2" transform="rotate(${i * 5 - 8} 6 ${y + 2})"/>`).join("")}<rect x="-2" y="7" width="12" height="5" rx="2.5" transform="rotate(35 -2 9)"/></g>`;
+const HGRIP = (m: string) => `<g${m}><rect x="-13" y="-8" width="22" height="14" rx="6" fill="${C.skin}"/><rect x="0.5" y="2" width="4.2" height="11" rx="2.1" fill="${C.skin}" stroke="${C.skinD}" stroke-width="1"/><rect x="4.4" y="2" width="4.2" height="10" rx="2.1" fill="${C.skin}" stroke="${C.skinD}" stroke-width="1"/><path d="M-9-4h12" stroke="${C.skinD}" stroke-width="1.4" stroke-linecap="round"/><rect x="8.4" y="-1" width="5" height="12" rx="2.5" fill="${C.skin}" stroke="${C.skinD}" stroke-width="1.2"/></g>`;
 /** One arm's markup at its pose: the skin (upper arm, forearm), the sleeve and its hem, the hand
  *  (the left one can hold the pen). */
 const armEl = (s: number, tx: number, ty: number, id: string) => {
   const a = armD(s, tx, ty), k = a.k, side = s < 0 ? "l" : "r";
-  return `<g class="og-arm-${side}"><path id="${id}skin-${side}" class="og-skin" d="${a.skin}" fill="${C.skin}"/><path class="og-sl o-shirt" d="${a.sleeve}" fill="${C.red}"/><path class="og-hem o-shirtD" d="${a.hem}" stroke="${C.redD}" stroke-width="3" stroke-linecap="round"/><g id="${id}hand-${side}" class="og-hand-${side}" transform="translate(${k.hx} ${k.hy}) rotate(${k.deg})">${s < 0 ? `<rect class="og-pen o-tealD" x="-14" y="8" width="54" height="7" rx="3" fill="${C.red}" transform="rotate(8 -14 11)" style="display:none"/>` : ""}${HAND(s < 0 ? "" : ' transform="scale(1 -1)"')}</g></g>`;
+  return `<g class="og-arm-${side}"><path id="${id}skin-${side}" class="og-skin" d="${a.skin}" fill="${C.skin}"/><path class="og-sl o-shirt" d="${a.sleeve}" fill="${C.red}"/><path class="og-hem o-shirtD" d="${a.hem}" stroke="${C.redD}" stroke-width="3" stroke-linecap="round"/><g id="${id}hand-${side}" class="og-hand-${side}" transform="translate(${k.hx} ${k.hy}) rotate(${k.deg})">${s < 0 ? `<rect class="og-pen o-tealD" x="-14" y="8" width="54" height="7" rx="3" fill="${C.red}" transform="rotate(8 -14 11)" style="display:none"/>` : ""}<g class="og-hopen">${HAND(s < 0 ? "" : ' transform="scale(1 -1)"')}</g><g class="og-hreach" style="display:none">${HREACH(s < 0 ? "" : ' transform="scale(1 -1)"')}</g><g class="og-hgrip" style="display:none">${HGRIP(s < 0 ? "" : ' transform="scale(1 -1)"')}</g></g></g>`;
 };
 
 // While he holds the cup, his arm and hand paint over it: .og-grip-l/-r are live copies (<use>) drawn
@@ -340,7 +347,7 @@ ${armEl(-1, hn.lx, hn.ly, id)}${armEl(1, hn.rx, hn.ry, id)}
 <g data-p="phones" class="og-phones" transform="${phonesT(p.ph, p.aw, 0)}"><path class="og-band o-band" d="${band(p.ph)}" fill="none" stroke="#c9bf9f" stroke-width="13" stroke-linecap="round"/><path class="og-band o-band2" d="${band(p.ph)}" fill="none" stroke="${C.cream}" stroke-width="6" stroke-linecap="round"/><rect class="o-hcup" x="-60" y="-21" width="16" height="42" rx="7" fill="${C.red}"/><rect class="o-hcup" x="44" y="-21" width="16" height="42" rx="7" fill="${C.red}"/><rect class="o-pad" x="-57" y="-14" width="6" height="28" rx="3" fill="${C.cream}"/><rect class="o-pad" x="51" y="-14" width="6" height="28" rx="3" fill="${C.cream}"/></g>
 <g class="og-pud" style="display:none"><path class="o-pud" d="M-4-15C14-24 44-19 50-3S38 26 18 22C4 28-10 16-7 4S-10-10-4-15Z" fill="#5a3526"/><path class="og-fz" d="M-4-15C14-24 44-19 50-3S38 26 18 22C4 28-10 16-7 4S-10-10-4-15Z" fill="url(#${id}pix)"/><ellipse class="og-15" cx="22" cy="-4" rx="9" ry="4" fill="${C.cream}" opacity=".35"/></g>
 <circle class="og-cupsh o-csh" r="30" fill="${C.ink}" opacity=".16"/>
-<g data-p="cup" class="og-cup" transform="${cupT()}"><g class="og-upg"><svg class="og-up" width="78" height="78" viewBox="0 0 84 84" overflow="visible"><clipPath id="${id}cupc"><circle cx="42" cy="43.5" r="27.6"/></clipPath><clipPath id="${id}cuph"><rect x="3.5" y="35.5" width="20" height="13" rx="6.5"/></clipPath><g class="og-15"><g transform="rotate(${-HNUDGE} 42 42)" clip-path="url(#${id}cuph)"><image class="og-cupimg" href="${cup}" x="${-11 * 84}" y="${design ? -84 : 0}" width="1008" height="168"/></g><g clip-path="url(#${id}cupc)"><image class="og-cupimg" href="${cup}" x="${-11 * 84}" y="${design ? -84 : 0}" width="1008" height="168"/></g></g><g transform="rotate(${-HNUDGE} 42 42)"><circle class="og-handle" cx="3.5" cy="42" r=".5" fill="none"/><rect class="o-neon og-fz" x="3" y="35" width="22" height="15" rx="7.5" fill="none" stroke-width="3.5"/></g><g class="og-fz"><circle class="o-glow" cx="42" cy="43.5" r="28" fill="none" stroke-width="8"/><circle class="o-face" cx="42" cy="43.5" r="27.5" stroke-width="2.5"/><circle class="o-scr" cx="42" cy="43.5" r="23.5"/></g><ellipse class="og-liquid" cx="42" cy="43.5" rx="22.6" ry="20.1" fill="${brew(design, 0.8)}"/></svg></g>
+<g data-p="cup" class="og-cup" transform="${cupT()}"><g class="og-upg"><svg class="og-up" width="78" height="78" viewBox="0 0 84 84" overflow="visible"><clipPath id="${id}cupc"><circle cx="42" cy="43.5" r="27.6"/></clipPath><clipPath id="${id}cuph"><rect x="3.5" y="35.5" width="20" height="13" rx="6.5"/></clipPath><g class="og-15"><g transform="rotate(${-HNUDGE} 42 42)" clip-path="url(#${id}cuph)"><image class="og-cupimg" href="${cup}" x="${-11 * 84}" y="${design ? -84 : 0}" width="1008" height="168"/></g><g clip-path="url(#${id}cupc)"><image class="og-cupimg" href="${cup}" x="${-11 * 84}" y="${design ? -84 : 0}" width="1008" height="168"/></g></g><g transform="rotate(${-HNUDGE} 42 42)"><circle class="og-handle" cx="8.6" cy="42" r=".5" fill="none"/><rect class="o-neon og-fz" x="3" y="35" width="22" height="15" rx="7.5" fill="none" stroke-width="3.5"/></g><g class="og-fz"><circle class="o-glow" cx="42" cy="43.5" r="28" fill="none" stroke-width="8"/><circle class="o-face" cx="42" cy="43.5" r="27.5" stroke-width="2.5"/><circle class="o-scr" cx="42" cy="43.5" r="23.5"/></g><ellipse class="og-liquid" cx="42" cy="43.5" rx="22.6" ry="20.1" fill="${brew(design, 0.8)}"/></svg></g>
 <g class="og-tip" style="display:none"><rect class="o-face" x="9" y="16" width="60" height="48" rx="9" fill="${C.cream}"/><rect class="o-faceD" x="9" y="16" width="12" height="48" rx="6" fill="${C.creamD}"/><rect x="26" y="31" width="20" height="18" rx="8" fill="none" class="o-redS" stroke="${C.creamD}" stroke-width="4"/><ellipse class="o-face" cx="70" cy="40" rx="8" ry="24" fill="${C.cream}"/><ellipse class="o-brew" cx="70" cy="40" rx="5" ry="19" fill="${C.ink}"/></g></g>
 <g class="og-grip-l" style="display:none"><use href="#${id}skin-l"/><use href="#${id}hand-l"/></g><g class="og-grip-r" style="display:none"><use href="#${id}skin-r"/><use href="#${id}hand-r"/></g>
 <g class="og-pot" style="display:none"><path class="o-pour og-stream" d="M40 0H66" stroke="#5a3526" stroke-width="0" stroke-linecap="round"/><g class="og-potb"><circle class="o-csh" cx="4" cy="6" r="27" fill="${C.ink}" opacity=".16"/><circle class="o-pot" r="27" fill="${C.cream}"/><circle class="o-brew" r="19" fill="#5a3526"/><path class="o-pot" d="M24-8L44 0L24 8Z" fill="${C.cream}"/><rect class="o-pot" x="-44" y="-7" width="18" height="14" rx="6" fill="${C.ink}"/></g></g>

@@ -108,10 +108,10 @@ try {
     let lifted = false, s0;
     for (let i = 0; i < 4 && !lifted; i++) {
       if (!(await p.evaluate(() => window.scene.state.awake))) await p.evaluate(() => window.scene.setLaptop(true)), await p.waitForFunction(() => window.scene.state.awake, null, { timeout: 8000 });
-      await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(240 316) scale(1) "), null, { timeout: 4000 }); // the morning sip is over
+      await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(246 326) scale(1) "), null, { timeout: 4000 }); // the morning sip is over
       s0 = await sau();
       await p.evaluate(() => (window.__hz.length = 0, window.scene.sip()));
-      lifted = await p.waitForFunction(() => !document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(240 316) scale(1) "), null, { timeout: 700 }).then(() => true, () => false);
+      lifted = await p.waitForFunction(() => !document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(246 326) scale(1) "), null, { timeout: 700 }).then(() => true, () => false);
     }
     assert.ok(lifted, "the cup lifts");
     assert.equal(await sau(), s0, "the saucer does not move");
@@ -596,7 +596,7 @@ try {
     // lid will not close ("one more commit"); once it wears off, he sleeps.
     for (let i = 1, tries = 0; i <= 3 && tries < 12; tries++) {
       // A sip waits until he is fully awake and the cup is down; one asked too early is refused: ask again.
-      await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(240 316) scale(1) ") && window.scene.state.awake, null, { timeout: 8000 });
+      await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(246 326) scale(1) ") && window.scene.state.awake, null, { timeout: 8000 });
       const c0 = (await st()).caffeine;
       await p.evaluate(() => window.scene.sip());
       if (await p.waitForFunction((c) => window.scene.stats().caffeine > c + 0.5, c0, { timeout: 3500 }).then(() => true, () => false)) i++;
@@ -622,10 +622,10 @@ try {
     await quiet("the genre card");
 
     // The sip, frame by frame (sampled on every frame, by state): his hand takes the cup by its handle
-    // and carries it; in each move (release, reach, lift, hold, lower, return, back) his elbow bends one
+    // and carries it; in each move (reach, lift, hold, lower, back) his elbow bends one
     // way only; his wrist stays straight; the cup and the coffee only move and scale (no turn, no skew,
-    // the same top-down drawing); the fingers sit on the handle and stop short of the coffee; and his
-    // hand paints over the cup and its shadow. Both looks.
+    // the same top-down drawing); the fingers sit on the handle and stop short of the coffee; the handle
+    // stays in sight beside his hand; and his hand paints over the cup and its shadow. Both looks.
     k = await lap(0.5);
     await p.mouse.click(k.x, k.y);
     for (const look of ["fizlet", "2015"]) {
@@ -637,9 +637,15 @@ try {
           window.__sip = [];
           const f = () => {
             const a = window.scene.stats().arm, cup = document.querySelector(".og-cup"), lq = document.querySelector(".og-liquid"), m = lq.getScreenCTM(), hm = document.querySelector(".og-hand-l").getScreenCTM();
-            const h = document.querySelector(".og-handle").getBoundingClientRect(), g = new DOMPoint(13, 0).matrixTransform(hm), tip = new DOMPoint(23, 0).matrixTransform(hm), q = tip.matrixTransform(m.inverse());
+            const h = document.querySelector(".og-handle").getBoundingClientRect(), g = new DOMPoint(4, 8).matrixTransform(hm), li = m.inverse();
+            // Dry: the two fingertips and the thumb's tip (hand-local) stay outside the coffee's ellipse.
+            const dry = Math.min(...[[2.6, 13], [6.5, 12], [10.9, 11]].map(([x, y]) => { const q = new DOMPoint(x, y).matrixTransform(hm).matrixTransform(li); return ((q.x - lq.getAttribute("cx")) / +lq.getAttribute("rx")) ** 2 + ((q.y - lq.getAttribute("cy")) / +lq.getAttribute("ry")) ** 2 - 1; }));
+            // Seen: points along the handle's loop (its own coordinates) that no part of his hand or forearm covers.
+            const hg = document.querySelector(".og-handle").parentNode.getScreenCTM(), shapes = [...document.querySelectorAll(".og-hand-l rect, .og-hand-l path, .og-arm-l .og-skin")].filter((e) => e.getBoundingClientRect().width > 0);
+            let seen = 0;
+            for (let j = 0; j < 24; j++) { const p = new DOMPoint(j < 16 ? 3 + (j >> 1) * 1.5 : 3, j < 16 ? (j & 1 ? 50 : 35) : 37 + (j - 16) * 1.5).matrixTransform(hg); if (!shapes.some((e) => { const l = p.matrixTransform(e.getScreenCTM().inverse()); return e.isPointInFill(l) || e.isPointInStroke(l); })) seen++; }
             const grip = document.querySelector(".og-grip-l"), after = (sel) => !!(document.querySelector(sel).compareDocumentPosition(grip) & Node.DOCUMENT_POSITION_FOLLOWING);
-            if (a.sip > 0) window.__sip.push({ s: a.sip, bend: a.bend, wrist: a.wrist, t: cup.getAttribute("transform"), skew: Math.abs(m.b) + Math.abs(m.c), aspect: Math.abs(m.a - m.d), up: document.querySelector(".og-upg").getAttribute("transform") ?? "", on: Math.hypot(h.x + h.width / 2 - g.x, h.y + h.height / 2 - g.y), dry: ((q.x - lq.getAttribute("cx")) / +lq.getAttribute("rx")) ** 2 + ((q.y - lq.getAttribute("cy")) / +lq.getAttribute("ry")) ** 2 - 1, above: getComputedStyle(grip).display !== "none" && after(".og-cup") && after(".og-cupsh") });
+            if (a.sip > 0) window.__sip.push({ s: a.sip, bend: a.bend, wrist: a.wrist, t: cup.getAttribute("transform"), skew: Math.abs(m.b) + Math.abs(m.c), aspect: Math.abs(m.a - m.d), up: document.querySelector(".og-upg").getAttribute("transform") ?? "", on: Math.hypot(h.x + h.width / 2 - g.x, h.y + h.height / 2 - g.y), dry, seen, above: getComputedStyle(grip).display !== "none" && after(".og-cup") && after(".og-cupsh") });
             if (!(window.__sip.length && a.sip === 0)) requestAnimationFrame(f);
           };
           requestAnimationFrame(f);
@@ -649,11 +655,11 @@ try {
       }
       assert.ok(log && log.length > 20 && Math.max(...log.map((r) => r.s)) > 0.99, `${look}: a whole sip was sampled (${log?.length} frames)`);
       // The moves, by the sip's value and its direction.
-      const peak = log.findIndex((r) => r.s > 0.99), phase = (r, i) => (i <= peak ? (r.s < 0.14 ? "release" : r.s < 0.35 ? "reach" : "lift") : r.s > 0.99 ? "hold" : r.s >= 0.35 ? "lower" : r.s >= 0.14 ? "return" : "back");
+      const peak = log.findIndex((r) => r.s > 0.99), phase = (r, i) => (i <= peak ? (r.s < 0.35 ? "reach" : "lift") : r.s > 0.99 ? "hold" : r.s >= 0.35 ? "lower" : "back");
       const runs = {};
       log.forEach((r, i) => (runs[phase(r, i)] ??= []).push(r.bend));
       for (const [name, bends] of Object.entries(runs)) {
-        const d = bends.slice(1).map((b, i) => b - bends[i]).filter((x) => Math.abs(x) > 0.05);
+        const d = bends.slice(1).map((b, i) => b - bends[i]).filter((x) => Math.abs(x) > 0.15); // his breathing sways the shoulder by under 0.15°
         assert.ok(d.every((x) => x > 0) || d.every((x) => x < 0), `${look}: the elbow bends one way in "${name}" (${bends.map((b) => b.toFixed(1)).join(" ")})`);
       }
       assert.ok(log.every((r) => Math.abs(r.wrist) < 2), `${look}: the wrist stays in line with the forearm (worst ${Math.max(...log.map((r) => Math.abs(r.wrist))).toFixed(2)}°)`);
@@ -661,6 +667,7 @@ try {
       const lifted = log.filter((r) => r.s > 0.4);
       assert.ok(lifted.every((r) => r.on < 4), `${look}: the fingers are on the handle while he holds it (worst ${Math.max(...lifted.map((r) => r.on)).toFixed(1)} px)`);
       assert.ok(lifted.every((r) => r.dry > 0), `${look}: the fingers stop short of the coffee`);
+      assert.ok(lifted.every((r) => r.seen >= 5), `${look}: the handle shows beside his hand (fewest ${Math.min(...lifted.map((r) => r.seen))} of 24 points)`);
       assert.ok(lifted.every((r) => r.above), `${look}: the hand paints over the cup and its shadow`);
     }
     await p.evaluate(() => window.scene.destroy());
