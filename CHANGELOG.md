@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Site: one head pattern, the home section heads' spacing everywhere (pending owner review).** An
+  index page's title (Docs, Guides, Daily, the archive, Contest, News, Notes, People, Make and the
+  redirect stubs) sat flush on its eyebrow and its lead at 32 px: the section head's spacing only
+  reached h2s, and `h1 { margin: 0 }` won. The head is now one shared rule on tokens (`--head-gap`
+  16 px eyebrow → title, `--head-lead-gap` 18 px title → lead, `--head-size` for a section head's
+  title); brick, note, doc, legal, brand, quick start and people heads take the same tokens (brick
+  pages 14 → 16 px, people 12 → 16 px). A site test checks the gaps on a sample of every head at
+  1440 and 390.
+
 - **Site: the origin hero in two looks, a redrawn coder, and a cup you can play with (pending owner
   review).** "Code. Sleep. Drink. Repeat." is now inspired by the original 2015 portfolio, with
   Fizlet flair: a 2015 / Fizlet key in the scene's key row (`aria-pressed`, `look` in `origin:state`,
