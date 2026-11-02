@@ -60,7 +60,7 @@ export function personPage({ person: p, stats: s, base, urlOf, wins = new Set(),
     <header class="ppl-head">
       ${avatar(p, 160)}
       <div class="ppl-who">
-        <p class="eyebrow"><span class="index">${EYEBROW[p.kind]}</span> ${esc(p.handle ?? "FIZLET")}${p.pronouns ? ` · <span class="ppl-pronouns">${esc(p.pronouns)}</span>` : ""}</p>
+        <p class="eyebrow"><span class="index">${EYEBROW[p.kind]}</span> ${esc(p.handle ?? "FIZLET")}</p>
         <h1 id="person-name" data-person="${esc(p.id)}">${esc(p.name)}</h1>
         ${titles(p, byId, base)}
         <p class="lead">${esc(p.bio)}</p>
