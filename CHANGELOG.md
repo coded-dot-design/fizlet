@@ -12,6 +12,33 @@
   and Sherman Bytes through `@fzlt/core/arcade`, and game versions are the latest tags, named once
   (`GAME`). No status changes: the BETA bricks that now ship say what COMPLETE still asks. The README
   and home page say Sherman Bytes 1.1, and DOM Battlefield is "on Fizlet since 1.0".
+- **Site: one head pattern, the home section heads' spacing everywhere (pending owner review).** An
+  index page's title (Docs, Guides, Daily, the archive, Contest, News, Notes, People, Make and the
+  redirect stubs) sat flush on its eyebrow and its lead at 32 px: the section head's spacing only
+  reached h2s, and `h1 { margin: 0 }` won. The head is now one shared rule on tokens (`--head-gap`
+  16 px eyebrow → title, `--head-lead-gap` 18 px title → lead, `--head-size` for a section head's
+  title); brick, note, doc, legal, brand, quick start and people heads take the same tokens (brick
+  pages 14 → 16 px, people 12 → 16 px). A site test checks the gaps on a sample of every head at
+  1440 and 390.
+- **Bricks: the status sticker sits at the card's top-right (pending owner review).** On the brick
+  cards (home 02 and /bricks/, the roadmap cards too) the status sticker moves from beside the symbol
+  tile to the far end of the tile's row: the card's top-right corner, inside the border and padding,
+  where the kernel's KERNEL slab sits. The per-brick tilt and nudge, the BETA peel and the
+  kernel's single KERNEL sticker are unchanged. On small phones (≤ 420 px) the two-up home cards
+  keep the sticker beside the tile; /bricks/ cards keep the right. The quick view, the brick page
+  eyebrow, the status key and the periodic tiles are unchanged (no spare room there). Test:
+  `tests/brick-cards.mjs`, the sticker's right edge within the card's padding of its right edge at
+  1440 and 1024.
+- **Site: the roadmap is up to date (pending owner review).** Section 09 now shows what shipped since
+  2026-10-31, each tick backed by a merged PR or a release tag. E9 On npm is DONE (`@fzlt/core`
+  0.21.2 from the release workflow with provenance, and the API snapshot test). E10 Diagrams is IN
+  PROGRESS (layout and view-canvas in 0.21.0, and the live brick graph that settles at 0 frames).
+  E3, E4, E7 and E8 gain ticks or items: Battlefield Blitz 1.0, no shared/ copies, presence lobby
+  and resume, Blitz 2 to 4 players, DOM Crossfire squad co-op, the Battlefield landing hero and the
+  DOM VIRUS labs and scenes on Fizlet, touch, and Sherman Bytes on the skirmish preset. Every item
+  now has a stable key (`E9.npm`). A PR that finishes one says so with a `Roadmap: <key>` line
+  (CONTRIBUTING.md and the PR template). Phases after the launch scope may now move off PLANNED
+  when a box is ticked (`tests/roadmap.test.mjs`).
 - **Site: the home hero says "Small footprint. Big performance.", the bricks keep "Logic & style.",
   and the container grows on big screens (pending owner review).** Home and /bricks/ never share a
   headline (owner): `HOME_HEADLINE` in `site/layout.mjs` is the home hero's bigger-picture line about
