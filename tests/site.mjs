@@ -1092,7 +1092,9 @@ try {
       const dl = await page.$eval("[data-download]", (a) => ({ href: a.href, name: a.download }));
       assert.equal(dl.name, `fizlet-${node.spec.id}.html`);
       assert.equal(await page.evaluate((href) => fetch(href).then((r) => r.text()), dl.href), text, `make "${prompt}": Download is the same file`);
-      // The preview is the snippet itself, running in a sandboxed frame.
+      // The preview is the snippet itself, running in a sandboxed frame (on screen: a snippet sleeps
+      // off screen, and the stage can start below the fold).
+      await page.locator("[data-stage]").scrollIntoViewIfNeeded();
       const frame = page.frames().find((f) => f !== page.mainFrame());
       await frame.waitForFunction(() => document.querySelector("[data-fizlet]")?.fizlet?.scene, null, { timeout: 8000 });
     }
@@ -1277,6 +1279,40 @@ try {
     assert.match(await page.locator("[data-status]").textContent(), /REDUCED-MOTION/);
     assert.deepEqual(errors, []);
     await context.close();
+  }
+  // The head (eyebrow → title → lead) is one pattern: on a sample of every head variant, the title
+  // sits at least --head-gap below its eyebrow and the lead at least --head-lead-gap below the title,
+  // at desktop and phone widths (an index page's h1 once sat flush on both).
+  where = "head spacing";
+  {
+    const HEADS = ["", "docs/", "guides/", "gallery/", "gallery/archive/", "contest/", "news/", "notes/", "people/", "make/",
+      "docs/contract/", "notes/how-small-is-small/", "cookies/", "bricks/arcade.html", "brand/", "people/frame-zero/", "examples/quick-start.html"];
+    for (const width of [1440, 390]) {
+      const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: "reduce" });
+      const page = await context.newPage();
+      for (const path of HEADS) {
+        await page.goto(ORIGIN + BASE + path, { waitUntil: "load" });
+        const heads = await page.evaluate(() => {
+          const px = (name) => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name));
+          const gap = px("--head-gap"), leadGap = px("--head-lead-gap");
+          return [...document.querySelectorAll(".eyebrow + :is(h1, h2)")].filter((h) => h.offsetHeight && !h.closest(".panel")).map((h) => {
+            const t = h.getBoundingClientRect(), next = h.nextElementSibling;
+            return {
+              title: h.textContent.trim().slice(0, 40), gap, leadGap,
+              e2t: t.top - h.previousElementSibling.getBoundingClientRect().bottom,
+              t2l: next?.matches(".lead") ? next.getBoundingClientRect().top - t.bottom : null,
+            };
+          });
+        });
+        assert.ok(heads.length, `${path || "home"}: a head (eyebrow + title)`);
+        for (const h of heads) {
+          assert.ok(h.gap >= 16 && h.leadGap >= 18, `the head tokens are set (${h.gap}, ${h.leadGap})`);
+          assert.ok(h.e2t >= h.gap - 0.5, `${path || "home"} @${width}: "${h.title}" sits ${h.e2t}px below its eyebrow (≥ ${h.gap})`);
+          if (h.t2l !== null) assert.ok(h.t2l >= h.leadGap - 0.5, `${path || "home"} @${width}: the lead sits ${h.t2l}px below "${h.title}" (≥ ${h.leadGap})`);
+        }
+      }
+      await context.close();
+    }
   }
   assert.ok(badges >= 9 + GALLERY.length, `size badges on the home page, the quick start, every brick demo and every gallery entry (${badges})`);
   console.log(`site: ${PAGES.length} pages × 2 widths, html gates, gallery (${GALLERY.length} entries), ${badges} size badges, ${checked.size} internal links, demo, brick demos, ${keyCount} page keys, reduced motion and quick start ok`);

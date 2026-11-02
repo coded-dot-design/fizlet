@@ -14,6 +14,11 @@
   /* The least block space a section gets, and what sits on each side of a section rule (the
      space the closing band's rule had above it). */
   --section-gap: clamp(70px, 10vw, 120px);
+  /* The head (eyebrow → title → lead): the home section heads' spacing and title size, on every head
+     on the site (see "The head" under Type). */
+  --head-gap: 16px;
+  --head-lead-gap: 18px;
+  --head-size: clamp(32px, 4.4vw, 54px);
   /* A panel's base: the card colour pushed into the rim, in the site's shadow direction. */
   --base: color-mix(in srgb, var(--k-cmd) 38%, var(--rim));
   --grid: color-mix(in srgb, var(--k-sys) 9%, transparent);
@@ -162,7 +167,7 @@ h3 {
   line-height: 1.02;
 }
 h2 {
-  font-size: clamp(32px, 4.4vw, 54px);
+  font-size: var(--head-size);
 }
 h3 {
   font-size: 19px;
@@ -173,6 +178,19 @@ h1 em,
 h2 em {
   font-style: normal;
   color: var(--k-attack);
+}
+/* The head: eyebrow → title → lead, one pattern for every head on the site (home and section heads,
+   index, doc and guide heads, notes, brick, brand and quick start pages, redirect stubs). A title
+   after an eyebrow, or in a section head, takes the head gaps; a section head's h1 (an index page's
+   title) takes the section title size. A head laid out by a grid gap (people, the closing band, 404)
+   spaces its rows with the same tokens. */
+.section h2,
+.section-head :is(h1, h2),
+.eyebrow + :is(h1, h2) {
+  margin: var(--head-gap) 0 var(--head-lead-gap);
+}
+.section-head h1 {
+  font-size: var(--head-size);
 }
 .lead {
   margin: 0;
@@ -1137,9 +1155,6 @@ html.bui[data-theme="light"] .dl.hot {
 .section-head {
   max-width: 780px;
   margin-bottom: 44px;
-}
-.section h2 {
-  margin: 16px 0 18px;
 }
 .split {
   display: grid;
@@ -2320,7 +2335,7 @@ html.bui[data-theme="light"] .phases b {
 .final-inner {
   display: grid;
   justify-items: center;
-  gap: 18px;
+  gap: var(--head-lead-gap);
   text-align: center;
 }
 .final-inner h2 {
@@ -2339,7 +2354,6 @@ html.bui[data-theme="light"] .phases b {
 
 /* Quick start example page */
 .qs-title {
-  margin: 16px 0 18px;
   font-size: clamp(40px, 6vw, 72px);
 }
 .qs-top {
@@ -2373,7 +2387,7 @@ html.bui[data-theme="light"] .phases b {
 .lost-inner {
   display: grid;
   justify-items: center;
-  gap: 18px;
+  gap: var(--head-lead-gap);
   text-align: center;
 }
 .lost-inner h1 {
@@ -2565,7 +2579,6 @@ html.bui[data-theme="light"] .phases b {
   color: var(--ink);
 }
 .bp-title {
-  margin: 14px 0 18px;
   font-size: clamp(32px, 5.4vw, 60px);
   overflow-wrap: anywhere;
 }
@@ -3421,9 +3434,6 @@ html.bui[data-theme="light"] .phases b {
 .note-cards h2 a {
   color: var(--ink);
 }
-.note .note-head h1 {
-  margin: 16px 0 18px;
-}
 .note .note-head .lead + .lead {
   margin-top: 14px;
 }
@@ -3625,10 +3635,11 @@ html.bui[data-theme="light"] .phases b {
 }
 .ppl-who {
   display: grid;
-  gap: 12px;
+  gap: var(--head-gap);
   min-width: 0;
 }
 .ppl-who h1 {
+  margin: 0;
   font-size: clamp(36px, 5vw, 60px);
   overflow-wrap: anywhere;
 }
@@ -5056,7 +5067,6 @@ html.bui[data-theme="light"] .ogs-vs {
    scripts/brand-marks.mjs, drawn inline.
    ====================================================================== */
 .brand-hero h1 {
-  margin: 16px 0 18px;
   font-size: clamp(44px, 6.4vw, 88px);
   line-height: 0.95;
   letter-spacing: -0.05em;
