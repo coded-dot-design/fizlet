@@ -521,6 +521,13 @@ try {
     assert.ok(day.bg > 0.8, `day: the light palette (${day.bg})`);
     for (const k of ["keys", "why", "hint"]) assert.ok(day[k] >= 4.5, `day: ${k} contrast ${day[k].toFixed(2)}`);
     assert.ok(day.chair < 0.05, `the chair is dark ink by day (${day.chair})`);
+    // Below his shoulder blades the shirt is no wider than his waist; beside it, painted over the
+    // shirt's last taper, the seat's bolsters.
+    const back = await p.evaluate(() => {
+      const torso = document.querySelector(".og-body > path.o-shirt"), seat = document.querySelector(".og-bolster"), at = (el, x, y) => el.isPointInFill(new DOMPoint(x, y));
+      return { shirt: [[300, 520], [500, 520], [300, 560], [500, 560]].filter(([x, y]) => at(torso, x, y)), chair: [[290, 495], [510, 495], [312, 500], [488, 500], [300, 560], [500, 560]].every(([x, y]) => at(seat, x, y)), waist: at(torso, 400, 560) };
+    });
+    assert.deepEqual(back, { shirt: [], chair: true, waist: true }, "the chair, not his hips, beside his lower back");
     assert.equal(await p.evaluate(() => document.querySelector(".og-hint").textContent.includes("Click or double-click anything to see it move")), true, "the hint");
     // The lid: its far edge is wider than the base (and the hinge); the plant is top right.
     const geo = await p.evaluate(() => { const lid = document.querySelector(".og-screen path.o-lid").getBBox(), base = document.querySelector(".og-laptop > rect.o-face").getBBox(), pl = document.querySelector(".og-plant").getBBox(); const m = document.querySelector(".og-plant").transform.baseVal.consolidate().matrix; return { lid: [lid.x, lid.width], base: [base.x, base.width], plant: [m.e, m.f] }; });
@@ -625,10 +632,13 @@ try {
           const t = document.querySelector(".og-cup").getAttribute("transform");
           if (!/rotate\(-1[2-8]/.test(t)) return false; // lifted and tilted toward his mouth
           const h = document.querySelector(".og-handle").getBoundingClientRect(), g = new DOMPoint(0, 0).matrixTransform(document.querySelector(".og-hand-l").getScreenCTM());
-          return { off: Math.hypot(h.x + h.width / 2 - g.x, h.y + h.height / 2 - g.y) };
+          // The hand paints over the cup and its shadow: the shown grip copy comes after both in the DOM.
+          const grip = document.querySelector(".og-grip-l"), after = (sel) => !!(document.querySelector(sel).compareDocumentPosition(grip) & Node.DOCUMENT_POSITION_FOLLOWING);
+          return { off: Math.hypot(h.x + h.width / 2 - g.x, h.y + h.height / 2 - g.y), above: getComputedStyle(grip).display !== "none" && after(".og-cup") && after(".og-cupsh") };
         }, null, { timeout: 3000, polling: "raf" }).then((r) => r.jsonValue(), () => null);
       }
       assert.ok(held && held.off < 4, `${look}: the hand is on the handle mid-sip (${JSON.stringify(held)})`);
+      assert.ok(held.above, `${look}: the hand paints over the cup and its shadow`);
     }
     await p.evaluate(() => window.scene.destroy());
     assert.equal(await p.evaluate(() => document.body.innerHTML), before, "Recall after the review's toys");

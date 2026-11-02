@@ -239,16 +239,23 @@ const PHONE_CODE = [[0, 30, 2], [6, 22, 0], [6, 34, 1], [0, 16, 3], [0, 28, 0], 
 const HAND = (m: string) => `<g${m}><rect x="-5" y="6" width="17" height="9" rx="4.5" fill="${C.skin}" stroke="${C.skinD}" stroke-width="1.4" transform="rotate(22 -5 10)"/><rect x="-13" y="-12" width="26" height="24" rx="9" fill="${C.skin}"/><rect x="3" y="-11.5" width="20" height="23" rx="7" fill="${C.skin}"/><path d="M13-5.6h8M13 0h9M13 5.6h8" stroke="${C.skinD}" stroke-width="1.6" stroke-linecap="round"/></g>`;
 // His back from above: the trapezius sloping from the neck to the shoulders, broad shoulders, the
 // lats tapering toward the waist (out of frame).
-const TORSO = "M376 452C354 455 332 458 314 466C296 474 289 490 293 506C297 520 311 530 320 540L322 640H478L480 540C489 530 503 520 507 506C511 490 504 474 486 466C468 458 446 455 424 452Z";
+const TORSO = "M376 452C354 455 332 458 314 466C298 473 292 484 298 494C304 503 315 509 322 514L322 640H478L478 514C485 509 496 503 502 494C508 484 502 473 486 466C468 458 446 455 424 452Z";
 // The chair's seat, under him: its back corners show beside his lower back, dark.
-const SEAT = "M280 524Q280 508 296 508H504Q520 508 520 524V650H280Z";
+const SEAT = "M264 516C264 496 280 486 298 488C316 490 328 500 338 510H462C472 500 484 490 502 488C520 486 536 496 536 516V650H264Z";
+// The cushion's soft top edge, a highlight on each bolster.
+const SEATL = "M274 508C278 496 290 492 302 494M526 508C522 496 510 492 498 494";
+// The seat's side bolsters, in front of his shoulders' lower edge: the width beside his waist is chair.
+const BOLSTERS = "M258 650V492C258 476 276 468 294 471C314 474 330 486 340 500L338 650ZM542 650V492C542 476 524 468 506 471C486 474 470 486 460 500L462 650Z";
+const BOLSTERL = "M266 486C272 476 286 472 300 476M534 486C528 476 514 472 500 476";
 /** One arm's markup at its pose: the skin (upper arm, forearm), the sleeve and its hem, the hand
  *  (the left one can hold the pen). */
-const armEl = (s: number, tx: number, ty: number) => {
+const armEl = (s: number, tx: number, ty: number, id: string) => {
   const a = armD(s, tx, ty), k = a.k, side = s < 0 ? "l" : "r";
-  return `<g class="og-arm-${side}"><path class="og-skin" d="${a.skin}" fill="${C.skin}"/><path class="og-sl o-shirt" d="${a.sleeve}" fill="${C.red}"/><path class="og-hem o-shirtD" d="${a.hem}" stroke="${C.redD}" stroke-width="3" stroke-linecap="round"/><g class="og-hand-${side}" transform="translate(${k.hx} ${k.hy}) rotate(${k.deg})">${s < 0 ? `<rect class="og-pen o-tealD" x="-14" y="8" width="54" height="7" rx="3" fill="${C.red}" transform="rotate(8 -14 11)" style="display:none"/>` : ""}${HAND(s < 0 ? "" : ' transform="scale(1 -1)"')}</g></g>`;
+  return `<g class="og-arm-${side}"><path id="${id}skin-${side}" class="og-skin" d="${a.skin}" fill="${C.skin}"/><path class="og-sl o-shirt" d="${a.sleeve}" fill="${C.red}"/><path class="og-hem o-shirtD" d="${a.hem}" stroke="${C.redD}" stroke-width="3" stroke-linecap="round"/><g id="${id}hand-${side}" class="og-hand-${side}" transform="translate(${k.hx} ${k.hy}) rotate(${k.deg})">${s < 0 ? `<rect class="og-pen o-tealD" x="-14" y="8" width="54" height="7" rx="3" fill="${C.red}" transform="rotate(8 -14 11)" style="display:none"/>` : ""}${HAND(s < 0 ? "" : ' transform="scale(1 -1)"')}</g></g>`;
 };
 
+// While he holds the cup, his arm and hand paint over it: .og-grip-l/-r are live copies (<use>) drawn
+// after the cup and its shadow; the scene shows the one for the hand that holds it.
 /** The whole scene as SVG markup. `p`: the pose to draw (the scene then moves it); `mode`: what
  *  the screens show first; `cup`: the coffee sheet's URL. */
 export function art(p: { aw: number; ph: number; lid: number; hd: number }, mode: "code" | "design", cup: string, sizes: Record<string, number> = {}, id = "og-") {
@@ -319,12 +326,13 @@ export function art(p: { aw: number; ph: number; lid: number; hd: number }, mode
 </g></g>
 <g class="og-body" data-p="person" tabindex="0" role="button" aria-label="Nudge him">
 <path class="o-sh" d="${TORSO}" transform="translate(4 6)" fill="${C.ink}" opacity=".16"/>
-<path class="o-chair og-seat" d="${SEAT}" fill="${C.ink}"/>
+<path class="o-chair og-seat" d="${SEAT}" fill="${C.ink}"/><path class="o-chairL" d="${SEATL}" fill="none" stroke="${C.inkL}" stroke-width="3" stroke-linecap="round"/>
 <path class="o-shirt" d="${TORSO}" fill="${C.red}"/>
 <ellipse class="og-neck o-shirt" cx="400" cy="${nk.cy}" rx="80" ry="${nk.ry}" fill="${C.red}"/><ellipse class="og-nape" cx="400" cy="${r1(nk.cy - nk.ry + 30)}" rx="14" ry="11" fill="${C.skinD}"/>
 <path class="o-shirtD" d="M376 458q24 13 48 0M342 500q18 24 46 18M458 500q-18 24-46 18M400 478V640" fill="none" stroke="${C.redD}" stroke-width="3" stroke-linecap="round" opacity=".7"/>
 <g class="og-chair"><rect class="o-chair" x="288" y="548" width="20" height="100" rx="9" fill="${C.ink}"/><rect class="o-chair" x="492" y="548" width="20" height="100" rx="9" fill="${C.ink}"/><path class="o-chair" d="M330 492Q400 478 470 492Q482 495 482 506V650H318V506Q318 495 330 492Z" fill="${C.ink}"/><path class="o-chairL" d="M334 500Q400 487 466 500" fill="none" stroke="${C.inkL}" stroke-width="3" stroke-linecap="round"/></g>
-${armEl(-1, hn.lx, hn.ly)}${armEl(1, hn.rx, hn.ry)}
+${armEl(-1, hn.lx, hn.ly, id)}${armEl(1, hn.rx, hn.ry, id)}
+<path class="o-chair og-bolster" d="${BOLSTERS}" fill="${C.ink}"/><path class="o-chairL" d="${BOLSTERL}" fill="none" stroke="${C.inkL}" stroke-width="3" stroke-linecap="round"/>
 <g class="og-head" transform="${headT(p.aw, 0)}"><ellipse cx="-43" cy="5" rx="7" ry="11" fill="${C.skinD}"/><ellipse cx="43" cy="5" rx="7" ry="11" fill="${C.skinD}"/><circle r="44" fill="${C.ink}"/>
 <circle class="o-mesh" cy="-2" r="41" fill="${C.inkL}"/><circle cy="-2" r="41" fill="url(#${id}mesh)"/>
 <path class="o-foam" d="M0-2L-36 18A41 41 0 0 0 36 18Z" fill="${C.cream}"/>
@@ -338,6 +346,7 @@ ${armEl(-1, hn.lx, hn.ly)}${armEl(1, hn.rx, hn.ry)}
 <circle class="og-cupsh o-csh" r="30" fill="${C.ink}" opacity=".16"/>
 <g data-p="cup" class="og-cup" transform="${cupT(0)}"><g class="og-upg"><svg class="og-up" width="78" height="78" viewBox="0 0 84 84" overflow="visible"><clipPath id="${id}cupc"><circle cx="42" cy="43.5" r="27.6"/><rect x="3.5" y="35.5" width="20" height="13" rx="6.5"/></clipPath><g class="og-15" clip-path="url(#${id}cupc)"><image class="og-cupimg" href="${cup}" x="${-11 * 84}" y="${design ? -84 : 0}" width="1008" height="168"/></g><circle class="og-handle" cx="13.5" cy="42" r=".5" fill="none"/><g class="og-fz"><rect class="o-neon" x="3" y="35" width="22" height="15" rx="7.5" fill="none" stroke-width="3.5"/><circle class="o-glow" cx="42" cy="43.5" r="28" fill="none" stroke-width="8"/><circle class="o-face" cx="42" cy="43.5" r="27.5" stroke-width="2.5"/><circle class="o-scr" cx="42" cy="43.5" r="23.5"/></g><ellipse class="og-liquid" cx="42" cy="43.5" rx="22.6" ry="20.1" fill="${brew(design, 0.8)}"/></svg></g>
 <g class="og-tip" style="display:none"><rect class="o-face" x="9" y="16" width="60" height="48" rx="9" fill="${C.cream}"/><rect class="o-faceD" x="9" y="16" width="12" height="48" rx="6" fill="${C.creamD}"/><rect x="26" y="31" width="20" height="18" rx="8" fill="none" class="o-redS" stroke="${C.creamD}" stroke-width="4"/><ellipse class="o-face" cx="70" cy="40" rx="8" ry="24" fill="${C.cream}"/><ellipse class="o-brew" cx="70" cy="40" rx="5" ry="19" fill="${C.ink}"/></g></g>
+<g class="og-grip-l" style="display:none"><use href="#${id}skin-l"/><use href="#${id}hand-l"/></g><g class="og-grip-r" style="display:none"><use href="#${id}skin-r"/><use href="#${id}hand-r"/></g>
 <g class="og-pot" style="display:none"><path class="o-pour og-stream" d="M40 0H66" stroke="#5a3526" stroke-width="0" stroke-linecap="round"/><g class="og-potb"><circle class="o-csh" cx="4" cy="6" r="27" fill="${C.ink}" opacity=".16"/><circle class="o-pot" r="27" fill="${C.cream}"/><circle class="o-brew" r="19" fill="#5a3526"/><path class="o-pot" d="M24-8L44 0L24 8Z" fill="${C.cream}"/><rect class="o-pot" x="-44" y="-7" width="18" height="14" rx="6" fill="${C.ink}"/></g></g>
 <g class="og-drops">${`<circle class="o-water" r="0" fill="${C.cream}"/>`.repeat(16)}</g>
 <g class="og-can" style="display:none"><path class="o-water og-wstream" d="M50-4Q64-26 84 0" fill="none" stroke="${C.cream}" stroke-width="0" stroke-dasharray="4 5" stroke-linecap="round"/><g class="og-canb"><rect class="o-csh" x="-20" y="-12" width="44" height="34" rx="9" fill="${C.ink}" opacity=".16"/><path class="o-pot" d="M14-4L48-12" stroke="${C.tealD}" stroke-width="7" stroke-linecap="round" fill="none"/><circle class="o-pot" cx="50" cy="-12" r="6" fill="${C.tealD}"/><rect class="o-pot" x="-24" y="-17" width="44" height="34" rx="9" fill="${C.tealD}"/><path class="o-redS" d="M-16-17Q-2-34 12-17" stroke="${C.ink}" stroke-width="4" fill="none"/></g></g>

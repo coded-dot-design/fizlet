@@ -173,7 +173,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const neckEl = q(".og-neck"), napeEl = q(".og-nape"), headEl = q(".og-head"), phonesEl = q(".og-phones"), bandEls = qa(".og-band"), cupEl = q(".og-cup"), cupImg = q(".og-cupimg"), liquid = q(".og-liquid"), body = q(".og-body");
   const cupSh = q(".og-cupsh"), upEl = q(".og-up"), upG = q(".og-upg"), tipEl = q(".og-tip"), pudEl = q(".og-pud"), potEl = q(".og-pot"), potB = q(".og-potb"), stream = q(".og-stream"), sqp = q(".og-sqp");
   const arms = [-1, 1].map((s) => { const g = q(s < 0 ? ".og-arm-l" : ".og-arm-r"); return { s, skin: g.querySelector(".og-skin")!, sl: g.querySelector(".og-sl")!, hem: g.querySelector(".og-hem")!, hd: g.querySelector(s < 0 ? ".og-hand-l" : ".og-hand-r")! }; });
-  const pen = q(".og-pen"), dpen = q(".og-dpen"), plantEl = q(".og-plant"), sqf = q(".og-sqf"), leaves = q(".og-leaves"), bookEl = q(".og-book"), sqb = q(".og-sqb"), lampEl = q(".og-lamp"), sqm = q(".og-sqm");
+  const grips = [q(".og-grip-l"), q(".og-grip-r")], pen = q(".og-pen"), dpen = q(".og-dpen"), plantEl = q(".og-plant"), sqf = q(".og-sqf"), leaves = q(".og-leaves"), bookEl = q(".og-book"), sqb = q(".og-sqb"), lampEl = q(".og-lamp"), sqm = q(".og-sqm");
   const inks = qa(".og-ink"), drops = qa(".og-drops circle"), canEl = q(".og-can"), canB = q(".og-canb"), wstream = q(".og-wstream"), klit = qa(".o-klit");
   const screen = q(".og-screen"), cover = q(".og-cover"), scrl = q(".og-scrl"), laptop = q(".og-laptop");
   const scroll = q(".og-scroll"), caret = q(".og-caret"), arrow = q(".og-arrow"), sel = q(".og-sel"), shape = q(".og-shape");
@@ -827,6 +827,8 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
         hn.lx += (t[0] - hn.lx) * f, hn.ly += (t[1] - hn.ly) * f;
       }
       set(pen, "style", held ? "" : "display:none"), set(dpen, "style", held ? "display:none" : "");
+      // Holding the cup, his arm paints over it: the copy above the cup and its shadow shows.
+      set(grips[0]!, "style", rc > 0.01 && side === 0 ? "" : "display:none"), set(grips[1]!, "style", rc > 0.01 && side === 1 ? "" : "display:none");
       for (const a of arms) {
         const i = a.s < 0 ? 0 : 1, tx = i ? hn.rx : hn.lx, ty = i ? hn.ry : hn.ly, d = armD(a.s, i === side ? tx + (gx - tx) * rc : tx, i === side ? ty + (gy - ty) * rc : ty), k = d.k;
         set(a.skin, "d", d.skin), set(a.sl, "d", d.sleeve), set(a.hem, "d", d.hem);
