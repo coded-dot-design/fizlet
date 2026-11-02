@@ -236,15 +236,14 @@ html.bui[data-theme="light"] .panel.lit {
   text-decoration: none;
   color: var(--ink);
 }
+/* The mark (layout.mjs mark()): frame and squares in --ink, the pop pink, on no tile. */
 .brand-mark {
   display: grid;
   place-items: center;
   flex: none;
-  width: 44px;
-  height: 44px;
-  color: var(--team-a);
-  background: var(--rim);
-  border: 2px solid color-mix(in srgb, var(--k-sys) 70%, transparent);
+  width: 40px;
+  height: 40px;
+  color: var(--ink);
 }
 .brand-mark svg {
   width: 40px;
@@ -258,17 +257,30 @@ html.bui[data-theme="light"] .panel.lit {
 .brand-text small {
   font-size: 11px;
   letter-spacing: 0.08em;
+  white-space: nowrap;
 }
-.brand-text small i {
+/* The version: a little sticker, the site's sticker recipe (.eyebrow .index, .brick-sticker). Its
+   edge and hard shadow are the shared sticker tokens (--sticker-edge, --sticker-shadow: light ink on
+   dark, the dark rim on light), --ink until those land, so they never vanish into the page. */
+.brand-text .brand-ver {
+  display: inline-block;
   margin-left: 8px;
+  padding: 2px 5px 1px;
+  font: 900 9px/1 var(--mono);
   font-style: normal;
-  font-size: 9px;
-  color: var(--k-sys-ink);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
+  vertical-align: 1px;
+  color: var(--rim);
+  background: var(--k-sys);
+  border: 1.5px solid var(--sticker-edge, var(--ink));
+  border-radius: 4px;
+  box-shadow: calc(2px * var(--shadow-x, 0)) calc(2px * var(--shadow-y, 1)) 0 var(--sticker-shadow, var(--ink));
+  rotate: -4deg;
 }
 .brand-text b {
   font-size: 19px;
-  letter-spacing: 0.1em;
+  transform: translateX(-0.06em);
+  letter-spacing: 0.075em;
 }
 /* The short mark beside the wordmark in the footer lockup: mono, lowercase, small. */
 .brand-text .brand-fzlt {
@@ -295,20 +307,22 @@ html.bui[data-theme="light"] .panel.lit {
 .nav-list {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 14px;
 }
 .nav-item {
   position: relative;
 }
-/* The group buttons are nav text, not kit keys: flat, no base, no lift (board-ui.css styles every
-   .bui button as a key, so this outranks it); keyboard focus keeps a ring. */
+/* Nav items are text, not kit keys, in every state: no face, base, lift or box (board-ui.css styles
+   every .bui button as a key, so this outranks it). Hover: the text lights to --ink. Open: the
+   chevron flips and the text takes --k-sys-ink. Current page or section: a thin --k-sys-ink
+   underline. Keyboard focus: the site's ring, only on :focus-visible. */
 .site-nav a,
 .bui .site-head .site-nav .nav-btn {
   display: flex;
   align-items: center;
   gap: 6px;
   min-height: 36px;
-  padding: 8px 12px;
+  padding: 8px 10px;
   font: 700 11px var(--mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -325,9 +339,16 @@ html.bui[data-theme="light"] .panel.lit {
 .site-nav a:hover,
 .bui .site-head .site-nav .nav-btn:is(:hover, [aria-expanded="true"]) {
   color: var(--ink);
-  background: var(--surface);
+  background: none;
   transform: none;
   box-shadow: none;
+}
+.bui .site-head .site-nav .nav-btn[aria-expanded="true"] {
+  color: var(--k-sys-ink);
+}
+/* A menu row: a faint tint on hover, never a base. */
+.nav-menu a:hover {
+  background: color-mix(in srgb, var(--k-sys) 10%, transparent);
 }
 .bui .site-head .site-nav .nav-btn:focus-visible,
 .site-nav a:focus-visible {
@@ -341,9 +362,11 @@ html.bui[data-theme="light"] .panel.lit {
 .nav-btn[aria-expanded="true"] .nav-chev {
   rotate: 180deg;
 }
-.bui .site-head .nav-item:has([aria-current]) > .nav-btn {
+.bui .site-head .nav-item:has([aria-current]) > .nav-btn,
+.site-nav a[aria-current] {
   color: var(--ink);
-  box-shadow: inset 0 -2px 0 var(--k-sys);
+  text-decoration: underline 2px var(--k-sys-ink);
+  text-underline-offset: 6px;
 }
 .nav-label,
 .head-keys .menu-key,
@@ -453,9 +476,22 @@ html.bui[data-theme="light"] .panel.lit {
   :root {
     --gutter: 18px;
   }
-  .brand-text small i,
   .head-keys .gh {
     display: none;
+  }
+  /* Phones: the version sticker drops under FIZLET, a size down, so the lockup is no wider than its
+     kicker and the 44 px keys keep their room (the kicker's box steps aside: display: contents). */
+  .brand-text small {
+    display: contents;
+  }
+  .brand-text .brand-ver {
+    order: 1;
+    justify-self: start;
+    margin: 3px 0 0;
+    padding: 1px 4px 0;
+    font-size: 8px;
+    letter-spacing: 0.04em;
+    border-width: 1px;
   }
 }
 @media (max-width: 380px) {
@@ -463,12 +499,15 @@ html.bui[data-theme="light"] .panel.lit {
     gap: 10px;
   }
   .brand-mark {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
   }
   .brand-mark svg {
     width: 34px;
     height: 34px;
+  }
+  .site-head .brand {
+    gap: 8px;
   }
   .brand-text b {
     font-size: 16px;
@@ -612,12 +651,8 @@ a.bui-sticker-key {
 .map-fold[open] summary {
   margin-bottom: 8px;
 }
-/* Where you are: the page itself, or the section it belongs to (layout.mjs current()). */
-.site-nav a[aria-current] {
-  color: var(--ink);
-  background: var(--surface);
-  box-shadow: inset 0 -2px 0 var(--k-sys);
-}
+/* Where you are: the page itself, or the section it belongs to (layout.mjs current()); the header
+   nav marks it with an underline (above). */
 .foot-map a[aria-current] {
   color: var(--ink);
   font-weight: 700;
@@ -4109,6 +4144,7 @@ html.bui[data-theme="light"] .phases b {
    (the kit's invisible ::before). */
 @media (pointer: coarse) {
   .foot-map a:not(.map-chips a),
+  .bui .foot-base button.text-btn:not(:disabled),
   .site-foot p a,
   .foot-base a,
   .brick h3 a,
@@ -4494,9 +4530,37 @@ html.bui[data-theme="light"] .phases b {
   --cc-btn-border: 1px solid var(--line);
   --cc-focus: var(--k-sys);
 }
-.foot-base .foot-cookies {
+/* "Cookie settings" (layout.mjs cookieSettings): a <button> that reads as a plain text link, in
+   running text and in the footer's More list. No key face, base, lift or press (it outranks the kit's
+   .bui button rules); keyboard focus is the site's own ring. */
+.bui button.text-btn:not(:disabled) {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
   color: inherit;
-  min-height: 24px;
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+  transition: none;
+}
+.bui button.text-btn:not(:disabled):hover {
+  color: var(--k-sys-ink);
+}
+.bui button.text-btn:focus-visible {
+  outline: 3px solid var(--k-sys-ink);
+  outline-offset: 3px;
+}
+/* In the footer's meta line, after the licence; its separator goes when the build has no analytics. */
+.foot-cc:has(> [hidden]) {
+  display: none;
+}
+.bui .foot-base button.text-btn:not(:disabled) {
+  color: var(--ink);
 }
 
 /* ======================================================================
@@ -5204,8 +5268,8 @@ html.bui[data-theme="light"] .ogs-vs {
   font-size: 16px;
 }
 .brand-min-38 {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
 }
 .brand-min-38 svg {
   width: 34px;
@@ -5490,13 +5554,8 @@ html.bui[data-theme="light"] .ogs-vs {
   border: 2px solid var(--line);
   border-radius: 10px;
 }
-.brand-min-word {
-  font: 700 16px var(--mono);
-  letter-spacing: 0.1em;
-  color: var(--ink);
-}
-.brand-min-fzlt {
-  font: 700 12px var(--mono);
+.brand-min-logo {
+  display: inline-flex;
   color: var(--ink);
 }
 /* The sticker set. */
