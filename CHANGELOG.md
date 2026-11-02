@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Bricks: the status sticker sits at the card's top-right (pending owner review).** On the brick
+  cards (home 02 and /bricks/, the roadmap cards too) the status sticker moves from beside the symbol
+  tile to the far end of the tile's row: the card's top-right corner, inside the border and padding,
+  where the kernel's KERNEL slab sits. The per-brick tilt and nudge, the BETA peel and the
+  kernel's single KERNEL sticker are unchanged. On small phones (≤ 420 px) the two-up home cards
+  keep the sticker beside the tile; /bricks/ cards keep the right. The quick view, the brick page
+  eyebrow, the status key and the periodic tiles are unchanged (no spare room there). Test:
+  `tests/brick-cards.mjs`, the sticker's right edge within the card's padding of its right edge at
+  1440 and 1024.
 - **Site: the roadmap is up to date (pending owner review).** Section 09 now shows what shipped since
   2026-10-31, each tick backed by a merged PR or a release tag. E9 On npm is DONE (`@fzlt/core`
   0.21.2 from the release workflow with provenance, and the API snapshot test). E10 Diagrams is IN
