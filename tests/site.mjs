@@ -13,7 +13,7 @@ import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
 import { checkHtml } from "../scripts/check-html.mjs";
 import { checkNav } from "../scripts/check-nav.mjs";
-import { FAMILY_LINE, SITE, ROOT as SITE_ROOT, mark as fizletMark } from "../site/layout.mjs";
+import { FAMILY_LINE, HEADLINE, HOME_HEADLINE, SITE, ROOT as SITE_ROOT, mark as fizletMark } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
 import { entries as galleryEntries, isLive, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
@@ -580,8 +580,10 @@ try {
     // The blast demo sits below the hero: it runs only once on screen.
     const toDemo = () => page.evaluate(() => document.querySelector("[data-demo]").scrollIntoView({ block: "center" }));
     await toDemo();
-    await page.waitForFunction(() => window.fizletDemo?.engine.stats().frames > 20);
-    // Untouched, it settles: no frames at all while nothing moves, and the HUD says so.
+    // On screen it runs (frames on the engine's own count, not a frame quota in a time window: a
+    // loaded runner draws fewer in the same half second), then, untouched, it settles: no frames at
+    // all while nothing moves, and the HUD says so.
+    await page.waitForFunction(() => window.fizletDemo?.engine.stats().frames > 0);
     await page.waitForFunction(() => window.fizletDemo.engine.paused.includes("settled"), null, { timeout: 4000 });
     const still = (await stats()).frames;
     await page.waitForTimeout(400);
@@ -591,18 +593,22 @@ try {
     const box = await board.boundingBox();
     await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.25);
     await page.waitForFunction(() => window.fizletDemo.fx.live > 0);
+    const f0 = (await stats()).frames;
     await page.click("[data-demo] [data-blast]");
-    await page.waitForTimeout(700);
+    // Wait on what the blast does (steps, ledger writes, knocked letters), not on a fixed time.
+    await page.waitForFunction((f0) => {
+      const s = window.fizletDemo.engine.stats();
+      return s.frames > f0 && s.steps > 30 && s.ledger > 0 && [...document.querySelectorAll("[data-body]")].filter((el) => el.style.transform).length > 3;
+    }, f0);
     let s = await stats();
-    assert.ok(s.steps > 30 && s.frames > 20, "the engine steps");
+    assert.ok(s.steps > 30 && s.frames > f0, "the engine steps");
     assert.ok(s.ledger > 0, "blasts changed the page through the ledger");
     assert.equal(s.pools.waves.cap, 8);
     assert.equal(await page.evaluate(() => window.fizletDemo.engine.violations), 0, "no layout reads in a step");
     const moved = await page.evaluate(() => [...document.querySelectorAll("[data-body]")].filter((el) => el.style.transform).length);
     assert.ok(moved > 3, `letters were knocked (${moved})`);
     assert.equal(await page.locator("[data-demo] [data-state]").textContent(), "RUNNING");
-    await page.waitForTimeout(150);
-    assert.notEqual(await page.locator('[data-demo] [data-stat="frames"]').textContent(), "0", "the HUD shows live stats");
+    await page.waitForFunction(() => document.querySelector('[data-demo] [data-stat="frames"]').textContent !== "0"); // the HUD shows live stats
     // Recall: the page comes back exactly.
     await page.click("[data-demo] [data-recall]");
     const back = await page.evaluate(() => ({
@@ -767,6 +773,45 @@ try {
     }));
     assert.deepEqual(cards.map((c) => c.sticker), ["PHASE 1", "PHASE 2", "PHASE 3"], `${viewport.width}: a sticker per phase`);
     for (const c of cards) assert.ok(c.sides.every((w) => w === c.sides[0]), `${viewport.width}: no left accent border (${c.sides})`);
+    await context.close();
+  }
+
+  // ---------- Home hero headline: its own line (never /bricks/'s), one line on desktop, never a lone word ----------
+  where = "hero headline";
+  for (const viewport of [{ width: 1280, height: 860 }, { width: 1440, height: 900 }, { width: 1920, height: 1080 }, { width: 390, height: 844 }]) {
+    const context = await browser.newContext({ viewport });
+    const { page } = await open(context, "");
+    const h = await page.$eval("#hero-title", (h1) => {
+      // Each word's line (its top) in the given text nodes: the plain line (before <br>), then the <em>.
+      const lines = (nodes) => {
+        const tops = new Map();
+        for (const n of nodes) for (const m of n.data.matchAll(/\S+/g)) {
+          const r = document.createRange();
+          r.setStart(n, m.index);
+          r.setEnd(n, m.index + m[0].length);
+          const top = Math.round(r.getBoundingClientRect().top);
+          tops.set(top, [...(tops.get(top) ?? []), m[0]]);
+        }
+        return [...tops.values()];
+      };
+      const texts = [], walk = document.createTreeWalker(h1, NodeFilter.SHOW_TEXT);
+      for (let n; (n = walk.nextNode());) texts.push(n);
+      const br = h1.querySelector("br"), em = h1.querySelector("em");
+      const before = texts.filter((n) => br.compareDocumentPosition(n) & Node.DOCUMENT_POSITION_PRECEDING);
+      const first = document.createRange();
+      first.setStart(h1, 0);
+      first.setEndBefore(br);
+      return { text: h1.textContent, first: lines(before), accent: lines(texts.filter((n) => em.contains(n))), right: first.getBoundingClientRect().right, column: h1.parentElement.getBoundingClientRect().right, wrap: document.querySelector(".hero > .wrap").getBoundingClientRect().width };
+    });
+    assert.equal(h.text, HOME_HEADLINE.line + HOME_HEADLINE.accent, "the home headline is HOME_HEADLINE");
+    assert.notEqual(HOME_HEADLINE.line, HEADLINE.line, "home and /bricks/ never share a headline");
+    if (viewport.width >= 1280) {
+      assert.equal(h.first.length, 1, `${viewport.width}: "${HOME_HEADLINE.line}" on one line (${JSON.stringify(h.first)})`);
+      assert.ok(h.right <= h.column + 0.5, `${viewport.width}: the line fits its column (${h.right} > ${h.column})`);
+    }
+    for (const line of [...h.first, ...h.accent]) assert.ok(line.length > 1, `${viewport.width}: no lone word (${JSON.stringify([...h.first, ...h.accent])})`);
+    // The container (--page): 1200 up to 1276 px wide, then 94vw, capped at 1520.
+    assert.equal(Math.round(h.wrap), Math.round(Math.min(viewport.width, Math.max(1200, Math.min(1520, viewport.width * 0.94)))), `${viewport.width}: container width`);
     await context.close();
   }
 
