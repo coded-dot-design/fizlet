@@ -2,6 +2,42 @@
 
 ## Unreleased
 
+- **Site: one head pattern, the home section heads' spacing everywhere (pending owner review).** An
+  index page's title (Docs, Guides, Daily, the archive, Contest, News, Notes, People, Make and the
+  redirect stubs) sat flush on its eyebrow and its lead at 32 px: the section head's spacing only
+  reached h2s, and `h1 { margin: 0 }` won. The head is now one shared rule on tokens (`--head-gap`
+  16 px eyebrow → title, `--head-lead-gap` 18 px title → lead, `--head-size` for a section head's
+  title); brick, note, doc, legal, brand, quick start and people heads take the same tokens (brick
+  pages 14 → 16 px, people 12 → 16 px). A site test checks the gaps on a sample of every head at
+  1440 and 390.
+- **Bricks: the status sticker sits at the card's top-right (pending owner review).** On the brick
+  cards (home 02 and /bricks/, the roadmap cards too) the status sticker moves from beside the symbol
+  tile to the far end of the tile's row: the card's top-right corner, inside the border and padding,
+  where the kernel's KERNEL slab sits. The per-brick tilt and nudge, the BETA peel and the
+  kernel's single KERNEL sticker are unchanged. On small phones (≤ 420 px) the two-up home cards
+  keep the sticker beside the tile; /bricks/ cards keep the right. The quick view, the brick page
+  eyebrow, the status key and the periodic tiles are unchanged (no spare room there). Test:
+  `tests/brick-cards.mjs`, the sticker's right edge within the card's padding of its right edge at
+  1440 and 1024.
+- **Site: the roadmap is up to date (pending owner review).** Section 09 now shows what shipped since
+  2026-10-31, each tick backed by a merged PR or a release tag. E9 On npm is DONE (`@fzlt/core`
+  0.21.2 from the release workflow with provenance, and the API snapshot test). E10 Diagrams is IN
+  PROGRESS (layout and view-canvas in 0.21.0, and the live brick graph that settles at 0 frames).
+  E3, E4, E7 and E8 gain ticks or items: Battlefield Blitz 1.0, no shared/ copies, presence lobby
+  and resume, Blitz 2 to 4 players, DOM Crossfire squad co-op, the Battlefield landing hero and the
+  DOM VIRUS labs and scenes on Fizlet, touch, and Sherman Bytes on the skirmish preset. Every item
+  now has a stable key (`E9.npm`). A PR that finishes one says so with a `Roadmap: <key>` line
+  (CONTRIBUTING.md and the PR template). Phases after the launch scope may now move off PLANNED
+  when a box is ticked (`tests/roadmap.test.mjs`).
+- **Site: the home hero says "Small footprint. Big performance.", the bricks keep "Logic & style.",
+  and the container grows on big screens (pending owner review).** Home and /bricks/ never share a
+  headline (owner): `HOME_HEADLINE` in `site/layout.mjs` is the home hero's bigger-picture line about
+  size and speed, sized so each phrase holds one line from 320 to 1920 px; `HEADLINE` ("Logic &
+  style. / The bricks do the rest.", the "&" in the command ink, a step lighter) is the /bricks/ hero's
+  and fzlt.dev's. The container token (`--page`) is 1200 px up to a 1277 px window, then 94vw, capped
+  at 1520 px (1354 px at 1440, 1520 px at 1920); the hero's copy column takes 1.15 parts to the layers
+  card's 1 (was 1 to 1.05). Prose keeps a 70ch measure where it ran full width (gallery prompts, doc
+  recipes, brand captions). Test: the hero headline block in `tests/site.mjs`.
 - **Release train 0.21.3 (#206 + #212, with #194, #215, #213 and #226's CueName fix), measured
   together on main.** gz, main → train: kernel 3,413 → 3,372 B, page build 7,128 → 7,094 B (10 B under
   its 7,104 budget), perf 2,064 → 2,019 B (budget 2,064 → 2,022), grid 1,603 → 1,652 B (budget 1,637 →

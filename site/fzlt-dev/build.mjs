@@ -10,7 +10,7 @@
 import { transform } from "esbuild";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "../../scripts/sizes.mjs";
-import { AUTHOR, REPO, esc, icon, lockup, favicon } from "../layout.mjs";
+import { AUTHOR, REPO, esc, headline, icon, lockup, favicon } from "../layout.mjs";
 import { fzltLogo, logoSvg } from "../../scripts/brand-marks.mjs";
 
 const OUT = process.argv[2] ?? "site-dist-fzlt";
@@ -142,7 +142,7 @@ const html = `<!doctype html>
   </div>
 </header>
 <main id="main" class="wrap">
-  <h1>Logic and style. <em>The bricks do the rest.</em></h1>
+  <h1>${headline(" ")}</h1>
   <p class="fz-lead"><b>Fizlet™ (fzlt™)</b> is the bricks for DOM animation and games, by <a href="${AUTHOR}/">Chris Cooley ↗</a>. Each brick solves a task written again and again over two decades of animation and game work, so a game or an animation boils down to its logic and its style.</p>
   <div class="hero-install code-card">
     <pre class="code"><code><span class="fz-prompt" aria-hidden="true">$ </span>npm i @fzlt/core</code></pre>
