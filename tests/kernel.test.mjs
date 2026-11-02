@@ -360,6 +360,53 @@ test("destroy is idempotent and leaves the engine inert", () => {
   assert.equal(queue.length, 0);
 });
 
+test("destroy: a ledger write afterwards is refused, so Recall stays exact (S6 P2-03)", async () => {
+  const { Doc } = await import("./fake-dom.mjs");
+  const doc = new Doc(), el = doc.body.appendChild(doc.createElement("div")), txt = { nodeValue: "page" };
+  el.setAttribute("style", "color: red");
+  el.setAttribute("class", "host");
+  const page = () => JSON.stringify([el.getAttribute("style"), el.getAttribute("class"), el.getAttribute("data-x"), txt.nodeValue]);
+  const before = page(), e = createEngine();
+  // Written while alive: given back by destroy().
+  e.ledger.style(el, "color", "blue");
+  e.ledger.attr(el, "data-x", "1");
+  e.destroy();
+  assert.equal(page(), before, "destroy() gives the page back");
+  // A late callback (an awaited asset, a game timer) writes through the ledger: refused, nothing changes.
+  assert.equal(e.ledger.style(el, "color", "blue"), false, "style refused");
+  assert.equal(e.ledger.attr(el, "data-x", "2"), false, "attr refused");
+  assert.equal(e.ledger.cls(el, "fz", true), false, "cls refused");
+  assert.equal(e.ledger.text(txt, "late"), false, "text refused");
+  e.destroy();
+  assert.equal(page(), before, "the page is exactly as before the engine, after a late write and a second destroy()");
+  // A standalone ledger (fizlet/slot's) still restores and is written again: only destroy() closes one.
+  const L = new (e.ledger.constructor)();
+  L.style(el, "color", "green");
+  L.restore();
+  assert.equal(L.style(el, "color", "green"), true, "a restored ledger keeps working");
+  L.restore();
+  assert.equal(page(), before);
+});
+
+test("advance(sec) refuses a non-finite or non-number sec with a named error; the engine keeps running (S6 P2-04)", () => {
+  const e = createEngine({ step: 0.1 });
+  e.start();
+  for (const bad of [Infinity, -Infinity, NaN, "0.05", undefined, null, {}]) assert.throws(() => e.advance(bad), { name: "RangeError", message: /^fizlet: sec must be a finite number/ }, String(bad));
+  assert.deepEqual([e.steps, e.stats().dropped, e.timing[0]], [0, 0, 0], "a refused advance changes nothing");
+  e.advance(0.35);
+  assert.equal(e.steps, 3, "still steps after the refused calls");
+  e.advance(0);
+  e.advance(-1); // 0 and negative stay a no-op frame, as before
+  assert.equal(e.steps, 3);
+  // frame(now) from the shared clock with a bad timestamp: the engine stops and onError names it.
+  const errs = [], g = createEngine({ onError: (err) => errs.push(String(err)) });
+  g.start();
+  g.frame(1000);
+  g.frame(NaN);
+  assert.match(errs[0] ?? "", /fizlet: sec must be a finite number/);
+  [e, g].forEach((x) => x.destroy());
+});
+
 test("zero allocation in the steady state (10k+ steps)", async (t) => {
   if (typeof gc !== "function") return t.skip("needs node --expose-gc");
   const e = createEngine({ events: 32 });
