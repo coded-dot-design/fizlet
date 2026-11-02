@@ -171,10 +171,10 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const q = <T extends Element = SVGElement>(s: string) => svg.querySelector<T>(s)!;
   const qa = (s: string) => [...svg.querySelectorAll<SVGElement>(s)];
   const neckEl = q(".og-neck"), napeEl = q(".og-nape"), headEl = q(".og-head"), phonesEl = q(".og-phones"), bandEls = qa(".og-band"), cupEl = q(".og-cup"), cupImgs = qa(".og-cupimg"), liquid = q(".og-liquid"), body = q(".og-body");
-  const cupSh = q(".og-cupsh"), upEl = q(".og-up"), upG = q(".og-upg"), tipEl = q(".og-tip"), pudEl = q(".og-pud"), potEl = q(".og-pot"), potB = q(".og-potb"), stream = q(".og-stream"), sqp = q(".og-sqp");
+  const cupSh = q(".og-cupsh"), cupShC = cupSh.firstElementChild!, upEl = q(".og-up"), upG = q(".og-upg"), tipEl = q(".og-tip"), pudEl = q(".og-pud"), potEl = q(".og-pot"), potB = q(".og-potb"), stream = q(".og-stream"), sqp = q(".og-sqp");
   const arms = [-1, 1].map((s) => { const g = q(s < 0 ? ".og-arm-l" : ".og-arm-r"); return { s, skin: g.querySelector(".og-skin")!, sl: g.querySelector(".og-sl")!, hem: g.querySelector(".og-hem")!, hd: g.querySelector(s < 0 ? ".og-hand-l" : ".og-hand-r")! }; });
   const grips = [q(".og-grip-l"), q(".og-grip-r")], hopen = qa(".og-hopen"), hgrip = qa(".og-hgrip"), hreach = qa(".og-hreach"), pen = q(".og-pen"), dpen = q(".og-dpen"), plantEl = q(".og-plant"), sqf = q(".og-sqf"), leaves = q(".og-leaves"), bookEl = q(".og-book"), sqb = q(".og-sqb"), lampEl = q(".og-lamp"), sqm = q(".og-sqm");
-  const inks = qa(".og-ink"), drops = qa(".og-drops circle"), canEl = q(".og-can"), canB = q(".og-canb"), wstream = q(".og-wstream"), klit = qa(".o-klit");
+  const inks = qa(".og-ink"), drops = qa(".og-drops circle"), canEl = q(".og-can"), canB = q(".og-canb"), canSh = q(".og-cansh"), canShR = q(".og-cansh rect"), wstream = q(".og-wstream"), klit = qa(".o-klit");
   const screen = q(".og-screen"), cover = q(".og-cover"), scrl = q(".og-scrl"), laptop = q(".og-laptop");
   const scroll = q(".og-scroll"), caret = q(".og-caret"), arrow = q(".og-arrow"), sel = q(".og-sel"), shape = q(".og-shape");
   const phoneEl = q(".og-phone"), genreEl = q(".og-genre"), pzEl = q(".og-pz"), chipEl = q(".og-gchip"), chipFace = q(".og-gface");
@@ -906,7 +906,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       set(canEl, "style", CAN[0]! > 0.001 ? "" : "display:none"), set(canEl, "transform", `translate(${PLANT.x} ${(PLANT.y + cd).toFixed(1)}) rotate(-90)`);
       const ta = (CAN[1]! * -14 * Math.PI) / 180, sa0 = -0.231 + ta, tx = 56 * Math.cos(ta) + 13.4 * Math.sin(ta), ty = 56 * Math.sin(ta) - 13.4 * Math.cos(ta);
       set(wstream, "d", `M${tx.toFixed(1)} ${ty.toFixed(1)}Q${(tx + Math.cos(sa0) * 22).toFixed(1)} ${(ty + Math.sin(sa0) * 22).toFixed(1)} ${(cd - 10).toFixed(1)} 3`);
-      set(canB, "transform", `rotate(${(CAN[1]! * -14).toFixed(1)})`), set(wstream, "stroke-width", (CAN[1]! * 4).toFixed(1)), set(wstream, "stroke-dashoffset", CAN[1] ? ((Q[CLK]! * -60) % 9).toFixed(1) : "0");
+      set(canB, "transform", `rotate(${(CAN[1]! * -14).toFixed(1)})`), set(canSh, "transform", `rotate(${(90 + CAN[1]! * 14).toFixed(1)}) scale(2)`), set(canShR, "transform", `translate(4 4) scale(.5) rotate(${(-90 - CAN[1]! * 14).toFixed(1)})`), set(wstream, "stroke-width", (CAN[1]! * 4).toFixed(1)), set(wstream, "stroke-dashoffset", CAN[1] ? ((Q[CLK]! * -60) % 9).toFixed(1) : "0");
       set(sqf, "transform", sqT(0, 0, SQ[PLANTP]!)), set(leaves, "transform", X[PK] === 1 ? "" : `scale(${X[PK]!.toFixed(3)})`);
       set(sqb, "transform", sqT(155, 416, SQ[BOOKP]!)), set(sqm, "transform", sqT(118, 195, SQ[LAMPP]!));
       if (X[11]) {
@@ -924,7 +924,9 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       set(upEl, "style", tip < 0.5 ? "" : "display:none"), set(tipEl, "style", tip < 0.5 ? "display:none" : "");
       set(upG, "transform", tip > 0 && tip < 0.5 ? `rotate(${deg} 39 39) translate(39 39) scale(${(1 + tip * 0.7).toFixed(2)} ${(1 - tip * 0.3).toFixed(2)}) translate(-39 -39) rotate(${-deg} 39 39)` : "");
       set(tipEl, "transform", `rotate(${deg} 39 39) translate(39 39) scale(${Math.min(1, 0.7 + tip * 0.3).toFixed(2)}) translate(-39 -39)`);
-      set(cupSh, "transform", cupShT(Q[CX]!, Q[CY]!, lift)), set(cupSh, "style", tip >= 0.5 || c > 0.5 ? "display:none" : c ? `opacity:${(1 - c * 2).toFixed(2)}` : "");
+      // Its shadow goes with it: larger, further along the light and fainter as it rises; gone before it
+      // reaches his face (he is above it there).
+      set(cupSh, "transform", cupShT(POSE[2]!, POSE[3]! - lift * 6, lift + c)), set(cupShC, "r", ((30 * (1 + (lift + c) * 0.4)) / (1 + (lift + c) * 2)).toFixed(1)), set(cupSh, "style", tip >= 0.5 || c > 0.5 ? "display:none" : lift + c ? `opacity:${(1 - lift * 0.3 - c * 1.6).toFixed(2)}` : "");
       const ox = Q[CX]! + CUP.r + Math.cos(Q[DIR]!) * 30, oy = Q[CY]! + CUP.r + Math.sin(Q[DIR]!) * 30;
       set(pudEl, "style", pud > 0.01 ? "" : "display:none"), set(pudEl, "transform", `translate(${ox.toFixed(1)} ${oy.toFixed(1)}) rotate(${deg}) scale(${pud.toFixed(2)})`);
       const D = 240 - 174 * PR[0]!;

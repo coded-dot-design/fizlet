@@ -632,6 +632,17 @@ try {
     await p.mouse.click(k.x, k.y);
     for (const look of ["fizlet", "2015"]) {
       await p.evaluate((l) => window.scene.setLook(l), look);
+      // One light: every object's shadow is offset by the same screen vector, whatever the object's own
+      // turn (2015: 4,4 down-right; Fizlet: 0,7 straight down, the Board UI shadow).
+      await p.waitForFunction(() => window.scene.stats().arm.sip === 0 && window.scene.state.awake, null, { timeout: 12000 });
+      const offs = await p.evaluate(() => {
+        const k = document.querySelector(".og-svg").getScreenCTM().a, c = (s) => { const r = document.querySelector(s).getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; };
+        const pairs = { lamp: [".og-lamp .o-sh", ".og-lamp .o-face"], book: [".og-book .o-sh rect", ".og-book .o-face"], plant: [".og-plant .o-sh", ".og-plant .o-face"], laptop: [".og-laptop > .o-sh", ".og-laptop > .o-face"], phone: [".og-phone .o-sh rect", ".og-phone .o-face"], body: [".og-body path.o-sh", ".og-sit > path.o-shirt"] };
+        const cup = new DOMPoint(39, 39).matrixTransform(document.querySelector(".og-cup").getScreenCTM()), cs = c(".og-cupsh circle");
+        return { ...Object.fromEntries(Object.entries(pairs).map(([n, [a, o]]) => { const A = c(a), O = c(o); return [n, [Math.round((A[0] - O[0]) / k * 10) / 10, Math.round((A[1] - O[1]) / k * 10) / 10]]; })), cup: [Math.round((cs[0] - cup.x) / k * 10) / 10, Math.round((cs[1] - cup.y) / k * 10) / 10] };
+      });
+      const L = look === "2015" ? [4, 4] : [0, 7];
+      for (const [n, [x, y]] of Object.entries(offs)) assert.ok(Math.abs(x - L[0]) < 0.3 && Math.abs(y - L[1]) < 0.3, `${look}: the ${n}'s shadow falls along the one light (${x}, ${y})`);
       let log = null;
       for (let i = 0; i < 6 && !log; i++) {
         await p.waitForFunction(() => window.scene.stats().arm.sip === 0 && window.scene.state.awake && window.scene.state.open, null, { timeout: 12000 });
@@ -647,7 +658,9 @@ try {
             let seen = 0;
             for (let j = 0; j < 24; j++) { const p = new DOMPoint(j < 16 ? 3 + (j >> 1) * 1.5 : 3, j < 16 ? (j & 1 ? 50 : 35) : 37 + (j - 16) * 1.5).matrixTransform(hg); if (!shapes.some((e) => { const l = p.matrixTransform(e.getScreenCTM().inverse()); return e.isPointInFill(l) || e.isPointInStroke(l); })) seen++; }
             const grip = document.querySelector(".og-grip-l"), after = (sel) => !!(document.querySelector(sel).compareDocumentPosition(grip) & Node.DOCUMENT_POSITION_FOLLOWING);
-            if (a.sip > 0) window.__sip.push({ s: a.sip, bend: a.bend, wrist: a.wrist, t: cup.getAttribute("transform"), skew: Math.abs(m.b) + Math.abs(m.c), aspect: Math.abs(m.a - m.d), up: document.querySelector(".og-upg").getAttribute("transform") ?? "", on: Math.hypot(h.x + h.width / 2 - g.x, h.y + h.height / 2 - g.y), dry, seen, above: getComputedStyle(grip).display !== "none" && after(".og-cup") && after(".og-cupsh") });
+            const csh = document.querySelector(".og-cupsh"), cc = new DOMPoint(39, 39).matrixTransform(cup.getScreenCTM()), sr = csh.firstElementChild.getBoundingClientRect(), kk = document.querySelector(".og-svg").getScreenCTM().a;
+            const sh = getComputedStyle(csh).display === "none" ? null : [(sr.x + sr.width / 2 - cc.x) / kk, (sr.y + sr.height / 2 - cc.y) / kk];
+            if (a.sip > 0) window.__sip.push({ sh, s: a.sip, bend: a.bend, wrist: a.wrist, t: cup.getAttribute("transform"), skew: Math.abs(m.b) + Math.abs(m.c), aspect: Math.abs(m.a - m.d), up: document.querySelector(".og-upg").getAttribute("transform") ?? "", on: Math.hypot(h.x + h.width / 2 - g.x, h.y + h.height / 2 - g.y), dry, seen, above: getComputedStyle(grip).display !== "none" && after(".og-cup") && after(".og-cupsh") });
             if (!(window.__sip.length && a.sip === 0)) requestAnimationFrame(f);
           };
           requestAnimationFrame(f);
@@ -666,6 +679,12 @@ try {
       }
       assert.ok(log.every((r) => Math.abs(r.wrist) < 2), `${look}: the wrist stays in line with the forearm (worst ${Math.max(...log.map((r) => Math.abs(r.wrist))).toFixed(2)}°)`);
       assert.ok(log.every((r) => !/rotate|skew|matrix/.test(r.t + r.up) && r.skew < 1e-6 && r.aspect < 1e-6), `${look}: the cup and the coffee only move and scale`);
+      // The cup's shadow goes with the cup, along the light, further out as it rises; it is gone before
+      // the cup reaches his face.
+      const L2 = look === "2015" ? [4, 4] : [0, 7], shs = log.filter((r) => r.sh);
+      assert.ok(shs.every((r) => Math.abs(r.sh[0] * L2[1] - r.sh[1] * L2[0]) < 0.5 && r.sh[0] * L2[0] + r.sh[1] * L2[1] > 0), `${look}: the cup's shadow stays along the light`);
+      assert.ok(Math.max(...shs.map((r) => Math.hypot(...r.sh))) > Math.hypot(...L2) * 1.3, `${look}: the cup's shadow moves further out as it rises`);
+      assert.ok(log.filter((r) => r.s > 0.99).every((r) => !r.sh), `${look}: no cup shadow at his mouth`);
       const lifted = log.filter((r) => r.s > 0.4);
       assert.ok(lifted.every((r) => r.on < 4), `${look}: the fingers are on the handle while he holds it (worst ${Math.max(...lifted.map((r) => r.on)).toFixed(1)} px)`);
       assert.ok(lifted.every((r) => r.dry > 0), `${look}: the fingers stop short of the coffee`);
