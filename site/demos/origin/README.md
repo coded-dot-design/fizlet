@@ -18,7 +18,12 @@ The origin hero, by Chris Cooley. A desk seen from above through one day: he sle
 - **The plant** (top right; tap, or Enter): a can comes up from below it and pours, drops spill around the pot and fade over 1 to 3 s, and it perks up.
 - **The notebook** (tap, or Enter): his hand picks up the pen beside the book, writes, and puts the pen back (one pen, never two). He writes a line of code, or draws a star, a heart, a happy face, a lightning bolt, a triangle, a square, a house or a sun. The stroke draws on; the last three stay.
 - **The lamp** (tap, or Enter): its pool and cone of light go off and on, and the night over the room lifts a little while it is on. It is the visitor's switch, independent of the day: the day no longer turns it on and off.
-- **The sip:** the cup rests a little closer to him with its handle turned toward his forearm's approach (down, a little right). His fingers wrap the handle's outer half and stop short of the coffee (`cupHandle()` in `art.ts`, the same transform as the cup); the wrist turns them onto it, and he holds it as the cup lifts and tilts, for his own sips and the visitor's. While he holds it, his arm and hand paint over the cup and its shadow (live `<use>` copies after the cup).
+- **The sip:**
+  - The cup keeps the approved top-down drawing: it only moves and scales, never turns, skews or squashes. Only its handle is nudged 20° around the rim, toward him, at its usual distance; the cup rests a few units from its 2015 spot.
+  - His hand reaches in two moves around the cup, never over the coffee: off the keys and back under the cup, then out to the handle from below.
+  - The fingers hold the handle's outer end and stop short of the coffee; the wrist stays in line with the forearm (`pose()` in `scene.ts`).
+  - He carries the cup to his mouth on one arc about the shoulder, and sets it down the same way. Each move bends the elbow one way only.
+  - While he holds the cup, his arm and hand paint over it and its shadow (live `<use>` copies after the cup).
 - **The pours:** the coffee leaves the pot's spout tip, and the water the can's rose, along the spout's angle as each one tips.
 - **Caffeine:** each sip the visitor gives him adds a cup; his own morning and afternoon cups do not. It wears off slowly by day and faster at night. Three sips close together (2.4 cups' worth) and night comes but he stays up: eyes open, faster typing, a faster head bob, the lamp on, no Zzz, and "Too much coffee: still awake." The lid will not close ("One more commit"). Under 1.2 at night he dozes ("The coffee wore off") and the day goes on as before. Under reduced motion it is state only.
 - **The hint:** "Click or double-click anything to see it move" ("Tap or double-tap" on touch), in the caption's style.
@@ -79,7 +84,7 @@ mount(root: HTMLElement, opts?: {
 | @fzlt/core/sprite | 1,437 | The pixel coder on the phone (spriteURL) |
 | @fzlt/core/slot | 1,849 | The page's loader (main.js) |
 
-The live chunk (`scene.js`: six bricks + the scene, tree-shaken) is printed by the build and on the page: **34,711 B gzip** on this build (32,760 B before the review's fixes, the scene's own palette, the caffeine meter, the genre card, the handle and the seat: +1,951 B). The loader is 2,128 B, and the inline poster is 6,426 B (5,987 B before), the same markup for both looks.
+The live chunk (`scene.js`: six bricks + the scene, tree-shaken) is printed by the build and on the page: **35,412 B gzip** on this build (32,760 B before the review's fixes, the scene's own palette, the caffeine meter, the genre card, the sip's pose and the seat: +2,652 B). The loader is 2,128 B, and the inline poster is 6,444 B (5,987 B before), the same markup for both looks.
 
 ## Rules
 

@@ -33,7 +33,7 @@ import { controls } from "../../../src/input";
 import { spriteURL, type SpriteDef } from "../../../src/sprite";
 import type { SlotMount, SlotScene } from "../../../src/slot";
 import { ORIGIN_WHY, ORIGIN_WHY_BEATS, ORIGIN_CREDIT, ORIGIN_LOOKS, ORIGIN_HINT } from "./copy";
-import { why, art, CSS, BOX, C, VB, DESK, CUP, SH, PLANT, BOOK, KEYS_HOME, TIPS_HOME, head, headT, hands, neck, armD, reach, carry, cupT, cupHandle, cupShT, LIQUID, brew, phonesT, band, screenT, coverT, sqT, type OriginLook } from "./art";
+import { why, art, CSS, BOX, C, VB, DESK, CUP, SH, PLANT, BOOK, KEYS_HOME, TIPS_HOME, head, headT, hands, neck, armD, reach, carry, cupT, RING, cupShT, LIQUID, brew, phonesT, band, screenT, coverT, sqT, type OriginLook } from "./art";
 
 export type { OriginLook } from "./art";
 declare const __ORIGIN_BRICKS__: Record<string, number> | undefined;
@@ -95,7 +95,7 @@ export interface OriginScene extends SlotScene {
   nudge(): void;
   /** Live particles and Zs so far; the cup (its top left in art units, its level, spilled); `toys`:
    *  how many of the cup's own motions are still running (0 once they have all settled). */
-  stats(): { genreCard: boolean; particles: number; zzz: number; cup: { x: number; y: number; level: number; spilled: boolean; lifted: boolean }; toys: number; drops: number; pages: number; lamp: boolean; lit: number; keys: number[]; caffeine: number; wired: boolean; music: { genre: string; playing: string; paused: boolean; bars: number[] } };
+  stats(): { arm: { sip: number; bend: number; wrist: number }; genreCard: boolean; particles: number; zzz: number; cup: { x: number; y: number; level: number; spilled: boolean; lifted: boolean }; toys: number; drops: number; pages: number; lamp: boolean; lit: number; keys: number[]; caffeine: number; wired: boolean; music: { genre: string; playing: string; paused: boolean; bars: number[] } };
   /** Water the plant; write or doodle in the notebook; switch the lamp. */
   water(): void;
   write(): void;
@@ -127,6 +127,9 @@ const CUPP = 1, LAP = 2, PHONE = 3, PHONES = 4, PERSON = 5, SPILLP = 6, PLANTP =
 const SAY = ["", "Sip.", "Refilling the cup.", "Refilled: hot coffee.", "Knocked over! Tap the spill, or wait: it rights itself.", "Back up. Refilling.", "Picked up the cup.", "Cup set down.", "Back on the saucer.", "He is asleep. Tap him to wake him.", "Out of his reach: move the cup closer.", "Cup moved.", "Fizlet look.", "2015 look.", "Nearly empty: double-tap or press R to refill.", "Watering the plant.", "Lamp on.", "Lamp off.", "", "", "Music paused.", "Too much coffee: still awake.", "One more commit: too wired to sleep.", "The coffee wore off. He sleeps."];
 // Caffeine: a cup for each sip the visitor gives him. It wears off slowly by day and faster at night (he crashes). Three sips
 // close together (2.4 cups' worth; two never are) keep him up into the night until it is under 1.2.
+// The sip's first move (sip 0..RELEASE): his hand comes back off the keys, under the cup; then (to
+// 0.35) out to the handle; then the lift to his mouth (to 1). Each move bends his elbow one way only.
+const RELEASE = 0.14;
 const CAF_UP = 2.4, CAF_DOWN = 1.2, CAF_DAY = 0.05, CAF_NIGHT = 0.25;
 // The notebook: a line of code, or one of these doodles (24 units square), drawn as one stroke path.
 const DOODLES: [string, string][] = [["a star", "M12 1l3.4 7.2 7.9.9-5.9 5.4 1.6 7.8L12 18.4l-7 3.9 1.6-7.8L.7 9.1l7.9-.9Z"], ["a heart", "M12 21C4 15.5 0 11 2.5 6 4.5 2 9.5 2 12 6c2.5-4 7.5-4 9.5 0 2.5 5-1.5 9.5-9.5 15Z"], ["a happy face", "M23 12A11 11 0 1 1 1 12 11 11 0 1 1 23 12ZM8 9v2M16 9v2M7 15q5 4 10 0"], ["a lightning bolt", "M14 1 4 13h7l-3 10 12-14h-7l3-8Z"], ["a triangle", "M12 1 23 22H1Z"], ["a square", "M2 2h20v20H2Z"], ["a house", "M2 23V11L12 2l10 9v12ZM9 23v-7h6v7"], ["a sun", "M17 12a5 5 0 1 1-10 0 5 5 0 1 1 10 0M12 0v3M12 21v3M0 12h3M21 12h3M3.5 3.5l2 2M18.5 18.5l2 2M3.5 20.5l2-2M18.5 5.5l2-2"]];
@@ -170,7 +173,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const status = wrap.querySelector<HTMLElement>("[role=status]")!;
   const q = <T extends Element = SVGElement>(s: string) => svg.querySelector<T>(s)!;
   const qa = (s: string) => [...svg.querySelectorAll<SVGElement>(s)];
-  const neckEl = q(".og-neck"), napeEl = q(".og-nape"), headEl = q(".og-head"), phonesEl = q(".og-phones"), bandEls = qa(".og-band"), cupEl = q(".og-cup"), cupImg = q(".og-cupimg"), liquid = q(".og-liquid"), body = q(".og-body");
+  const neckEl = q(".og-neck"), napeEl = q(".og-nape"), headEl = q(".og-head"), phonesEl = q(".og-phones"), bandEls = qa(".og-band"), cupEl = q(".og-cup"), cupImgs = qa(".og-cupimg"), liquid = q(".og-liquid"), body = q(".og-body");
   const cupSh = q(".og-cupsh"), upEl = q(".og-up"), upG = q(".og-upg"), tipEl = q(".og-tip"), pudEl = q(".og-pud"), potEl = q(".og-pot"), potB = q(".og-potb"), stream = q(".og-stream"), sqp = q(".og-sqp");
   const arms = [-1, 1].map((s) => { const g = q(s < 0 ? ".og-arm-l" : ".og-arm-r"); return { s, skin: g.querySelector(".og-skin")!, sl: g.querySelector(".og-sl")!, hem: g.querySelector(".og-hem")!, hd: g.querySelector(s < 0 ? ".og-hand-l" : ".og-hand-r")! }; });
   const grips = [q(".og-grip-l"), q(".og-grip-r")], pen = q(".og-pen"), dpen = q(".og-dpen"), plantEl = q(".og-plant"), sqf = q(".og-sqf"), leaves = q(".og-leaves"), bookEl = q(".og-book"), sqb = q(".og-sqb"), lampEl = q(".og-lamp"), sqm = q(".og-sqm");
@@ -531,7 +534,52 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const clampX = (x: number) => Math.min(Math.max(x, Math.max(DESK[0], view[1]! + 34) - CUP.r), Math.min(DESK[2], view[1]! + view[5]! - 34) - CUP.r);
   const clampY = (y: number) => Math.min(Math.max(y, Math.max(DESK[1], view[2]! + 34) - CUP.r), Math.min(DESK[3], view[2]! + view[6]! - 34) - CUP.r);
   // Where the cup is drawn right now (it travels to his mouth on a sip): its centre.
-  const cupAt = (i: 0 | 1) => { const c = carry(P[SIP]!); return (i ? Q[CY]! + (CUP.my - Q[CY]!) * c : Q[CX]! + (CUP.mx - Q[CX]!) * c) + CUP.r; };
+  // ---------- the sip's pose: his hand on the handle, the cup carried on one smooth arc ----------
+  // POSE: the holding hand (x, y), the cup's middle (x, y) and scale for this sip; AB: scratch; FU: a
+  // forearm's direction; HOUT: an arc's point. Numbers only, no allocation (the step reads it too).
+  const POSE = new Float64Array(5), AB = new Float64Array(4), FU = new Float64Array(2), HOUT = new Float64Array(2), SNAP = new Float64Array(3), PK2 = new Float64Array(4);
+  PK2[0] = -1;
+  // The forearm's direction for a hand at (tx, ty) on arm `s` (-1 left, 1 right): the arm's own IK.
+  function fore(s: number, tx: number, ty: number) {
+    const sx = s < 0 ? SH.lx : SH.rx, A = SH.ua, B = SH.fa, dx = tx - sx, dy = ty - SH.y, d = Math.hypot(dx, dy) || 1, dd = Math.min(Math.max(d, B - A + 1), A + B - 0.5);
+    const e = Math.atan2(dy, dx) + (s < 0 ? -1 : 1) * Math.acos((A * A + dd * dd - B * B) / (2 * A * dd));
+    const fx = sx + (dx / d) * dd - (sx + Math.cos(e) * A), fy = SH.y + (dy / d) * dd - (SH.y + Math.sin(e) * A), l = Math.hypot(fx, fy) || 1;
+    (FU[0] = fx / l), (FU[1] = fy / l);
+  }
+  // The hand whose fingers' middle (13 ahead along the forearm: the wrist straight) is on (rx, ry),
+  // the handle's loop: into AB[o], AB[o + 1].
+  function gripAt(s: number, rx: number, ry: number, o: number) {
+    let hx = rx, hy = ry + 13;
+    for (let i = 0; i < 6; i++) fore(s, hx, hy), (hx = rx - FU[0]! * 13), (hy = ry - FU[1]! * 13);
+    (AB[o] = hx), (AB[o + 1] = hy);
+  }
+  // A point t of the way along the arc about the shoulder from (ax, ay) to (bx, by): its distance and
+  // angle change evenly, so the elbow bends one way only (into HOUT).
+  function arc(s: number, ax: number, ay: number, bx: number, by: number, t: number) {
+    const sx = s < 0 ? SH.lx : SH.rx, a0 = Math.atan2(ay - SH.y, ax - sx), a1 = Math.atan2(by - SH.y, bx - sx), r0 = Math.hypot(ax - sx, ay - SH.y), r1 = Math.hypot(bx - sx, by - SH.y);
+    const da = ((a1 - a0 + Math.PI * 3) % (Math.PI * 2)) - Math.PI, r = r0 + (r1 - r0) * t, a = a0 + da * t;
+    (HOUT[0] = sx + Math.cos(a) * r), (HOUT[1] = SH.y + Math.sin(a) * r);
+  }
+  // The pose for the sip now: at rest the hand waits at the handle; carried, the hand moves on its arc
+  // (rest grip → mouth grip) and the cup hangs from the fingers: it only moves and scales.
+  function pose() {
+    const sp = P[SIP]!;
+    if (PK2[0] === sp && PK2[1] === Q[CX] && PK2[2] === Q[CY]) return;
+    (PK2[0] = sp), (PK2[1] = Q[CX]!), (PK2[2] = Q[CY]!);
+    const side = Q[CX]! + CUP.r < 400 ? -1 : 1, c = carry(sp);
+    gripAt(side, Q[CX]! + CUP.r + RING[0], Q[CY]! + CUP.r + RING[1], 0);
+    if (c <= 0) return void ((POSE[0] = AB[0]!), (POSE[1] = AB[1]!), (POSE[2] = Q[CX]! + CUP.r), (POSE[3] = Q[CY]! + CUP.r), (POSE[4] = 1));
+    gripAt(side, CUP.mx + CUP.r + RING[0] * 1.09, CUP.my + CUP.r + RING[1] * 1.09, 2);
+    arc(side, AB[0]!, AB[1]!, AB[2]!, AB[3]!, c);
+    fore(side, HOUT[0]!, HOUT[1]!);
+    const sc = 1 + c * 0.09;
+    (POSE[0] = HOUT[0]!), (POSE[1] = HOUT[1]!), (POSE[4] = sc);
+    (POSE[2] = HOUT[0]! + FU[0]! * 13 - RING[0] * sc), (POSE[3] = HOUT[1]! + FU[1]! * 13 - RING[1] * sc);
+  }
+  const cupAt = (i: 0 | 1) => (pose(), POSE[2 + i]!);
+  // The holding arm's bend at the elbow and the hand's angle against the forearm (tests: the arm moves
+  // one way per phase; the wrist stays straight).
+  const ARM = new Float64Array(3);
   function press(x: number, y: number) {
     const k = view[0]!, pad = (b: readonly number[]) => Math.max(6, (44 / k - Math.min(b[2]!, b[3]!)) / 2);
     const inBox = (b: readonly number[]) => x >= b[0]! - pad(b) && x <= b[0]! + b[2]! + pad(b) && y >= b[1]! - pad(b) && y <= b[1]! + b[3]! + pad(b);
@@ -812,7 +860,8 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       set(laptop, "transform", sqT(400, 255, SQ[LAP]!)), set(sqp, "transform", sqT(0, 0, SQ[PHONE]!));
       // Arms: the hands' targets (the keys, the desk, folded asleep), the nearer hand to the cup on a
       // sip; two bones each, the elbows out.
-      const hn = hands(aw, P[HD]!, HP), rc = reach(s), side = Q[CX]! + CUP.r < 400 ? 0 : 1, hh = cupHandle(s, Q[CX]!, Q[CY]!, Q[LIFT]!, SQ[CUPP]!), gx = hh[0], gy = hh[1]; // the hand takes the cup by its handle
+      const hn = hands(aw, P[HD]!, HP), rc = reach(s), side = Q[CX]! + CUP.r < 400 ? 0 : 1;
+      pose(); // the hand takes the cup by its handle
       hn.ly += PRS[0]! * 2.5, hn.ry += PRS[1]! * 2.5;
       // Writing: the left hand goes to the book, the pen follows the stroke, then it comes back.
       // Writing: the left hand goes to the pen beside the book, picks it up, goes to the page, writes
@@ -829,12 +878,23 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       set(pen, "style", held ? "" : "display:none"), set(dpen, "style", held ? "display:none" : "");
       // Holding the cup, his arm paints over it: the copy above the cup and its shadow shows.
       set(grips[0]!, "style", rc > 0.01 && side === 0 ? "" : "display:none"), set(grips[1]!, "style", rc > 0.01 && side === 1 ? "" : "display:none");
+      // The reach, in two moves around the cup (never over it): the hand comes back off the keys toward
+      // him, under the cup (the elbow bends), then out to the handle from below (it straightens). Each
+      // is an arc about the shoulder, so the elbow moves one way in each. Then the hand carries the cup
+      // on its own arc (pose()). The wrist stays straight throughout.
+      if (s <= 0) SNAP[2] = 0;
+      else if (!SNAP[2]) (SNAP[0] = side ? hn.rx : hn.lx), (SNAP[1] = side ? hn.ry : hn.ly), (SNAP[2] = 1);
+      if (s > 0 && rc < 1) {
+        const sg = side ? 1 : -1, sx = side ? SH.rx : SH.lx, ga = Math.atan2(POSE[1]! - SH.y, POSE[0]! - sx), gr = Math.hypot(POSE[0]! - sx, POSE[1]! - SH.y), wa = ga - sg * 0.05, wr = gr - 55;
+        const wx = sx + Math.cos(wa) * wr, wy = SH.y + Math.sin(wa) * wr, w1 = Math.min(1, s / RELEASE), w2 = Math.max(0, (s - RELEASE) / (0.35 - RELEASE));
+        if (s < RELEASE) arc(sg, SNAP[0]!, SNAP[1]!, wx, wy, w1 * w1 * (3 - 2 * w1));
+        else arc(sg, wx, wy, POSE[0]!, POSE[1]!, w2 * w2 * (3 - 2 * w2));
+      }
       for (const a of arms) {
-        const i = a.s < 0 ? 0 : 1, tx = i ? hn.rx : hn.lx, ty = i ? hn.ry : hn.ly, d = armD(a.s, i === side ? tx + (gx - tx) * rc : tx, i === side ? ty + (gy - ty) * rc : ty), k = d.k;
+        const i = a.s < 0 ? 0 : 1, held = i === side && s > 0, tx = held ? (rc < 1 ? HOUT[0]! : POSE[0]!) : i ? hn.rx : hn.lx, ty = held ? (rc < 1 ? HOUT[1]! : POSE[1]!) : i ? hn.ry : hn.ly, d = armD(a.s, tx, ty), k = d.k;
         set(a.skin, "d", d.skin), set(a.sl, "d", d.sleeve), set(a.hem, "d", d.hem);
-        // Holding the cup, the wrist turns the fingers onto the handle, pointing into the cup.
-        const turn = i === side && rc > 0 ? ((((hh[2] - k.deg) % 360) + 540) % 360 - 180) * rc : 0;
-        set(a.hd, "transform", `translate(${k.hx} ${k.hy}) rotate(${Math.round((k.deg + turn) * 10) / 10})`);
+        set(a.hd, "transform", `translate(${k.hx} ${k.hy}) rotate(${k.deg})`);
+        if (i === side) (ARM[0] = s), (ARM[1] = (Math.acos(((k.sx - k.ex) * (k.hx - k.ex) + (SH.y - k.ey) * (k.hy - k.ey)) / (Math.hypot(k.sx - k.ex, SH.y - k.ey) * Math.hypot(k.hx - k.ex, k.hy - k.ey) || 1)) * 180) / Math.PI), (ARM[2] = k.deg - (Math.atan2(k.hy - k.ey, k.hx - k.ex) * 180) / Math.PI);
       }
       // The key lights, the drops, the can, the plant's perk, the notebook's ink, the lamp.
       for (let j = 0; j < 4; j++) {
@@ -867,7 +927,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       set(screen, "transform", screenT(lid)), set(scrl, "transform", screenT(lid)), set(cover, "transform", coverT(lid));
       // The cup: on the desk, lifted, at his mouth, tipped over; the puddle, the pot.
       const tip = SPL[0]!, pud = SPL[1]!, deg = Math.round((Q[DIR]! * 180) / Math.PI), lift = Q[LIFT]!, c = carry(s);
-      set(cupEl, "transform", cupT(s, Q[CX]!, Q[CY]!, lift, SQ[CUPP]!));
+      set(cupEl, "transform", cupT(POSE[2]!, POSE[3]! - lift * 6, POSE[4]! * (1 + lift * 0.14) * (1 + SQ[CUPP]! * 0.07)));
       set(upEl, "style", tip < 0.5 ? "" : "display:none"), set(tipEl, "style", tip < 0.5 ? "display:none" : "");
       set(upG, "transform", tip > 0 && tip < 0.5 ? `rotate(${deg} 39 39) translate(39 39) scale(${(1 + tip * 0.7).toFixed(2)} ${(1 - tip * 0.3).toFixed(2)}) translate(-39 -39) rotate(${-deg} 39 39)` : "");
       set(tipEl, "transform", `rotate(${deg} 39 39) translate(39 39) scale(${Math.min(1, 0.7 + tip * 0.3).toFixed(2)}) translate(-39 -39)`);
@@ -881,7 +941,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       set(stream, "d", `M${px0.toFixed(1)} ${py0.toFixed(1)}L${(px0 + Math.cos(pa) * 16).toFixed(1)} ${(py0 + Math.sin(pa) * 16).toFixed(1)}`);
       set(stream, "stroke-width", `${(PR[1]! * 8).toFixed(1)}`), set(potB, "transform", `rotate(${(PR[1]! * 14).toFixed(1)})`);
       const fr = Math.round(N[LEVEL]! * 11), lq = LIQUID[fr]!, design = mode === "design";
-      set(cupImg, "x", `${-fr * 84}`), set(cupImg, "y", design ? "-84" : "0");
+      for (const im of cupImgs) set(im, "x", `${-fr * 84}`), set(im, "y", design ? "-84" : "0");
       set(liquid, "cx", `${lq[0]}`), set(liquid, "cy", `${lq[1]}`), set(liquid, "rx", `${lq[2]}`), set(liquid, "ry", `${lq[3]}`);
       const ht = Math.round(N[HEAT]! * 20) / 20;
       set(liquid, "fill", brew(design, ht)), set(liquid, "style", look === "fizlet" ? `--lq:${brew(design, ht, FZB[design ? 1 : 0])}` : "");
@@ -1019,7 +1079,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       for (let i = 1; i < 10; i++) toys += +!!(SQ[i] || SQV[i]);
       for (let i = 0; i < 16; i++) drops += +!!DL[i];
       for (let j = 3; j < 16; j += 4) lit += +(KL[j]! > 0.01);
-      return { genreCard: M[GLT]! >= 0, particles: fx.live, zzz: N[ZC]!, cup: { x: Q[CX]!, y: Q[CY]!, level: N[LEVEL]!, spilled: !!Q[SPILL], lifted: Q[LIFT]! > 0.5 }, toys: toys + drops, drops, pages: X[PAGES]!, lamp: !!X[LT], lit, keys: [...TYPED.subarray(0, Math.min(32, X[NTYPED]!))], caffeine: Math.round(X[CAF]! * 100) / 100, wired: !!X[WIRED], music: { genre: GENRES[M[GEN]!]!, playing: GENRES[M[AG]!]!, paused: !!M[MP], bars: [...BARS.subarray(0, Math.min(8, M[BN]!))] } };
+      return { arm: { sip: ARM[0]!, bend: ARM[1]!, wrist: ARM[2]! }, genreCard: M[GLT]! >= 0, particles: fx.live, zzz: N[ZC]!, cup: { x: Q[CX]!, y: Q[CY]!, level: N[LEVEL]!, spilled: !!Q[SPILL], lifted: Q[LIFT]! > 0.5 }, toys: toys + drops, drops, pages: X[PAGES]!, lamp: !!X[LT], lit, keys: [...TYPED.subarray(0, Math.min(32, X[NTYPED]!))], caffeine: Math.round(X[CAF]! * 100) / 100, wired: !!X[WIRED], music: { genre: GENRES[M[GEN]!]!, playing: GENRES[M[AG]!]!, paused: !!M[MP], bars: [...BARS.subarray(0, Math.min(8, M[BN]!))] } };
     },
     water: () => tap("water"),
     write: () => tap("write"),
