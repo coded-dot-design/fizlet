@@ -1,5 +1,5 @@
 // Brick cards: one tiny live toy per brick, built with that brick, that shows what it does (site/cards/).
-// This is the markup half: an astro-base-engine slot figure the loader (site/brick-cards.ts →
+// This is the markup half: an Astro page engine slot figure the loader (site/brick-cards.ts →
 // brick-cards.js) mounts with @fzlt/core/slot (lazy near the viewport, asleep off screen, a still
 // labelled poster under reduced motion, Recall exact). Every number comes from the build: `bytes`
 // is the brick's gzip size (scripts/sizes.mjs), `card` the card's own live chunk (scripts/live-bytes.mjs).

@@ -1,4 +1,4 @@
-// slot card: a film strip of six real astro-base-engine slot figures behind a small window. Each is
+// slot card: a film strip of six real Astro page engine slot figures behind a small window. Each is
 // a real @fzlt/core/slot: it loads only once the window shows it (the browser's own visibility test:
 // a figure clipped out of sight is not near), and its little scene drops a brick in. Tap the card
 // to slide the strip on; tap a live figure to drop its brick again. At the end of the strip a tap

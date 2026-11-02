@@ -3,7 +3,7 @@
 // lean) for HUDs and sound effects. Its own module so a piece that only needs the lettering doesn't
 // ship KRUNCH's sprites. Whole pixels only, so it stays crisp on a pixel canvas scaled up with CSS.
 
-/** Brand tokens (fizlet-engine brands/fizlet/style-guide.md). */
+/** Brand tokens (the Fizlet style guide). */
 export const C = {
   rim: "#07060f",
   ink: "#f6f3ff",

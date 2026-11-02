@@ -1,5 +1,5 @@
 {
-  "about": "The fe anim recipe table (fizlet-engine factory/anim.mjs), written by `fe anim export`: the matcher's data, regexes as source text, colours as Board UI token hex (dark). Generated: change the engine, not this file.",
+  "about": "The fe anim recipe table (the Fizlet factory's factory/anim.mjs), written by `fe anim export`: the matcher's data, regexes as source text, colours as Board UI token hex (dark). Generated: change the engine, not this file.",
   "recipes": {
     "burst": {
       "scene": "spray",

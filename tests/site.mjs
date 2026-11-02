@@ -1283,12 +1283,20 @@ try {
     // What is hidden or moved on the page right now: sections' parts below full opacity, layers moved.
     const moved = (page) => page.evaluate(() => [...document.querySelectorAll("section[data-reveal] *, .hero-field")]
       .filter((el) => el.style.opacity !== "" && el.style.opacity !== (el.matches(".sec-num") ? "0.55" : "1")).map((el) => el.className || el.tagName));
+    // On state, not time: the reveal script is a module, so it has run by "load", but the observer's
+    // first sight (off-screen sections seek(0) and wait hidden) lands a frame or more later. Wait for
+    // the roadmap (below the fold) to wait hidden; with reduced motion no observer runs, so two frames
+    // after load is all there is. A section that never waits still fails the assertions below.
+    const firstSight = async (page, reducedMotion = "no-preference") => {
+      if (reducedMotion === "reduce") return page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+      await page.waitForFunction(() => [...(document.getElementById("roadmap")?.querySelectorAll("*") ?? [])].some((el) => el.style.opacity === "0"), null, { polling: "raf", timeout: 15000 }).catch(() => {});
+    };
     const cls = () => { window.__cls = 0; new PerformanceObserver((l) => { for (const x of l.getEntries()) if (!x.hadRecentInput) window.__cls += x.value; }).observe({ type: "layout-shift", buffered: true }); };
     for (const reducedMotion of ["no-preference", "reduce"]) {
       const context = await browser.newContext({ viewport: { width: 1280, height: 860 }, reducedMotion });
       await context.addInitScript(cls);
       const { page, errors } = await open(context, "");
-      await page.waitForTimeout(300);
+      await firstSight(page, reducedMotion);
       const hidden = await page.evaluate(() => [...document.querySelectorAll("section[data-reveal]")].filter((s) => [...s.querySelectorAll("*")].some((el) => el.style.opacity === "0")).map((s) => [s.id, s.getBoundingClientRect().top >= innerHeight]));
       if (reducedMotion === "reduce") assert.deepEqual(hidden, [], "reduced motion: no section waits hidden");
       else assert.ok(hidden.some(([id]) => id === "roadmap") && hidden.every(([, below]) => below), `below the fold waits, in view never hides (${hidden})`);
@@ -1329,7 +1337,7 @@ try {
     for (const depth of [0.3, 0.4, 0.5, 0.6, 0.7, 1]) {
       const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
       const { page, errors } = await open(context, "");
-      await page.waitForTimeout(300);
+      await firstSight(page);
       await page.evaluate((d) => scrollTo(0, Math.round(document.documentElement.scrollHeight * d)), depth);
       await page.waitForFunction(`(${passed})().length === 0`, null, { polling: "raf", timeout: 15000 }).catch(() => {});
       assert.deepEqual(await page.evaluate(`(${passed})()`), [], `a jump to ${depth} of the page: every section passed over is shown`);

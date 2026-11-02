@@ -2915,7 +2915,7 @@ html.bui[data-theme="light"] .phases b {
   width: 100%;
   height: 100%;
 }
-/* Slot ratios (astro-base-engine ae-slot--WxH): the base ratio a slot keeps before it fills. Zero
+/* Slot ratios (the Astro page engine's ae-slot--WxH): the base ratio a slot keeps before it fills. Zero
    specificity, so a slot's own rules (and their breakpoints) always win. */
 :where(.ae-slot--16x10) {
   aspect-ratio: 16 / 10;

@@ -577,7 +577,7 @@ test("fx: a word draws at 0, 0 about its own origin (Chromium boxes fractional f
 
 test("K5: no plain-sqrt distance in a brick; the exact hypot (@fzlt/core/steer) is the one place", async () => {
   // Math.sqrt(x * x + y * y) differs from Math.hypot in the last bit for ~40% of inputs, and a
-  // replay that keeps every bit needs the same distance everywhere (fizlet-engine context/06 K5).
+  // replay that keeps every bit needs the same distance everywhere (the Fizlet factory's lesson K5).
   const { readdirSync, readFileSync } = await import("node:fs");
   const dirs = ["src", "src/kernel", "src/ui"], plain = /Math\.sqrt\(\s*([\w.[\]!]+)\s*\*\s*\1\s*\+\s*([\w.[\]!]+)\s*\*\s*\2\s*\)/;
   const found = [];

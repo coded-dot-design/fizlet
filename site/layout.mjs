@@ -26,7 +26,7 @@ export const WEBSITE = { "@type": "WebSite", "@id": `${SITE}#website`, name: "Fi
 /** Escape text for HTML. */
 export const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-// GA4 + PostHog, consent first (site/analytics, from astro-engine kit/src/lib/analytics): only when
+// GA4 + PostHog, consent first (site/analytics, from the Astro page engine's analytics kit): only when
 // PUBLIC_GA4_ID or PUBLIC_POSTHOG_KEY is set at build time (repository Variables); otherwise no
 // analytics code ships. Never in src/: the engine (kernel and bricks) stays analytics-free.
 export const ANALYTICS = resolveAnalytics(process.env);
@@ -89,7 +89,7 @@ export const favicon = () => mark(64).replace("<svg ", '<svg xmlns="http://www.w
 export const lockup = ({ version = "", size = 40, fzlt = false } = {}) =>
   `<span class="brand-mark">${mark(size)}</span><span class="brand-text"><small>DOM ENGINE${version ? `<i class="brand-ver">V${esc(version)}</i>` : ""}</small><b>FIZLET${fzlt ? `<i class="brand-fzlt">fzlt™</i>` : ""}</b></span>`;
 
-// Site navigation, one source (brain: fizlet-engine playbooks/content/site-nav.md). The header is the
+// Site navigation, one source (rules: scripts/check-nav.mjs). The header is the
 // short version: Daily · Docs · Bricks · Notes. A group is a small menu behind a disclosure button
 // (site/nav.ts: click, keyboard, Escape, outside click; never hover-only); on a phone the whole nav
 // is one panel behind the menu key. The footer's site map lists every indexable page (siteMap()

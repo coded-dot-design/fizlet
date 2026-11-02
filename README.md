@@ -114,7 +114,7 @@ in included, 1 KB = 1024 bytes.
 | `@fzlt/core/sprite` | COMPLETE | `sprites(defs, { palettes, cap })`: pixel-art characters as data, re-tinted by palette role, baked once per sprite/frame/scale/palette into a capped cache, `draw()` with no allocation; `spriteSVG()` / `spriteURL()` for page characters, standalone (an SVG-only page ships ~1 KB less) | 1.4 KB |
 | `@fzlt/core/sound` | COMPLETE | `sound(engine, { cues })`: event ring → synth cues `fire`, `hit`, `boom`, `hurt`, `power`, `ready`, `win`, `end`, `click` (or your own player), at most 8 voices, unlock on gesture, `dispose` | 1.0 KB |
 | `@fzlt/core/embed` | COMPLETE | `embed(load, { name, palette, easterEgg })`: drop-in, hex-only palette, key / gesture / click triggers, lazy load, toggle, Escape | 2.0 KB |
-| `@fzlt/core/slot` | COMPLETE | `slot(target, load)`: mount a scene into an astro-base-engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | 1.8 KB |
+| `@fzlt/core/slot` | COMPLETE | `slot(target, load)`: mount a scene into an Astro page engine slot: lazy start near the viewport, reduced motion keeps the fallback, `role="img"` kept, contained, `destroy()` gives the slot back | 1.8 KB |
 | `@fzlt/core/hud` | BETA | `hud(engine, root)`: change-only readouts (`num`, `meter`, `flag`) and event-ring `feed` / `banner`, zero allocation, restored on destroy | 1.3 KB |
 | `@fzlt/core/match` | BETA | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.6 KB |
 | `@fzlt/core/rules` | COMPLETE | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
@@ -184,9 +184,9 @@ ROADMAP bricks, each with its phase and size target (a goal until measured): `@f
 - **Embed:** `close()` (or Escape) while the game is still loading cancels that load: it never mounts
   afterwards, and a later `open()` starts a fresh one.
 
-### Fill an astro-base-engine slot
+### Fill an Astro page engine slot
 
-astro-base-engine (a page engine for Astro sites) renders each `[slot animation]`
+An Astro page engine renders each `[slot animation]`
 as a sized, described placeholder:
 `<figure class="ae-slot" data-slot-target="<page>#<slot>" role="img" aria-label="…">`.
 `@fzlt/core/slot` fills it with a scene:
