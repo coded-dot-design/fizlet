@@ -83,8 +83,8 @@ try {
     assert.ok(tags.length >= 7 && tags.every(([o]) => o === "1"), `labels shown: ${JSON.stringify(tags)}`);
     assert.ok(tags.some(([, t]) => /@fzlt\/core\/fx 2,797 B/.test(t)) && tags.some(([, t]) => /@fzlt\/core\/timeline 2,120 B/.test(t)), "labels carry brick sizes");
 
-    // Close the laptop (a tap on it, through @fzlt/core/input): night, asleep. Open it: day.
-    const box = await p.evaluate(() => { const r = document.querySelector(".og-laptop").getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height * 0.6 }; });
+    // Close the laptop (a tap on its screen, through @fzlt/core/input): night, asleep. Open it: day.
+    const box = await p.evaluate(() => { const r = document.querySelector(".og-laptop").getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height * 0.2 }; });
     await p.mouse.click(box.x, box.y);
     assert.equal(await p.evaluate(() => window.__ac), 1, "the gesture unlocks sound");
     await p.waitForFunction(() => !window.scene.state.open, null, { timeout: 4000 });
@@ -122,7 +122,9 @@ try {
     await p.waitForFunction(() => !document.querySelector(".og-cup").getAttribute("transform").includes("rotate(-"), null, { timeout: 3000 });
     await p.focus(".og-grip");
     await p.keyboard.press("Enter");
-    await p.waitForFunction(() => /Sip|empty|asleep|reach/.test(document.querySelector(".og [role=status]").textContent), null, { timeout: 2000 });
+    // (By now his sips have him wired: at night the scene may say so instead, in the same frame.)
+    const answered = await p.waitForFunction(() => /Sip|empty|asleep|reach|coffee/.test(document.querySelector(".og [role=status]").textContent), null, { timeout: 2000 }).then(() => true, () => false);
+    assert.ok(answered, `Enter on the cup: ${await p.evaluate(() => document.querySelector(".og [role=status]").textContent)}`);
     // The coffee cools: its colour later in the day differs from the morning's.
     await p.waitForTimeout(3000);
     assert.notEqual(await p.evaluate(() => document.querySelector(".og-liquid").getAttribute("fill")), fill0, "the coffee cools");
@@ -479,6 +481,134 @@ try {
     await p.close();
   }
 
+  // ---------- The owner's review: the lid, the chair, the pours, the laptop as a toggle, the pen, the
+  // scene's own palette (day light, night dark, whatever the page's theme), the plant's spot, the hint,
+  // and the caffeine meter. State waits only: a frame-rate window is the one timed measurement.
+  {
+    const p = await browser.newPage({ viewport: { width: 900, height: 700 }, colorScheme: "dark" });
+    const errs = [];
+    p.on("pageerror", (e) => errs.push(e.message));
+    await p.setContent(PAGE);
+    const before = await p.evaluate(() => document.body.innerHTML);
+    await p.evaluate((cup) => (window.scene = og.mount(document.getElementById("root"), { speed: 1, cup, reducedMotion: false })), CUP);
+    const st = () => p.evaluate(() => window.scene.stats());
+    const said = () => p.evaluate(() => document.querySelector(".og [role=status]").textContent);
+    const quiet = async (what) => {
+      await p.waitForFunction(() => window.scene.stats().toys === 0, null, { timeout: 9000 });
+      await p.evaluate(() => window.scene.pause());
+      // The kernel settles 0.4 s after its last busy frame: wait until two reads a frame apart agree.
+      await p.waitForFunction(() => new Promise((r) => { const a = window.__raf; setTimeout(() => r(window.__raf === a), 500); }), null, { timeout: 5000, polling: 100 });
+      assert.equal(await rafPerSec(p, 600), 0, `settled after ${what}`);
+      await p.evaluate(() => window.scene.play());
+    };
+    // Colours as the browser computes them (hex, rgb() or color(srgb ...)), and WCAG contrast.
+    await p.evaluate(() => {
+      const ch = (s) => { const m = s.match(/color\(srgb ([\d.e-]+) ([\d.e-]+) ([\d.e-]+)/); if (m) return [+m[1], +m[2], +m[3]]; const n = s.match(/[\d.]+/g).map(Number); return [n[0] / 255, n[1] / 255, n[2] / 255]; };
+      const lum = (c) => { const l = ch(c).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * l[0] + 0.7152 * l[1] + 0.0722 * l[2]; };
+      window.__lum = lum;
+      window.__contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+    });
+    const palette = () => p.evaluate(() => {
+      const og = document.querySelector(".og"), cs = (el) => getComputedStyle(el);
+      const keys = [...og.querySelectorAll(".og-bar button")].map((b) => window.__contrast(cs(b).color, cs(b).backgroundColor));
+      const why = window.__contrast(cs(og.querySelector(".og-why")).color, cs(og.querySelector(".og-why")).backgroundColor), hint = window.__contrast(cs(og.querySelector(".og-hint")).color, cs(og.querySelector(".og-hint")).backgroundColor);
+      return { bg: window.__lum(cs(og).backgroundColor), keys: Math.min(...keys), why, hint, chair: window.__lum(cs(og.querySelector(".og-chair .o-chair")).fill) };
+    });
+    await p.waitForFunction(() => window.scene.state.awake && window.scene.state.open && +getComputedStyle(document.querySelector(".og")).getPropertyValue("--night") < 0.01, null, { timeout: 15000 });
+
+    // Day (the page asks for dark: the scene keeps its own clock): the light palette.
+    const day = await palette();
+    assert.ok(day.bg > 0.8, `day: the light palette (${day.bg})`);
+    for (const k of ["keys", "why", "hint"]) assert.ok(day[k] >= 4.5, `day: ${k} contrast ${day[k].toFixed(2)}`);
+    assert.ok(day.chair < 0.05, `the chair is dark ink by day (${day.chair})`);
+    assert.equal(await p.evaluate(() => document.querySelector(".og-hint").textContent.includes("Click or double-click anything to see it move")), true, "the hint");
+    // The lid: its far edge is wider than the base (and the hinge); the plant is top right.
+    const geo = await p.evaluate(() => { const lid = document.querySelector(".og-screen path.o-lid").getBBox(), base = document.querySelector(".og-laptop > rect.o-face").getBBox(), pl = document.querySelector(".og-plant").getBBox(); const m = document.querySelector(".og-plant").transform.baseVal.consolidate().matrix; return { lid: [lid.x, lid.width], base: [base.x, base.width], plant: [m.e, m.f] }; });
+    assert.ok(geo.lid[0] < geo.base[0] && geo.lid[1] > geo.base[1], `the lid's far edge is wider than the base: ${JSON.stringify(geo)}`);
+    assert.ok(geo.plant[0] > 650 && geo.plant[1] < 200, `the plant is top right: ${geo.plant}`);
+
+    // The pours: each stream starts at its spout's tip and leaves along the spout's angle.
+    const spout = (box, tip, ang, sel) => p.evaluate(([box, tip, ang, sel]) => {
+      const b = document.querySelector(box), s = document.querySelector(sel), d = s.getAttribute("d").match(/-?[\d.]+/g).map(Number);
+      const at = (el, x, y) => new DOMPoint(x, y).matrixTransform(el.getScreenCTM());
+      const t = at(b, tip[0], tip[1]), t2 = at(b, tip[0] + Math.cos(ang) * 10, tip[1] + Math.sin(ang) * 10), s0 = at(s, d[0], d[1]), s1 = at(s, d[2], d[3]);
+      const a1 = Math.atan2(t2.y - t.y, t2.x - t.x), a2 = Math.atan2(s1.y - s0.y, s1.x - s0.x);
+      return { off: Math.hypot(t.x - s0.x, t.y - s0.y), turn: Math.abs(((a1 - a2 + Math.PI * 3) % (Math.PI * 2)) - Math.PI) };
+    }, [box, tip, ang, sel]);
+    await p.evaluate(() => window.scene.refill());
+    await p.waitForFunction(() => +document.querySelector(".og-stream").getAttribute("stroke-width") > 6, null, { timeout: 3000, polling: "raf" });
+    const pot = await spout(".og-potb", [44, 0], 0, ".og-stream");
+    assert.ok(pot.off < 0.6 && pot.turn < 0.02, `the coffee leaves the pot's spout: ${JSON.stringify(pot)}`);
+    await quiet("the pour");
+    await p.evaluate(() => window.scene.water());
+    await p.waitForFunction(() => +document.querySelector(".og-wstream").getAttribute("stroke-width") > 3, null, { timeout: 3000, polling: "raf" });
+    const can = await spout(".og-canb", [55.84, -13.38], -0.2307, ".og-wstream");
+    assert.ok(can.off < 0.6 && can.turn < 0.02, `the water leaves the can's rose: ${JSON.stringify(can)}`);
+    await quiet("watering");
+
+    // Writing: he picks up the pen beside the book, writes, and puts it back: one pen, never two.
+    await p.evaluate(() => {
+      window.__pens = { both: 0, held: 0 };
+      const f = () => { const a = getComputedStyle(document.querySelector(".og-pen")).display !== "none", b = getComputedStyle(document.querySelector(".og-dpen")).display !== "none"; if (a && b) window.__pens.both++; if (a) window.__pens.held++; if (window.__pens.on) requestAnimationFrame(f); };
+      window.__pens.on = 1;
+      requestAnimationFrame(f);
+    });
+    await p.evaluate(() => window.scene.write());
+    await p.waitForFunction(() => window.scene.stats().pages === 1, null, { timeout: 2000 });
+    await p.waitForFunction(() => window.scene.stats().toys === 0, null, { timeout: 9000 });
+    const pens = await p.evaluate(() => ((window.__pens.on = 0), window.__pens)); // (the watcher's own frames stop here)
+    await quiet("writing");
+    assert.ok(pens.held > 5 && pens.both === 0, `the pen goes from the desk to his hand and back: ${JSON.stringify(pens)}`);
+    assert.equal(await p.evaluate(() => getComputedStyle(document.querySelector(".og-dpen")).display), "inline", "the pen is back on the desk");
+
+    // The laptop: open, a press on the keys lights that key and leaves it open; a press on the screen
+    // closes it, and he sleeps and stays asleep through the night's "sleep"; closed, a press opens it.
+    const lap = (f) => p.evaluate((f) => { const r = document.querySelector(".og-laptop").getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height * f }; }, f);
+    let k = await lap(0.58);
+    await p.mouse.click(k.x, k.y);
+    await p.waitForFunction(() => window.scene.stats().lit > 0, null, { timeout: 2000 });
+    assert.equal(await p.evaluate(() => window.scene.state.open), true, "keys light, the lid stays open");
+    k = await lap(0.15);
+    await p.mouse.click(k.x, k.y);
+    await p.waitForFunction(() => !window.scene.state.open && !window.scene.state.awake, null, { timeout: 6000 });
+    const z0 = (await st()).zzz;
+    await p.waitForFunction((z) => window.scene.stats().zzz >= z + 8, z0, { timeout: 15000 });
+    assert.deepEqual(await p.evaluate(() => [window.scene.state.open, window.scene.state.awake]), [false, false], "asleep through the night; he does not wake by himself");
+    // Night: the dark palette, contrast held.
+    const night = await palette();
+    assert.ok(night.bg < 0.02, `night: the dark palette (${night.bg})`);
+    for (const k of ["keys", "why", "hint"]) assert.ok(night[k] >= 4.5, `night: ${k} contrast ${night[k].toFixed(2)}`);
+    k = await lap(0.5);
+    await p.mouse.click(k.x, k.y);
+    await p.waitForFunction(() => window.scene.state.open && window.scene.state.awake, null, { timeout: 8000 });
+    await quiet("the laptop");
+
+    // Caffeine: three sips close together; night comes and he stays up, the lid open, no Zzz; the
+    // lid will not close ("one more commit"); once it wears off, he sleeps.
+    for (let i = 1, tries = 0; i <= 3 && tries < 12; tries++) {
+      // A sip waits until he is fully awake and the cup is down; one asked too early is refused: ask again.
+      await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(196 268) rotate(0 ") && window.scene.state.awake, null, { timeout: 8000 });
+      const c0 = (await st()).caffeine;
+      await p.evaluate(() => window.scene.sip());
+      if (await p.waitForFunction((c) => window.scene.stats().caffeine > c + 0.5, c0, { timeout: 3500 }).then(() => true, () => false)) i++;
+    }
+    assert.equal((await st()).wired, true, "three cups: wired");
+    await p.waitForFunction(() => /Too much coffee/.test(document.querySelector(".og [role=status]").textContent), null, { timeout: 30000 });
+    const z1 = (await st()).zzz;
+    assert.deepEqual(await p.evaluate(() => [window.scene.state.awake, window.scene.state.open, +getComputedStyle(document.querySelector(".og")).getPropertyValue("--night") > 0.3]), [true, true, true], "night, and still awake at the laptop");
+    k = await lap(0.15);
+    await p.mouse.click(k.x, k.y);
+    await p.waitForFunction(() => /One more commit/.test(document.querySelector(".og [role=status]").textContent), null, { timeout: 2000 });
+    assert.equal(await p.evaluate(() => window.scene.state.open), true, "wired, he keeps it open");
+    await p.waitForFunction(() => !window.scene.stats().wired && !window.scene.state.awake, null, { timeout: 30000 });
+    assert.match(await said(), /wore off/);
+    assert.equal((await st()).zzz, z1, "no Zzz while he was wired");
+    await p.evaluate(() => window.scene.destroy());
+    assert.equal(await p.evaluate(() => document.body.innerHTML), before, "Recall after the review's toys");
+    assert.deepEqual(errs, []);
+    await p.close();
+  }
+
   // ---------- Reduced motion: still frames, no particles, settles; the laptop still works ----------
   {
     const p = await browser.newPage({ viewport: { width: 900, height: 700 }, reducedMotion: "reduce" });
@@ -546,6 +676,14 @@ try {
     await p.waitForTimeout(100);
     assert.equal(await p.evaluate(() => getComputedStyle(document.querySelector(".og")).getPropertyValue("--lamp").trim()), "0", "the lamp is off at once");
     await still("the lamp");
+    // Caffeine as state only: three sips, wired; the laptop's key will not close the lid.
+    for (let i = 0; i < 3; i++) await p.evaluate(() => window.scene.sip()), await p.waitForFunction((n) => window.scene.stats().caffeine >= n, i + 1, { timeout: 2000 });
+    assert.equal(await p.evaluate(() => window.scene.stats().wired), true, "wired at once");
+    await p.focus(".og-laptop");
+    await p.keyboard.press("Enter");
+    await p.waitForFunction(() => /One more commit/.test(document.querySelector(".og [role=status]").textContent), null, { timeout: 2000 });
+    assert.equal(await p.evaluate(() => window.scene.state.open), true);
+    await still("caffeine");
     // The phone: Enter still changes the style (no head bob, no notes).
     await p.focus(".og-phone");
     await p.keyboard.press("Enter");
@@ -556,7 +694,7 @@ try {
     assert.deepEqual(errs, []);
     await p.close();
   }
-  console.log("origin: day loop, laptop night/day, mode, show bricks, two looks, the cup's toys (press, double-tap refill, drag, flick and spill, keys), the notebook, the plant, the lamp, key lights, seeded typing, the phone's looping genres (constant bar period, bar-line switch, double-tap pause), settle, 0 rAF/s paused/off screen, reduced motion, sound after a gesture, Recall: ok");
+  console.log("origin: day loop, laptop night/day, mode, show bricks, two looks, the cup's toys (press, double-tap refill, drag, flick and spill, keys), the notebook, the plant, the lamp, key lights, seeded typing, the phone's looping genres (constant bar period, bar-line switch, double-tap pause), the review (lid, chair, pours, laptop toggle, one pen, the scene's own palette and contrast, caffeine), settle, 0 rAF/s paused/off screen, reduced motion, sound after a gesture, Recall: ok");
 } finally {
   await browser.close();
 }

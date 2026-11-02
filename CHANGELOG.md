@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- **Site: the origin hero, the owner's review (pending owner review).**
+  - **Laptop:** the open lid's far edge is a little wider than the hinge (perspective from above). A press on the lid or the screen closes it and he sleeps, and stays asleep: a guard stops the night's own "sleep" from replaying the wake. A press on the keys lights that key; closed, a press opens it.
+  - **Chair:** a dark-ink chair, so he reads as leaning forward from it.
+  - **Pours:** the pot's and the can's streams start at the spout's tip and follow its angle.
+  - **Pen:** he picks up the pen beside the book and puts it back (one pen).
+  - **Plant:** now top right.
+  - **Hint:** "Click or double-click anything to see it move".
+  - **Palette:** the Fizlet look keeps its own clock. Day is the Board UI light palette and night the dark one, for everything in the scene, whatever the page's theme. Its text and keys hold 4.5:1 or more.
+  - **Caffeine:** three sips close together keep him up into the night (lamp on, faster typing, no Zzz, "Too much coffee: still awake"; the lid will not close). He dozes once it wears off.
+  - Live chunk 32,760 → 33,917 B gzip; inline poster 5,987 → 6,092 B. Test: `tests/origin.mjs`.
+
 ## 0.21.3
 
 - **Site: the origin hero, the owner's notes (pending owner review).**

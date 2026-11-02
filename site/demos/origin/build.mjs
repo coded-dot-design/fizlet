@@ -66,7 +66,7 @@ const body = `${STYLE}
     <p class="lead og-why-lead"><b>Why Fizlet.</b> ${esc(ORIGIN_WHY)}</p>
     <p class="lead">${esc(ORIGIN_CREDIT)}. The headphones, the coffee and the laptop are the props from my 2015 portfolio, back as living things; in the 2015 look the cup is the 2015 sprite sheet itself. The look key switches between the 2015 palette and Fizlet's: cyberpunk meets Tron, in the site's own tokens. By <a href="https://coded.design/">Chris Cooley ↗</a>.</p>
     <p class="lead">The cup is a toy. Tap it for a sip, double-tap it to refill it, drag it anywhere on the desk, flick it to knock it over (tap the spill, or wait). On the keyboard: Enter sips, R refills, the arrow keys move it.</p>
-    <p class="lead">Tap the plant to water it, the notebook and he writes a line of code or draws a doodle, the lamp to switch the light. Tap the phone for country, rock or pop: each a one-bar loop on the audio clock; a double-tap pauses it.</p>
+    <p class="lead">Tap the plant to water it, the notebook and he writes a line of code or draws a doodle, the lamp to switch the light. Tap the phone for country, rock or pop: each a one-bar loop on the audio clock; a double-tap pauses it. Tap the laptop's screen and he sleeps; tap it again and he wakes. Keep feeding him coffee and he won't sleep. The scene keeps its own day: light by day, dark by night.</p>
     <div class="panel lit og-board">
       <figure class="ae-slot ae-slot--16x10" data-slot-target="origin#hero" aria-label="Code. Sleep. Drink. Repeat. A desk seen from above through one day: he sleeps, wakes with the sun, puts the headphones on, drinks his coffee, codes all day, and sleeps again">${poster()}</figure>
       <p class="og-cap">${caption}. Measured on this build.</p>
