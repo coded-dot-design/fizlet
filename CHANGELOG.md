@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.21.3
 
 - **Release train 0.21.3 (#206 + #212, with #194, #215, #213 and #226's CueName fix), measured
   together on main.** gz, main → train: kernel 3,413 → 3,372 B, page build 7,128 → 7,094 B (10 B under
