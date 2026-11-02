@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Site: the home hero says "Small footprint. Big performance.", the bricks keep "Logic & style.",
+  and the container grows on big screens (pending owner review).** Home and /bricks/ never share a
+  headline (owner): `HOME_HEADLINE` in `site/layout.mjs` is the home hero's bigger-picture line about
+  size and speed, sized so each phrase holds one line from 320 to 1920 px; `HEADLINE` ("Logic &
+  style. / The bricks do the rest.", the "&" in the command ink, a step lighter) is the /bricks/ hero's
+  and fzlt.dev's. The container token (`--page`) is 1200 px up to a 1277 px window, then 94vw, capped
+  at 1520 px (1354 px at 1440, 1520 px at 1920); the hero's copy column takes 1.15 parts to the layers
+  card's 1 (was 1 to 1.05). Prose keeps a 70ch measure where it ran full width (gallery prompts, doc
+  recipes, brand captions). Test: the hero headline block in `tests/site.mjs`.
 - **Release train 0.21.3 (#206 + #212, with #194, #215, #213 and #226's CueName fix), measured
   together on main.** gz, main → train: kernel 3,413 → 3,372 B, page build 7,128 → 7,094 B (10 B under
   its 7,104 budget), perf 2,064 → 2,019 B (budget 2,064 → 2,022), grid 1,603 → 1,652 B (budget 1,637 →
