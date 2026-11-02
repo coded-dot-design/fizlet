@@ -13,7 +13,7 @@ The origin hero, by Chris Cooley. A desk seen from above through one day: he sle
 - **Him:** broad shoulders and a V-shaped back (trapezius, shoulder blades). Each arm (`armD()` in `art.ts`) is a sleeve over the deltoid, a biceps swell, the elbow, and a forearm that tapers to the wrist.
 - **Typing:** each hand types on random keys in its half, from a seeded generator (the `seed` option; never `Math.random`, no allocation in the step). The key lights up in the look's accent and fades. In design mode the right hand goes to the trackpad now and then.
 - **The laptop as a toggle:** open, a press on the keys lights that key and a press on the lid or the screen closes it, and he sleeps (the night's own "sleep" no longer wakes him for a moment). Closed, a press opens it and he wakes.
-- **The chair:** dark ink in both looks, behind him; he leans forward from it. He sits on it: the chair (back, arms, seat cushion) is one layer under his body and arms. Below his shoulder blades his shirt is no wider than his waist, so the cushion's dark bolsters show beside and below him.
+- **The chair:** dark ink in both looks, behind him; he leans forward from it. He sits on it: the chair is one layer under his body and arms, and only its dark edge shows (the back's top below his shoulder blades, its arm ends at the bottom); his shirt is cut where the chair shows, so none of it shows at his sides or shoulders.
 - **The headphones are wireless:** no cord to the phone.
 - **The plant** (top right; tap, or Enter): a can comes up from below it and pours, drops spill around the pot and fade over 1 to 3 s, and it perks up.
 - **The notebook** (tap, or Enter): his hand picks up the pen beside the book, writes, and puts the pen back (one pen, never two). He writes a line of code, or draws a star, a heart, a happy face, a lightning bolt, a triangle, a square, a house or a sun. The stroke draws on; the last three stay.
@@ -84,7 +84,7 @@ mount(root: HTMLElement, opts?: {
 | @fzlt/core/sprite | 1,437 | The pixel coder on the phone (spriteURL) |
 | @fzlt/core/slot | 1,849 | The page's loader (main.js) |
 
-The live chunk (`scene.js`: six bricks + the scene, tree-shaken) is printed by the build and on the page: **35,574 B gzip** on this build (32,760 B before the review's fixes, the scene's own palette, the caffeine meter, the genre card, the sip's pose and the seat: +2,814 B). The loader is 2,128 B, and the inline poster is 6,655 B (5,987 B before), the same markup for both looks.
+The live chunk (`scene.js`: six bricks + the scene, tree-shaken) is printed by the build and on the page: **35,390 B gzip** on this build (32,760 B before the review's fixes, the scene's own palette, the caffeine meter, the genre card, the sip's pose and the seat: +2,630 B). The loader is 2,128 B, and the inline poster is 6,512 B (5,987 B before), the same markup for both looks.
 
 ## Rules
 

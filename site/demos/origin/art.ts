@@ -237,14 +237,10 @@ const PHONE_CODE = [[0, 30, 2], [6, 22, 0], [6, 34, 1], [0, 16, 3], [0, 28, 0], 
 const HAND = (m: string) => `<g${m}><rect x="-5" y="6" width="17" height="9" rx="4.5" fill="${C.skin}" stroke="${C.skinD}" stroke-width="1.4" transform="rotate(22 -5 10)"/><rect x="-13" y="-12" width="26" height="24" rx="9" fill="${C.skin}"/><rect x="3" y="-11.5" width="20" height="23" rx="7" fill="${C.skin}"/><path d="M13-5.6h8M13 0h9M13 5.6h8" stroke="${C.skinD}" stroke-width="1.6" stroke-linecap="round"/></g>`;
 // His back from above: the trapezius sloping from the neck to the shoulders, broad shoulders, the
 // lats tapering toward the waist (out of frame).
-const TORSO = "M376 452C354 455 332 458 314 466C298 473 292 484 298 494C304 503 315 509 322 514L322 640H478L478 514C485 509 496 503 502 494C508 484 502 473 486 466C468 458 446 455 424 452Z";
-// The chair's seat, under him: its back corners show beside his lower back, dark.
-const SEAT = "M264 516C264 496 280 486 298 488C316 490 328 500 338 510H462C472 500 484 490 502 488C520 486 536 496 536 516V650H264Z";
-// The cushion's soft top edge, a highlight on each bolster.
-const SEATL = "M274 508C278 496 290 492 302 494M526 508C522 496 510 492 498 494";
-// The seat's side bolsters, under him: they show beside his waist and below his shoulders (he sits on them).
-const BOLSTERS = "M256 650V490C256 474 274 466 292 469C312 472 328 485 340 500L338 650ZM544 650V490C544 474 526 466 508 469C488 472 472 485 460 500L462 650Z";
-const BOLSTERL = "M264 484C270 474 284 470 298 473M536 484C530 474 516 470 502 473";
+const TORSO = "M376 452C354 455 332 458 314 466C296 474 286 490 288 512L304 640H496L512 512C514 490 504 474 486 466C468 458 446 455 424 452Z";
+// The chair under him (the back's top edge and its two arm ends at the bottom): his shirt is cut
+// where the chair shows, so it reads as one layer under him with only its dark edge in sight.
+const CHAIR = "M330 492Q400 478 470 492Q482 495 482 506V650H318V506Q318 495 330 492ZM297 548h2a9 9 0 0 1 9 9v82a9 9 0 0 1-9 9h-2a9 9 0 0 1-9-9v-82a9 9 0 0 1 9-9ZM501 548h2a9 9 0 0 1 9 9v82a9 9 0 0 1-9 9h-2a9 9 0 0 1-9-9v-82a9 9 0 0 1 9-9Z";
 // The hand holding the cup, seen from above (forward along the forearm, +y toward the cup): the side
 // of the hand beside the handle's end, two fingers curled through the loop, the thumb over its top.
 // The reaching hand: an open palm, the fingers spread a little, the thumb out (shown on the way to the handle).
@@ -330,11 +326,10 @@ export function art(p: { aw: number; ph: number; lid: number; hd: number }, mode
 <g class="og-body" data-p="person" tabindex="0" role="button" aria-label="Nudge him">
 <path class="o-sh" d="${TORSO}" transform="translate(4 6)" fill="${C.ink}" opacity=".16"/>
 <g class="og-chair"><rect class="o-chair" x="288" y="548" width="20" height="100" rx="9" fill="${C.ink}"/><rect class="o-chair" x="492" y="548" width="20" height="100" rx="9" fill="${C.ink}"/><path class="o-chair" d="M330 492Q400 478 470 492Q482 495 482 506V650H318V506Q318 495 330 492Z" fill="${C.ink}"/><path class="o-chairL" d="M334 500Q400 487 466 500" fill="none" stroke="${C.inkL}" stroke-width="3" stroke-linecap="round"/></g>
-<path class="o-chair og-seat" d="${SEAT}" fill="${C.ink}"/><path class="o-chairL" d="${SEATL}" fill="none" stroke="${C.inkL}" stroke-width="3" stroke-linecap="round"/>
-<path class="o-chair og-bolster" d="${BOLSTERS}" fill="${C.ink}"/><path class="o-chairL" d="${BOLSTERL}" fill="none" stroke="${C.inkL}" stroke-width="3" stroke-linecap="round"/>
+<clipPath id="${id}sit"><path clip-rule="evenodd" d="M-999-999H1999V1999H-999Z${CHAIR}"/></clipPath><g class="og-sit" clip-path="url(#${id}sit)">
 <path class="o-shirt" d="${TORSO}" fill="${C.red}"/>
 <ellipse class="og-neck o-shirt" cx="400" cy="${nk.cy}" rx="80" ry="${nk.ry}" fill="${C.red}"/><ellipse class="og-nape" cx="400" cy="${r1(nk.cy - nk.ry + 30)}" rx="14" ry="11" fill="${C.skinD}"/>
-<path class="o-shirtD" d="M376 458q24 13 48 0M342 500q18 24 46 18M458 500q-18 24-46 18M400 478V640" fill="none" stroke="${C.redD}" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+<path class="o-shirtD" d="M376 458q24 13 48 0M342 500q18 24 46 18M458 500q-18 24-46 18M400 478V640" fill="none" stroke="${C.redD}" stroke-width="3" stroke-linecap="round" opacity=".7"/></g>
 ${armEl(-1, hn.lx, hn.ly, id)}${armEl(1, hn.rx, hn.ry, id)}
 <g class="og-head" transform="${headT(p.aw, 0)}"><ellipse cx="-43" cy="5" rx="7" ry="11" fill="${C.skinD}"/><ellipse cx="43" cy="5" rx="7" ry="11" fill="${C.skinD}"/><circle r="44" fill="${C.ink}"/>
 <circle class="o-mesh" cy="-2" r="41" fill="${C.inkL}"/><circle cy="-2" r="41" fill="url(#${id}mesh)"/>

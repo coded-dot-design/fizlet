@@ -521,15 +521,17 @@ try {
     assert.ok(day.bg > 0.8, `day: the light palette (${day.bg})`);
     for (const k of ["keys", "why", "hint"]) assert.ok(day[k] >= 4.5, `day: ${k} contrast ${day[k].toFixed(2)}`);
     assert.ok(day.chair < 0.05, `the chair is dark ink by day (${day.chair})`);
-    // He sits on the chair: every part of it is under his body and arms (before them in paint order);
-    // below his shoulder blades the shirt is no wider than his waist, and the seat shows beside it.
+    // He sits on the chair: every part of it is under his body and arms (before them in paint order),
+    // and only its dark edge shows: the back's top below his shoulder blades and its two arm ends at the
+    // bottom. Nothing of it reaches his sides or his shoulders (the owner's mock).
     const back = await p.evaluate(() => {
-      const torso = document.querySelector(".og-body > path.o-shirt"), at = (el, x, y) => el.isPointInFill(new DOMPoint(x, y)), svg = document.querySelector(".og-svg");
+      const torso = document.querySelector(".og-sit > path.o-shirt"), svg = document.querySelector(".og-svg");
       const top = (x, y) => { const q = new DOMPoint(x, y).matrixTransform(svg.getScreenCTM()); return document.elementFromPoint(q.x, q.y); };
       const under = [...document.querySelectorAll(".o-chair")].every((c) => [torso, document.querySelector(".og-arm-l"), document.querySelector(".og-arm-r")].every((b) => c.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING));
-      return { under, shirt: [[300, 520], [500, 520], [300, 560], [500, 560]].filter(([x, y]) => at(torso, x, y)), seen: [[290, 497], [510, 497]].map(([x, y]) => top(x, y)?.classList.contains("o-chair") || String(top(x, y)?.getAttribute("class"))), shoulders: [[314, 474], [486, 474]].map(([x, y]) => !top(x, y)?.classList.contains("o-chair")), waist: at(torso, 400, 560) };
+      const box = [...document.querySelectorAll(".og-chair > *")].map((c) => c.getBBox()).reduce((a, r) => [Math.min(a[0], r.x), Math.min(a[1], r.y), Math.max(a[2], r.x + r.width)], [1e9, 1e9, -1e9]);
+      return { under, box: box.map(Math.round), seen: !!top(400, 497)?.closest(".og-chair"), shirt: [[294, 490], [506, 490], [314, 474], [486, 474], [400, 470]].every(([x, y]) => !top(x, y)?.closest(".og-chair")) };
     });
-    assert.deepEqual(back, { under: true, shirt: [], seen: [true, true], shoulders: [true, true], waist: true }, "the chair under him, showing beside his waist");
+    assert.deepEqual(back, { under: true, box: [288, 485, 512], seen: true, shirt: true }, "the chair under him: only its dark edge shows below his back");
     assert.equal(await p.evaluate(() => document.querySelector(".og-hint").textContent.includes("Click or double-click anything to see it move")), true, "the hint");
     // The lid: its far edge is wider than the base (and the hinge); the plant is top right.
     const geo = await p.evaluate(() => { const lid = document.querySelector(".og-screen path.o-lid").getBBox(), base = document.querySelector(".og-laptop > rect.o-face").getBBox(), pl = document.querySelector(".og-plant").getBBox(); const m = document.querySelector(".og-plant").transform.baseVal.consolidate().matrix; return { lid: [lid.x, lid.width], base: [base.x, base.width], plant: [m.e, m.f] }; });
