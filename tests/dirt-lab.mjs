@@ -65,7 +65,7 @@ try {
   const { ctx, p, errs } = await open();
   await mount(p);
   const m = await p.evaluate(() => ({ canvas: document.querySelectorAll("[data-fizlet-slot] canvas").length, buttons: document.querySelectorAll("[data-fizlet-slot] button:not([hidden])").length, poster: getComputedStyle(document.querySelector(".ae-slot__placeholder")).display, role: document.querySelector("figure").getAttribute("role") }));
-  assert.deepEqual(m, { canvas: 1, buttons: 6, poster: "none", role: null }, "dirt-lab: mounts its canvas and its controls (palette, RACE, mute); the figure drops role=img for the real controls");
+  assert.deepEqual(m, { canvas: 1, buttons: 6, poster: "none", role: "figure" }, "dirt-lab: mounts its canvas and its controls (palette, RACE, mute); the figure's role=img becomes role=figure for the real controls (#215)");
   const small = await p.evaluate(() => [...document.querySelectorAll("[data-fizlet-slot] button")].filter((b) => !b.hidden).map((b) => b.getBoundingClientRect()).filter((r) => r.width < 44 || r.height < 44).length);
   assert.equal(small, 0, "dirt-lab: every control is 44 px or more");
   // The demo rides the default track to the flag, then it sleeps: no frames, the page as it was.

@@ -235,3 +235,11 @@ test("sound: your own notes add cues (and win over a built-in name); unknown nam
   assert.deepEqual(heard, ["slurp", "fire"]);
   e.destroy();
 });
+
+test("sound: a notes entry named like an Object.prototype key is a plain cue, not a crash", () => {
+  const e = engineWith(["c", "x"]), heard = [];
+  sound(e, { cues: { c: "constructor", x: "toString" }, notes: { constructor: [[200, 400, 0.05, 0, "sine", 0.1]] }, play: (cue) => heard.push(cue) });
+  e.advance(1 / 60);
+  assert.deepEqual(heard, ["constructor"]);
+  e.destroy();
+});

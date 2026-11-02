@@ -13,7 +13,7 @@ export interface SoundOptions {
     notes?: Record<string, Note[]>;
     on?: boolean;
     volume?: number;
-    play?: (cue: Cue, intensity: number) => void;
+    play?: (cue: CueName, intensity: number) => void;
 }
 export declare function sound(e: Engine, o: SoundOptions): {
     play: (cue: CueName, intensity?: number) => void;

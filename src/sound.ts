@@ -35,7 +35,7 @@ export interface SoundOptions {
   /** Master volume 0..1 (default 0.12). */
   volume?: number;
   /** Your own player instead of the synth. */
-  play?: (cue: Cue, intensity: number) => void;
+  play?: (cue: CueName, intensity: number) => void;
 }
 
 /** The sound adapter for engine `e`: after each frame it plays the cue mapped to each event in the
@@ -67,7 +67,7 @@ export function sound(e: Engine, o: SoundOptions) {
     // find Object.prototype's (a function, not notes) and throw in render, stopping the game.
     const notes = o.notes && Object.hasOwn(o.notes, cue) ? o.notes[cue] : Object.hasOwn(NOTES, cue) ? NOTES[cue as Cue] : null;
     if (!on || !e.running || ctl.signal.aborted || !notes) return;
-    if (o.play) return o.play(cue as Cue, intensity);
+    if (o.play) return o.play(cue, intensity);
     if (!ctx || !master || ctx.state !== "running") return;
     const now = ctx.currentTime;
     if (now - (last.get(cue) ?? -1) < (cue === "fire" ? 0.07 : 0.12)) return;

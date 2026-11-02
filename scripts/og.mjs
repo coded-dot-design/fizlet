@@ -1,6 +1,7 @@
-// The social card (og.png, 1200 × 630): the Fizlet mark's pixel rects on the board grid, encoded as
+// The social card (og.png, 1200 × 630): the Fizlet mark's pixel rects (site/layout.mjs MARK) on the board grid, encoded as
 // a PNG with node:zlib only (the mark is all axis-aligned rects, so no rasterizer is needed).
 import { deflateSync } from "node:zlib";
+import { MARK } from "../site/layout.mjs";
 
 const W = 1200, H = 630;
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -36,18 +37,16 @@ export function ogImage() {
         px[k + 2] += (b - px[k + 2]) * a;
       }
   };
-  const BG = hex("#07060f"), CYAN = hex("#19f0ff"), MINT = hex("#39ffb0"), PINK = hex("#ff2e88");
+  const BG = hex("#07060f"), CYAN = hex("#19f0ff"), INK = hex("#f6f3ff"), PINK = hex(MARK.pink);
   rect(0, 0, W, H, BG);
   for (let x = 0; x < W; x += 45) rect(x, 0, 1, H, CYAN, 0.12);
   for (let y = 0; y < H; y += 45) rect(0, y, W, 1, CYAN, 0.12);
-  // The mark (site/layout.mjs mark(), a 64-unit tile) at 6 px a unit, centred.
+  // The mark (site/layout.mjs MARK, a 64-unit square) at 6 px a unit, centred: the dark theme's
+  // --ink for the frame and squares, the pop pink.
   const S = 6, ox = (W - 64 * S) >> 1, oy = (H - 64 * S) >> 1;
-  const m = (x, y, w, h, c, a) => rect(ox + x * S, oy + y * S, w * S, h * S, c, a);
-  for (const v of [16, 32, 48]) (m(0, v, 64, 0.34, CYAN, 0.35), m(v, 0, 0.34, 64, CYAN, 0.35));
-  m(0, 0, 64, 2, CYAN), m(0, 62, 64, 2, CYAN), m(0, 0, 2, 64, CYAN), m(62, 0, 2, 64, CYAN);
-  m(8, 30, 26, 7, MINT), m(8, 49, 26, 7, MINT), m(8, 37, 7, 12, MINT), m(27, 37, 7, 12, MINT);
-  m(36, 18, 14, 14, MINT), m(40, 40, 8, 8, MINT);
-  m(52, 6, 6, 6, PINK), m(46, 6, 3, 3, PINK), m(58, 14, 3, 3, PINK);
+  const m = ([x, y, w, h], c) => rect(ox + x * S, oy + y * S, w * S, h * S, c);
+  for (const r of [...MARK.frame, ...MARK.ink]) m(r, INK);
+  for (const r of MARK.pop) m(r, PINK);
   const raw = Buffer.alloc((W * 3 + 1) * H);
   for (let y = 0; y < H; y++) Buffer.from(px.buffer, y * W * 3, W * 3).copy(raw, y * (W * 3 + 1) + 1);
   const ihdr = Buffer.alloc(13);

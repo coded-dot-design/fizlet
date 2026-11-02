@@ -36,9 +36,10 @@ function titles(p, byId, base) {
         <p class="ppl-reports"><span aria-hidden="true">↳</span> reports to <a href="${base}people/${esc(boss.id)}/">${esc(boss.name)}</a>, the ${esc(boss.role.split(" · ")[0])}</p>` : ""}`;
 }
 
+// Both stats are bare numbers, their unit in the label under them, so the row reads evenly.
 const stats = (s) => `<ul class="rules ppl-stats" aria-label="Measured on this build">
         <li class="panel rule"><b data-stat="entries">${fmt(s.count)}</b><p>gallery ${s.count === 1 ? "entry" : "entries"}</p></li>
-        <li class="panel rule"><b data-stat="bytes">${fmt(s.bytes)} B</b><p>live code, gzip, all entries together</p></li>
+        <li class="panel rule"><b data-stat="bytes">${fmt(s.bytes)}</b><p>${s.bytes === 1 ? "byte" : "bytes"} of live code, gzip, all entries together</p></li>
       </ul>`;
 
 /**

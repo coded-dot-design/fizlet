@@ -1,10 +1,10 @@
-// Brand (/brand/): the Fizlet marks and how to use them. The wordmark, the short mark and the
+// Brand (/brand/): the Fizlet marks and how to use them. The two logos (FIZLET and fzlt) and the
 // lockups are drawn from one source (scripts/brand-marks.mjs), inline here and as the SVG
 // downloads beside them; the colour swatches read the Board UI tokens (src/ui/tokens.json); the
 // board section is the kit itself (src/ui/board-ui.css), live. Motion: the sticker slam only, the
 // kit's own CSS restarted by its slam() (site/brand.ts); it settles, and reduced motion stills it.
-import { REPO, AUTHOR, esc, icon, mark } from "../layout.mjs";
-import { brandMarks, brandStickers, GEOMETRY } from "../../scripts/brand-marks.mjs";
+import { REPO, AUTHOR, esc, icon, mark, lockup } from "../layout.mjs";
+import { brandMarks, brandStickers, GEOMETRY, fizletLogo, fzltLogo, logoSvg } from "../../scripts/brand-marks.mjs";
 import { readFileSync } from "node:fs";
 
 const TOKENS = JSON.parse(readFileSync(new URL("../../src/ui/tokens.json", import.meta.url), "utf8")).palette;
@@ -56,19 +56,19 @@ function swatches() {
     group("Ink twins: thin text on light", Object.entries(TOKENS.inks));
 }
 
-/** Clear space and minimum size: the wordmark with its X margin drawn on it. */
+/** Clear space and minimum size: the FIZLET logo with its X margin drawn on it. */
 function clearSpace(list) {
   const m = list.find((x) => x.id === "wordmark" && x.theme === "dark");
-  const { X } = GEOMETRY, pad = 28, w = m.w + 2 * pad, h = m.h + 2 * pad;
+  const { LX: X } = GEOMETRY, pad = 28, w = m.w + 2 * pad, h = m.h + 2 * pad;
   const label = (x, y) => `<text x="${x}" y="${y}" class="cs-x" text-anchor="middle">X</text>`;
   const inner = m.svg.replace(/^<svg [^>]*>/, `<svg x="${pad}" y="${pad}" width="${m.w}" height="${m.h}" viewBox="0 0 ${m.w} ${m.h}" aria-hidden="true">`).replace(/<title>[^<]*<\/title>/, "");
   return `<figure class="panel brand-cs">
-        <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Clear space: X, the cap height of the F, on every side of FIZLET">${inner}
+        <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Clear space: X, the width of the mark's outlined square, on every side of the FIZLET logo">${inner}
           <rect class="cs-out" x="${pad}" y="${pad}" width="${m.w}" height="${m.h}"/>
           <rect class="cs-in" x="${pad + X}" y="${pad + X}" width="${m.w - 2 * X}" height="${m.h - 2 * X}"/>
           ${label(pad + X / 2, pad + m.h / 2 + 5)}${label(pad + m.w - X / 2, pad + m.h / 2 + 5)}${label(pad + m.w / 2, pad + X / 2 + 5)}${label(pad + m.w / 2, pad + m.h - X / 2 + 5)}
         </svg>
-        <figcaption class="brand-cap"><b>X</b> is the cap height of the F, about 0.7 × the font size (about 13px at 19px). Nothing enters it: no text, key edge or grid line. The downloads carry it.</figcaption>
+        <figcaption class="brand-cap"><b>X</b> is the width of the mark's outlined square: 26 of the mark's 64 units, about 0.4 × the logo's cap height. The same X goes round the fzlt logo. Nothing enters it: no text, key edge or grid line. The downloads carry it.</figcaption>
       </figure>`;
 }
 
@@ -81,8 +81,8 @@ const DONTS = [
   ["", "@fzlt™/core", "™ in code", "No ™ in package names, imports or URLs."],
 ];
 
-/** The header lockup as the site renders it (site/layout.mjs page()): the mark tile, the kicker, FIZLET. */
-const headerLockup = (version) => `<span class="brand-mark">${mark(40)}</span><span class="brand-text"><small>DOM ENGINE<i>V${esc(version)}</i></small><b>FIZLET</b></span>`;
+/** The header lockup as the site renders it: the one source, site/layout.mjs lockup(). */
+const headerLockup = (version) => lockup({ version });
 /** A kit sticker (.bui-sticker): a kicker and one or two words. */
 const sticker = (kicker, word, cls = "") => `<div class="bui-sticker${cls}"><span>${esc(kicker)}</span><b>${esc(word)}</b></div>`;
 
@@ -121,14 +121,14 @@ export function brandPage({ version, kernel }) {
   </div>
 </section>
 
-${section("marks", `${head("01", "marks", "THE MARKS", "One name.", "Two marks.", "Six letters and four, owned equally. <b>FIZLET</b> is the wordmark: the header, titles, the hero. <b>fzlt</b> is the short mark: the developer and npm mark, always lowercase and mono, never a name in prose. Both in the site's mono stack, in <code>--ink</code>, with the same weight on the page.")}
+${section("marks", `${head("01", "marks", "THE MARKS", "One name.", "Two marks.", "Six letters and four, owned equally, each with the mark. <b>FIZLET</b> is the large logo: heavy caps, the mark's frame closed by the F. <b>fzlt</b> is the small logo: the mark's pixels and fzlt, always lowercase; the developer and npm mark, never a name in prose. Both in <code>--ink</code>, the pop in <code>--k-attack</code> on either ground.")}
     <ul class="brand-cards">
-      ${markCard(list, "wordmark", "Six letters. Mono caps, bold, tracked 0.1em, as the header sets it: 19px, 16px at 380px wide and under.", `<span class="bui-label"><b>AT MINIMUM</b> · 16PX</span><b class="brand-min-word">FIZLET</b>`)}
-      ${markCard(list, "short-mark", "Four letters, the same weight. Lowercase mono: npm, code, CLI output, badges, stickers and tight spaces.", `<span class="bui-label"><b>AT MINIMUM</b> · 12PX</span><b class="brand-min-fzlt">fzlt</b>`)}
+      ${markCard(list, "wordmark", "The mark in its square frame; the frame's right side is the F's stem. Six heavy caps, drawn as outlines so they hold in any font. Titles, the hero, covers.", `<span class="bui-label"><b>AT MINIMUM</b> · 24PX CAP HEIGHT</span><span class="brand-min-logo">${logoSvg(fizletLogo(), 24)}</span>`)}
+      ${markCard(list, "short-mark", "The mark's pixels without the frame, the pop above, then fzlt in bold lowercase. npm, code, badges, stickers and tight spaces.", `<span class="bui-label"><b>AT MINIMUM</b> · 24PX TALL</span><span class="brand-min-logo">${logoSvg(fzltLogo(), 24)}</span>`)}
     </ul>
     <div class="panel brand-card brand-header-lockup">
       <h3>The mark and the header lockup</h3>
-      <p class="brand-cap">Three pixel bubbles fizzing up a grid tile, one popping: bubbles <code>--team-a</code>, grid <code>--k-sys</code>, the pop <code>--k-attack</code>, on a <code>--rim</code> tile in both themes. 44px in the header, 38px at 380px and under. The favicon is the same mark: <a href="../icon.svg" download="fizlet-icon.svg">icon.svg</a>.</p>
+      <p class="brand-cap">The mark: pixel squares fizzing up a square frame, one popping. Frame and squares in <code>--ink</code>, the pop in <code>--k-attack</code>, on no tile: the logos' mark, 40px in the header, 34px at 380px and under. The version is a sticker, the site's sticker recipe in <code>--k-sys</code>. The header, the footer and fzlt.dev draw this one lockup. The favicon is the same mark: <a href="../icon.svg" download="fizlet-icon.svg">icon.svg</a>.</p>
       <div class="brand-pair">
         <div class="bui brand-hl" data-theme="dark"><span class="brand">${headerLockup(version)}</span></div>
         <div class="bui brand-hl" data-theme="light"><span class="brand">${headerLockup(version)}</span></div>
@@ -197,8 +197,9 @@ ${section("space", `${head("07", "space", "CLEAR SPACE · MINIMUM SIZE", "Give i
     <div class="brand-split">
       ${clearSpace(list)}
       <ul class="panel brand-min" aria-label="Minimum sizes">
-        <li><span class="brand-text brand-min-16"><b>FIZLET</b></span><p><b>Wordmark:</b> 16px, the smallest it ships (the header at 380px wide and under).</p></li>
-        <li><span class="brand-mark brand-min-38">${mark(34)}</span><p><b>Mark tile:</b> 38px in page chrome; the favicon at the browser's size.</p></li>
+        <li><span class="brand-min-logo">${logoSvg(fizletLogo(), 24)}</span><p><b>Logos:</b> FIZLET at a 24px cap height, fzlt at 24px tall: the pop's smallest pixel stays about 1px.</p></li>
+        <li><span class="brand-text brand-min-16"><b>FIZLET</b></span><p><b>Header wordmark:</b> 16px, the smallest it ships (the header at 380px wide and under).</p></li>
+        <li><span class="brand-mark brand-min-38">${mark(34)}</span><p><b>Mark:</b> 34px in page chrome; the favicon at the browser's size.</p></li>
         <li><code class="brand-min-12">fzlt</code><p><b>fzlt:</b> 12px, the arcade key label size.</p></li>
       </ul>
     </div>`)}

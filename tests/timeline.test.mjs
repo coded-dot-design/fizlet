@@ -56,6 +56,26 @@ test("timeline: easings", () => {
   close(eased((p) => p * p, 0.5), 0.25, "a function");
 });
 
+test("timeline: steps(n) lands on whole steps only, n + 1 of them, the end at the end (CSS steps(n, end))", () => {
+  // Anywhere on the track: floor(p × n), never between two steps (the table cell across a step edge
+  // used to blend them: steps(13) over 0..13 read 1.619, 5.857, 6.143 and 10.381 at 60 Hz).
+  for (const n of [2, 3, 7, 13, 24]) {
+    const e = createEngine(), out = new Float64Array(1), tl = timeline(e).to(out, { 0: [0, n] }, { dur: 1, ease: `steps(${n})` });
+    for (let i = 0; i <= 1000; i++) {
+      tl.seek(i / 1000).step(e, DT);
+      assert.equal(out[0], Math.min(n, Math.floor((i / 1000) * n)), `steps(${n}) at ${i / 1000}`);
+    }
+  }
+  // The 2015 sprite strip: 13 frames over 1.4 s, played at 60 Hz.
+  const e = createEngine(), a = new Float64Array(1), tl = timeline(e, { motion: true }).to(a, { 0: [0, 13] }, { dur: 1.4, ease: "steps(13)" });
+  e.start();
+  tl.play();
+  const seen = new Set();
+  for (let i = 0; i < 200; i++) e.advance(DT), seen.add(a[0]);
+  assert.deepEqual([...seen].sort((x, y) => x - y), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "whole frames only, each one, then the end");
+  assert.equal(a[0], 13, "it ends on the last step");
+});
+
 test("timeline: interpolates CSS values and numbers, writes in render through the ledger", () => {
   const e = createEngine(), a = el(), nums = new Float64Array(2), obj = { x: 0 };
   const tl = timeline(e)

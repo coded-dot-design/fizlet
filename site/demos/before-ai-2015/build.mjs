@@ -239,7 +239,7 @@ const body = `${CSS}
       </li>
     </ol>
     <p class="bt-note">Reduced motion: the 2015 column and the remake hold their first frame (a wrapper rule on this page; 2015 had none), and the arcade lands each press on its still frame with no particles, squash or shake; it makes a sound only when you press, and the Sound key mutes it. At rest the page asks for no animation frames, even after a round in the arcade; the site's tests count them on every build. On the page both Fizlet columns ship as one script, <b>${fmt(sizes.js)} B</b> gzip (they share the kernel), plus <b>${fmt(sizes.fizCss)} B</b> of CSS. The sprite sheets are the same files in all three.</p>
-    <p class="bt-recall-row"><button type="button" class="bt-recall" data-recall>Recall</button><span>Give the page back: every engine stops and every style, class and attribute Fizlet wrote goes back as it was.</span></p>
+    <p class="bt-recall-row"><button type="button" class="bt-recall" data-recall>Recall</button><span>Give the page back: every engine stops and every style, class and attribute Fizlet wrote goes back as it was. Press either Fizlet column to start it again.</span></p>
 
     <div class="bt-sec" id="compare" data-reveal>
       <p class="eyebrow"><span class="index">02</span> ONE COMPARISON · MEASURED</p>

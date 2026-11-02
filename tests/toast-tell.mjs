@@ -40,7 +40,7 @@ try {
   });
   await p.waitForFunction(() => window.scene);
   const m = await p.evaluate(() => ({ canvas: document.querySelectorAll("[data-fizlet-slot] canvas").length, small: [...document.querySelectorAll("[data-fizlet-slot] button")].map((b) => b.getBoundingClientRect()).filter((r) => r.width < 44 || r.height < 44).length, buttons: document.querySelectorAll("[data-fizlet-slot] button").length, role: document.querySelector("figure").getAttribute("role") }));
-  assert.deepEqual(m, { canvas: 1, small: 0, buttons: 4, role: null }, "toast-tell: canvas, SLIP DUCK PUNCH and mute (44 px or more); the figure drops role=img for real controls");
+  assert.deepEqual(m, { canvas: 1, small: 0, buttons: 4, role: "figure" }, "toast-tell: canvas, SLIP DUCK PUNCH and mute (44 px or more); the figure's role=img becomes role=figure for real controls (#215)");
   // The demo: one read, one counter, then it waits and sleeps.
   await until(p, () => scene.sim.S[12] >= 1, 900, "toast-tell: the demo lands a counter");
   await until(p, () => scene.engine.paused.includes("settled"), 900, "toast-tell: settles after the demo");
