@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.21.3
 
 - **Site: one head pattern, the home section heads' spacing everywhere (pending owner review).** An
   index page's title (Docs, Guides, Daily, the archive, Contest, News, Notes, People, Make and the
