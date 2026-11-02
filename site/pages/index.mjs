@@ -101,7 +101,7 @@ export function roadmapSection(all = phases()) {
     <div class="section-head">
       <p class="eyebrow"><span class="index">09</span> ROADMAP · ${first} TO ${last}</p>
       <h2 id="roadmap-title">What's done.<br><em>What's left.</em></h2>
-      <p class="lead">${esc(BETA_LINE)} ${first} to ${LAUNCH_LAST} are the launch scope; a box is ticked only with a release, a merged change or a test behind it. ${next} to ${last} are next, with the bricks each adds (<a href="bricks/#planned">ROADMAP</a> on the bricks page). The first plan, E0 to E6, is <a href="${ENGINE_PLAN}">ENGINE.md ↗</a> in the DOM VIRUS repo.</p>
+      <p class="lead">${esc(BETA_LINE)} ${first} to ${LAUNCH_LAST} are the launch scope; a box is ticked only with a release, a merged change or a test behind it. ${next} to ${last} come after launch, with the bricks each adds (<a href="bricks/#planned">ROADMAP</a> on the bricks page). The first plan, E0 to E6, is <a href="${ENGINE_PLAN}">ENGINE.md ↗</a> in the DOM VIRUS repo.</p>
     </div>
     <ol class="roadmap">
       ${roadmap}
