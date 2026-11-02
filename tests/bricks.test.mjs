@@ -471,6 +471,16 @@ test("fx: gravity pulls each kind by its share; kinds are data", () => {
   assert.ok(Math.abs(calm.raw.f[3][5]) <= Math.abs(v0));
 });
 
+test("fx: emit picks words from a range, like colours (a word kind is not stuck on words[0])", () => {
+  const fx = effects({ cap: 400, words: ["BOOM", "♪", "♫", "♬", "NOPE"] });
+  const { ids, emit } = emitter(fx, { note: { ...KINDS.bubble, shape: "word" } });
+  emit(ids.note, 0, 0, 100); // no range: words[0], as before
+  emit(ids.note, 0, 0, 300, 0, 1, 1, 1, 3); // words 1-3
+  const { word } = fx.raw, first = new Set(word.slice(0, 100)), seen = new Set(word.slice(100, 400));
+  assert.deepEqual([...first], [0]);
+  assert.deepEqual([...seen].sort(), [1, 2, 3], "every word in the range shows, none outside it");
+});
+
 test("fx: emit is bounded, validated, and a second emitter adds after the first", () => {
   const fx = effects({ cap: 10 }), a = emitter(fx, { bubble: KINDS.bubble });
   a.emit(a.ids.bubble, 5, 5, 4, 1, 3);
@@ -506,6 +516,63 @@ test("fx: emitting kinds under gravity allocates nothing", async (t) => {
   });
   assert.ok(fx.live > 50, `populated (${fx.live})`);
   assert.ok(minor <= 1, `young-generation GCs over 200k frames: ${minor}`);
+});
+
+test("fx: drawing a word spray allocates nothing (the font string is not rebuilt per particle)", async (t) => {
+  // fizlet#209: a word kind's draw built a new font string for every particle on every frame
+  // (1,409 B/frame on the 2015 headphones arcade). A canvas stand-in that keeps what it is given.
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  let sink = null, leak = false;
+  const ctx = {
+    font: "", textAlign: "", lineWidth: 1, strokeStyle: "", fillStyle: "", globalAlpha: 1, n: 0,
+    save() {}, restore() {}, translate() {}, rotate() {}, beginPath() {}, arc() {}, fill() {}, stroke() {}, fillRect() {}, strokeRect() {},
+    strokeText() {},
+    fillText() {
+      this.n++;
+      if (leak) sink = `900 ${this.n}px ui-monospace`; // the self-check: a draw that builds a string, as the bug did
+    },
+  };
+  const fx = effects({ cap: 120, words: ["♪", "♫", "♬", "BOOM"] });
+  const { ids, emit } = emitter(fx, { note: { shape: "word", drag: 0.6, gravity: -0.4, angle: -1.5708, spread: 1.2, speed: [40, 90], size: [12, 30], life: [0.6, 1.4] } });
+  const s = new Int32Array(1);
+  const frame = () => {
+    const i = s[0]++;
+    if ((i & 3) === 0) emit(ids.note, (i * 7) % 320, 120, 4, i & 7, 2);
+    fx.step(1 / 60);
+    fx.draw(ctx);
+  };
+  for (let i = 0; i < 20000; i++) frame();
+  gc();
+  const minor = await minorGCs(() => {
+    for (let i = 0; i < 100000; i++) frame();
+  });
+  const live = fx.live, drawn = ctx.n;
+  leak = true;
+  for (let i = 0; i < 20000; i++) frame();
+  const control = await minorGCs(() => {
+    for (let i = 0; i < 100000; i++) frame();
+  });
+  console.log(`# fx word spray young GCs over 100k drawn frames (${live} live words): ${minor}; self-check, an allocating draw: ${control}`);
+  assert.ok(sink && drawn > 0);
+  assert.ok(live > 20, `populated (${live} live words)`);
+  assert.ok(ctx.font.startsWith("900 ") && ctx.font.endsWith("px ui-monospace, SFMono-Regular, monospace"), ctx.font);
+  assert.ok(control >= 5, `the method sees one object per drawn word: ${control}`);
+  assert.ok(minor <= 1, `young-generation GCs over 100k word-spray frames: ${minor}`);
+});
+
+test("fx: a word draws at 0, 0 about its own origin (Chromium boxes fractional fillText coordinates)", () => {
+  // fillText and strokeText have no fast path in Chromium 153: a fractional x or y is a 12 B heap
+  // number per call (2 calls per word, every frame). translate() and 0, 0 allocate nothing.
+  const calls = [];
+  const ctx = {
+    save() {}, restore() {}, rotate() {}, translate: (x, y) => calls.push(["translate", x, y]),
+    strokeText: (w, x, y) => calls.push(["strokeText", x, y]), fillText: (w, x, y) => calls.push(["fillText", x, y]),
+  };
+  const fx = effects({ cap: 4, words: ["♪"] });
+  const { ids, emit } = emitter(fx, { note: { ...KINDS.bubble, shape: "word" } });
+  emit(ids.note, 10.25, 20.75, 1); // emitted words are square to the page: no rotation
+  fx.draw(ctx);
+  assert.deepEqual(calls, [["translate", 10.25, 20.75], ["strokeText", 0, 0], ["fillText", 0, 0]]);
 });
 
 test("K5: no plain-sqrt distance in a brick; the exact hypot (@fzlt/core/steer) is the one place", async () => {

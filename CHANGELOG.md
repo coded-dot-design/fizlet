@@ -2,6 +2,157 @@
 
 ## Unreleased
 
+- **Release train 0.21.3 (#206 + #212, with #194, #215, #213 and #226's CueName fix), measured
+  together on main.** gz, main → train: kernel 3,413 → 3,372 B, page build 7,128 → 7,094 B (10 B under
+  its 7,104 budget), perf 2,064 → 2,019 B (budget 2,064 → 2,022), grid 1,603 → 1,652 B (budget 1,637 →
+  1,664), fx 2,797 → 2,792 B, slot 1,819 → 1,849 B, timeline 2,120 → 2,137 B, presence 2,224 → 2,197 B,
+  presence/check 4,994 → 4,870 B, arcade 24,327 → 24,143 B (budget 24,399 → 24,150), arcade card
+  18,334 → 18,192 B (budget 18,361 → 18,201: #206's 18,179 plus #218's +22 B), board-page 4,136 →
+  4,103 B, css-clock 5,368 B (budget 5,632 → 5,566). The per-PR numbers below are each PR on its own base.
+- **Size (S8, size/treeshake; supersedes #205): the page build has 154 B of headroom under its 7 KB cap.**
+  No behaviour change. esbuild keeps a top-level `const` as a variable in any file with imports (and
+  a local one declared after other code), so the numbers the engine and the bricks index with now
+  ship as literals named in a comment (`2 /* STEP */`): the engine's slots, pause bits and phases, and
+  the slots and kinds in hud, match, pad, perf, presence, camera, board-page and arcade (exported
+  values unchanged). `EventRing` and `Pool` private fields are one letter (`s`, `f`: the API snapshot
+  shows them, the public API is unchanged), the ledger entry's flags are `hs`/`hc`, and fx's shape
+  numbers come before `TAU`. Measured gz: kernel 3,413 → 3,332 B, page build 7,128 → 7,014 B, arcade
+  24,280 → 24,031 B, arcade card 18,295 → 18,113 B, presence/check −176 B, camera −69 B. Budgets
+  lowered to lock it in: page build 7,168 → 7,104, arcade 24,399 → 24,150, arcade card 18,361 → 18,179,
+  css-clock 5,632 → 5,566, board-page 4,193 → 4,160, perf 2,048 → 2,022, pad 2,126 → 2,120.
+- **src/ is erasable TypeScript, enforced.** `tsconfig.json` sets `erasableSyntaxOnly` and
+  `tests/erasable.test.mjs` runs every source file through Node's type stripper, so a `const enum`, an
+  `enum`, a namespace or a parameter property fails CI instead of breaking games that vendor `src/`
+  (byte-runner, null-invaders, sherman-bytes). `@fzlt/core/perf`'s `FrameRing` had a parameter property;
+  `cap` is now a plain field (same API). The site's own tsconfig turns the flag off for gallery pieces.
+- **Hardening from the S6 pressure test (P2-01 to P2-04), pending owner review.** `@fzlt/core` (kernel):
+  `destroy()` closes the engine's ledger (`Ledger.restore(close?)`, new optional argument): a late
+  `text`/`style`/`attr`/`cls` write is refused (returns false, touches nothing) and a late `add()`d
+  node leaves when the caller's task ends, so Recall stays exact (P2-03); `advance(sec)` throws
+  `RangeError: fizlet: sec must be a finite number` on Infinity, NaN or a non-number instead of
+  stopping the engine for good (P2-04). `@fzlt/core/grid`: `path`, `flood`, `los` and `hit` throw
+  `fizlet/grid: cell … is not on the board` on an id that is not an integer on the board (they
+  looped forever, P2-01), and a bad size says "is not a board" (P2-02). Bytes: kernel 3,413 → 3,453,
+  page build 7,128 → 7,167 (+55 B for the fixes, −16 B paid down elsewhere), grid 1,603 → 1,652
+  (budget 1,664), perf 2,042 → 2,019 (−23 B, so #173's +22 B fits the 2,048 budget). The fuzz
+  (`npm run test:stress -- fuzz --fixed`) holds the four fixed cases.
+- **@fzlt/core/timeline: `steps(n)` lands on whole steps only.** Every easing is sampled into a 256-step
+  table and read by blending two neighbouring samples; for a steps easing, the cell across a step's
+  edge blended two steps, so a 13-frame sprite strip (`steps(13)` over 0..13, 1.4 s) read 1.619,
+  5.857, 6.143 and 10.381 at 60 Hz. A steps track now reads `floor(p × n) / n` straight from its
+  progress (no table, no call, no allocation): whole steps only, all n + 1, the last one at the
+  end, as CSS `steps(n, end)`. Other easings are unchanged. Test: `timeline: steps(n) lands on whole
+  steps only` (fails on 0.20.0). Timeline 2,060 → 2,085 B gz (budget 2,304).
+- **`@fzlt/core/slot`: Recall is byte-exact for accessible scenes** (pending owner review). For a scene
+  with `accessible: true` the slot removed `role="img"` and the ledger set it again on `destroy()`,
+  so it came back last and the attribute order differed (the 3 pending 2015 gallery entries
+  reported `recallExact: false`). It now changes `role="img"` to `role="figure"` in place, through
+  the ledger, and Recall puts `"img"` back in the same spot: `outerHTML` is identical. `figure` is
+  a `<figure>`'s own role, so assistive tech gets the same thing on the engine's figure shape, and on
+  the box shape (`div.ae-slot`) the `aria-label` now sits on a role that takes a name. slot 1,819 →
+  1,822 B gz, page build 7,128 → 7,131 B.
+- **`@fzlt/core/fx`: word particles no longer allocate per frame, and a word kind sprays a range**
+  (fizlet#209, pending owner review). `draw()` built a new font string for every word particle on
+  every frame (1,409 B/frame on the 2015 headphones arcade); each pixel size's string is now built
+  once and kept. And `fillText`/`strokeText` box a fractional x, y in Chromium (12 B a call), so a
+  word now draws at 0, 0 after a `translate`, as a turned particle already did. A 60-word spray in
+  Chromium 153 (CDP heap sampling, as `measureAnim`): 3,833 → 0.6 B/frame; in Node, 100k drawn
+  frames: 40 → 0 young GCs. `emit()` takes an optional word range `w, wn` after `scale`, like the
+  colour range (it only ever sprayed `words[0]`). Additive. fx 2,797 → 2,829 B gz, page build
+  7,128 → 7,163 B (cap 7,168).
+- **@fzlt/core/sound: a custom player's type now says it gets your own cue names.** `SoundOptions.play` takes `CueName` (a built-in `Cue` or one of your `notes`), matching what it already received; the cast is gone. A test pins that a `notes` entry named like an `Object.prototype` key (`constructor`) plays as a plain cue. 0 B.
+- **Site: people pages line up (pending owner review).** On every profile the stat row spans the
+  content column, edge to edge with the cards under it, and the three cards (What they make,
+  Favorite games, Off the board) are a grid again, side by side on wide screens and stacked on
+  narrow ones, one block gap apart (`--block-gap`, the space the contract rules and contest cards
+  use). A stray selector had folded the cards into the Daily contest panel's padding and width. Both
+  stats are bare numbers with the unit in the label ("bytes of live code"). The site test checks
+  the shared edges and the gap on each people page at 1440, 1024 and 390.
+- **Site: the header nav is quiet text, with more room between items (pending owner review).** The
+  top-level items and the menu rows no longer draw as half-raised keys (a filled face with a cyan
+  base edge) on hover, open or the current page. Hover lights the text; an open menu flips its
+  chevron and takes `--k-sys-ink`; the current page or section has a thin `--k-sys-ink` underline
+  (`aria-current` unchanged); a menu row gets a faint tint on hover. Keyboard focus keeps the site's
+  ring. The gap between items is 14 px (was 4), and the nav still fits on one line at 961 px, just
+  above the phone menu. GitHub, theme and Start stay keys.
+- **Site: "Cookie settings" is a plain text link (pending owner review).** In the footer it was a
+  Board UI key between the copyright and the byline, taller than the line and off its baseline; on
+  the privacy and cookies pages it drew as underlined text on a key base. One control now
+  (`site/layout.mjs` cookieSettings, `.text-btn` in site.css): still a `<button>` that reopens the
+  consent banner, styled as a text link with no face, base or lift. In the footer it ends the
+  meta line (© 2026 Chris Cooley · MIT licence · no runtime dependencies · Cookie settings), on its
+  baseline and visible at every width; in running text it is an ordinary link.
+- **Brand: the owner's new FIZLET and fzlt logos, and one mark and lockup everywhere (pending owner
+  review).** /brand/ draws the two new logos (redrawn as outlines from the owner's art, one function
+  each in `scripts/brand-marks.mjs`) on dark and light, as live art and SVG downloads: FIZLET, the
+  mark in its square frame closed by the F; fzlt, the mark's pixels and lowercase fzlt. Ink is
+  `--ink`, the pop `--k-attack`. The site mark (`site/layout.mjs` MARK, mark()) is now that art: frame
+  and squares in the text colour, no tile or grid, in the header, the footer, fzlt.dev, the favicon,
+  og.png and the sticker keys. One lockup function (`lockup()`) draws the header, footer, /brand/ and
+  fzlt.dev lockups; FIZLET sits at 0.075em tracking, nudged -0.06em, and the version is a small
+  tilted `--k-sys` sticker, its edge and hard shadow the shared `--sticker-edge` / `--sticker-shadow` tokens (`--ink`
+  until they land) so they read on both themes (on
+  phones it drops under FIZLET, a size down, so the 44 px header keys keep their room). Clear space is now
+  the mark's outlined square; minimum 24 px for both logos.
+- **Site: the origin hero in two looks, a redrawn coder, and a cup you can play with (pending owner
+  review).** "Code. Sleep. Drink. Repeat." is now inspired by the original 2015 portfolio, with
+  Fizlet flair: a 2015 / Fizlet key in the scene's key row (`aria-pressed`, `look` in `origin:state`,
+  `look` in mount, `data-look` on the slot) switches the flat 2015 palette and the Fizlet look,
+  cyberpunk × Tron from the Board UI tokens with the desk grid, neon edges and pixel patterns
+  (default). He wears a backwards trucker cap seen from above (mesh, foam panel, the bill toward
+  you), the headphones' band goes over it with a cup on each ear, and his arms bend at the elbow
+  (two bones, a tapered forearm, hands). Every tap squashes on the next frame and pops; hit areas
+  are 44 px or more. The cup: tap to sip, double-tap to refill (a pour, then steam), drag to move
+  it (it lifts, its shadow grows), flick to knock it over (it spills, then rights itself, refilled);
+  Enter, R, K and the arrows on the cup. Reduced motion changes state with no animation; every toy
+  settles. Live chunk 20,922 → 28,156 B gzip; inline poster 3,775 → 5,120 B (one markup, both
+  looks; the poster's saucer shows again). Test: `tests/origin.mjs`.
+
+- **Site: Before AI: 2015, the Fizlet columns play again after Recall (pending owner review).**
+  Recall gave the page back but left both Fizlet columns dead, and the remake's play switch stuck on
+  pause: its class flips were not in the ledger and its listeners outlived the engines. Every class
+  flip now goes through the strip's ledger and every listener goes with its engine, so Recall is
+  exact whatever was pressed; after it, a press on a column starts it fresh (no load intro) and acts,
+  any number of times. Site tests: three Recall-then-play rounds (also under reduced motion) and
+  three play/pause rounds on the remake's switch and the arcade's play key.
+
+- **Site: 3D stickers keep their edge and shadow on the dark theme (pending owner review).** Every
+  sticker's die-cut edge and hard shadow read from one token pair, `--sticker-edge` and
+  `--sticker-shadow` (site.css :root): the light ink and the muted light on the dark theme, the ink
+  rim on the light theme. The brick status stickers and the kernel slab, section and gallery numbers
+  (`.eyebrow .index`), the gallery's NEW / APPROVED / HERO / WINNER stickers, the phase and people
+  stickers, the win badge, the status and phase pills, the periodic tiles' stickers and the kit's
+  slam sticker on the site all use it. Text stays the dark ink on the bright face.
+
+- **Home: the spec sheet's size chips are small brick tiles (pending owner review).** The wall of
+  "@fzlt/core/… KB" chips with a green bar under each is now two tidy grids (`sizeChips` in
+  site/brick-ui.mjs): the bricks you import, each with its symbol tile in its own colour (from
+  site/bricks.mjs, the same as the cards and the periodic table), its short name ("input",
+  "presence/check") and its gzip size as the number, with "@fzlt/core/…" said once in the heading;
+  then the kernel, the split sizes (ui js, ui css) and the builds (the arcade card, the page build),
+  where a build gets a neutral dashed tile and no symbol. The bar is gone: each tile fills from the
+  bottom to the share of its budget, and the share is in the chip's text for screen readers and in
+  its title on hover. The docs budgets table shows the same symbol tiles. Sizes stay the build's.
+
+- **Bricks: status stickers sit beside the symbol tile, each slapped on its own way; BETA peels; the
+  kernel gets a stamped slab (pending owner review).** On the home page's brick cards and on bricks/,
+  the status sticker moves off the card's top border into the open space right of the symbol tile,
+  centred on its row. Its tilt (2 to 6 degrees either way) and a nudge of a few px come from the
+  brick's id (`stickerLook` in site/brick-ui.mjs, a hash: the same on every build, no Math.random,
+  and translate/rotate never move the layout). BETA stickers peel: one corner cut and folded back as a
+  lighter underside with a soft shadow, and two faint scuffs, in CSS only (the DOM VIRUS game sticker's
+  recipe); the label is still the only text. The kernel's KERNEL sticker is a bigger purple slab
+  in the card's top-right corner, inside its border (no sticker hangs off a card or a tile), with a
+  stamp's inner ring and the kernel card's double shadow. Hover
+  and focus press the stickers flat (no motion under reduced motion). The same rules at every size:
+  the periodic table's tiles, the quick view, a brick's page and the roadmap cards. On phones a long
+  label wraps under the tile, never over the name. No sticker hangs off a card; on the periodic
+  table's small tiles the sticker still sits on the top edge. The kernel shows only its KERNEL sticker
+  everywhere (card, tile, legend, quick view, its page): it is the core, so complete goes without
+  saying (its status stays `complete` in the data). A sub-heading after a
+  brick grid ("In-house / experimental") keeps the page's 48 px block gap. Text contrast on every sticker face is 5.4:1 or
+  more in both themes.
+
 - **Gallery: the genre minis are playable: compact keys that never cover the action (pending owner
   review).** In Redline, Dirt Lab, Bag Beat and Toast Tell the keys were sized in container units on a
   figure that was no size container, so they grew with the window (GAS took half the stage), and the

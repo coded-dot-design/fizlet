@@ -4,10 +4,14 @@
 import type { SlotMount, SlotScene } from "../../src/slot";
 
 export type OriginMode = "code" | "design";
+/** The scene's look: "fizlet" (the default: Board UI tokens) or "2015" (the portfolio's palette). */
+export type OriginLook = "2015" | "fizlet";
 
 /** What the scene reports on every change, in `scene.state` and in the `origin:state` event. */
 export interface OriginState {
   mode: OriginMode;
+  /** The origin scene reports its look; the placeholder has none. */
+  look?: OriginLook;
   open: boolean;
   bricks: boolean;
   sound: boolean;

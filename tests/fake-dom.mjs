@@ -107,6 +107,10 @@ export class El extends Target {
   hasAttribute(n) {
     return this.getAttribute(n) !== null;
   }
+  /** In document order, as the browser keeps them: a new attribute goes last, a changed one stays. */
+  getAttributeNames() {
+    return [...this.#attrs.keys()].filter((n) => this.hasAttribute(n));
+  }
   removeAttribute(n) {
     if (n === "style") this.#style = null;
     this.#attrs.delete(n);

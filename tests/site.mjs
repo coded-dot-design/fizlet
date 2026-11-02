@@ -361,7 +361,7 @@ try {
       const html = readFileSync(`${ROOT}/people/${p.id}/index.html`, "utf8");
       const mine = GALLERY.filter((e) => authorOf(e) === p.id);
       const bytes = mine.reduce((n, e) => n + gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length, 0);
-      assert.ok(html.includes(`data-stat="entries">${mine.length}</b>`) && html.includes(`data-stat="bytes">${bytes.toLocaleString("en-US")} B</b>`), `${p.id}: ${mine.length} entries, ${bytes} B, measured`);
+      assert.ok(html.includes(`data-stat="entries">${mine.length}</b>`) && html.includes(`data-stat="bytes">${bytes.toLocaleString("en-US")}</b><p>${bytes === 1 ? "byte" : "bytes"} of live code`), `${p.id}: ${mine.length} entries, ${bytes} B, measured`);
       assert.ok(html.includes(`aria-label="${STICKER[p.kind].label}" title="${STICKER[p.kind].label}">${STICKER[p.kind].text}</span>`), `${p.id}: the ${STICKER[p.kind].text} sticker says what they are`);
       const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
       const profile = graph.find((x) => x["@type"] === "ProfilePage");
@@ -776,6 +776,34 @@ try {
     await context.close();
   }
 
+  // ---------- People: the stat row and the cards share the content column; cards keep the block gap ----------
+  where = "people layout";
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 1024, height: 800 }, { width: 390, height: 844 }]) {
+    const context = await browser.newContext({ viewport });
+    for (const p of profiles()) {
+      const { page } = await open(context, `people/${p.id}/`);
+      const got = await page.evaluate(() => {
+        const box = (el) => el.getBoundingClientRect();
+        const stats = box(document.querySelector(".ppl-stats")), grid = box(document.querySelector(".ppl-grid"));
+        const cards = [...document.querySelectorAll(".ppl-grid > .ppl-card")].map(box);
+        const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--block-gap"));
+        // Between two neighbours: side by side, the space across; stacked, the space down.
+        const gaps = cards.slice(1).map((b, i) => (Math.abs(b.top - cards[i].top) < 1 ? b.left - cards[i].right : b.top - cards[i].bottom));
+        return {
+          left: [stats.left, grid.left, Math.min(...cards.map((c) => c.left))],
+          right: [stats.right, grid.right, Math.max(...cards.map((c) => c.right))],
+          gap, gaps, statsToGrid: grid.top - stats.bottom,
+        };
+      });
+      const at = `${p.id} at ${viewport.width}`;
+      for (const k of ["left", "right"]) assert.ok(Math.max(...got[k]) - Math.min(...got[k]) <= 1, `${at}: the stat row and the cards share their ${k} edge (${got[k]})`);
+      assert.ok(got.gap > 0 && got.gaps.length === 2 && got.gaps.every((g) => g >= got.gap - 0.5), `${at}: cards keep the block gap (${got.gaps} vs ${got.gap})`);
+      assert.ok(got.statsToGrid >= got.gap - 0.5, `${at}: the block gap under the stat row (${got.statsToGrid})`);
+      await page.close();
+    }
+    await context.close();
+  }
+
   // ---------- Gallery: each live demo loads only near the screen, plays, and gives the page back ----------
   // ---------- Ambient slots: the fps cap holds on the page's own frame count ----------
   where = "slot fps cap";
@@ -944,6 +972,76 @@ try {
     const n = await page.evaluate(() => new Promise((r) => { let n = 0; const raf = window.requestAnimationFrame; window.requestAnimationFrame = (f) => (n++, raf(f)); setTimeout(() => ((window.requestAnimationFrame = raf), r(n)), 1000); }));
     assert.equal(n, 0, `${where}: no frames`);
     assert.equal(await page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length), 0, `${where}: no CSS animation runs`);
+    await context.close();
+  }
+  // Recall, then play again: Recall gives the page back, a press on a Fizlet column starts it fresh
+  // and that press acts, and the next Recall is exact again. Three rounds, with and without reduced
+  // motion (the remake is not started under it: it holds its first frame, like 2015). On state only.
+  for (const reducedMotion of ["no-preference", "reduce"]) {
+    where = `before-ai-2015 recall, play again (${reducedMotion})`;
+    const URL_ = `${ORIGIN}${BASE}demos/before-ai-2015/`;
+    const R = ".bt-same .fz-beats", A = ".bt-arcade ", W = { timeout: 5000 };
+    const snap = (page) => page.$eval(".bt", (el) => el.outerHTML);
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 }, reducedMotion });
+    const bare = await context.newPage();
+    await bare.route("**/before.js", (r) => r.abort());
+    await bare.goto(URL_, { waitUntil: "load" });
+    const before = await snap(bare);
+    const { page, errors } = await open(context, "demos/before-ai-2015/");
+    await page.locator(".bt-row").scrollIntoViewIfNeeded();
+    const pos = (sel) => page.$eval(sel, (el) => el.style.backgroundPosition);
+    // A sprite moves on from `from` (its engine writes a new frame).
+    const moves = (sel, from) => page.waitForFunction(([s, f]) => { const v = document.querySelector(s).style.backgroundPosition; return v !== "" && v !== f; }, [sel, from], W);
+    for (let round = 0; round < 3; round++) {
+      if (reducedMotion === "no-preference") {
+        const r0 = await pos(R);
+        await page.click(`${R} .switch`);
+        assert.equal(await page.getAttribute(R, "class"), "fz-beats", `${where} #${round}: the remake's switch reads playing`);
+        await moves(R, r0);
+      }
+      const a0 = await pos(A + ".fz-beats");
+      await page.click(A + ".fz-play");
+      assert.equal(await page.getAttribute(A + ".fz-play", "aria-pressed"), "true", `${where} #${round}: the arcade's play key is pressed`);
+      assert.equal(await page.getAttribute(A + ".fz-play", "aria-label"), "Pause the music", `${where} #${round}: its label follows`);
+      await moves(A + ".fz-beats", a0);
+      await page.click(A + ".fz-coffee button");
+      await page.waitForFunction(() => document.querySelector(".bt-arcade .fz-coffee button").getAttribute("aria-label") === "Drink the coffee", null, W);
+      await page.click("[data-recall]");
+      assert.equal(await snap(page), before, `${where} #${round}: Recall gives the page back exactly`);
+    }
+    assert.deepEqual(errors, [], `${where}: no errors`);
+    await context.close();
+  }
+  // The remake's play switch and the arcade's play key: play, pause, play again, three times in a
+  // row; each press flips the switch (its icon) and the key (aria-pressed, label), and the frames
+  // go on from where they held.
+  where = "before-ai-2015 replay";
+  {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    const { page, errors } = await open(context, "demos/before-ai-2015/");
+    await page.locator(".bt-row").scrollIntoViewIfNeeded();
+    const W = { timeout: 5000 };
+    const pos = (sel) => page.$eval(sel, (el) => el.style.backgroundPosition);
+    const moves = (sel, from) => page.waitForFunction(([s, f]) => { const v = document.querySelector(s).style.backgroundPosition; return v !== "" && v !== f; }, [sel, from], W);
+    const icon = () => page.$eval(".bt-same .fz-beats .switch", (el) => getComputedStyle(el, "::after").content);
+    const R = ".bt-same .fz-beats", P = ".bt-arcade .fz-play";
+    const PLAY_ICON = await icon();
+    for (let i = 0; i < 3; i++) {
+      const r0 = await pos(R);
+      await page.click(`${R} .switch`);
+      assert.notEqual(await icon(), PLAY_ICON, `${where} #${i}: the remake's switch shows pause while it plays`);
+      await moves(R, r0);
+      await page.click(`${R} .switch`);
+      assert.equal(await page.getAttribute(R, "class"), "fz-beats paused", `${where} #${i}: the remake's switch is back to play`);
+      assert.equal(await icon(), PLAY_ICON, `${where} #${i}: its icon is play again`);
+      const a0 = await pos(".bt-arcade .fz-beats");
+      await page.click(P);
+      assert.deepEqual([await page.getAttribute(P, "aria-pressed"), await page.getAttribute(P, "aria-label")], ["true", "Pause the music"], `${where} #${i}: the arcade plays`);
+      await moves(".bt-arcade .fz-beats", a0);
+      await page.click(P);
+      assert.deepEqual([await page.getAttribute(P, "aria-pressed"), await page.getAttribute(P, "aria-label")], ["false", "Play the music"], `${where} #${i}: the arcade's key is back to play`);
+    }
+    assert.deepEqual(errors, [], `${where}: no errors`);
     await context.close();
   }
   // ---------- Gallery at phone width: a slot's CSS animation stops once it is off screen ----------
