@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Bricks: "Shipped in" checked against every game's latest release tag (pending owner review).**
+  Each brick's `used` list in `site/bricks.mjs` now names what really ships it, read from the games'
+  vendored `@fzlt/core` imports at their tags: hud and match (Sherman Bytes 1.1.0's skirmish
+  scoreboard), touch (the arcade games, the DOM Battlefield and Blitz sites, fizlet.com), timeline
+  (fizlet.com, the DOM VIRUS site), collide (board-page's text grid), fx, sprite and slot (the DOM
+  Battlefield site's hero battle), layout and view-canvas (the bricks index's brick graph). Swarm
+  Protocol is no longer counted under Board UI (it doesn't import it), board-page credits Byte Runner
+  and Sherman Bytes through `@fzlt/core/arcade`, and game versions are the latest tags, named once
+  (`GAME`). No status changes: the BETA bricks that now ship say what COMPLETE still asks. The README
+  and home page say Sherman Bytes 1.1, and DOM Battlefield is "on Fizlet since 1.0".
 - **Site: the home hero says "Small footprint. Big performance.", the bricks keep "Logic & style.",
   and the container grows on big screens (pending owner review).** Home and /bricks/ never share a
   headline (owner): `HOME_HEADLINE` in `site/layout.mjs` is the home hero's bigger-picture line about

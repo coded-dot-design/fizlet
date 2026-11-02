@@ -12,8 +12,8 @@ and the page always comes back exactly as it was. No runtime dependencies, ever.
 
 The "fiz" is fizz (the pop of an effect) and a nod to physics; the "-let" is small, like an applet.
 Fizlet runs every DOM VIRUS game: Battlefield Blitz, [DOM Battlefield](https://coded-dot-design.github.io/dom-battlefield/)
-1.0, and the [DOM VIRUS](https://coded-dot-design.github.io/dom-virus/) arcade (Null Invaders,
-Byte Runner and Sherman Bytes 1.0, Swarm Protocol 1.4). "The page is the board" is DOM VIRUS's
+1.0, and the [DOM VIRUS](https://coded-dot-design.github.io/dom-virus/) arcade (Null Invaders and
+Byte Runner 1.0, Sherman Bytes 1.1, Swarm Protocol 1.4). "The page is the board" is DOM VIRUS's
 approach: one use of the bricks.
 
 > **Public beta (0.x).** Fizlet 0.x is a public beta: every brick carries a status flag, and a 0.x
