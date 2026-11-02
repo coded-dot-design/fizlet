@@ -27,8 +27,8 @@ body {
   gap: 16px;
 }
 .fz-lockups .brand-mark {
-  width: 76px;
-  height: 76px;
+  width: 70px;
+  height: 70px;
 }
 .fz-lockups .brand-mark svg {
   width: 70px;
@@ -40,22 +40,10 @@ body {
 .fz-lockups .brand-text b {
   font-size: clamp(34px, 6vw, 48px);
 }
-/* The short mark: the same tile, small, with "fzlt" in mono lowercase (style guide 13). */
+/* The short mark: the fzlt logo (scripts/brand-marks.mjs fzltLogo()), in --ink, the pop pink. */
 .fz-short {
   display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font: 700 22px/1 var(--mono);
-  letter-spacing: 0.04em;
   color: var(--ink);
-}
-.fz-short .brand-mark {
-  width: 34px;
-  height: 34px;
-}
-.fz-short .brand-mark svg {
-  width: 30px;
-  height: 30px;
 }
 .fz h1 {
   margin: 34px 0 22px;

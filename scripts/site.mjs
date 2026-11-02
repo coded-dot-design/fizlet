@@ -8,7 +8,7 @@ import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, write
 import { fillStage, launchFacts } from "./launch-facts.mjs";
 import { measure } from "./sizes.mjs";
 import { llmsFull } from "./llms-full.mjs";
-import { page, mark, esc, fillSiteMap, SITE, ROOT, REPO, PERSON, ORG, WEBSITE, ANALYTICS } from "../site/layout.mjs";
+import { page, mark, favicon, esc, fillSiteMap, SITE, ROOT, REPO, PERSON, ORG, WEBSITE, ANALYTICS } from "../site/layout.mjs";
 import { home } from "../site/pages/index.mjs";
 import { quickStartPage } from "../site/pages/quick-start.mjs";
 import { notFound } from "../site/pages/not-found.mjs";
@@ -113,7 +113,7 @@ const minInlineCss = async (html) => {
   for (let i = 1; i < parts.length; i += 2) parts[i] = `<style>${(await transform(parts[i].slice(7, -8), { loader: "css", minify: true })).code.trimEnd()}</style>`;
   return parts.join("");
 };
-writeFileSync(`${OUT}/icon.svg`, mark(64).replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" style="color:#39ffb0;background:#07060f" '));
+writeFileSync(`${OUT}/icon.svg`, favicon());
 writeFileSync(`${OUT}/og.png`, ogImage());
 writeFileSync(`${OUT}/.nojekyll`, "");
 // The brand marks (/brand/): every SVG download, from the one source the brand page draws inline.

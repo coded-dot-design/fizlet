@@ -968,6 +968,76 @@ try {
     assert.equal(await page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length), 0, `${where}: no CSS animation runs`);
     await context.close();
   }
+  // Recall, then play again: Recall gives the page back, a press on a Fizlet column starts it fresh
+  // and that press acts, and the next Recall is exact again. Three rounds, with and without reduced
+  // motion (the remake is not started under it: it holds its first frame, like 2015). On state only.
+  for (const reducedMotion of ["no-preference", "reduce"]) {
+    where = `before-ai-2015 recall, play again (${reducedMotion})`;
+    const URL_ = `${ORIGIN}${BASE}demos/before-ai-2015/`;
+    const R = ".bt-same .fz-beats", A = ".bt-arcade ", W = { timeout: 5000 };
+    const snap = (page) => page.$eval(".bt", (el) => el.outerHTML);
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 }, reducedMotion });
+    const bare = await context.newPage();
+    await bare.route("**/before.js", (r) => r.abort());
+    await bare.goto(URL_, { waitUntil: "load" });
+    const before = await snap(bare);
+    const { page, errors } = await open(context, "demos/before-ai-2015/");
+    await page.locator(".bt-row").scrollIntoViewIfNeeded();
+    const pos = (sel) => page.$eval(sel, (el) => el.style.backgroundPosition);
+    // A sprite moves on from `from` (its engine writes a new frame).
+    const moves = (sel, from) => page.waitForFunction(([s, f]) => { const v = document.querySelector(s).style.backgroundPosition; return v !== "" && v !== f; }, [sel, from], W);
+    for (let round = 0; round < 3; round++) {
+      if (reducedMotion === "no-preference") {
+        const r0 = await pos(R);
+        await page.click(`${R} .switch`);
+        assert.equal(await page.getAttribute(R, "class"), "fz-beats", `${where} #${round}: the remake's switch reads playing`);
+        await moves(R, r0);
+      }
+      const a0 = await pos(A + ".fz-beats");
+      await page.click(A + ".fz-play");
+      assert.equal(await page.getAttribute(A + ".fz-play", "aria-pressed"), "true", `${where} #${round}: the arcade's play key is pressed`);
+      assert.equal(await page.getAttribute(A + ".fz-play", "aria-label"), "Pause the music", `${where} #${round}: its label follows`);
+      await moves(A + ".fz-beats", a0);
+      await page.click(A + ".fz-coffee button");
+      await page.waitForFunction(() => document.querySelector(".bt-arcade .fz-coffee button").getAttribute("aria-label") === "Drink the coffee", null, W);
+      await page.click("[data-recall]");
+      assert.equal(await snap(page), before, `${where} #${round}: Recall gives the page back exactly`);
+    }
+    assert.deepEqual(errors, [], `${where}: no errors`);
+    await context.close();
+  }
+  // The remake's play switch and the arcade's play key: play, pause, play again, three times in a
+  // row; each press flips the switch (its icon) and the key (aria-pressed, label), and the frames
+  // go on from where they held.
+  where = "before-ai-2015 replay";
+  {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+    const { page, errors } = await open(context, "demos/before-ai-2015/");
+    await page.locator(".bt-row").scrollIntoViewIfNeeded();
+    const W = { timeout: 5000 };
+    const pos = (sel) => page.$eval(sel, (el) => el.style.backgroundPosition);
+    const moves = (sel, from) => page.waitForFunction(([s, f]) => { const v = document.querySelector(s).style.backgroundPosition; return v !== "" && v !== f; }, [sel, from], W);
+    const icon = () => page.$eval(".bt-same .fz-beats .switch", (el) => getComputedStyle(el, "::after").content);
+    const R = ".bt-same .fz-beats", P = ".bt-arcade .fz-play";
+    const PLAY_ICON = await icon();
+    for (let i = 0; i < 3; i++) {
+      const r0 = await pos(R);
+      await page.click(`${R} .switch`);
+      assert.notEqual(await icon(), PLAY_ICON, `${where} #${i}: the remake's switch shows pause while it plays`);
+      await moves(R, r0);
+      await page.click(`${R} .switch`);
+      assert.equal(await page.getAttribute(R, "class"), "fz-beats paused", `${where} #${i}: the remake's switch is back to play`);
+      assert.equal(await icon(), PLAY_ICON, `${where} #${i}: its icon is play again`);
+      const a0 = await pos(".bt-arcade .fz-beats");
+      await page.click(P);
+      assert.deepEqual([await page.getAttribute(P, "aria-pressed"), await page.getAttribute(P, "aria-label")], ["true", "Pause the music"], `${where} #${i}: the arcade plays`);
+      await moves(".bt-arcade .fz-beats", a0);
+      await page.click(P);
+      assert.deepEqual([await page.getAttribute(P, "aria-pressed"), await page.getAttribute(P, "aria-label")], ["false", "Play the music"], `${where} #${i}: the arcade's key is back to play`);
+    }
+    assert.deepEqual(errors, [], `${where}: no errors`);
+    await context.close();
+  }
   // ---------- Gallery at phone width: a slot's CSS animation stops once it is off screen ----------
   where = "gallery, offscreen";
   {
