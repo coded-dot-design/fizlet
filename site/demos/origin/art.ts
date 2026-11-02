@@ -55,6 +55,7 @@ export const CSS = `.og{position:absolute;inset:0;overflow:hidden;background:${C
 .og-sun{transform:translate(calc(40px + var(--sun) * 720px),calc(74px - sin(var(--sun) * 180deg) * 54px))}
 .og-stars,.og-lit,.og-moon{opacity:calc(var(--night) * 1.6)}.og-sun{opacity:calc(1 - var(--night) * 1.6)}
 .og-bulb{opacity:calc(.35 + var(--lamp) * .65)}
+.og-genre{font:700 8px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em}.og--fz .o-genre{fill:var(--s)}
 .og-tag{opacity:0;transition:opacity .2s;pointer-events:none}.og-tag text{font:inherit}
 .og--tags .og-tag${["laptop", "phone", "cup", "phones", "lamp", "sky", "person"].map((p) => `,.og:has([data-p=${p}]:hover) [data-t=${p}]`).join("")}{opacity:1}
 [data-p=laptop],[data-p=phone],[data-p=cup],[data-p=phones],[data-p=person],[data-p=plant],[data-p=book],[data-p=lamp]{cursor:pointer;outline:none}.og-l [data-p]:focus-visible{filter:drop-shadow(0 0 3px #2f80ed)}.og-body{outline:none}.og-body:focus-visible .o-mesh{stroke:#2f80ed;stroke-width:4}
@@ -292,16 +293,17 @@ export function art(p: { aw: number; ph: number; lid: number; hd: number }, mode
 </g>
 </g>
 <path class="og-cord o-cord" d="${cord(p.ph, p.aw, 0)}" fill="none" stroke="${C.red}" stroke-width="3" stroke-linecap="round"/>
-<g data-p="phone" transform="translate(607 306) rotate(8)"><g class="og-sqp">
+<g data-p="phone" class="og-phone" tabindex="0" role="button" aria-label="Music: country. Change style" aria-keyshortcuts="Enter Space P" transform="translate(607 306) rotate(8)"><g class="og-sqp">
 <rect class="o-sh" x="-31" y="-58" width="66" height="122" rx="10" fill="${C.ink}" opacity=".18"/>
 <rect class="og-fz o-glow" x="-34" y="-62" width="68" height="124" rx="10" fill="none" stroke-width="8"/>
 <rect class="o-face" x="-34" y="-62" width="68" height="124" rx="10" fill="${C.cream}"/>
 <rect x="-26" y="-44" width="52" height="86" rx="3" class="og-pscr o-scr" fill="${C.code}"/>
 <g clip-path="url(#${id}psc)">
-<image class="og-pix" x="-15" y="-42" width="30" height="30" style="image-rendering:pixelated"/>
+<image class="og-pix" x="-15" y="-42" width="30" height="30" style="image-rendering:pixelated"/><g class="og-pz o-star" fill="${C.cream}" style="display:none"><rect x="-9" y="-38" width="6" height="20" rx="1.5"/><rect x="3" y="-38" width="6" height="20" rx="1.5"/></g>
 <g class="og-code" transform="translate(0 -8)" ${design ? 'style="display:none"' : ""}>${PHONE_CODE}</g>
 <g class="og-des" transform="translate(0 -8)" ${design ? "" : 'style="display:none"'}>${[["teal", C.teal], ["red", C.red], ["sun", C.sun], ["tealD", C.ink], ["star", C.cream]].map(([k, c], i) => `<rect class="o-${k}" x="${-22 + (i % 3) * 15}" y="${6 + (i / 3 | 0) * 15}" width="12" height="12" rx="2" fill="${c}"/>`).join("")}<circle cx="16" cy="27" r="6" fill="none" stroke="${C.cream}" stroke-width="1.4"/></g>
 </g>
+<text class="og-genre o-genre" y="38" text-anchor="middle" fill="${C.sun}">COUNTRY</text>
 <rect class="o-faceD" x="-8" y="-54" width="16" height="3" rx="1.5" fill="${C.creamD}"/><circle class="o-faceD" cy="52" r="5" fill="${C.creamD}"/>
 </g></g>
 <g class="og-body" data-p="person" tabindex="0" role="button" aria-label="Nudge him">

@@ -95,7 +95,7 @@ export interface OriginScene extends SlotScene {
   nudge(): void;
   /** Live particles and Zs so far; the cup (its top left in art units, its level, spilled); `toys`:
    *  how many of the cup's own motions are still running (0 once they have all settled). */
-  stats(): { particles: number; zzz: number; cup: { x: number; y: number; level: number; spilled: boolean; lifted: boolean }; toys: number; drops: number; pages: number; lamp: boolean; lit: number; keys: number[] };
+  stats(): { particles: number; zzz: number; cup: { x: number; y: number; level: number; spilled: boolean; lifted: boolean }; toys: number; drops: number; pages: number; lamp: boolean; lit: number; keys: number[]; music: { genre: string; playing: string; paused: boolean; bars: number[] } };
   /** Water the plant; write or doodle in the notebook; switch the lamp. */
   water(): void;
   write(): void;
@@ -109,12 +109,22 @@ const AW = 0, PH = 1, LID = 2, HD = 3, SIP = 4;
 // fx colours, by role: steam, note, note, spark, ink, white, coffee, coffee light. The look swaps them.
 const COLORS = [C.cream, C.red, C.sun, C.tealL, C.ink, "#ffffff", "#5a3526", "#b98a66"];
 const FZ_TOKENS: [string, string][] = [["--k-flag", "#f6f3ff"], ["--k-attack", "#ff2e88"], ["--k-sys", "#19f0ff"], ["--k-go", "#39ffb0"], ["--k-cmd", "#9a63ff"], ["--k-flag", "#f6f3ff"], ["--k-advance", "#ff8a1f"], ["--hurt", "#ffc21a"]];
-const WORDS = ["♪", "♫", "z", "Z", "{ }", "</>", ";", "=>", "#"];
+const WORDS = ["♪", "♫", "z", "Z", "{ }", "</>", ";", "=>", "#", "♬", "★"];
+// The phone's music: three genres, each a one-bar loop on the audio clock (@fzlt/core/sound plays
+// each cue at its time). Per genre: tempo, steps in a bar (eighths or sixteenths), the cues on each
+// step, the ♪ words, colours (fx palette) and how many beats between notes.
+const GENRES = ["country", "rock", "pop"] as const;
+const BPM = [110, 132, 118], STEPS = [8, 8, 16], NOTE_W = [[0, 1], [9, 8], [10, 1]], NOTE_C = [[7, 2], [1, 4], [3, 2]], NOTE_EVERY = [2, 1, 1];
+const PAT: string[][][] = [
+  [["cb1"], [], ["cch"], ["ctw"], ["cb2"], [], ["cch"], ["ctw"]],
+  [["rk", "rb1", "rh"], ["rh"], ["rs", "rh"], ["rh"], ["rk", "rb2", "rh"], ["rk", "rh"], ["rs", "rh"], ["rh"]],
+  [["pk", "pa"], [], ["ph"], ["pb"], ["pk", "pcl"], [], ["ph", "pc"], [], ["pk"], [], ["ph", "pb"], [], ["pk", "pcl"], ["pc"], ["ph"], []],
+];
 const WORD = 4; // fx's word-shaped part
 // The parts a press can land on (squash slots too).
 const CUPP = 1, LAP = 2, PHONE = 3, PHONES = 4, PERSON = 5, SPILLP = 6, PLANTP = 7, BOOKP = 8, LAMPP = 9;
 // What the status line says (polite): an index, set in the step, written in render.
-const SAY = ["", "Sip.", "Refilling the cup.", "Refilled: hot coffee.", "Knocked over! Tap the spill, or wait: it rights itself.", "Back up. Refilling.", "Picked up the cup.", "Cup set down.", "Back on the saucer.", "He is asleep. Tap him to wake him.", "Out of his reach: move the cup closer.", "Cup moved.", "Fizlet look.", "2015 look.", "Nearly empty: double-tap or press R to refill.", "Watering the plant.", "Lamp on.", "Lamp off.", ""];
+const SAY = ["", "Sip.", "Refilling the cup.", "Refilled: hot coffee.", "Knocked over! Tap the spill, or wait: it rights itself.", "Back up. Refilling.", "Picked up the cup.", "Cup set down.", "Back on the saucer.", "He is asleep. Tap him to wake him.", "Out of his reach: move the cup closer.", "Cup moved.", "Fizlet look.", "2015 look.", "Nearly empty: double-tap or press R to refill.", "Watering the plant.", "Lamp on.", "Lamp off.", "", "", "Music paused.", ""];
 // The notebook: a line of code, or one of these doodles (24 units square), drawn as one stroke path.
 const DOODLES: [string, string][] = [["a star", "M12 1l3.4 7.2 7.9.9-5.9 5.4 1.6 7.8L12 18.4l-7 3.9 1.6-7.8L.7 9.1l7.9-.9Z"], ["a heart", "M12 21C4 15.5 0 11 2.5 6 4.5 2 9.5 2 12 6c2.5-4 7.5-4 9.5 0 2.5 5-1.5 9.5-9.5 15Z"], ["a happy face", "M23 12A11 11 0 1 1 1 12 11 11 0 1 1 23 12ZM8 9v2M16 9v2M7 15q5 4 10 0"], ["a lightning bolt", "M14 1 4 13h7l-3 10 12-14h-7l3-8Z"], ["a triangle", "M12 1 23 22H1Z"], ["a square", "M2 2h20v20H2Z"], ["a house", "M2 23V11L12 2l10 9v12ZM9 23v-7h6v7"], ["a sun", "M17 12a5 5 0 1 1-10 0 5 5 0 1 1 10 0M12 0v3M12 21v3M0 12h3M21 12h3M3.5 3.5l2 2M18.5 18.5l2 2M3.5 20.5l2-2M18.5 5.5l2-2"]];
 const FLICK = 1300; // CSS px/s at release: faster than this knocks it over
@@ -142,7 +152,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const speed = o.speed ?? 1;
   const engine = createEngine({ root, fps: 30, settle: 0.4 });
   const L = engine.ledger, rand = engine.random;
-  let mode: OriginMode = o.mode ?? "code", look: OriginLook = o.look === "2015" ? "2015" : "fizlet", tags = !!o.showBricks, paused = false, music = true;
+  let mode: OriginMode = o.mode ?? "code", look: OriginLook = o.look === "2015" ? "2015" : "fizlet", tags = !!o.showBricks, paused = false;
 
   // ---------- DOM: one wrapper (the ledger removes it), the art, the fx canvas, the key row ----------
   if (getComputedStyle(root).position === "static") L.style(root, "position", "relative");
@@ -164,6 +174,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const inks = qa(".og-ink"), drops = qa(".og-drops circle"), canEl = q(".og-can"), canB = q(".og-canb"), wstream = q(".og-wstream"), klit = qa(".o-klit");
   const screen = q(".og-screen"), cover = q(".og-cover"), scrl = q(".og-scrl"), laptop = q(".og-laptop");
   const scroll = q(".og-scroll"), caret = q(".og-caret"), arrow = q(".og-arrow"), sel = q(".og-sel"), shape = q(".og-shape");
+  const phoneEl = q(".og-phone"), genreEl = q(".og-genre"), pzEl = q(".og-pz");
   const pix = q(".og-pix"), codeEls = qa(".og-code"), desEls = qa(".og-des");
   const keyEl = (k: string) => wrap.querySelector<HTMLButtonElement>(`.og-bar [data-k=${k}]`);
   const lookKey = keyEl("look"), modeKey = keyEl("mode"), tagsKey = keyEl("tags"), soundKey = keyEl("sound"), pauseKey = keyEl("pause");
@@ -211,9 +222,13 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
 
   // ---------- sound: events → cues (silent until a gesture; the Sound key mutes) ----------
   const snd = sound(engine, {
-    cues: { beat: "kick", key: "tick", slurp: "slurp", clink: "clink", wake: "yawn", sleep: "end", nudge: "nudge", tap: "pop", pour: "pour", spill: "spill", set: "clink", lift: "tick", lamp: "click", scribble: "scribble" }, on: o.sound ?? true, volume: 0.3,
+    cues: { key: "tick", slurp: "slurp", clink: "clink", wake: "yawn", sleep: "end", nudge: "nudge", tap: "pop", pour: "pour", spill: "spill", set: "clink", lift: "tick", lamp: "click", scribble: "scribble" }, on: o.sound ?? true, volume: 0.3,
     notes: {
-      kick: [[150, 48, 0.2, 0, "sine", 0.9], [2400, 1800, 0.03, 0, "square", 0.04]],
+      // The loops' voices: country (bass root and fifth, the chick, the twang), rock (kick, snare,
+      // hat, power bass), pop (kick, clap, hat, a three-note pluck).
+      cb1: [[98, 97, 0.3, 0, "triangle", 0.5]], cb2: [[147, 146, 0.3, 0, "triangle", 0.45]], cch: [[2400, 1800, 0.03, 0, "square", 0.05], [900, 700, 0.05, 0, "triangle", 0.15]], ctw: [[392, 370, 0.14, 0, "sawtooth", 0.07], [784, 740, 0.1, 0, "triangle", 0.05]],
+      rk: [[150, 48, 0.18, 0, "sine", 0.8]], rs: [[240, 150, 0.12, 0, "triangle", 0.45], [3200, 1800, 0.08, 0, "square", 0.06]], rh: [[7000, 6800, 0.025, 0, "square", 0.025]], rb1: [[82.4, 82, 0.22, 0, "sawtooth", 0.16]], rb2: [[110, 109, 0.22, 0, "sawtooth", 0.14]],
+      pk: [[130, 45, 0.16, 0, "sine", 0.8]], pcl: [[1400, 900, 0.06, 0, "triangle", 0.3], [2600, 1500, 0.05, 0.012, "square", 0.05]], ph: [[8000, 7800, 0.02, 0, "square", 0.02]], pa: [[523.25, 523, 0.14, 0, "triangle", 0.18]], pb: [[659.25, 659, 0.14, 0, "triangle", 0.16]], pc: [[784, 783, 0.14, 0, "triangle", 0.14]],
       tick: [[2200, 1500, 0.018, 0, "square", 0.12]],
       slurp: [[260, 820, 0.16, 0, "sawtooth", 0.16], [820, 420, 0.12, 0.15, "triangle", 0.2], [500, 700, 0.08, 0.3, "sawtooth", 0.1]],
       clink: [[2600, 2500, 0.12, 0, "triangle", 0.4], [3900, 3800, 0.08, 0.01, "sine", 0.25]],
@@ -227,8 +242,8 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   });
 
   // ---------- input: the pointer (taps, the drag, the flick), the lid key, the cup's keys ----------
-  const ctl = controls(engine, { keys: { lid: [], sip: [], music: [], nudge: [], refill: [], knock: [], water: [], write: [], lamp: [] }, target: layer });
-  const LIDK = ctl.id("lid"), SIPK = ctl.id("sip"), MUSK = ctl.id("music"), NUDK = ctl.id("nudge"), REFK = ctl.id("refill"), KNKK = ctl.id("knock"), WATK = ctl.id("water"), WRTK = ctl.id("write"), LMPK = ctl.id("lamp");
+  const ctl = controls(engine, { keys: { lid: [], sip: [], music: [], genre: [], nudge: [], refill: [], knock: [], water: [], write: [], lamp: [] }, target: layer });
+  const LIDK = ctl.id("lid"), SIPK = ctl.id("sip"), MUSK = ctl.id("music"), GENK = ctl.id("genre"), NUDK = ctl.id("nudge"), REFK = ctl.id("refill"), KNKK = ctl.id("knock"), WATK = ctl.id("water"), WRTK = ctl.id("write"), LMPK = ctl.id("lamp");
   const tap = (k: string) => (ctl.press(k), ctl.press(k, false));
   const enter = (el: Element, k: string) => el.addEventListener("keydown", (ev) => {
     if ((ev as KeyboardEvent).key !== "Enter" && (ev as KeyboardEvent).key !== " ") return;
@@ -240,6 +255,14 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   enter(plantEl, "water");
   enter(bookEl, "write");
   enter(lampEl, "lamp");
+  // The phone: Enter changes the style; Space or P pauses and resumes the loop.
+  phoneEl.addEventListener("keydown", (ev) => {
+    const k = (ev as KeyboardEvent).key;
+    if (k === "Enter") tap("genre");
+    else if (k === " " || k === "p" || k === "P") tap("music");
+    else return;
+    ev.preventDefault();
+  }, { signal: engine.signal });
   // The cup's keys: Enter (or Space) sips, R refills, K knocks it over, the arrows move it.
   const MV = new Float64Array(2);
   const ARROWS: Record<string, number[]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
@@ -307,6 +330,11 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   // The water drops around the plant: x, y, age, life (0: free), radius.
   const DX = new Float64Array(16), DY = new Float64Array(16), DA = new Float64Array(16), DL = new Float64Array(16), DR = new Float64Array(16);
   let drew = "";
+  // M: the music. The genre chosen, the genre playing (it changes at the next bar line), paused, the
+  // next step's time on the audio clock, the step, the last phone tap, a single tap waiting (a
+  // second tap within 250 ms makes it a double: pause, not a change). BARS: when the last bars began.
+  const M = new Float64Array(8), GEN = 0, AG = 1, MP = 2, NEXT = 3, STEP = 4, PTAP = 5, PEND = 6, BN = 7, BARS = new Float64Array(8);
+  M[PTAP] = -9;
   // Q: the cup and the pointer. The cup's top left (art units), its lift and target, the part under
   // the pointer, dragging, the press point, the grab offset, velocity (art units/s), the last move,
   // the clock, the last tap, spilled, the spill timer, the fall angle, the slide, righting, the line to say.
@@ -441,6 +469,22 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     engine.events.emit("lamp");
     say(on ? 16 : 17);
   }
+  // The phone: a tap waits 250 ms (a second tap makes it a double: pause or resume), then changes
+  // the style; the loop takes the new one at its next bar line.
+  function phoneTap() {
+    if (Q[CLK]! - M[PTAP]! < 0.3) return (M[PEND] = 0), (M[PTAP] = -9), hush();
+    (M[PTAP] = Q[CLK]!), (M[PEND] = 1);
+  }
+  function genre() {
+    M[GEN] = (M[GEN]! + 1) % 3;
+    pop(PHONE);
+    say(19);
+  }
+  function hush() {
+    M[MP] = +!M[MP];
+    pop(PHONE);
+    say(M[MP] ? 20 : 19);
+  }
   // One key press: a hand (mostly the other one) goes to a random key in its half, or in design mode
   // the right hand goes to the trackpad now and then; the key lights up.
   function typeKey() {
@@ -505,6 +549,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     else if (g === PLANTP) tap("water");
     else if (g === BOOKP) tap("write");
     else if (g === LAMPP) tap("lamp");
+    else if (g === PHONE) phoneTap();
     else if (g) tap("music");
   }
 
@@ -565,7 +610,10 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       if (ctl.hit(WRTK)) write();
       if (ctl.hit(LMPK)) lamp(!X[LT]);
       if (ctl.hit(LIDK)) setLaptop(P[LID]! < 0.5 && N[WDIR]! <= 0);
-      if (ctl.hit(MUSK)) music = !music;
+      if (ctl.hit(MUSK)) hush();
+      if (ctl.hit(GENK)) genre();
+      if (M[PEND] && Q[CLK]! - M[PTAP]! >= 0.25) (M[PEND] = 0), genre();
+      if (M[PEND]) e.busy();
       if (ctl.hit(SIPK)) {
         if (!reduce) (SQ[CUPP] = -0.6), (SQV[CUPP] = 0);
         drink();
@@ -624,14 +672,15 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       if (Q[SPILL] && !Q[RIGHT]) e.busy();
       if (PR[1]! > 0.3) N[LEVEL] = Math.min(1, N[LEVEL]! + dt * 1.5);
       const awake = P[AW]! > 0.9, h = head(P[AW]!, P[SIP]!);
-      // The beat: while the headphones are on and the music plays, a thump every half second, notes rising.
-      if (awake && P[PH]! > 0.95 && music) {
-        if ((N[BEAT]! -= dt * speed) <= 0) {
-          N[BEAT]! += 0.5;
-          e.events.emit("beat", 0, 0, 0, 0, 0.6);
-          if (N[BEATS]!++ % 2 === 0) {
-            const s = N[BEATS]! % 4 < 2 ? -1 : 1;
-            sfx(h.x + s * 54, h.y - 10, (N[BEATS]! / 2) & 1, s < 0 ? 1 : 2, 20 + rand() * 6, -60 - rand() * 30);
+      // The beat: while the headphones are on and the music plays, notes rise on the genre's beat
+      // (its words, colours and rate); the head bobs to it (render).
+      if (awake && P[PH]! > 0.95 && !M[MP]) {
+        const g = M[AG]!;
+        if ((N[BEAT]! -= dt) <= 0) {
+          N[BEAT]! += 60 / BPM[g]!;
+          if (N[BEATS]!++ % NOTE_EVERY[g]! === 0) {
+            const s = N[BEATS]! & 2 ? 1 : -1, k = (N[BEATS]! / NOTE_EVERY[g]!) & 1;
+            sfx(h.x + s * 54, h.y - 10, NOTE_W[g]![k]!, NOTE_C[g]![k]!, 20 + rand() * 6, -60 - rand() * 30);
           }
         }
         e.busy();
@@ -692,7 +741,21 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
         else if (ev.type === "perk") (X[PKR] = 1.07), (X[PKV]! += 1.6);
       }
       if (resized) (fit(), (resized = false));
-      const aw = P[AW]!, ph = P[PH]!, lid = P[LID]!, s = P[SIP]!, bob = aw > 0.9 && ph > 0.95 && music && !reduce ? Math.max(0, Math.cos((0.5 - N[BEAT]!) * Math.PI * 4)) * -2 : 0;
+      const aw = P[AW]!, ph = P[PH]!, lid = P[LID]!, s = P[SIP]!, bdur = 60 / BPM[M[AG]!]!, bob = aw > 0.9 && ph > 0.95 && !M[MP] && !reduce ? Math.max(0, Math.cos((1 - N[BEAT]! / bdur) * Math.PI * 2)) * (M[AG] === 1 ? -3 : -2) : 0;
+      // The loop, on the audio clock: schedule every step that starts in the next 0.2 s. It plays
+      // while he wears the headphones, awake, unpaused, the scene playing and sound on (time >= 0);
+      // otherwise it stops, and starts on a fresh bar.
+      const at = snd.time;
+      if (at >= 0 && aw > 0.9 && ph > 0.95 && !M[MP] && !paused && !reduce) {
+        if (M[NEXT]! < at) (M[NEXT] = at + 0.05), (M[STEP] = 0);
+        while (M[NEXT]! < at + 0.2) {
+          if (!M[STEP]) (M[AG] = M[GEN]!), (BARS[M[BN]! % 8] = M[NEXT]!), M[BN]!++;
+          const g = M[AG]!, cues = PAT[g]![M[STEP]!]!;
+          for (let i = 0; i < cues.length; i++) snd.play(cues[i]!, 1, M[NEXT]!);
+          M[NEXT]! += 60 / BPM[g]! / (STEPS[g]! / 4);
+          M[STEP] = (M[STEP]! + 1) % STEPS[g]!;
+        }
+      } else (M[NEXT] = 0), (M[AG] = M[GEN]!);
       const sq = (i: number) => (SQ[i] ? ` scale(${Math.round((1 + SQ[i]! * 0.07) * 1000) / 1000})` : "");
       set(headEl, "transform", (N[STIR]! > 0 ? `${headT(aw, s, bob)} rotate(${(Math.sin(N[STIR]! * 40) * 6).toFixed(1)})` : headT(aw, s, bob)) + sq(PERSON));
       const nk = neck(aw, s);
@@ -770,7 +833,10 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       set(arrow, "transform", `translate(${(sx + (px - sx) * f).toFixed(1)} ${(sy + (py - sy) * f).toFixed(1)})`);
       set(sel, "x", `${[374, 326, 422][kk]}`);
       set(shape, "r", `${10 + (kk === 1 ? f * 3 : 0)}`);
-      set(pix, "href", pixURL[aw < 0.5 ? 2 : reduce || !music || ph < 0.95 ? 0 : (N[BEATS]! & 1)]!);
+      set(pix, "href", pixURL[aw < 0.5 ? 2 : reduce || M[MP] || ph < 0.95 ? 0 : (N[BEATS]! & 1)]!);
+      set(pix, "style", M[MP] ? "display:none" : "image-rendering:pixelated"), set(pzEl, "style", M[MP] ? "" : "display:none");
+      set(genreEl, "textContent", GENRES[M[GEN]!]!.toUpperCase());
+      set(phoneEl, "aria-label", `Music: ${GENRES[M[GEN]!]}${M[MP] ? ", paused" : ""}. Change style`);
       for (const el of codeEls) set(el, "style", mode === "code" ? "" : "display:none");
       for (const el of desEls) set(el, "style", mode === "design" ? "" : "display:none");
       set(body, "aria-label", aw < 0.5 ? "Nudge him awake" : "He is working");
@@ -783,7 +849,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       }
       // The status line (polite): what just changed. The same line again is said again.
       if (Q[MSG]) {
-        status.textContent = (Q[MSG] === 18 ? drew : SAY[Q[MSG]!]!) + (saidAt === Q[MSG] ? " " : "");
+        status.textContent = (Q[MSG] === 18 ? drew : Q[MSG] === 19 ? `Music: ${GENRES[M[GEN]!]}.` : SAY[Q[MSG]!]!) + (saidAt === Q[MSG] ? " " : "");
         saidAt = saidAt === Q[MSG] ? -1 : Q[MSG]!;
         Q[MSG] = 0;
       }
@@ -814,7 +880,8 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     const c = cache.get(el) ?? (cache.set(el, {}), cache.get(el)!);
     if (c[name] === v) return;
     c[name] = v;
-    el.setAttribute(name, v);
+    if (name === "textContent") el.textContent = v;
+    else el.setAttribute(name, v);
   }
 
   // The key row.
@@ -886,7 +953,7 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       for (let i = 1; i < 10; i++) toys += +!!(SQ[i] || SQV[i]);
       for (let i = 0; i < 16; i++) drops += +!!DL[i];
       for (let j = 3; j < 16; j += 4) lit += +(KL[j]! > 0.01);
-      return { particles: fx.live, zzz: N[ZC]!, cup: { x: Q[CX]!, y: Q[CY]!, level: N[LEVEL]!, spilled: !!Q[SPILL], lifted: Q[LIFT]! > 0.5 }, toys: toys + drops, drops, pages: X[PAGES]!, lamp: !!X[LT], lit, keys: [...TYPED.subarray(0, Math.min(32, X[NTYPED]!))] };
+      return { particles: fx.live, zzz: N[ZC]!, cup: { x: Q[CX]!, y: Q[CY]!, level: N[LEVEL]!, spilled: !!Q[SPILL], lifted: Q[LIFT]! > 0.5 }, toys: toys + drops, drops, pages: X[PAGES]!, lamp: !!X[LT], lit, keys: [...TYPED.subarray(0, Math.min(32, X[NTYPED]!))], music: { genre: GENRES[M[GEN]!]!, playing: GENRES[M[AG]!]!, paused: !!M[MP], bars: [...BARS.subarray(0, Math.min(8, M[BN]!))] } };
     },
     water: () => tap("water"),
     write: () => tap("write"),

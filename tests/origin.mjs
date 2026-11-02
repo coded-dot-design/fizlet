@@ -383,6 +383,93 @@ try {
     await p.close();
   }
 
+  // ---------- The phone: three genres, each a loop on the audio clock; a double-tap pauses ----------
+  {
+    const p = await browser.newPage({ viewport: { width: 900, height: 700 } });
+    const errs = [];
+    p.on("pageerror", (e) => errs.push(e.message));
+    await p.setContent(PAGE);
+    const before = await p.evaluate(() => document.body.innerHTML);
+    // Every frequency set on the audio clock, with its time.
+    await p.evaluate(() => {
+      window.__ht = [];
+      const sv = AudioParam.prototype.setValueAtTime;
+      AudioParam.prototype.setValueAtTime = function (v, t) { window.__ht.push([v, t]); return sv.call(this, v, t); };
+    });
+    await p.evaluate((cup) => (window.scene = og.mount(document.getElementById("root"), { speed: 0.5, cup, reducedMotion: false })), CUP);
+    const label = () => p.evaluate(() => document.querySelector(".og-phone").getAttribute("aria-label"));
+    const at = (f) => p.evaluate((f) => window.__ht.filter(([v]) => Math.abs(v - f) < 0.01).map(([, t]) => t), f);
+    // Each loop's first note (once a bar): country 98 Hz, rock 82.4 Hz, pop 523.25 Hz; loop voices only.
+    const LOOP = [98, 147, 82.4, 110, 130, 523.25, 659.25, 784, 7000, 8000];
+    const loopNotes = () => p.evaluate((L) => window.__ht.filter(([v]) => L.some((f) => Math.abs(v - f) < 0.01)).length, LOOP);
+    const BAR = [8 * 60 / 110 / 2, 8 * 60 / 132 / 2, 16 * 60 / 118 / 4];
+    await p.waitForFunction(() => window.scene.state.awake && window.scene.state.open, null, { timeout: 15000 });
+    await p.waitForTimeout(3000);
+    // A trusted gesture (on the sky: nothing there to press) unlocks the audio.
+    const root = await p.evaluate(() => { const r = document.getElementById("root").getBoundingClientRect(); return { x: r.x, y: r.y }; });
+    await p.mouse.click(root.x + 400, root.y + 30);
+    assert.equal(await label(), "Music: country. Change style");
+    // Country loops at a constant period: one bar of 8 eighths at 110 bpm.
+    await p.waitForTimeout(5200);
+    const c98 = await at(98);
+    assert.ok(c98.length >= 2, `country bars scheduled: ${c98}`);
+    for (let i = 1; i < c98.length; i++) assert.ok(Math.abs(c98[i] - c98[i - 1] - BAR[0]) < 1e-6, `bar ${i}: ${c98[i] - c98[i - 1]} s, not ${BAR[0]}`);
+    // One click: after 250 ms (no second tap) the style changes; the loop takes it at the next bar line.
+    const ph = await p.evaluate(() => { const r = document.querySelector(".og-phone").getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2, w: r.width, h: r.height }; });
+    assert.ok(ph.w >= 44 && ph.h >= 44, `the phone is ${ph.w}x${ph.h}`);
+    await p.mouse.click(ph.x, ph.y);
+    await p.waitForFunction(() => window.scene.stats().music.genre === "rock", null, { timeout: 1000 });
+    assert.equal(await label(), "Music: rock. Change style");
+    assert.match(await p.evaluate(() => document.querySelector(".og [role=status]").textContent), /Music: rock/);
+    assert.equal(await p.evaluate(() => document.querySelector(".og-genre").textContent), "ROCK", "the phone shows the genre");
+    await p.waitForTimeout(BAR[0] * 1000 + 2400);
+    const r82 = await at(82.4), last98 = Math.max(...(await at(98)).filter((t) => t < r82[0]));
+    assert.ok(r82.length >= 2, `rock bars: ${r82}`);
+    assert.ok(Math.abs(r82[0] - last98 - BAR[0]) < 1e-6, `rock starts on the bar line after the last country bar (${r82[0] - last98})`);
+    for (let i = 1; i < r82.length; i++) assert.ok(Math.abs(r82[i] - r82[i - 1] - BAR[1]) < 1e-6, `rock bar ${i}: ${r82[i] - r82[i - 1]}`);
+    // A double-click pauses the loop (the style stays): no loop notes are scheduled, the phone shows pause.
+    await p.mouse.click(ph.x, ph.y);
+    await p.waitForTimeout(120);
+    await p.mouse.click(ph.x, ph.y);
+    await p.waitForFunction(() => window.scene.stats().music.paused, null, { timeout: 1000 });
+    await p.waitForTimeout(500);
+    assert.deepEqual([(await p.evaluate(() => window.scene.stats().music.genre)), await label(), await p.evaluate(() => getComputedStyle(document.querySelector(".og-pz")).display)], ["rock", "Music: rock, paused. Change style", "inline"], "paused, still rock");
+    const n0 = await loopNotes();
+    await p.waitForTimeout(1200);
+    assert.equal(await loopNotes(), n0, "no loop notes while paused");
+    // Double-click again: it plays on.
+    await p.mouse.click(ph.x, ph.y);
+    await p.waitForTimeout(120);
+    await p.mouse.click(ph.x, ph.y);
+    await p.waitForFunction(() => !window.scene.stats().music.paused, null, { timeout: 1000 });
+    await p.waitForTimeout(800);
+    assert.ok(await loopNotes() > n0, "the loop plays again");
+    assert.equal(await p.evaluate(() => window.scene.stats().music.genre), "rock", "a double-click never changes the style");
+    // The keyboard: Enter cycles (pop, country, rock: three presses come back), P pauses.
+    await p.focus(".og-phone");
+    const seen = [];
+    for (const g of ["pop", "country", "rock"]) {
+      await p.keyboard.press("Enter");
+      await p.waitForFunction((g) => document.querySelector(".og-phone").getAttribute("aria-label").startsWith(`Music: ${g}.`), g, { timeout: 1000 });
+      seen.push(await label());
+    }
+    assert.deepEqual(seen, ["Music: pop. Change style", "Music: country. Change style", "Music: rock. Change style"], "three presses cycle the three genres; the name follows");
+    await p.keyboard.press("p");
+    await p.waitForFunction(() => window.scene.stats().music.paused);
+    await p.keyboard.press(" ");
+    await p.waitForFunction(() => !window.scene.stats().music.paused);
+    // Pause the scene: the loop stops too.
+    await p.evaluate(() => window.scene.pause());
+    await p.waitForTimeout(400);
+    const n1 = await loopNotes();
+    await p.waitForTimeout(1000);
+    assert.equal(await loopNotes(), n1, "the scene paused: no loop notes");
+    await p.evaluate(() => window.scene.destroy());
+    assert.equal(await p.evaluate(() => document.body.innerHTML), before, "Recall after the music");
+    assert.deepEqual(errs, []);
+    await p.close();
+  }
+
   // ---------- Reduced motion: still frames, no particles, settles; the laptop still works ----------
   {
     const p = await browser.newPage({ viewport: { width: 900, height: 700 }, reducedMotion: "reduce" });
@@ -450,12 +537,17 @@ try {
     await p.waitForTimeout(100);
     assert.equal(await p.evaluate(() => getComputedStyle(document.querySelector(".og")).getPropertyValue("--lamp").trim()), "0", "the lamp is off at once");
     await still("the lamp");
+    // The phone: Enter still changes the style (no head bob, no notes).
+    await p.focus(".og-phone");
+    await p.keyboard.press("Enter");
+    await p.waitForFunction(() => document.querySelector(".og-phone").getAttribute("aria-label") === "Music: rock. Change style", null, { timeout: 1000 });
+    await still("a style change");
     await p.evaluate(() => window.scene.destroy());
     assert.equal(await p.evaluate(() => document.body.innerHTML), before, "Recall under reduced motion");
     assert.deepEqual(errs, []);
     await p.close();
   }
-  console.log("origin: day loop, laptop night/day, mode, show bricks, two looks, the cup's toys (press, double-tap refill, drag, flick and spill, keys), settle, 0 rAF/s paused/off screen, reduced motion, sound after a gesture, Recall: ok");
+  console.log("origin: day loop, laptop night/day, mode, show bricks, two looks, the cup's toys (press, double-tap refill, drag, flick and spill, keys), the notebook, the plant, the lamp, key lights, seeded typing, the phone's looping genres (constant bar period, bar-line switch, double-tap pause), settle, 0 rAF/s paused/off screen, reduced motion, sound after a gesture, Recall: ok");
 } finally {
   await browser.close();
 }
