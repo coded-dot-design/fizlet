@@ -11,6 +11,9 @@
   --shadow-y: 1;
   --page: 1200px;
   --gutter: 30px;
+  /* The space between cards in a grid or a stack (the contract rules, stat rows, people and
+     contest cards). */
+  --block-gap: 22px;
   /* The least block space a section gets, and what sits on each side of a section rule (the
      space the closing band's rule had above it). */
   --section-gap: clamp(70px, 10vw, 120px);
@@ -1299,7 +1302,7 @@ html.bui[data-theme="light"] .dl.hot {
   padding: 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
+  gap: var(--block-gap);
 }
 .rule {
   padding: 22px 22px 20px;
@@ -3716,15 +3719,14 @@ html.bui[data-theme="light"] .phases b {
   font: 700 13px var(--mono);
   color: var(--k-sys-ink);
 }
+/* The stat row spans the content column, edge to edge with the cards under it (.ppl-grid). */
 .ppl-stats {
   margin-top: 36px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  max-width: 620px;
 }
 .ppl-stats .rule > b {
   font-size: 30px;
 }
-.ppl-grid,
 /* Daily's contest panel (site/pages/gallery.mjs): the contest story and the enter key, under the head. */
 .gal-contest {
   max-width: 860px;
@@ -3738,14 +3740,19 @@ html.bui[data-theme="light"] .phases b {
 .gal-contest b {
   color: var(--ink);
 }
+.ppl-grid,
 .ct-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
+  gap: var(--block-gap);
   margin-top: 36px;
 }
 .ct-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+/* A profile's cards sit one block gap under its stat row, as the cards in it sit apart. */
+.ppl-grid {
+  margin-top: var(--block-gap);
 }
 .ppl-card,
 .ct-card {

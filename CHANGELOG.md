@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Site: people pages line up (pending owner review).** On every profile the stat row spans the
+  content column, edge to edge with the cards under it, and the three cards (What they make,
+  Favorite games, Off the board) are a grid again, side by side on wide screens and stacked on
+  narrow ones, one block gap apart (`--block-gap`, the space the contract rules and contest cards
+  use). A stray selector had folded the cards into the Daily contest panel's padding and width. Both
+  stats are bare numbers with the unit in the label ("bytes of live code"). The site test checks
+  the shared edges and the gap on each people page at 1440, 1024 and 390.
 - **Site: the header nav is quiet text, with more room between items (pending owner review).** The
   top-level items and the menu rows no longer draw as half-raised keys (a filled face with a cyan
   base edge) on hover, open or the current page. Hover lights the text; an open menu flips its

@@ -361,7 +361,7 @@ try {
       const html = readFileSync(`${ROOT}/people/${p.id}/index.html`, "utf8");
       const mine = GALLERY.filter((e) => authorOf(e) === p.id);
       const bytes = mine.reduce((n, e) => n + gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length, 0);
-      assert.ok(html.includes(`data-stat="entries">${mine.length}</b>`) && html.includes(`data-stat="bytes">${bytes.toLocaleString("en-US")} B</b>`), `${p.id}: ${mine.length} entries, ${bytes} B, measured`);
+      assert.ok(html.includes(`data-stat="entries">${mine.length}</b>`) && html.includes(`data-stat="bytes">${bytes.toLocaleString("en-US")}</b><p>${bytes === 1 ? "byte" : "bytes"} of live code`), `${p.id}: ${mine.length} entries, ${bytes} B, measured`);
       assert.ok(html.includes(`aria-label="${STICKER[p.kind].label}" title="${STICKER[p.kind].label}">${STICKER[p.kind].text}</span>`), `${p.id}: the ${STICKER[p.kind].text} sticker says what they are`);
       const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
       const profile = graph.find((x) => x["@type"] === "ProfilePage");
@@ -767,6 +767,34 @@ try {
     }));
     assert.deepEqual(cards.map((c) => c.sticker), ["PHASE 1", "PHASE 2", "PHASE 3"], `${viewport.width}: a sticker per phase`);
     for (const c of cards) assert.ok(c.sides.every((w) => w === c.sides[0]), `${viewport.width}: no left accent border (${c.sides})`);
+    await context.close();
+  }
+
+  // ---------- People: the stat row and the cards share the content column; cards keep the block gap ----------
+  where = "people layout";
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 1024, height: 800 }, { width: 390, height: 844 }]) {
+    const context = await browser.newContext({ viewport });
+    for (const p of profiles()) {
+      const { page } = await open(context, `people/${p.id}/`);
+      const got = await page.evaluate(() => {
+        const box = (el) => el.getBoundingClientRect();
+        const stats = box(document.querySelector(".ppl-stats")), grid = box(document.querySelector(".ppl-grid"));
+        const cards = [...document.querySelectorAll(".ppl-grid > .ppl-card")].map(box);
+        const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--block-gap"));
+        // Between two neighbours: side by side, the space across; stacked, the space down.
+        const gaps = cards.slice(1).map((b, i) => (Math.abs(b.top - cards[i].top) < 1 ? b.left - cards[i].right : b.top - cards[i].bottom));
+        return {
+          left: [stats.left, grid.left, Math.min(...cards.map((c) => c.left))],
+          right: [stats.right, grid.right, Math.max(...cards.map((c) => c.right))],
+          gap, gaps, statsToGrid: grid.top - stats.bottom,
+        };
+      });
+      const at = `${p.id} at ${viewport.width}`;
+      for (const k of ["left", "right"]) assert.ok(Math.max(...got[k]) - Math.min(...got[k]) <= 1, `${at}: the stat row and the cards share their ${k} edge (${got[k]})`);
+      assert.ok(got.gap > 0 && got.gaps.length === 2 && got.gaps.every((g) => g >= got.gap - 0.5), `${at}: cards keep the block gap (${got.gaps} vs ${got.gap})`);
+      assert.ok(got.statsToGrid >= got.gap - 0.5, `${at}: the block gap under the stat row (${got.statsToGrid})`);
+      await page.close();
+    }
     await context.close();
   }
 
