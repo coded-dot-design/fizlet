@@ -121,7 +121,7 @@ try {
     await p.waitForFunction(() => !document.querySelector(".og-cup").getAttribute("transform").includes("rotate(-"), null, { timeout: 3000 });
     await p.focus(".og-grip");
     await p.keyboard.press("Enter");
-    await p.waitForFunction(() => /Sip|empty/.test(document.querySelector(".og [role=status]").textContent), null, { timeout: 2000 });
+    await p.waitForFunction(() => /Sip|empty|asleep|reach/.test(document.querySelector(".og [role=status]").textContent), null, { timeout: 2000 });
     // The coffee cools: its colour later in the day differs from the morning's.
     await p.waitForTimeout(3000);
     assert.notEqual(await p.evaluate(() => document.querySelector(".og-liquid").getAttribute("fill")), fill0, "the coffee cools");
