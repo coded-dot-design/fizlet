@@ -1,4 +1,4 @@
-// Docs code (shown on /guides/astro-slot/): a scene for an astro-base-engine slot.
+// Docs code (shown on /guides/astro-slot/): a scene for an Astro page engine slot.
 // ---
 // hero-scene.ts: build inside the stage; return destroy.
 import { createEngine } from "@fzlt/core";

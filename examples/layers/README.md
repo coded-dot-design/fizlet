@@ -68,7 +68,7 @@ See `site/demos/layers/measured.json`. On Fizlet 0.21.1, Chromium 153: live chun
 3.3 ms p95, 5.8 ms max; layout shift 0; 0 frames while paused; 0 B of JS fetched before the slot
 nears the viewport.
 
-Against the hero budgets in fizlet-engine `docs/LAYERS.md`: live chunk ≥ 5% under 10 KB ✔, poster ≤ 6 KB ✔,
+Against the hero budgets (made with the factory): live chunk ≥ 5% under 10 KB ✔, poster ≤ 6 KB ✔,
 0 B JS before the slot is near ✔, CLS 0 ✔, 0 frames paused ✔. `npm run test:layers` fails the
 build if the live chunk or the poster goes over.
 

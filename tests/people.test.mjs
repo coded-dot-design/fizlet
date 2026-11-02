@@ -25,8 +25,9 @@ test("contributors: one owner first, then the AI agents, then the three studio c
   assert.deepEqual(PEOPLE.map((p) => p.id), ["chris-cooley", "pip", "quill", "dj-mempool", "frame-zero", "hex-hazel"]);
   assert.deepEqual(PEOPLE.map((p) => p.kind), ["owner", "agent", "agent", "persona", "persona", "persona"]);
   for (const p of PEOPLE.slice(1)) assert.ok(p.handle && !p.url, `${p.id}: a handle, no links`);
-  assert.equal(PEOPLE.find((p) => p.id === "quill").pronouns, "she/her");
-  assert.equal(PEOPLE.find((p) => p.id === "pip").pronouns, "they/them");
+  // No pronouns or gender on the public site (owner, 2026-11-02).
+  for (const p of PEOPLE) assert.equal(p.pronouns, undefined, `${p.id}: no pronouns`);
+  for (const p of PEOPLE) assert.doesNotMatch(JSON.stringify(p), /\b(she|her|hers|he|him|his)\b/i, `${p.id}: no gendered words`);
   // The owner's favorite games are his to fill: a KIT: placeholder, never invented.
   assert.ok(PEOPLE[0].favoriteGames.every((g) => g.startsWith("KIT:")), "owner favorites stay a KIT: placeholder until he fills them");
 });
@@ -123,17 +124,17 @@ test("titles: the role in its own line, a tagline, and who each one reports to (
   assert.throws(bad({ reportsTo: "quill" }), /reportsTo quill/);
 });
 
-test("AI agents: the eyebrow says AI AGENT; pronouns show on the profile; agents keep a handle and no links", () => {
+test("AI agents: the eyebrow says AI AGENT; no pronouns on the profile; agents keep a handle and no links", () => {
   const rows = PEOPLE.map((p) => ({ person: p, stats: { entries: [], count: 0, bytes: 0 } }));
   for (const r of rows) {
     const html = personPage({ ...r, people: PEOPLE, base: "../../" });
     assert.equal(html.includes('class="index">AI AGENT</span>'), r.person.kind === "agent", `${r.person.id}: eyebrow`);
-    assert.equal(html.includes(`<span class="ppl-pronouns">${r.person.pronouns}</span>`), !!r.person.pronouns, `${r.person.id}: pronouns`);
+    assert.ok(!html.includes("ppl-pronouns"), `${r.person.id}: no pronouns`);
   }
   const bad = (over) => () => contributors(fakeDir({ ...PEOPLE.find((p) => p.id === "quill"), ...over }));
   assert.throws(bad({ kind: "robot" }), /kind robot/);
   assert.throws(bad({ url: "https://fizlet.com/" }), /an agent has a handle and no url/);
-  assert.throws(bad({ pronouns: 3 }), /pronouns is a string/);
+  assert.throws(bad({ pronouns: "they/them" }), /no pronouns or gender/);
 });
 
 const entry = (id, author, extra = {}) => ({ id, author, date: "2026-11-03", prompt: "bats swoop", title: id, size: 100, ...extra });

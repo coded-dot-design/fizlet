@@ -975,7 +975,7 @@ try {
   assert.deepEqual(errors, []);
   console.log("Browser: ledger restores exactly, host edits win, one rAF for many engines, auto-pause (hidden, editable, offscreen), destroy, layout guard, input, input/sound/embed hardening, embed, hud passed.");
   where = "slot";
-  // The markup and CSS astro-base-engine renders for `[slot animation]` (engine/astro_base_engine/render.py).
+  // The markup and CSS the Astro page engine renders for `[slot animation]`.
   const fig = (target, label) => `<figure class="ae-slot ae-slot--16x9" data-slot="animation" data-slot-target="${target}" role="img" aria-label="${label}"><p class="ae-slot__placeholder">Animation here: ${label}</p><figcaption class="ae-slot__fallback">Still: ${label}</figcaption></figure>`;
   // The shape it renders now: the role="img" box inside the figure, the fallback caption outside it.
   const box = (target, label) => `<figure class="ae-slot-figure"><div class="ae-slot ae-slot--16x9" data-slot="animation" data-slot-target="${target}" role="img" aria-label="${label}"><p class="ae-slot__placeholder">Animation here: ${label}</p></div><figcaption class="ae-slot__fallback">Still: ${label}</figcaption></figure>`;

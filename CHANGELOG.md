@@ -984,7 +984,7 @@
     one line in the footer saying the games live there. The roadmap ticks the docs, guides, release
     notes and the authoring guide under E5; the contract card no longer says every brick is 1.5 to
     5 KB (arcade's budget is 22 KB).
-  - Notes: the three launch posts, from the fizlet-engine content model (`fe content notes --site
+  - Notes: the three launch posts, from the Fizlet factory's content model (`fe content notes --site
     fizlet --today 2026-10-31T09:00:00-05:00`): How small is small, Recall: the page always comes
     back, Lockstep multiplayer in a few KB. Published 2026-10-31 09:00 Central; the multiplayer
     guide and the budgets page link to them.
@@ -1382,14 +1382,14 @@
   "NOTES[cue] is not iterable"). Sizes: sound 1,000 → 1,015 B gzip; arcade 21,970 → 21,981;
   the card build 17,964 → 17,979, so its budget rises by the same 15 B (17,984 → 17,999,
   reason in `scripts/sizes.mjs`): with fizlet#103 (+7 B) it would be 2 B over the old budget.
-- **Fix: `slot("page#slot", …)` finds astro-engine's current slot markup.** The engine now renders
+- **Fix: `slot("page#slot", …)` finds the Astro page engine's current slot markup.** The engine now renders
   `<figure class="ae-slot-figure"><div class="ae-slot" data-slot-target role="img">…</div><figcaption
   class="ae-slot__fallback">` (the caption outside the role="img" box), and `findSlot()` looked only
   for `figure.ae-slot`, so the target found nothing. It now matches any `.ae-slot[data-slot-target]`,
   the figure or the box; the caption outside the box stays visible while the scene runs.
   `tests/browser.mjs` mounts a scene in both shapes. fizlet/slot 1,852 B gzip (−4 B); page build
   7,122 B (−5 B).
-- **Docs: no private pointers.** The README no longer links a private repo (astro-base-engine), and
+- **Docs: no private pointers.** The README no longer links a private repo, and
   `rooms/DEPLOY.md` makes invite keys with the public `inviteKey()` (a one-line command) instead of
   a helper outside this repo. No code change.
 - **Website: Make one (`/make/`), v0.** Type a prompt, get one drop-in file: a `data-fizlet`
@@ -2076,7 +2076,7 @@ For Swarm Protocol's port onto the kernel (its own engine kept page-level hooks 
 
 ## 0.10.0
 
-- **Both heroes 5% under the 10 KB live budget** (fizlet-engine docs/LAYERS.md), by making bricks
+- **Both heroes 5% under the 10 KB live budget** (the Fizlet factory's layer budgets), by making bricks
   leave out what a page doesn't call:
   - Layers story: live chunk 10,230 → 9,616 B gzip (6.1% under). It places its tanks as SVG
     backgrounds, so it now imports `spriteURL` instead of all of `fizlet/sprite`.
@@ -2122,7 +2122,7 @@ For Swarm Protocol's port onto the kernel (its own engine kept page-level hooks 
 
 ## 0.8.2
 
-- **Layers story fits the hero budget** (fizlet-engine docs/LAYERS.md): live chunk 12,621 →
+- **Layers story fits the hero budget** (the Fizlet factory's layer budgets): live chunk 12,621 →
   10,054 B gzip (≤ 10 KB), and 0 B of JS before the slot nears the viewport (was 1,957 B). The
   tanks patrol fixed loops instead of searching paths, so the hero drops `fizlet/grid`; a ~300 B
   inline loader imports one `layers.js` (slot + scene) when the slot is near (never with reduced
@@ -2230,7 +2230,7 @@ For Swarm Protocol's port onto the kernel (its own engine kept page-level hooks 
 
 ## 0.5.0
 
-The page profile for heroes and interactive diagrams (fizlet-engine docs/LAYERS.md, "Page
+The page profile for heroes and interactive diagrams (the Fizlet factory's layer budgets, "Page
 interactions"; lab audit docs/audit-heroes.md: idle CPU while visible was the hero's real cost).
 
 - kernel: `settle` option. Systems call `engine.busy()` while something moves; after `settle`
@@ -2425,7 +2425,7 @@ Hardening from the engineering review (2026-10-29, §8: UI and tokens, collision
 
 ## 0.3.0
 
-- **`fizlet/slot`**: mount a scene into an astro-base-engine slot
+- **`fizlet/slot`**: mount a scene into an Astro page engine slot
   (`figure.ae-slot[data-slot-target="<page>#<slot>"]`). Lazy start near the viewport, reduced motion
   keeps the placeholder and fallback (and removes a running scene), `role="img"` + `aria-label` kept
   until the scene says it is accessible, a contained stage (`contain: strict`), and `destroy()` gives

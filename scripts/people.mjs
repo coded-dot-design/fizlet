@@ -77,7 +77,7 @@ export function contributors(dir) {
     for (const k of NEED) if (p[k] === undefined) throw new Error(`contributors/${f}: missing ${k}`);
     if (!KINDS.includes(p.kind)) throw new Error(`contributors/${f}: kind ${p.kind}`);
     if (p.kind !== "owner" && (p.url || !p.handle)) throw new Error(`contributors/${f}: ${p.kind === "agent" ? "an agent" : "a persona"} has a handle and no url (no fake links)`);
-    if (p.pronouns !== undefined && (typeof p.pronouns !== "string" || !p.pronouns)) throw new Error(`contributors/${f}: pronouns is a string`);
+    if (p.pronouns !== undefined) throw new Error(`contributors/${f}: no pronouns or gender on the public site (owner, 2026-11-02)`);
     if (!Array.isArray(p.avatars) || p.avatars.length < 2 || p.avatars.length > 3) throw new Error(`contributors/${f}: avatars is 2 or 3 frames`);
     p.avatars.forEach((a, i) => checkAvatar(a, `contributors/${f} avatars[${i}]`));
     if (p.tagline !== undefined && (typeof p.tagline !== "string" || !p.tagline)) throw new Error(`contributors/${f}: tagline is a string`);

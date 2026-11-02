@@ -398,7 +398,7 @@ await test("the inline loader: no JS until the slot is near; then the live chunk
   }
 });
 
-await test("hero budgets (fizlet-engine docs/LAYERS.md): live chunk ≤ 9,728 B, poster ≤ 6 KB gzip", async () => {
+await test("hero budgets (the factory's layer budgets): live chunk ≤ 9,728 B, poster ≤ 6 KB gzip", async () => {
   const sizes = JSON.parse(readFileSync(`${OUT}/sizes.json`, "utf8"));
   assert.ok(sizes.live <= 10240 * 0.95, `live chunk ${sizes.live} B gzip (≥ 5% under 10 KB: ≤ 9,728)`);
   assert.ok(sizes.poster <= 6144, `inline poster + loader ${sizes.poster} B gzip`);

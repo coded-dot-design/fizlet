@@ -34,4 +34,4 @@ export function assignNumbers(list, { arrival = {}, reserved = [] } = {}) {
 /** The message for shared numbers: which entries, and the command that fixes them. */
 export const duplicateMessage = (what, dupes) =>
   `${what}: ${dupes.map((d) => `#${String(d.no).padStart(3, "0")} is claimed by ${d.ids.join(", ")}`).join("; ")}. ` +
-  "Numbers are given at land time, never in a PR: drop `no` from the PR's entry, or run `node factory/fe.mjs anim number --fizlet <checkout> --write` (fizlet-engine).";
+  "Numbers are given at land time, never in a PR: drop `no` from the PR's entry, or run `node factory/fe.mjs anim number --fizlet <checkout> --write` (the Fizlet factory).";

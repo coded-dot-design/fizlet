@@ -26,7 +26,7 @@ export function names(file = new URL("./names.json", import.meta.url)) {
   const d = JSON.parse(readFileSync(file, "utf8"));
   const ok = (s, max) => typeof s === "string" && s.trim() === s && s.length > 0 && s.length <= max;
   for (const g of d.soon) {
-    if (!ok(g.name, 22) || !ok(g.tagline, 60) || !["idea", "in-progress"].includes(g.status) || !/^fizlet-engine games\/[a-z0-9-]+\/spec\.json$/.test(g.source))
+    if (!ok(g.name, 22) || !ok(g.tagline, 60) || !["idea", "in-progress"].includes(g.status) || !/^factory games\/[a-z0-9-]+\/spec\.json$/.test(g.source))
       throw new Error(`site/factory/names.json: soon entry ${JSON.stringify(g)} needs a name (≤ 22), a tagline (≤ 60), status idea|in-progress and its spec as source`);
   }
   for (const r of d.rolls) if (!ok(r, 22)) throw new Error(`site/factory/names.json: roll ${JSON.stringify(r)} must be a name of 1–22 characters`);
