@@ -1,4 +1,4 @@
-// The page profile (fizlet-engine docs/LAYERS.md, "Page interactions"): the page build stays inside its
+// The page profile (the Fizlet factory's layer budgets, "Page interactions"): the page build stays inside its
 // budget and pulls in no game-only brick. Kernel settle and fps cap: tests/kernel.test.mjs.
 import test from "node:test";
 import assert from "node:assert/strict";

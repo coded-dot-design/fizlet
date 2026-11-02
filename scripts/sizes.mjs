@@ -35,7 +35,7 @@ export const BUDGETS = [
   // Whole module: effects() 2,1xx B + gravity, plus emitter() and KINDS (~0.6 KB), which tree-shake
   // away when unused (the page build below ships effects() alone).
   ["@fzlt/core/fx", "src/fx.ts", 3072],
-  // Pan/zoom of a DOM stage through the ledger (fizlet-engine docs/LAYERS.md: camera ≈ 1.5 KB).
+  // Pan/zoom of a DOM stage through the ledger (the factory's layer budgets: camera ≈ 1.5 KB).
   // 1,475 B in 0.21.0; 1,406 B with its state slots as literals (−69 B, size/treeshake, no behaviour change).
   ["@fzlt/core/camera", "src/camera.ts", 1536],
   ["@fzlt/core/sprite", "src/sprite.ts", 1536],
@@ -120,7 +120,7 @@ export const BUDGETS = [
   // (−26 B, no behaviour change).
   // 4,103 B with its slots and the frame phases as literals (−33 B, size/treeshake, no behaviour change). Lowered by that delta.
   ["@fzlt/core/board-page", "src/board-page.ts", 4160],
-  // A hero's live chunk is ≤ 10 KB gz (fizlet-engine docs/LAYERS.md); the bricks take ≤ 7 KB, the scene
+  // A hero's live chunk is ≤ 10 KB gz (the factory's layer budgets); the bricks take ≤ 7 KB, the scene
   // ≥ 3 KB (tests/page.test.mjs holds the budget there, so it never rises). 7,129 B before release
   // train 0.20.0, 7,164 B after: +35 B #120 (input's intents resolved once), +0 B #122 (its fps-cap
   // nap leaves the clamp to setTimeout; with Math.max the two together were 7,169, 1 B over).

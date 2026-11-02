@@ -163,8 +163,8 @@ ${fizCss}
 ${readFileSync(`${DIR}/page.css`, "utf8")}
 </style>`;
 
-// Chris's words on why Fizlet exists: the owner's wording, as in the note (fizlet-engine
-// content/posts/blog-before-ai-2015.json). Same text as ORIGIN_WHY (hero/origin-scene copy.ts):
+// Chris's words on why Fizlet exists: the owner's wording, as in the note (the Fizlet
+// factory's post blog-before-ai-2015). Same text as ORIGIN_WHY (hero/origin-scene copy.ts):
 // import that constant here once it lands.
 const WHY = "There were a lot of animations before Fizlet, and in between. We kept writing the same thing over and over, a little different each time for a slightly different use. So we built Fizlet to make it easier for us. Then we figured other people could get something out of it too, so we open-sourced it.";
 

@@ -4,7 +4,7 @@
 // onto the canvas) and the build (the same pixels as an SVG for the still poster).
 import type { SpriteDef } from "../../../src/sprite";
 
-/** Brand tokens (fizlet-engine brands/fizlet/style-guide.md). */
+/** Brand tokens (the Fizlet style guide). */
 export const C = {
   rim: "#07060f",
   ink: "#f6f3ff",
