@@ -1,5 +1,5 @@
 // Build the fzlt.dev landing page: `npm run site:fzlt` → site-dist-fzlt/ (index.html, fzlt.css,
-// icon.svg). One static page, no JS: the FIZLET wordmark and the fzlt mark (the site's own lockup),
+// icon.svg). One static page, no JS: the site's own lockup (layout.mjs lockup()) and the fzlt logo,
 // the install line, and links to fizlet.com, the docs, GitHub and npm. Every link leaves for
 // fizlet.com or the code's homes; nothing on the page loads from anywhere else.
 //
@@ -10,7 +10,8 @@
 import { transform } from "esbuild";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { measure } from "../../scripts/sizes.mjs";
-import { AUTHOR, REPO, esc, headline, icon, mark } from "../layout.mjs";
+import { AUTHOR, REPO, esc, headline, icon, lockup, favicon } from "../layout.mjs";
+import { fzltLogo, logoSvg } from "../../scripts/brand-marks.mjs";
 
 const OUT = process.argv[2] ?? "site-dist-fzlt";
 const HOME = "https://fizlet.com/";
@@ -87,7 +88,7 @@ const minify = async (css) => (await transform(css, { loader: "css", minify: tru
 
 // site.css: only the rules for the pieces used here. A selector is kept when every class it names
 // is one of these (rules naming no class, such as :root, html, body, a, code, are kept too).
-const SITE_CLASSES = new Set(["bui", "wrap", "skip", "sr", "eyebrow", "index", "brand", "brand-mark", "brand-text", "has-grid", "hero-install", "code", "code-card", "foot-base"]);
+const SITE_CLASSES = new Set(["bui", "wrap", "skip", "sr", "eyebrow", "index", "brand", "brand-mark", "brand-text", "brand-ver", "has-grid", "hero-install", "code", "code-card", "foot-base"]);
 const classesOf = (sel) => [...sel.replace(/\[[^\]]*\]/g, "").matchAll(/\.(-?[_a-zA-Z][\w-]*)/g)].map((m) => m[1]);
 const kit = await minify(readFileSync("src/ui/board-ui.css", "utf8"));
 const site = pick(await minify(readFileSync("site/site.css", "utf8")), (s) => classesOf(s).every((c) => SITE_CLASSES.has(c)), undefined, false);
@@ -135,10 +136,9 @@ const html = `<!doctype html>
   <p class="eyebrow"><span class="index">fzlt.dev</span> <b>v${esc(version)}</b></p>
   <div class="fz-lockups">
     <a class="brand" href="${HOME}" aria-label="Fizlet: fizlet.com">
-      <span class="brand-mark">${mark(70)}</span>
-      <span class="brand-text"><small>DOM ENGINE</small><b>FIZLET</b></span>
+      ${lockup({ size: 70 })}
     </a>
-    <span class="fz-short" role="img" aria-label="fzlt, the short mark"><span class="brand-mark">${mark(30)}</span><span aria-hidden="true">fzlt</span></span>
+    <span class="fz-short" role="img" aria-label="fzlt, the short mark">${logoSvg(fzltLogo(), 44)}</span>
   </div>
 </header>
 <main id="main" class="wrap">
@@ -170,5 +170,5 @@ rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 writeFileSync(`${OUT}/index.html`, html);
 writeFileSync(`${OUT}/fzlt.css`, css + "\n");
-writeFileSync(`${OUT}/icon.svg`, mark(64).replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" style="color:#39ffb0;background:#07060f" '));
+writeFileSync(`${OUT}/icon.svg`, favicon());
 console.log(`Built ${OUT}/: fzlt.dev (index.html ${n(html.length)} B, fzlt.css ${n(css.length)} B)`);

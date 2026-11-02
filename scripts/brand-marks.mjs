@@ -1,19 +1,21 @@
-// The Fizlet marks, one source: the FIZLET wordmark, the fzlt short mark and the lockups, each on
-// dark and on light, as standalone SVG. scripts/site.mjs writes them to /brand/ (the downloads) and
+// The Fizlet marks, one source: the FIZLET logo, the fzlt logo and the text lockups, each on dark
+// and on light, as standalone SVG. scripts/site.mjs writes them to /brand/ (the downloads) and
 // site/pages/brand.mjs draws the same strings inline, so the page and the files never drift.
 //
 // Colours come from the Board UI tokens (src/ui/tokens.json, the authoritative source) and the
-// site's own --code-bg (site/site.css), never typed here. Type is the site's stacks (site/site.css
-// --mono, --sans); the wordmark is set like the header's (.brand-text b: bold, tracked 0.1em). The
+// site's own --code-bg (site/site.css), never typed here. The two logos are outlines (below). The
+// text lockups use the site's stacks (site/site.css --mono, --sans). The
 // site ships system fonts only, so there is no font file to outline or embed: each SVG names the
 // same stack and pins the text's length (textLength, lengthAdjust="spacing": letters keep their
 // shape, only the spacing gives), so a mark keeps its geometry whichever font the viewer has.
 // ™ is the plain character in the word's own colour, never on code (@fzlt/core) or a domain.
 import { readFileSync } from "node:fs";
+import { MARK, rectPath } from "../site/layout.mjs";
 
 const TOKENS = JSON.parse(readFileSync(new URL("../src/ui/tokens.json", import.meta.url), "utf8"));
 const CSS = readFileSync(new URL("../site/site.css", import.meta.url), "utf8");
-const P = TOKENS.palette;
+const P = TOKENS.palette, PINK = P.roles.attack.dark;
+if (PINK.toLowerCase() !== MARK.pink) throw new Error("site/layout.mjs MARK.pink drifted from --k-attack");
 const roleOf = (v) => (v.startsWith("= ") ? P.roles[v.slice(2)].dark : v);
 const codeBg = [...CSS.matchAll(/--code-bg:\s*(#[0-9a-f]{6})/gi)].map((m) => m[1]);
 const font = (name) => CSS.match(new RegExp(`--${name}:\\s*([^;]+);`))[1].replace(/"/g, "'");
@@ -32,8 +34,59 @@ const ADV = 0.6, TRACK = 0.1;
 /** Length of `n` mono characters at `size`, tracked: what textLength pins. */
 const run = (n, size, track = TRACK) => Math.round(n * ADV * size + (n - 1) * track * size);
 
-// Geometry, in SVG units. W = the wordmark's type size. X, the clear space, is its cap height.
-const W = 48, CAP = Math.round(W * 0.7), X = CAP;
+// ---------- The two logos ----------
+// FIZLET (the large logo: the framed mark, its right side the F's stem) and fzlt (the small logo:
+// the mark's pixels, no frame). Drawn from the owner's art as outlines, so they hold their shape in
+// any font: units are the mark's own 64-unit grid (site/layout.mjs MARK), FIZLET's cap height is the
+// frame. One function per logo: if the owner's SVG source arrives, it replaces that function's paths.
+// Each returns { w, h, ink, pop }: the box and two paths' data, ink (--ink) and the pop (--k-attack).
+
+/** ™ as outlines: a T and an M, `h` tall, strokes `s`, top-left at (x, y). */
+function tmPath(x, y, h, s) {
+  const r = (n) => Math.round(n * 100) / 100;
+  const tw = r(h * 0.72), mx = r(x + tw + h * 0.2), mw = r(h * 1.05), cx = r(mx + mw / 2), v = r(y + h * 0.66);
+  return `M${x} ${y}h${tw}v${s}h${r(-(tw - s) / 2)}v${r(h - s)}h${-s}v${r(-(h - s))}h${r(-(tw - s) / 2)}Z` +
+    `M${mx} ${y}h${r(s * 1.3)}L${cx} ${r(v - s * 1.4)}L${r(mx + mw - s * 1.3)} ${y}h${r(s * 1.3)}v${h}h${-s}V${r(y + h * 0.3)}L${r(cx + s * 0.4)} ${v}h${r(-s * 0.8)}L${r(mx + s)} ${r(y + h * 0.3)}V${y + h}h${-s}Z`;
+}
+
+/** The large logo: the framed mark, then FIZLET in heavy caps, ™. Cap height 64. */
+export function fizletLogo() {
+  return {
+    w: 375, h: 64,
+    ink: rectPath([...MARK.frame, ...MARK.ink]) +
+      "M62 0h43v11H76.5v15.5H102v11H76.5V64H62Z" + // F: its stem is the frame's right side
+      "M114.25 0h14v64h-14Z" + // I
+      "M138 0h49.4v7.2L154.6 53h32.8v11H138v-8l32.2-45H138Z" + // Z
+      "M198 0h14v53h26.5v11H198Z" + // L
+      "M247.6 0h43.9v11h-29.9v15.5h27.8v11h-27.8V53h30.1v11h-44.1Z" + // E
+      "M299 0h53v11h-19.5v53h-14V11H299Z" + // T
+      tmPath(358.6, 0, 8, 1.2),
+    pop: rectPath(MARK.pop),
+  };
+}
+
+/** The small logo: the mark's pixels (no frame, the pop a pixel and a half further right), then fzlt, ™. */
+export function fzltLogo() {
+  const ink = rectPath(MARK.ink) +
+    "M62.6 78.5V35A10.4 10.4 0 0 1 73 24.6h8.4Q83 24.6 82.8 26.2L81.9 32.5Q81.7 34.1 80.1 34.1H73.3v44.4Z" + // f
+    "M57.2 40H81v8.5H57.2Z" + // f's bar
+    "M88 40h31.2v6.9L101 70h18.7v8.5H87.3v-6.7L106.5 48.5H88Z" + // z
+    "M128 26.9h10.7v51.6H128Z" + // l
+    "M149.8 30.6h10.7V40h7.4v8.5h-7.4V70h6.4l1.3 7.6Q168.4 79.1 166.8 79.1H158A8.2 8.2 0 0 1 149.8 70.9V48.5h-5.2V40h5.2Z" + // t
+    tmPath(176.5, 30.4, 6, 1.1);
+  return { x0: 8, y0: 6, w: 181, h: 74, ink, pop: rectPath(MARK.pop, 1.5) }; // the box: the outlined square's left, the pop's top
+}
+
+/** A logo inline at `height` px, in the page's colours: ink is currentColor, the pop --k-attack. */
+export function logoSvg(logo, height) {
+  const vb = `${logo.x0 ?? 0} ${logo.y0 ?? 0} ${logo.w} ${logo.h}`, width = Math.round((logo.w / logo.h) * height * 10) / 10;
+  return `<svg viewBox="${vb}" width="${width}" height="${height}" aria-hidden="true"><path fill="currentColor" d="${logo.ink}"/><path style="fill:var(--k-attack)" d="${logo.pop}"/></svg>`;
+}
+
+// Geometry, in SVG units. W = the type size of the text lockups; their clear space X is its cap
+// height. The logos are drawn at LOGO a unit (FIZLET's cap height 48); their clear space LX is the
+// width of the mark's outlined square (26 of its 64 units).
+const W = 48, CAP = Math.round(W * 0.7), X = CAP, LOGO = 0.75, LX = Math.round(26 * LOGO);
 
 const text = (s, { x, y, size, fill, len, family = MONO, weight = 700, track = TRACK }) =>
   `<text x="${x}" y="${y}" font-family="${family}" font-size="${size}" font-weight="${weight}" letter-spacing="${Math.round(size * track * 10) / 10}" fill="${fill}" textLength="${len}" lengthAdjust="spacing">${s}</text>`;
@@ -52,13 +105,11 @@ export function brandMarks() {
   for (const [theme, t] of Object.entries(THEMES)) {
     const add = (id, name, title, w, h, body) => out.push({ id, theme, file: `fizlet-${id}-${theme}.svg`, name, title: `${title}, on ${theme}`, w, h, svg: svg(w, h, `${title}, on ${theme}`, t, body) });
     const y = X + CAP, h = CAP + 2 * X;
-    {
-      const m = marked("FIZLET", { x: X, y, size: W, fill: t.ink, len: run(6, W) });
-      add("wordmark", "Wordmark", "FIZLET wordmark", m.w + 2 * X, h, m.svg);
-    }
-    {
-      const m = marked("fzlt", { x: X, y, size: W, fill: t.ink, len: run(4, W, 0.02), track: 0.02 });
-      add("short-mark", "Short mark", "fzlt short mark", m.w + 2 * X, h, m.svg);
+    // The logos: ink in the ground's --ink, the pop in --k-attack (pink on both grounds), LX all round.
+    for (const [id, name, title, logo] of [["wordmark", "FIZLET logo", "FIZLET logo", fizletLogo()], ["short-mark", "fzlt logo", "fzlt logo", fzltLogo()]]) {
+      const w = Math.ceil(logo.w * LOGO + 2 * LX), hh = Math.ceil(logo.h * LOGO + 2 * LX);
+      const at = `translate(${LX - (logo.x0 ?? 0) * LOGO} ${LX - (logo.y0 ?? 0) * LOGO}) scale(${LOGO})`;
+      add(id, name, title, w, hh, `<g transform="${at}"><path fill="${t.ink}" d="${logo.ink}"/><path fill="${PINK}" d="${logo.pop}"/></g>`);
     }
     {
       // Fizlet™ · fzlt™: the name in the site's sans, then a middle dot and the short mark in mono, muted.
@@ -84,8 +135,8 @@ export function brandMarks() {
   return out;
 }
 
-/** The clear-space unit and the geometry the page's diagram draws. */
-export const GEOMETRY = { W, CAP, X };
+/** The clear-space unit and the geometry the page's diagram draws (LX: the logos'). */
+export const GEOMETRY = { W, CAP, X, LOGO, LX };
 
 // ---------- The sticker set ----------
 // Fizlet™ and fzlt™ stickers, in the kit's two sticker styles (src/ui/board-ui.css): the overlay

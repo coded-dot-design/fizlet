@@ -11,6 +11,39 @@
   at 1520 px (1354 px at 1440, 1520 px at 1920); the hero's copy column takes 1.15 parts to the layers
   card's 1 (was 1 to 1.05). Prose keeps a 70ch measure where it ran full width (gallery prompts, doc
   recipes, brand captions). Test: the hero headline block in `tests/site.mjs`.
+- **Site: people pages line up (pending owner review).** On every profile the stat row spans the
+  content column, edge to edge with the cards under it, and the three cards (What they make,
+  Favorite games, Off the board) are a grid again, side by side on wide screens and stacked on
+  narrow ones, one block gap apart (`--block-gap`, the space the contract rules and contest cards
+  use). A stray selector had folded the cards into the Daily contest panel's padding and width. Both
+  stats are bare numbers with the unit in the label ("bytes of live code"). The site test checks
+  the shared edges and the gap on each people page at 1440, 1024 and 390.
+- **Site: the header nav is quiet text, with more room between items (pending owner review).** The
+  top-level items and the menu rows no longer draw as half-raised keys (a filled face with a cyan
+  base edge) on hover, open or the current page. Hover lights the text; an open menu flips its
+  chevron and takes `--k-sys-ink`; the current page or section has a thin `--k-sys-ink` underline
+  (`aria-current` unchanged); a menu row gets a faint tint on hover. Keyboard focus keeps the site's
+  ring. The gap between items is 14 px (was 4), and the nav still fits on one line at 961 px, just
+  above the phone menu. GitHub, theme and Start stay keys.
+- **Site: "Cookie settings" is a plain text link (pending owner review).** In the footer it was a
+  Board UI key between the copyright and the byline, taller than the line and off its baseline; on
+  the privacy and cookies pages it drew as underlined text on a key base. One control now
+  (`site/layout.mjs` cookieSettings, `.text-btn` in site.css): still a `<button>` that reopens the
+  consent banner, styled as a text link with no face, base or lift. In the footer it ends the
+  meta line (© 2026 Chris Cooley · MIT licence · no runtime dependencies · Cookie settings), on its
+  baseline and visible at every width; in running text it is an ordinary link.
+- **Brand: the owner's new FIZLET and fzlt logos, and one mark and lockup everywhere (pending owner
+  review).** /brand/ draws the two new logos (redrawn as outlines from the owner's art, one function
+  each in `scripts/brand-marks.mjs`) on dark and light, as live art and SVG downloads: FIZLET, the
+  mark in its square frame closed by the F; fzlt, the mark's pixels and lowercase fzlt. Ink is
+  `--ink`, the pop `--k-attack`. The site mark (`site/layout.mjs` MARK, mark()) is now that art: frame
+  and squares in the text colour, no tile or grid, in the header, the footer, fzlt.dev, the favicon,
+  og.png and the sticker keys. One lockup function (`lockup()`) draws the header, footer, /brand/ and
+  fzlt.dev lockups; FIZLET sits at 0.075em tracking, nudged -0.06em, and the version is a small
+  tilted `--k-sys` sticker, its edge and hard shadow the shared `--sticker-edge` / `--sticker-shadow` tokens (`--ink`
+  until they land) so they read on both themes (on
+  phones it drops under FIZLET, a size down, so the 44 px header keys keep their room). Clear space is now
+  the mark's outlined square; minimum 24 px for both logos.
 - **Site: the origin hero in two looks, a redrawn coder, and a cup you can play with (pending owner
   review).** "Code. Sleep. Drink. Repeat." is now inspired by the original 2015 portfolio, with
   Fizlet flair: a 2015 / Fizlet key in the scene's key row (`aria-pressed`, `look` in `origin:state`,
@@ -24,6 +57,15 @@
   Enter, R, K and the arrows on the cup. Reduced motion changes state with no animation; every toy
   settles. Live chunk 20,922 → 28,156 B gzip; inline poster 3,775 → 5,120 B (one markup, both
   looks; the poster's saucer shows again). Test: `tests/origin.mjs`.
+
+- **Site: Before AI: 2015, the Fizlet columns play again after Recall (pending owner review).**
+  Recall gave the page back but left both Fizlet columns dead, and the remake's play switch stuck on
+  pause: its class flips were not in the ledger and its listeners outlived the engines. Every class
+  flip now goes through the strip's ledger and every listener goes with its engine, so Recall is
+  exact whatever was pressed; after it, a press on a column starts it fresh (no load intro) and acts,
+  any number of times. Site tests: three Recall-then-play rounds (also under reduced motion) and
+  three play/pause rounds on the remake's switch and the arcade's play key.
+
 - **Site: 3D stickers keep their edge and shadow on the dark theme (pending owner review).** Every
   sticker's die-cut edge and hard shadow read from one token pair, `--sticker-edge` and
   `--sticker-shadow` (site.css :root): the light ink and the muted light on the dark theme, the ink
