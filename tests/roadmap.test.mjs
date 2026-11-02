@@ -16,10 +16,21 @@ test("phases run E0, E1, … in order, each with a known status", () => {
   });
 });
 
-test("the launch scope is not planned and everything after it is", () => {
+test("the launch scope is never planned; after it, a phase moves only with evidence", () => {
   const cut = ROADMAP.findIndex((p) => p.id === LAUNCH_LAST);
   assert.ok(cut >= 0, `LAUNCH_LAST ${LAUNCH_LAST} is a phase`);
-  ROADMAP.forEach((p, i) => assert.equal(p.status === "planned", i > cut, `${p.id}: ${p.status}`));
+  ROADMAP.forEach((p, i) => {
+    if (i <= cut) assert.notEqual(p.status, "planned", `${p.id} is in the launch scope`);
+    else if (p.status !== "planned") assert.ok(p.items.some(([d]) => d), `${p.id} is ${p.status} with nothing ticked`);
+  });
+});
+
+test("every item has a stable key, E<n>.<slug>, unique (fe roadmap sync ticks by key)", () => {
+  const keys = ROADMAP.flatMap((p) => p.items.map(([, t, k]) => {
+    assert.match(k ?? "", new RegExp(`^${p.id}\\.[a-z0-9-]+$`), `${p.id} "${t}": key ${k}`);
+    return k;
+  }));
+  assert.equal(new Set(keys).size, keys.length, "duplicate key");
 });
 
 test("ticks agree with the status", () => {

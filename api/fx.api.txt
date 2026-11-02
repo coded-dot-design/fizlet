@@ -61,5 +61,5 @@ export declare function effects(o?: FxOptions): {
 export type Effects = ReturnType<typeof effects>;
 export declare function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>): {
     ids: Record<N, number>;
-    emit(k: number, x: number, y: number, n: number, c?: number, cn?: number, scale?: number): undefined;
+    emit(k: number, x: number, y: number, n: number, c?: number, cn?: number, scale?: number, w?: number, wn?: number): undefined;
 };

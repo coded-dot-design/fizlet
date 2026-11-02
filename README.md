@@ -12,8 +12,8 @@ and the page always comes back exactly as it was. No runtime dependencies, ever.
 
 The "fiz" is fizz (the pop of an effect) and a nod to physics; the "-let" is small, like an applet.
 Fizlet runs every DOM VIRUS game: Battlefield Blitz, [DOM Battlefield](https://coded-dot-design.github.io/dom-battlefield/)
-1.0, and the [DOM VIRUS](https://coded-dot-design.github.io/dom-virus/) arcade (Null Invaders,
-Byte Runner and Sherman Bytes 1.0, Swarm Protocol 1.4). "The page is the board" is DOM VIRUS's
+1.0, and the [DOM VIRUS](https://coded-dot-design.github.io/dom-virus/) arcade (Null Invaders and
+Byte Runner 1.0, Sherman Bytes 1.1, Swarm Protocol 1.4). "The page is the board" is DOM VIRUS's
 approach: one use of the bricks.
 
 > **Public beta (0.x).** Fizlet 0.x is a public beta: every brick carries a status flag, and a 0.x
@@ -197,7 +197,7 @@ import { slot } from "@fzlt/core/slot";
 slot("home#hero", () => import("./hero-scene.js").then((m) => m.mount));
 
 // hero-scene.ts: build inside the stage; return destroy (and accessible: true only when the
-// scene renders real accessible content, which drops the slot's role="img").
+// scene renders real accessible content, which turns the slot's role="img" into role="figure").
 import { createEngine } from "@fzlt/core";
 import { effects } from "@fzlt/core/fx";
 import type { SlotTap } from "@fzlt/core/slot";
@@ -225,7 +225,8 @@ export function mount(stage: HTMLElement, figure: HTMLElement, first: SlotTap | 
 - **Reduced motion:** with `prefers-reduced-motion: reduce` the scene never loads and the slot's
   placeholder and fallback stay; if the setting turns on mid-scene, the scene goes and they come back.
 - **Accessible:** `role="img"` and `aria-label` stay; the stage is `aria-hidden` until the scene
-  returns `accessible: true`.
+  returns `accessible: true`, which changes `role="img"` to `role="figure"` in place (Recall puts it
+  back byte for byte).
 - **Contained:** the scene gets its own stage (`position: absolute; inset: 0; contain: strict`)
   inside the slot. Every change goes through a ledger: `destroy()` puts the slot back exactly.
 - `findSlot("<page>#<slot>")` returns the figure; `slot(figure, load)` takes the element too. An

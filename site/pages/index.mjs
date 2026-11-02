@@ -1,6 +1,6 @@
 // The Fizlet home page. Numbers come from the build (sizes measured like `npm run size`); claims
 // come from the test suites (tests/*.test.mjs, tests/browser.mjs).
-import { esc, icon, REPO, SITE, HUB, BATTLEFIELD, BLITZ, ENGINE_PLAN, AUTHOR } from "../layout.mjs";
+import { esc, icon, REPO, SITE, HUB, BATTLEFIELD, BLITZ, ENGINE_PLAN, AUTHOR, headline, HOME_HEADLINE } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { QUICK_START } from "./quick-start.mjs";
 import { BETA_LINE, IN_HOUSE, inHouse } from "../bricks.mjs";
@@ -101,7 +101,7 @@ export function roadmapSection(all = phases()) {
     <div class="section-head">
       <p class="eyebrow"><span class="index">09</span> ROADMAP · ${first} TO ${last}</p>
       <h2 id="roadmap-title">What's done.<br><em>What's left.</em></h2>
-      <p class="lead">${esc(BETA_LINE)} ${first} to ${LAUNCH_LAST} are the launch scope; a box is ticked only with a release, a merged change or a test behind it. ${next} to ${last} are next, with the bricks each adds (<a href="bricks/#planned">ROADMAP</a> on the bricks page). The first plan, E0 to E6, is <a href="${ENGINE_PLAN}">ENGINE.md ↗</a> in the DOM VIRUS repo.</p>
+      <p class="lead">${esc(BETA_LINE)} ${first} to ${LAUNCH_LAST} are the launch scope; a box is ticked only with a release, a merged change or a test behind it. ${next} to ${last} come after launch, with the bricks each adds (<a href="bricks/#planned">ROADMAP</a> on the bricks page). The first plan, E0 to E6, is <a href="${ENGINE_PLAN}">ENGINE.md ↗</a> in the DOM VIRUS repo.</p>
     </div>
     <ol class="roadmap">
       ${roadmap}
@@ -147,7 +147,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <p class="eyebrow"><span class="dot"></span>ANIMATION + GAME BRICKS <span>/</span> <b>FOR THE DOM</b></p>
-      <h1 id="hero-title">Logic and style.<br><em>The bricks do the rest.</em></h1>
+      <h1 id="hero-title">${headline("<br>", HOME_HEADLINE)}</h1>
       <p class="byline">by <a href="${AUTHOR}">Chris Cooley ↗</a></p>
       <p class="beta-line"><span class="status-pill" data-flag="beta">PUBLIC BETA</span> v${esc(version)} · a 0.x public beta: <a href="bricks/#status">every brick carries its status</a></p>
       <p class="lead">Fizlet™ is the building blocks for animation and games on the DOM. Each brick is a task we wrote hundreds of times over two decades, now kept by AI and human developers who chase performance at all costs. You bring the logic and style, even from a prompt. The kernel is <b>${kb(kernel.gzip)} KB</b> gzipped. No runtime dependencies, ever.</p>
@@ -408,11 +408,11 @@ ${originSection(origin)}
       <article class="panel game">
         <p class="eyebrow"><b>THE ARCADE</b> · ON FIZLET</p>
         <h3>DOM VIRUS</h3>
-        <p>The arcade's approach is “the page is the board”: tiny games that play on the page you are reading. It is one use of Fizlet, and the arcade the bricks were proved out on. Now its games run on them: Null Invaders, Byte Runner and Sherman Bytes at 1.0 on <code>@fzlt/core/arcade</code>, Swarm Protocol 1.4 on the kernel.</p>
+        <p>The arcade's approach is “the page is the board”: tiny games that play on the page you are reading. It is one use of Fizlet, and the arcade the bricks were proved out on. Now its games run on them: Null Invaders and Byte Runner at 1.0 and Sherman Bytes at 1.1 on <code>@fzlt/core/arcade</code>, Swarm Protocol 1.4 on the kernel.</p>
         <div class="game-keys"><a class="bui-key bui-arcade bui-cmd" href="${HUB}">${icon("cart", 16)}Visit DOM VIRUS ↗</a></div>
       </article>
       <article class="panel game">
-        <p class="eyebrow"><b>SQUAD TACTICS</b> · ON FIZLET 1.0</p>
+        <p class="eyebrow"><b>SQUAD TACTICS</b> · ON FIZLET SINCE 1.0</p>
         <h3>DOM Battlefield</h3>
         <p>Twelve tanks, one radio. The game whose board UI became this design system, on the Fizlet kernel since 1.0; two-network matches come in E12.</p>
         <div class="game-keys"><a class="bui-key bui-arcade bui-go" href="${BATTLEFIELD}">${icon("out", 16)}DOM Battlefield ↗</a></div>

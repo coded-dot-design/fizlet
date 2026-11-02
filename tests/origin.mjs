@@ -115,8 +115,9 @@ try {
     }
     assert.ok(lifted, "the cup lifts");
     assert.equal(await sau(), s0, "the saucer does not move");
-    await p.waitForTimeout(800);
-    assert.ok(await p.evaluate(() => window.__hz.includes(260)), "the slurp plays after a gesture");
+    // The slurp comes during the sip: wait for it (state), with a generous ceiling for slow runners (#274).
+    const slurp = await p.waitForFunction(() => window.__hz.includes(260), null, { timeout: 5000 }).then(() => true, () => false);
+    assert.ok(slurp, "the slurp plays after a gesture");
     // Enter on the cup sips too (its key target is focusable).
     await p.waitForFunction(() => !document.querySelector(".og-cup").getAttribute("transform").includes("rotate(-"), null, { timeout: 3000 });
     await p.focus(".og-grip");

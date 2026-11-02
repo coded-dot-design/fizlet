@@ -40,7 +40,7 @@ const only = process.argv[2]; // one id, to look at a single entry
 // else changes), and one per wake(). A wake comes from outside the story (input, the figure coming
 // on screen): it starts a new stretch, like a tap would. The build fails if either line moves in the
 // kernel, so the guard can't go blind.
-const PROBE_AT = "      if (settle && n[TIME]! - n[QUIET]! >= settle)", WAKE_AT = "    wake() {\n", BUSY_AT = "    busy(sec?: number) {\n";
+const PROBE_AT = "      if (settle && n[2 /* TIME */]! - n[8 /* QUIET */]! >= settle)", WAKE_AT = "    wake() {\n", BUSY_AT = "    busy(sec?: number) {\n";
 const probe = {
   name: "settle-probe",
   setup(b) {
@@ -53,7 +53,7 @@ const probe = {
           // A frame is busy when busy() was called in it (marked here, test build only) or a
           // busy(sec) hold is still ahead of the engine's time.
           .replace(BUSY_AT, BUSY_AT + "      (engine as any).__b = 1;\n")
-          .replace(PROBE_AT, "      if (settle) globalThis.__fzFrame?.(engine, !!(engine as any).__b || n[QUIET]! > n[TIME]!, settle), ((engine as any).__b = 0);\n" + PROBE_AT)
+          .replace(PROBE_AT, "      if (settle) globalThis.__fzFrame?.(engine, !!(engine as any).__b || n[8 /* QUIET */]! > n[2 /* TIME */]!, settle), ((engine as any).__b = 0);\n" + PROBE_AT)
           .replace(WAKE_AT, WAKE_AT + "      globalThis.__fzWake?.(engine);\n"),
       };
     });
