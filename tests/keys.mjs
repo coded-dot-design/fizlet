@@ -37,7 +37,7 @@ const near = ([ax, ay], [bx, by]) => Math.abs(ax - bx) < 0.5 && Math.abs(ay - by
 const settle = (key) => key.evaluate(async (e) => {
   const frame = () => new Promise((r) => requestAnimationFrame(r));
   await frame(); await frame();
-  for (let running; (running = e.getAnimations({ subtree: true }).filter((a) => a.playState === "running")).length;) {
+  for (let running; (running = e.getAnimations({ subtree: true }).filter((a) => a.playState === "running" && a.effect?.getComputedTiming().endTime !== Infinity)).length;) {
     await Promise.all(running.map((a) => a.finished.catch(() => {})));
     await frame();
   }
