@@ -4,11 +4,11 @@ import { AUTHOR, esc, icon, REPO } from "../layout.mjs";
 import { inline, longDate } from "./notes.mjs";
 import { highlights, parse, plain, releasePath } from "../../scripts/releases.mjs";
 
-/** Changelog Markdown → the notes' inline syntax: repo paths link to GitHub, bare URLs become links,
+/** Changelog Markdown → the notes' inline syntax: repo paths link to GitHub, bare URLs become links (a URL already inside `](…)` is left alone),
  *  and every link that leaves the site ends in ↗ (site nav rule 4). */
 const md = (s, base) => inline(s
   .replace(/\]\((?!https?:|\/|#|mailto:)([^)\s]+)\)/g, (_, p) => `](${REPO}/blob/main/${p.replace(/^\.\//, "")})`)
-  .replace(/(^|[\s(])(https:\/\/[^\s)`,]+[^\s)`,.;:])/g, (_, pre, url) => `${pre}[${url}](${url})`), base)
+  .replace(/(^|\s|(?<!\])\()(https:\/\/[^\s)`,]+[^\s)`,.;:])/g, (_, pre, url) => `${pre}[${url}](${url})`), base)
   .replace(/(<a href="https?:[^"]*">)((?:(?!<\/a>).)*?)(?<!↗)<\/a>/g, "$1$2 ↗</a>");
 
 function list(items, base) {

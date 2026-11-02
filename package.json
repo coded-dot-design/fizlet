@@ -1,6 +1,6 @@
 {
   "name": "@fzlt/core",
-  "version": "0.21.2",
+  "version": "0.21.3",
   "description": "Fizlet™ (fzlt™) is the bricks for DOM animation and games, by Chris Cooley: a game or an animation boils down to logic and style, from a prompt. Every brick has a gzip budget in CI, there are no runtime dependencies, and the page always comes back.",
   "license": "MIT",
   "author": "Chris Cooley <https://coded.design>",
