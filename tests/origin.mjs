@@ -215,8 +215,11 @@ try {
     const lap = await p.evaluate(() => { const r = document.querySelector(".og-laptop").getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height * 0.7 }; });
     await p.mouse.move(lap.x, lap.y);
     await p.mouse.down();
-    await p.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
-    assert.match(await p.evaluate(() => document.querySelector(".og-laptop").getAttribute("transform")), /scale\(0\.93/, "pressed: squashed on the next frame");
+    // Wait on the squash itself (state), polled every frame: two fixed frames miss it on a loaded
+    // runner, where the scene's 30 fps step can land a frame or two later. A 1 s ceiling still fails
+    // a press that never shows.
+    const squashed = await p.waitForFunction(() => /scale\(0\.93/.test(document.querySelector(".og-laptop").getAttribute("transform") ?? ""), null, { timeout: 1000, polling: "raf" }).then(() => true, () => false);
+    assert.ok(squashed, "pressed: the laptop squashes while held");
     await p.mouse.up();
     await p.waitForFunction(() => !document.querySelector(".og-laptop").getAttribute("transform"), null, { timeout: 3000 });
     await settles("a press");
