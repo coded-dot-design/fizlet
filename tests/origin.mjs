@@ -603,6 +603,33 @@ try {
     await p.waitForFunction(() => !window.scene.stats().wired && !window.scene.state.awake, null, { timeout: 30000 });
     assert.match(await said(), /wore off/);
     assert.equal((await st()).zzz, z1, "no Zzz while he was wired");
+
+    // The phone's genre card: a sticker that pops in on a change, holds, fades; the name keeps the genre.
+    await p.focus(".og-phone");
+    await p.keyboard.press("Enter");
+    await p.waitForFunction(() => +document.querySelector(".og-gchip").getAttribute("opacity") === 1 && !document.querySelector(".og-gchip").getAttribute("transform"), null, { timeout: 3000, polling: "raf" });
+    assert.match(await p.evaluate(() => document.querySelector(".og-gchip").textContent + " · " + document.querySelector(".og-phone").getAttribute("aria-label")), /^ROCK · Music: rock\. Change style$/, "the card says the genre; so does the name");
+    await p.waitForFunction(() => +document.querySelector(".og-gchip").getAttribute("opacity") === 0 && !window.scene.stats().genreCard, null, { timeout: 4000 });
+    await quiet("the genre card");
+
+    // The sip: his hand takes the cup by its handle and stays there as it lifts and tilts (both looks).
+    k = await lap(0.5);
+    await p.mouse.click(k.x, k.y);
+    for (const look of ["fizlet", "2015"]) {
+      await p.evaluate((l) => window.scene.setLook(l), look);
+      let held = null;
+      for (let i = 0; i < 6 && !held; i++) {
+        await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(196 268) rotate(0 ") && window.scene.state.awake && window.scene.state.open, null, { timeout: 12000 });
+        await p.evaluate(() => window.scene.sip());
+        held = await p.waitForFunction(() => {
+          const t = document.querySelector(".og-cup").getAttribute("transform");
+          if (!/rotate\(-1[2-8]/.test(t)) return false; // lifted and tilted toward his mouth
+          const h = document.querySelector(".og-handle").getBoundingClientRect(), g = new DOMPoint(0, 0).matrixTransform(document.querySelector(".og-hand-l").getScreenCTM());
+          return { off: Math.hypot(h.x + h.width / 2 - g.x, h.y + h.height / 2 - g.y) };
+        }, null, { timeout: 3000, polling: "raf" }).then((r) => r.jsonValue(), () => null);
+      }
+      assert.ok(held && held.off < 4, `${look}: the hand is on the handle mid-sip (${JSON.stringify(held)})`);
+    }
     await p.evaluate(() => window.scene.destroy());
     assert.equal(await p.evaluate(() => document.body.innerHTML), before, "Recall after the review's toys");
     assert.deepEqual(errs, []);
@@ -687,6 +714,9 @@ try {
     // The phone: Enter still changes the style (no head bob, no notes).
     await p.focus(".og-phone");
     await p.keyboard.press("Enter");
+    // The genre card shows at once (no pop) and goes after a moment, with no fade.
+    await p.waitForFunction(() => document.querySelector(".og-gchip").getAttribute("opacity") === "1.00" && !document.querySelector(".og-gchip").getAttribute("transform"), null, { timeout: 1000 });
+    await p.waitForFunction(() => document.querySelector(".og-gchip").getAttribute("opacity") === "0.00", null, { timeout: 4000 });
     await p.waitForFunction(() => document.querySelector(".og-phone").getAttribute("aria-label") === "Music: rock. Change style", null, { timeout: 1000 });
     await still("a style change");
     await p.evaluate(() => window.scene.destroy());
@@ -694,7 +724,7 @@ try {
     assert.deepEqual(errs, []);
     await p.close();
   }
-  console.log("origin: day loop, laptop night/day, mode, show bricks, two looks, the cup's toys (press, double-tap refill, drag, flick and spill, keys), the notebook, the plant, the lamp, key lights, seeded typing, the phone's looping genres (constant bar period, bar-line switch, double-tap pause), the review (lid, chair, pours, laptop toggle, one pen, the scene's own palette and contrast, caffeine), settle, 0 rAF/s paused/off screen, reduced motion, sound after a gesture, Recall: ok");
+  console.log("origin: day loop, laptop night/day, mode, show bricks, two looks, the cup's toys (press, double-tap refill, drag, flick and spill, keys), the notebook, the plant, the lamp, key lights, seeded typing, the phone's looping genres (constant bar period, bar-line switch, double-tap pause), the review (lid, chair, pours, laptop toggle, one pen, the scene's own palette and contrast, caffeine, the genre card, the hand on the handle), settle, 0 rAF/s paused/off screen, reduced motion, sound after a gesture, Recall: ok");
 } finally {
   await browser.close();
 }

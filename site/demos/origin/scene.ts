@@ -33,7 +33,7 @@ import { controls } from "../../../src/input";
 import { spriteURL, type SpriteDef } from "../../../src/sprite";
 import type { SlotMount, SlotScene } from "../../../src/slot";
 import { ORIGIN_WHY, ORIGIN_WHY_BEATS, ORIGIN_CREDIT, ORIGIN_LOOKS, ORIGIN_HINT } from "./copy";
-import { why, art, CSS, BOX, C, VB, DESK, CUP, SH, PLANT, BOOK, KEYS_HOME, TIPS_HOME, head, headT, hands, neck, armD, reach, carry, cupT, cupShT, LIQUID, brew, phonesT, band, cord, screenT, coverT, sqT, type OriginLook } from "./art";
+import { why, art, CSS, BOX, C, VB, DESK, CUP, SH, PLANT, BOOK, KEYS_HOME, TIPS_HOME, head, headT, hands, neck, armD, reach, carry, cupT, cupHandle, cupShT, LIQUID, brew, phonesT, band, screenT, coverT, sqT, type OriginLook } from "./art";
 
 export type { OriginLook } from "./art";
 declare const __ORIGIN_BRICKS__: Record<string, number> | undefined;
@@ -95,7 +95,7 @@ export interface OriginScene extends SlotScene {
   nudge(): void;
   /** Live particles and Zs so far; the cup (its top left in art units, its level, spilled); `toys`:
    *  how many of the cup's own motions are still running (0 once they have all settled). */
-  stats(): { particles: number; zzz: number; cup: { x: number; y: number; level: number; spilled: boolean; lifted: boolean }; toys: number; drops: number; pages: number; lamp: boolean; lit: number; keys: number[]; caffeine: number; wired: boolean; music: { genre: string; playing: string; paused: boolean; bars: number[] } };
+  stats(): { genreCard: boolean; particles: number; zzz: number; cup: { x: number; y: number; level: number; spilled: boolean; lifted: boolean }; toys: number; drops: number; pages: number; lamp: boolean; lit: number; keys: number[]; caffeine: number; wired: boolean; music: { genre: string; playing: string; paused: boolean; bars: number[] } };
   /** Water the plant; write or doodle in the notebook; switch the lamp. */
   water(): void;
   write(): void;
@@ -170,14 +170,14 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   const status = wrap.querySelector<HTMLElement>("[role=status]")!;
   const q = <T extends Element = SVGElement>(s: string) => svg.querySelector<T>(s)!;
   const qa = (s: string) => [...svg.querySelectorAll<SVGElement>(s)];
-  const neckEl = q(".og-neck"), napeEl = q(".og-nape"), headEl = q(".og-head"), phonesEl = q(".og-phones"), bandEls = qa(".og-band"), cordEl = q(".og-cord"), cupEl = q(".og-cup"), cupImg = q(".og-cupimg"), liquid = q(".og-liquid"), body = q(".og-body");
+  const neckEl = q(".og-neck"), napeEl = q(".og-nape"), headEl = q(".og-head"), phonesEl = q(".og-phones"), bandEls = qa(".og-band"), cupEl = q(".og-cup"), cupImg = q(".og-cupimg"), liquid = q(".og-liquid"), body = q(".og-body");
   const cupSh = q(".og-cupsh"), upEl = q(".og-up"), upG = q(".og-upg"), tipEl = q(".og-tip"), pudEl = q(".og-pud"), potEl = q(".og-pot"), potB = q(".og-potb"), stream = q(".og-stream"), sqp = q(".og-sqp");
   const arms = [-1, 1].map((s) => { const g = q(s < 0 ? ".og-arm-l" : ".og-arm-r"); return { s, skin: g.querySelector(".og-skin")!, sl: g.querySelector(".og-sl")!, hem: g.querySelector(".og-hem")!, hd: g.querySelector(s < 0 ? ".og-hand-l" : ".og-hand-r")! }; });
   const pen = q(".og-pen"), dpen = q(".og-dpen"), plantEl = q(".og-plant"), sqf = q(".og-sqf"), leaves = q(".og-leaves"), bookEl = q(".og-book"), sqb = q(".og-sqb"), lampEl = q(".og-lamp"), sqm = q(".og-sqm");
   const inks = qa(".og-ink"), drops = qa(".og-drops circle"), canEl = q(".og-can"), canB = q(".og-canb"), wstream = q(".og-wstream"), klit = qa(".o-klit");
   const screen = q(".og-screen"), cover = q(".og-cover"), scrl = q(".og-scrl"), laptop = q(".og-laptop");
   const scroll = q(".og-scroll"), caret = q(".og-caret"), arrow = q(".og-arrow"), sel = q(".og-sel"), shape = q(".og-shape");
-  const phoneEl = q(".og-phone"), genreEl = q(".og-genre"), pzEl = q(".og-pz");
+  const phoneEl = q(".og-phone"), genreEl = q(".og-genre"), pzEl = q(".og-pz"), chipEl = q(".og-gchip"), chipFace = q(".og-gface");
   const pix = q(".og-pix"), codeEls = qa(".og-code"), desEls = qa(".og-des");
   const keyEl = (k: string) => wrap.querySelector<HTMLButtonElement>(`.og-bar [data-k=${k}]`);
   const lookKey = keyEl("look"), modeKey = keyEl("mode"), tagsKey = keyEl("tags"), soundKey = keyEl("sound"), pauseKey = keyEl("pause");
@@ -336,7 +336,11 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   // M: the music. The genre chosen, the genre playing (it changes at the next bar line), paused, the
   // next step's time on the audio clock, the step, the last phone tap, a single tap waiting (a
   // second tap within 250 ms makes it a double: pause, not a change). BARS: when the last bars began.
-  const M = new Float64Array(8), GEN = 0, AG = 1, MP = 2, NEXT = 3, STEP = 4, PTAP = 5, PEND = 6, BN = 7, BARS = new Float64Array(8);
+  // GLT: how long the genre card has shown (-1: hidden): it pops in, holds 1.5 s, fades.
+  const M = new Float64Array(9), GEN = 0, AG = 1, MP = 2, NEXT = 3, STEP = 4, PTAP = 5, PEND = 6, BN = 7, GLT = 8, BARS = new Float64Array(8);
+  M[GLT] = -1;
+  let gtimer = 0;
+  engine.signal.addEventListener("abort", () => clearTimeout(gtimer));
   M[PTAP] = -9;
   // Q: the cup and the pointer. The cup's top left (art units), its lift and target, the part under
   // the pointer, dragging, the press point, the grab offset, velocity (art units/s), the last move,
@@ -489,6 +493,9 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
   }
   function genre() {
     M[GEN] = (M[GEN]! + 1) % 3;
+    // The genre card: under reduced motion it simply shows, then goes (a timer, no frames).
+    M[GLT] = 0;
+    if (reduce) clearTimeout(gtimer), (gtimer = setTimeout(() => ((M[GLT] = -1), engine.wake()), 1500) as unknown as number);
     pop(PHONE);
     say(19);
   }
@@ -648,6 +655,8 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       // Rest at night when the laptop was closed by hand: the clock stops there until it opens.
       if (N[HOLD] && N[CLOCK] && !reduce && day.time % DAY >= REST) (day.pause(), (N[CLOCK] = 0));
       if (reduce) return;
+      if (M[GLT]! >= 0 && (M[GLT]! += dt) >= 1.8) M[GLT] = -1;
+      if (M[GLT]! >= 0) e.busy();
       // Caffeine wears off with the day; under the line at night, he finally dozes.
       if (X[CAF]) {
         const t = day.time % DAY, night = t >= SLEEP || t < DAWN;
@@ -800,11 +809,10 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       set(phonesEl, "transform", phonesT(ph, aw, s, bob) + sq(PHONES));
       const bd = band(ph);
       for (const b of bandEls) set(b, "d", bd);
-      set(cordEl, "d", cord(ph, aw, s));
       set(laptop, "transform", sqT(400, 255, SQ[LAP]!)), set(sqp, "transform", sqT(0, 0, SQ[PHONE]!));
       // Arms: the hands' targets (the keys, the desk, folded asleep), the nearer hand to the cup on a
       // sip; two bones each, the elbows out.
-      const hn = hands(aw, P[HD]!, HP), rc = reach(s), side = Q[CX]! + CUP.r < 400 ? 0 : 1, gx = cupAt(0) + (side ? 22 : -22), gy = cupAt(1) + 8;
+      const hn = hands(aw, P[HD]!, HP), rc = reach(s), side = Q[CX]! + CUP.r < 400 ? 0 : 1, hh = cupHandle(s, Q[CX]!, Q[CY]!, Q[LIFT]!, SQ[CUPP]!), gx = hh[0], gy = hh[1]; // the hand takes the cup by its handle
       hn.ly += PRS[0]! * 2.5, hn.ry += PRS[1]! * 2.5;
       // Writing: the left hand goes to the book, the pen follows the stroke, then it comes back.
       // Writing: the left hand goes to the pen beside the book, picks it up, goes to the page, writes
@@ -886,6 +894,10 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       set(pix, "href", pixURL[aw < 0.5 ? 2 : reduce || M[MP] || ph < 0.95 ? 0 : (N[BEATS]! & 1)]!);
       set(pix, "style", M[MP] ? "display:none" : "image-rendering:pixelated"), set(pzEl, "style", M[MP] ? "" : "display:none");
       set(genreEl, "textContent", GENRES[M[GEN]!]!.toUpperCase());
+      // The genre card (a sticker in the genre's colour): pops in, holds, fades; still under reduced motion.
+      const gt = M[GLT]!, gop = gt < 0 ? 0 : reduce || gt < 1.5 ? 1 : 1 - (gt - 1.5) / 0.3, gin = Math.min(1, Math.max(0, gt / 0.18)), gsc = 0.6 + 0.4 * (1 + 2.70158 * (gin - 1) ** 3 + 1.70158 * (gin - 1) ** 2);
+      set(chipEl, "opacity", gop.toFixed(2)), set(chipEl, "transform", reduce || gt < 0 || gin >= 1 ? "" : `translate(0 28.5) scale(${gsc.toFixed(3)}) translate(0 -28.5)`);
+      set(chipFace, "fill", [C.sun, C.red, C.tealL][M[GEN]!]!), set(chipFace, "style", `--gt:${["#ff8a1f", "#ff2e88", "#19f0ff"][M[GEN]!]}`);
       set(phoneEl, "aria-label", `Music: ${GENRES[M[GEN]!]}${M[MP] ? ", paused" : ""}. Change style`);
       for (const el of codeEls) set(el, "style", mode === "code" ? "" : "display:none");
       for (const el of desEls) set(el, "style", mode === "design" ? "" : "display:none");
@@ -999,11 +1011,11 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
     },
     nudge: () => tap("nudge"),
     stats() {
-      let toys = +pour.playing + +spill.playing + +can.playing + +!!Q[DRAG] + +(Q[LIFT] !== Q[LIFTT]) + +!!(Q[KVX] || Q[KVY]) + +(Q[SPILL] === 1) + +(X[WT]! >= 0) + +(X[PK] !== X[PKR] || !!X[PKV]) + +(X[LV] !== X[LT]), drops = 0, lit = 0;
+      let toys = +pour.playing + +spill.playing + +can.playing + +!!Q[DRAG] + +(Q[LIFT] !== Q[LIFTT]) + +!!(Q[KVX] || Q[KVY]) + +(Q[SPILL] === 1) + +(X[WT]! >= 0) + +(X[PK] !== X[PKR] || !!X[PKV]) + +(X[LV] !== X[LT]) + +(M[GLT]! >= 0 && !reduce), drops = 0, lit = 0;
       for (let i = 1; i < 10; i++) toys += +!!(SQ[i] || SQV[i]);
       for (let i = 0; i < 16; i++) drops += +!!DL[i];
       for (let j = 3; j < 16; j += 4) lit += +(KL[j]! > 0.01);
-      return { particles: fx.live, zzz: N[ZC]!, cup: { x: Q[CX]!, y: Q[CY]!, level: N[LEVEL]!, spilled: !!Q[SPILL], lifted: Q[LIFT]! > 0.5 }, toys: toys + drops, drops, pages: X[PAGES]!, lamp: !!X[LT], lit, keys: [...TYPED.subarray(0, Math.min(32, X[NTYPED]!))], caffeine: Math.round(X[CAF]! * 100) / 100, wired: !!X[WIRED], music: { genre: GENRES[M[GEN]!]!, playing: GENRES[M[AG]!]!, paused: !!M[MP], bars: [...BARS.subarray(0, Math.min(8, M[BN]!))] } };
+      return { genreCard: M[GLT]! >= 0, particles: fx.live, zzz: N[ZC]!, cup: { x: Q[CX]!, y: Q[CY]!, level: N[LEVEL]!, spilled: !!Q[SPILL], lifted: Q[LIFT]! > 0.5 }, toys: toys + drops, drops, pages: X[PAGES]!, lamp: !!X[LT], lit, keys: [...TYPED.subarray(0, Math.min(32, X[NTYPED]!))], caffeine: Math.round(X[CAF]! * 100) / 100, wired: !!X[WIRED], music: { genre: GENRES[M[GEN]!]!, playing: GENRES[M[AG]!]!, paused: !!M[MP], bars: [...BARS.subarray(0, Math.min(8, M[BN]!))] } };
     },
     water: () => tap("water"),
     write: () => tap("write"),
