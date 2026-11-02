@@ -106,11 +106,13 @@ try {
     const sau = () => p.evaluate(() => JSON.stringify(document.querySelector(".og-saucer").getBoundingClientRect()));
     const s0 = await sau(), cup0 = await p.evaluate(() => JSON.stringify(document.querySelector(".og-cup").getBoundingClientRect()));
     await p.evaluate(() => (window.__hz.length = 0, window.scene.sip()));
-    await p.waitForTimeout(500);
+    // Wait on the lift itself (the cup's box moves), not a fixed time: a loaded runner can be slower.
+    const lifted = await p.waitForFunction((c0) => JSON.stringify(document.querySelector(".og-cup").getBoundingClientRect()) !== c0, cup0, { timeout: 5000 }).then(() => true, () => false);
+    assert.ok(lifted, "the cup lifts");
     assert.equal(await sau(), s0, "the saucer does not move");
-    assert.notEqual(await p.evaluate(() => JSON.stringify(document.querySelector(".og-cup").getBoundingClientRect())), cup0, "the cup lifts");
-    await p.waitForTimeout(800);
-    assert.ok(await p.evaluate(() => window.__hz.includes(260)), "the slurp plays after a gesture");
+    // The slurp comes during the sip: wait for it (state), with a generous ceiling for slow runners.
+    const slurp = await p.waitForFunction(() => window.__hz.includes(260), null, { timeout: 5000 }).then(() => true, () => false);
+    assert.ok(slurp, "the slurp plays after a gesture");
     // Enter on the cup sips too (its key target is focusable).
     await p.waitForFunction(() => !document.querySelector(".og-cup").getAttribute("transform").includes("rotate(-"), null, { timeout: 3000 });
     await p.focus(".og-grip");
