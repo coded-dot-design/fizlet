@@ -832,7 +832,9 @@ export function mount(root: HTMLElement, o: OriginOptions = {}): OriginScene {
       for (const a of arms) {
         const i = a.s < 0 ? 0 : 1, tx = i ? hn.rx : hn.lx, ty = i ? hn.ry : hn.ly, d = armD(a.s, i === side ? tx + (gx - tx) * rc : tx, i === side ? ty + (gy - ty) * rc : ty), k = d.k;
         set(a.skin, "d", d.skin), set(a.sl, "d", d.sleeve), set(a.hem, "d", d.hem);
-        set(a.hd, "transform", `translate(${k.hx} ${k.hy}) rotate(${k.deg})`);
+        // Holding the cup, the wrist turns the fingers onto the handle, pointing into the cup.
+        const turn = i === side && rc > 0 ? ((((hh[2] - k.deg) % 360) + 540) % 360 - 180) * rc : 0;
+        set(a.hd, "transform", `translate(${k.hx} ${k.hy}) rotate(${Math.round((k.deg + turn) * 10) / 10})`);
       }
       // The key lights, the drops, the can, the plant's perk, the notebook's ink, the lamp.
       for (let j = 0; j < 4; j++) {

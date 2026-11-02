@@ -11,8 +11,8 @@
   - **Hint:** "Click or double-click anything to see it move".
   - **Palette:** the Fizlet look keeps its own clock. Day is the Board UI light palette and night the dark one, for everything in the scene, whatever the page's theme. Its text and keys hold 4.5:1 or more.
   - **Caffeine:** three sips close together keep him up into the night (lamp on, faster typing, no Zzz, "Too much coffee: still awake"; the lid will not close). He dozes once it wears off.
-  - **More from the review:** below his shoulder blades his shirt is no wider than his waist, and the chair's seat cushion shows dark on both sides; his hand takes the cup by its handle and paints over it and its shadow; the phone shows the genre on a sticker card that pops in, holds and fades; the headphones are wireless (no cord).
-  - Live chunk 32,760 → 34,639 B gzip; inline poster 5,987 → 6,422 B. Test: `tests/origin.mjs`.
+  - **More from the review:** he sits on the chair (one layer under him; below his shoulder blades his shirt is no wider than his waist, so the dark seat cushion shows beside and below him); the cup rests a little closer, its handle toward his forearm, and his fingers wrap the handle (over the cup and its shadow, never over the coffee); the phone shows the genre on a sticker card that pops in, holds and fades; the headphones are wireless (no cord).
+  - Live chunk 32,760 → 34,711 B gzip; inline poster 5,987 → 6,426 B. Test: `tests/origin.mjs`.
 
 ## 0.21.3
 

@@ -108,10 +108,10 @@ try {
     let lifted = false, s0;
     for (let i = 0; i < 4 && !lifted; i++) {
       if (!(await p.evaluate(() => window.scene.state.awake))) await p.evaluate(() => window.scene.setLaptop(true)), await p.waitForFunction(() => window.scene.state.awake, null, { timeout: 8000 });
-      await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(196 268) rotate(0 "), null, { timeout: 4000 }); // the morning sip is over
+      await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(201 287) rotate(0 "), null, { timeout: 4000 }); // the morning sip is over
       s0 = await sau();
       await p.evaluate(() => (window.__hz.length = 0, window.scene.sip()));
-      lifted = await p.waitForFunction(() => !document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(196 268) rotate(0 "), null, { timeout: 700 }).then(() => true, () => false);
+      lifted = await p.waitForFunction(() => !document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(201 287) rotate(0 "), null, { timeout: 700 }).then(() => true, () => false);
     }
     assert.ok(lifted, "the cup lifts");
     assert.equal(await sau(), s0, "the saucer does not move");
@@ -521,13 +521,15 @@ try {
     assert.ok(day.bg > 0.8, `day: the light palette (${day.bg})`);
     for (const k of ["keys", "why", "hint"]) assert.ok(day[k] >= 4.5, `day: ${k} contrast ${day[k].toFixed(2)}`);
     assert.ok(day.chair < 0.05, `the chair is dark ink by day (${day.chair})`);
-    // Below his shoulder blades the shirt is no wider than his waist; beside it, painted over the
-    // shirt's last taper, the seat's bolsters.
+    // He sits on the chair: every part of it is under his body and arms (before them in paint order);
+    // below his shoulder blades the shirt is no wider than his waist, and the seat shows beside it.
     const back = await p.evaluate(() => {
-      const torso = document.querySelector(".og-body > path.o-shirt"), seat = document.querySelector(".og-bolster"), at = (el, x, y) => el.isPointInFill(new DOMPoint(x, y));
-      return { shirt: [[300, 520], [500, 520], [300, 560], [500, 560]].filter(([x, y]) => at(torso, x, y)), chair: [[290, 495], [510, 495], [312, 500], [488, 500], [300, 560], [500, 560]].every(([x, y]) => at(seat, x, y)), waist: at(torso, 400, 560) };
+      const torso = document.querySelector(".og-body > path.o-shirt"), at = (el, x, y) => el.isPointInFill(new DOMPoint(x, y)), svg = document.querySelector(".og-svg");
+      const top = (x, y) => { const q = new DOMPoint(x, y).matrixTransform(svg.getScreenCTM()); return document.elementFromPoint(q.x, q.y); };
+      const under = [...document.querySelectorAll(".o-chair")].every((c) => [torso, document.querySelector(".og-arm-l"), document.querySelector(".og-arm-r")].every((b) => c.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING));
+      return { under, shirt: [[300, 520], [500, 520], [300, 560], [500, 560]].filter(([x, y]) => at(torso, x, y)), seen: [[290, 497], [510, 497]].map(([x, y]) => top(x, y)?.classList.contains("o-chair") || String(top(x, y)?.getAttribute("class"))), shoulders: [[314, 474], [486, 474]].map(([x, y]) => !top(x, y)?.classList.contains("o-chair")), waist: at(torso, 400, 560) };
     });
-    assert.deepEqual(back, { shirt: [], chair: true, waist: true }, "the chair, not his hips, beside his lower back");
+    assert.deepEqual(back, { under: true, shirt: [], seen: [true, true], shoulders: [true, true], waist: true }, "the chair under him, showing beside his waist");
     assert.equal(await p.evaluate(() => document.querySelector(".og-hint").textContent.includes("Click or double-click anything to see it move")), true, "the hint");
     // The lid: its far edge is wider than the base (and the hinge); the plant is top right.
     const geo = await p.evaluate(() => { const lid = document.querySelector(".og-screen path.o-lid").getBBox(), base = document.querySelector(".og-laptop > rect.o-face").getBBox(), pl = document.querySelector(".og-plant").getBBox(); const m = document.querySelector(".og-plant").transform.baseVal.consolidate().matrix; return { lid: [lid.x, lid.width], base: [base.x, base.width], plant: [m.e, m.f] }; });
@@ -594,7 +596,7 @@ try {
     // lid will not close ("one more commit"); once it wears off, he sleeps.
     for (let i = 1, tries = 0; i <= 3 && tries < 12; tries++) {
       // A sip waits until he is fully awake and the cup is down; one asked too early is refused: ask again.
-      await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(196 268) rotate(0 ") && window.scene.state.awake, null, { timeout: 8000 });
+      await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(201 287) rotate(0 ") && window.scene.state.awake, null, { timeout: 8000 });
       const c0 = (await st()).caffeine;
       await p.evaluate(() => window.scene.sip());
       if (await p.waitForFunction((c) => window.scene.stats().caffeine > c + 0.5, c0, { timeout: 3500 }).then(() => true, () => false)) i++;
@@ -626,18 +628,21 @@ try {
       await p.evaluate((l) => window.scene.setLook(l), look);
       let held = null;
       for (let i = 0; i < 6 && !held; i++) {
-        await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(196 268) rotate(0 ") && window.scene.state.awake && window.scene.state.open, null, { timeout: 12000 });
+        await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(201 287) rotate(0 ") && window.scene.state.awake && window.scene.state.open, null, { timeout: 12000 });
         await p.evaluate(() => window.scene.sip());
         held = await p.waitForFunction(() => {
           const t = document.querySelector(".og-cup").getAttribute("transform");
           if (!/rotate\(-1[2-8]/.test(t)) return false; // lifted and tilted toward his mouth
-          const h = document.querySelector(".og-handle").getBoundingClientRect(), g = new DOMPoint(0, 0).matrixTransform(document.querySelector(".og-hand-l").getScreenCTM());
+          // The fingers' middle (13 ahead of the hand's centre) sits on the handle's grip; their tips (23
+          // ahead) stop outside the coffee's circle.
+          const h = document.querySelector(".og-handle").getBoundingClientRect(), m = document.querySelector(".og-hand-l").getScreenCTM(), g = new DOMPoint(13, 0).matrixTransform(m), tip = new DOMPoint(23, 0).matrixTransform(m);
           // The hand paints over the cup and its shadow: the shown grip copy comes after both in the DOM.
           const grip = document.querySelector(".og-grip-l"), after = (sel) => !!(document.querySelector(sel).compareDocumentPosition(grip) & Node.DOCUMENT_POSITION_FOLLOWING);
-          return { off: Math.hypot(h.x + h.width / 2 - g.x, h.y + h.height / 2 - g.y), above: getComputedStyle(grip).display !== "none" && after(".og-cup") && after(".og-cupsh") };
+          return { off: Math.hypot(h.x + h.width / 2 - g.x, h.y + h.height / 2 - g.y), dry: (() => { const e = document.querySelector(".og-liquid"), q = tip.matrixTransform(e.getScreenCTM().inverse()), rx = +e.getAttribute("rx"), ry = +e.getAttribute("ry"); return rx ? ((q.x - e.getAttribute("cx")) / rx) ** 2 + ((q.y - e.getAttribute("cy")) / ry) ** 2 - 1 : 1; })(), above: getComputedStyle(grip).display !== "none" && after(".og-cup") && after(".og-cupsh") };
         }, null, { timeout: 3000, polling: "raf" }).then((r) => r.jsonValue(), () => null);
       }
-      assert.ok(held && held.off < 4, `${look}: the hand is on the handle mid-sip (${JSON.stringify(held)})`);
+      assert.ok(held && held.off < 4, `${look}: the fingers are on the handle mid-sip (${JSON.stringify(held)})`);
+      assert.ok(held.dry > 0, `${look}: the fingers stop short of the coffee (${JSON.stringify(held)})`);
       assert.ok(held.above, `${look}: the hand paints over the cup and its shadow`);
     }
     await p.evaluate(() => window.scene.destroy());

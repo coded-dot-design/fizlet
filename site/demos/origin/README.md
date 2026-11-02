@@ -13,12 +13,12 @@ The origin hero, by Chris Cooley. A desk seen from above through one day: he sle
 - **Him:** broad shoulders and a V-shaped back (trapezius, shoulder blades). Each arm (`armD()` in `art.ts`) is a sleeve over the deltoid, a biceps swell, the elbow, and a forearm that tapers to the wrist.
 - **Typing:** each hand types on random keys in its half, from a seeded generator (the `seed` option; never `Math.random`, no allocation in the step). The key lights up in the look's accent and fades. In design mode the right hand goes to the trackpad now and then.
 - **The laptop as a toggle:** open, a press on the keys lights that key and a press on the lid or the screen closes it, and he sleeps (the night's own "sleep" no longer wakes him for a moment). Closed, a press opens it and he wakes.
-- **The chair:** dark ink in both looks, behind him; he leans forward from it. Below his shoulder blades his shirt is no wider than his waist; beside it is the chair: the seat cushion's soft bolsters, dark, on both sides.
+- **The chair:** dark ink in both looks, behind him; he leans forward from it. He sits on it: the chair (back, arms, seat cushion) is one layer under his body and arms. Below his shoulder blades his shirt is no wider than his waist, so the cushion's dark bolsters show beside and below him.
 - **The headphones are wireless:** no cord to the phone.
 - **The plant** (top right; tap, or Enter): a can comes up from below it and pours, drops spill around the pot and fade over 1 to 3 s, and it perks up.
 - **The notebook** (tap, or Enter): his hand picks up the pen beside the book, writes, and puts the pen back (one pen, never two). He writes a line of code, or draws a star, a heart, a happy face, a lightning bolt, a triangle, a square, a house or a sun. The stroke draws on; the last three stay.
 - **The lamp** (tap, or Enter): its pool and cone of light go off and on, and the night over the room lifts a little while it is on. It is the visitor's switch, independent of the day: the day no longer turns it on and off.
-- **The sip:** his hand takes the cup by its handle (`cupHandle()` in `art.ts`, the same transform as the cup) and holds it as the cup lifts and tilts, for his own sips and the visitor's. While he holds it, his arm and hand paint over the cup and its shadow (live `<use>` copies after the cup).
+- **The sip:** the cup rests a little closer to him with its handle turned toward his forearm's approach (down, a little right). His fingers wrap the handle's outer half and stop short of the coffee (`cupHandle()` in `art.ts`, the same transform as the cup); the wrist turns them onto it, and he holds it as the cup lifts and tilts, for his own sips and the visitor's. While he holds it, his arm and hand paint over the cup and its shadow (live `<use>` copies after the cup).
 - **The pours:** the coffee leaves the pot's spout tip, and the water the can's rose, along the spout's angle as each one tips.
 - **Caffeine:** each sip the visitor gives him adds a cup; his own morning and afternoon cups do not. It wears off slowly by day and faster at night. Three sips close together (2.4 cups' worth) and night comes but he stays up: eyes open, faster typing, a faster head bob, the lamp on, no Zzz, and "Too much coffee: still awake." The lid will not close ("One more commit"). Under 1.2 at night he dozes ("The coffee wore off") and the day goes on as before. Under reduced motion it is state only.
 - **The hint:** "Click or double-click anything to see it move" ("Tap or double-tap" on touch), in the caption's style.
@@ -79,7 +79,7 @@ mount(root: HTMLElement, opts?: {
 | @fzlt/core/sprite | 1,437 | The pixel coder on the phone (spriteURL) |
 | @fzlt/core/slot | 1,849 | The page's loader (main.js) |
 
-The live chunk (`scene.js`: six bricks + the scene, tree-shaken) is printed by the build and on the page: **34,639 B gzip** on this build (32,760 B before the review's fixes, the scene's own palette, the caffeine meter, the genre card, the handle and the seat: +1,879 B). The loader is 2,128 B, and the inline poster is 6,422 B (5,987 B before), the same markup for both looks.
+The live chunk (`scene.js`: six bricks + the scene, tree-shaken) is printed by the build and on the page: **34,711 B gzip** on this build (32,760 B before the review's fixes, the scene's own palette, the caffeine meter, the genre card, the handle and the seat: +1,951 B). The loader is 2,128 B, and the inline poster is 6,426 B (5,987 B before), the same markup for both looks.
 
 ## Rules
 
