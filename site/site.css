@@ -9,8 +9,13 @@
      and any component vendored in (keys, cards, the console and cartridges), takes it from here. */
   --shadow-x: 0;
   --shadow-y: 1;
-  --page: 1200px;
+  /* The main container: 1200px, growing with the screen from 1277px wide (94vw) to 1520px (reached at
+     1617px), so big screens fill out. Prose keeps its own measure (max-width in ch or px). */
+  --page: clamp(1200px, 94vw, 1520px);
   --gutter: 30px;
+  /* The space between cards in a grid or a stack (the contract rules, stat rows, people and
+     contest cards). */
+  --block-gap: 22px;
   /* The least block space a section gets, and what sits on each side of a section rule (the
      space the closing band's rule had above it). */
   --section-gap: clamp(70px, 10vw, 120px);
@@ -88,6 +93,12 @@ code {
   max-width: var(--page);
   margin: 0 auto;
   padding: 0 var(--gutter);
+}
+/* Prose keeps its measure in the wider container: text that ran the full width of a panel. */
+.gal-prompt,
+.note-block.doc-wide .body,
+.brand-cap {
+  max-width: 70ch;
 }
 .skip {
   position: absolute;
@@ -843,7 +854,8 @@ a.bui-sticker-key {
 }
 .hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  /* the copy column a little wider than the layers card, so each headline phrase holds one line */
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   gap: clamp(30px, 5vw, 64px);
   align-items: center;
   padding-top: clamp(40px, 7vh, 80px);
@@ -851,11 +863,20 @@ a.bui-sticker-key {
 }
 .hero h1 {
   margin: 22px 0 24px;
-  font-size: clamp(52px, 7.4vw, 104px);
+  /* sized so each phrase of HOME_HEADLINE ("Small footprint." / "Big performance.", about 8.3em
+     each, with headroom for wider fallback fonts) holds one line in the copy column, phone to 1920 */
+  font-size: clamp(min(40px, 10.2vw), 4.9vw, 80px);
   line-height: 0.92;
   letter-spacing: -0.05em;
+  text-wrap: balance;
+}
+/* The headline's "&" (HEADLINE in layout.mjs): the command ink, a step lighter. Every page with the line. */
+h1 .amp {
+  font-weight: 600;
+  color: var(--k-cmd-ink);
 }
 .hero h1 em {
+  display: block; /* its own block, so text-wrap: balance evens its lines */
   color: var(--team-a);
   text-shadow: 0 0 40px color-mix(in srgb, var(--team-a) 35%, transparent);
 }
@@ -1299,7 +1320,7 @@ html.bui[data-theme="light"] .dl.hot {
   padding: 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
+  gap: var(--block-gap);
 }
 .rule {
   padding: 22px 22px 20px;
@@ -3716,15 +3737,14 @@ html.bui[data-theme="light"] .phases b {
   font: 700 13px var(--mono);
   color: var(--k-sys-ink);
 }
+/* The stat row spans the content column, edge to edge with the cards under it (.ppl-grid). */
 .ppl-stats {
   margin-top: 36px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  max-width: 620px;
 }
 .ppl-stats .rule > b {
   font-size: 30px;
 }
-.ppl-grid,
 /* Daily's contest panel (site/pages/gallery.mjs): the contest story and the enter key, under the head. */
 .gal-contest {
   max-width: 860px;
@@ -3738,14 +3758,19 @@ html.bui[data-theme="light"] .phases b {
 .gal-contest b {
   color: var(--ink);
 }
+.ppl-grid,
 .ct-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
+  gap: var(--block-gap);
   margin-top: 36px;
 }
 .ct-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+/* A profile's cards sit one block gap under its stat row, as the cards in it sit apart. */
+.ppl-grid {
+  margin-top: var(--block-gap);
 }
 .ppl-card,
 .ct-card {

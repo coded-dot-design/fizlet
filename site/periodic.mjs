@@ -7,7 +7,7 @@
 //
 // Static HTML and CSS: the table reads and links without the script; the script adds the quick
 // view, arrow keys and Esc. Nothing here runs a frame loop: the page settles at 0 frames.
-import { esc, icon } from "./layout.mjs";
+import { esc, headline, icon } from "./layout.mjs";
 import { FAMILIES, STATUS } from "./bricks.mjs";
 import { brickSticker, elSquare, nameParts, prose, toneOf } from "./brick-ui.mjs";
 import { sizeBadge } from "./size-badge.mjs";
@@ -106,7 +106,7 @@ export function periodicHero({ els, version, js }) {
         <p class="eyebrow"><span class="dot"></span>THE FIZLET™ PERIODIC TABLE <span>/</span> <b>BRICKS</b></p>
         <p class="pt-meta bui-label">V${esc(version)} · ${shipped} SHIPPED · ${later} PLANNED · THIS TABLE ${sizeBadge(js.bytes, js.live, "this periodic table's script")}</p>
       </div>
-      <h1 id="pt-title">Logic and style.<br><em>The bricks do the rest.</em></h1>
+      <h1 id="pt-title">${headline()}</h1>
       <p class="lead pt-lead">Every brick is a job we wrote again and again over two decades of animation and game work, solved once and kept small. Bring the logic and the style; take only the bricks you need.<span class="pt-more"> ${shipped} shipped, each with its size measured on this build; ${later} on the roadmap, dashed.</span></p>
       <div class="pt-keys">
         <a class="bui-key bui-arcade bui-sys" href="#bricks">${icon("grid", 16)}Every brick, every export</a>
@@ -143,7 +143,7 @@ const CSS = `
 .pt-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 18px;align-items:center}
 .bui .pt-meta{margin:0;color:var(--muted);white-space:normal}
 .pt-hero h1{margin:20px 0 20px;font-size:clamp(44px,5.4vw,84px);line-height:.94;letter-spacing:-.05em}
-.pt-hero h1 em{display:block;color:var(--k-go);text-shadow:0 0 40px color-mix(in srgb,var(--k-go) 30%,transparent)}
+.pt-hero h1 em{display:block;text-wrap:balance;color:var(--k-go);text-shadow:0 0 40px color-mix(in srgb,var(--k-go) 30%,transparent)}
 html.bui[data-theme="light"] .pt-hero h1 em{color:var(--hl);text-shadow:none}
 .pt-lead{max-width:32em;margin:0 0 26px}
 .pt-keys{display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px}

@@ -1,7 +1,7 @@
 // P2 fuzz: seeded random calls against the public API: the kernel (createEngine, Pool, EventRing,
 // seeded, Ledger, the engine's lifecycle) and the DOM-free bricks (fx, steer, rules, collide, grid,
 // perf, presence), plus camera and timeline on the stub page.
-//   npm run test:stress -- fuzz [--seed 1] [--runs 10000] [--ops 12] [--only <run>] [--self-test]
+//   npm run test:stress -- fuzz [--seed 1] [--runs 10000] [--ops 12] [--only <run>] [--fixed] [--self-test]
 // Every run builds a fresh stub page and engine, makes some bricks, then makes `--ops` random calls.
 // Each argument is a documented value (in the range the API's docs and types give) or a hostile one:
 // NaN, ±Infinity, negative, huge, -0, a string, null, an object. After each call it runs two frames
@@ -15,8 +15,13 @@
 //   recall          destroy() did not give the stub page back byte for byte   (crit)
 //   lifecycle-throw a call after destroy (or a double destroy) threw          (high)
 //   hang            the call never returns (an infinite loop; not called, see huge.mjs) (crit)
+//   regressed       a case fixed in S8 (P2-01..P2-04) is back: the call did not throw its named error (crit)
 //   crash           a huge capacity takes the process down (OOM/hang) instead of throwing (med; not called, see huge.mjs)
 // Undocumented inputs that are silently accepted without harm are counted (silentAccepts), not findings.
+// Fixed in S8 (fizlet fix/s8-hardening): P2-01 (Board searches on a bad cell id), P2-02 (bad Board
+// sizes), P2-03 (a ledger write after destroy) and P2-04 (advance with a non-finite sec). Their calls
+// are made now and must throw their named error; the summary's `fixed` counts any that came back, and
+// `--fixed` passes on those alone (the other findings stay open).
 // Rerun one run exactly: `--seed <seed> --only <run>`. --self-test adds a fixture brick that corrupts
 // on NaN and leaves a style behind; the fuzz must report both.
 import { selfRun, flags, prng, badSlots } from "./lib/util.mjs";
@@ -57,9 +62,10 @@ const val = (kind, r, hostile) => (hostile ? HOSTILE[(r() * HOSTILE.length) | 0]
 // ---------- The world a run fuzzes: an engine on a stub page, and bricks made on demand ----------
 function newWorld(seed) {
   const page = stubPage(), before = snapshot(page.body);
-  const e = K.createEngine({ seed, settle: 30 });
+  // A frame that throws stops the engine and reports here (the default would print it).
+  const w = { page, before, b: {}, dead: false, extra: [], stopped: null };
+  const e = (w.e = K.createEngine({ seed, settle: 30, onError: (err) => (w.stopped = err) }));
   e.start();
-  const w = { page, before, e, b: {}, dead: false, extra: [] };
   return w;
 }
 // Documented makers: each brick on the run's engine with options in their documented range.
@@ -98,7 +104,7 @@ const MAKE = {
 const need = (w, k) => (w.b[k] ??= MAKE[k](w));
 /** A valid cell id on the run's board. */
 const cell = (w, i) => Number.isInteger(i) && i >= 0 && i < w.b.board.bd.cols * w.b.board.bd.rows;
-/** The run's board has a real size (Board(null, 12) builds one with 0 columns, whose searches never end). */
+/** The run's board has a real size (on 0.20.0, Board(null, 12) built one with 0 columns; P2-02). */
 const sized = (w) => { const { cols, rows } = w.b.board.bd; return Number.isInteger(cols) && cols > 0 && Number.isInteger(rows) && rows > 0; };
 
 // ---------- The op table: one entry per public call (name, brick it needs, argument kinds, call) ----------
@@ -111,7 +117,7 @@ const OPS = [
     w.extra.push(e);
     e.start(), e.advance(0.05), e.destroy();
   } },
-  { name: "engine.advance(sec)", args: ["dt"], call: (w, [s]) => w.e.advance(s) },
+  { name: "engine.advance(sec)", args: ["dt"], fixed: "P2-04", throws: ([s]) => typeof s !== "number" || !isFinite(s), call: (w, [s]) => w.e.advance(s) },
   { name: "engine.busy(sec)", args: ["busy"], call: (w, [s]) => w.e.busy(s) },
   { name: "engine.frame(now)", args: ["pos"], call: (w, [n]) => (w.e.frame(n * 1000), w.e.frame(n * 1000 + 16.7)) },
   { name: "engine.start()", args: [], call: (w) => w.e.start() },
@@ -171,13 +177,13 @@ const OPS = [
   { name: "grid.insert(id,x,y,r)", args: ["idx", "coord", "coord", "pos"], need: "grid", call: (w, a, b) => b.g.insert(...a) },
   { name: "grid.query(x,y,r)", args: ["coord", "coord", "pos"], need: "grid", call: (w, a, b) => b.g.query(...a, b.out) },
   { name: "segCircle(x0,y0,x1,y1,cx,cy,r)", args: ["coord", "coord", "coord", "coord", "coord", "coord", "pos"], call: (w, a) => CO.segCircle(...a) },
-  { name: "new Board(cols,rows)", args: ["int", "int"], call: (w, [c, r]) => (w.b.board = { bd: new GR.Board(c, r), out: new Int32Array(64) }) },
-  { name: "board.los(a,b)", args: ["idx", "idx"], need: "board", hangIf: ([a, b], w) => !sized(w) || !cell(w, a) || !cell(w, b), call: (w, [a, z], b) => b.bd.los(a, z) },
-  { name: "board.flood(from,max)", args: ["idx", "pos"], need: "board", hangIf: (a, w) => !sized(w), call: (w, [a, m], b) => {
+  { name: "new Board(cols,rows)", args: ["int", "int"], fixed: "P2-02", throws: (a) => !a.every((v) => Number.isInteger(v) && v > 0), call: (w, [c, r]) => (w.b.board = { bd: new GR.Board(c, r), out: new Int32Array(64) }) },
+  { name: "board.los(a,b)", args: ["idx", "idx"], need: "board", fixed: "P2-01", throws: ([a, b], w) => !cell(w, a) || !cell(w, b), call: (w, [a, z], b) => b.bd.los(a, z) },
+  { name: "board.flood(from,max)", args: ["idx", "pos"], need: "board", fixed: "P2-01", throws: ([a], w) => !cell(w, a), call: (w, [a, m], b) => {
     const n = b.bd.flood(a, m, b.out);
     if (!cell(w, a) && n > 0) w.silent = `flood(${label(a)}) returned ${n} cells`;
   } },
-  { name: "board.path(from,to)", args: ["idx", "idx"], need: "board", hangIf: ([a], w) => !sized(w) || !cell(w, a), call: (w, [a, z], b) => b.bd.path(a, z, b.out) },
+  { name: "board.path(from,to)", args: ["idx", "idx"], need: "board", fixed: "P2-01", throws: ([a, z], w) => !cell(w, a) || !cell(w, z), call: (w, [a, z], b) => b.bd.path(a, z, b.out) },
   { name: "board.at(x,y)", args: ["coord", "coord"], need: "board", call: (w, [x, y], b) => {
     const i = b.bd.at(x, y);
     if (!(Number.isInteger(i) && i >= 0 && i < b.bd.cols * b.bd.rows)) throw new Error(`board.at: not a cell id (${i})`);
@@ -248,7 +254,7 @@ function overCap(w) {
 
 const TIMES = new Map();
 const CTOR = /^(new |createEngine|effects|steer\(|waves\(|drops\(|score\(|memory|presence|camera\(|timeline\(|engine\.pool)/;
-export function fuzzRun(seed, run, nOps, ops, trace = false) {
+export async function fuzzRun(seed, run, nOps, ops, trace = false) {
   const r = prng((seed * 2654435761 + run * 40503) >>> 0);
   const realRandom = Math.random;
   Math.random = r; // fx seeds its visual LCG from Math.random: keep the run exact
@@ -298,6 +304,11 @@ export function fuzzRun(seed, run, nOps, ops, trace = false) {
       }
       TIMES.set(op.name, (TIMES.get(op.name) ?? 0) + performance.now() - c0);
       const argsOut = bad.map((v) => (v && v.label === "ok" ? "ok" : v));
+      // A case fixed in S8 must throw its named error (and nothing else may throw for it).
+      if (!w.dead && op.throws?.(args, w) && !(threw && isClear(threw))) { // after destroy() every call is inert
+        add("regressed", op.name, argsOut, { fixed: op.fixed, error: threw ? String(threw) : "returned" });
+        continue;
+      }
       if (threw) {
         if (documented) add(w.dead ? "lifecycle-throw" : "doc-throw", op.name, argsOut, { error: String(threw) });
         else if (!isClear(threw)) add("unclear-error", op.name, argsOut, { error: String(threw) });
@@ -314,7 +325,8 @@ export function fuzzRun(seed, run, nOps, ops, trace = false) {
       }
       const nan = scanWorld(w);
       if (nan.length) add("nan-state", op.name, argsOut, { documented, slots: nan });
-      const stalled = !w.dead && w.e.steps === t0;
+      // A frame that threw a named error stopped the engine and said why (onError): not a silent stall.
+      const stalled = !w.dead && w.e.steps === t0 && !(w.stopped && isClear(w.stopped));
       if (stalled) add("stall", op.name, argsOut, { documented, steps: w.e.steps, running: wasRunning });
       const over = overCap(w);
       if (over.length) add("unbounded", op.name, argsOut, { over });
@@ -334,6 +346,9 @@ export function fuzzRun(seed, run, nOps, ops, trace = false) {
       add("lifecycle-throw", "destroy/after-destroy", [], { error: String(err) });
     }
     for (const e of w.extra) e.destroy();
+    // A node added through a closed ledger leaves when the caller's task ends (it is inserted after
+    // add() returns): read the page then, as the next frame would.
+    await null;
     const after = snapshot(w.page.body);
     if (after !== w.before) add("recall", "destroy()", [], { before: w.before, after });
   } finally {
@@ -342,14 +357,21 @@ export function fuzzRun(seed, run, nOps, ops, trace = false) {
   return { found, silent, skippedHuge };
 }
 
-const SEVERITY = (f) => (f.kind === "recall" || f.kind === "hang" ? "crit" : f.kind === "crash" ? "med" : f.kind === "doc-throw" || f.kind === "deferred-throw" || f.kind === "stall" || f.kind === "lifecycle-throw" || (f.kind === "nan-state" && f.documented) ? "high" : f.kind === "nan-state" || f.kind === "unbounded" ? "med" : "low");
+/** S8's fixed findings: how each would show if it came back. */
+const FIXED = {
+  "P2-01": (f) => f.fixed === "P2-01" || (f.kind === "hang" && f.op.startsWith("board.")),
+  "P2-02": (f) => f.fixed === "P2-02" || (f.kind === "hang" && f.op.includes("on Board(")),
+  "P2-03": (f) => f.kind === "recall",
+  "P2-04": (f) => f.fixed === "P2-04" || (/^engine\.(advance|frame)/.test(f.op) && (f.kind === "stall" || (f.kind === "nan-state" && f.slots.some((x) => x.name.startsWith("engine."))))),
+};
+const SEVERITY = (f) => (f.kind === "recall" || f.kind === "hang" || f.kind === "regressed" ? "crit" : f.kind === "crash" ? "med" : f.kind === "doc-throw" || f.kind === "deferred-throw" || f.kind === "stall" || f.kind === "lifecycle-throw" || (f.kind === "nan-state" && f.documented) ? "high" : f.kind === "nan-state" || f.kind === "unbounded" ? "med" : "low");
 
 export async function fuzz(o, ops = OPS) {
   const t0 = performance.now(), byKey = new Map();
   let silent = 0, skippedHuge = 0;
   const runs = o.only != null ? [o.only] : Array.from({ length: o.runs }, (_, i) => i);
   for (const run of runs) {
-    const res = fuzzRun(o.seed, run, o.ops, ops, o.trace);
+    const res = await fuzzRun(o.seed, run, o.ops, ops, o.trace);
     silent += res.silent;
     skippedHuge += res.skippedHuge;
     for (const f of res.found) {
@@ -360,11 +382,14 @@ export async function fuzz(o, ops = OPS) {
     }
   }
   const order = { crit: 0, high: 1, med: 2, low: 3 };
+  const fixed = Object.fromEntries(Object.keys(FIXED).map((id) => [id, 0]));
+  for (const f of byKey.values()) for (const [id, back] of Object.entries(FIXED)) if (back(f)) fixed[id] += f.count;
   const findings = [...byKey.values()].sort((a, b) => order[a.severity] - order[b.severity] || b.count - a.count);
   const bySeverity = { crit: 0, high: 0, med: 0, low: 0 };
   for (const f of findings) bySeverity[f.severity]++;
   return {
-    pass: findings.length === 0,
+    pass: o.fixed ? Object.values(fixed).every((n) => n === 0) : findings.length === 0,
+    fixed,
     rerun: `npm run test:stress -- fuzz --seed ${o.seed} --runs ${o.runs}`,
     seconds: +((performance.now() - t0) / 1000).toFixed(1),
     runs: runs.length, opsPerRun: o.ops, ops: ops.length, silentAccepts: silent, skippedHuge,
@@ -374,7 +399,7 @@ export async function fuzz(o, ops = OPS) {
 }
 
 export async function main(argv) {
-  const o = flags(argv, { seed: 1, runs: 10_000, ops: 12, only: null, "self-test": false, trace: false });
+  const o = flags(argv, { seed: 1, runs: 10_000, ops: 12, only: null, "self-test": false, trace: false, fixed: false });
   if (o["self-test"]) {
     // The fixture alone must be caught: a NaN in its state and a style that outlives destroy().
     const r = await fuzz({ ...o, runs: 200 }, FIXTURE);

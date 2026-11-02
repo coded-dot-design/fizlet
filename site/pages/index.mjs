@@ -1,6 +1,6 @@
 // The Fizlet home page. Numbers come from the build (sizes measured like `npm run size`); claims
 // come from the test suites (tests/*.test.mjs, tests/browser.mjs).
-import { esc, icon, REPO, SITE, HUB, BATTLEFIELD, BLITZ, ENGINE_PLAN, AUTHOR } from "../layout.mjs";
+import { esc, icon, REPO, SITE, HUB, BATTLEFIELD, BLITZ, ENGINE_PLAN, AUTHOR, headline, HOME_HEADLINE } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { QUICK_START } from "./quick-start.mjs";
 import { BETA_LINE, IN_HOUSE, inHouse } from "../bricks.mjs";
@@ -147,7 +147,7 @@ export function home({ version, sizes, bundle, bricks: catalog, layers, fizz, bl
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <p class="eyebrow"><span class="dot"></span>ANIMATION + GAME BRICKS <span>/</span> <b>FOR THE DOM</b></p>
-      <h1 id="hero-title">Logic and style.<br><em>The bricks do the rest.</em></h1>
+      <h1 id="hero-title">${headline("<br>", HOME_HEADLINE)}</h1>
       <p class="byline">by <a href="${AUTHOR}">Chris Cooley ↗</a></p>
       <p class="beta-line"><span class="status-pill" data-flag="beta">PUBLIC BETA</span> v${esc(version)} · a 0.x public beta: <a href="bricks/#status">every brick carries its status</a></p>
       <p class="lead">Fizlet™ is the building blocks for animation and games on the DOM. Each brick is a task we wrote hundreds of times over two decades, now kept by AI and human developers who chase performance at all costs. You bring the logic and style, even from a prompt. The kernel is <b>${kb(kernel.gzip)} KB</b> gzipped. No runtime dependencies, ever.</p>
