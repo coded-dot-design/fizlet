@@ -11,6 +11,8 @@ import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
 
 import { CARD_IDS as IDS } from "../site/brick-cards.mjs";
+import { stickerLook } from "../site/brick-ui.mjs";
+import { BRICKS } from "../site/bricks.mjs";
 
 const ROOT = "site-dist";
 if (!existsSync(`${ROOT}/brick-cards.js`)) throw new Error("site-dist/brick-cards.js is missing: run `npm run site` first");
@@ -125,7 +127,7 @@ try {
         border: cs.borderTopColor, sides: new Set([cs.borderTopColor, cs.borderRightColor, cs.borderBottomColor, cs.borderLeftColor]).size,
         widths: new Set([cs.borderTopWidth, cs.borderRightWidth, cs.borderBottomWidth, cs.borderLeftWidth]).size,
         bar: bar.content !== "none" && bar.content !== "normal", line: tok("var(--line)"), tone: tok("var(--tone)"),
-        name: li.querySelector(".brick-name")?.textContent ?? "", sticker: li.querySelector(".brick-stickers > .brick-sticker[data-flag]")?.textContent ?? "",
+        name: li.querySelector(".brick-name")?.textContent ?? "", sticker: li.querySelector(".brick-head .brick-sticker")?.textContent ?? "", stickers: li.querySelectorAll(".brick-sticker").length,
         pill: li.querySelectorAll(".status-pill, .brick-top, .brick-tag").length, lift: cs.transform,
       };
     });
@@ -150,7 +152,8 @@ try {
         assert.equal(f.widths, 1, `card ${i}: one border width all round`);
         assert.equal(f.border, f.line, `card ${i}: at rest, the neutral card border`);
         assert.equal(f.pill, 0, `card ${i}: no pill or top row`);
-        assert.match(f.sticker, /^(COMPLETE|BETA|EXPERIMENTAL|DEPRECATED)$/, `card ${i}: the status is a sticker`);
+        assert.match(f.sticker, i === 0 ? /^KERNEL$/ : /^(COMPLETE|BETA|EXPERIMENTAL|DEPRECATED)$/, `card ${i}: the status is a sticker (the kernel's is KERNEL)`);
+        assert.equal(f.stickers, 1, `card ${i}: one sticker`);
         assert.ok(!f.name.includes(f.sticker), `card ${i}: the status is not in the name`);
       }
       // Hover and focus: the brick's colour on the border (and its shadow); reduced motion: no lift.
@@ -174,6 +177,7 @@ try {
       assert.match(await k.getAttribute("class"), /\bbrick-kernel\b/, "the first card is the kernel card");
       assert.equal(await page.locator("li.brick-kernel").count(), 1, "one kernel card");
       assert.equal(await k.locator(".brick-sticker-kernel").textContent(), "KERNEL");
+      assert.deepEqual(await k.locator(".brick-sticker").allTextContents(), ["KERNEL"], "the kernel renders exactly one sticker, KERNEL");
       assert.match(await k.locator("[data-size]").textContent(), /^[\d,]+ B$/, "the kernel shows its measured bytes");
       assert.match(await k.textContent(), /of (a )?4,096 B/, "against its budget");
       assert.match(await k.getAttribute("class"), path ? /\bbrick-full\b/ : /\bbrick-compact\b/, path ? "full cards on the bricks index" : "compact cards on the home page");
@@ -181,6 +185,151 @@ try {
       assert.ok(kw > rest * 1.5, `the kernel card is wider than a brick (${kw} vs ${rest})`);
       assert.deepEqual(errors, []);
       await page.close();
+    }
+  }
+  // ---------- Status stickers: beside the symbol tile (not on the border), a tilt set by the brick's
+  // id, BETA peels, the label read once; the kernel's slab on the top edge; nothing overlaps at 390 ----------
+  for (const [w, h] of [[1440, 900], [390, 844]]) {
+    for (const path of ["", "bricks/"]) {
+      const { page, errors } = await open(path, { viewport: { width: w, height: h } });
+      await page.addStyleTag({ content: "[data-reveal]{opacity:1!important;transform:none!important}" });
+      const where = `${path || "home"} at ${w}`;
+      const rows = await page.evaluate(() => [...document.querySelectorAll("ul.bricks:not(.planned) > li.brick")].map((li) => {
+        const r = (el) => { const b = el.getBoundingClientRect(); return { top: b.top, bottom: b.bottom, left: b.left, right: b.right }; };
+        const s = li.querySelector(".brick-stickers > .brick-sticker"), tile = li.querySelector(".brick-head > .el-card"), k = li.querySelector(".brick-head > .brick-sticker-kernel");
+        const pseudo = (el) => [getComputedStyle(el, "::before").content, getComputedStyle(el, "::after").content];
+        return {
+          id: li.dataset.brick, flag: li.dataset.flag, card: r(li), border: parseFloat(getComputedStyle(li).borderTopWidth), tile: tile && r(tile), sticker: s && r(s),
+          text: s?.textContent, tilt: s?.style.getPropertyValue("--tilt"), dx: s?.style.getPropertyValue("--dx"), dy: s?.style.getPropertyValue("--dy"),
+          peel: s?.classList.contains("brick-sticker-peel"), pseudo: s ? pseudo(s) : [], name: r(li.querySelector(".brick-name")),
+          chips: [...li.querySelectorAll(".brick-chips > li")].map(r), kernel: k && r(k), ktext: k?.textContent,
+        };
+      }));
+      assert.ok(rows.length >= IDS.length, `${where}: cards`);
+      const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+      for (const c of rows) {
+        if (c.id === "kernel") {
+          // The kernel: only KERNEL (the core goes without saying complete), at the head row's far end.
+          assert.equal(c.sticker, null, `${where}: the kernel has no status sticker`);
+          assert.equal(c.ktext, "KERNEL", `${where}: the kernel's slab`);
+          assert.ok(c.kernel.left > c.tile.right && c.kernel.right > (c.card.left + c.card.right) / 2, `${where}: the kernel slab sits at the head row's far end, the card's top-right`);
+          for (const o of [c.name, ...c.chips, c.tile]) assert.ok(!hit(c.kernel, o), `${where}: the kernel slab overlaps nothing on the card`);
+          continue;
+        }
+        assert.equal(c.kernel, null, `${where} ${c.id}: only the kernel has a slab`);
+        assert.ok(c.tile && c.sticker, `${where} ${c.id}: a symbol tile and a status sticker in the head row`);
+        const mid = (c.sticker.top + c.sticker.bottom) / 2;
+        // Beside the tile, centred on its row; on a phone, a label too long for the row wraps under it.
+        const beside = mid > c.tile.top && mid < c.tile.bottom && c.sticker.left >= c.tile.right;
+        assert.ok(beside || (w < 600 && c.sticker.top >= c.tile.bottom - 4), `${where} ${c.id}: the sticker sits beside the tile, centred on its row`);
+        if (w >= 600) assert.ok(beside, `${where} ${c.id}: on a wide screen, always beside the tile`);
+        assert.ok(c.sticker.top > c.card.top + c.border && c.sticker.right < c.card.right - c.border, `${where} ${c.id}: the sticker is inside the card, not on its border`);
+        const look = stickerLook(c.id);
+        assert.deepEqual([c.tilt, c.dx, c.dy], [`${look.tilt}deg`, `${look.dx}px`, `${look.dy}px`], `${where} ${c.id}: its tilt and nudge come from its id`);
+        assert.ok(Math.abs(look.tilt) >= 2 && Math.abs(look.tilt) <= 6 && look.dx <= 6 && Math.abs(look.dy) <= 2, `${c.id}: a small tilt and nudge`);
+        assert.equal(c.peel, c.flag === "beta", `${where} ${c.id}: ${c.flag === "beta" ? "BETA peels" : "only BETA peels"}`);
+        if (c.peel) assert.deepEqual(c.pseudo, ['""', '""'], `${where} ${c.id}: the curl and the wear are empty (the label is read once)`);
+        assert.match(c.text, /^(COMPLETE|BETA|EXPERIMENTAL|DEPRECATED)$/, `${where} ${c.id}: the label is the sticker's only text`);
+        for (const o of [c.name, ...c.chips]) assert.ok(!hit(c.sticker, o), `${where} ${c.id}: the sticker overlaps no name or chip`);
+      }
+      // No sticker hangs off its card: every sticker on a card (brick cards, the roadmap's cards, the
+      // status key) sits inside the card's box, tilt and nudge included. (The periodic table's small
+      // tiles are exempt: their sticker sits on the tile's top edge.)
+      const out = await page.evaluate(() => [...document.querySelectorAll(".brick .brick-sticker, .status-card .brick-sticker")].flatMap((s) => {
+        const card = s.closest(".brick, .status-card"), a = s.getBoundingClientRect(), b = card.getBoundingClientRect(), bw = parseFloat(getComputedStyle(card).borderTopWidth);
+        return a.left < b.left + bw || a.right > b.right - bw || a.top < b.top + bw || a.bottom > b.bottom - bw ? [`${card.dataset.brick ?? card.dataset.flag}: ${s.textContent}`] : [];
+      }));
+      assert.deepEqual(out, [], `${where}: every sticker sits inside its card`);
+      assert.ok(rows.some((c) => c.peel), `${where}: a BETA card peels`);
+      assert.ok(new Set(rows.map((c) => c.tilt)).size > 3, `${where}: the tilts vary card to card`);
+      assert.deepEqual(errors, []);
+      await page.close();
+    }
+  }
+  // A sub-heading after a brick grid ("In-house / experimental", home and bricks/): its top sits at
+  // least the page's 48 px block gap below the grid's bottom, never butting into the last row.
+  for (const [w, h] of [[1440, 900], [390, 844]]) {
+    for (const path of ["", "bricks/"]) {
+      const { page, errors } = await open(path, { viewport: { width: w, height: h } });
+      const gaps = await page.evaluate(() => [...document.querySelectorAll("ul.bricks + .section-head")].map((head) => {
+        const grid = head.previousElementSibling.getBoundingClientRect().bottom, t = head.querySelector("h2, h3").getBoundingClientRect().top;
+        return { id: head.id, gap: Math.round(t - grid) };
+      }));
+      assert.ok(gaps.some((g) => g.id === "in-house"), `${path || "home"} at ${w}: the in-house heading follows a brick grid`);
+      for (const g of gaps) assert.ok(g.gap >= 48, `${path || "home"} at ${w}: #${g.id} sits ${g.gap} px below the grid (at least 48)`);
+      assert.deepEqual(errors, []);
+      await page.close();
+    }
+  }
+  // The same id gives the same look, every time (no Math.random): a fixed sample, pinned.
+  assert.deepEqual(stickerLook("kernel"), stickerLook("kernel"));
+  assert.deepEqual(["kernel", "fx", "grid"].map((id) => stickerLook(id).tilt), [3.5, 2.5, 2.5]);
+  // ---------- Size chips (home 06): each brick's symbol and colour from site/bricks.mjs, builds get
+  // none, the budget share in text (checked against docs/budgets/'s table of the same build) ----------
+  {
+    const { page: docs } = await open("docs/budgets/");
+    const table = Object.fromEntries(await docs.evaluate(() => [...document.querySelectorAll(".doc-table tbody tr")].map((tr) => {
+      const td = [...tr.cells].map((c) => Number(c.textContent.replace(/[^\d]/g, "")));
+      return [tr.querySelector("[data-size]").dataset.size, { gzip: td[1], budget: td[2] }];
+    })));
+    await docs.close();
+    for (const w of [1440, 390]) {
+      const { page, errors } = await open("", { viewport: { width: w, height: 900 } });
+      const chips = await page.evaluate(() => [...document.querySelectorAll("#specs .size-chip")].map((li) => {
+        const tile = li.querySelector(".el-size"), p = document.createElement("i");
+        p.style.color = "var(--tone)"; tile.append(p); const tone = getComputedStyle(p).color; p.remove();
+        const r = li.getBoundingClientRect();
+        return { size: li.dataset.size, sym: li.dataset.sym ?? null, tileSym: tile.querySelector(".el-sym")?.textContent ?? null, tone, text: li.textContent, name: li.querySelector(".size-chip-name").textContent,
+          bar: !!li.querySelector(":scope > i"), box: [r.left, r.top, r.width, r.height] };
+      }));
+      const roles = await page.evaluate((rs) => Object.fromEntries(rs.map((r) => { const p = document.createElement("i"); p.style.color = `var(--k-${r})`; document.body.append(p); const c = getComputedStyle(p).color; p.remove(); return [r, c]; })), [...new Set(BRICKS.map((b) => b.role))]);
+      assert.equal(chips.length, Object.keys(table).length, `home at ${w}: one chip per measured size`);
+      for (const c of chips) {
+        const b = BRICKS.find((x) => x.modules.some((m) => m.size === c.size || m.name === c.size) || x.sizes.includes(c.size));
+        const m = b?.modules.find((x) => x.size === c.size || x.name === c.size);
+        if (b) {
+          assert.equal(c.sym, m?.sym ?? b.sym, `${c.size}: its symbol is site/bricks.mjs's`);
+          assert.equal(c.tileSym, c.sym, `${c.size}: the tile shows it`);
+          assert.equal(c.tone, roles[b.role], `${c.size}: in its brick's colour`);
+        } else assert.equal(c.tileSym, null, `${c.size}: a build gets no symbol`);
+        assert.ok(!c.name.includes("@fzlt/core/"), `${c.size}: the short name (${c.name})`);
+        assert.equal(c.bar, false, `${c.size}: no budget bar`);
+        const t = table[c.size], pct = Math.round((t.gzip / t.budget) * 100);
+        assert.ok(c.text.includes(`${pct}% of its`), `${c.size}: the budget share (${pct}%) is in the chip's text`);
+        assert.ok(c.text.includes(`${(t.gzip / 1024).toFixed(2)} KB`), `${c.size}: its measured size`);
+      }
+      // A tidy grid: the chips in a row share a top edge and a width.
+      const widths = new Set(chips.map((c) => Math.round(c.box[2])));
+      assert.equal(widths.size, 1, `home at ${w}: every chip the same width (${[...widths]})`);
+      assert.deepEqual(errors, []);
+      await page.close();
+    }
+  }
+  // ---------- Sticker edges by theme (--sticker-edge / --sticker-shadow): on the dark theme every 3D
+  // sticker's border and hard shadow are light (lighter than the page), on the light theme the ink
+  // rim; the text stays the dark ink on the bright face either way. ----------
+  {
+    const lum = (c) => { const m = c.match(/[\d.]+/g).slice(0, 3).map(Number); const [r, g, b] = (c.startsWith("color(") ? m : m.map((v) => v / 255)).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+    const SEL = [".brick-sticker:not([data-flag=roadmap])", ".brick-sticker-kernel", ".eyebrow .index", ".gal-sticker", ".phase-sticker"];
+    for (const [path, want] of [["", [0, 1, 2, 4]], ["gallery/", [2, 3]]]) {
+      for (const theme of ["dark", "light"]) {
+        const { page, errors } = await open(path);
+        await page.evaluate((t) => (document.documentElement.dataset.theme = t), theme);
+        const got = await page.evaluate((sels) => {
+          const bg = getComputedStyle(document.body).backgroundColor;
+          return sels.map((sel) => { const el = document.querySelector(sel); if (!el) return null; const cs = getComputedStyle(el); return { sel, border: cs.borderTopColor, shadow: cs.boxShadow.match(/(rgb|color)\([^)]*\)/g)?.at(-1) ?? "", text: cs.color, face: cs.backgroundColor, bg }; });
+        }, SEL);
+        for (const i of want) {
+          const g = got[i];
+          assert.ok(g, `${path || "home"}: a ${SEL[i]} sticker`);
+          const [b, sh, bg, tx, fc] = [lum(g.border), lum(g.shadow), lum(g.bg), lum(g.text), lum(g.face)];
+          if (theme === "dark") assert.ok(b > bg && sh > bg, `${path || "home"} dark: ${g.sel}'s edge and shadow are light (${g.border}, ${g.shadow} on ${g.bg})`);
+          else assert.ok(b < bg && sh < bg, `${path || "home"} light: ${g.sel}'s edge and shadow are the ink rim (${g.border}, ${g.shadow})`);
+          assert.ok(tx < fc, `${path || "home"} ${theme}: ${g.sel}'s text stays dark ink on its bright face`);
+        }
+        assert.deepEqual(errors, []);
+        await page.close();
+      }
     }
   }
   // ---------- Tokens only: the brick component's CSS block names no colour of its own ----------
