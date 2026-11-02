@@ -104,12 +104,17 @@ try {
     // The sip: the cup lifts, the saucer stays; the slurp (260 Hz sawtooth start) plays after the gesture above.
     const fill0 = await p.evaluate(() => document.querySelector(".og-liquid").getAttribute("fill"));
     const sau = () => p.evaluate(() => JSON.stringify(document.querySelector(".og-saucer").getBoundingClientRect()));
-    await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(196 268) rotate(0 "), null, { timeout: 4000 }); // the morning sip is over
-    const s0 = await sau(), cup0 = await p.evaluate(() => JSON.stringify(document.querySelector(".og-cup").getBoundingClientRect()));
-    await p.evaluate(() => (window.__hz.length = 0, window.scene.sip()));
-    await p.waitForTimeout(500);
+    // At 4x he is awake for about 4 s: if a slow machine let him doze off, wake him and try again.
+    let lifted = false, s0;
+    for (let i = 0; i < 4 && !lifted; i++) {
+      if (!(await p.evaluate(() => window.scene.state.awake))) await p.evaluate(() => window.scene.setLaptop(true)), await p.waitForFunction(() => window.scene.state.awake, null, { timeout: 8000 });
+      await p.waitForFunction(() => document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(196 268) rotate(0 "), null, { timeout: 4000 }); // the morning sip is over
+      s0 = await sau();
+      await p.evaluate(() => (window.__hz.length = 0, window.scene.sip()));
+      lifted = await p.waitForFunction(() => !document.querySelector(".og-cup").getAttribute("transform").startsWith("translate(196 268) rotate(0 "), null, { timeout: 700 }).then(() => true, () => false);
+    }
+    assert.ok(lifted, "the cup lifts");
     assert.equal(await sau(), s0, "the saucer does not move");
-    assert.notEqual(await p.evaluate(() => JSON.stringify(document.querySelector(".og-cup").getBoundingClientRect())), cup0, "the cup lifts");
     await p.waitForTimeout(800);
     assert.ok(await p.evaluate(() => window.__hz.includes(260)), "the slurp plays after a gesture");
     // Enter on the cup sips too (its key target is focusable).

@@ -71,7 +71,7 @@ export function sound(e: Engine, o: SoundOptions) {
     if (o.play) return o.play(cue as Cue, intensity);
     if (!ctx || !master || ctx.state !== "running") return;
     const now = at ?? ctx.currentTime;
-    if (at === undefined) {
+    if (!at) {
       if (now - (last.get(cue) ?? -1) < (cue === "fire" ? 0.07 : 0.12)) return;
       last.set(cue, now);
     }
@@ -116,9 +116,9 @@ export function sound(e: Engine, o: SoundOptions) {
     get on() {
       return on;
     },
-    /** The audio clock in seconds while it runs, else -1 (before a gesture, suspended or muted). */
+    /** The audio clock in seconds (it stands still while suspended or muted), -1 before the first gesture. */
     get time() {
-      return on && ctx?.state === "running" ? ctx.currentTime : -1;
+      return ctx ? ctx.currentTime : -1;
     },
     set on(v: boolean) {
       on = v;

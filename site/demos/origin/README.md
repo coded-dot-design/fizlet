@@ -67,12 +67,12 @@ mount(root: HTMLElement, opts?: {
 | kernel | 3,413 | One loop at 30 fps, settle, auto-pause off screen and in a hidden tab, the ledger |
 | @fzlt/core/timeline | 2,120 | The day/night cycle (sky, shade, sun, window light) on custom properties; wake/sleep, sip, pour, spill and the watering can on typed arrays |
 | @fzlt/core/fx | 2,797 | ♪ notes, steam, sparks of code (swatch chips in design mode), the splash, the Zzz |
-| @fzlt/core/sound | 1,073 | The phone's three looping genres on the audio clock, key clicks, the sip, taps, the pour, the spill, the scribble, the lamp, wake and sleep cues |
+| @fzlt/core/sound | 1,062 | The phone's three looping genres on the audio clock, key clicks, the sip, taps, the pour, the spill, the scribble, the lamp, wake and sleep cues |
 | @fzlt/core/input | 1,335 | The pointer (taps, the cup's drag and flick, double-taps on the cup and the phone); the keys of the lid, cup, plant, notebook, lamp and phone |
 | @fzlt/core/sprite | 1,437 | The pixel coder on the phone (spriteURL) |
 | @fzlt/core/slot | 1,819 | The page's loader (main.js) |
 
-The live chunk (`scene.js`: six bricks + the scene, tree-shaken) is printed by the build and on the page: **32,755 B gzip** on this build. It grew from 28,156 B (before the plant, notebook, lamp, key lights and new body: +3,454 B to 31,610 B; the phone's loops: +1,145 B). The loader is 2,100 B, and the inline poster is 5,987 B (5,120 B before), the same markup for both looks.
+The live chunk (`scene.js`: six bricks + the scene, tree-shaken) is printed by the build and on the page: **32,748 B gzip** on this build. It grew from 28,156 B (before the plant, notebook, lamp, key lights and new body: +3,454 B to 31,610 B; the phone's loops: +1,138 B). The loader is 2,100 B, and the inline poster is 5,987 B (5,120 B before), the same markup for both looks.
 
 ## Rules
 
