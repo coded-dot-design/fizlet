@@ -408,11 +408,11 @@ ${originSection(origin)}
       <article class="panel game">
         <p class="eyebrow"><b>THE ARCADE</b> · ON FIZLET</p>
         <h3>DOM VIRUS</h3>
-        <p>The arcade's approach is “the page is the board”: tiny games that play on the page you are reading. It is one use of Fizlet, and the arcade the bricks were proved out on. Now its games run on them: Null Invaders, Byte Runner and Sherman Bytes at 1.0 on <code>@fzlt/core/arcade</code>, Swarm Protocol 1.4 on the kernel.</p>
+        <p>The arcade's approach is “the page is the board”: tiny games that play on the page you are reading. It is one use of Fizlet, and the arcade the bricks were proved out on. Now its games run on them: Null Invaders and Byte Runner at 1.0 and Sherman Bytes at 1.1 on <code>@fzlt/core/arcade</code>, Swarm Protocol 1.4 on the kernel.</p>
         <div class="game-keys"><a class="bui-key bui-arcade bui-cmd" href="${HUB}">${icon("cart", 16)}Visit DOM VIRUS ↗</a></div>
       </article>
       <article class="panel game">
-        <p class="eyebrow"><b>SQUAD TACTICS</b> · ON FIZLET 1.0</p>
+        <p class="eyebrow"><b>SQUAD TACTICS</b> · ON FIZLET SINCE 1.0</p>
         <h3>DOM Battlefield</h3>
         <p>Twelve tanks, one radio. The game whose board UI became this design system, on the Fizlet kernel since 1.0; two-network matches come in E12.</p>
         <div class="game-keys"><a class="bui-key bui-arcade bui-go" href="${BATTLEFIELD}">${icon("out", 16)}DOM Battlefield ↗</a></div>
