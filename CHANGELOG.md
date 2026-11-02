@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Site: the roadmap is up to date (pending owner review).** Section 09 now shows what shipped since
+  2026-10-31, each tick backed by a merged PR or a release tag. E9 On npm is DONE (`@fzlt/core`
+  0.21.2 from the release workflow with provenance, and the API snapshot test). E10 Diagrams is IN
+  PROGRESS (layout and view-canvas in 0.21.0, and the live brick graph that settles at 0 frames).
+  E3, E4, E7 and E8 gain ticks or items: Battlefield Blitz 1.0, no shared/ copies, presence lobby
+  and resume, Blitz 2 to 4 players, DOM Crossfire squad co-op, the Battlefield landing hero and the
+  DOM VIRUS labs and scenes on Fizlet, touch, and Sherman Bytes on the skirmish preset. Every item
+  now has a stable key (`E9.npm`). A PR that finishes one says so with a `Roadmap: <key>` line
+  (CONTRIBUTING.md and the PR template). Phases after the launch scope may now move off PLANNED
+  when a box is ticked (`tests/roadmap.test.mjs`).
 - **Release train 0.21.3 (#206 + #212, with #194, #215, #213 and #226's CueName fix), measured
   together on main.** gz, main → train: kernel 3,413 → 3,372 B, page build 7,128 → 7,094 B (10 B under
   its 7,104 budget), perf 2,064 → 2,019 B (budget 2,064 → 2,022), grid 1,603 → 1,652 B (budget 1,637 →
