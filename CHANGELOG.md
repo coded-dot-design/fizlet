@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+- **Site: the origin hero, the owner's review (pending owner review).**
+  - **Laptop:** the open lid's far edge is a little wider than the hinge (perspective from above). A press on the lid or the screen closes it and he sleeps, and stays asleep: a guard stops the night's own "sleep" from replaying the wake. A press on the keys lights that key; closed, a press opens it.
+  - **Chair:** a dark-ink chair, so he reads as leaning forward from it.
+  - **Pours:** the pot's and the can's streams start at the spout's tip and follow its angle.
+  - **Pen:** he picks up the pen beside the book and puts it back (one pen).
+  - **Plant:** now top right.
+  - **Hint:** "Click or double-click anything to see it move".
+  - **Palette:** the Fizlet look keeps its own clock. Day is the Board UI light palette and night the dark one, for everything in the scene, whatever the page's theme. Its text and keys hold 4.5:1 or more.
+  - **Caffeine:** three sips close together keep him up into the night (lamp on, faster typing, no Zzz, "Too much coffee: still awake"; the lid will not close). He dozes once it wears off.
+  - **More from the review:** he sits on the chair (one layer under him, only its dark edge in sight below his back); the cup keeps its approved perspective (it only moves and scales; only the handle is nudged around the rim), and he reaches for the handle in one arc, open-handed, then holds it from the side (fingers through the loop, thumb on top, the handle in sight), wrist straight, and carries it on one arc, the elbow bending one way per move; the phone shows the genre on a sticker card that pops in, holds and fades; the headphones are wireless (no cord).
+  - **Shadows, one light:** every shadow is the same screen offset whatever its object's turn (2015 4,4 down-right; Fizlet 0,7 down, the Board UI shadow): the body's, the laptop's, the phone's, the book's, the plant's, the saucer's, the pot's and the watering can's were off. The cup's shadow goes with the cup as it rises, further along the light and fainter, and is gone before his face.
+  - Live chunk 32,760 → 35,560 B gzip; inline poster 5,987 → 6,555 B. Test: `tests/origin.mjs`.
+
 ## 0.21.3
 
 - **Site: the origin hero, the owner's notes (pending owner review).**

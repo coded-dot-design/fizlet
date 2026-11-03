@@ -2,23 +2,36 @@
 
 The origin hero, by Chris Cooley. A desk seen from above through one day: he sleeps at night, wakes with the sun, puts the headphones on, drinks his coffee and codes all day on the laptop and the phone, then night falls and he sleeps. The title flips to "Design. Sleep. Drink. Repeat." and the screens switch from code to design work. The headphones, coffee and laptop are the 2015 portfolio props; in the 2015 look the cup is the 2015 sprite sheet itself (`coffee.png`, 6,961 B).
 
-**Two looks, one scene.** Inspired by the original 2015 portfolio, with Fizlet flair (`ORIGIN_CREDIT` in `copy.ts`). **Fizlet** (the default) is cyberpunk × Tron in flat colours: the same shapes repainted from the site's Board UI tokens (`--k-sys`, `--k-cmd`, `--k-attack`, `--k-go`, `--k-advance`, `--hurt`, `--k-flag` on the `--rim` night, the fallbacks being their dark values), plus the desk grid, neon edge lines (a wide faint stroke under a thin one) and pixel patterns (the cap's mesh, the spill). Like the home hero's stage it stays night in both themes. **2015** is the flat portfolio palette. The look is one class on the wrapper (`og--fz`), so the toggle costs no markup.
+**Two looks, one scene.** Inspired by the original 2015 portfolio, with Fizlet flair (`ORIGIN_CREDIT` in `copy.ts`). **Fizlet** (the default) is cyberpunk × Tron in flat colours: the same shapes repainted from the site's Board UI tokens (`--k-sys`, `--k-cmd`, `--k-attack`, `--k-go`, `--k-advance`, `--hurt`, `--k-flag` on the `--rim` night, the fallbacks being their dark values), plus the desk grid, neon edge lines (a wide faint stroke under a thin one) and pixel patterns (the cap's mesh, the spill). It keeps its own clock, not the page's theme: by day it is the Board UI light palette, by night the dark one (the site's values). The art blends across dawn and dusk. The scene's text and keys (caption, key row, labels, hint) switch palette once, at mid-dusk, so their contrast stays at 4.5:1 or more on both sides; they never pass through a grey middle. The page's theme still styles the frame around it. **2015** is the flat portfolio palette. The look is one class on the wrapper (`og--fz`), so the toggle costs no markup.
 
 **Him.** A backwards trucker cap seen from above: the mesh crown and its seams, the foam panel and the bill toward you, the snapback strap at the front. The headphones' band goes over the cap and a cup sits over each ear; on the desk they lie open. Each arm is two bones (`arm()` in `art.ts`): a short upper arm under the sleeve (seen from above it hangs down), the elbow out, a tapered forearm, a hand with fingers and a thumb. Generic and stylised.
 
 **The cup is a toy.** Tap: a sip (the nearer hand reaches it, then brings it up). Double-tap: a refill (a pot pours, the level comes back to full, steam). Drag: it lifts (bigger, its shadow grows and drifts) and goes down anywhere on the desk that is on screen; near the saucer it snaps back on. Flick (faster than 1,300 px/s at release): it knocks over, slides, and a puddle spreads (coffee in 2015, pixels in Fizlet); tap the spill, or wait 5 s, and it rights itself and refills. Out of his reach, he cannot sip. The cup's key target (`.og-grip`, at least 44 px) is focusable: Enter sips, R refills, the arrow keys move it, K knocks it over. Every press squashes on the next frame and pops on release (a spring on the kernel), with a tap sound once sound is unlocked. Changes are said in a polite `role="status"` line.
 
 **The rest of the desk.**
-- **The laptop:** seen from above, the open lid is as wide as the base at the hinge (a hinge bar), a little narrower at its far edge, and foreshortened to about two thirds of the base's depth. The screens are drawn foreshortened onto it.
+- **The laptop:** seen from above and behind him, the open lid is as wide as the base at the hinge (a hinge bar), a little wider at its far edge (tilted back, toward the eye), and foreshortened to about two thirds of the base's depth. The screens are drawn foreshortened onto it.
 - **Him:** broad shoulders and a V-shaped back (trapezius, shoulder blades). Each arm (`armD()` in `art.ts`) is a sleeve over the deltoid, a biceps swell, the elbow, and a forearm that tapers to the wrist.
 - **Typing:** each hand types on random keys in its half, from a seeded generator (the `seed` option; never `Math.random`, no allocation in the step). The key lights up in the look's accent and fades. In design mode the right hand goes to the trackpad now and then.
-- **The plant** (tap, or Enter): a can pours, drops spill around the pot and fade over 1 to 3 s, and it perks up.
-- **The notebook** (tap, or Enter): his hand goes to it and he writes a line of code, or draws a star, a heart, a happy face, a lightning bolt, a triangle, a square, a house or a sun. The stroke draws on; the last three stay.
+- **The laptop as a toggle:** open, a press on the keys lights that key and a press on the lid or the screen closes it, and he sleeps (the night's own "sleep" no longer wakes him for a moment). Closed, a press opens it and he wakes.
+- **The chair:** dark ink in both looks, behind him; he leans forward from it. He sits on it: the chair is one layer under his body and arms, and only its dark edge shows (the back's top below his shoulder blades, its arm ends at the bottom); his shirt is cut where the chair shows, so none of it shows at his sides or shoulders.
+- **The headphones are wireless:** no cord to the phone.
+- **The plant** (top right; tap, or Enter): a can comes up from below it and pours, drops spill around the pot and fade over 1 to 3 s, and it perks up.
+- **The notebook** (tap, or Enter): his hand picks up the pen beside the book, writes, and puts the pen back (one pen, never two). He writes a line of code, or draws a star, a heart, a happy face, a lightning bolt, a triangle, a square, a house or a sun. The stroke draws on; the last three stay.
 - **The lamp** (tap, or Enter): its pool and cone of light go off and on, and the night over the room lifts a little while it is on. It is the visitor's switch, independent of the day: the day no longer turns it on and off.
+- **The sip:**
+  - The cup keeps the approved top-down drawing: it only moves and scales, never turns, skews or squashes. Only its handle is nudged 10° around the rim, toward him, at its usual distance; the cup rests a few units from its 2015 spot.
+  - His hand reaches in one arc about the shoulder, straight from the keys to the handle, open on the way; the return reverses it.
+  - Then it holds the handle from the outside: fingers curled through the loop, thumb over its top, the hand beside the cup, the handle still in sight; the fingertips stop short of the coffee and the wrist stays in line with the forearm (`pose()` in `scene.ts`).
+  - He carries the cup to his mouth on one arc about the shoulder, and sets it down the same way. Each move bends the elbow one way only.
+  - While he holds the cup, his arm and hand paint over it and its shadow (live `<use>` copies after the cup).
+- **Shadows:** one light. Every shadow is the same screen offset from its object, whatever the object's turn: 4,4 (down-right) in 2015, the Board UI 0,7 (down) in Fizlet (`.o-sh`); held things (the pot, the can) cast twice as far. The cup's shadow goes with it, further out, larger and fainter as it rises (`cupShT`), and is gone before it reaches his face.
+- **The pours:** the coffee leaves the pot's spout tip, and the water the can's rose, along the spout's angle as each one tips.
+- **Caffeine:** each sip the visitor gives him adds a cup; his own morning and afternoon cups do not. It wears off slowly by day and faster at night. Three sips close together (2.4 cups' worth) and night comes but he stays up: eyes open, faster typing, a faster head bob, the lamp on, no Zzz, and "Too much coffee: still awake." The lid will not close ("One more commit"). Under 1.2 at night he dozes ("The coffee wore off") and the day goes on as before. Under reduced motion it is state only.
+- **The hint:** "Click or double-click anything to see it move" ("Tap or double-tap" on touch), in the caption's style.
 - **The phone** (tap, or Enter): the music changes from country to rock to pop and back.
   - Each genre is a one-bar loop with its own tempo, steps and synth voices, and no samples. It is scheduled 0.2 s ahead on the audio clock (`@fzlt/core/sound`'s `play(cue, 1, at)` and `time`), so it never drifts and has no gap at the seam.
   - A change waits for the next bar line, which sounded cleaner than a crossfade on these short voices.
-  - The ♪ notes (their words, colours and rate) and his head bob follow the genre. The phone's screen shows the genre.
+  - The ♪ notes (their words, colours and rate) and his head bob follow the genre. On a change, the phone shows the genre on a sticker card (the site's `--sticker-edge` / `--sticker-shadow`, set from the scene's own day and night) that pops in, holds about 1.5 s and fades; under reduced motion it shows, then goes, with no animation.
   - A double-tap (or Space, or P) pauses and resumes the loop. A tap waits 250 ms before it changes the genre, so a double-tap never does; that is cleaner than changing and reverting.
   - The button's name is "Music: rock. Change style", with ", paused" when paused.
   - The Sound key stays the master. Pausing the scene, going off screen, sleep and reduced motion stop the loop.
@@ -64,15 +77,15 @@ mount(root: HTMLElement, opts?: {
 
 | Brick | Bytes | What it moves |
 |---|---|---|
-| kernel | 3,413 | One loop at 30 fps, settle, auto-pause off screen and in a hidden tab, the ledger |
-| @fzlt/core/timeline | 2,120 | The day/night cycle (sky, shade, sun, window light) on custom properties; wake/sleep, sip, pour, spill and the watering can on typed arrays |
-| @fzlt/core/fx | 2,797 | ♪ notes, steam, sparks of code (swatch chips in design mode), the splash, the Zzz |
+| kernel | 3,372 | One loop at 30 fps, settle, auto-pause off screen and in a hidden tab, the ledger |
+| @fzlt/core/timeline | 2,137 | The day/night cycle (sky, shade, sun, window light) on custom properties; wake/sleep, sip, pour, spill and the watering can on typed arrays |
+| @fzlt/core/fx | 2,792 | ♪ notes, steam, sparks of code (swatch chips in design mode), the splash, the Zzz |
 | @fzlt/core/sound | 1,062 | The phone's three looping genres on the audio clock, key clicks, the sip, taps, the pour, the spill, the scribble, the lamp, wake and sleep cues |
 | @fzlt/core/input | 1,335 | The pointer (taps, the cup's drag and flick, double-taps on the cup and the phone); the keys of the lid, cup, plant, notebook, lamp and phone |
 | @fzlt/core/sprite | 1,437 | The pixel coder on the phone (spriteURL) |
-| @fzlt/core/slot | 1,819 | The page's loader (main.js) |
+| @fzlt/core/slot | 1,849 | The page's loader (main.js) |
 
-The live chunk (`scene.js`: six bricks + the scene, tree-shaken) is printed by the build and on the page: **32,748 B gzip** on this build. It grew from 28,156 B (before the plant, notebook, lamp, key lights and new body: +3,454 B to 31,610 B; the phone's loops: +1,138 B). The loader is 2,100 B, and the inline poster is 5,987 B (5,120 B before), the same markup for both looks.
+The live chunk (`scene.js`: six bricks + the scene, tree-shaken) is printed by the build and on the page: **35,560 B gzip** on this build (32,760 B before the review's fixes, the scene's own palette, the caffeine meter, the genre card, the sip's pose and the seat: +2,800 B). The loader is 2,128 B, and the inline poster is 6,555 B (5,987 B before), the same markup for both looks.
 
 ## Rules
 

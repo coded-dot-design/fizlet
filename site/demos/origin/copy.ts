@@ -17,3 +17,6 @@ export const ORIGIN_CREDIT = "Inspired by the original 2015 portfolio, with Fizl
 
 /** The two looks, as the look key names them: the 2015 portfolio's flat palette, or Fizlet's. */
 export const ORIGIN_LOOKS = { "2015": "2015", fizlet: "Fizlet" } as const;
+
+/** The scene's hint, by pointer (mouse) and by touch. */
+export const ORIGIN_HINT = { pointer: "Click or double-click anything to see it move", touch: "Tap or double-tap anything to see it move" } as const;
