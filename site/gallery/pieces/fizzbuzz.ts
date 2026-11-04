@@ -121,9 +121,9 @@ export function fizzGame() {
       if (bk) {
         S[BONK] = S[BONK]! + (S[BONK]! > 0 ? dt : 0);
         if (bk === BEE && !S[BONK] && S[BX]! - 10 <= PR && S[BY]! > PT - 6 && S[BY]! < PB + 4) (S[BONK] = 0.001), (S[BVX] = 46), (S[BVY] = -40), (S[SHAKE] = 0.3), (ev[EV_BONK] = 1);
-        if (bk === BEE && S[BONK]! > 0.3) (S[BVX] = -82), (S[BVY] = (6 - S[BY]!) * 3);
+        if (bk === BEE && S[BONK]! > 0.3) (S[BVX] = -82), (S[BVY] = (7 - S[BY]!) * 3);
         if (bk === DIVE && S[BX]! < 70) (S[BVY] = (MY - 10 - S[BY]!) * 3), (S[BVX] = -62);
-        if (bk === DIVE && S[BX]! < MX + 12) (S[BK] = FIZZY), (S[BVX] = -40), (S[BVY] = -46), (ev[EV_FIZZY] = 1);
+        if (bk === DIVE && S[BX]! < MX + 12) (S[BK] = FIZZY), (S[BVX] = -46), (S[BVY] = -12), (ev[EV_FIZZY] = 1);
         S[BX] = S[BX]! + S[BVX]! * dt;
         S[BY] = S[BY]! + S[BVY]! * dt;
         if (S[BX]! < -14 || S[BY]! < -14) S[BK] = 0;
@@ -277,9 +277,6 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       // Speed: five pips.
       const lvl = Math.round(Math.log(SLOW / S[BEAT]!) / Math.log(1 / 0.8));
       for (let i = 0; i < 5; i++) px(cx + 4 + i * 4, PB - 4, 3, 1, i < lvl ? C.hurt : C.line);
-      // The streak and the best (the bee flies over them).
-      print(g, "STREAK", 4, 4, C.muted, 1), say(DIGITS[Math.min(LAST, S[STREAK]!)]!, 32, 4, S[STREAK]! > 0 ? C.go : C.ink, 1);
-      print(g, "BEST", 126, 4, C.muted, 1), say(DIGITS[Math.min(LAST, S[BEST]!)]!, 150, 4, C.hurt, 1);
       // The can: pops its tab and jumps.
       const ca = S[CAN]!, jump = ca > 0 ? Math.round(Math.sin(Math.min(1, ca / 0.3) * 3.14) * 4) : 0;
       px(MX - 10, DESK - 1, 24, 2, C.rim);
@@ -323,6 +320,10 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         px(x0, 24, bw, 9, C.rim), px(x0 + 1, 25, bw - 2, 7, C.ink), px(x0 + 3, 33, 3, 2, C.rim);
         print(g, "?", x0 + 3, 26, C.cmd, 1), print(g, s, x0 + 8, 26, C.rim, 1);
       }
+      // The streak and the best, on their own chips over everything (the bee flies under them).
+      px(2, 2, 37, 9, C.rim), px(122, 2, 36, 9, C.rim);
+      print(g, "STREAK", 4, 4, C.muted, 1), say(DIGITS[Math.min(LAST, S[STREAK]!)]!, 32, 4, S[STREAK]! > 0 ? C.go : C.ink, 1);
+      print(g, "BEST", 126, 4, C.muted, 1), say(DIGITS[Math.min(LAST, S[BEST]!)]!, 150, 4, C.hurt, 1);
       if (m === IDLE && S[TICKAGE]! > 1.3) say("TAP TO COUNT", 92, 56, C.ink, 1), say("OR CALL THE NEXT ONE", 92, 63, C.muted, 1);
       if (m === DONE) {
         px(44, 54, 72, 14, C.rim);

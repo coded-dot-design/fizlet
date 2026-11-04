@@ -90,7 +90,8 @@ export function words(list: readonly string[]) {
 export type Words = ReturnType<typeof words>;
 
 /** Input state the sims read (typed: the step reads it, never allocates). [0] held, [1] presses since last step, [2] muted;
- *  with `track`: [3] x, [4] y (art units, the last press or move), [5] 1 while the pointer is over the stage. */
+ *  with `track`: [3] x, [4] y (art units, the last press or move), [5] 1 while the pointer is over the stage,
+ *  [6] free for a piece's own keys (Shoot the Pier: ← → / A D). */
 export type Pad = Float64Array;
 
 /**
@@ -106,7 +107,7 @@ export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Rec
   canvas.setAttribute("aria-hidden", "true");
   stage.append(canvas);
   const g = canvas.getContext("2d")!;
-  const pad: Pad = new Float64Array(6);
+  const pad: Pad = new Float64Array(7);
   // [0] css width, [1] dpr scale (px per art unit), [2] measure, [3] poster resolution.
   const V = new Float64Array(4);
   V[2] = 1;
@@ -188,7 +189,7 @@ export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Rec
     read() {
       if (!V[2]) return;
       V[2] = 0;
-      if (pixel) return void ((canvas.width = W), (canvas.height = H), (V[1] = 1), (g.imageSmoothingEnabled = false));
+      if (pixel) return void ((canvas.width = W), (canvas.height = H), (V[1] = 1), (V[0] = stage.clientWidth), (g.imageSmoothingEnabled = false));
       const r = stage.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1) * (V[3] || 1);
       canvas.width = Math.max(1, Math.round(r.width * dpr));
       canvas.height = Math.max(1, Math.round(r.height * dpr));

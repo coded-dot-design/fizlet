@@ -32,7 +32,7 @@ const frames = (p, n = 20) => p.evaluate(async (n) => {
 const settle = (p, what) => p.waitForFunction(() => scene.engine.paused.includes("settled"), null, { timeout: 15000 }).catch(() => { throw new Error(`${what}: never settled`); });
 
 try {
-  for (const [id, make, HELD] of [["lip-line", "lip", 14], ["tube-time", "tube", 8], ["paddle-out", "paddle", 12], ["lip-line-pier", "pier", 14]]) {
+  for (const [id, make, HELD] of [["lip-line", "lip", 14], ["tube-time", "tube", 8], ["paddle-out", "paddle", 12], ["lip-line-pier", "pier", 11]]) {
     for (const w of [720, 358]) {
       const p = await browser.newPage({ viewport: { width: w + 40, height: 600 } });
       const errs = [];
@@ -62,20 +62,20 @@ try {
       await p.keyboard.up(" ");
       assert.equal(held, 1, `${id} @${w}: Space holds`);
       if (make === "pier") {
-        // Shoot the Pier steers: ↓ drops the line, and a held pointer sets it (top of the stage: high).
-        const ty = await p.evaluate(() => scene.ride.S[4]);
-        await p.keyboard.down("ArrowDown");
-        await p.waitForTimeout(250);
-        await p.keyboard.up("ArrowDown");
-        assert.ok(await p.evaluate((ty) => scene.ride.S[4] > ty + 5, ty), `${id} @${w}: ↓ drops the line`);
+        // Shoot the Pier steers across: ← leans left, and a held pointer pulls the surfer to it.
+        const x0 = await p.evaluate(() => scene.ride.S[3]);
+        await p.keyboard.down("ArrowLeft");
+        await p.waitForTimeout(200);
+        await p.keyboard.up("ArrowLeft");
+        assert.ok(await p.evaluate((x0) => scene.ride.S[3] < x0 - 5, x0), `${id} @${w}: ← leans left`);
         const box = await p.locator("[data-fizlet-slot] button[aria-label$='(Space)']").boundingBox();
-        await p.mouse.move(box.x + box.width / 2, box.y + box.height * 0.9);
+        await p.mouse.move(box.x + box.width * 0.5, box.y + box.height / 2);
         await p.mouse.down();
-        await p.mouse.move(box.x + box.width / 2, box.y + box.height * 0.45, { steps: 4 });
-        await p.waitForTimeout(100);
-        const line = await p.evaluate(() => [scene.ride.pad[3], scene.ride.S[4]]);
+        await p.mouse.move(box.x + box.width * 0.85, box.y + box.height / 2, { steps: 4 });
+        await p.waitForTimeout(150);
+        const at = await p.evaluate(() => scene.ride.pad[3]);
         await p.mouse.up();
-        assert.ok(Math.abs(line[0] - 40.5) < 3 && line[1] < 50, `${id} @${w}: dragging sets the line (pointer at ${line[0]}, line ${line[1]})`);
+        assert.ok(Math.abs(at - 136) < 3, `${id} @${w}: dragging steers (pointer at ${at})`);
       }
       await p.keyboard.press("m");
       const muted = await p.evaluate(() => document.querySelector("[data-fizlet-slot] button[aria-label^='Sound']").getAttribute("aria-pressed"));
@@ -103,7 +103,7 @@ try {
     assert.deepEqual(rm, { made: 0, mounted: false, same: true, poster: true, drawn: true }, `${id}: reduced motion keeps the poster`);
     await ctx.close();
   }
-  console.log("surf-sesh: all four mount, play the attract run and settle (no audio before a gesture), Space rides and M mutes with 44 px keys at 720 and 358 wide, Recall exact, reduced motion still — ok");
+  console.log("surf-sesh: all four mount, play the attract run and settle (no audio before a gesture), Space rides, the pier steers by keys and drag, and M mutes with 44 px keys at 720 and 358 wide, Recall exact, reduced motion still — ok");
 } finally {
   await browser.close();
 }
