@@ -33,7 +33,8 @@ for (const path of ["/", "/gallery/", "/gallery/page/2/", "/make/"]) {
 // After play: the piece's own layers (TAP TO PLAY, the LAUNCH button) must be tap-safe too.
 // The piece moves down the pages as new entries land, so find the gallery page that carries it.
 const fig = page.locator('figure[data-gallery="moon-rocket-launches-off-button"]');
-for (const path of ["/gallery/", "/gallery/page/2/", "/gallery/archive/"]) {
+const galleryPaths = ["/gallery/", ...Array.from({ length: 19 }, (_, i) => `/gallery/page/${i + 2}/`), "/gallery/archive/"];
+for (const path of galleryPaths) {
   await page.goto(base + path, { waitUntil: "domcontentloaded" });
   if (await fig.count()) break;
 }
