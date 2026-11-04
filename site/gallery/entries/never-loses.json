@@ -1,4 +1,5 @@
 {
+  "no": 91,
   "id": "never-loses",
   "date": "2026-11-03",
   "prompt": "tic-tac-toe against a smug bot that plays perfectly; beside the board its source grows one more nested if with every move until the ladder runs off the panel, and play again only nests it deeper",
