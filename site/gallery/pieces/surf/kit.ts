@@ -15,6 +15,13 @@ export const C = {
   rim: "#07060f", bg: "#07060f", surface: "#110d22", raised: "#1d1738", line: "#3b3170", ink: "#f6f3ff", muted: "#aea4d6",
   sys: "#19f0ff", cmd: "#9a63ff", attack: "#ff2e88", aim: "#ff7389", advance: "#ff8a1f", go: "#39ffb0", hurt: "#ffc21a", fallin: "#a8ff3e",
 };
+/** The sea's in-between shades (the face, its glint, the trough, the flat water, spray) and the pier's wood. */
+export const TEAL2 = "#0b8aa8", SKY = "#eef0fb", SKY2 = "#e6e4f8", FACE = "#006e91", DEEP = "#0b4a6e", WATER = "#2b6fd6", FOAM2 = "#bfe9ff", WOOD = "#3f296a", WOOD2 = "#6a3ae6";
+/** Pixel sprites: rows of keys (KEY). The gull (two wing frames) and the hopper. */
+export const GULL = [["kk.......kk", "kwwk...kwwk", ".kwwkkkwwk.", "..kwwwwkok.", "....kk....."], ["....kkk....", "..kwwwwwkok", ".kwwwwwwwk.", "kwk.....kwk", "k.........k"]];
+export const HOP = [".k...k.", "..kak..", ".kaaak.", "kawawak", ".k.k.k."];
+/** Sprite keys: a attack, k rim, c body, s belly, w white, y beak/tusk, o orange, b sky. */
+export const KEY: Record<string, string> = { a: C.attack, k: C.rim, c: C.cmd, s: "#b48cff", w: C.ink, y: C.hurt, o: C.advance, b: C.sys };
 /** Score digits, made once. */
 export const NUM = Array.from({ length: 1000 }, (_, i) => String(i));
 export const FONT = /* @__PURE__ */ Array.from({ length: 25 }, (_, i) => `900 ${i}px system-ui, sans-serif`);
@@ -83,7 +90,8 @@ export function words(list: readonly string[]) {
 export type Words = ReturnType<typeof words>;
 
 /** Input state the sims read (typed: the step reads it, never allocates). [0] held, [1] presses since last step, [2] muted;
- *  with `track`: [3] x, [4] y (art units, the last press or move), [5] 1 while the pointer is over the stage. */
+ *  with `track`: [3] x, [4] y (art units, the last press or move), [5] 1 while the pointer is over the stage,
+ *  [6] free for a piece's own keys (Shoot the Pier: ← → / A D). */
 export type Pad = Float64Array;
 
 /**
@@ -99,7 +107,7 @@ export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Rec
   canvas.setAttribute("aria-hidden", "true");
   stage.append(canvas);
   const g = canvas.getContext("2d")!;
-  const pad: Pad = new Float64Array(6);
+  const pad: Pad = new Float64Array(7);
   // [0] css width, [1] dpr scale (px per art unit), [2] measure, [3] poster resolution.
   const V = new Float64Array(4);
   V[2] = 1;
@@ -181,7 +189,7 @@ export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Rec
     read() {
       if (!V[2]) return;
       V[2] = 0;
-      if (pixel) return void ((canvas.width = W), (canvas.height = H), (V[1] = 1), (g.imageSmoothingEnabled = false));
+      if (pixel) return void ((canvas.width = W), (canvas.height = H), (V[1] = 1), (V[0] = stage.clientWidth), (g.imageSmoothingEnabled = false));
       const r = stage.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1) * (V[3] || 1);
       canvas.width = Math.max(1, Math.round(r.width * dpr));
       canvas.height = Math.max(1, Math.round(r.height * dpr));

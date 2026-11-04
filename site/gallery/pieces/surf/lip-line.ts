@@ -13,7 +13,7 @@
 import { createEngine } from "../../../../src/kernel/index";
 import { seeded } from "../../../../src/kernel/random";
 import type { SlotScene, SlotTap } from "../../../../src/slot";
-import { C, DEMO, DONE, H, IDLE, NUM, PLAY, W, rig, spray, words, type Pad } from "./kit";
+import { C, DEEP, DEMO, DONE, FACE, FOAM2, GULL, H, HOP, IDLE, KEY, NUM, PLAY, SKY, SKY2, TEAL2, W, WATER, WOOD, WOOD2, rig, spray, words, type Pad } from "./kit";
 import { print, textW } from "../pix";
 
 export const ROUND = 10;
@@ -175,13 +175,10 @@ export type LipLine = ReturnType<typeof lipLine>;
 
 export type LipScene = SlotScene & { engine: ReturnType<typeof createEngine>; ride: LipLine; poster(): void; readonly state: { mode: number; score: number; snaps: number; wipes: number; best: number; left: number } };
 
-// The palette: Board UI tokens plus the sea's three in-between shades.
-const TEAL2 = "#0b8aa8", SKY = "#eef0fb", SKY2 = "#e6e4f8", FACE = "#006e91", DEEP = "#0b4a6e", WATER = "#2b6fd6", FOAMC = C.ink, FOAM2 = "#bfe9ff", WOOD = "#3f296a", WOOD2 = "#6a3ae6";
-/** Sprites: rows of keys (k rim, c body, s belly, w white, y tusk/beak, o orange, b board). */
+// The palette (kit.ts: Board UI tokens plus the sea's in-between shades) and the sprites.
+const FOAMC = C.ink;
+/** Pip: rows of keys (k rim, c body, s belly, w white, y tusk). The gull and the hopper: kit.ts. */
 const PIP = ["........y", ".......y.", "..kkkky..", ".kccccck.", "kccwkccck", "kcccccccck", "kcsssscck.", ".kkkkkkk.."];
-const GULL = [["kk.......kk", "kwwk...kwwk", ".kwwkkkwwk.", "..kwwwwkok.", "....kk....."], ["....kkk....", "..kwwwwwkok", ".kwwwwwwwk.", "kwk.....kwk", "k.........k"]];
-const HOP = [".k...k.", "..kak..", ".kaaak.", "kawawak", ".k.k.k."];
-const KEY: Record<string, string> = { a: C.attack, k: C.rim, c: C.cmd, s: "#b48cff", w: C.ink, y: C.hurt, o: C.advance };
 
 export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | null): LipScene {
   const engine = createEngine({ root: stage, settle: 0.5, seed: (Math.random() * 2147483647) | 0 });
