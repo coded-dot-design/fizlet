@@ -30,6 +30,8 @@ const WORDS = ["PATCHED", "+"];
 const PLUS = /* @__PURE__ */ Array.from({ length: 64 }, (_, i) => `+${i}`);
 /** The panel the bugs crawl on. */
 const X0 = 4, X1 = 156, Y0 = 23, Y1 = 87;
+/** The highest a pop word sits: it rises 8 and stands about 7 tall, so it never reaches the header (0..19). */
+const WTOP = 35;
 /** The stamp's box when it lands (centre, half sizes). */
 export const STAMPBOX = [80, 56, 34, 12] as const;
 
@@ -68,7 +70,7 @@ export function bugSwarm(seed: number, pad: Pad, demo: boolean) {
     (S[COUNT] = S[COUNT]! - 1), (S[PATCHES] = S[PATCHES]! + 1), (S[BROOD] = 0.55), (S[BX] = X[best]!), (S[BY] = Y[best]!), (S[LINE] = 1);
     sp.burst(X[best]!, Y[best]!, 16, 46, 0, TAU, 1.6, 0);
     sp.burst(X[best]!, Y[best]!, 8, 30, 0, TAU, 1.2, 1);
-    wd.say(0, Math.max(26, Math.min(134, X[best]!)), Y[best]! - 7, 0);
+    wd.say(0, Math.max(26, Math.min(134, X[best]!)), Math.max(WTOP, Math.min(84, Y[best]! - 7)), 0);
     ev[EV_PATCH] = 1;
     return true;
   }
@@ -80,7 +82,7 @@ export function bugSwarm(seed: number, pad: Pad, demo: boolean) {
     let live = 0;
     for (let i = 0; i < BUGN; i++) if (ST[i] === LIVE || ST[i] === HATCH) live++;
     for (let k = 0, m = Math.max(2, want - live); k < m; k++) spawn(S[BX]!, S[BY]!, true);
-    (list[1] = PLUS[Math.min(63, n)]!), wd.say(1, S[BX]! + (S[BX]! < 80 ? 26 : -26), Math.max(30, S[BY]!), 1);
+    (list[1] = PLUS[Math.min(63, n)]!), wd.say(1, Math.max(14, Math.min(146, S[BX]! + (S[BX]! < 80 ? 26 : -26))), Math.max(WTOP + 12, Math.min(84, S[BY]! + 8)), 1);
     (S[LINE] = 2 + ((S[PATCHES]! - 1) % 4)), (S[AWAKE] = Math.max(S[AWAKE]!, 2.5));
     ev[EV_HATCH] = 1;
     if (S[PATCHES]! >= STAMP_AT && !S[STAMP]) stamp();

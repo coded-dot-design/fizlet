@@ -31,7 +31,7 @@ const LAP = [281, 156, 519, 386] as const, BODY = [290, 392, 510, 560] as const,
 /** The first cup: Origin's own, on its saucer. */
 export const HOME = [246, 326] as const;
 /** Where the candle goes on day 30 (cups keep clear of it). */
-const CANDLE = [214, 214] as const;
+const CANDLE = [205, 266] as const;
 
 export function deskRot(seed: number, pad: Pad, demo: boolean) {
   const R = seeded(seed);
@@ -212,6 +212,11 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
   g.font = FONT[4]!;
   const SHIPPED = "STATUS: SHIPPED", SW = [...STATUS.map((x) => x[1]), SHIPPED].map((x) => Math.ceil(g.measureText(x).width) + 7);
   const brewHot = brew(false, 1), ring = "rgba(90,53,38,.32)", dusk = "#1d1a3c";
+  // The candle's glow: warm and soft, fading to nothing (made once).
+  const glow = g.createRadialGradient(CANDLE[0], CANDLE[1] - 30, 4, CANDLE[0], CANDLE[1] - 30, 56);
+  glow.addColorStop(0, "rgba(255,200,120,.75)"), glow.addColorStop(0.35, "rgba(255,170,80,.28)"), glow.addColorStop(1, "rgba(255,170,80,0)");
+  // The mute key goes bottom right, clear of the plant (top right).
+  (r.mute.style.top = "auto"), (r.mute.style.bottom = "4px");
 
   const round = (x: number, y: number, w: number, h: number, rr: number) => (g.beginPath(), g.roundRect(x, y, w, h, rr), g.fill());
   const disc = (x: number, y: number, rr: number) => (g.beginPath(), g.arc(x, y, rr, 0, TAU), g.fill());
@@ -426,15 +431,25 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
       // Late nights: the room darkens; the candle (day 30) and the screen keep a pool of light.
       if (rot > 0.2) (g.globalAlpha = (rot - 0.2) * 0.45), (g.fillStyle = dusk), g.fillRect(-60, 0, 920, 600), (g.globalAlpha = 1);
       if (S[LIT]! > 0) {
-        const fl = S[LIT]! < 2.5 ? Math.sin(S[T]! * 31) * 0.15 : 0;
-        g.globalAlpha = 0.22;
-        g.fillStyle = C.hurt;
-        disc(CANDLE[0], CANDLE[1], 62);
+        // A candle: a soft warm glow, its shadow, a cream stick with a wax drip, the wick and a flame.
+        const fl = S[LIT]! < 2.5 ? Math.sin(S[T]! * 31) * 0.15 : 0, x = CANDLE[0], y = CANDLE[1];
+        g.fillStyle = glow;
+        disc(x, y - 30, 56);
+        g.fillStyle = O.ink;
+        g.globalAlpha = 0.25;
+        round(x - 6, y - 16, 22, 44, 8);
         g.globalAlpha = 1;
         g.fillStyle = O.cream;
-        disc(CANDLE[0], CANDLE[1], 13);
+        round(x - 10, y - 20, 20, 44, 6);
+        round(x + 5, y - 20, 7, 18, 3.5);
+        g.fillStyle = O.creamD;
+        g.fillRect(x - 10, y + 14, 20, 4);
+        g.fillStyle = O.ink;
+        g.fillRect(x - 1, y - 26, 2, 7);
         g.fillStyle = C.advance;
-        g.beginPath(), g.ellipse(CANDLE[0], CANDLE[1] - 7 - fl * 4, 5, 9 + fl * 6, 0, 0, TAU), g.fill();
+        g.beginPath(), g.ellipse(x, y - 33 - fl * 3, 6, 10 + fl * 5, 0, 0, TAU), g.fill();
+        g.fillStyle = C.hurt;
+        g.beginPath(), g.ellipse(x, y - 30, 3, 5.5, 0, 0, TAU), g.fill();
       }
       g.restore();
       // Our stickers: the day, and the status it reads.
