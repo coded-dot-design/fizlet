@@ -1,0 +1,24 @@
+{
+  "id": "boardwalk-run",
+  "date": "2026-11-05",
+  "prompt": "a side-scroll along a seaside boardwalk at sunset: jump stacked barrels, hop or duck the beach balls, launch off sand ramps and a kicker over the gaps, grind the guardrail and chain the grinds, flip and grab in the air for a combo, and race the distance down to 00 at the FINISH post by the beach shack",
+  "title": "Boardwalk Run",
+  "kind": "hero",
+  "theme": "skate-sesh",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound",
+    "@fzlt/core/input",
+    "@fzlt/core/pad"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/skate/boardwalk-run.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own"
+}
