@@ -46,17 +46,19 @@ try {
     await p.waitForFunction(() => window.scene);
     const m = await p.evaluate(() => {
       const r = (s) => document.querySelector(s).getBoundingClientRect(), fig = r("figure"), art = r("[data-fizlet-slot] canvas");
+      // Wide: the art is the 16:9 stage. Tall: full width, taller than 16:9 (the view follows the rider).
+      const shownArt = (a, f) => Math.abs(a.width - f.width) < 6 && (f.width / f.height > 1.4 ? Math.abs(a.width / a.height - 16 / 9) < 0.03 : a.height / a.width > 0.62);
       const pad = document.querySelector(".ss-pad"), shown = !!pad.offsetParent;
       const keys = [document.querySelector(".ss-mute"), ...(shown ? pad.querySelectorAll("button") : [])].map((b) => { const k = b.getBoundingClientRect(); return Math.min(k.width, k.height) >= 44; });
       return {
         canvas: document.querySelectorAll("[data-fizlet-slot] canvas[aria-hidden='true']").length,
         poster: getComputedStyle(document.querySelector(".ae-slot__placeholder")).display,
-        art16x9: Math.abs(art.width / art.height - 16 / 9) < 0.02, wide: fig.width / fig.height > 1.4,
+        art: shownArt(art, fig), wide: fig.width / fig.height > 1.4,
         pad: shown, keys: keys.every(Boolean) && keys.length,
         artAbovePad: !shown || art.bottom <= pad.getBoundingClientRect().top + 1,
       };
     });
-    assert.deepEqual(m, { canvas: 1, poster: "none", art16x9: true, wide: !phone, pad: phone, keys: phone ? 6 : 1, artAbovePad: true }, `${at}: mounts, the poster steps aside, the art keeps 16:9, the pad only where it belongs, keys ≥ 44 px`);
+    assert.deepEqual(m, { canvas: 1, poster: "none", art: true, wide: !phone, pad: phone, keys: phone ? 6 : 1, artAbovePad: true }, `${at}: mounts, the poster steps aside, the art fills its frame, the pad only where it belongs, keys ≥ 44 px`);
     // The attract run plays, then it settles: no frames, no audio, the page as it was.
     await settle(p, `${at}: after the attract run`);
     assert.equal(await frames(p), 0, `${at}: settled, no frames`);

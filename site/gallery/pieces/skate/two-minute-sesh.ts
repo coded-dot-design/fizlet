@@ -32,11 +32,11 @@ const C_BAIL = 4, C_FIZLET = 5, C_FIZZ = 6, C_TIME = 7, C_LETTER = 8, C_SPECIAL 
 // cut at 80° (the lip, LX / RX), decks QH high; a kicker K0..K1 into the pit P0..P1; the funbox
 // F0..F3 (kickers, top FH); the rail R0..R1 at RH.
 export const GY = 80;
-const QR = 18, CL = 21, CR = 139, LX = CL - QR * 0.9848, RX = CR + QR * 0.9848, QH = QR * (1 - 0.1736);
-const K0 = 25, K1 = 33, KH = 6, P0 = 33, P1 = 46, PD = 8, F0 = 60, F1 = 70, F2 = 84, F3 = 94, FH = 8;
-export const R0 = 103, R1 = 126, RH = 11;
+const QR = 22, CL = 25, CR = 135, LX = CL - QR * 0.9848, RX = CR + QR * 0.9848, QH = QR * (1 - 0.1736);
+const K0 = 27, K1 = 35, KH = 6, P0 = 35, P1 = 47, PD = 8, F0 = 60, F1 = 70, F2 = 84, F3 = 94, FH = 8;
+export const R0 = 101, R1 = 124, RH = 11;
 /** The letters: x, height. */
-export const LETTERS = [7, 30, 40, 22, 77, 25, 114, 24, 153, 30, 53, 17];
+export const LETTERS = [7, 34, 41, 22, 77, 25, 112, 24, 153, 34, 54, 17];
 const GRAV = 300, POP = 90, PUSH = 100, VMAX = 62, RAMP = 0.3;
 /** Rider states. */
 export const ROLL = 0, AIR = 1, RAIL = 2, MAN = 3, SLAM = 4;
@@ -73,7 +73,7 @@ const inPit = (x: number) => x >= P0 && x < P1;
 
 export function sesh(seed: number, I: Inputs, demo: boolean) {
   const R = seeded(seed);
-  const S = new Float64Array(40), ev = new Uint8Array(10), G = new Float64Array(2);
+  const S = new Float64Array(40), ev = new Uint8Array(10), G = new Float64Array(3);
   const cb = combo(NAMES);
   const sp = spray(160, R);
   // The ghost's inputs (the attract run).
@@ -132,7 +132,7 @@ export function sesh(seed: number, I: Inputs, demo: boolean) {
   function ghost() {
     const x = S[X]!, st = S[ST]!, tk = S[TK]!, f = S[FACE]!;
     (D[0] = st === RAIL || st === MAN ? -Math.sign(S[BAL]! + S[BALV]! * 0.4) : st === ROLL && S[T]! < 5 ? f : 0), (D[1] = D[2] = 0);
-    if ((st === ROLL && ((f > 0 && ((x > 26 && x < 28) || (x > 63 && x < 65))) || (f < 0 && x > 139 && x < 141)))) D[1] = 1;
+    if ((st === ROLL && ((f > 0 && ((x > 28 && x < 30) || (x > 63 && x < 65))) || (f < 0 && x > 134 && x < 136)))) D[1] = 1;
     if (st === AIR && S[FLIPT]! <= 0 && S[AIRT]! > 0.04 && S[AIRT]! < 0.08 && tk === 3) D[2] = 1;
     D[3] = st === AIR && tk < 2 && S[AIRT]! > 0.04 && S[VY]! > -50 ? 1 : 0;
     return D;
@@ -182,7 +182,7 @@ export function sesh(seed: number, I: Inputs, demo: boolean) {
       else if ((x >= LX && nx < LX) || (x <= RX && nx > RX)) {
         // Over the coping: straight up, drifting back over the ramp, and turning in the air.
         x = nx < LX ? LX + 0.2 : RX - 0.2;
-        ((S[VX] = -dir * 7), (S[VY] = Math.abs(s) + 50), launch(3));
+        ((S[VX] = -dir * 7), (S[VY] = Math.abs(s) + 70), launch(3));
         sp.burst(x, GY - y, 6, 40, -1.57, 1, 0.9, SPARK);
       } else if (Math.atan(sl * dir) - Math.atan(sl1 * dir) > 0.3 && Math.abs(s) > 40) ((S[VX] = s * c), (S[VY] = s * c * sl + 8), launch(x >= F0 - 4 && x < F3 ? 1 : 0)), (x = nx);
       else (x = nx), (y = h1);
@@ -372,8 +372,10 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   const run = sesh((engine.random() * 2147483647) | 0, I, !first);
   const S = run.S, G = run.G, cb = run.cb;
   if (first) I[1] = 1;
-  // [0] measure, [1] px per unit, [2] poster resolution, [3] keys hint (no pad on screen).
-  const V = new Float64Array(4);
+  // [0] measure, [1] px per unit, [2] poster resolution, [3] keys hint (no pad on screen), [4] the
+  // view's width in art units (160 wide; 100 on a tall stage, which follows the rider), [5] its top,
+  // [6] px per unit of the 160-wide screen layer (callouts, captions), [7] that layer's height.
+  const V = new Float64Array(8);
   V[0] = 1;
   const ro = new ResizeObserver(() => ((V[0] = 1), engine.wake()));
   ro.observe(stage);
@@ -385,6 +387,23 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   floor.moveTo(0, H);
   for (let x = 0; x <= W; x += 0.5) floor.lineTo(x, GY - (inPit(x) ? 0 : (((G[2] = x), ground(G)), G[0]!)));
   floor.lineTo(W, H);
+  // The riding surfaces only (the ramps' plywood tops), and the static backdrop: a crowd behind a
+  // fence, and a string of pennants in four colours. Made once.
+  const top = new Path2D(), crowd = new Path2D(), flags = [new Path2D(), new Path2D(), new Path2D(), new Path2D()];
+  for (let x = 0, on = 0; x <= W; x += 0.5) {
+    (G[2] = x), ground(G);
+    const up = G[0]! > 0.01 || (G[1] !== 0 && !inPit(x));
+    up ? (on ? top.lineTo(x, GY - G[0]!) : top.moveTo(x, GY - G[0]!)) : 0;
+    on = up ? 1 : 0;
+  }
+  for (let k = 0; k < 54; k++) {
+    const x = k * 3 + (k % 2) * 1.2, y = 40.6 + ((k * 7) % 3) * 0.7;
+    crowd.moveTo(x + 1.3, y), crowd.arc(x, y, 1.3, 0, TAU), crowd.rect(x - 1.6, y + 1.1, 3.2, 3);
+  }
+  for (let k = 0; k < 27; k++) {
+    const x = k * 6 + 1, y = 25 + Math.sin((k / 26) * 3.14) * 5;
+    flags[k % 4]!.moveTo(x, y), flags[k % 4]!.lineTo(x + 4, y + 0.4), flags[k % 4]!.lineTo(x + 1.8, y + 4);
+  }
   let sky: CanvasGradient | string = col[SKY]!;
   // HUD shadow values (what the stickers show now), so the DOM is written only on a change.
   const was = new Float64Array(10).fill(-1);
@@ -399,7 +418,12 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       const r = canvas.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1) * (V[2] || 1);
       canvas.width = Math.max(1, Math.round(r.width * dpr));
       canvas.height = Math.max(1, Math.round(r.height * dpr));
-      V[1] = canvas.width / W;
+      // Wide: the whole park. Tall: a 100-unit window that follows the rider, the floor at the bottom.
+      V[4] = canvas.height / canvas.width > 0.62 ? 100 : W;
+      V[1] = canvas.width / V[4]!;
+      V[5] = H - canvas.height / V[1]!;
+      V[6] = canvas.width / W;
+      V[7] = canvas.height / V[6]!;
       const cs = getComputedStyle(skin);
       for (let i = 0; i < VARS.length; i++) col[i] = cs.getPropertyValue("--ss-" + VARS[i]).trim() || col[i]!;
       (DEBRIS[0] = col[METAL]!), (DEBRIS[1] = col[GOLDC]!), (DEBRIS[2] = col[CAP]!);
@@ -431,18 +455,14 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       if (ev[EV_END]) e.events.emit("end");
     },
     render() {
-      g.setTransform(V[1]!, 0, 0, V[1]!, 0, 0);
+      const k = V[1]!, vw = V[4]!, cx = vw < W ? Math.min(W - vw, Math.max(0, S[X]! - vw / 2)) : 0;
+      g.setTransform(k, 0, 0, k, -cx * k, -V[5]! * k);
       const mode = S[MODE]!, t = S[T]!;
-      // Sky, the back wall's plywood panels and two floodlights.
+      // Sky, two floodlights, pennants, the crowd behind a fence, the back wall's plywood panels.
       g.fillStyle = sky;
-      g.fillRect(0, 0, W, H);
-      g.fillStyle = col[WALL]!;
-      g.fillRect(0, 44, W, GY - 44);
-      g.fillStyle = col[SHADE]!;
-      for (let k = 0; k < 8; k++) g.fillRect(k * 20 + 9.6, 44, 0.8, GY - 44);
-      g.fillRect(0, 44, W, 1.2);
-      for (let k = 0; k < 2; k++) {
-        const lx = 34 + k * 92;
+      g.fillRect(0, -60, W, H + 60);
+      for (let j = 0; j < 2; j++) {
+        const lx = 34 + j * 92;
         g.fillStyle = col[INK]!;
         g.fillRect(lx - 0.6, 14, 1.2, 30);
         g.fillStyle = col[PAPER]!;
@@ -453,39 +473,99 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         g.fill();
         g.globalAlpha = 1;
       }
-      // The park: a hard shadow, the wood, the concrete floor band, the pit, one bold outline.
+      g.strokeStyle = col[INK]!;
+      g.lineWidth = 0.3;
+      g.beginPath();
+      for (let j = 0; j < 27; j++) j ? g.lineTo(j * 6 + 1, 25 + Math.sin((j / 26) * 3.14) * 5) : g.moveTo(1, 25);
+      g.stroke();
+      for (let j = 0; j < 4; j++) (g.fillStyle = col[j === 0 ? CAP : j === 1 ? HOOD : j === 2 ? GOLDC : GO]!), g.fill(flags[j]!);
+      g.fillStyle = col[SHADE]!;
+      g.fill(crowd);
+      g.fillRect(0, 38, W, 0.6);
+      for (let j = 0; j < 20; j++) g.fillRect(j * 8, 38, 0.5, 6);
+      g.fillStyle = col[WALL]!;
+      g.fillRect(0, 44, W, GY - 44);
+      g.fillStyle = col[SHADE]!;
+      for (let j = 0; j < 8; j++) g.fillRect(j * 20 + 9.6, 44, 0.8, GY - 44);
+      g.fillRect(0, 44, W, 1.2);
+      // The park: a hard shadow, plywood side panels and their framing, the concrete floor, the
+      // riding surfaces (a lighter plywood edge), one bold outline.
       g.save();
-      g.translate(1.2, 1.2);
+      g.translate(1.4, 1.4);
       g.fillStyle = col[SHADE]!;
       g.fill(floor);
       g.restore();
-      g.fillStyle = col[WOOD]!;
-      g.fill(floor);
       g.fillStyle = col[WOOD2]!;
-      g.fillRect(F1, GY - FH + 1.6, F2 - F1, FH - 1.6);
-      g.fillRect(0, GY - QH + 1.6, LX, QH), g.fillRect(RX, GY - QH + 1.6, W - RX, QH);
+      g.fill(floor);
+      g.save();
+      g.clip(floor);
+      g.fillStyle = col[SHADE]!;
+      for (let j = 0; j < 32; j++) g.fillRect(j * 5 + 2, GY - 30, 0.5, 30);
+      g.fillRect(0, GY - QH * 0.5, W, 0.5);
+      g.restore();
       g.fillStyle = col[FLOOR]!;
       g.fillRect(0, GY, W, H - GY);
       g.fillStyle = col[INK]!;
-      g.fillRect(P0, GY, P1 - P0, H - GY);
-      g.fillStyle = col[GOLDC]!;
-      for (let k = 0; k < 4; k++) g.fillRect(P0 + 1 + k * 3.4, GY + 1, 1.7, 1.2);
-      g.lineWidth = 1;
-      g.lineJoin = "round";
+      g.fillRect(0, GY - 0.4, W, 0.8);
+      g.lineJoin = g.lineCap = "round";
+      g.strokeStyle = col[WOOD]!;
+      g.lineWidth = 2.6;
+      g.stroke(top);
       g.strokeStyle = col[INK]!;
+      g.lineWidth = 0.9;
+      g.stroke(top);
       g.stroke(floor);
-      // Coping, the deck rails, the grind rail.
+      // Decks with a railing, metal coping on every lip, the funbox's ledge edge.
+      for (let j = 0; j < 2; j++) {
+        const x0 = j ? RX : -1, x1 = j ? W + 1 : LX, rx = j ? W - 1.6 : 1;
+        g.fillStyle = col[WOOD]!;
+        g.fillRect(x0, GY - QH - 1.3, x1 - x0, 1.6);
+        g.strokeRect(x0, GY - QH - 1.3, x1 - x0, 1.6);
+        g.fillStyle = col[METAL]!;
+        g.fillRect(rx - 0.4, GY - QH - 9, 0.8, 8);
+        g.fillRect(j ? RX + 1 : 0, GY - QH - 9, 3, 0.8);
+      }
       g.fillStyle = col[METAL]!;
-      g.beginPath();
-      g.arc(LX, GY - QH, 1.2, 0, TAU), g.arc(RX, GY - QH, 1.2, 0, TAU);
-      g.fill();
-      g.fillRect(0, GY - QH - 8, 3, 0.9), g.fillRect(W - 3, GY - QH - 8, 3, 0.9);
-      g.fillRect(1, GY - QH - 8, 0.9, 8), g.fillRect(W - 1.9, GY - QH - 8, 0.9, 8);
+      g.fillRect(F1, GY - FH - 0.7, F2 - F1, 0.9);
+      g.lineWidth = 0.5;
+      for (let j = 0; j < 5; j++) {
+        const x = j === 0 ? LX : j === 1 ? RX : j === 2 ? K1 : j === 3 ? F1 : F2, h = j < 2 ? QH : j === 2 ? KH : FH;
+        g.beginPath();
+        g.arc(x, GY - h, j < 2 ? 1.5 : 1, 0, TAU);
+        g.fill();
+        g.stroke();
+      }
+      // The pit: a dark drop between hazard-striped lips (and down the kicker's face).
       g.fillStyle = col[INK]!;
-      g.fillRect(R0 + 2, GY - RH, 1.4, RH), g.fillRect(R1 - 3.4, GY - RH, 1.4, RH);
+      g.fillRect(P0, GY - 0.4, P1 - P0, H - GY + 0.4);
+      g.fillStyle = col[SHADE]!;
+      g.fillRect(P0, GY, 1.6, H - GY), g.fillRect(P1 - 1.6, GY, 1.6, H - GY);
+      for (let j = 0; j < 3; j++) {
+        const x = j === 0 ? P0 - 3.5 : j === 1 ? P1 : P0 - 1.4, y = j === 2 ? GY - KH : GY - 0.4, w = j === 2 ? 1.4 : 3.5, h = j === 2 ? KH : 1.6;
+        g.fillStyle = col[GOLDC]!;
+        g.fillRect(x, y, w, h);
+        g.save();
+        g.beginPath();
+        g.rect(x, y, w, h);
+        g.clip();
+        g.fillStyle = col[INK]!;
+        for (let q = -2; q < 8; q++) g.fillRect(x + q * 1.4, y - 1, 0.7, h + 2);
+        g.restore();
+      }
+      // The grind rail: a round bar on two posts with base plates.
+      g.fillStyle = col[INK]!;
+      g.fillRect(R0 + 3, GY - RH, 0.9, RH), g.fillRect(R1 - 3.9, GY - RH, 0.9, RH);
+      g.fillRect(R0 + 2, GY - 0.9, 3, 0.9), g.fillRect(R1 - 5, GY - 0.9, 3, 0.9);
       g.fillStyle = col[HOT]!;
-      g.fillRect(R0, GY - RH - 1.4, R1 - R0, 1.8);
-      g.strokeRect(R0, GY - RH - 1.4, R1 - R0, 1.8);
+      g.beginPath();
+      g.roundRect(R0, GY - RH - 1.5, R1 - R0, 1.7, 0.85);
+      g.fill();
+      g.lineWidth = 0.5;
+      g.stroke();
+      g.fillStyle = col[PAPER]!;
+      g.globalAlpha = 0.5;
+      g.fillRect(R0 + 1, GY - RH - 1.2, R1 - R0 - 2, 0.3);
+      g.globalAlpha = 1;
       // The letters (still between runs; they bob while a run is on).
       g.textAlign = "center";
       g.textBaseline = "middle";
@@ -527,13 +607,14 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         g.fillRect(bx - 1 + b * 9, by - 2.2, 2, 4.4);
         g.strokeRect(bx - 1 + b * 9, by - 2.2, 2, 4.4);
       }
-      // The callout: a sticker that slams in.
-      const ct = S[CALLT]!;
+      // The callout and captions: on the screen layer (the 160-wide view), wherever the camera is.
+      g.setTransform(V[6]!, 0, 0, V[6]!, 0, 0);
+      const ct = S[CALLT]!, hh = V[7]!;
       if (ct < 1.3) {
         const w = CALLS[S[CALL]!]!, big = S[CALL]! >= C_LETTER && S[CALL]! < C_SPECIAL, sc = ct < 0.1 ? 1.8 - ct * 8 : 1;
         g.save();
         g.globalAlpha = ct > 1 ? (1.3 - ct) / 0.3 : 1;
-        g.translate(80, 30 - ct * 3);
+        g.translate(80, hh * (vw < W ? 0.42 : 0.33) - ct * 3);
         g.rotate(-0.06);
         g.scale(sc, sc);
         g.font = FONT[big ? 14 : 8]!;
@@ -553,8 +634,8 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         g.restore();
       }
       if (mode === IDLE || (mode === DEMO && t > 6)) {
-        caption("TWO-MINUTE SESH", 26, 12, col[PAPER]!);
-        caption(V[3] ? "← → PUSH · SPACE OLLIE · J FLIP · K GRAB" : "TAP OLLIE TO START", 37, 5, col[GOLDC]!);
+        caption("TWO-MINUTE SESH", hh * 0.42 - 4, 12, col[PAPER]!);
+        caption(V[3] ? "← → PUSH · SPACE OLLIE · J FLIP · K GRAB" : "TAP OLLIE TO START", hh * 0.42 + 7, 5, col[GOLDC]!);
       }
       // The HUD stickers: written only when what they show changes.
       const sc = cb.score | 0;
@@ -689,4 +770,4 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
 }
 
 /** The poster: the attract run, mid-grind (scripts/gallery-posters.mjs). */
-export const posterAt = 4.85;
+export const posterAt = 5.2;

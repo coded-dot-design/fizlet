@@ -167,7 +167,9 @@ test("two-minute sesh: steps allocate nothing", async () => {
       r.step(1 / 60);
     }
   };
-  steps(20000);
+  // A long warm-up first: every path (air, grind, manual, bail, the card, a new run) gets compiled
+  // before the count, so the compiler's own work is not counted as the step's.
+  steps(400000);
   globalThis.gc?.();
   const n = await minorGCs(() => steps(200000));
   assert.ok(n <= 1, `young-generation GCs over 200k steps: ${n}`);
