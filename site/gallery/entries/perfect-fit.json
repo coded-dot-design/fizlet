@@ -1,0 +1,24 @@
+{
+  "no": 94,
+  "id": "perfect-fit",
+  "date": "2026-11-05",
+  "prompt": "the team's best developer holds up one box of work while tickets and boxes of chores (HOTFIX, LEGACY, QUICK ONE, ON-CALL) drop onto the stack; lean left and right to keep the swaying tower balanced and catch the next one, the knees shake harder as it grows, and when it topples it's all reassigned to you; behind, two teammates play table tennis",
+  "title": "Perfect Fit",
+  "kind": "micro",
+  "theme": "dev-humor",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/perfect-fit.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-05"
+}
