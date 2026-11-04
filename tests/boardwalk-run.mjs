@@ -51,12 +51,12 @@ try {
       return {
         canvas: document.querySelectorAll("[data-fizlet-slot] canvas[aria-hidden='true']").length,
         poster: getComputedStyle(document.querySelector(".ae-slot__placeholder")).display,
-        art16x9: Math.abs(art.width / art.height - 16 / 9) < 0.02, wide: fig.width / fig.height > 1.4,
+        art: Math.abs(art.width - fig.width) < 6 && (fig.width / fig.height > 1.4 ? Math.abs(art.width / art.height - 16 / 9) < 0.03 : art.height / art.width > 0.62), wide: fig.width / fig.height > 1.4,
         pad: shown, keys: keys.every(Boolean) && keys.length,
         artAbovePad: !shown || art.bottom <= pad.getBoundingClientRect().top + 1,
       };
     });
-    assert.deepEqual(m, { canvas: 1, poster: "none", art16x9: true, wide: !phone, pad: phone, keys: phone ? 7 : 1, artAbovePad: true }, `${at}: mounts, the poster steps aside, the art keeps 16:9, the pad only where it belongs, keys ≥ 44 px`);
+    assert.deepEqual(m, { canvas: 1, poster: "none", art: true, wide: !phone, pad: phone, keys: phone ? 7 : 1, artAbovePad: true }, `${at}: mounts, the poster steps aside, the art fills its frame (taller on a phone), the pad only where it belongs, keys ≥ 44 px`);
     // The attract run plays, then it settles: no frames, no audio, the page as it was.
     await settle(p, `${at}: after the attract run`);
     assert.equal(await frames(p), 0, `${at}: settled, no frames`);

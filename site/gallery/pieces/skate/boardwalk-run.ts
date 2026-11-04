@@ -368,8 +368,9 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   const run = boardwalk((engine.random() * 2147483647) | 0, I, !first);
   const S = run.S, cb = run.cb;
   if (first) I[1] = 1;
-  // [0] measure, [1] px per unit, [2] poster resolution, [3] keys hint (no pad on screen).
-  const V = new Float64Array(4);
+  // [0] measure, [1] px per unit, [2] poster resolution, [3] keys hint (no pad on screen), [4] the
+  // view's width in art units (160 wide; 100 on a tall stage, which shows more sky), [5] its top.
+  const V = new Float64Array(6);
   V[0] = 1;
   const ro = new ResizeObserver(() => ((V[0] = 1), engine.wake()));
   ro.observe(stage);
@@ -389,13 +390,16 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       const r = canvas.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1) * (V[2] || 1);
       canvas.width = Math.max(1, Math.round(r.width * dpr));
       canvas.height = Math.max(1, Math.round(r.height * dpr));
-      V[1] = canvas.width / W;
+      // Wide: the whole 160 × 90 strip. Tall: a 100-wide window, the deck at the bottom, sky above.
+      V[4] = canvas.height / canvas.width > 0.62 ? 100 : W;
+      V[1] = canvas.width / V[4]!;
+      V[5] = H - canvas.height / V[1]!;
       const cs = getComputedStyle(skin);
       for (let i = 0; i < VARS.length; i++) col[i] = cs.getPropertyValue("--bw-" + VARS[i]).trim() || col[i]!;
       (DEB[0] = col[SANDC]!), (DEB[1] = DEB[2] = col[GOLDC]!), (DEB[3] = col[SEA2]!);
       (POPC[0] = col[GO]!), (POPC[1] = col[HOT]!), (POPC[2] = col[GOLDC]!);
       V[3] = keys.el.offsetParent ? 0 : 1;
-      const s = g.createLinearGradient(0, 0, 0, 46);
+      const s = g.createLinearGradient(0, V[5]! < 0 ? V[5]! : 0, 0, 46);
       s.addColorStop(0, col[SKY]!), s.addColorStop(0.55, col[SKY2]!), s.addColorStop(1, col[SKY3]!);
       sky = s;
       const o = g.createLinearGradient(0, 46, 0, 64);
@@ -425,18 +429,18 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       if (ev[EV_END]) e.events.emit("end");
     },
     render() {
-      g.setTransform(V[1]!, 0, 0, V[1]!, 0, 0);
-      const mode = S[MODE]!, cam = S[X]! - RX;
+      g.setTransform(V[1]!, 0, 0, V[1]!, 0, -V[5]! * V[1]!);
+      const mode = S[MODE]!, cam = S[X]! - RX, vw = V[4]!, sun = vw < W ? 70 : 116;
       g.lineJoin = g.lineCap = "round";
       // Sky, the setting sun (striped where the haze cuts it), clouds; the sea with glints.
       g.fillStyle = sky;
-      g.fillRect(0, 0, W, 47);
+      g.fillRect(0, V[5]!, W, 47 - V[5]!);
       g.fillStyle = col[SUN]!;
       g.beginPath();
-      g.arc(116, 46, 15, Math.PI, 0);
+      g.arc(sun, 46, 15, Math.PI, 0);
       g.fill();
       g.fillStyle = col[SKY3]!;
-      for (let k = 0; k < 4; k++) g.fillRect(100, 36 + k * 2.6, 32, 0.5 + k * 0.35);
+      for (let k = 0; k < 4; k++) g.fillRect(sun - 16, 36 + k * 2.6, 32, 0.5 + k * 0.35);
       g.fillStyle = col[CLOUD]!;
       for (let k = 0; k < 4; k++) {
         const cx = ((((k * 53 - cam * 0.04) % 200) + 200) % 200) - 20, cy = 10 + ((k * 7) % 17);
@@ -454,7 +458,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       }
       g.fillStyle = col[SUN]!;
       g.globalAlpha = 0.5;
-      for (let k = 0; k < 5; k++) g.fillRect(116 - 12 + k * 2.5, 48 + k * 2.4, 24 - k * 5, 0.8);
+      for (let k = 0; k < 5; k++) g.fillRect(sun - 12 + k * 2.5, 48 + k * 2.4, 24 - k * 5, 0.8);
       g.globalAlpha = 1;
       // The back guardrail along the deck's far edge (posts every 16, two rails).
       g.fillStyle = col[DECK]!;
@@ -666,8 +670,9 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       }
       g.globalAlpha = 1;
       if (mode === IDLE || (mode === DEMO && S[T]! > 6)) {
-        caption("BOARDWALK RUN", 22, 12, col[PAPER]!);
-        caption(V[3] ? "SPACE OLLIE · ↓ DUCK · J FLIP · K GRAB" : "TAP OLLIE TO DROP IN", 33, 5, col[GOLDC]!);
+        const tall = vw < W;
+        caption("BOARDWALK RUN", tall ? 14 : 22, tall ? 9 : 12, col[PAPER]!);
+        caption(V[3] ? "SPACE OLLIE · ↓ DUCK · J FLIP · K GRAB" : "TAP OLLIE TO DROP IN", tall ? 23 : 33, 5, col[GOLDC]!);
       }
       // The bottom bar and the combo line: written only when what they show changes.
       const d = Math.max(0, Math.min(99, Math.ceil(((END - S[X]!) / END) * 99)));
@@ -700,9 +705,9 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     g.font = FONT[size]!;
     g.lineWidth = size / 3;
     g.strokeStyle = col[INK]!;
-    g.strokeText(s, W / 2, y);
+    g.strokeText(s, V[4]! / 2, y);
     g.fillStyle = fill;
-    g.fillText(s, W / 2, y);
+    g.fillText(s, V[4]! / 2, y);
   }
   /** The rider: a skater in a sun visor and a tank top, ponytail flying, on a board that flips and grabs. */
   function rider() {
