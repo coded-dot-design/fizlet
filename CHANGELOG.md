@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **Site: two gallery entries for 2026-11-03, hand-built (pending owner approval).**
+  - **Two-Minute Sesh** (hero, skate sesh): a 45-second side-on park run. Push with ← →, OLLIE, and in the air FLIP and GRAB (← / → pick which); land on the rail to grind and hold GRAB through a landing to manual, both on a balance meter. Tricks chain into a combo (points × tricks): landing banks it, a slam loses it. Banked points fill the special meter (the board glows; FLIP + GRAB throws the FIZZ FLIP). Named gaps (PIT GAP, FUNBOX GAP, BOX TO RAIL, RAIL TO RAMP), F-I-Z-L-E-T letters for a 2,000 bonus, a score card with the best combo. HUD on Board UI stickers; touch keys are `@fzlt/core/pad` (under the art in its phone shape). The scorer is one module (`site/gallery/pieces/skate/combo.ts`: add, tick, bank, bail, special). Live chunk 15,519 B gzip (over the contest's 10,240 B cap: too big to win). Tests: `tests/two-minute-sesh.test.mjs`, `tests/two-minute-sesh.mjs`.
+  - **Never Loses** (micro, dev humor): tic-tac-toe against a smug bot that plays perfectly (minimax with alpha-beta, in place). Every move adds an `if` one step further right in its source until the ladder runs off the panel; PLAY AGAIN? nests deeper. Lose and your X's fall off the board. Keys 1–9, arrows + Enter, taps. Live chunk 6,878 B gzip. Tests: `tests/never-loses.test.mjs`, `tests/never-loses.mjs`.
+
 - **Site: the origin hero, the owner's review (pending owner review).**
   - **Laptop:** the open lid's far edge is a little wider than the hinge (perspective from above). A press on the lid or the screen closes it and he sleeps, and stays asleep: a guard stops the night's own "sleep" from replaying the wake. A press on the keys lights that key; closed, a press opens it.
   - **Chair:** a dark-ink chair, so he reads as leaning forward from it.

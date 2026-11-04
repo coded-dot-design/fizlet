@@ -1,0 +1,22 @@
+{
+  "id": "never-loses",
+  "date": "2026-11-03",
+  "prompt": "tic-tac-toe against a smug bot that plays perfectly; beside the board its source grows one more nested if with every move until the ladder runs off the panel, and play again only nests it deeper",
+  "title": "Never Loses",
+  "kind": "micro",
+  "theme": "dev-humor",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/never-loses.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own"
+}
