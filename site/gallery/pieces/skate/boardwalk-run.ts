@@ -7,8 +7,8 @@
 // bottom bar ticks down to 00 and the clock counts up; at the post, the score card.
 // Bricks: the kernel (fixed step; settle; its ledger for every page write, so Recall gives the page
 // back byte for byte), @fzlt/core/slot, @fzlt/core/sound, @fzlt/core/input (intents) and
-// @fzlt/core/pad (the touch keys). The scoring is combo.ts (Two-Minute Sesh's, imported as is). The
-// run is `boardwalk()`, plain numbers, no DOM (tests/boardwalk-run.test.mjs: zero allocation).
+// @fzlt/core/pad (the touch keys). The scoring is combo.ts and the rider is skater.ts (both shared
+// with Two-Minute Sesh, imported as is). The run is `boardwalk()`, plain numbers, no DOM (tests/boardwalk-run.test.mjs: zero allocation).
 import { createEngine } from "../../../../src/kernel/index";
 import { seeded } from "../../../../src/kernel/random";
 import { controls } from "../../../../src/input";
@@ -17,6 +17,7 @@ import { sound } from "../../../../src/sound";
 import type { SlotScene, SlotTap } from "../../../../src/slot";
 import { combo } from "./combo";
 import { DEMO, DONE, FONT, H, IDLE, PLAY, TAU, W, spray, words } from "./kit";
+import { skater, SK_AIR, SK_GRAB, SK_GRIND, SK_PUSH, SK_ROLL, SK_SLAM } from "./skater";
 
 /** Combo names (combo.ts ids). */
 export const NAMES = ["KICKFLIP", "HEELFLIP", "VARIAL", "NOSE GRAB", "TAIL GRAB", "SUNSET GRAB", "BARREL HOP", "BALL HOP", "DUCK", "GAP", "SAND LAUNCH", "KICKER", "RAIL GRIND", "RAIL TO RAIL"];
@@ -302,8 +303,8 @@ export type Boardwalk = ReturnType<typeof boardwalk>;
 export type BoardwalkScene = SlotScene & { engine: ReturnType<typeof createEngine>; run: Boardwalk; poster(): void; readonly state: { mode: number; st: number; x: number; score: number; time: number; bails: number; best: number } };
 
 // Colour slots, read from the stage's skin (--bw-*): light (a pastel sunset) and dark (dusk).
-const SKY = 0, SKY2 = 1, SKY3 = 2, SUN = 3, SEA = 4, SEA2 = 5, DECK = 6, DECK2 = 7, FACE = 8, SANDC = 9, RAILC = 10, INK = 11, PAPER = 12, TANK = 13, SHORTS = 14, SKIN = 15, HAIR = 16, VISOR = 17, BOARD = 18, BARRELC = 19, BALL1 = 20, BALL2 = 21, SHADE = 22, GOLDC = 23, GO = 24, HOT = 25, SHACK = 26, CLOUD = 27;
-const VARS = ["sky", "sky2", "sky3", "sun", "sea", "sea2", "deck", "deck2", "face", "sand", "rail", "ink", "paper", "tank", "shorts", "skin", "hair", "visor", "board", "barrel", "ball1", "ball2", "shade", "gold", "go", "hot", "shack", "cloud"];
+const SKY = 0, SKY2 = 1, SKY3 = 2, SUN = 3, SEA = 4, SEA2 = 5, DECK = 6, DECK2 = 7, FACE = 8, SANDC = 9, RAILC = 10, INK = 11, PAPER = 12, TEE = 13, PANTS = 14, SKIN = 15, TEE2 = 16, CAP = 17, BOARD = 18, BARRELC = 19, BALL1 = 20, BALL2 = 21, SHADE = 22, GOLDC = 23, GO = 24, HOT = 25, SHACK = 26, CLOUD = 27, PANTS2 = 28, SHOE = 29;
+const VARS = ["sky", "sky2", "sky3", "sun", "sea", "sea2", "deck", "deck2", "face", "sand", "rail", "ink", "paper", "tee", "pants", "skin", "tee2", "cap", "board", "barrel", "ball1", "ball2", "shade", "gold", "go", "hot", "shack", "cloud", "pants2", "shoe"];
 const DIST = Array.from({ length: 100 }, (_, i) => (i < 10 ? "0" : "") + i);
 const fmt = (n: number) => n.toLocaleString("en-US");
 const clock = (s: number) => {
@@ -315,7 +316,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   const engine = createEngine({ root: stage, settle: 0.5, seed: (Math.random() * 2147483647) | 0 });
   const L = engine.ledger, sig = { signal: engine.signal };
   const skin = slot.querySelector<HTMLElement>("[data-bw]") ?? stage;
-  const col = ["#2a1c4a", "#9a63ff", "#ff7389", "#ffc21a", "#1d3a6e", "#19f0ff", "#c8894a", "#9a5f34", "#5a3420", "#e8c890", "#f6f3ff", "#07060f", "#f6f3ff", "#ff2e88", "#19f0ff", "#ffd2a8", "#ffc21a", "#39ffb0", "#9a63ff", "#ff8a1f", "#ff2e88", "#f6f3ff", "rgba(7,6,15,.4)", "#ffc21a", "#39ffb0", "#ff8a1f", "#9fe8ff", "rgba(246,243,255,.5)"];
+  const col = ["#2a1c4a", "#9a63ff", "#ff7389", "#ffc21a", "#1d3a6e", "#19f0ff", "#c8894a", "#9a5f34", "#5a3420", "#e8c890", "#f6f3ff", "#07060f", "#f6f3ff", "#ff2e88", "#19f0ff", "#ffd2a8", "#ffc21a", "#39ffb0", "#9a63ff", "#ff8a1f", "#ff2e88", "#f6f3ff", "rgba(7,6,15,.4)", "#ffc21a", "#39ffb0", "#ff8a1f", "#9fe8ff", "rgba(246,243,255,.5)", "#6a3ae6", "#f6f3ff"];
   const canvas = L.add(document.createElement("canvas"));
   canvas.setAttribute("aria-hidden", "true");
   const g = canvas.getContext("2d")!;
@@ -382,6 +383,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   const DEB = [col[SANDC]!, col[GOLDC]!, col[GOLDC]!, col[SEA2]!];
   const POPC = [col[GO]!, col[HOT]!, col[GOLDC]!];
   const flash = new Float64Array(3);
+  const sk = skater(g);
 
   engine.add({
     read() {
@@ -398,6 +400,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       for (let i = 0; i < VARS.length; i++) col[i] = cs.getPropertyValue("--bw-" + VARS[i]).trim() || col[i]!;
       (DEB[0] = col[SANDC]!), (DEB[1] = DEB[2] = col[GOLDC]!), (DEB[3] = col[SEA2]!);
       (POPC[0] = col[GO]!), (POPC[1] = col[HOT]!), (POPC[2] = col[GOLDC]!);
+      sk.paint([col[INK]!, col[SKIN]!, col[CAP]!, col[TEE]!, col[TEE2]!, col[PANTS]!, col[PANTS2]!, col[SHOE]!, col[BOARD]!, col[GOLDC]!, col[GOLDC]!]);
       V[3] = keys.el.offsetParent ? 0 : 1;
       const s = g.createLinearGradient(0, V[5]! < 0 ? V[5]! : 0, 0, 46);
       s.addColorStop(0, col[SKY]!), s.addColorStop(0.55, col[SKY2]!), s.addColorStop(1, col[SKY3]!);
@@ -709,94 +712,26 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     g.fillStyle = fill;
     g.fillText(s, V[4]! / 2, y);
   }
-  /** The rider: a skater in a sun visor and a tank top, ponytail flying, on a board that flips and grabs. */
+  /** The rider (skater.ts, shared with Two-Minute Sesh), posed from the run. A duck is the grind
+   *  crouch pressed lower; the board flips (kickflip, heelflip; the varial spins it). */
   function rider() {
-    const st = S[ST]!, y = DY - S[Y]!, fl = S[FLIPT]!, k = S[FLIPK]!, grab = S[GRABT]! > 0;
-    const crouch = st === ROLL && S[DUCK] ? 1 : grab ? 0.8 : st === GRIND ? 0.4 : st === AIR ? 0.3 : 0;
-    g.save();
-    g.translate(RX, y);
-    if (st === ROLL) {
-      const sl = run.surf(S[X]!) > 0 ? -0.3 : 0;
-      g.rotate(sl);
-    }
-    if (st === SLAM) g.rotate(Math.min(1.5, S[SLAMT]! * 5));
-    g.strokeStyle = col[INK]!;
-    g.lineWidth = 0.8;
-    // Shadow on the deck.
+    const st = S[ST]!, fl = S[FLIPT]!, k = S[FLIPK]!, P = sk.P, duck = st === ROLL && S[DUCK]! > 0;
+    (P[0] = duck ? 0 : RX), (P[1] = duck ? 0 : DY - S[Y]!), (P[8] = S[SLAMT]!), (P[9] = 0), (P[2] = 1);
+    P[4] = st === SLAM || st === FALL ? SK_SLAM : st === GRIND || duck ? SK_GRIND : st === AIR ? (S[GRABT]! > 0 ? SK_GRAB : SK_AIR) : I[0]! > 0 && S[MODE] === PLAY && S[T]! % 0.5 < 0.25 ? SK_PUSH : SK_ROLL;
+    P[5] = st === ROLL && run.surf(S[X]!) > 0 ? -0.3 : 0;
+    (P[6] = fl > 0 ? 1 - fl / 0.36 : 0), (P[7] = k - FLIP), (P[10] = 0);
+    // A soft shadow on the deck (on the rail while grinding).
     if (st !== FALL) {
       g.fillStyle = col[SHADE]!;
       g.beginPath();
-      g.ellipse(0, S[Y]! - (st === GRIND ? S[Y]! - COURSE[S[RAILN]! * 4 + 3]! : 0) + 0.4 - (st === AIR ? 0 : 0), 6 - Math.min(4, S[Y]! / 6), 0.8, 0, 0, TAU);
+      g.ellipse(RX, DY - (st === GRIND ? S[Y]! : 0) + 0.4, 6 - Math.min(4, S[Y]! / 6), 0.8, 0, 0, TAU);
       g.fill();
     }
-    // The board: flips (kickflip / heelflip turn it over; the varial spins it flat), lifts with a grab.
-    const a = fl > 0 ? (1 - fl / 0.36) * TAU : 0, th = k === 2 ? 1 : Math.cos(a), wd = k === 2 && fl > 0 ? Math.cos(a) : 1;
-    const bx = st === SLAM ? 5 + S[SLAMT]! * 16 : 0, by = st === SLAM ? -2 - Math.sin(Math.min(3, S[SLAMT]! * 6)) * 4 : grab ? -4 : fl > 0 ? -4.5 : -2;
-    g.fillStyle = th >= 0 ? col[BOARD]! : col[GOLDC]!;
-    g.beginPath();
-    g.roundRect(bx - 6.5 * wd, by - 0.8 * Math.abs(th) - 0.3, 13 * wd, 1.6 * Math.abs(th) + 0.6, 0.8);
-    g.fill();
-    g.stroke();
-    if (Math.abs(th) > 0.5) {
-      g.fillStyle = col[INK]!;
-      g.beginPath();
-      g.arc(bx - 4 * wd, by + 1.5 * th, 1, 0, TAU);
-      g.arc(bx + 4 * wd, by + 1.5 * th, 1, 0, TAU);
-      g.fill();
-    }
-    // Legs (shorts over skin), the tank top, arms out for balance, head, visor, ponytail.
-    const hip = -8 + crouch * 3.4, sh = -15 + crouch * 5.6, ft = st === SLAM ? -1 : by - 1;
-    g.lineWidth = 1.5;
-    g.strokeStyle = col[SKIN]!;
-    g.beginPath();
-    g.moveTo(-3.2, ft), g.lineTo(-1.8 - crouch * 1.6, hip + 2.4), g.moveTo(3.2, ft), g.lineTo(2 + crouch * 1.6, hip + 2.4);
-    g.stroke();
-    g.fillStyle = col[SHORTS]!;
-    g.strokeStyle = col[INK]!;
-    g.lineWidth = 0.7;
-    g.beginPath();
-    g.roundRect(-3.2 - crouch, hip - 0.6, 6.4 + crouch * 2, 3.6, 1);
-    g.fill();
-    g.stroke();
-    g.fillStyle = col[TANK]!;
-    g.beginPath();
-    g.roundRect(-2.6, sh, 5.2, hip - sh, 1.4);
-    g.fill();
-    g.stroke();
-    g.lineWidth = 1.2;
-    g.strokeStyle = col[SKIN]!;
-    g.beginPath();
-    if (grab) g.moveTo(1.4, sh + 1.6), g.lineTo(S[GRABK] === 3 ? 5 : S[GRABK] === 4 ? -4.6 : 1.5, by - 0.8);
-    else g.moveTo(1.4, sh + 1.6), g.lineTo(5.6, sh + (st === AIR ? -2 : 3));
-    g.moveTo(-1.4, sh + 1.6), g.lineTo(-5.8, sh + (st === GRIND ? -1 : st === AIR ? -3 : 4));
-    g.stroke();
-    g.lineWidth = 0.7;
-    g.strokeStyle = col[INK]!;
-    // Ponytail: streams back with speed and air.
-    g.fillStyle = col[HAIR]!;
-    const wave = Math.sin(S[T]! * 14) * 0.8, back = 3 + Math.min(3, S[SP]! / 20);
-    g.beginPath();
-    g.moveTo(-1.5, sh - 4.2), g.quadraticCurveTo(-back - 1, sh - 4 + wave, -back - 2.4, sh - 1.4 + wave), g.lineTo(-1.6, sh - 2.4);
-    g.fill();
-    g.stroke();
-    g.fillStyle = col[SKIN]!;
-    g.beginPath();
-    g.arc(0.4, sh - 3, 2.6, 0, TAU);
-    g.fill();
-    g.stroke();
-    g.fillStyle = col[HAIR]!;
-    g.beginPath();
-    g.arc(0.4, sh - 3.3, 2.65, 3.4, 5.6);
-    g.fill();
-    // The visor: band and a long bill.
-    g.fillStyle = col[VISOR]!;
-    g.fillRect(-2, sh - 5, 4.6, 1.1);
-    g.beginPath();
-    g.moveTo(2.4, sh - 5), g.lineTo(5.8, sh - 4.1), g.lineTo(2.4, sh - 3.9);
-    g.fill();
-    g.stroke();
-    g.fillStyle = col[INK]!;
-    g.fillRect(1.9, sh - 3, 0.7, 0.8);
+    if (!duck) return sk.draw();
+    g.save();
+    g.translate(RX, DY - S[Y]!);
+    g.scale(1, 0.66);
+    sk.draw();
     g.restore();
   }
 

@@ -7,7 +7,8 @@
 // F-I-Z-L-E-T floats around the park, and all six is a bonus. Then the score card and its best combo.
 // Bricks: the kernel (fixed step; settle; its ledger for every page write, so Recall gives the page
 // back byte for byte), @fzlt/core/slot, @fzlt/core/sound, @fzlt/core/input (intents) and
-// @fzlt/core/pad (the touch keys). The scoring is combo.ts (a brick candidate). The run is `sesh()`,
+// @fzlt/core/pad (the touch keys). The scoring is combo.ts and the rider is skater.ts (both shared
+// with the next skate pieces). The run is `sesh()`,
 // plain numbers, no DOM (tests/skate-sesh.test.mjs: zero allocation).
 import { createEngine } from "../../../../src/kernel/index";
 import { seeded } from "../../../../src/kernel/random";
@@ -17,6 +18,7 @@ import { sound } from "../../../../src/sound";
 import type { SlotScene, SlotTap } from "../../../../src/slot";
 import { combo } from "./combo";
 import { DEMO, DONE, FONT, H, IDLE, PLAY, TAU, W, spray } from "./kit";
+import { skater, SK_AIR, SK_GRAB, SK_GRIND, SK_MANUAL, SK_PUSH, SK_ROLL, SK_SLAM } from "./skater";
 
 export const ROUND = 45;
 /** Tricks and gaps, by combo id, and their base points. */
@@ -307,8 +309,8 @@ export type Sesh = ReturnType<typeof sesh>;
 export type SeshScene = SlotScene & { engine: ReturnType<typeof createEngine>; run: Sesh; poster(): void; readonly state: { mode: number; st: number; score: number; left: number; x: number; letters: number; best: number; mult: number; special: number } };
 
 // Colour slots, read from the stage's skin (--ss-*): light and dark.
-const SKY = 0, SKY2 = 1, WALL = 2, WOOD = 3, WOOD2 = 4, FLOOR = 5, INK = 6, PAPER = 7, METAL = 8, HOOD = 9, CAP = 10, SKIN = 11, PANTS = 12, DECK = 13, GOLDC = 14, GO = 15, HOT = 16, SHADE = 17;
-const VARS = ["sky", "sky2", "wall", "wood", "wood2", "floor", "ink", "paper", "metal", "hood", "cap", "skin", "pants", "deck", "gold", "go", "hot", "shade"];
+const SKY = 0, SKY2 = 1, WALL = 2, WOOD = 3, WOOD2 = 4, FLOOR = 5, INK = 6, PAPER = 7, METAL = 8, HOOD = 9, CAP = 10, SKIN = 11, PANTS = 12, DECK = 13, GOLDC = 14, GO = 15, HOT = 16, SHADE = 17, TEE = 18, TEE2 = 19, PANTS2 = 20, SHOE = 21;
+const VARS = ["sky", "sky2", "wall", "wood", "wood2", "floor", "ink", "paper", "metal", "hood", "cap", "skin", "pants", "deck", "gold", "go", "hot", "shade", "tee", "tee2", "pants2", "shoe"];
 const CLOCK = Array.from({ length: ROUND + 1 }, (_, i) => `0:${i < 10 ? "0" : ""}${i}`);
 const fmt = (n: number) => n.toLocaleString("en-US");
 
@@ -316,7 +318,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   const engine = createEngine({ root: stage, settle: 0.5, seed: (Math.random() * 2147483647) | 0 });
   const L = engine.ledger, sig = { signal: engine.signal };
   const skin = slot.querySelector<HTMLElement>("[data-ss]") ?? stage;
-  const col = ["#0c0a1c", "#2a1c4a", "#1d1738", "#c8894a", "#9a5f34", "#3b3170", "#07060f", "#f6f3ff", "#aea4d6", "#ff2e88", "#19f0ff", "#ffd2a8", "#3b3170", "#9a63ff", "#ffc21a", "#39ffb0", "#ff8a1f", "rgba(7,6,15,.35)"];
+  const col = ["#0c0a1c", "#2a1c4a", "#1d1738", "#c8894a", "#9a5f34", "#3b3170", "#07060f", "#f6f3ff", "#aea4d6", "#ff2e88", "#19f0ff", "#ffd2a8", "#3b3170", "#9a63ff", "#ffc21a", "#39ffb0", "#ff8a1f", "rgba(7,6,15,.35)", "#f6f3ff", "#aea4d6", "#6a3ae6", "#f6f3ff"];
   // The canvas (art units), the play key over it (press = OLLIE, and the keyboard's focus), the HUD
   // stickers, the score card and the pad. All through the ledger.
   const canvas = L.add(document.createElement("canvas"));
@@ -405,6 +407,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     flags[k % 4]!.moveTo(x, y), flags[k % 4]!.lineTo(x + 4, y + 0.4), flags[k % 4]!.lineTo(x + 1.8, y + 4);
   }
   let sky: CanvasGradient | string = col[SKY]!;
+  const sk = skater(g);
   // HUD shadow values (what the stickers show now), so the DOM is written only on a change.
   const was = new Float64Array(10).fill(-1);
   const DEBRIS = [col[METAL]!, col[GOLDC]!, col[CAP]!];
@@ -427,6 +430,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       const cs = getComputedStyle(skin);
       for (let i = 0; i < VARS.length; i++) col[i] = cs.getPropertyValue("--ss-" + VARS[i]).trim() || col[i]!;
       (DEBRIS[0] = col[METAL]!), (DEBRIS[1] = col[GOLDC]!), (DEBRIS[2] = col[CAP]!);
+      sk.paint([col[INK]!, col[SKIN]!, col[HOOD]!, col[TEE]!, col[TEE2]!, col[PANTS]!, col[PANTS2]!, col[SHOE]!, col[DECK]!, col[GOLDC]!, col[GOLDC]!]);
       V[3] = keys.el.offsetParent ? 0 : 1;
       const s = g.createLinearGradient(0, 0, 0, GY);
       s.addColorStop(0, col[SKY]!), s.addColorStop(1, col[SKY2]!);
@@ -682,78 +686,18 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     g.fillText(s, W / 2, y);
     g.lineWidth = 1;
   }
-  /** The rider: a big-hooded skater in a beanie, on a board that flips, grabs and grinds. */
+  /** The rider (skater.ts), posed from the run. */
   function rider() {
-    const st = S[ST]!, x = S[X]!, y = GY - S[Y]!, face = S[FACE]!, fl = S[FLIPT]!, k = S[FLIPK]!;
-    const a = fl > 0 ? (1 - fl / S[FLIPD]!) * TAU * (k === FIZZ ? 2 : 1) : 0, grab = S[GRABK]! > 0 && st === AIR, low = st === RAIL || st === MAN || grab ? 2.2 : st === AIR ? 1 : 0;
-    (G[2] = Math.min(159, Math.max(1, x))), ground(G);
-    g.save();
-    g.translate(x, y);
-    if (st === ROLL || st === MAN) g.rotate(Math.atan(G[1]!) * 0.9);
-    if (st === SLAM) g.rotate(Math.min(1.6, S[SLAMT]! * 6) * -face);
-    if (k === FIZZ && fl > 0) g.rotate(a / 2);
+    const st = S[ST]!, fl = S[FLIPT]!, k = S[FLIPK]!, P = sk.P;
+    (G[2] = Math.min(159, Math.max(1, S[X]!))), ground(G);
+    (P[0] = S[X]!), (P[1] = GY - S[Y]!), (P[8] = S[SLAMT]!), (P[9] = cb.full && (S[MODE] === PLAY || S[MODE] === DEMO) ? 1 : 0);
     // The 180 at the top of a quarter-pipe air: the rider turns through side-on.
-    g.scale(S[QAIR] && st === AIR ? face * Math.max(0.15, Math.min(1, Math.abs(S[VY]!) / 40)) : face, 1);
-    g.strokeStyle = col[INK]!;
-    g.lineWidth = 0.8;
-    g.lineCap = g.lineJoin = "round";
-    // The board (it flies off on a slam).
-    const bx = st === SLAM ? 4 + S[SLAMT]! * 18 : 0, by = st === SLAM ? -3 - Math.sin(Math.min(3, S[SLAMT]! * 6)) * 5 : grab ? -4.2 : fl > 0 ? -5 : -2.2;
-    const th = Math.cos(a), wd = k === 2 && fl > 0 ? Math.cos(a) : 1;
-    if (cb.full && (S[MODE] === PLAY || S[MODE] === DEMO)) (g.shadowColor = col[GOLDC]!), (g.shadowBlur = 6 * V[1]!);
-    g.fillStyle = th >= 0 ? col[DECK]! : col[GOLDC]!;
-    g.beginPath();
-    g.roundRect(bx - 7 * wd, by - 0.8 * Math.abs(th) - 0.3, 14 * wd, 1.6 * Math.abs(th) + 0.6, 0.8);
-    g.fill();
-    g.stroke();
-    g.shadowBlur = 0;
-    if (Math.abs(th) > 0.5) {
-      g.fillStyle = col[INK]!;
-      for (let w = -1; w <= 1; w += 2) {
-        g.beginPath();
-        g.arc(bx + w * 4.4 * wd, by + 1.6 * th, 1.1, 0, TAU);
-        g.fill();
-      }
-    }
-    // Legs (baggy), the hoodie, arms, head and beanie.
-    const hip = -9 + low, sh = -15.5 + low * 1.3, ft = st === SLAM ? -2 : by - 1;
-    g.lineWidth = 2.6;
-    g.strokeStyle = col[PANTS]!;
-    g.beginPath();
-    g.moveTo(-3.4, ft), g.lineTo(-1.2, hip), g.lineTo(0.8, hip), g.lineTo(3.4, ft);
-    g.stroke();
-    g.fillStyle = col[HOOD]!;
-    g.strokeStyle = col[INK]!;
-    g.lineWidth = 0.8;
-    g.beginPath();
-    g.roundRect(-3.2, sh, 6.4, hip - sh + 1.4, 1.6);
-    g.fill();
-    g.stroke();
-    g.lineWidth = 1.5;
-    g.strokeStyle = col[HOOD]!;
-    g.beginPath();
-    if (grab) g.moveTo(1.5, sh + 2), g.lineTo(3.5, by - 0.6);
-    else g.moveTo(1.5, sh + 2), g.lineTo(5.5, sh + (st === AIR ? -1 : 4 + S[LEAN]! * face));
-    g.moveTo(-1.5, sh + 2), g.lineTo(-5.6, sh + (st === RAIL || st === MAN ? 0 : 5));
-    g.stroke();
-    g.lineWidth = 0.8;
-    g.strokeStyle = col[INK]!;
-    g.fillStyle = col[SKIN]!;
-    g.beginPath();
-    g.arc(0.6, sh - 2.6, 2.7, 0, TAU);
-    g.fill();
-    g.stroke();
-    g.fillStyle = col[CAP]!;
-    g.beginPath();
-    g.arc(0.6, sh - 3.1, 2.8, 3.3, 6.12);
-    g.fill();
-    g.stroke();
-    g.beginPath();
-    g.arc(0.2, sh - 6.4, 1, 0, TAU);
-    g.fill();
-    g.fillStyle = col[INK]!;
-    g.fillRect(2, sh - 2.8, 0.8, 0.9);
-    g.restore();
+    P[2] = S[QAIR] && st === AIR ? S[FACE]! * Math.max(0.15, Math.min(1, Math.abs(S[VY]!) / 40)) : S[FACE]!;
+    P[4] = st === SLAM ? SK_SLAM : st === RAIL ? SK_GRIND : st === MAN ? SK_MANUAL : st === AIR ? (S[GRABK]! > 0 ? SK_GRAB : SK_AIR) : S[AX]! * S[FACE]! > 0 && S[MODE] !== IDLE && S[MODE] !== DONE && S[T]! % 0.5 < 0.25 ? SK_PUSH : SK_ROLL;
+    P[5] = st === ROLL || st === MAN ? Math.atan(G[1]!) * 0.9 : 0;
+    (P[6] = fl > 0 ? 1 - fl / S[FLIPD]! : 0), (P[7] = k === FIZZ ? 3 : k);
+    P[10] = k === FIZZ && fl > 0 ? P[6]! * TAU : 0;
+    sk.draw();
   }
 
   engine.start();
