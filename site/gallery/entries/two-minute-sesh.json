@@ -1,0 +1,26 @@
+{
+  "no": 92,
+  "id": "two-minute-sesh",
+  "date": "2026-11-03",
+  "prompt": "a 45-second park run, side on: push, ollie, flip and grab in the air, grind the rail and manual between tricks to chain a combo; land to bank it, bail and it's gone; fill the special meter, spell F-I-Z-L-E-T and hit the named gaps",
+  "title": "Two-Minute Sesh",
+  "kind": "hero",
+  "theme": "skate-sesh",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound",
+    "@fzlt/core/input",
+    "@fzlt/core/pad"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/skate/two-minute-sesh.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-03"
+}
