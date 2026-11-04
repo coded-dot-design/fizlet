@@ -5,6 +5,8 @@
    (Recall gives this markup back byte for byte). Wide: board left, source right. Square or tall (a
    phone held upright): the bot, the board, the source under it. Colours: Board UI token roles. */
 .nl-box{position:absolute;inset:0;container:nl/size}
+/* The still is the stage itself: the slot's placeholder is an empty layer (it steps aside on mount). */
+.nl-still{position:absolute;inset:0;pointer-events:none}
 .nl{position:absolute;inset:0;display:grid;grid-template:"bot src" auto "board src" 1fr "tally src" auto/44% 1fr;gap:2.2cqh 3cqw;padding:3.6cqh 3cqw;background:var(--bg,#07060f);color:var(--ink,#f6f3ff);font:700 2cqw/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;--nl-x:#19f0ff;--nl-o:#ff2e88;--nl-kw:#9a63ff;--nl-num:#ffc21a;--nl-com:#aea4d6;--nl-go:#39ffb0;--nl-rim:#07060f}
 html[data-theme="light"] .nl{--nl-x:#006e91;--nl-o:#c4006a;--nl-kw:#6a3ae6;--nl-num:#9a6400;--nl-com:#5d5684;--nl-go:#0b7a54}
 .nl-bot{grid-area:bot;display:flex;align-items:center;gap:2cqw;min-width:0}
@@ -42,4 +44,4 @@ html[data-theme="light"] .nl{--nl-x:#006e91;--nl-o:#c4006a;--nl-kw:#6a3ae6;--nl-
 .nl-board{background-size:.9cqw 100%,.9cqw 100%,100% .9cqw,100% .9cqw}
 .nl-end{font-size:4cqw}.nl-end b{font-size:7cqw}.bui .nl-end button{font-size:3.4cqw}
 }
-</style><div class="nl"><div class="nl-bot"><span class="nl-face"><i></i></span><p class="nl-say">I never lose. You go first. It won't help.</p></div><div class="nl-board"></div><p class="nl-tally">YOU <b>0</b> · BOT <b>0</b> · DRAW <b>0</b></p><div class="nl-src"><p class="nl-tab"><b>●</b> never-loses.js</p><pre class="nl-code"><span class="nl-c">// plays perfectly. trust me.</span><span><span class="nl-k">function</span> reply(board) {</span></pre></div></div></div>
+</style><div class="nl"><div class="nl-bot"><span class="nl-face"><i></i></span><p class="nl-say">I never lose. You go first. It won't help.</p></div><div class="nl-board"></div><p class="nl-tally">YOU <b>0</b> · BOT <b>0</b> · DRAW <b>0</b></p><div class="nl-src"><p class="nl-tab"><b>●</b> never-loses.js</p><pre class="nl-code"><span class="nl-c">// plays perfectly. trust me.</span><span><span class="nl-k">function</span> reply(board) {</span></pre></div></div></div><span class="ae-slot__placeholder nl-still" aria-hidden="true"></span>
