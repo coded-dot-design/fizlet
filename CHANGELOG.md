@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Site: two dev-humor gallery entries for 2026-11-02, by hand (pending owner approval).**
+  - **Day 1 → Day 30** (`day-thirty`): the Origin desk from above as a project ages. Tap for the next day, hold to fast-forward. Coffee cups drop in and shove each other across the desk (each leaves a ring; never on the laptop), red lines creep up the screen, sticky notes slap onto the lid, the plant wilts, the chair turns into a beanbag and he slumps, and our status sticker goes from "on track" to "it's fine". Day 30 holds (a candle is lit) until a tap ships it with confetti, and it is Day 1 again. Drawn on one canvas from the Origin scene's own shapes and 2015 palette. Live chunk 12,431 B gzip (14,670 B with the loader): over the 10,240 B micro cap, so too big to win.
+  - **127 Little Bugs** (`little-bugs`): our own pixel bugs crawl over a dark code panel under "99 little bugs in the code". Tap a bug to patch it: it pops and the counter ticks down, then the patch hatches a fresh batch and the count climbs (99 → 98 → 127). Bugs run from the cursor and hide once things go quiet (it settles). A few patches in, a SHIP IT stamp lands anyway and flings the bugs under it; the next tap is a new sprint. The swarm is a pool of typed arrays. Live chunk 9,591 B gzip (11,830 B with the loader).
+  - Origin: its shapes (palette, pose, arms, lid, screen, cap, code lines, back, chair) moved from `art.ts` into `shapes.ts`, which `art.ts` re-exports; the SVG markup is unchanged (the origin live chunk is about 40 B gzip larger). The surf minis' rig (`surf/kit.ts`) can track the pointer (`track`). Tests: `tests/dev-humor.test.mjs` (the games, zero allocation), `tests/dev-humor.mjs` (in `npm run test:browser`).
+
 - **Site: the origin hero, the owner's review (pending owner review).**
   - **Laptop:** the open lid's far edge is a little wider than the hinge (perspective from above). A press on the lid or the screen closes it and he sleeps, and stays asleep: a guard stops the night's own "sleep" from replaying the wake. A press on the keys lights that key; closed, a press opens it.
   - **Chair:** a dark-ink chair, so he reads as leaning forward from it.

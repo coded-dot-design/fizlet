@@ -15,7 +15,8 @@
  * sip the cup at his mouth. Every moving part is placed by the functions below, so the poster and the
  * scene put it in the same spot.
  */
-export const C = { teal: "#65b9ad", tealD: "#4f9e93", tealL: "#8fd0c5", ink: "#43353d", inkL: "#5d4c56", cream: "#f3eed5", creamD: "#e2dbbf", red: "#e15e49", redD: "#b9432f", skin: "#e8b48f", skinD: "#d39a74", sun: "#f8d78b", code: "#2e2a3a" };
+import { C, SH, mix, r1, ease, head, neck, KEYS_HOME, TIPS_HOME, hands, arm, limb, armD, brew, LID, LIDP, SCR, SCRT, CAP, CODE, TORSO, CHAIR } from "./shapes";
+export * from "./shapes";
 
 export type OriginLook = "2015" | "fizlet";
 
@@ -120,64 +121,14 @@ export const RING = [-31 * Math.cos((HNUDGE * Math.PI) / 180), 31 * Math.sin((HN
 /** That loop's middle in the holding hand's own frame (forward along the forearm, +y toward the cup). */
 export const GRIPAT = [4, 8] as const;
 
-/** Shoulders, upper arm (seen from above it hangs down a little, foreshortened) and forearm lengths. */
-export const SH = { lx: 314, rx: 486, y: 474, ua: 66, fa: 116 } as const;
-const mix = (a: number, b: number, t: number) => a + (b - a) * t;
-const r1 = (v: number) => Math.round(v * 10) / 10;
-const ease = (t: number) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
 
-/** Head centre and tilt for a pose. Asleep, the head is forward on his folded arms, tipped. */
-export function head(aw: number, sip: number) {
-  return { x: 400, y: mix(406, 434, aw) - sip * 6, a: mix(-12, 0, aw) };
-}
 export const headT = (aw: number, sip: number, bob = 0) => {
   const h = head(aw, sip);
   return `translate(${r1(h.x)} ${r1(h.y + bob)}) rotate(${r1(h.a)})`;
 };
-/** The upper back and neck: the shirt from the shoulders up under the head, so head and body read
- *  as one at every pose (asleep the head leans forward onto the arms; the back follows it). */
-export function neck(aw: number, sip: number) {
-  const h = head(aw, sip), top = h.y + 8;
-  return { cx: 400, cy: r1((top + 466) / 2), ry: r1((466 - top) / 2 + 6) };
-}
-/** The hands' home on the keys (centres) and the key under each one's fingers (tips): typing moves
- *  a hand part of the way from its home toward the key it hits. */
-export const KEYS_HOME = [342, 314, 458, 314] as const, TIPS_HOME = [342, 294, 458, 294] as const;
-/** Hand targets: asleep folded under the head; awake on the keys (hd, at `k`: lx, ly, rx, ry) or
- *  resting by the laptop. */
-export function hands(aw: number, hd: number, k: ArrayLike<number> = KEYS_HOME) {
-  return { lx: mix(mix(434, 352, aw), k[0]!, hd), ly: mix(mix(400, 404, aw), k[1]!, hd), rx: mix(mix(368, 452, aw), k[2]!, hd), ry: mix(mix(408, 404, aw), k[3]!, hd) };
-}
 /** The sip in two moves: the hand reaches for the cup (sip 0..0.35), then brings it up (0.35..1). */
 export const reach = (sip: number) => ease(sip / 0.35);
 export const carry = (sip: number) => ease((sip - 0.35) / 0.65);
-/** One arm, two bones: shoulder → elbow → hand. The elbow bends outward; a hand out of reach stops
- *  at full stretch. `s` -1 left, 1 right. Out: elbow (ex, ey), hand (hx, hy), forearm angle (deg). */
-export function arm(s: number, tx: number, ty: number) {
-  const sx = s < 0 ? SH.lx : SH.rx, A = SH.ua, B = SH.fa;
-  let dx = tx - sx, dy = ty - SH.y, d = Math.hypot(dx, dy) || 1;
-  const dd = Math.min(Math.max(d, B - A + 1), A + B - 0.5);
-  const th = Math.atan2(dy, dx), a = Math.acos((A * A + dd * dd - B * B) / (2 * A * dd)), e = th + (s < 0 ? -a : a);
-  const ex = sx + Math.cos(e) * A, ey = SH.y + Math.sin(e) * A, hx = sx + (dx / d) * dd, hy = SH.y + (dy / d) * dd;
-  return { sx, ex: r1(ex), ey: r1(ey), hx: r1(hx), hy: r1(hy), deg: r1((Math.atan2(hy - ey, hx - ex) * 180) / Math.PI) };
-}
-/** A limb segment seen from above: two circles (radii r1, r2) and the hull between them, as a path. */
-const limb = (x1: number, y1: number, a: number, x2: number, y2: number, b: number) => {
-  const d = Math.hypot(x2 - x1, y2 - y1) || 1, nx = ((y1 - y2) / d), ny = ((x2 - x1) / d);
-  return `M${r1(x1 + nx * a)} ${r1(y1 + ny * a)}L${r1(x2 + nx * b)} ${r1(y2 + ny * b)}A${b} ${b} 0 1 0 ${r1(x2 - nx * b)} ${r1(y2 - ny * b)}L${r1(x1 - nx * a)} ${r1(y1 - ny * a)}A${a} ${a} 0 1 0 ${r1(x1 + nx * a)} ${r1(y1 + ny * a)}Z`;
-};
-/** One arm's shapes for a pose: the sleeve over the deltoid, the upper arm (the biceps swell, then
- *  the elbow), the forearm (the muscle near the elbow, tapering to the wrist), and where the hand goes. */
-export function armD(s: number, tx: number, ty: number) {
-  const k = arm(s, tx, ty), sy = SH.y, at = (t: number, ax: number, ay: number, bx: number, by: number) => [ax + (bx - ax) * t, ay + (by - ay) * t] as const;
-  const b = at(0.55, k.sx, sy, k.ex, k.ey), f = at(0.32, k.ex, k.ey, k.hx, k.hy), w = at(0.8, k.ex, k.ey, k.hx, k.hy), h = at(0.5, k.sx, sy, k.ex, k.ey);
-  return {
-    k,
-    skin: limb(b[0], b[1], 20, k.ex, k.ey, 14) + limb(k.ex, k.ey, 14, f[0], f[1], 16.5) + limb(f[0], f[1], 16.5, w[0], w[1], 10.5),
-    sleeve: limb(k.sx, sy, 24, h[0], h[1], 20),
-    hem: `M${r1(h[0] + ((sy - k.ey) / SH.ua) * 19)} ${r1(h[1] + ((k.ex - k.sx) / SH.ua) * 19)}L${r1(h[0] - ((sy - k.ey) / SH.ua) * 19)} ${r1(h[1] - ((k.ex - k.sx) / SH.ua) * 19)}`,
-  };
-}
 /** Where the cup is drawn: its middle (cx, cy) and its scale. It only moves and scales (a lift, a
  *  sip, a press): never a turn or a skew, so the cup and the coffee keep their top-down perspective. */
 export const cupT = (cx: number = CUP.x + CUP.r, cy: number = CUP.y + CUP.r, s = 1) => `translate(${r1(cx)} ${r1(cy)}) scale(${Math.round(s * 1000) / 1000}) translate(-39 -39)`;
@@ -188,12 +139,6 @@ export const cupShT = (cx = CUP.x + CUP.r, cy = CUP.y + CUP.r, h = 0) => `transl
 /** The coffee's surface in each frame of the 2015 sheet (cx, cy, rx, ry in its 84 px frame), measured
  *  from coffee.png: the scene paints its own liquid over it, so the colour can cool. */
 export const LIQUID = [[0, 0, 0, 0], [42, 48.5, 2.6, 2.1], [42, 49, 3.6, 3.6], [42, 49, 5.6, 4.6], [42, 48.5, 6.6, 6.1], [42, 48.5, 7.6, 7.1], [42, 49, 11.6, 10.6], [42, 49, 12.6, 11.6], [42, 48.5, 16.6, 15.1], [42, 47, 18.6, 16.6], [42, 45, 20.6, 18.6], [42, 43.5, 22.6, 20.1]];
-/** Coffee (code) or matcha (design), hot (h = 1) to cooled (h = 0). `fz`: the Fizlet look's pair of
- *  tokens instead (hot, cooled) as [r, g, b]. */
-export function brew(design: boolean, h: number, fz?: readonly (readonly number[])[]) {
-  const a = fz ? fz[0]! : design ? [47, 125, 109] : [70, 40, 30], b = fz ? fz[1]! : design ? [150, 205, 185] : [182, 134, 100];
-  return `rgb(${Math.round(mix(b[0]!, a[0]!, h))},${Math.round(mix(b[1]!, a[1]!, h))},${Math.round(mix(b[2]!, a[2]!, h))})`;
-}
 const SAUCER = `<circle class="o-sh" cx="44" cy="44.5" r="40" fill="#d9d1b3"/><circle class="o-face" cx="42" cy="42.5" r="40" fill="${C.cream}"/><circle class="o-faceD" cx="42" cy="43" r="30" fill="none" stroke="#e6dfc4" stroke-width="2"/>`;
 /** The headphones: lying open on the desk by the phone, or on his head over the cap, the band
  *  across the crown and a cup over each ear (they ride the head's tilt). */
@@ -203,14 +148,6 @@ export function phonesT(ph: number, aw: number, sip: number, bob = 0) {
 }
 /** The band's curve: a deep U lying on the desk, nearly flat across the crown on his head. */
 export const band = (ph: number) => `M-52 -2Q0 ${r1(mix(-104, -14, ease(ph)))} 52 -2`;
-/** The laptop lid: above 0.5 the screen unfolds up from the hinge; below, the lid covers the keys.
- *  Open, seen from above and behind him, the lid is as wide as the base at the hinge, and its far edge
- *  (tilted back, up toward the eye) a little wider; it is foreshortened to about two thirds of the
- *  base's depth (LID: its far edge's y). */
-export const LID = 160;
-const LIDP = `M286 250H514L519 ${LID + 7}Q520 ${LID} 513 ${LID}H287Q280 ${LID} 281 ${LID + 7}Z`;
-// The display inside the bezel, and the map from the screens' drawing box (304, 140, 192 x 100) onto it.
-const SCR = `M298 241H502L507 ${LID + 9}H293Z`, SCRT = `translate(300 ${LID + 9}) scale(1.0417 .72) translate(-304 -140)`;
 export const screenT = (lid: number) => `translate(0 250) scale(1 ${r1(Math.max(0, lid * 2 - 1) * 100) / 100}) translate(0 -250)`;
 export const coverT = (lid: number) => `translate(0 250) scale(1 ${r1(Math.max(0, 1 - lid * 2) * 100) / 100}) translate(0 -250)`;
 /** A part's press: squash (sq < 0) and pop (sq > 0) around its centre. */
@@ -228,8 +165,6 @@ const keys = () => {
     }
   return s;
 };
-// Code: two identical pages of lines (scrolled as one strip, wrapping), in 2015's syntax colours.
-const CODE = [[0, 40, 1], [12, 60, 2], [12, 30, 0], [24, 52, 3], [24, 70, 1], [12, 22, 0], [0, 14, 2], [0, 0, 0], [0, 48, 1], [12, 34, 3], [24, 64, 2], [24, 40, 0], [36, 30, 1], [24, 18, 0], [12, 26, 3], [0, 14, 2]];
 const INK = [C.tealL, C.red, C.cream, C.sun];
 const codePage = (y0: number) => CODE.map(([x, w, c], i) => (w ? `<rect class="o-i${c}" x="${316 + x!}" y="${y0 + i * 7}" width="${w! * 1.7}" height="3.4" rx="1.7" fill="${INK[c!]}"/>` : "")).join("");
 // The phone's code: a short terminal.
@@ -237,12 +172,6 @@ const PHONE_CODE = [[0, 30, 2], [6, 22, 0], [6, 34, 1], [0, 16, 3], [0, 28, 0], 
 // A hand seen from above (the back of it), pointing along +x: palm, fingers, the thumb on the
 // inner side (+y for the left hand; the right is mirrored).
 const HAND = (m: string) => `<g${m}><rect x="-5" y="6" width="17" height="9" rx="4.5" fill="${C.skin}" stroke="${C.skinD}" stroke-width="1.4" transform="rotate(22 -5 10)"/><rect x="-13" y="-12" width="26" height="24" rx="9" fill="${C.skin}"/><rect x="3" y="-11.5" width="20" height="23" rx="7" fill="${C.skin}"/><path d="M13-5.6h8M13 0h9M13 5.6h8" stroke="${C.skinD}" stroke-width="1.6" stroke-linecap="round"/></g>`;
-// His back from above: the trapezius sloping from the neck to the shoulders, broad shoulders, the
-// lats tapering toward the waist (out of frame).
-const TORSO = "M376 452C354 455 332 458 314 466C296 474 286 490 288 512L304 640H496L512 512C514 490 504 474 486 466C468 458 446 455 424 452Z";
-// The chair under him (the back's top edge and its two arm ends at the bottom): his shirt is cut
-// where the chair shows, so it reads as one layer under him with only its dark edge in sight.
-const CHAIR = "M330 492Q400 478 470 492Q482 495 482 506V650H318V506Q318 495 330 492ZM297 548h2a9 9 0 0 1 9 9v82a9 9 0 0 1-9 9h-2a9 9 0 0 1-9-9v-82a9 9 0 0 1 9-9ZM501 548h2a9 9 0 0 1 9 9v82a9 9 0 0 1-9 9h-2a9 9 0 0 1-9-9v-82a9 9 0 0 1 9-9Z";
 // The hand holding the cup, seen from above (forward along the forearm, +y toward the cup): the side
 // of the hand beside the handle's end, two fingers curled through the loop, the thumb over its top.
 // The reaching hand: an open palm, the fingers spread a little, the thumb out (shown on the way to the handle).
@@ -335,11 +264,11 @@ export function art(p: { aw: number; ph: number; lid: number; hd: number }, mode
 ${armEl(-1, hn.lx, hn.ly, id)}${armEl(1, hn.rx, hn.ry, id)}
 <g class="og-head" transform="${headT(p.aw, 0)}"><ellipse cx="-43" cy="5" rx="7" ry="11" fill="${C.skinD}"/><ellipse cx="43" cy="5" rx="7" ry="11" fill="${C.skinD}"/><circle r="44" fill="${C.ink}"/>
 <circle class="o-mesh" cy="-2" r="41" fill="${C.inkL}"/><circle cy="-2" r="41" fill="url(#${id}mesh)"/>
-<path class="o-foam" d="M0-2L-36 18A41 41 0 0 0 36 18Z" fill="${C.cream}"/>
-<path class="o-seam" d="M0-2L-40-11M0-2L40-11M0-2L-15-40M0-2L15-40" fill="none" stroke="${C.ink}" stroke-width="1.6" opacity=".55"/>
+<path class="o-foam" d="${CAP.foam}" fill="${C.cream}"/>
+<path class="o-seam" d="${CAP.seam}" fill="none" stroke="${C.ink}" stroke-width="1.6" opacity=".55"/>
 <path d="M-12-41q12 14 24 0Z" fill="${C.ink}"/><path class="o-strap" d="M-14-36h28" stroke="${C.cream}" stroke-width="3" stroke-linecap="round"/>
 <circle class="o-btn" cy="-2" r="4.5" fill="${C.red}"/>
-<path class="o-bill" d="M-36 18C-46 46-24 60 0 60S46 46 36 18A41 41 0 0 1-36 18Z" fill="${C.tealD}"/><path class="o-billE" d="M-36 18C-46 46-24 60 0 60S46 46 36 18" fill="none" stroke="${C.ink}" stroke-width="2.4"/></g>
+<path class="o-bill" d="${CAP.bill}" fill="${C.tealD}"/><path class="o-billE" d="${CAP.edge}" fill="none" stroke="${C.ink}" stroke-width="2.4"/></g>
 </g>
 <g data-p="phones" class="og-phones" transform="${phonesT(p.ph, p.aw, 0)}"><path class="og-band o-band" d="${band(p.ph)}" fill="none" stroke="#c9bf9f" stroke-width="13" stroke-linecap="round"/><path class="og-band o-band2" d="${band(p.ph)}" fill="none" stroke="${C.cream}" stroke-width="6" stroke-linecap="round"/><rect class="o-hcup" x="-60" y="-21" width="16" height="42" rx="7" fill="${C.red}"/><rect class="o-hcup" x="44" y="-21" width="16" height="42" rx="7" fill="${C.red}"/><rect class="o-pad" x="-57" y="-14" width="6" height="28" rx="3" fill="${C.cream}"/><rect class="o-pad" x="51" y="-14" width="6" height="28" rx="3" fill="${C.cream}"/></g>
 <g class="og-pud" style="display:none"><path class="o-pud" d="M-4-15C14-24 44-19 50-3S38 26 18 22C4 28-10 16-7 4S-10-10-4-15Z" fill="#5a3526"/><path class="og-fz" d="M-4-15C14-24 44-19 50-3S38 26 18 22C4 28-10 16-7 4S-10-10-4-15Z" fill="url(#${id}pix)"/><ellipse class="og-15" cx="22" cy="-4" rx="9" ry="4" fill="${C.cream}" opacity=".35"/></g>
