@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **Gallery: Shoot the Pier and FizzBuzz, two hand-built micros dated 2026-11-04 (pending owner approval).**
+  - **Shoot the Pier** (surf-sesh, Lip Line's second wave): a puffin on a big side-on wave, a whitewater wall sweeping in from the left, and an old pier across the line whose crossbeams leave one open window in each bay between the pilings. Hold and drag to steer (Space / ↑ climbs, ↓ drops; let go holds the line); every window threaded pushes you ahead of the wall, dead centre is a SHOT. A low gull and a hopping fish on the flat; a beam, a critter or the wall rolls a foam ball over the frame. The wave runs down into the shorebreak, the beach slides in under a FINISH arch, the crowd cheers and the points banner drops. The surf rig (`surf/kit.ts`) gains an opt-in `steer` (the held pointer's height, and ↓) and now holds the sea's shades and the gull and hopper sprites both rides share. Live chunk 11,510 B gzip (over the 10,240 B contest cap: too big to win). Tests: `tests/surf-sesh.test.mjs`, `tests/surf-sesh.mjs`.
+  - **FizzBuzz** (dev-humor): a counter ticks 1, 2, 3; on threes a soda can pops its tab and fizzes (the spray splashes the counter and drips off it), on fives a bee buzzes in and bonks the counter, on fifteen the bee dives into the fizz and comes out fizzy. Tap or Space counts faster; call the next one before it ticks (FIZZ, BUZZ, both for FIZZBUZZ, or 123 for the number; F, B, N or a digit) for a streak. The rule is checked against the classic loop for 1–100. Live chunk 9,095 B gzip. Tests: `tests/fizzbuzz.test.mjs`, `tests/fizzbuzz.mjs`.
+
 - **Site: the origin hero, the owner's review (pending owner review).**
   - **Laptop:** the open lid's far edge is a little wider than the hinge (perspective from above). A press on the lid or the screen closes it and he sleeps, and stays asleep: a guard stops the night's own "sleep" from replaying the wake. A press on the keys lights that key; closed, a press opens it.
   - **Chair:** a dark-ink chair, so he reads as leaning forward from it.

@@ -15,6 +15,13 @@ export const C = {
   rim: "#07060f", bg: "#07060f", surface: "#110d22", raised: "#1d1738", line: "#3b3170", ink: "#f6f3ff", muted: "#aea4d6",
   sys: "#19f0ff", cmd: "#9a63ff", attack: "#ff2e88", aim: "#ff7389", advance: "#ff8a1f", go: "#39ffb0", hurt: "#ffc21a", fallin: "#a8ff3e",
 };
+/** The sea's in-between shades (the face, its glint, the trough, the flat water, spray) and the pier's wood. */
+export const TEAL2 = "#0b8aa8", SKY = "#eef0fb", SKY2 = "#e6e4f8", FACE = "#006e91", DEEP = "#0b4a6e", WATER = "#2b6fd6", FOAM2 = "#bfe9ff", WOOD = "#3f296a", WOOD2 = "#6a3ae6";
+/** Pixel sprites: rows of keys (KEY). The gull (two wing frames) and the hopper. */
+export const GULL = [["kk.......kk", "kwwk...kwwk", ".kwwkkkwwk.", "..kwwwwkok.", "....kk....."], ["....kkk....", "..kwwwwwkok", ".kwwwwwwwk.", "kwk.....kwk", "k.........k"]];
+export const HOP = [".k...k.", "..kak..", ".kaaak.", "kawawak", ".k.k.k."];
+/** Sprite keys: a attack, k rim, c body, s belly, w white, y beak/tusk, o orange, b sky. */
+export const KEY: Record<string, string> = { a: C.attack, k: C.rim, c: C.cmd, s: "#b48cff", w: C.ink, y: C.hurt, o: C.advance, b: C.sys };
 /** Score digits, made once. */
 export const NUM = Array.from({ length: 1000 }, (_, i) => String(i));
 export const FONT = /* @__PURE__ */ Array.from({ length: 25 }, (_, i) => `900 ${i}px system-ui, sans-serif`);
@@ -82,7 +89,8 @@ export function words(list: readonly string[]) {
 }
 export type Words = ReturnType<typeof words>;
 
-/** Input state the sims read (typed: the step reads it, never allocates). [0] held, [1] presses since last step, [2] muted. */
+/** Input state the sims read (typed: the step reads it, never allocates). [0] held, [1] presses since last step, [2] muted;
+ * with `steer`: [3] the pointer's art y while it is held (-1 none), [4] ↓ held. */
 export type Pad = Float64Array;
 
 /**
@@ -90,16 +98,17 @@ export type Pad = Float64Array;
  * key for screen readers ("Hold to carve"). `pixel`: a chunky one-pixel-per-art-unit canvas (160 × 90,
  * scaled up crisp) in place of the smooth one.
  */
-export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Record<string, Cue>, pixel = false) {
+export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Record<string, Cue>, pixel = false, steer = false) {
   const L = engine.ledger;
   const canvas = L.add(document.createElement("canvas"));
   canvas.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none" + (pixel ? ";image-rendering:pixelated" : "");
   canvas.setAttribute("aria-hidden", "true");
   stage.append(canvas);
   const g = canvas.getContext("2d")!;
-  const pad: Pad = new Float64Array(3);
-  // [0] css width, [1] dpr scale (px per art unit), [2] measure, [3] poster resolution.
-  const V = new Float64Array(4);
+  const pad: Pad = new Float64Array(5);
+  pad[3] = -1;
+  // [0] css width, [1] dpr scale (px per art unit), [2] measure, [3] poster resolution, [4] css height.
+  const V = new Float64Array(5);
   V[2] = 1;
   const ro = new ResizeObserver(() => ((V[2] = 1), engine.wake()));
   ro.observe(stage);
@@ -127,7 +136,7 @@ export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Rec
     engine.wake();
   };
   const up = () => {
-    pad[0] = 0;
+    (pad[0] = 0), (pad[3] = -1);
     engine.wake();
   };
   const toggle = () => {
@@ -141,7 +150,12 @@ export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Rec
     if (!e.isPrimary) return;
     ride.setPointerCapture?.(e.pointerId);
     e.preventDefault();
+    if (steer) pad[3] = (e.offsetY / (V[4] || 1)) * H;
     down();
+  }, sig);
+  // Steering: while held, the pointer's height on the stage (art units; the ride key fills the stage).
+  if (steer) ride.addEventListener("pointermove", (e) => {
+    if (pad[0] && pad[3]! >= 0) (pad[3] = (e.offsetY / (V[4] || 1)) * H), engine.wake();
   }, sig);
   for (const t of ["pointerup", "pointercancel", "lostpointercapture"]) ride.addEventListener(t, up, sig);
   ride.addEventListener("contextmenu", (e) => e.preventDefault(), sig);
@@ -149,11 +163,13 @@ export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Rec
   const isRide = (k: string) => k === " " || k === "Enter" || k === "ArrowUp";
   stage.addEventListener("keydown", (e) => {
     if (e.key === "m" || e.key === "M") return void (e.preventDefault(), toggle());
+    if (steer && e.key === "ArrowDown" && e.target === ride) return void (e.preventDefault(), (pad[4] = 1), engine.wake());
     if (!isRide(e.key) || e.target !== ride) return;
     e.preventDefault();
     if (!e.repeat) down();
   }, sig);
   stage.addEventListener("keyup", (e) => {
+    if (e.key === "ArrowDown") pad[4] = 0;
     if (isRide(e.key) && e.target === ride) (e.preventDefault(), up());
   }, sig);
 
@@ -168,6 +184,7 @@ export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Rec
     read() {
       if (!V[2]) return;
       V[2] = 0;
+      V[4] = stage.clientHeight;
       if (pixel) return void ((canvas.width = W), (canvas.height = H), (V[1] = 1), (g.imageSmoothingEnabled = false));
       const r = stage.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1) * (V[3] || 1);
       canvas.width = Math.max(1, Math.round(r.width * dpr));

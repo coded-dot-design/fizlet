@@ -1,4 +1,4 @@
-// The surf-sesh minis (site/gallery/pieces/surf/lip-line.ts, tube-time.ts, paddle-out.ts) in Chromium, each on its
+// The surf-sesh minis (site/gallery/pieces/surf/lip-line.ts, tube-time.ts, paddle-out.ts, pier.ts) in Chromium, each on its
 // own stage, mounted through @fzlt/core/slot as the gallery does: it mounts (the poster steps aside),
 // plays its attract run and settles to no frames with the page as it was; no audio exists before a
 // gesture; the keyboard rides it (Space on the ride key starts and holds a ride) and M mutes; both
@@ -12,7 +12,7 @@ import { launchOptions } from "./chromium.mjs";
 
 const bundle = (await build({
   stdin: {
-    contents: 'export { slot } from "./src/slot.ts"; export { mount as lip } from "./site/gallery/pieces/surf/lip-line.ts"; export { mount as tube } from "./site/gallery/pieces/surf/tube-time.ts"; export { mount as paddle } from "./site/gallery/pieces/surf/paddle-out.ts";',
+    contents: 'export { slot } from "./src/slot.ts"; export { mount as lip } from "./site/gallery/pieces/surf/lip-line.ts"; export { mount as tube } from "./site/gallery/pieces/surf/tube-time.ts"; export { mount as paddle } from "./site/gallery/pieces/surf/paddle-out.ts"; export { mount as pier } from "./site/gallery/pieces/surf/pier.ts";',
     resolveDir: process.cwd(), loader: "ts",
   },
   bundle: true, format: "iife", globalName: "cv", write: false, logLevel: "silent",
@@ -32,7 +32,7 @@ const frames = (p, n = 20) => p.evaluate(async (n) => {
 const settle = (p, what) => p.waitForFunction(() => scene.engine.paused.includes("settled"), null, { timeout: 15000 }).catch(() => { throw new Error(`${what}: never settled`); });
 
 try {
-  for (const [id, make, HELD] of [["lip-line", "lip", 14], ["tube-time", "tube", 8], ["paddle-out", "paddle", 12]]) {
+  for (const [id, make, HELD] of [["lip-line", "lip", 14], ["tube-time", "tube", 8], ["paddle-out", "paddle", 12], ["lip-line-pier", "pier", 14]]) {
     for (const w of [720, 358]) {
       const p = await browser.newPage({ viewport: { width: w + 40, height: 600 } });
       const errs = [];
@@ -61,6 +61,22 @@ try {
       const held = await p.evaluate((k) => scene.ride.S[k], HELD);
       await p.keyboard.up(" ");
       assert.equal(held, 1, `${id} @${w}: Space holds`);
+      if (make === "pier") {
+        // Shoot the Pier steers: ↓ drops the line, and a held pointer sets it (top of the stage: high).
+        const ty = await p.evaluate(() => scene.ride.S[4]);
+        await p.keyboard.down("ArrowDown");
+        await p.waitForTimeout(250);
+        await p.keyboard.up("ArrowDown");
+        assert.ok(await p.evaluate((ty) => scene.ride.S[4] > ty + 5, ty), `${id} @${w}: ↓ drops the line`);
+        const box = await p.locator("[data-fizlet-slot] button[aria-label$='(Space)']").boundingBox();
+        await p.mouse.move(box.x + box.width / 2, box.y + box.height * 0.9);
+        await p.mouse.down();
+        await p.mouse.move(box.x + box.width / 2, box.y + box.height * 0.45, { steps: 4 });
+        await p.waitForTimeout(100);
+        const line = await p.evaluate(() => [scene.ride.pad[3], scene.ride.S[4]]);
+        await p.mouse.up();
+        assert.ok(Math.abs(line[0] - 40.5) < 3 && line[1] < 50, `${id} @${w}: dragging sets the line (pointer at ${line[0]}, line ${line[1]})`);
+      }
       await p.keyboard.press("m");
       const muted = await p.evaluate(() => document.querySelector("[data-fizlet-slot] button[aria-label^='Sound']").getAttribute("aria-pressed"));
       assert.equal(muted, "false", `${id} @${w}: M mutes`);
@@ -87,7 +103,7 @@ try {
     assert.deepEqual(rm, { made: 0, mounted: false, same: true, poster: true, drawn: true }, `${id}: reduced motion keeps the poster`);
     await ctx.close();
   }
-  console.log("surf-sesh: all three mount, play the attract run and settle (no audio before a gesture), Space rides and M mutes with 44 px keys at 720 and 358 wide, Recall exact, reduced motion still — ok");
+  console.log("surf-sesh: all four mount, play the attract run and settle (no audio before a gesture), Space rides and M mutes with 44 px keys at 720 and 358 wide, Recall exact, reduced motion still — ok");
 } finally {
   await browser.close();
 }

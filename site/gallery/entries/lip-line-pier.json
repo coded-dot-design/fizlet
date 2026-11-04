@@ -1,0 +1,21 @@
+{
+  "id": "lip-line-pier",
+  "date": "2026-11-04",
+  "prompt": "Lip Line's second wave: shoot the pier. Hold and drag to steer a puffin through the one open window in each bay between the pilings, ahead of the whitewater wall; dodge the low gull and the hopping fish on the flat, and ride the shorebreak in to the beach, the crowd and your points",
+  "title": "Shoot the Pier",
+  "kind": "micro",
+  "theme": "surf-sesh",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/surf/pier.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "stage": "own"
+}
