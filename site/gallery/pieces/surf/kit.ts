@@ -82,22 +82,24 @@ export function words(list: readonly string[]) {
 }
 export type Words = ReturnType<typeof words>;
 
-/** Input state the sims read (typed: the step reads it, never allocates). [0] held, [1] presses since last step, [2] muted. */
+/** Input state the sims read (typed: the step reads it, never allocates). [0] held, [1] presses since last step, [2] muted;
+ *  with `track`: [3] x, [4] y (art units, the last press or move), [5] 1 while the pointer is over the stage. */
 export type Pad = Float64Array;
 
 /**
  * The rig on `stage`: canvas, colours, the hold input and keys, the synth. `label` names the ride
  * key for screen readers ("Hold to carve"). `pixel`: a chunky one-pixel-per-art-unit canvas (160 × 90,
- * scaled up crisp) in place of the smooth one.
+ * scaled up crisp) in place of the smooth one. `track`: also keep where the pointer is (pad[3..5]; a
+ * move wakes the engine), for pieces that aim where you tap.
  */
-export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Record<string, Cue>, pixel = false) {
+export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Record<string, Cue>, pixel = false, track = false) {
   const L = engine.ledger;
   const canvas = L.add(document.createElement("canvas"));
   canvas.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none" + (pixel ? ";image-rendering:pixelated" : "");
   canvas.setAttribute("aria-hidden", "true");
   stage.append(canvas);
   const g = canvas.getContext("2d")!;
-  const pad: Pad = new Float64Array(3);
+  const pad: Pad = new Float64Array(6);
   // [0] css width, [1] dpr scale (px per art unit), [2] measure, [3] poster resolution.
   const V = new Float64Array(4);
   V[2] = 1;
@@ -137,8 +139,19 @@ export function rig(engine: Engine, stage: HTMLElement, label: string, cues: Rec
     mute.setAttribute("aria-pressed", pad[2] ? "false" : "true");
   };
   const sig = { signal: engine.signal };
+  // Where the pointer is, in art units (offsetX over the stage-sized key: no layout read).
+  const aim = (e: PointerEvent) => {
+    if (!e.isPrimary || !V[0]) return;
+    (pad[3] = (e.offsetX / V[0]!) * W), (pad[4] = (e.offsetY / V[0]!) * W), (pad[5] = 1);
+    engine.wake();
+  };
+  if (track) {
+    ride.addEventListener("pointermove", aim, sig);
+    ride.addEventListener("pointerleave", () => ((pad[5] = 0), engine.wake()), sig);
+  }
   ride.addEventListener("pointerdown", (e) => {
     if (!e.isPrimary) return;
+    if (track) aim(e);
     ride.setPointerCapture?.(e.pointerId);
     e.preventDefault();
     down();
