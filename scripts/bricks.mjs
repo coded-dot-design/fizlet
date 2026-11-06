@@ -93,7 +93,7 @@ const API_CHECK = "Shipped now; COMPLETE also asks that its API has had no break
 
 /**
  * [{ id, no, sym, family, tag, role, modules, sizes, demo, snippet, status, since, tests, used, why }]. `sizes` are
- * the size entries shown (the first is the headline); `demo` names a live demo in site/demos/ (only
+ * the size entries shown (the first is the headline); `demo` names a live demo in the lab's demos (only
  * where it is cheap). `status` is a key of STATUS; `since` the release it first shipped in;
  * `tests` the files that test it; `used` the released games and production pages that ship it
  * (not its own demo); `why` says what keeps a BETA brick from COMPLETE.
@@ -121,7 +121,7 @@ const n = grid.near(xs, ys, rs, i, out); // ids, once` },
     snippet: `const b = board(48, 30, { cell: 40 });
 b.scatter(seeded(1234), 0.12, ROCK, 1, BLOCKED);
 const n = b.path(from, to, out, 400); // -1 = no path` },
-  { id: "fx", no: 6, sym: "fx", family: "render", status: "complete", since: "0.2.0", tests: ["bricks.test.mjs", "page.test.mjs", "site.mjs"], used: [GAME.blitz, BF_HERO, "fizlet.com: the home demo and the gallery"],
+  { id: "fx", no: 6, sym: "fx", family: "render", status: "complete", since: "0.2.0", tests: ["bricks.test.mjs", "page.test.mjs"], used: [GAME.blitz, BF_HERO, "fizlet.com: the home demo and the gallery"],
     tag: "FX", role: "attack", modules: [mod("@fzlt/core/fx", "fx")], demo: "fx",
     snippet: `const fx = effects({ cap: 420 });
 fx.blast(x, y, 1.2);       // flash, rings, debris, scorch
@@ -144,7 +144,7 @@ sfx.on = false;        // mute` },
     snippet: `embed(() => import("./game.js").then((m) => m.mount), {
   name: "blitz", palette: { cmd: "#8573ee" },
   easterEgg: { sequence: "konami" } });` },
-  { id: "slot", no: 9, sym: "sl", family: "page", status: "complete", since: "0.3.0", tests: ["slot.test.mjs", "browser.mjs", "fizz.mjs", "layers.mjs", "page.test.mjs"], used: ["fizlet.com: the home hero, the fizz and the gallery", BF_HERO],
+  { id: "slot", no: 9, sym: "sl", family: "page", status: "complete", since: "0.3.0", tests: ["slot.test.mjs", "browser.mjs", "page.test.mjs"], used: ["fizlet.com: the home hero, the fizz and the gallery", BF_HERO],
     tag: "SLOT", role: "sys", modules: [mod("@fzlt/core/slot", "slot")] },
   { id: "hud", no: 13, sym: "hd", family: "game", status: "beta", since: "0.3.6", tests: ["hud.test.mjs", "browser.mjs"], used: [`${GAME.sherman} (its scoreboard is @fzlt/core/arcade's skirmish preset)`, "fizlet.com: Before AI: 2015, live (the arcade column's score, combo and best)"], why: API_CHECK,
     tag: "HUD", role: "aim", modules: [mod("@fzlt/core/hud", "hud")] },
@@ -225,7 +225,7 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
 /**
  * ROADMAP bricks: planned, not in the package. [{ name, no, sym, family, phase, purpose, target, needs }]: `target`
  * is the size budget it is planned under (bytes gzip, a goal until measured); `needs` the bricks it
- * builds on. Each phase is a planned phase of site/roadmap.mjs (E9–E16), which lists these under it.
+ * builds on. Each phase is a planned phase of the website roadmap (E9–E16), which lists these under it.
  */
 export const PLANNED = [
   { name: "@fzlt/core/actor", no: 28, sym: "ac", family: "game", phase: "E11", purpose: "Entities on typed arrays: spawn, kill, side, health and tags, with fixed capacity.", target: 1229, needs: ["@fzlt/core"] },

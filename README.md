@@ -8,11 +8,11 @@ now kept by AI and human developers who chase performance at all costs. You brin
 style, even from a prompt. One shared loop, bounded everything, zero allocation in the steady state,
 and the page always comes back exactly as it was. No runtime dependencies, ever.
 
-**Website, live demo and quick start: https://coded-dot-design.github.io/fizlet/**
+**Website, live demo and quick start: https://fizlet.com**
 
 The "fiz" is fizz (the pop of an effect) and a nod to physics; the "-let" is small, like an applet.
-Fizlet runs every DOM VIRUS game: Battlefield Blitz, [DOM Battlefield](https://coded-dot-design.github.io/dom-battlefield/)
-1.0, and the [DOM VIRUS](https://coded-dot-design.github.io/dom-virus/) arcade (Null Invaders and
+Fizlet runs every DOM VIRUS game: Battlefield Blitz, DOM Battlefield
+1.0, and the [DOM VIRUS](https://domvirus.com) arcade (Null Invaders and
 Byte Runner 1.0, Sherman Bytes 1.1, Swarm Protocol 1.4). "The page is the board" is DOM VIRUS's
 approach: one use of the bricks.
 
@@ -44,8 +44,7 @@ every brick you don't import. Releases are published from CI with
 `npm audit signatures` can check that the tarball was built from this repo.
 
 > On npm since 0.21.2 (2026-10-31), published from CI on tag (`.github/workflows/release.yml`).
-> No npm? The site hosts the same builds (see the
-> [quick start](https://coded-dot-design.github.io/fizlet/)), or build from source: `git clone
+> No npm? See the [quick start](https://fizlet.com), or build from source: `git clone
 > https://github.com/coded-dot-design/fizlet && cd fizlet && npm ci && npm run build` gives you
 > `dist/` with the same subpath exports.
 
@@ -142,7 +141,7 @@ protocol presence speaks, the one-room-one-object pattern and a threat checklist
 
 ### Status flags
 
-One source: `STATUS` and each brick's `status` in [`site/bricks.mjs`](site/bricks.mjs), with the
+One source: `STATUS` and each brick's `status` in [`scripts/bricks.mjs`](scripts/bricks.mjs), with the
 evidence (the release it shipped in, its tests, the released games and pages that ship it); the
 table above, the brick pages and the bricks index read it, and `tests/status.test.mjs` checks it.
 
@@ -155,7 +154,7 @@ table above, the brick pages and the bricks index read it, and `tests/status.tes
 | DEPRECATED | Still in the package, replaced by something named. | Removed in the first minor release after its replacement is COMPLETE. None today. |
 
 ROADMAP bricks, each with its phase and size target (a goal until measured): `@fzlt/core/actor`, `@fzlt/core/aim` and `@fzlt/core/view-dom` (E11),
-`@fzlt/core/snapshot` and `@fzlt/core/agent` (E12, multiplayer everywhere), `@fzlt/core/scene` (E13),
+`@fzlt/core/snapshot` and a bot-driver module (E12, multiplayer everywhere), `@fzlt/core/scene` (E13),
 `@fzlt/core/announce` (E14) and `@fzlt/core/music` (E15). The phases, E0 to E16, are the
 [roadmap on the website](https://fizlet.com/#roadmap).
 
@@ -750,29 +749,16 @@ npm run test:browser  # contract tests in Chromium (Playwright)
 npm run test:pack     # pack, install the tarball, import + typecheck every subpath
 npm run api:check     # the COMPLETE bricks' API snapshots (api/) match the build
 npm run api:write     # rewrite them after an intended API change (+ a CHANGELOG line)
-npm run site          # the website, into site-dist/
+npm run publish-clean # what npm pack ships: only the build and three docs, no comments
 ```
 
 ### The website
 
-`site/` is the source of https://coded-dot-design.github.io/fizlet/: template-string pages
-(`site/layout.mjs`, `site/pages/`), `site/site.css` on top of the Board UI kit, and a live demo
-(`site/demo.ts`) built with Fizlet itself. No framework: `scripts/site.mjs` writes static HTML.
-
-One page per brick (`bricks/<id>.html`) is generated from the source, never typed: the summary is
-the module's leading comment and the API its built declarations (`scripts/api.mjs`), the sizes are
-measured by `scripts/sizes.mjs`. `site/bricks.mjs` only says which modules a page covers and which
-small live demo it runs (`site/demos/`). `tests/api.test.mjs` checks the catalog against
-`package.json` and every page's API against its module's runtime exports.
-
-```sh
-npm run site        # build dist/ and site-dist/ (gitignored); open site-dist/index.html
-npm run test:site   # every page at desktop and 360px: errors, links, overflow, the demos (Chromium),
-                    # SEO/a11y gates (scripts/check-html.mjs), sizes on the page = sizes measured
-```
-
-The site also hosts the builds for the quick start: `fizlet.js` (one file, `window.fizlet`) and
-the ES modules under `dist/`. `.github/workflows/pages.yml` deploys it on every push to `main`.
+The website, https://fizlet.com, lives in its own repository and installs this package from npm like
+any user. One brick page per module is generated from the built declarations (`scripts/api.mjs`) and
+the sizes measured by `scripts/sizes.mjs`. `scripts/bricks.mjs` is the brick catalog: it says which
+modules a page covers. `tests/api.test.mjs` checks the catalog against `package.json` and every
+module's API against its runtime exports.
 
 Releases: bump `version` in `package.json` (and the lockfile) and add a CHANGELOG entry; CI tags
 `vX.Y.Z` on `main` after the checks pass, and `.github/workflows/release.yml` publishes that tag to

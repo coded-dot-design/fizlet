@@ -163,7 +163,7 @@ async function main(argv) {
     return 2;
   }
   if (!rest.includes("--no-build")) execFileSync("node", ["scripts/build.mjs"], { stdio: ["ignore", "ignore", "inherit"] });
-  const { BRICKS } = await import("../site/bricks.mjs");
+  const { BRICKS } = await import("./bricks.mjs");
   const complete = BRICKS.filter((b) => b.status === "complete");
   const current = snapshots(complete);
   const committed = readDir(DIR);
