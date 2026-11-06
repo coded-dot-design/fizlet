@@ -1,5 +1,6 @@
-// The public API of each module, read from the source of truth: the built declarations (dist/*.d.ts,
-// which keep the source's doc comments) through the TypeScript compiler API (`typescript`, already
+// The public API of each module, read from the source of truth: the built declarations. The shipped
+// dist/*.d.ts carry no comments (removeComments), so the build also writes dist-docs/*.d.ts (not
+// packed) which keep the source's doc comments; a path under dist/ is read from dist-docs/ through the TypeScript compiler API (`typescript`, already
 // the repo's type checker: no new dependency), and the source file's leading comment for the
 // summary. The brick pages and llms-full.txt are generated from this at site build time
 // (scripts/site.mjs), so they cannot drift from the code; tests/api.test.mjs checks it against the
@@ -25,13 +26,16 @@ export function leadComment(src) {
   return body.replace(/\s+/g, " ").trim();
 }
 
-// One compiler session for the whole run (a build or a test file): every declaration file in dist/
+export const DOCS = "dist-docs";
+const docsPath = (f) => (f.startsWith("dist/") ? DOCS + f.slice(4) : f);
+
+// One compiler session for the whole run (a build or a test file): every declaration file in dist-docs/
 // opened in one snapshot, and any other file asked for (a test fixture) added to it. The compiler runs
 // as a child process that never holds the event loop open and ends with this process (its pipe closes).
 let session = null;
 function project(file) {
   if (!session) {
-    const files = readdirSync("dist", { recursive: true }).map(String).filter((f) => f.endsWith(".d.ts")).map((f) => resolve("dist", f));
+    const files = readdirSync(DOCS, { recursive: true }).map(String).filter((f) => f.endsWith(".d.ts")).map((f) => resolve(DOCS, f));
     session = { api: new API({ cwd: process.cwd() }), open: new Set(), snap: null };
     session.snap = session.api.updateSnapshot({ openFiles: files });
     files.forEach((f) => session.open.add(f));
@@ -95,7 +99,7 @@ function signatureOf(checker, name, sig, docs, alias, ctor = "") {
  * `lead`: the module's leading comment (plain text), which is never an export's doc.
  */
 export function declarations(dts, { lead = "" } = {}) {
-  const file = resolve(dts), { checker, program } = project(file);
+  const file = resolve(docsPath(dts)), { checker, program } = project(file);
   const sf = program.getSourceFile(file);
   if (!sf) throw new Error(`${dts}: not in the compiler's program (run npm run build)`);
   const mod = checker.getSymbolAtLocation(sf);
