@@ -1,7 +1,6 @@
 node_modules
 dist
 artifacts
-site-dist
-site-dist-fzlt
 .wrangler
 perf-results.json
+dist-docs

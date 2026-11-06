@@ -64,6 +64,8 @@ jobs:
       - run: npm run test:browser
       # Pack, install the tarball, import and typecheck every subpath.
       - run: npm run test:pack
+      # Only dist/, bin/ and three docs are packed; no comments, no agent words.
+      - run: npm run publish-clean
       - name: Publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

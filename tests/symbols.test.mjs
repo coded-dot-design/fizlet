@@ -1,9 +1,9 @@
-// The periodic table's data (site/bricks.mjs): every brick, shipped and planned, has exactly one
+// The periodic table's data (scripts/bricks.mjs): every brick, shipped and planned, has exactly one
 // two-letter symbol, unique, lowercase, and the one the rule gives; one number (the kernel is 1, no
 // gaps, no repeats); and one family from FAMILIES, with every family in use.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { BRICKS, PLANNED, FAMILIES, inHouse } from "../site/bricks.mjs";
+import { BRICKS, PLANNED, FAMILIES, inHouse } from "../scripts/bricks.mjs";
 
 const all = [...BRICKS.map((b) => ({ id: b.id, ...b })), ...PLANNED.map((p) => ({ id: p.name.split("/").pop(), ...p }))];
 
