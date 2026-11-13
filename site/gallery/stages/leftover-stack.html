@@ -6,7 +6,8 @@
    the gallery's keys strip (site/gallery/pieces/keys.ts); the camera frames the kitchen between the
    stickers and the strip. Wide: the fridge, its open door and the counter, from the left and a
    little above. Tall (a phone held upright): the fridge and its door, closer. Dark: the kitchen
-   with the lights off, the fridge's light on. Light: the kitchen lights on. */
+   with the lights off, the fridge's light on. Light: the kitchen lights on. Tall, the counter is
+   out of frame, so a NEXT sticker in the corner over the keys shows the dish after this one. */
 .ls{position:absolute;inset:0;background:#121628}
 html[data-theme="light"] .ls{background:#e9dfd3}
 .ls-poster,.ls~[data-fizlet-slot]>canvas,.ls~[data-fizlet-slot]>.ls-play{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
@@ -32,6 +33,9 @@ html[data-theme="light"] .ls-hint{color:#1f2433;text-shadow:0 1px 0 #e9dfd3,0 0 
 .ls~[data-fizlet-slot] .ls-card.ls-start{top:66%}
 .ls~[data-fizlet-slot] .ls-go{min-height:44px;padding:0 1.2em;font:inherit;background:var(--k-go);color:var(--rim)}
 .ls~[data-fizlet-slot] .gk.ls-drop{background:var(--k-go);color:var(--rim);min-width:88px}
+.ls~[data-fizlet-slot] .ls-next{position:absolute;right:8px;bottom:64px;flex-direction:column;gap:2px;padding:.3em .35em .35em;font-size:.86em;rotate:2deg}
+.ls~[data-fizlet-slot] .ls-next[hidden]{display:none}
+.ls-next canvas{display:block;width:56px;height:40px}
 @container stage (aspect-ratio<7/5){
 .ls~[data-fizlet-slot] .ls-hud{font-size:clamp(11px,3.2cqw,14px)}
 .ls-hint{white-space:normal}

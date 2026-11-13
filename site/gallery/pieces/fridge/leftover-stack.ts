@@ -8,7 +8,8 @@
 // dishes settle with a little bounce). Anything that only goes in sticking out past the door line
 // gets bumped: the door swings in, thunks it and it wobbles; the third bump and the door won't close:
 // THE FRIDGE WINS. Pack the whole night and the door swings shut. The camera looks in from the left,
-// a little above, and drifts with the dish you aim. Dark is the kitchen with the lights off.
+// a little above, and drifts with the dish you aim; tall (the counter out of frame), a NEXT sticker
+// over the keys draws the next dish on its own small diorama. Dark is the kitchen with the lights off.
 // Bricks: the kernel (fixed step; settle; its ledger for every page write, so Recall gives the page
 // back byte for byte), @fzlt/core/diorama (the 3D: shapes resting `on` each other, the depth sort
 // with the mist in it, the camera), @fzlt/core/slot, @fzlt/core/sound. The fridge is ./model.ts,
@@ -71,8 +72,8 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   play.setAttribute("aria-label", "Leftover Stack: arrows aim the next dish (left and right a column, up and down a shelf), R turns it, Space or Enter drops it (M mutes)");
   const hud = L.add(document.createElement("div"));
   hud.className = "ls-hud";
-  hud.innerHTML = `<div class="ls-head"><p class="ls-top"><b class="ls-chip">Score <span>0</span></b><b class="ls-chip ls-n">Dish <span>1/${RUN_N}</span></b><b class="ls-chip ls-door">Door <i></i><i></i><i></i></b></p><p class="ls-hint"></p></div><p class="ls-live" aria-live="polite"></p><div class="ls-card" role="dialog" aria-label="Leftover Stack"><b>Leftover Stack</b><p>The feast is over. Fit every leftover in the fridge: aim it, turn it, drop it. Anything past the door line gets bumped, and three bumps keep the door from closing.</p><p class="ls-stats"></p><button type="button" class="bui-key ls-go">OPEN THE FRIDGE</button></div>`;
-  const head = hud.children[0] as HTMLElement, top = head.children[0] as HTMLElement, hintEl = head.children[1] as HTMLElement, live = hud.children[1] as HTMLElement, card = hud.children[2] as HTMLElement;
+  hud.innerHTML = `<div class="ls-head"><p class="ls-top"><b class="ls-chip">Score <span>0</span></b><b class="ls-chip ls-n">Dish <span>1/${RUN_N}</span></b><b class="ls-chip ls-door">Door <i></i><i></i><i></i></b></p><p class="ls-hint"></p></div><b class="ls-chip ls-next" hidden>Next<canvas aria-hidden="true"></canvas></b><p class="ls-live" aria-live="polite"></p><div class="ls-card" role="dialog" aria-label="Leftover Stack"><b>Leftover Stack</b><p>The feast is over. Fit every leftover in the fridge: aim it, turn it, drop it. Anything past the door line gets bumped, and three bumps keep the door from closing.</p><p class="ls-stats"></p><button type="button" class="bui-key ls-go">OPEN THE FRIDGE</button></div>`;
+  const head = hud.children[0] as HTMLElement, top = head.children[0] as HTMLElement, hintEl = head.children[1] as HTMLElement, nextEl = hud.children[1] as HTMLElement, live = hud.children[2] as HTMLElement, card = hud.children[3] as HTMLElement;
   const scoreEl = top.children[0]!.firstElementChild as HTMLElement, dishEl = top.children[1]!.firstElementChild as HTMLElement, doors = top.children[2]!.querySelectorAll("i");
   const cardT = card.children[0] as HTMLElement, cardP = card.children[1] as HTMLElement, cardS = card.children[2] as HTMLElement, go = card.children[3] as HTMLButtonElement;
   stage.append(canvas, play, hud);
@@ -97,9 +98,13 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
 
   // ---- the diorama ----
   const dio = diorama(canvas, { light: LIT.light, ambient: LIT.amb, background: () => P.bg!, overlay: drawOverlay, get shadowColor() { return P.shadow!; } });
+  // The NEXT inset (tall stages, where the counter is out of frame): one of each dish, the next one shown.
+  const mini = diorama(nextEl.lastElementChild as HTMLCanvasElement, { light: LIT.light, ambient: LIT.amb });
+  const MROOT: DioramaObject[] = [], MPART: DioramaObject[][] = [], MFIT = new Float64Array(24);
+  let miniK = -1, miniDirty = false, tall = false;
   const keyed: DioramaObject[] = [], keyName: string[] = [], glow: DioramaObject[] = [];
-  const put = (d: DioramaObjectDef & { color?: string; glow?: boolean }) => {
-    const k = d.color, ob = dio.add({ ...d, color: k ? P[k] : undefined, pick: false });
+  const put = (d: DioramaObjectDef & { color?: string; glow?: boolean }, to = dio) => {
+    const k = d.color, ob = to.add({ ...d, color: k ? P[k] : undefined, pick: false });
     if (k) keyed.push(ob), keyName.push(k);
     if (d.glow) glow.push(ob);
     return ob;
@@ -203,6 +208,9 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     for (let k = 0; k < 3; k++) put({ shape: "cyl", sides: 8, size: [0.28, 0.08, 0.28], on: "door", pos: [-2.85 + k * 1.15, 4.45 - (k & 1) * 0.12, 0.2], rot: [HALF_PI, 0, 0], color: "mag" + k, layer: 0.7 });
     // The dishes of the night: built once, each hidden until it comes off the counter.
     for (let i = 0; i < RUN_N; i++) dish(i, f.SEQ[i]!);
+    mini.clear();
+    for (let k = 0; k < KIND_W.length; k++) dish(k, k, mini);
+    miniK = -1;
     // The dish in hand hangs on this anchor (world space, the hand cluster).
     put({ id: "hand", shape: "group", size: [0, 0, 0], cluster: "hand", layer: 1 });
     mist = dio.points({ cap: FXN, cluster: "mist", layer: 1, paint: puff });
@@ -220,10 +228,10 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     put({ shape: "cyl", sides: 6, size: [r * 0.42, r * 0.36, r * 0.42], on: id + "s", color: "b2", layer: 2.32 });
   }
   /** Dish i of kind k: a root (its footprint w × d, centred; y from its bottom) and a few blocks. */
-  function dish(i: number, k: number) {
+  function dish(i: number, k: number, to = dio) {
     const w = KIND_W[k]! * CW, d = KIND_D[k]! * CW, h = KIND_H[k]! * LV, id = "d" + i, list: DioramaObject[] = [];
-    const root = put({ id, shape: "group", size: [w, 0, d], on: "ctr", hidden: true, layer: 2 });
-    const add = (o: DioramaObjectDef & { color?: string }) => (list.push(put({ on: id, ...o, hidden: true, layer: 2 + (o.layer ?? 0) })), list[list.length - 1]!);
+    const root = put({ id, shape: "group", size: [w, 0, d], on: to === dio ? "ctr" : undefined, hidden: true, layer: 2 }, to);
+    const add = (o: DioramaObjectDef & { color?: string }) => (list.push(put({ on: id, ...o, hidden: true, layer: 2 + (o.layer ?? 0) }, to)), list[list.length - 1]!);
     const half = (rx: number, rz: number, n: number) => {
       const o: number[][] = [];
       for (let j = 0; j <= n; j++) {
@@ -270,6 +278,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       add({ shape: "cyl", sides: 12, top: 0.35, size: [1.7, 0.3, 1.7], pos: [0, 0.72, 0], color: "mash", layer: 0.01 });
       add({ size: [0.3, 0.08, 0.24], pos: [0.05, 0.98, 0.02], rot: [0, 0.5, 0], color: "butter", layer: 0.02 });
     }
+    if (to !== dio) return void ((MROOT[k] = root), (MPART[k] = list));
     roots[i] = root;
     parts[i] = list;
     return h;
@@ -455,7 +464,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     const W = dio.width;
     // On the counter: what comes next.
     const nx = S[2]! + 1;
-    if (S[0] === PLAY && nx < RUN_N && AT[nx] === 1 && dio.project(-5.5, 4.7, -1.2, tmp)) sticker(ctx, "NEXT", tmp[0]!, tmp[1]!, 11, "#fffaf1", "#1f2433");
+    if (S[0] === PLAY && !tall && nx < RUN_N && AT[nx] === 1 && dio.project(-5.5, 4.7, -1.2, tmp)) sticker(ctx, "NEXT", tmp[0]!, tmp[1]!, 11, "#fffaf1", "#1f2433");
     if (S[0] === PACKED && doorA < 0.08 && dio.project(0.95, 3.5, 0.45, tmp)) sticker(ctx, "GOOD NIGHT", tmp[0]!, tmp[1]!, Math.max(12, Math.min(18, Math.round(W / 40))), "#ffd36b", "#1f2433");
     if (toastT > 0) {
       const u = 1 - toastT / 1.2, s = u < 0.16 ? 0.6 + (u / 0.16) * 0.48 : u < 0.28 ? 1.08 - ((u - 0.16) / 0.12) * 0.08 : 1;
@@ -481,7 +490,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   const FIT = new Float64Array(30);
   let baseYaw = -0.3, basePitch = 0.24;
   function frame() {
-    const port = dio.width / dio.height < 1.1, c = dio.cam;
+    const port = (tall = dio.width / dio.height < 1.1), c = dio.cam;
     (baseYaw = port ? -0.2 : -0.32), (basePitch = port ? 0.2 : 0.24);
     (c.yaw = baseYaw), (c.pitch = basePitch), (c.fov = 0.6), (c.tx = port ? 0.4 : -0.6), (c.ty = FB + 2.9), (c.tz = -1);
     // The fridge, its open door, and (wide) the counter with the next dish on it.
@@ -747,7 +756,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
           dio.setLight(l.light, l.amb);
           for (let i = 0; i < keyed.length; i++) keyed[i]!.color = P[keyName[i]!]!;
           for (const g of glow) g.emissive = P === DARK;
-          dirty = true;
+          dirty = miniDirty = true;
         }
       }
       if (V[0]) {
@@ -759,6 +768,8 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         frame();
         follow(0);
         dirty = true;
+        if (tall) mini.resize(56, 40, Math.min(2, devicePixelRatio || 1) * (V[2] || 1)), (miniK = -1);
+        hudDirty = true;
       }
       if (first) (first = null), start();
     },
@@ -781,6 +792,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     render() {
       if (hudDirty) (hudDirty = false), hudWrite();
       if (dirty) (dirty = false), fxPoints(), dio.draw();
+      if (miniDirty) (miniDirty = false), mini.draw();
     },
   });
   // ---- the HUD (DOM writes in render, change-only) ----
@@ -795,6 +807,23 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     const hint = mode === PLAY ? (coarse ? `Drag to aim the ${NAMES[S[3]!]}; let go to drop. ↻ turns it.` : `${CAPS[S[3]!]}: ← → ↑ ↓ or drag to aim, R turns, Space drops.`) : "";
     if (set(5, hint)) hintEl.textContent = hint;
     if (set(6, said)) live.textContent = said;
+    // The NEXT inset: the dish after the one in hand, when the counter is out of frame.
+    const nx = S[2]! + 1, k = mode === PLAY && tall && nx < RUN_N ? f.SEQ[nx]! : -1;
+    if (set(7, k)) {
+      nextEl.hidden = k < 0;
+      if (k >= 0) nextEl.setAttribute("aria-label", "Next: " + NAMES[k]);
+    }
+    if (k >= 0 && k !== miniK) showNext(k);
+  }
+  /** The inset shows dish kind k, framed from the left and a little above. */
+  function showNext(k: number) {
+    miniK = k;
+    for (let j = 0; j < MROOT.length; j++) for (const o of MPART[j]!) o.hidden = j !== k;
+    const w = KIND_W[k]! * CW * 0.48, d = KIND_D[k]! * CW * 0.48, h = KIND_H[k]! * LV + 0.05, c = mini.cam;
+    for (let q = 0; q < 8; q++) (MFIT[q * 3] = q & 1 ? w : -w), (MFIT[q * 3 + 1] = q & 2 ? h : 0), (MFIT[q * 3 + 2] = q & 4 ? d : -d);
+    (c.yaw = -0.45), (c.pitch = 0.5), (c.fov = 0.6), (c.tx = 0), (c.ty = h / 2), (c.tz = 0);
+    mini.fit(c, MFIT, { x0: 2, x1: mini.width - 2, y0: 2, y1: mini.height - 2 });
+    miniDirty = true;
   }
 
   // ---- input ----

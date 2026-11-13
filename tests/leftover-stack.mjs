@@ -4,7 +4,9 @@
 // start card is up, and it settles to no frames with no audio before a gesture; every key is 44 px
 // or more, wide (720) and tall (the phone shape, 358 wide). The keyboard plays it (Space opens the
 // fridge, ← → ↑ ↓ aim, R turns, Space drops, M mutes); touch plays it (OPEN THE FRIDGE, then a press
-// and release on the fridge drops the dish there). It settles again between dishes. Recall mid-night
+// and release on the fridge drops the dish there). Tall, where the counter is out of frame, a NEXT
+// sticker in the stage (over the keys, clear of the head) shows the next dish drawn; wide, the counter
+// shows it and the sticker stays hidden. It settles again between dishes. Recall mid-night
 // gives the page back byte for byte; reduced motion keeps the still poster. The fridge itself:
 // tests/leftover-stack.test.mjs.
 import assert from "node:assert/strict";
@@ -50,7 +52,7 @@ try {
       const cvs = document.querySelector("[data-fizlet-slot] canvas"), px = cvs.getContext("2d").getImageData(cvs.width >> 1, cvs.height >> 1, 1, 1).data;
       const keys = [...document.querySelectorAll("[data-fizlet-slot] .gk")].filter((b) => b.offsetParent).map((b) => { const k = b.getBoundingClientRect(); return Math.min(k.width, k.height) >= 44; });
       return {
-        canvas: document.querySelectorAll("[data-fizlet-slot] canvas[aria-hidden='true']").length,
+        canvas: document.querySelectorAll("[data-fizlet-slot] > canvas[aria-hidden='true']").length,
         poster: getComputedStyle(document.querySelector(".ae-slot__placeholder")).display,
         fills: Math.abs(art.width - fig.width) < 6 && Math.abs(art.height - fig.height) < 6,
         drawn: px[3] === 255,
@@ -95,6 +97,17 @@ try {
     }
     // The dish lands, the next one comes off the counter; it settles again.
     await settle(p, `${at}: after a drop`);
+    const nx = await p.evaluate(() => {
+      const el = document.querySelector("[data-fizlet-slot] .ls-next"), st = document.querySelector("[data-fizlet-slot]").getBoundingClientRect();
+      if (el.hidden || getComputedStyle(el).display === "none") return { shown: false };
+      const r = el.getBoundingClientRect(), hd = document.querySelector(".ls-head").getBoundingClientRect(), keys = [...document.querySelectorAll("[data-fizlet-slot] .gk")].map((k) => k.getBoundingClientRect());
+      const c = el.querySelector("canvas"), px = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+      let ink = 0;
+      for (let i = 3; i < px.length; i += 4) ink += px[i] > 0;
+      const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+      return { shown: true, inside: r.left >= st.left && r.right <= st.right && r.top >= st.top && r.bottom <= st.bottom, clear: !hit(r, hd) && !keys.some((k) => hit(r, k)), drawn: ink > 200, named: el.getAttribute("aria-label").startsWith("Next: ") };
+    });
+    assert.deepEqual(nx, phone ? { shown: true, inside: true, clear: true, drawn: true, named: true } : { shown: false }, `${at}: the NEXT dish is in view (tall: the inset; wide: the counter)`);
     assert.equal(await frames(p), 0, `${at}: settled again`);
     const after = await p.evaluate(() => (h.destroy(), { same: document.body.innerHTML === window.before, running: scene.engine.running }));
     assert.deepEqual(after, { same: true, running: false }, `${at}: Recall restores the page byte for byte`);
