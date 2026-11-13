@@ -33,7 +33,9 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    # 45: test:browser alone takes about 23 min since the 0.22.0 train (59 scripts); at 20 the job was
+    # cancelled before Publish.
+    timeout-minutes: 45
     env:
       TAG: ${{ inputs.tag || github.ref_name }}
     steps:
