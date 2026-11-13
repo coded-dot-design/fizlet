@@ -1,0 +1,25 @@
+{
+  "id": "holdem",
+  "date": "2026-11-21",
+  "prompt": "Texas hold'em with play chips on Flip Match's felt card table, you against three bots, a standard deck with a Fizlet back: blinds, a dealer button that moves round, the flop, turn and river; fold, check or call, raise or all in; chips slide into the pot; at the showdown every hand is named and the winning five outlined; a lamp-lit night in the dark",
+  "title": "Hold'em",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "tabletop",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/cards",
+    "@fzlt/core/diorama",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.22.0",
+  "made": "by hand",
+  "module": "pieces/holdem/holdem.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own"
+}
