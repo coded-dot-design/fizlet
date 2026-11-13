@@ -61,8 +61,8 @@ export const FAMILIES = [
 /**
  * Every brick, shipped and planned, carries three periodic-table fields, kept here and nowhere else:
  * - `no`: its number. The kernel is 1; shipped bricks in the order they shipped (`since`, then this
- *   list), planned ones after, in roadmap order. A new brick takes the next free number; numbers
- *   never move.
+ *   list), planned ones after, in roadmap order. A shipped brick's number never moves; planned
+ *   numbers shift up by one when a new brick ships ahead of them (owner, 2026-11-13).
  * - `sym`: its two-letter symbol, lowercase mono like the fzlt mark (fizlet, vowels out: fzlt), for
  *   recognising a brick at a glance. The rule: the name's first letter, then its next consonant
  *   (vowels and a repeat of the first letter skipped: kernel kr, coach ch); on a clash the lower
