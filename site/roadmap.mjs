@@ -4,7 +4,7 @@
  * (checked from the engine side: `fe roadmap check`). Change a phase here and there in the same
  * sitting.
  *
- * E0–E8 are the launch scope, E9–E16 the next eight. A box is ticked only with evidence behind it
+ * E0–E8 are the launch scope, E9–E16 the next eight, E17 the Tabletop tier (owner, 2026-11-13). A box is ticked only with evidence behind it
  * (a release, a merged PR, a test). The ROADMAP bricks of a planned phase come from site/bricks.mjs
  * PLANNED, so a planned brick can't be on one list and missing from the other.
  *
@@ -79,6 +79,7 @@ export const ROADMAP = [
     [1, "Perf harness and allocation test in CI on every push", "E6.ci"],
     [0, "A weekly run against the baseline", "E6.weekly"],
     [1, "A public log of every win: PERF-LOG.md, generated from the measured wins", "E6.log"],
+    [0, "CI test suite split into shards: the check job takes about 41 of its 75 minutes", "E6.ci-split"],
   ] },
   { id: "E7", name: "Page interactions", status: "nearly", goal: "Heroes, diagrams and micro animations on ordinary pages: lazy, contained, settled when still.", items: [
     [1, "slot, the page profile, camera and timeline", "E7.bricks"],
@@ -122,6 +123,19 @@ export const ROADMAP = [
   { id: "E16", name: "1.0", status: "planned", goal: "Every shipped brick COMPLETE or DEPRECATED, the API frozen, the games on 1.0, and smaller and faster than 0.x by a measured margin.", items: [
     [0, "Every brick COMPLETE or DEPRECATED", "E16.flags"],
     [0, "@fzlt/core@1.0.0", "E16.release"],
+  ] },
+  { id: "E17", name: "Tabletop", status: "in progress", note: "0.22.0", goal: "A game tier beside Board: diorama 3D games on a plain 2D canvas, no WebGL and no libraries, built from a family of 3D bricks.", items: [
+    [1, "diorama: the 3D renderer on a plain 2D canvas, EXPERIMENTAL in 0.22.0", "E17.diorama"],
+    [1, "dice · track · water · props · beam · cards · flick · terrain · drive, EXPERIMENTAL in 0.22.0", "E17.bricks"],
+    [1, "Salvo Bay: the first diorama piece, on diorama", "E17.salvo-bay"],
+    [1, "Daily: a Hi-Fi lane for pieces over the micro cap, with its own weekly winner", "E17.hifi"],
+    [0, "Salvo Bay online for two, on presence", "E17.salvo-online"],
+    [0, "A live 3D demo on every 3D brick's page", "E17.live-demos"],
+    [0, "A guide: Build a Tabletop game", "E17.guide"],
+    [0, "Wave pool surfer", "E17.wave-pool"],
+    [0, "Bike and Jeep course", "E17.bike-course"],
+    [0, "Cyberpunk Baja", "E17.baja"],
+    [0, "Open-wheel circuit", "E17.circuit"],
   ] },
 ];
 
