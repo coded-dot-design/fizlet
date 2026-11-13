@@ -121,7 +121,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     crowd.push(c);
     return c;
   };
-  let fxp: DioramaPoints;
+  let fxB: DioramaPoints, fxF: DioramaPoints;
   const FAN = 7;
 
   function buildScene() {
@@ -218,8 +218,10 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       hand.push(parts);
     }
     dio.decal("parade", 0.6, lines);
-    // Confetti, leaves and puffs, over the street.
-    fxp = dio.points({ cap: FXN, paint: bit });
+    // Confetti, leaves and puffs, in the parade's cluster so they depth-sort with the balloon: each
+    // frame a bit goes in the pool behind it (under the handlers and the balloon) or the one in front.
+    fxB = dio.points({ cap: FXN, cluster: "parade", layer: 0.5, paint: bit });
+    fxF = dio.points({ cap: FXN, cluster: "parade", layer: 9.5, paint: bit });
     showVariant(0);
   }
   function nearPost(s: number, z: number) {
@@ -285,7 +287,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   // Effects: x y z, vx vy vz, life, max, type (0 confetti, 1 leaf, 2 puff), spin, colour.
   const fx = new Float32Array(FXN * FS);
   const bit = (ctx: CanvasRenderingContext2D, j: number, p: DioramaPoints) => {
-    const o = FX_OF[j]! * FS, ty = fx[o + 8]!, x = p.sx[j]!, y = p.sy[j]!, r = Math.max(1.2, p.sr[j]!), sp = fx[o + 9]!;
+    const o = (p === fxF ? FX_F : FX_B)[j]! * FS, ty = fx[o + 8]!, x = p.sx[j]!, y = p.sy[j]!, r = Math.max(1.2, p.sr[j]!), sp = fx[o + 9]!;
     ctx.globalAlpha = p.a[j]!;
     if (ty === 2) {
       ctx.fillStyle = P === DARK ? "#d9d4e4" : "#ffffff";
@@ -303,7 +305,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     }
     ctx.globalAlpha = 1;
   };
-  const FX_OF = new Int32Array(FXN);
+  const FX_B = new Int32Array(FXN), FX_F = new Int32Array(FXN);
   function spawn(ty: number, x: number, y: number, z: number, vx: number, vy: number, vz: number, life: number) {
     for (let k = 0; k < FXN; k++) {
       const o = k * FS;
@@ -336,13 +338,15 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     return on;
   }
   function fxPoints() {
-    const p = fxp;
-    p.n = 0;
+    // The balloon's view depth (its middle): a bit farther than that draws behind it, nearer in front.
+    const M = bal.M, bd = dio.project(M[9]!, M[10]! + 1.4 * VH[variant]!, M[11]!, tmp2) ? tmp2[2]! : 0;
+    fxB.n = fxF.n = 0;
     for (let k = 0; k < FXN; k++) {
       const o = k * FS, l = fx[o + 6]!;
       if (l <= 0) continue;
+      const front = dio.project(fx[o]!, fx[o + 1]!, fx[o + 2]!, tmp2) && tmp2[2]! < bd, p = front ? fxF : fxB;
       const j = p.n++, u = l / fx[o + 7]!, ty = fx[o + 8]!;
-      FX_OF[j] = k;
+      (front ? FX_F : FX_B)[j] = k;
       (p.x[j] = fx[o]!), (p.y[j] = fx[o + 1]!), (p.z[j] = fx[o + 2]!);
       p.r[j] = ty === 2 ? 0.18 + (1 - u) * 0.5 : ty ? 0.09 : 0.06;
       p.a[j] = ty === 2 ? u * 0.75 : Math.min(1, u * 4);
@@ -567,11 +571,23 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     const near = port ? 2.2 : 2.6, far = port ? -11 : -10, wx = port ? 3.7 : 6.2;
     FIT.set([-wx, 0, near, wx, 0, near, -wx, 0, far, wx, 0, far, -wx * 0.85, 5.6, far, wx * 0.85, 5.6, far, -3, 6.2, -1, 3, 6.2, -1]);
     dio.fit(c, FIT, { x0: 6, x1: dio.width - 6, y0: V[3]!, y1: Math.max(V[3]! + 80, dio.height - V[4]!) });
+    E[0] = c.oy;
   }
   function follow(dt: number) {
     const c = dio.cam, want = f.S[2]! - 3, k = dt ? 1 - Math.exp(-dt * 4) : 1;
     c.tz += (want - c.tz) * k;
     c.tx += (f.S[3]! * 0.3 - c.tx) * k;
+    c.oy += (endOy() - c.oy) * k;
+  }
+  // The end card sits up top, under the stickers; the camera lowers the picture until the float (the
+  // balloon, or the flat pile it left) is clear of the card. E: [0] the framed oy, [1] where the card
+  // goes (px from the stage's top), [2] the card's bottom once measured (0: not yet), [3] measure it.
+  const E = new Float64Array(4);
+  function endOy() {
+    const c = dio.cam, M = bal.M;
+    if (!E[2] || card.hidden || f.S[0] !== DONE || !dio.project(M[9]!, M[10]! + 3.5 * VH[variant]!, M[11]!, tmp)) return E[0]!;
+    const top = tmp[1]! - c.oy + E[0]!;
+    return E[0]! + Math.max(0, Math.min(dio.height * 0.4, E[2]! + 14 - top));
   }
 
   // ---- the frame ----
@@ -591,6 +607,8 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     syncCrew(0);
     card.hidden = run;
     card.classList.toggle("pd-start", !run);
+    card.classList.remove("pd-end");
+    E[2] = E[3] = 0;
     if (!run) {
       cardT.textContent = "Parade Day";
       cardP.hidden = false;
@@ -616,7 +634,11 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     cardS.textContent = `Distance ${f.metres()} m · Bumps ${b}${fin ? " · Finish +200" : ""}${fin && !b ? " · Perfect float +500" : ""} · Score ${f.score()}`;
     go.textContent = "PLAY AGAIN";
     card.classList.remove("pd-start");
+    card.classList.add("pd-end");
+    card.style.setProperty("--pd-top", E[1] + "px");
     card.hidden = false;
+    E[3] = 1;
+    alive();
     say(`${cardT.textContent} Score ${f.score()}.`);
     go.focus({ preventScroll: true });
   }
@@ -679,9 +701,17 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         dio.resize(sr.width || 1, sr.height || 1, Math.min(2, devicePixelRatio || 1) * (V[2] || 1));
         V[3] = hr.bottom - sr.top + 6;
         V[4] = kr.bottom > sr.bottom - 24 ? sr.bottom - kr.top + 6 : 6;
+        const mr = muteK!.getBoundingClientRect();
+        E[1] = Math.max(V[3]!, mr.top < sr.top + sr.height / 2 ? mr.bottom - sr.top + 6 : 0);
+        if (!card.hidden && f.S[0] === DONE) E[3] = 1;
         frame();
         follow(0);
         dirty = true;
+      }
+      if (E[3]) {
+        E[3] = 0;
+        const sr = stage.getBoundingClientRect(), cr = card.getBoundingClientRect();
+        E[2] = cr.bottom - sr.top;
       }
       if (first) (first = null), start();
     },
@@ -719,7 +749,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       if (stepFx(dt)) moving = true;
       if (toastT > 0) (toastT = Math.max(0, toastT - dt)), (moving = true);
       const c = dio.cam;
-      if (Math.abs(c.tz - (z - 3)) > 0.01) moving = true;
+      if (Math.abs(c.tz - (z - 3)) > 0.01 || Math.abs(c.oy - endOy()) > 0.5) moving = true;
       if (moving || e.time < aliveT) syncCrew(dt), (dirty = true);
       if (moving) e.busy();
       if (z !== z0 || ev[EV_BUMP]) hudDirty = true;
