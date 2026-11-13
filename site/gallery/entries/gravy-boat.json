@@ -1,0 +1,22 @@
+{
+  "id": "gravy-boat",
+  "date": "2026-11-24",
+  "prompt": "a gravy boat tilts over a row of plates sliding past on the table; hold to pour (the stream thickens), let go to stop; fill each plate's mashed-potato crater to the gold line without overflowing; overflow runs down onto the tablecloth, leaves a stain and costs a star; the plates speed up; a thick glossy stream, a pool that rises and wobbles; a streak and best",
+  "title": "Gravy Boat",
+  "kind": "micro",
+  "theme": "thanksgiving",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/gravy-boat.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own"
+}
