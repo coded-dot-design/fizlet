@@ -26,15 +26,18 @@ const LIGHT = {
   frame: "#f8f4eb", pic: "#a6d6ea", sun: "#f7d27a", blind: "#ef9f98",
   you0: "#f08e6f", you1: "#7fcfa8", you2: "#a99be0", you3: "#f2c96b", foe: "#8f9dc6", deck: "#fbf4e6", cabin: "#ffffff", foeDeck: "#e7e4f0", funnel: "#5f6b8a", foeFunnel: "#e2675c", cap: "#3d4255",
   flagYou: "#f08e6f", flagFoe: "#e2675c", pegHit: "#e5484d", pegMiss: "#ffffff", bad: "#ef6b6b", shadow: "#3a2d3c",
-  grid: "rgba(255,255,255,0.6)", gridShade: "rgba(40,90,120,0.18)", light: [0.55, 1, 0.42], amb: 0.5, smoke: "#9d98a6", drop: "#ffffff", night: false,
+  grid: "rgba(255,255,255,0.6)", gridShade: "rgba(40,90,120,0.18)", light: [0.55, 1, 0.42], amb: 0.5, smoke: "#9d98a6", drop: "#ffffff", scorch: "#3b3036",
+  // The water's moving light: wave crests, the foam on the walls, the sheen (alphas: crest, foam, sheen).
+  foam: "#ffffff", wa: [0.13, 0.62, 0.09], night: false,
 };
 type Pal = typeof LIGHT;
 const DARK: Pal = {
   ...LIGHT, bg: "#141a2c", floor: "#2b3047", rug: "#3c3658", rug2: "#463f66", wallB: "#2f3654", wallR: "#283f47", base: "#7d5c45", top: "#987452", bed1: "#14385a", bed2: "#1d5275", water: "#3f8aac",
   rim: "#cfcadb", glass: "#9cc6d9", dock: "#94724f", plank: "#6d5139", lhW: "#dfdae6", lhR: "#c9615a", lamp: "#fff4b8", basin: "#3b7f9c", frame: "#c9c4d4", pic: "#41708a", sun: "#f0e2a4", blind: "#a96a72",
-  shadow: "#000000", grid: "rgba(200,235,255,0.42)", gridShade: "rgba(0,0,0,0.2)", light: [0.4, 1, 0.55], amb: 0.44, smoke: "#6f7384", drop: "#d9f1ff", night: true,
+  shadow: "#000000", grid: "rgba(200,235,255,0.42)", gridShade: "rgba(0,0,0,0.2)", light: [0.4, 1, 0.55], amb: 0.44, smoke: "#6f7384", drop: "#d9f1ff", scorch: "#1c1820",
+  foam: "#d9f1ff", wa: [0.08, 0.42, 0.06], night: true,
 };
-type Key = Exclude<keyof Pal, "light" | "amb" | "night">;
+type Key = Exclude<keyof Pal, "light" | "amb" | "night" | "wa">;
 
 // The table: plinth top PT, three water bands to the surface WY, the trays' centres (TX, TZ); hulls
 // under the water line draw on their own layer, under the water (seen faintly through it).
@@ -43,8 +46,9 @@ const BELOW = { y: WY - 0.02, layer: 2 };
 const DOCK = { x: -5, z: 5.1 }, SLOTS = [-2.3, -0.68, 2.15, -0.68, -2.75, 0.72, 1.35, 0.72], FORT = { x: 9, z: 5 }, LH = { x: 10.2, z: -4.7 };
 /** Seconds the water keeps bobbing after the last thing that happened; then it settles. */
 const ALIVE = 6;
-// Particles: x y z, vx vy vz, life, max life, type (0 drop, 1 spark, 2 fire, 3 smoke, 4 flash), size.
-const PART = 260, PS = 10;
+// Particles: x y z, vx vy vz, life, max life, type, size. Types: 0 drop, 1 spark, 2 fire, 3 smoke,
+// 4 flash, 5 the water column, 6 the fireball (blooms, then turns to smoke), 7 debris, 8 a bubble.
+const PART = 420, PS = 10, RINGS = 24;
 // Timed beats (a fixed table, no closures): what runs, and when.
 const T_VIEW = 1, T_BOT = 2, T_TURN = 3, T_END = 4, T_POSTER = 5;
 const VIEWS = ["auto", "both", "mine", "enemy"];
@@ -120,6 +124,8 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   // Per ship (side * 4 + i): its root, its parts, the drop-in (own ships), its sink time (−1: afloat).
   const ships: DioramaObject[] = [], parts: DioramaObject[][] = [], drops = new Float64Array(8), sinkT = new Float64Array(8).fill(-1);
   let fx0: DioramaPoints, fx1: DioramaPoints, shellPts: DioramaPoints;
+  /** A bubble's colour (the painter strokes it as a ring). */
+  const BUB = "#fefefe";
 
   function buildScene() {
     dio.clear();
@@ -149,8 +155,12 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       put({ id: "bed1" + s, size: [8, BED1, 8], on: "top", pos: [x, 0, TZ], color: "bed1", cluster: cl, layer: 1, mask: 62, pick: false });
       put({ id: "bed2" + s, size: [8, BED2, 8], on: "bed1" + s, color: "bed2", layer: 1, pick: false });
       put({ id: "water" + s, size: [8, WTR, 8], on: "bed2" + s, color: "water", layer: 3, alpha: 0.84, pick: false });
-      put({ size: [8.8, rh, 0.4], on: "top", pos: [x, 0, TZ - 4.2], color: "rim", cluster: cl, layer: 4, pick: false });
-      put({ size: [0.4, rh, 8], on: "top", pos: [x + 4.2, 0, TZ], color: "rim", cluster: cl, layer: 4, pick: false });
+      // The far and right walls are split at the water line: under it they draw under the water (so
+      // they never hide the back row's cells), over it only a low rim.
+      put({ size: [8.8, WY - PT, 0.4], on: "top", pos: [x, 0, TZ - 4.2], color: "rim", cluster: cl, layer: 0.5, pick: false });
+      put({ size: [0.4, WY - PT, 8], on: "top", pos: [x + 4.2, 0, TZ], color: "rim", cluster: cl, layer: 0.5, pick: false });
+      put({ size: [8.8, rh - WY + PT, 0.4], on: "top", pos: [x, WY - PT, TZ - 4.2], color: "rim", cluster: cl, layer: 4, pick: false });
+      put({ size: [0.4, rh - WY + PT, 8], on: "top", pos: [x + 4.2, WY - PT, TZ], color: "rim", cluster: cl, layer: 4, pick: false });
       put({ size: [8.8, rh, 0.4], on: "top", pos: [x, 0, TZ + 4.2], color: "glass", alpha: 0.32, cluster: cl, layer: 6, pick: false });
       put({ size: [0.4, rh, 8], on: "top", pos: [x - 4.2, 0, TZ], color: "glass", alpha: 0.32, cluster: cl, layer: 6, pick: false });
       put({ size: [8.8, 0.12, 0.42], on: "top", pos: [x, 0, TZ + 4.2], color: "rim", cluster: cl, layer: 6.5, pick: false });
@@ -196,15 +206,24 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     shellPts = dio.points({ cap: 15, paint: shellDot });
   }
   const dot = (ctx: CanvasRenderingContext2D, i: number, p: DioramaPoints) => {
-    ctx.fillStyle = p.color[i]!;
+    const c = p.color[i]!;
     ctx.beginPath();
     ctx.arc(p.sx[i]!, p.sy[i]!, Math.max(0.8, p.sr[i]!), 0, TAU);
+    if (c === BUB) return void ((ctx.strokeStyle = P.foam), (ctx.lineWidth = 1.3), ctx.stroke());
+    ctx.fillStyle = c;
     ctx.fill();
   };
   const shellDot = (ctx: CanvasRenderingContext2D, i: number, p: DioramaPoints) => {
     const x = p.sx[i]!, y = p.sy[i]!;
     if (i) return dot(ctx, i, p);
-    const r = Math.max(2.5, p.sr[0]!);
+    const r = Math.max(2.5, p.sr[0]!), a = ctx.globalAlpha;
+    // A warm glow round the shell (brighter at night).
+    ctx.fillStyle = P.night ? "#ffd36b" : "#fff3c4";
+    ctx.globalAlpha = P.night ? 0.32 : 0.22;
+    ctx.beginPath();
+    ctx.arc(x, y, r * 2.4, 0, TAU);
+    ctx.fill();
+    ctx.globalAlpha = a;
     ctx.fillStyle = "#3a3f52";
     ctx.beginPath();
     ctx.arc(x, y, r, 0, TAU);
@@ -271,10 +290,10 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   let sel = -1, hover = -1, cursor = 27, view = 0, anim = 0, picked = false, kbd = false, flash = 0, flashCell = -1, tAmb = 0, hudDirty = true, dirty = true;
   const pdir = new Uint8Array(4), ghost = { show: false, ok: true, x: 0, y: 0, dir: 0, i: -1 };
   const shell = { on: false, t: 0, dur: 1, by: 0, cell: 0, res: 0, ship: -1, a: new Float64Array(3), b: new Float64Array(3), h: 3, pos: new Float64Array(3), trail: new Float64Array(42), tn: 0 };
-  const fx = new Float32Array(PART * PS), rings = new Float32Array(12 * 5), burning = new Uint8Array(128);
+  const fx = new Float32Array(PART * PS), rings = new Float32Array(RINGS * 5), burning = new Uint8Array(128);
   const TT = new Float64Array(8), TF = new Uint8Array(8);
   const cues = new Uint8Array(8);
-  let ncue = 0, toastT = 0, toastK = 0, toastS = "", said = "";
+  let ncue = 0, toastT = 0, toastK = 0, toastS = "", said = "", shake = 0, shakeA = 0, toastX = 0.5;
   const CUES = ["", "fire", "splash", "hit", "sunk", "place", "bad", "start", "win", "lose"];
   const cue = (k: number) => ncue < 8 && (cues[ncue++] = k);
   const tmp = new Float64Array(3), tmp2 = new Float64Array(3), hit3 = new Float64Array(3), A2 = new Int8Array(2);
@@ -303,7 +322,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     botRnd = seeded(seed * 31 + 7);
     fxRnd = seeded(seed * 17 + 3);
     randomFleet(m, 1, seeded(seed * 7 + 1));
-    sel = 0, hover = -1, cursor = 27, anim = 0, flash = 0, toastT = 0;
+    sel = 0, hover = -1, cursor = 27, anim = 0, flash = 0, toastT = 0, shake = 0;
     pdir.fill(0), drops.fill(0), sinkT.fill(-1), burning.fill(0), fx.fill(0), rings.fill(0), TF.fill(0);
     shell.on = false;
     buildScene();
@@ -371,28 +390,56 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     }
   }
   const R = () => fxRnd();
-  function ring(x: number, z: number, life: number) {
-    for (let i = 0; i < 12; i++) if (rings[i * 5 + 4]! <= 0) return void ((rings[i * 5] = x), (rings[i * 5 + 1] = z), (rings[i * 5 + 3] = 0), (rings[i * 5 + 4] = life));
+  /** A ring on the water: centre, how far it spreads, how long it lives, a delay (it waits). */
+  function ring(x: number, z: number, spread: number, life: number, delay: number) {
+    for (let i = 0; i < RINGS; i++) if (rings[i * 5 + 4]! <= 0) return void ((rings[i * 5] = x), (rings[i * 5 + 1] = z), (rings[i * 5 + 2] = spread), (rings[i * 5 + 3] = -delay), (rings[i * 5 + 4] = life));
   }
+  /** A miss: a tall column of water that rises and falls back, spray and a crown of drops round its
+   *  foot, a ring and ripples that travel out across the cells. */
   function splash(x: number, z: number) {
-    const n = RM ? 10 : 26;
-    for (let i = 0; i < n; i++) {
-      const a = R() * TAU, sp = 0.5 + R() * 1.3;
-      spawn(0, x, WY + 0.05, z, Math.cos(a) * sp, 2.6 + R() * 2.4, Math.sin(a) * sp, RM ? 0.45 : 0.7 + R() * 0.4, 0.06 + R() * 0.06);
+    if (RM) {
+      for (let i = 0; i < 10; i++) {
+        const a = R() * TAU, sp = 0.5 + R() * 1.3;
+        spawn(0, x, WY + 0.05, z, Math.cos(a) * sp, 2.6 + R() * 2.4, Math.sin(a) * sp, 0.45, 0.08);
+      }
+      return ring(x, z, 0.9, 0.5, 0);
     }
-    ring(x, z, RM ? 0.5 : 1.1);
+    for (let i = 0; i < 18; i++) {
+      const h = R();
+      spawn(5, x + (R() - 0.5) * 0.16, WY + 0.02, z + (R() - 0.5) * 0.16, (R() - 0.5) * 0.3, 3.2 + h * 4.4, (R() - 0.5) * 0.3, 2, 0.3 - h * 0.15);
+    }
+    for (let i = 0; i < 30; i++) {
+      const a = R() * TAU, sp = 0.6 + R() * 1.5;
+      spawn(0, x, WY + 0.3 + R() * 1.4, z, Math.cos(a) * sp, 1.5 + R() * 3.4, Math.sin(a) * sp, 1.4, 0.05 + R() * 0.06);
+    }
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * TAU, sp = 1.6 + R() * 0.5;
+      spawn(0, x + Math.cos(a) * 0.2, WY + 0.04, z + Math.sin(a) * 0.2, Math.cos(a) * sp, 1.6 + R() * 1.2, Math.sin(a) * sp, 1, 0.06 + R() * 0.03);
+    }
+    ring(x, z, 0.9, 0.9, 0), ring(x, z, 2.2, 1.6, 0.12), ring(x, z, 3.2, 2.2, 0.4), ring(x, z, 1.4, 1.3, 0.9);
   }
+  /** A hit: a flash, a fireball that blooms and turns to smoke, sparks, debris, a shake, rings. */
   function burst(x: number, y: number, z: number, big: boolean) {
-    spawn(4, x, y + 0.1, z, 0, 0, 0, RM ? 0.12 : 0.22, big ? 1 : 0.75);
+    spawn(4, x, y + 0.1, z, 0, 0, 0, RM ? 0.12 : 0.26, big ? 1.1 : 0.8);
     for (let i = 0, n = RM ? 8 : big ? 34 : 24; i < n; i++) {
       const a = R() * TAU, sp = 1 + R() * 2.6;
       spawn(1, x, y, z, Math.cos(a) * sp, 2 + R() * 3.2, Math.sin(a) * sp, 0.4 + R() * 0.35, 0.07 + R() * 0.06);
     }
     if (!RM) {
+      for (let i = 0, n = big ? 9 : 6; i < n; i++) {
+        const a = R() * TAU, sp = 0.25 + R() * 0.5;
+        spawn(6, x + Math.cos(a) * 0.15, y + R() * 0.25, z + Math.sin(a) * 0.15, Math.cos(a) * sp, 0.5 + R() * 0.9, Math.sin(a) * sp, 1.4 + R() * 0.8, 0.08 + R() * 0.07);
+      }
+      for (let i = 0, n = big ? 16 : 10; i < n; i++) {
+        const a = R() * TAU, sp = 1.2 + R() * 2.4;
+        spawn(7, x, y, z, Math.cos(a) * sp, 2.4 + R() * 3.4, Math.sin(a) * sp, 1.6, 0.04 + R() * 0.05);
+      }
       for (let i = 0; i < 14; i++) spawn(2, x + (R() - 0.5) * 0.4, y + 0.05, z + (R() - 0.5) * 0.4, (R() - 0.5) * 0.4, 0.6 + R() * 0.8, (R() - 0.5) * 0.4, 0.7 + R() * 0.9, 0.2 + R() * 0.14);
       for (let i = 0, n = big ? 18 : 11; i < n; i++) spawn(3, x + (R() - 0.5) * 0.5, y + 0.25, z + (R() - 0.5) * 0.5, (R() - 0.5) * 0.3 + 0.18, 0.7 + R() * 0.6, (R() - 0.5) * 0.3 - 0.1, 1.8 + R() * 1.4, 0.22 + R() * 0.14);
+      (shake = 1), (shakeA = big ? 9 : 5);
     }
-    ring(x, z, RM ? 0.4 : 0.8);
+    ring(x, z, 0.8, RM ? 0.4 : 0.8, 0);
+    RM || ring(x, z, 2, 1.4, 0.1);
   }
   function stepFx(dt: number) {
     let on = false;
@@ -402,23 +449,31 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       on = true;
       const ty = fx[o + 8]!;
       fx[o + 6] = fx[o + 6]! - dt;
-      if (ty <= 1) fx[o + 4] = fx[o + 4]! - 9.8 * dt;
-      else if (ty === 4) fx[o + 9] = fx[o + 9]! + dt * 2;
+      if (ty <= 1 || ty === 5 || ty === 7) fx[o + 4] = fx[o + 4]! - 9.8 * dt;
+      else if (ty === 4) fx[o + 9] = fx[o + 9]! + dt * 3;
+      else if (ty === 6) {
+        // Blooms fast, then drifts up and spreads as smoke.
+        const u = fx[o + 6]! / fx[o + 7]!;
+        (fx[o + 3] = fx[o + 3]! * 0.95), (fx[o + 5] = fx[o + 5]! * 0.95), (fx[o + 4] = fx[o + 4]! * 0.97 + 0.02);
+        fx[o + 9] = fx[o + 9]! + dt * (u > 0.8 ? 0.8 : 0.1);
+      } else if (ty === 8) fx[o + 9] = fx[o + 9]! + dt * 0.12;
       else (fx[o + 3] = fx[o + 3]! * 0.985), (fx[o + 5] = fx[o + 5]! * 0.985), (fx[o + 9] = fx[o + 9]! + dt * (ty === 3 ? 0.22 : -0.12));
       (fx[o] = fx[o]! + fx[o + 3]! * dt), (fx[o + 1] = fx[o + 1]! + fx[o + 4]! * dt), (fx[o + 2] = fx[o + 2]! + fx[o + 5]! * dt);
-      if (ty === 0 && fx[o + 1]! < WY && fx[o + 4]! < 0) fx[o + 6] = 0;
+      // Water, the column and debris end where they fall back into the bay.
+      if ((ty === 0 || ty === 5 || ty === 7) && fx[o + 1]! < WY && fx[o + 4]! < 0) fx[o + 6] = 0;
     }
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < RINGS; i++) {
       const o = i * 5;
       if (rings[o + 4]! <= 0) continue;
       on = true;
       rings[o + 3] = rings[o + 3]! + dt;
       if (rings[o + 3]! >= rings[o + 4]!) rings[o + 4] = 0;
     }
+    if (shake > 0) (shake = Math.max(0, shake - dt * 2.4)), (on = true);
     return on;
   }
   /** The particles into the diorama's point pools (by tray), alpha and colour by type and age. */
-  const FIRE = ["#ffd36b", "#ff7a3c"];
+  const FIRE = ["#ffd36b", "#ff7a3c"], BALL = ["#5d4a4c", "#9a4a36", "#e2552f", "#ff8a3a", "#ffc94d", "#fff2c0"];
   function fxPoints() {
     fx0.n = fx1.n = 0;
     for (let i = 0; i < PART; i++) {
@@ -426,8 +481,14 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       if (l <= 0) continue;
       const p = fx[o]! > 0 ? fx1 : fx0, j = p.n++, u = l / fx[o + 7]!, ty = fx[o + 8]!;
       (p.x[j] = fx[o]!), (p.y[j] = fx[o + 1]!), (p.z[j] = fx[o + 2]!), (p.r[j] = fx[o + 9]!);
-      p.a[j] = ty === 3 ? Math.min(1, (1 - u) * 6) * u * 0.55 : ty === 2 ? Math.min(1, u * 1.5) : ty === 4 ? u * 0.9 : Math.min(1, u * 2);
-      p.color[j] = ty === 3 ? P.smoke : ty === 0 ? P.drop : ty === 2 ? FIRE[u > 0.55 ? 0 : 1] : ty === 4 ? "#fff3c4" : "#ffd36b";
+      if (ty === 6) {
+        // The fireball: white-hot, yellow, orange, red, soot, then the smoke colour as it fades.
+        const k = u > 0.46 ? Math.min(5, ((u - 0.46) / 0.09) | 0) : -1;
+        (p.a[j] = u > 0.46 ? Math.min(0.95, (1 - u) * 14) : (u / 0.46) * 0.55), (p.color[j] = k < 0 ? P.smoke : BALL[k]!);
+        continue;
+      }
+      p.a[j] = ty === 3 ? Math.min(1, (1 - u) * 6) * u * 0.55 : ty === 2 ? Math.min(1, u * 1.5) : ty === 4 ? u * 0.9 : ty === 5 ? 0.92 : ty === 7 || ty === 8 ? Math.min(1, u * 3) : Math.min(1, u * 2);
+      p.color[j] = ty === 3 ? P.smoke : ty === 0 || ty === 5 ? P.drop : ty === 2 ? FIRE[u > 0.55 ? 0 : 1]! : ty === 4 ? "#fff3c4" : ty === 7 ? "#3d4255" : ty === 8 ? BUB : "#ffd36b";
     }
     const s = shellPts;
     s.n = 0;
@@ -451,6 +512,9 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       (shell.a[0] = r.M[9]!), (shell.a[1] = r.M[10]! + 0.75), (shell.a[2] = r.M[11]!);
     } else (shell.a[0] = FORT.x), (shell.a[1] = PT + 1.3), (shell.a[2] = FORT.z);
     cellWorld(1 - by, cell, shell.b);
+    // The muzzle: a flash and a puff of smoke where it fired from.
+    spawn(4, shell.a[0]!, shell.a[1]!, shell.a[2]!, 0, 0, 0, RM ? 0.1 : 0.16, 0.45);
+    if (!RM) for (let i = 0; i < 6; i++) spawn(3, shell.a[0]! + (R() - 0.5) * 0.2, shell.a[1]!, shell.a[2]! + (R() - 0.5) * 0.2, (R() - 0.5) * 0.5, 0.5 + R() * 0.5, (R() - 0.5) * 0.5, 1 + R() * 0.6, 0.12 + R() * 0.08);
     const d = Math.hypot(shell.b[0]! - shell.a[0]!, shell.b[2]! - shell.a[2]!);
     shell.dur = RM ? 0.5 : 0.75 + d * 0.035;
     shell.h = 2 + d * 0.22;
@@ -478,6 +542,8 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   function impact(by: number, c: number, res: number, ship: number, quick: boolean) {
     const side = 1 - by;
     cellWorld(side, c, tmp);
+    // The toast goes on the side away from the impact, so it never hides the splash or the fire.
+    toastX = dio.project(tmp[0]!, WY, tmp[2]!, tmp2) && tmp2[0]! < dio.width / 2 ? 0.72 : 0.28;
     if (res === MISS) {
       quick || (splash(tmp[0]!, tmp[2]!), cue(2), toast("Splash! Miss", 0));
       addPeg(side, c, false, -1);
@@ -503,7 +569,11 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     const id = "peg" + pegN++;
     if (hit) {
       const s = m.sides[side]!, k = s.dir[ship] ? (c >> 3) - s.sy[ship]! : (c & 7) - s.sx[ship]!;
-      put({ id, shape: "cyl", sides: 6, size: [0.12, 0.42, 0.12], on: ships[side * 4 + ship]!.id!, pos: [k - (FLEET[ship]! - 1) / 2, 0.26, 0], color: "pegHit", layer: 5, below: BELOW, pick: false });
+      const root = ships[side * 4 + ship]!, x = k - (FLEET[ship]! - 1) / 2;
+      // A scorch on the deck (an enemy's shows with its hull, when it sinks).
+      const sc = put({ shape: "cyl", sides: 7, size: [0.62, 0.012, 0.5], on: root.id!, pos: [x, 0.31, 0], rot: [0, k * 1.3, 0], color: "scorch", alpha: 0.8, layer: 4, below: BELOW, hidden: side === 1 && !m.sides[1]!.sunk[ship], pick: false });
+      parts[side * 4 + ship]!.push(sc);
+      put({ id, shape: "cyl", sides: 6, size: [0.12, 0.42, 0.12], on: root.id!, pos: [x, 0.26, 0], color: "pegHit", layer: 5, below: BELOW, pick: false });
     } else {
       cellLocal(c & 7, c >> 3, tmp2);
       put({ id, shape: "cyl", sides: 6, size: [0.12, 0.3, 0.12], on: "water" + side, pos: [tmp2[0]!, 0, tmp2[2]!], color: "pegMiss", layer: 5, pick: false });
@@ -519,7 +589,9 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       root.shadow = 0.22;
     }
     sinkT[k] = quick ? 99 : 0;
-    if (quick) sinkPose(k, 1);
+    if (quick) return sinkPose(k, 1);
+    // A whirlpool where it goes down (drawn on the water while it sinks) and its rings.
+    if (!RM) (shake = 1), (shakeA = 11), ring(root.M[9]!, root.M[11]!, 1.6, 1.8, 0.3), ring(root.M[9]!, root.M[11]!, 2.8, 2.4, 0.9);
   }
   const SINK = RM ? 1 : 2.6;
   function sinkPose(k: number, u: number) {
@@ -527,7 +599,8 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     if (k >= 4) r.alpha = Math.min(1, (sinkT[k]! / 0.35));
     r.rot[0] = 0.55 * e;
     r.rot[2] = 0.28 * Math.min(1, u * 1.6);
-    r.pos[1] = -0.55 * e * e;
+    // It lists, goes down by the bow, and settles on the bottom with a small bump.
+    r.pos[1] = -0.5 * e * e + (u > 0.8 ? Math.sin((u - 0.8) * 5 * Math.PI) * 0.04 : 0);
   }
   function stepSink(dt: number) {
     let on = false;
@@ -536,7 +609,12 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       sinkT[k] = Math.min(SINK, sinkT[k]! + dt);
       const u = sinkT[k]! / SINK, r = ships[k]!;
       sinkPose(k, u);
-      if (!RM && u < 0.85 && fxRnd() < 0.3) spawn(0, r.M[9]! + (fxRnd() - 0.5) * 1.6, WY + 0.02, r.M[11]! + (fxRnd() - 0.5), 0, 0.9 + fxRnd(), 0, 0.3, 0.05);
+      if (!RM && u < 0.9) {
+        // Spray off the hull while it rolls, then bubbles breaking on the surface over it.
+        const L = FLEET[k & 3]! * 0.5, a = (fxRnd() - 0.5) * 2 * L, ca = r.M[0]!, sa = r.M[6]!;
+        if (u < 0.45 && fxRnd() < 0.3) spawn(0, r.M[9]! + ca * a, WY + 0.02, r.M[11]! + sa * a, (fxRnd() - 0.5) * 0.6, 0.9 + fxRnd(), (fxRnd() - 0.5) * 0.6, 0.6, 0.05);
+        if (fxRnd() < 0.45) spawn(8, r.M[9]! + ca * a + (fxRnd() - 0.5) * 0.5, WY + 0.015, r.M[11]! + sa * a + (fxRnd() - 0.5) * 0.5, 0, 0, 0, 0.35 + fxRnd() * 0.5, 0.03 + fxRnd() * 0.05);
+      }
       if (u >= 1) r.alpha = 1;
       on = true;
     }
@@ -596,7 +674,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     syncGhost();
     setView(-1, false);
     cue(7);
-    toast("Battle stations!", 1);
+    (toastX = 0.5), toast("Battle stations!", 1);
   }
   function showEnd() {
     const win = m.winner === 0, s = m.sides[0]!;
@@ -676,11 +754,104 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     ctx.closePath();
   }
   const FLASH = ["rgba(239,80,80,0.1)", "rgba(239,80,80,0.2)", "rgba(239,80,80,0.3)", "rgba(239,80,80,0.4)", "rgba(239,80,80,0.5)", "rgba(239,80,80,0.6)"];
+  /** A point on the water (world x, z kept inside the bay) to the path. */
+  function wp(ctx: CanvasRenderingContext2D, x: number, z: number, x0: number, z0: number, first: boolean) {
+    dio.project(Math.max(x0, Math.min(x0 + 8, x)), WY + 0.005, Math.max(z0, Math.min(z0 + 8, z)), tmp);
+    first ? ctx.moveTo(tmp[0]!, tmp[1]!) : ctx.lineTo(tmp[0]!, tmp[1]!);
+  }
+  /** The water: wave crests rolling across, a slow sheen, foam lapping at the walls and the bow
+   *  waves of your ships, and at night the lighthouse's beam crossing the bay. It moves with the
+   *  clock of the bob (tAmb), so it stops when the scene settles, and stays still with reduced motion. */
+  function water(ctx: CanvasRenderingContext2D, side: number, x0: number, z0: number, y: number) {
+    const t = tAmb + side * 3.1, wa = P.wa;
+    ctx.fillStyle = P.foam;
+    // Crests: five wavy bands rolling toward you, fading in at the far wall and out at the near one.
+    for (let b = 0; b < 5; b++) {
+      const c = (b * 2 + t * 0.3) % 10 - 1, f = Math.sin(Math.PI * Math.max(0, Math.min(1, (c + 1) / 10)));
+      ctx.globalAlpha = wa[0]! * f;
+      ctx.beginPath();
+      for (let k = 0; k <= 16; k++) wp(ctx, x0 + k * 0.5, z0 + c + Math.sin(k * 0.45 + t * 1.3 + b * 1.7) * 0.2, x0, z0, !k);
+      for (let k = 16; k >= 0; k--) wp(ctx, x0 + k * 0.5, z0 + c - 0.28 - Math.sin(k * 0.6 - t * 0.9 + b) * 0.08, x0, z0, false);
+      ctx.fill();
+    }
+    // The sheen: a broad soft band drifting slowly across.
+    const sx = x0 + ((t * 0.16 + side * 4) % 12) - 2;
+    ctx.globalAlpha = wa[2]!;
+    ctx.beginPath();
+    wp(ctx, sx, z0, x0, z0, true), wp(ctx, sx + 1.4, z0, x0, z0, false), wp(ctx, sx + 0.2, z0 + 8, x0, z0, false), wp(ctx, sx - 1.2, z0 + 8, x0, z0, false);
+    ctx.fill();
+    // Foam on the walls: a ragged white edge that breathes in and out, and a fainter line lapping
+    // further in. One path round the bay (S runs 0..32 along the four walls).
+    ctx.globalAlpha = wa[1]!;
+    ctx.beginPath();
+    for (let pass = 0; pass < 2; pass++) {
+      for (let k = 0; k <= 64; k++) {
+        const S = k * 0.5, e = Math.min(3, S >> 3), s = S - e * 8;
+        const w = pass ? 0 : 0.08 + 0.07 * (1 + Math.sin(S * 2.3 + t * 2.1)) * 0.5 + 0.035 * Math.sin(S * 0.7 - t * 1.3);
+        const px = e === 0 ? s : e === 1 ? 8 : e === 2 ? 8 - s : 0, pz = e === 0 ? 0 : e === 1 ? s : e === 2 ? 8 : 8 - s;
+        const nx = e === 1 ? -1 : e === 3 ? 1 : 0, nz = e === 0 ? 1 : e === 2 ? -1 : 0;
+        wp(ctx, x0 + px + nx * w, z0 + pz + nz * w, x0, z0, !k);
+      }
+      ctx.closePath();
+    }
+    ctx.fill("evenodd");
+    ctx.strokeStyle = P.foam;
+    ctx.lineWidth = 1.2;
+    ctx.globalAlpha = wa[1]! * (0.25 + 0.2 * Math.sin(t * 1.7));
+    ctx.beginPath();
+    for (let k = 0; k <= 64; k++) {
+      const S = k * 0.5, e = Math.min(3, S >> 3), s = S - e * 8, w = 0.3 + 0.1 * Math.sin(t * 1.7 + S * 0.5);
+      const px = e === 0 ? s : e === 1 ? 8 : e === 2 ? 8 - s : 0, pz = e === 0 ? 0 : e === 1 ? s : e === 2 ? 8 : 8 - s;
+      wp(ctx, x0 + px + (e === 1 ? -w : e === 3 ? w : 0), z0 + pz + (e === 0 ? w : e === 2 ? -w : 0), x0, z0, !k);
+    }
+    ctx.stroke();
+    // Bow waves and the wash astern of your ships (theirs stay hidden: no wakes to give them away).
+    if (side === 0)
+      for (let i = 0; i < 4; i++) {
+        const r = ships[i]!;
+        if (r.on !== "water0" || sinkT[i]! >= 0 || drops[i]! > 0 || r.alpha < 1) continue;
+        const h = FLEET[i]! / 2 - 0.15, dx = r.M[0]!, dz = r.M[6]!, l = Math.sqrt(dx * dx + dz * dz) || 1, ux = dx / l, uz = dz / l;
+        const bx = r.M[9]! + ux * h, bz = r.M[11]! + uz * h, q = 0.5 + 0.5 * Math.sin(t * 2.4 + i * 1.9);
+        ctx.globalAlpha = wa[1]! * (0.6 + 0.4 * q);
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        for (let sgn = -1; sgn <= 1; sgn += 2) {
+          wp(ctx, bx + ux * 0.08, bz + uz * 0.08, x0, z0, true);
+          wp(ctx, bx - ux * (0.35 + 0.1 * q) - uz * sgn * (0.3 + 0.08 * q), bz - uz * (0.35 + 0.1 * q) + ux * sgn * (0.3 + 0.08 * q), x0, z0, false);
+          wp(ctx, bx - ux * (0.9 + 0.1 * q) - uz * sgn * (0.48 + 0.1 * q), bz - uz * (0.9 + 0.1 * q) + ux * sgn * (0.48 + 0.1 * q), x0, z0, false);
+        }
+        const sx2 = r.M[9]! - ux * (h + 0.1), sz2 = r.M[11]! - uz * (h + 0.1);
+        for (let sgn = -1; sgn <= 1; sgn += 2) {
+          wp(ctx, sx2 - uz * sgn * 0.18, sz2 + ux * sgn * 0.18, x0, z0, true);
+          wp(ctx, sx2 - ux * (0.4 + 0.15 * q) - uz * sgn * 0.26, sz2 - uz * (0.4 + 0.15 * q) + ux * sgn * 0.26, x0, z0, false);
+        }
+        ctx.stroke();
+      }
+    // Night: where the lighthouse's two beams cross the bay, a pale streak on the water.
+    if (P.night) {
+      const a = RM ? 2.3 : tAmb * 0.7;
+      ctx.fillStyle = "#ffe9a0";
+      for (let b = 0; b < 2; b++) {
+        const ca = Math.cos(a + b * Math.PI), sa = Math.sin(a + b * Math.PI);
+        for (let d = 2; d < 15; d += 0.6) {
+          const px = LH.x + ca * d, pz = LH.z + sa * d;
+          if (px < x0 || px > x0 + 8 || pz < z0 || pz > z0 + 8 || !dio.project(px, y, pz, tmp)) continue;
+          const f = dio.focal() / tmp[2]!, w = 0.18 + d * 0.05;
+          ctx.globalAlpha = 0.07;
+          ctx.beginPath();
+          ctx.ellipse(tmp[0]!, tmp[1]!, w * f, w * f * 0.5, 0, 0, TAU);
+          ctx.fill();
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
   function trayDecals(ctx: CanvasRenderingContext2D, side: number) {
     const y = WY + 0.004, x0 = TX[side]! - 4, z0 = TZ - 4, sh = m.sides[side]!.shots;
-    // A checkerboard for reading the cells, then the grid lines.
+    // A checkerboard for reading the cells, the water's moving light over it, then the grid lines.
     ctx.fillStyle = P.gridShade;
     for (let c = 0; c < 64; c++) if (((c & 7) + (c >> 3)) & 1) quad(ctx, side, c & 7, c >> 3, 0), ctx.fill();
+    water(ctx, side, x0, z0, y);
     ctx.strokeStyle = P.grid;
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -690,7 +861,11 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     }
     ctx.stroke();
     // A sunk ship's cells get a dark wash, a hit a warm glow.
-    for (let c = 0; c < 64; c++) if (sh[c]! >= HIT) (ctx.fillStyle = sh[c] === SUNK ? "rgba(30,40,70,0.22)" : "rgba(255,120,80,0.28)"), quad(ctx, side, c & 7, c >> 3, 0.06), ctx.fill();
+    // (Not the cell a shell is still flying at: its result shows when it lands.)
+    const inbound = shell.on && side === 1 - shell.by ? shell.cell : -1;
+    // A ship that shell will sink still shows as hit until then.
+    const g = m.sides[side]!.grid, going = inbound >= 0 && sh[inbound] === SUNK ? g[inbound]! : -2;
+    for (let c = 0; c < 64; c++) if (sh[c]! >= HIT && c !== inbound) (ctx.fillStyle = sh[c] === SUNK && g[c] !== going ? "rgba(30,40,70,0.22)" : "rgba(255,120,80,0.28)"), quad(ctx, side, c & 7, c >> 3, 0.06), ctx.fill();
     // The placement ghost's cells.
     if (side === 0 && m.phase === PLACE && ghost.show) {
       ctx.fillStyle = ghost.ok ? "rgba(255,255,255,0.45)" : "rgba(239,80,80,0.5)";
@@ -728,20 +903,37 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       ctx.ellipse(tmp[0]!, tmp[1]!, 0.16 * f, 0.08 * f, 0, 0, TAU);
       ctx.fill();
     }
-    // Splash rings.
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 12; i++) {
+    // Rings and the ripples that run out across the cells (eased out, thinning as they go), kept
+    // inside the bay.
+    ctx.strokeStyle = P.foam;
+    for (let i = 0; i < RINGS; i++) {
       const o = i * 5;
-      if (rings[o + 4]! <= 0 || rings[o]! > 0 !== (side === 1)) continue;
-      const u = rings[o + 3]! / rings[o + 4]!, r = 0.15 + u * 0.75, rx = rings[o]!, rz = rings[o + 1]!;
-      ctx.globalAlpha = 1 - u;
+      if (rings[o + 4]! <= 0 || rings[o + 3]! < 0 || rings[o]! > 0 !== (side === 1)) continue;
+      const u = rings[o + 3]! / rings[o + 4]!, e = 1 - (1 - u) * (1 - u), r = 0.12 + e * rings[o + 2]!, rx = rings[o]!, rz = rings[o + 1]!;
+      ctx.globalAlpha = (1 - u) * 0.9;
+      ctx.lineWidth = 1 + (1 - u) * 2;
       ctx.beginPath();
-      for (let k = 0; k <= 18; k++) {
-        const a = (k / 18) * TAU;
-        dio.project(rx + Math.cos(a) * r, WY + 0.01, rz + Math.sin(a) * r, tmp);
+      for (let k = 0; k <= 28; k++) {
+        const a = (k / 28) * TAU;
+        dio.project(Math.max(x0, Math.min(x0 + 8, rx + Math.cos(a) * r)), WY + 0.01, Math.max(z0, Math.min(z0 + 8, rz + Math.sin(a) * r)), tmp);
         k ? ctx.lineTo(tmp[0]!, tmp[1]!) : ctx.moveTo(tmp[0]!, tmp[1]!);
       }
+      ctx.stroke();
+    }
+    // A whirlpool over each ship going down: three arms turning in, fading as it settles.
+    for (let k = side * 4; k < side * 4 + 4; k++) {
+      const t = sinkT[k]!;
+      if (t < 0 || t >= SINK) continue;
+      const u = t / SINK, r = ships[k]!, cx = r.M[9]!, cz = r.M[11]!;
+      ctx.globalAlpha = Math.min(1, u * 5) * (1 - u) * 0.8;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let a = 0; a < 3; a++)
+        for (let j = 0; j <= 12; j++) {
+          const th = (a / 3) * TAU + j * 0.42 + t * 3.2, rr = (1.5 - j * 0.11) * (1 - u * 0.4);
+          dio.project(Math.max(x0, Math.min(x0 + 8, cx + Math.cos(th) * rr)), WY + 0.012, Math.max(z0, Math.min(z0 + 8, cz + Math.sin(th) * rr)), tmp);
+          j ? ctx.lineTo(tmp[0]!, tmp[1]!) : ctx.moveTo(tmp[0]!, tmp[1]!);
+        }
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
@@ -805,9 +997,11 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     if (toastT > 0) {
       const u = 1 - toastT / TOAST_T, s = u < 0.18 ? 0.6 + (u / 0.18) * 0.48 : u < 0.3 ? 1.08 - ((u - 0.18) / 0.12) * 0.08 : 1;
       const px = Math.round(Math.max(20, Math.min(30, dio.width / 26)));
+      ctx.font = font(px);
+      const half = (width(ctx, toastS, px) + px) * 0.6 + 10, tx = Math.max(half, Math.min(dio.width - half, dio.width * toastX));
       ctx.save();
       ctx.globalAlpha = u < 0.18 ? u / 0.18 : u > 0.8 ? (1 - u) / 0.2 : 1;
-      ctx.translate(dio.width / 2, V[3]! + (dio.height - V[3]! - V[4]!) * 0.28 - (u > 0.8 ? (u - 0.8) * 60 : 0));
+      ctx.translate(tx, V[3]! + (dio.height - V[3]! - V[4]!) * 0.28 - (u > 0.8 ? (u - 0.8) * 60 : 0));
       ctx.scale(s, s);
       sticker(ctx, toastS, 0, 0, px, TOAST[toastK]!, toastK === 2 ? "#ffffff" : "#1f2433");
       ctx.restore();
@@ -867,8 +1061,13 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     const lead = sel >= 0 ? ships[sel]! : null;
     if (m.phase === PLACE && lead && lead.on === "dock") lead.pos[1] = 0.46 + Math.sin(tAmb * 3) * 0.05;
     // Fires smoulder on the hit cells.
-    if (!RM && engine.steps % 7 === 0)
-      for (let k = 0; k < 128; k++) if (burning[k] && fxRnd() < 0.35) cellWorld(k >> 6, k & 63, tmp), spawn(3, tmp[0]! + (fxRnd() - 0.5) * 0.3, WY + 0.55, tmp[2]! + (fxRnd() - 0.5) * 0.3, 0.12, 0.45 + fxRnd() * 0.3, -0.06, 1.6, 0.07);
+    if (!RM && engine.steps % 5 === 0)
+      for (let k = 0; k < 128; k++) {
+        if (!burning[k] || fxRnd() > 0.5) continue;
+        cellWorld(k >> 6, k & 63, tmp);
+        spawn(3, tmp[0]! + (fxRnd() - 0.5) * 0.3, WY + 0.5, tmp[2]! + (fxRnd() - 0.5) * 0.3, 0.12, 0.45 + fxRnd() * 0.35, -0.06, 1.8 + fxRnd(), 0.08 + fxRnd() * 0.05);
+        if (fxRnd() < 0.5) spawn(2, tmp[0]! + (fxRnd() - 0.5) * 0.25, WY + 0.38, tmp[2]! + (fxRnd() - 0.5) * 0.25, 0, 0.5 + fxRnd() * 0.4, 0, 0.35 + fxRnd() * 0.25, 0.08 + fxRnd() * 0.06);
+      }
   }
   engine.add({
     read() {
@@ -931,7 +1130,15 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         if (drops[i]! > 0 && r.on === "water0") r.pos[1] = Math.min(1, drops[i]!) ** 2 * 1.6;
       }
       if (hudDirty) (hudDirty = false), hudWrite();
-      if (dirty) (dirty = false), fxPoints(), dio.draw(), (V[5] = 1);
+      if (dirty) {
+        dirty = false;
+        fxPoints();
+        // The shake: the camera's screen shift nudged for this draw only.
+        const c = dio.cam, k = shake * shake * shakeA, sx = Math.sin(engine.time * 67) * k, sy = Math.cos(engine.time * 53) * k * 0.7;
+        (c.ox += sx), (c.oy += sy);
+        dio.draw();
+        (c.ox -= sx), (c.oy -= sy), (V[5] = 1);
+      }
     },
   });
 
