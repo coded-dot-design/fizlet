@@ -1,0 +1,25 @@
+{
+  "id": "shuffle-shot",
+  "date": "2026-11-08",
+  "prompt": "tabletop shuffleboard on a long polished table in a games room: four pucks each for you and a bot, turn about; drag back to aim and set the power, the puck glides down the lane leaving a trail, clacks into others, drops into the gutter or off the far end; zones 1, 2, 3 and a hanging 4; only the furthest side scores; first to 15; a neon night in the dark",
+  "title": "Shuffle Shot",
+  "kind": "hero",
+  "theme": "tabletop",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/flick",
+    "@fzlt/core/diorama",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/shuffle/shuffle-shot.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-08"
+}
