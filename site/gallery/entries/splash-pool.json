@@ -1,0 +1,25 @@
+{
+  "id": "splash-pool",
+  "date": "2026-11-12",
+  "prompt": "a backyard pool diorama on a table: tiles, a ladder, a diving board, a deck chair, a float ring drifting; tap the water to drop a beach ball, a cannonball rock, a rubber duck or a pebble: splash columns, crowns of drops, ripples that cross and bounce off the walls with foam where they slap; what floats bobs and drifts on them; the drain spins a whirlpool that swallows everything afloat, then refills; get the duck to the far corner with ripples only",
+  "title": "Splash Pool",
+  "kind": "hero",
+  "theme": "tabletop",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/water",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/pool/splash-pool.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-12"
+}
