@@ -76,6 +76,9 @@ export const BUDGETS = [
   // 6,360 B gz when added (meshes, orbit camera and fit, painter's merge sort, shadows, points, pick;
   // steer's exact hypot for the shadow axes).
   ["@fzlt/core/diorama", "src/diorama.ts", 6464],
+  // Low-poly props for diorama scenes (diorama is a type-only import): the whole kit of 17, 3,115 B gz
+  // when added; one prop alone tree-shakes to 835 B (pineTree), 947 B (truck): ~0.65 KB of shared helpers.
+  ["@fzlt/core/props", "src/props.ts", 3200],
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, @fzlt/core/hud included). The Board UI kit CSS is the game's (it bakes
