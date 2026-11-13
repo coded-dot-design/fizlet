@@ -5,6 +5,7 @@
   "prompt": "a tin duck shooting gallery: ducks ride two rails, tap to pop a cork at one, tap twice for a BOOM that knocks down every duck in reach; misses ping the booth's sign, and tickets win a plush",
   "title": "Duck Derby",
   "kind": "micro",
+  "lane": "hifi",
   "theme": "carnival",
   "author": "chris-cooley",
   "recipe": "hand-built",

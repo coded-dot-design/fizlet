@@ -11,7 +11,9 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    # 75: the suite took 38 min on main at 0.21.3 and was cancelled at 40 on the 0.22.0 train (13 more
+    # gallery and brick PRs; test:browser 23 min, test:site 11 min, test:settle still to run).
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
         with:

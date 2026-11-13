@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { contributors, entries, galleryIndex, isLive, galleryPath, paginate, PAGE_SIZE, sections, themes } from "../scripts/gallery.mjs";
+import { contributors, entries, galleryIndex, isLive, galleryPath, HIFI_PATH, laneErrors, laneOf, LANES, MICRO_CAP, paginate, PAGE_SIZE, sections, themes } from "../scripts/gallery.mjs";
 import { search } from "../site/gallery/search.ts";
 
 const THEMES = [{ id: "halloween", title: "Halloween", order: 1 }, { id: "everyday", title: "Everyday", order: 99 }];
@@ -99,7 +99,33 @@ test("an own stage: its markup comes from site/gallery/stages/<id>.html, and is 
   assert.throws(() => entries({ dir, themeIds: ["everyday"] }), /stage "own" needs site\/gallery\/stages\/zz-own-stage-test\.html/);
 });
 
-test("card stickers: one status (NEW for a week from its date, then APPROVED), HERO, TOO BIG TO WIN, WINNER", async () => {
+test("lanes: micro by default, \"lane\": \"hifi\" for the Hi-Fi lane; anything else fails, and over the cap must be Hi-Fi", () => {
+  assert.deepEqual(LANES, ["micro", "hifi"]);
+  assert.equal(MICRO_CAP, 10240, "the micro cap: a hero's live-chunk budget");
+  assert.equal(laneOf({}), "micro");
+  assert.equal(laneOf({ lane: "hifi" }), "hifi");
+  const d = mkdtempSync(join(tmpdir(), "gal-lane-"));
+  const e = { ...fake(1, { theme: "everyday" }), recipe: "burst", bricks: [], made: "fe anim", module: "anims/x.ts", export: "mount" };
+  for (const [lane, ok] of [[undefined, true], ["micro", true], ["hifi", true], ["HIFI", false], ["big", false], [true, false]]) {
+    writeFileSync(join(d, `${e.id}.json`), JSON.stringify(lane === undefined ? e : { ...e, lane }));
+    const run = () => entries({ dir: d, themeIds: ["everyday"], people: { "chris-cooley": { name: "Chris Cooley" } } });
+    if (ok) assert.doesNotThrow(run, `lane ${lane}`);
+    else assert.throws(run, /lane is "micro" or "hifi"/, `lane ${lane}`);
+  }
+  // Measured: at the cap a micro is fine; one byte over, it must say "lane": "hifi".
+  assert.deepEqual(laneErrors([{ id: "a", size: MICRO_CAP }, { id: "b", size: MICRO_CAP + 1, lane: "hifi" }, { id: "c", size: 40000, lane: "hifi" }, { id: "d", size: 99 }]), []);
+  assert.deepEqual(laneErrors([{ id: "big", size: MICRO_CAP + 1 }, { id: "said", size: MICRO_CAP + 1, lane: "micro" }, { id: "unmeasured" }]),
+    ['gallery/entries/big.json: 10,241 B live is over the 10,240 B micro cap: set "lane": "hifi" (the Hi-Fi lane)', 'gallery/entries/said.json: 10,241 B live is over the 10,240 B micro cap: set "lane": "hifi" (the Hi-Fi lane)']);
+  assert.equal(HIFI_PATH, "gallery/hifi/");
+});
+
+test("search finds the Hi-Fi lane by name", () => {
+  const rows = [{ id: "a", title: "A", prompt: "p", theme: "x", themeTitle: "X", author: "c", authorName: "C", kind: "hero", lane: "hifi" }, { id: "b", title: "B", prompt: "p", theme: "x", themeTitle: "X", author: "c", authorName: "C", kind: "micro", lane: "micro" }];
+  assert.deepEqual(search(rows, "hifi").map((r) => r.id), ["a"]);
+  assert.deepEqual(search(rows, "Hi-Fi").map((r) => r.id), ["a"]);
+});
+
+test("card stickers: one status (NEW for a week from its date, then APPROVED), HERO, HI-FI, WINNER", async () => {
   const { cardStickers, isNew, NEW_DAYS } = await import("../site/pages/gallery.mjs");
   const e = { date: "2026-10-30", approved: "2026-10-30", kind: "micro", size: 10_934 };
   const texts = (html) => [...html.matchAll(/class="gal-sticker gal-sticker-([a-z]+)"/g)].map((m) => m[1]);
@@ -109,7 +135,9 @@ test("card stickers: one status (NEW for a week from its date, then APPROVED), H
   assert.deepEqual(texts(cardStickers(e, { today: "2026-10-31" })), ["new"]);
   assert.deepEqual(texts(cardStickers(e, { today: "2026-11-20" })), ["ok"]);
   assert.match(cardStickers(e, { today: "2026-11-20" }), /aria-label="Approved: approved by the owner on 2026-10-30"/);
-  assert.deepEqual(texts(cardStickers({ ...e, kind: "hero" }, { today: "2026-10-31", winner: true, tooBig: true })), ["win", "new", "hero", "big"]);
-  assert.match(cardStickers(e, { tooBig: true }), /Too big to win: 10,934 B live, over the contest's 10,240 B cap/);
+  assert.deepEqual(texts(cardStickers({ ...e, kind: "hero", lane: "hifi" }, { today: "2026-10-31", winner: true })), ["win", "new", "hero", "hifi"]);
+  assert.match(cardStickers({ ...e, lane: "hifi" }), /aria-label="Hi-Fi: a bigger piece \(10,934 B live\), in the Hi-Fi lane with its own weekly winner"[^>]*>HI-FI</);
+  assert.doesNotMatch(cardStickers(e) + cardStickers({ ...e, lane: "micro" }), /HI-FI|TOO BIG TO WIN/, "a micro wears no lane sticker");
+  assert.doesNotMatch(cardStickers({ ...e, lane: "hifi" }), /TOO BIG TO WIN/, "Hi-Fi replaces too big to win");
   assert.equal(cardStickers({ ...e, approved: undefined, date: "2020-01-01" }, { today: "2026-10-31" }), "", "no approval, not new (an archived entry): no status sticker");
 });

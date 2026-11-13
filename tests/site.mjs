@@ -16,7 +16,7 @@ import { checkNav } from "../scripts/check-nav.mjs";
 import { FAMILY_LINE, HEADLINE, HOME_HEADLINE, SITE, ROOT as SITE_ROOT, mark as fizletMark } from "../site/layout.mjs";
 import { measure } from "../scripts/sizes.mjs";
 import { BRICKS } from "../site/bricks.mjs";
-import { entries as galleryEntries, isLive, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE } from "../scripts/gallery.mjs";
+import { entries as galleryEntries, isLive, themes as galleryThemes, contributors, paginate, sections, galleryPath, personPath, PAGE_SIZE, HIFI_PATH, laneOf } from "../scripts/gallery.mjs";
 import { notes as siteNotes, notePath } from "../scripts/notes.mjs";
 import { CONTEST, STICKER, authorOf, contributors as profiles } from "../scripts/people.mjs";
 import { gzipSync } from "node:zlib";
@@ -242,6 +242,9 @@ try {
       const chips = [...html.matchAll(/data-theme-chip="([^"]+)"[^>]*>[^<]*<small>(\d+)<\/small>/g)].map((m) => [m[1], Number(m[2])]);
       assert.deepEqual(chips, [["all", GALLERY.length], ...THEMES.filter((t) => GALLERY.some((e) => e.theme === t.id)).map((t) => [t.id, GALLERY.filter((e) => e.theme === t.id).length])], `${gp.path}: theme chips and counts`);
       if (GPAGES.length > 1) assert.match(html, /<nav class="gal-pages" aria-label="Daily pages">/, `${gp.path}: page links`);
+      // The lane filter: a Hi-Fi chip with the lane's count, linking to the Hi-Fi page.
+      const up = "../".repeat(gp.path.split("/").length - 1);
+      assert.ok(html.includes(`<a class="bui-key gal-chip gal-lane-chip" href="${up}${HIFI_PATH}" data-lane-chip="hifi">Hi-Fi <small>${GALLERY.filter((e) => laneOf(e) === "hifi").length}</small></a>`), `${gp.path}: the Hi-Fi chip`);
       for (const e of gp.entries) {
         const bytes = gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length;
         assert.ok(html.includes(`data-bytes="${bytes}" data-live="gallery/${e.id}.js"`), `${e.id}: its badge shows ${bytes} B`);
@@ -249,20 +252,42 @@ try {
         // The stat chips: live and total (with the shared loader), measured on this build.
         assert.ok(card.includes(`data-live-bytes="gallery:${e.id}"><b>${bytes.toLocaleString("en-US")} B</b> live</li>`), `${e.id}: its live chip shows ${bytes} B`);
         assert.match(card, new RegExp(`data-total="gallery:${e.id}"[^>]*><b>${(bytes + loader).toLocaleString("en-US")} B</b> total with the ${loader.toLocaleString("en-US")} B loader</li>`), `${e.id}: its total chip, live + loader`);
-        // Stickers: one status (NEW this week, else APPROVED, with the owner's date); HERO on a hero; TOO BIG TO WIN only over the cap, with the bytes over.
+        // Stickers: one status (NEW this week, else APPROVED, with the owner's date); HERO on a hero; HI-FI on the Hi-Fi lane (every piece over the cap), with the bytes over.
         const status = [...card.matchAll(/class="gal-sticker gal-sticker-(new|ok)" role="img" aria-label="([^"]+)"/g)];
         assert.ok(status.length === 1 && status[0][2].includes(`approved by the owner on ${e.approved}`), `${e.id}: one status sticker, with its approval date`);
         assert.equal(card.includes(">HERO</span>"), e.kind === "hero", `${e.id}: a HERO sticker only on a hero`);
-        if (card.includes(">TOO BIG TO WIN</span>")) assert.ok(bytes > CONTEST.maxLive && card.includes(`<b>+${(bytes - CONTEST.maxLive).toLocaleString("en-US")} B</b> over the`), `${e.id}: too big to win only over the cap, by its measured bytes`);
+        const hifi = laneOf(e) === "hifi";
+        if (bytes > CONTEST.maxLive) assert.ok(hifi, `${e.id}: ${bytes} B live, over the cap: it is in the Hi-Fi lane`);
+        assert.equal(card.includes(">HI-FI</span>"), hifi, `${e.id}: a HI-FI sticker only on the Hi-Fi lane`);
+        assert.ok(card.includes(`data-lane="${laneOf(e)}"`), `${e.id}: its lane on the card`);
+        assert.ok(!card.includes("TOO BIG TO WIN"), `${e.id}: no "too big to win" (Hi-Fi has its own lane)`);
+        assert.equal(card.includes(`<b>+${(bytes - CONTEST.maxLive).toLocaleString("en-US")} B</b> over the`), hifi && bytes > CONTEST.maxLive, `${e.id}: the bytes over the cap, measured, only on a Hi-Fi piece over it`);
         assert.ok(html.includes(`“${e.prompt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}”`), `${e.id}: its prompt`);
         // Attribution: "by <name>", linked to the contributor's profile.
         assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${{ persona: ' <small class="gal-persona">studio crew</small>', agent: ' <small class="gal-persona">AI agent</small>' }[PEOPLE[e.author].kind] ?? ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
       }
     }
+    // The Hi-Fi page: every Hi-Fi entry (and only those) by theme, newest first; its chip is on, its
+    // theme chips count its own entries; it is linked from every Daily page.
+    {
+      const HIFI = GALLERY.filter((e) => laneOf(e) === "hifi");
+      assert.ok(HIFI.length >= 2 && PAGES.includes(HIFI_PATH), `${HIFI_PATH} is built, with the Hi-Fi pieces (${HIFI.length})`);
+      const html = readFileSync(pageFile(HIFI_PATH), "utf8"), secs = sections(HIFI, THEMES);
+      assert.deepEqual([...html.matchAll(/<li class="panel gal-item" id="([^"]+)"/g)].map((m) => m[1]), secs.flatMap((x) => x.entries.map((e) => e.id)), "hifi: its entries by theme, newest first");
+      assert.equal([...html.matchAll(/data-lane="hifi"/g)].length, HIFI.length, "hifi: every card is Hi-Fi");
+      assert.ok(!html.includes('data-lane="micro"'), "hifi: no micro on it");
+      assert.ok(html.includes(`data-lane-chip="hifi" aria-current="true">Hi-Fi <small>${HIFI.length}</small>`), "hifi: its chip is on");
+      assert.match(html, /data-theme-chip="all">All <small>\d+<\/small>/, "hifi: All goes back to Daily (not on)");
+      const chips = [...html.matchAll(/data-theme-chip="([^"]+)"[^>]*>[^<]*<small>(\d+)<\/small>/g)].map((m) => [m[1], Number(m[2])]);
+      assert.deepEqual(chips, [["all", GALLERY.length], ...secs.map((x) => [x.theme.id, x.entries.length])], "hifi: theme chips count its own pieces");
+      assert.match(html, /<h1 id="gal-title">Hi-Fi\.<br><em>Bigger pieces, their own lane\.<\/em><\/h1>/);
+      for (const e of HIFI) assert.ok(html.includes(`data-bytes="${gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length}" data-live="gallery/${e.id}.js"`), `hifi ${e.id}: its size badge stays`);
+    }
     // The generated index: every entry once, newest first, on the page that holds it, its sizes measured on this build.
     assert.deepEqual(INDEX.map((r) => r.id), GALLERY.map((e) => e.id), "gallery/index.json: every entry, newest first");
     for (const r of INDEX) {
       const e = GALLERY.find((x) => x.id === r.id), bytes = gzipSync(readFileSync(`${ROOT}/gallery/${r.id}.js`)).length;
+      assert.equal(r.lane, laneOf(e), `${r.id}: index lane`);
       assert.deepEqual({ kind: r.kind, theme: r.theme, author: r.author, title: r.title, prompt: r.prompt, date: r.date }, { kind: e.kind, theme: e.theme, author: e.author, title: e.title, prompt: e.prompt, date: e.date }, `${r.id}: index row`);
       assert.deepEqual(r.sizes, { live: bytes, total: bytes + loader }, `${r.id}: index sizes measured on this build`);
       assert.equal(r.authorName, PEOPLE[e.author].name);
@@ -369,14 +394,15 @@ try {
     }
     const contest = readFileSync(`${ROOT}/contest/index.html`, "utf8");
     assert.match(contest, /10 KB gzip or less/);
-    assert.match(contest, /Too big to win/);
+    assert.match(contest, /Hi-Fi has its own lane/);
+    assert.doesNotMatch(contest, /too big to win/i, "Hi-Fi replaces too big to win");
     assert.doesNotMatch(contest, /characters or fewer/, "the prompt length is not a rule");
     assert.match(contest, /One weekly winner/);
     assert.match(contest, /one monthly winner/);
     assert.match(contest, /Not live yet/, "an entry form is planned, not live");
     // Daily says the same story, with the same prefilled entry link.
     const daily = readFileSync(`${ROOT}/gallery/index.html`, "utf8");
-    for (const html of [contest, daily]) for (const rule of ["Up to <b>40 entries a day</b>", "<b>top 1 to 5</b>", "<b>posted at the end of the week</b>", "<b>monthly winner</b>", "backfills", "10,240 B live, a piece can't win"]) assert.ok(html.includes(rule), `contest story: ${rule}`);
+    for (const html of [contest, daily]) for (const rule of ["Up to <b>40 entries a day</b>", "<b>top 1 to 5</b>", "<b>posted at the end of the week</b>", "<b>monthly winner</b>", "backfills", "10,240 B live, a piece goes in the <b>Hi-Fi</b> lane, with a weekly winner of its own"]) assert.ok(html.includes(rule), `contest story: ${rule}`);
     assert.match(daily, /<title>Daily: tiny examples, made every day · Fizlet<\/title>/);
     assert.match(daily, /<h1 id="gal-title">Daily\.<br><em>Tiny examples, made every day\.<\/em><\/h1>/);
   }
@@ -1199,6 +1225,17 @@ try {
     await q("zzqx nothing");
     assert.match(await page.textContent("[data-gal-found]"), /^0 matches/);
     assert.equal((await hits()).length, 0);
+    // The lane filter: the Hi-Fi chip opens the Hi-Fi page (only Hi-Fi cards, its chip on); a theme
+    // chip there filters its own sections.
+    await page.click('a[data-lane-chip="hifi"]');
+    await page.waitForURL(`**/${HIFI_PATH}`);
+    const lanes = await page.$$eval("li.gal-item", (l) => l.map((x) => x.dataset.lane));
+    assert.ok(lanes.length >= 2 && lanes.every((x) => x === "hifi"), `Hi-Fi filter: only Hi-Fi cards (${lanes.join(", ")})`);
+    assert.equal(await page.getAttribute('a[data-lane-chip="hifi"]', "aria-current"), "true");
+    const hifiSecs = await page.$$eval("section[data-theme-section]", (l) => l.map((x) => x.dataset.themeSection));
+    await page.click(`a[data-theme-chip="${hifiSecs[0]}"]`);
+    assert.deepEqual(await page.$$eval("section[data-theme-section]", (l) => l.filter((x) => !x.hidden).map((x) => x.dataset.themeSection)), [hifiSecs[0]], "a theme chip filters the Hi-Fi page");
+    assert.ok(new URL(page.url()).pathname.endsWith(HIFI_PATH), "and stays on it");
     assert.deepEqual(errors, []);
     await context.close();
   }
@@ -1436,7 +1473,7 @@ try {
   // at desktop and phone widths (an index page's h1 once sat flush on both).
   where = "head spacing";
   {
-    const HEADS = ["", "docs/", "guides/", "gallery/", "gallery/archive/", "contest/", "news/", "notes/", "people/", "make/",
+    const HEADS = ["", "docs/", "guides/", "gallery/", "gallery/archive/", HIFI_PATH, "contest/", "news/", "notes/", "people/", "make/",
       "docs/contract/", "notes/how-small-is-small/", "cookies/", "bricks/arcade.html", "brand/", "people/frame-zero/", "examples/quick-start.html"];
     for (const width of [1440, 390]) {
       const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: "reduce" });

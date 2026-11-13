@@ -72,6 +72,34 @@ export const BUDGETS = [
   // One DPR-correct overlay canvas with dirty-box redraw (no kernel code: it takes an engine):
   // 936 B gz when added (target 1,229).
   ["@fzlt/core/view-canvas", "src/view-canvas.ts", 1229],
+  // Software 3D for tabletop scenes on a 2D canvas (no kernel code: draw() goes in a render system):
+  // 6,360 B gz when added (meshes, orbit camera and fit, painter's merge sort, shadows, points, pick;
+  // steer's exact hypot for the shadow axes).
+  ["@fzlt/core/diorama", "src/diorama.ts", 6464],
+  // Seeded dice for tabletop games (diorama is a type-only import; steer's exact hypot): 4,264 B gz
+  // when added, with dioramaDice and popDome; roll alone 325 B, dice() 1,920 B (they tree-shake).
+  ["@fzlt/core/dice", "src/dice.ts", 4352],
+  // Board paths for roll-and-move games (steer's exact hypot): 2,054 B gz when added.
+  ["@fzlt/core/track", "src/track.ts", 2112],
+  // Animated water for diorama scenes (diorama is a type-only import; steer's exact hypot): 5,264 B gz
+  // when added, the wave pool's swell (height, slope, crest, its painting) about 0.4 KB of it.
+  ["@fzlt/core/water", "src/water.ts", 5376],
+  // Low-poly props for diorama scenes (diorama is a type-only import): the whole kit of 17, 3,115 B gz
+  // when added; one prop alone tree-shakes to 835 B (pineTree), 947 B (truck): ~0.65 KB of shared helpers.
+  ["@fzlt/core/props", "src/props.ts", 3200],
+  // Lasers on a board (diorama is a type-only import; steer's exact hypot): 4,383 B gz when added,
+  // with dioramaBeam; beam() alone 2,130 B (it tree-shakes).
+  ["@fzlt/core/beam", "src/beam.ts", 4480],
+  // A deck of cards for tabletop games (diorama is a type-only import): 3,383 B gz when added, with
+  // dioramaCards; deck() alone 868 B.
+  ["@fzlt/core/cards", "src/cards.ts", 3456],
+  // Tabletop physics for diorama pieces (steer's exact hypot): 5,414 B gz when added, with aim.
+  ["@fzlt/core/flick", "src/flick.ts", 5504],
+  // A heightfield for diorama scenes (diorama is a type-only import; steer's exact hypot): 4,600 B gz
+  // when added, with terrainView (chunks, LOD stitching, shadows); terrain() alone tree-shakes to 1,933 B.
+  ["@fzlt/core/terrain", "src/terrain.ts", 4672],
+  // Vehicle feel on a heightfield plus the chase camera (steer's exact hypot): 3,170 B gz when added.
+  ["@fzlt/core/drive", "src/drive.ts", 3232],
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, @fzlt/core/hud included). The Board UI kit CSS is the game's (it bakes

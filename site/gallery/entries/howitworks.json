@@ -5,6 +5,7 @@
   "prompt": "every letter on a little page is a real element: blast it, then Recall puts the page back exactly",
   "title": "How it works: blast it, Recall it",
   "kind": "micro",
+  "lane": "hifi",
   "theme": "everyday",
   "author": "chris-cooley",
   "recipe": "hand-built",

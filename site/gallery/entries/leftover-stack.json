@@ -1,0 +1,25 @@
+{
+  "id": "leftover-stack",
+  "date": "2026-11-24",
+  "prompt": "the open fridge as a tabletop diorama, the night after the feast: glass shelves, the door swung wide with its bins of bottles, the light on inside and cold mist rolling out; the leftovers come off the counter one at a time (a pie half, a tray of stuffing, a gravy jar, the foil-wrapped turkey, a cranberry tub, a casserole, a stack of rolls, the mashed potatoes), each a low-poly dish of a few blocks; aim the next one, turn it and drop it onto a shelf, where it rests on what is under it; cover a shelf and it glows; anything sticking out past the door line gets bumped by the door and wobbles, and three bumps mean the door won't close: THE FRIDGE WINS",
+  "title": "Leftover Stack",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "thanksgiving",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/fridge/leftover-stack.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-24"
+}
