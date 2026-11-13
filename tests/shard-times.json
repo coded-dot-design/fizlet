@@ -1,0 +1,25 @@
+{
+  "_source": "Seconds per file, read from the check job log of run 43457349582 (main 1d18a9e, 2026-11-13; the gap between each file's last line and the one before). Refresh from a shard job's summary (the shard-times comment); a file missing here counts as the median.",
+  "test:browser": {
+    "tests/browser.mjs": 22, "tests/fizz.mjs": 9, "tests/camera.mjs": 3, "tests/arcade.mjs": 6,
+    "tests/arcade-hud.mjs": 21, "tests/drag.mjs": 1, "tests/coach.mjs": 1, "tests/timeline.mjs": 5,
+    "tests/labs.mjs": 18, "tests/virus.mjs": 15, "tests/small-packages.mjs": 23, "tests/touch.mjs": 12,
+    "tests/comic.mjs": 50, "tests/hero-duo.mjs": 18, "tests/pixel-pieces.mjs": 32, "tests/halloween-ghosts.mjs": 40,
+    "tests/pip-bubbles.mjs": 18, "tests/hero-brawl.mjs": 42, "tests/halloween-fights.mjs": 42, "tests/css-clock.mjs": 3,
+    "tests/carnival.mjs": 22, "tests/shadow.mjs": 14, "tests/dv-pieces.mjs": 52, "tests/outbreak.mjs": 32,
+    "tests/cartoon-gags.mjs": 34, "tests/stage-aspect.mjs": 80, "tests/tiny-dom-battlefield.mjs": 37, "tests/dirt-lab.mjs": 10,
+    "tests/redline.mjs": 8, "tests/bag-beat.mjs": 8, "tests/toast-tell.mjs": 8, "tests/tiny-null-invaders.mjs": 5,
+    "tests/tiny-swarm-protocol.mjs": 7, "tests/tiny-byte-runner.mjs": 5, "tests/skate-sesh.mjs": 46, "tests/launch-day.mjs": 41,
+    "tests/origin.mjs": 214, "tests/surf-sesh.mjs": 56, "tests/dev-humor.mjs": 35, "tests/fizzbuzz.mjs": 20,
+    "tests/view-canvas.mjs": 2, "tests/layout.mjs": 12, "tests/name-shift.mjs": 55, "tests/two-minute-sesh.mjs": 18,
+    "tests/never-loses.mjs": 10, "tests/boardwalk-run.mjs": 22, "tests/perfect-fit.mjs": 9, "tests/diorama.mjs": 2,
+    "tests/dice-track.mjs": 10, "tests/water.mjs": 9, "tests/props.mjs": 2, "tests/beam-cards.mjs": 14,
+    "tests/flick.mjs": 10, "tests/terrain-drive.mjs": 25, "tests/salvo-bay.mjs": 21, "tests/wishbone.mjs": 8,
+    "tests/parade-day.mjs": 15, "tests/leftover-stack.mjs": 21, "tests/gravy-boat.mjs": 28
+  },
+  "test:site": {
+    "tests/site.mjs": 355, "tests/minis-controls.mjs": 91, "tests/site-analytics.mjs": 4, "tests/brick-cards.mjs": 143,
+    "tests/scroll-hint.mjs": 16, "tests/stage-touch.mjs": 2, "tests/site-nav.mjs": 4, "tests/factory.mjs": 24,
+    "tests/periodic.mjs": 11, "tests/brick-graph.mjs": 55, "tests/fzlt-dev.mjs": 2
+  }
+}

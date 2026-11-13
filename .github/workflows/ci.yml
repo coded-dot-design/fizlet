@@ -9,24 +9,25 @@ on:
 permissions:
   contents: read
 jobs:
-  check:
+  # The suite runs as parallel jobs; `check` at the end is the one required result (tag-version needs
+  # it, release.yml reads it by that name). Before the split one `check` job ran everything in a row:
+  # 42 min on main at 0.21.3 (test:browser 23.5, test:site 11.8, test:settle 3.5) of a 75-min timeout.
+  unit:
+    # Typecheck, kernel contract tests (incl. zero allocation), build, API snapshots, sizes, the
+    # package and the layers story: everything that is not a long Chromium suite.
     runs-on: ubuntu-24.04
-    # 75: the suite took 38 min on main at 0.21.3 and was cancelled at 40 on the 0.22.0 train (13 more
-    # gallery and brick PRs; test:browser 23 min, test:site 11 min, test:settle still to run).
-    timeout-minutes: 75
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
           # HEAD^ is the base for api:check: on a PR, HEAD is the merge commit and HEAD^ the base
           # branch's tip; on a push to main, the commit before it.
           fetch-depth: 2
-      - uses: actions/setup-node@v4
+      - uses: ./.github/actions/setup
         with:
-          node-version: 24
-          cache: npm
-      - run: npm ci --no-audit --no-fund
-      # Typecheck, kernel contract tests (incl. zero allocation), build. Failures are echoed as
-      # annotations so they can be read through the API (job logs are not always reachable).
+          browser: "true"
+      # Failures are echoed as annotations so they can be read through the API (job logs are not
+      # always reachable).
       - name: npm run check
         shell: bash
         run: |
@@ -39,29 +40,71 @@ jobs:
       - run: npm run size
       # The runtime has no dependencies, ever.
       - run: node -e "const p=require('./package.json'); if (Object.keys(p.dependencies||{}).length || Object.keys(p.peerDependencies||{}).length) { console.error('Fizlet ships no runtime dependencies'); process.exit(1) }"
-      - run: npx playwright install --with-deps chromium
-      - name: npm run test:browser
-        shell: bash
-        run: |
-          set -o pipefail
-          npm run test:browser 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
       # The layers story (site/demos/layers): mounts, cycles once, settles, Recall is exact.
       - run: npm run test:layers
       # The npm package: pack, install the tarball, import and typecheck every subpath.
       - run: npm run test:pack
-      # The website builds and passes its checks (deployed by pages.yml).
+  browser:
+    # npm run test:browser in 4 shards: scripts/shard.mjs takes package.json's list (the one source)
+    # and balances it by tests/shard-times.json; each shard runs every file and fails on any red one.
+    name: browser (${{ matrix.shard }}/4)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          browser: "true"
+      - run: node scripts/shard.mjs test:browser ${{ matrix.shard }}/4
+  site:
+    # The website builds and passes its checks (deployed by pages.yml): npm run test:site in 2 shards
+    # (tests/site.mjs alone is ~6 min, the rest together about the same).
+    name: site (${{ matrix.shard }}/2)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          browser: "true"
       - run: npm run site
-      - name: npm run test:site
-        shell: bash
-        run: |
-          set -o pipefail
-          npm run test:site 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
-      # Every gallery entry plays its autoplay story through before it settles (on the built site).
+      - run: node scripts/shard.mjs test:site ${{ matrix.shard }}/2
+  settle:
+    # Every gallery entry plays its autoplay story through before it settles (on the built site).
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          browser: "true"
+      - run: npm run site
       - name: npm run test:settle
         shell: bash
         run: |
           set -o pipefail
           npm run test:settle 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed|quiet for" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
+  check:
+    # The required check: green only when every job above is green. `always()` so a failed or
+    # cancelled job makes this red instead of skipped (a skipped required check would count as passed).
+    needs: [unit, browser, site, settle]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "unit browser site settle: $RESULTS"
+          for r in $RESULTS; do [ "$r" = success ] || { echo "::error::a check job did not pass ($RESULTS)"; exit 1; }; done
   perf:
     # Measured, not claimed: frame times, dropped frames, first paint, heap and minor GCs under a
     # 4x CPU throttle, failing over tests/perf/budgets.json; plus the game-level allocation test.
@@ -69,12 +112,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: ./.github/actions/setup
         with:
-          node-version: 24
-          cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
+          browser: "true"
       # One command: builds the site, measures, runs the allocation test, writes perf-results.json.
       - run: npm run perf
       - if: always()
@@ -110,6 +150,9 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      # release.yml reads this commit's `check` result to skip re-running the browser suite.
+      actions: read
+      checks: read
     uses: ./.github/workflows/release.yml
     with:
       tag: ${{ needs.tag-version.outputs.tag }}

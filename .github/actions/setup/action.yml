@@ -1,0 +1,30 @@
+# Node 24 + npm ci (npm cache from setup-node), and with `browser: true` Playwright's Chromium: the
+# browser download is cached per Playwright version (~/.cache/ms-playwright); the system packages
+# (--with-deps) are installed every time, as the runner image does not keep them.
+name: Fizlet setup
+description: Node 24, npm ci, optionally Playwright Chromium (cached)
+inputs:
+  browser:
+    description: "true: also install Playwright's Chromium"
+    default: "false"
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+        cache: npm
+    - run: npm ci --no-audit --no-fund
+      shell: bash
+    - id: pw
+      if: inputs.browser == 'true'
+      shell: bash
+      run: echo "version=$(node -p 'require("playwright/package.json").version')" >> "$GITHUB_OUTPUT"
+    - if: inputs.browser == 'true'
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ runner.arch }}-${{ steps.pw.outputs.version }}-chromium
+    - if: inputs.browser == 'true'
+      shell: bash
+      run: npx playwright install --with-deps chromium

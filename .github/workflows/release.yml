@@ -7,6 +7,9 @@
 # Needs the NPM_TOKEN repository secret (an npm automation token), added by the owner in
 # Settings > Secrets and variables > Actions. Without it the job checks everything, then skips
 # the publish with a warning.
+# Never publishes an untested commit: when the tag's commit already has a green `check` from ci.yml
+# (always so when ci.yml calls this after tagging), the browser suite is not run a second time;
+# otherwise (a tag pushed by hand before or without that run) the whole suite runs here first.
 name: Release to npm
 on:
   push:
@@ -27,14 +30,16 @@ on:
 permissions:
   contents: read
   id-token: write # npm provenance
+  actions: read # which workflow a check run came from
+  checks: read # the tag commit's `check` result
 concurrency:
   group: npm-release-${{ inputs.tag || github.ref_name }}
   cancel-in-progress: false
 jobs:
   publish:
     runs-on: ubuntu-24.04
-    # 45: test:browser alone takes about 23 min since the 0.22.0 train (59 scripts); at 20 the job was
-    # cancelled before Publish.
+    # 45: when the commit has no green check, test:browser runs here in full (about 23 min since the
+    # 0.22.0 train, 59 scripts; at 20 the job was cancelled before Publish). With one, ~3 min.
     timeout-minutes: 45
     env:
       TAG: ${{ inputs.tag || github.ref_name }}
@@ -42,6 +47,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: refs/tags/${{ inputs.tag || github.ref_name }}
+      # Set up inline, not with .github/actions/setup: a dispatch for an older tag checks out a tree
+      # that may not have that action.
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -62,8 +69,32 @@ jobs:
       - run: npm run readme:sizes -- --check
       - name: No runtime dependencies
         run: node -e "const p=require('./package.json'); if (Object.keys(p.dependencies||{}).length || Object.keys(p.peerDependencies||{}).length) { console.error('Fizlet ships no runtime dependencies'); process.exit(1) }"
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:browser
+      # ci.yml's `check` (every job: unit, 4 browser shards, site, settle) passed on exactly this
+      # commit: a check run named check, by GitHub Actions, success, from a ci.yml run on a push (a
+      # pull_request run files its checks under the PR head but tests the merge with the base, so it
+      # does not count: the tested tree must be this tree).
+      - name: This commit passed ci.yml check
+        id: checked
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha="$(git rev-parse HEAD)"
+          ok=false
+          for suite in $(gh api "repos/$GITHUB_REPOSITORY/commits/$sha/check-runs?check_name=check&per_page=100" \
+              --jq '.check_runs[] | select(.app.slug == "github-actions" and .conclusion == "success") | .check_suite.id'); do
+            run="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?check_suite_id=$suite" --jq '.workflow_runs[0] | "\(.path) \(.event)"')" || run=""
+            if [ "$run" = ".github/workflows/ci.yml push" ]; then ok=true; break; fi
+          done
+          echo "ok=$ok" >> "$GITHUB_OUTPUT"
+          if [ "$ok" = true ]; then
+            echo "$sha passed ci.yml check: not re-running test:browser." | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "$sha has no green ci.yml check: running test:browser here." | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+      - if: steps.checked.outputs.ok != 'true'
+        run: npx playwright install --with-deps chromium
+      - if: steps.checked.outputs.ok != 'true'
+        run: npm run test:browser
       # Pack, install the tarball, import and typecheck every subpath.
       - run: npm run test:pack
       - name: Publish
