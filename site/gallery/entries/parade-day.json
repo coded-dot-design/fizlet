@@ -1,0 +1,24 @@
+{
+  "id": "parade-day",
+  "date": "2026-11-23",
+  "prompt": "a tabletop diorama of a small city street on a parade morning: low-poly shops and flats, lampposts with banners leaning over the street, the crowd packed on the sidewalks, confetti; you steer a giant inflatable turkey held by six tiny handlers walking down the middle; gusts (drifting leaves and a wind sock give them away) push it sideways, lean the handlers' lines to keep it clear of the lampposts and banners; a bump squashes it and patches it, the third lets the air out; reach the grandstand for distance, bumps and a Perfect float bonus",
+  "title": "Parade Day",
+  "kind": "hero",
+  "theme": "thanksgiving",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/parade/parade-day.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-23"
+}
