@@ -1,0 +1,24 @@
+{
+  "id": "mirror-maze",
+  "date": "2026-11-07",
+  "prompt": "five little laser puzzles on a tabletop diorama: a tray on a table with a laser emitter, stone posts, two to four mirrors you tap to turn 45 degrees and later a glass splitter that sends the light two ways; light every crystal, each chimes as the beam reaches it, and the next board slides in; a moves counter and a par for every board",
+  "title": "Mirror Maze",
+  "kind": "hero",
+  "theme": "diorama",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/beam",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/mirror/mirror-maze.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own"
+}
