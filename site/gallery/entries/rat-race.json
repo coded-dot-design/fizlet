@@ -1,0 +1,25 @@
+{
+  "id": "rat-race",
+  "date": "2026-11-16",
+  "prompt": "a top-down maze race on a tabletop diorama: your mouse against a rival mouse through a cardboard maze to the cheese in the middle; a new seeded maze every round, always solvable, with dead ends and two doors that swap every few seconds and bonk a mouse they shut on; hold an arrow, swipe or tap a room; the rival sniffs at forks and follows its nose into dead ends; first to two cheeses wins",
+  "title": "Rat Race",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "mazes",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/grid",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.22.0",
+  "made": "by hand",
+  "module": "pieces/maze/rat-race.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own"
+}
