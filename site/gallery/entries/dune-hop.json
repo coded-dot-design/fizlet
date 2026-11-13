@@ -1,0 +1,27 @@
+{
+  "id": "dune-hop",
+  "date": "2026-11-09",
+  "prompt": "a short cyberpunk-desert run on a tabletop: neon-rimmed dunes at night (a hot sunset by day), glowing checkpoint gates and a small low-poly buggy with light-trail dust; throttle and steer through two laps, jumps score airtime, clean landings build a combo, a bad landing tumbles you back to the last gate",
+  "title": "Dune Hop",
+  "kind": "hero",
+  "theme": "tabletop",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/terrain",
+    "@fzlt/core/drive",
+    "@fzlt/core/input",
+    "@fzlt/core/pad",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/dune/dune-hop.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own"
+}
