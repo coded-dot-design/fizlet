@@ -1,0 +1,26 @@
+{
+  "id": "pocket-harbour",
+  "date": "2026-11-11",
+  "prompt": "a tiny seaside town on a tabletop built from a low-poly props kit: houses, shops, lampposts, a lighthouse, a dock with boats, trees and crates; poke it to life: lamps come on at dusk, the lighthouse beam sweeps, the boat leaves the dock and loops back, the truck drives the harbour road, the gulls lift off; a day and night switch, and a hidden cat to find in five spots",
+  "title": "Pocket Harbour",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "tabletop",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/props",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/harbour/pocket-harbour.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-11"
+}

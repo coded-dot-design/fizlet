@@ -1,0 +1,27 @@
+{
+  "id": "roll-home",
+  "date": "2026-11-06",
+  "prompt": "a tiny roll-and-move board on a tabletop diorama: a winding loop of 24 spaces on a felt board with two arched ladders and two slides, you against one bot, two pawns each; press the pop dome and the die jumps, tumbles and lands, pick a pawn, it hops space by space, climbs or slides, bumps an opponent back to the porch, and the camera eases after it; first with both pawns home wins",
+  "title": "Roll Home",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "diorama",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/dice",
+    "@fzlt/core/track",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/roll/roll-home.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-06"
+}

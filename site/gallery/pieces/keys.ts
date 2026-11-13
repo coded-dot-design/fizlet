@@ -20,11 +20,14 @@ export function keys(engine: Engine, stage: HTMLElement, defs: Key[], on: (id: n
   stage.append(bar);
   // A press on the key (or on the stage itself, for `tap`); a held one is captured and lets go when
   // the capture ends (the pointer up or cancelled).
+  // When the last pointer press landed: the click that follows it is the same press, not a second one.
+  let down = -1e9;
   const press = (el: HTMLElement, id: number, hold?: boolean) => {
     el.addEventListener("pointerdown", (e) => {
       if (el !== stage) e.preventDefault();
       else if (e.target !== stage) return;
       if (hold) el.setPointerCapture(e.pointerId);
+      down = e.timeStamp;
       on(id, true);
     }, sig);
     if (hold) el.addEventListener("lostpointercapture", (e) => e.target === el && on(id, false), sig);
@@ -37,7 +40,9 @@ export function keys(engine: Engine, stage: HTMLElement, defs: Key[], on: (id: n
     d.aria && b.setAttribute("aria-label", d.aria);
     b.dataset.id = "" + d.id;
     press(b, d.id, d.hold);
-    b.addEventListener("click", (e) => e.detail || (on(d.id, true), d.hold && on(d.id, false)), sig);
+    // A keyboard press only: a tap's click can arrive with detail 0 on some Chromium builds, so a click
+    // within a second of a pointer press on a key is that press again (the key fired twice: a toggle undid itself).
+    b.addEventListener("click", (e) => e.detail || e.timeStamp - down < 1000 || (on(d.id, true), d.hold && on(d.id, false)), sig);
     return b;
   });
   if (tap >= 0) press(stage, tap, defs.some((d) => d.id === tap && d.hold));
