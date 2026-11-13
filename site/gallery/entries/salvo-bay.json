@@ -4,6 +4,7 @@
   "prompt": "a ship-hunting duel on a cutaway tabletop diorama: two glass trays of water on a wooden plinth, your bay and the enemy's, a dock, a fort and a lighthouse; place four ships, then trade shells that arc over the table, splash, burst into fire and smoke, and sink ships you can still see on the bottom through the water; orbit the table, and at night the lighthouse sweeps the bay",
   "title": "Salvo Bay",
   "kind": "hero",
+  "lane": "hifi",
   "theme": "diorama",
   "author": "pip",
   "recipe": "hand-built",
@@ -19,5 +20,6 @@
   "export": "mount",
   "aspect": "16 / 9",
   "phone": "4 / 5",
-  "stage": "own"
+  "stage": "own",
+  "approved": "2026-11-13"
 }
