@@ -1,0 +1,23 @@
+{
+  "id": "table-for-twelve",
+  "date": "2026-11-25",
+  "prompt": "a long dinner table as a tabletop diorama, seen from above at an angle: twelve guests on spindle-back chairs, plates, glasses, candles, gourds and leaves down the runner and the big roast in the middle; the dishes come out of the kitchen at the end of the table, steaming, and each guest thinks of the dish they want; pass the dish you hold along the table seat to seat before it goes cold: hot is a cheer and points, cold is a grumble; four courses, each quicker, and from the third the table passes both ways; when the last dish is down, dinner is served and everyone raises a glass",
+  "title": "Table for Twelve",
+  "kind": "hero",
+  "theme": "thanksgiving",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/table/table-for-twelve.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own"
+}
