@@ -29,8 +29,8 @@
   --grid: color-mix(in srgb, var(--k-sys) 9%, transparent);
   --code-bg: #0b0918;
   --hl: var(--k-go);
-  /* A frame that keeps the page's scroll, while its note shows (scroll-hint.ts): the kit's red, the
-     "too big to win" badge's (themed: #ff2b4e dark, #c01033 light). */
+  /* A frame that keeps the page's scroll, while its note shows (scroll-hint.ts): the kit's red
+     (themed: #ff2b4e dark, #c01033 light). */
   --frame-warn: var(--k-fire-ink);
   /* Every 3D sticker's die-cut edge and hard shadow (status stickers, the kernel slab, section
      numbers, gallery numbers and stickers, phase and people stickers, badges): light on the dark
@@ -3082,7 +3082,7 @@ html.bui[data-theme="light"] .phases b {
 }
 .gal-count > .gal-over {
   color: var(--ink);
-  border: 2px dashed var(--k-fire-ink);
+  border: 2px dashed var(--k-cmd-ink);
 }
 .gal-count b {
   font-size: 13px;
@@ -3137,8 +3137,8 @@ html.bui[data-theme="light"] .phases b {
 .gal-stickers .gal-sticker-hero {
   --tone: var(--k-sys);
 }
-.gal-stickers .gal-sticker-big {
-  --tone: var(--k-fire);
+.gal-stickers .gal-sticker-hifi {
+  --tone: var(--k-cmd);
 }
 .gal-stickers .gal-sticker-win {
   --tone: var(--hurt);
@@ -3344,6 +3344,10 @@ html.bui[data-theme="light"] .phases b {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+/* The lane chip (Hi-Fi) leads the theme chips, set off by a gap. */
+.gal-lane-chip {
+  margin-right: 10px;
 }
 .gal-chip small {
   margin-left: 6px;
@@ -3941,12 +3945,8 @@ html.bui[data-theme="light"] .phases b {
 .ct-small {
   background: var(--k-go);
 }
-.ct-big {
-  color: var(--ink);
-  background: var(--raised);
-  border: 2px dashed var(--k-fire-ink);
-  box-shadow: none;
-  rotate: none;
+.ct-hifi {
+  background: var(--k-cmd);
 }
 .ct-entries {
   margin-top: 36px;

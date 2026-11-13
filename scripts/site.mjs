@@ -20,7 +20,7 @@ import { playFigure } from "../site/pages/index.mjs";
 import { buildGallery, personPath } from "./gallery.mjs";
 import { buildMake, snippetFor, TABLE as MAKE_TABLE } from "./make.mjs";
 import { makePage, DEFAULT_PROMPT } from "../site/pages/make.mjs";
-import { AGENT_NOTE, CONTEST, PERSONA_NOTE, canWin, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
+import { AGENT_NOTE, CONTEST, PERSONA_NOTE, contributors, contestNow, contestWeeks, statsOf } from "./people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
 import { privacyPage, cookiesPage, analyticsNames } from "../site/pages/legal.mjs";
@@ -175,6 +175,7 @@ const urlOf = (id) => gallery.index.find((r) => r.id === id).url;
 if (gallery.pending.length) console.log(`Gallery: ${gallery.pending.length} pending (not approved, not built): ${gallery.pending.join(", ")}`);
 for (const p of gallery.pages) mkdirSync(`${OUT}/${p.path}`, { recursive: true });
 mkdirSync(`${OUT}/gallery/archive`, { recursive: true });
+mkdirSync(`${OUT}/${gallery.hifi.path}`, { recursive: true });
 mkdirSync(`${OUT}/heroes`, { recursive: true });
 // People and the weekly contest: each contributor's entries and bytes come from the gallery just
 // built; contest weeks are checked against it (a week's entries are its dailies, never archived
@@ -182,9 +183,8 @@ mkdirSync(`${OUT}/heroes`, { recursive: true });
 const PEOPLE = contributors();
 // The archive goes in too, so an archived entry stamped for a day fails the build (it can't enter).
 const WEEKS = contestWeeks([...gallery.entries, ...gallery.archive.entries], PEOPLE);
-const winners = new Set(WEEKS.map((w) => w.winner).filter(Boolean));
-// Contest entries over the size cap: their gallery cards say "too big to win" too.
-const tooBig = new Set(WEEKS.flatMap((w) => w.entries.filter((e) => !canWin(e)).map((e) => e.id)));
+// Each week's winners, micro and Hi-Fi (each lane has its own).
+const winners = new Set(WEEKS.flatMap((w) => [w.winner, w.hifiWinner]).filter(Boolean));
 const people = PEOPLE.map((p) => ({ person: p, stats: statsOf(p, gallery.entries) }));
 // "Today" for the contest page: the build's UTC date (FIZLET_TODAY pins it for a preview or a test).
 const TODAY = process.env.FIZLET_TODAY ?? new Date().toISOString().slice(0, 10);
@@ -318,9 +318,17 @@ const pages = [
       ? `Tiny Fizlet examples, logic and style on the bricks, made daily as a contest: ${gallery.entries.length} so far, each live with its size measured on this build.`
       : `Fizlet Daily page ${p.n} of ${gallery.pages.length}: older tiny examples by theme, each with its brief, its live demo and its size measured on this build.`,
     base: GB(p), version, path: p.path,
-    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, tooBig, archived: gallery.archive.entries.length, contributors: PEOPLE, week: now?.week, today: TODAY }),
+    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: p, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(p), winners, hifi: gallery.hifi, archived: gallery.archive.entries.length, contributors: PEOPLE, week: now?.week, today: TODAY }),
     scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
   })]),
+  // The Hi-Fi lane: every live Hi-Fi piece on one page, by theme (the lane chip on Daily links here).
+  [`${gallery.hifi.path}index.html`, page({
+    title: "Daily Hi-Fi: bigger pieces, their own lane · Fizlet",
+    description: `The bigger Fizlet Daily pieces (${gallery.hifi.entries.length}): dioramas, 2.5D, mini-games and heroes, with their own weekly winner and sizes measured on this build.`,
+    base: GB(gallery.hifi), version, path: gallery.hifi.path,
+    body: `<style>${layers.css}${labs.css}</style>` + galleryPage({ page: gallery.hifi, pages: gallery.pages, all: gallery.entries, themes: gallery.themes, people: gallery.people, loader: gallery.loader, figures, snippets: make.snippets, base: GB(gallery.hifi), winners, hifi: gallery.hifi, lane: "hifi", contributors: PEOPLE, week: now?.week, today: TODAY }),
+    scripts: ["site.js", "gallery/gallery.js", "gallery/browse.js"],
+  })],
   ["gallery/archive/index.html", page({
     title: "Gallery archive: earlier runs, kept to revisit · Fizlet",
     description: `Earlier Fizlet factory animations taken off the gallery (${gallery.archive.entries.length}), kept to revisit, each with its size measured on this build.`,

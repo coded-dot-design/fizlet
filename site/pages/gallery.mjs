@@ -9,7 +9,7 @@ import { crumbs, esc, icon } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { BRICKS } from "../bricks.mjs";
 import { symChip } from "../brick-ui.mjs";
-import { sections } from "../../scripts/gallery.mjs";
+import { HIFI_PATH, laneOf, sections } from "../../scripts/gallery.mjs";
 import { CONTEST } from "../../scripts/people.mjs";
 import { contestStory, enterKey } from "./contest.mjs";
 
@@ -77,33 +77,33 @@ export const isNew = (e, today) => !!today && days(e.date, today) >= 0 && days(e
 /**
  * A card's stickers, tilted on its corner like the people page's (one .ppl-sticker look): its
  * status (NEW this week, else APPROVED, with the owner's date; a pending entry never has a card),
- * WINNER, HERO and TOO BIG TO WIN. Each has its own accessible name.
+ * WINNER, HERO and HI-FI (the Hi-Fi lane: `"lane": "hifi"`). Each has its own accessible name.
  */
-export function cardStickers(e, { today, winner = false, tooBig = false } = {}) {
+export function cardStickers(e, { today, winner = false } = {}) {
   const s = (tone, text, label) => `<span class="gal-sticker gal-sticker-${tone}" role="img" aria-label="${esc(label)}" title="${esc(label)}">${text}</span>`;
   const approved = e.approved ? `approved by the owner on ${e.approved}` : "";
   return [
     winner && s("win", `${icon("check", 14)}WINNER`, "Winner of its weekly contest"),
     isNew(e, today) ? s("new", "NEW", `New this week: made ${e.date}${approved ? `, ${approved}` : ""}`) : approved && s("ok", "APPROVED", `Approved: ${approved}`),
     e.kind === "hero" && s("hero", "HERO", "Hero: a large animation, also on the heroes page"),
-    tooBig && s("big", "TOO BIG TO WIN", `Too big to win: ${fmt(e.size)} B live, over the contest's ${fmt(CONTEST.maxLive)} B cap`),
+    laneOf(e) === "hifi" && s("hifi", "HI-FI", `Hi-Fi: a bigger piece (${fmt(e.size)} B live), in the Hi-Fi lane with its own weekly winner`),
   ].filter(Boolean).join("");
 }
 
-const card = (e, { loader, figures, base, people, themeTitle, winners, tooBig = new Set(), snippets = {}, today }) => {
+const card = (e, { loader, figures, base, people, themeTitle, winners, snippets = {}, today }) => {
   const fig = entryFigure(e, figures).replace("<figure ", `<figure data-gallery="${esc(e.id)}" `);
   const measured = e.pageCost?.measured;
-  const big = tooBig.has(e.id);
-  const stickers = cardStickers(e, { today, winner: winners.has(e.id), tooBig: big });
+  const hifi = laneOf(e) === "hifi";
+  const stickers = cardStickers(e, { today, winner: winners.has(e.id) });
   // The stat chips (the people page's .ppl-count): every number measured on this build.
   const chips = [
     `<li class="gal-badge">${sizeBadge(e.size, `gallery/${e.id}.js`, `${e.title}, its live chunk`)}</li>`,
     `<li data-live-bytes="gallery:${esc(e.id)}"><b>${fmt(e.size)} B</b> live</li>`,
     `<li data-total="gallery:${esc(e.id)}" title="The shared loader (${fmt(loader)} B) comes first, before the piece nears the screen; the live chunk after"><b>${fmt(e.size + loader)} B</b> total with the ${fmt(loader)} B loader</li>`,
     `<li><b>${e.bricks.length}</b> ${e.bricks.length === 1 ? "brick" : "bricks"}</li>`,
-    big ? `<li class="gal-over"><b>+${fmt(e.size - CONTEST.maxLive)} B</b> over the ${fmt(CONTEST.maxLive)} B cap</li>` : "",
+    hifi && e.size > CONTEST.maxLive ? `<li class="gal-over"><b>+${fmt(e.size - CONTEST.maxLive)} B</b> over the ${fmt(CONTEST.maxLive)} B micro cap</li>` : "",
   ].join("");
-  return `<li class="panel gal-item" id="${esc(e.id)}" data-demo-host data-kind="${esc(e.kind)}">
+  return `<li class="panel gal-item" id="${esc(e.id)}" data-demo-host data-kind="${esc(e.kind)}" data-lane="${laneOf(e)}">
       <div class="gal-stage">${fig}${e.phone ? shapeKey(e) : ""}</div>
       <div class="gal-meta">
         <p class="eyebrow gal-line"><span class="index">#${e.archived ? "A" : ""}${String(e.no).padStart(3, "0")}</span> ${esc(e.date)} · ${esc(themeTitle.toUpperCase())} · ${e.made === "fe anim" ? `MADE BY FE ANIM · RECIPE ${esc(e.recipe.toUpperCase())}` : "HAND-BUILT"}</p>
@@ -124,20 +124,26 @@ const card = (e, { loader, figures, base, people, themeTitle, winners, tooBig = 
 /**
  * One gallery page. `page`: this page ({ n, path, entries }); `pages`: every page; `all`: every
  * entry (newest first: the chips' counts and where each theme first appears); `themes` in order;
- * `winners`: ids of weekly-contest winners (site/contest/weeks), featured with the Winner badge;
- * `tooBig`: ids of contest entries over the size cap, which wear the Too big to win sticker;
- * `today`: the build's date (YYYY-MM-DD), for the NEW sticker.
+ * `winners`: ids of weekly-contest winners, micro and Hi-Fi (site/contest/weeks), featured with
+ * the Winner badge; `today`: the build's date (YYYY-MM-DD), for the NEW sticker. `hifi`: the
+ * Hi-Fi lane's page ({ n, path, entries }); with `lane: "hifi"` this is that page (its entries
+ * by theme, the theme chips counting them), else a Daily page.
  */
-export function galleryPage({ page, pages, all, themes, people, loader, figures, snippets = {}, base, winners = new Set(), tooBig = new Set(), archived = 0, contributors = [], week, today }) {
-  const firstPage = Object.fromEntries(themes.map((t) => [t.id, pages.find((p) => p.entries.some((e) => e.theme === t.id))]));
+export function galleryPage({ page, pages, all, themes, people, loader, figures, snippets = {}, base, winners = new Set(), hifi = { path: HIFI_PATH, entries: [] }, lane, archived = 0, contributors = [], week, today }) {
+  const lanePage = lane === "hifi";
+  // On the Hi-Fi page the theme chips count and filter its own entries; "All" is always Daily.
+  const inView = lanePage ? hifi.entries : all, viewPages = lanePage ? [hifi] : pages;
+  const firstPage = Object.fromEntries(themes.map((t) => [t.id, viewPages.find((p) => p.entries.some((e) => e.theme === t.id))]));
   const used = themes.filter((t) => firstPage[t.id]);
-  const chips = [`<a class="bui-key gal-chip" href="${base}gallery/" data-theme-chip="all"${page.n === 1 ? ' aria-current="true"' : ""}>All <small>${all.length}</small></a>`,
-    ...used.map((t) => `<a class="bui-key gal-chip" href="${base}${firstPage[t.id].path}#theme-${esc(t.id)}" data-theme-chip="${esc(t.id)}">${esc(t.title)} <small>${all.filter((e) => e.theme === t.id).length}</small></a>`)].join("");
+  const chips = [`<a class="bui-key gal-chip" href="${base}gallery/" data-theme-chip="all"${page.n === 1 && !lanePage ? ' aria-current="true"' : ""}>All <small>${all.length}</small></a>`,
+    // The lane filter: the Hi-Fi page (a plain link; the theme chips filter on the page).
+    hifi.entries.length || lanePage ? `<a class="bui-key gal-chip gal-lane-chip" href="${base}${HIFI_PATH}" data-lane-chip="hifi"${lanePage ? ' aria-current="true"' : ""}>Hi-Fi <small>${hifi.entries.length}</small></a>` : "",
+    ...used.map((t) => `<a class="bui-key gal-chip" href="${base}${firstPage[t.id].path}#theme-${esc(t.id)}" data-theme-chip="${esc(t.id)}">${esc(t.title)} <small>${inView.filter((e) => e.theme === t.id).length}</small></a>`)].join("");
   const title = Object.fromEntries(themes.map((t) => [t.id, t.title]));
   const secs = sections(page.entries, themes).map(({ theme: t, entries }) => `<section class="gal-theme" id="theme-${esc(t.id)}" data-theme-section="${esc(t.id)}" aria-labelledby="theme-${esc(t.id)}-h">
     <div class="gal-theme-head"><h2 id="theme-${esc(t.id)}-h">${esc(t.title)}</h2><p>${esc(t.blurb)}</p></div>
     <ol class="gal">
-    ${entries.map((e) => card(e, { loader, figures, base, people, themeTitle: title[e.theme], winners, tooBig, snippets, today })).join("\n    ")}
+    ${entries.map((e) => card(e, { loader, figures, base, people, themeTitle: title[e.theme], winners, snippets, today })).join("\n    ")}
     </ol>
   </section>`).join("\n  ");
   const nav = pages.length > 1 ? `<nav class="gal-pages" aria-label="Daily pages">${pages.map((p) => p.n === page.n
@@ -146,14 +152,18 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
   return `
 <section class="section" aria-labelledby="gal-title">
   <div class="wrap">
-    ${page.n > 1 ? crumbs(base, [["gallery/", "Daily"]], `Page ${page.n}`) : ""}
-    <div class="section-head">
+    ${lanePage ? crumbs(base, [["gallery/", "Daily"]], "Hi-Fi") : page.n > 1 ? crumbs(base, [["gallery/", "Daily"]], `Page ${page.n}`) : ""}
+    ${lanePage ? `<div class="section-head">
+      <p class="eyebrow"><span class="index">${hifi.entries.length}</span> HI-FI ${hifi.entries.length === 1 ? "PIECE" : "PIECES"} · NEWEST FIRST</p>
+      <h1 id="gal-title">Hi-Fi.<br><em>Bigger pieces, their own lane.</em></h1>
+      <p class="lead">Dioramas, 2.5D, full mini-games and heroes over the micro cap of ${fmt(CONTEST.maxLive)} B live. They compete only with each other, for a weekly winner of their own; the micros keep theirs. Each runs live once it nears the screen and wears its size, measured on this build. Every piece is also on <a href="${base}gallery/">Daily</a>. By <a href="https://coded.design/">Chris Cooley ↗</a>.</p>
+    </div>` : `<div class="section-head">
       <p class="eyebrow"><span class="index">${all.length}</span> PIECES · NEWEST FIRST${pages.length > 1 ? ` · PAGE ${page.n} OF ${pages.length}` : ""}</p>
       <h1 id="gal-title">Daily.<br><em>Tiny examples, made every day.</em></h1>
       <p class="lead">It's how we test the engine. We turned it into a contest. Each piece is logic and style on Fizlet bricks. It runs live once it nears the screen and wears its size, measured on this build: still once it settles, asleep off screen, and the page always comes back. Take any made from a prompt home as one file, or <a href="${base}make/">make your own</a>. By <a href="https://coded.design/">Chris Cooley ↗</a>.${archived ? ` Earlier factory runs wait in <a href="${base}gallery/archive/" rel="nofollow">the archive</a>.` : ""}</p>
       ${page.n === 1 ? `<div class="panel gal-contest"><p>${contestStory(contributors, base)}</p><div class="split-keys">${enterKey(week)}<a class="bui-key bui-arcade bui-sys" href="${base}contest/">${icon("book", 16)}Contest rules</a></div></div>` : ""}
-    </div>
-    <nav class="gal-themes" aria-label="Themes">${chips}</nav>
+    </div>`}
+    <nav class="gal-themes" aria-label="Themes and lanes">${chips}</nav>
     <form class="gal-search" role="search" data-gal-search data-base="${base}" hidden>
       <label class="bui-label" for="gal-q">SEARCH</label>
       <input id="gal-q" type="search" name="q" autocomplete="off" placeholder="title, prompt, theme or author">

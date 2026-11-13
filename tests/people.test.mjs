@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import { copyFileSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { gzipSync } from "node:zlib";
-import { AVATAR_PALETTE, CONTEST, KIND_LABEL, STICKER, avatarSvg, contestNow, contestWeeks, contributors, isoWeek, statsOf, weekDates } from "../scripts/people.mjs";
+import { AVATAR_PALETTE, CONTEST, KIND_LABEL, STICKER, avatarSvg, canWin, contestNow, contestWeeks, contributors, isHifi, isoWeek, statsOf, weekDates } from "../scripts/people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
 
@@ -179,16 +179,45 @@ test("contest: one winner a week, from its dailies, on a closed week, never over
   assert.equal(one.winner, "a", "one daily is enough, and at the cap exactly is small enough");
   const [w] = contestWeeks(three, PEOPLE, week({ winner: "e0", status: "closed" }));
   assert.equal(w.smallest, "e1", "the smallest entry that can win");
-  const html = contestPage({ now: w, weeks: [w], people: PEOPLE, base: "../", urlOf: (id) => `gallery/#${id}` });
+  assert.equal(w.hifiWinner, null, "no Hi-Fi winner unless set");
+  const lanes = [...three.slice(0, 2), { ...three[2], lane: "hifi" }];
+  const [l] = contestWeeks(lanes, PEOPLE, week({ winner: "e0", status: "closed" }));
+  const html = contestPage({ now: l, weeks: [l], people: PEOPLE, base: "../", urlOf: (id) => `gallery/#${id}` });
   const li = (id) => html.split("<li").find((x) => x.includes(`#${id}"`) && x.includes("gal-prompt") && !x.includes("2026-W45</span> Fall"));
   assert.match(li("e0"), /WINNER/);
   assert.match(li("e1"), /SMALLEST/);
-  assert.match(li("e2"), /TOO BIG TO WIN/);
-  assert.doesNotMatch(li("e0") + li("e1"), /TOO BIG TO WIN/);
-  assert.ok(html.indexOf("#e1\"") < html.indexOf("#e0\"") && html.indexOf("#e0\"") < html.indexOf("#e2\""), "dailies listed smallest first");
-  assert.match(html, /2026-W45<\/span> Fall · 3 pieces/, "past winners by week");
+  assert.match(li("e2"), /HI-FI/);
+  assert.doesNotMatch(li("e0") + li("e1"), /HI-FI|TOO BIG TO WIN/);
+  assert.ok(html.indexOf("#e1\"") < html.indexOf("#e0\"") && html.indexOf("#e0\"") < html.indexOf("#e2\""), "micros listed smallest first, then the Hi-Fi lane");
+  assert.ok(html.indexOf('id="ct-entries"') < html.indexOf('id="ct-hifi"') && html.indexOf('id="ct-hifi"') < html.indexOf("#e2\""), "the Hi-Fi pieces in their own list");
+  assert.match(html, /2026-W45<\/span> Fall · 2 pieces/, "past winners by week (the micro lane's count)");
   const [none] = contestWeeks([entry("x", PEOPLE[0].id, { size: CONTEST.maxLive + 5 })], PEOPLE, week());
   assert.equal(none.smallest, null, "no smallest when nothing can win");
+});
+
+test("contest: two lanes; a Hi-Fi piece can't win the micro week, a micro can't win Hi-Fi; each lane has its own winner", () => {
+  const dailies = [entry("m0", PEOPLE[0].id, { size: 9000, date: "2026-11-02" }), entry("m1", PEOPLE[1].id, { size: 4000, date: "2026-11-03" }),
+    entry("h0", PEOPLE[2].id, { size: 30000, date: "2026-11-04", lane: "hifi" }), entry("h1", PEOPLE[0].id, { size: 5000, date: "2026-11-05", lane: "hifi" })];
+  const closed = (o) => week({ status: "closed", ...o });
+  const [w] = contestWeeks(dailies, PEOPLE, closed({ winner: "m0", hifiWinner: "h0" }));
+  assert.deepEqual([w.micro.map((e) => e.id), w.hifi.map((e) => e.id)], [["m1", "m0"], ["h1", "h0"]], "each lane smallest first");
+  assert.deepEqual([w.winner, w.hifiWinner, w.smallest], ["m0", "h0", "m1"], "two winners; the smallest is a micro");
+  assert.throws(() => contestWeeks(dailies, PEOPLE, closed({ winner: "h1" })), /winner h1 is a Hi-Fi piece: it competes only in the Hi-Fi lane/, "a Hi-Fi piece under the cap still can't win the micro week");
+  assert.throws(() => contestWeeks(dailies, PEOPLE, closed({ winner: "h0" })), /winner h0 is a Hi-Fi piece/);
+  assert.throws(() => contestWeeks(dailies, PEOPLE, closed({ hifiWinner: "m1" })), /hifiWinner m1 is a micro: it competes for the micro winner/);
+  assert.throws(() => contestWeeks(dailies, PEOPLE, week({ hifiWinner: "h0" })), /only once the week is closed/);
+  assert.throws(() => contestWeeks(dailies, PEOPLE, closed({ hifiWinner: "nope" })), /hifiWinner nope is not one of its dailies/);
+  const [hifiOnly] = contestWeeks(dailies.slice(2), PEOPLE, closed({ hifiWinner: "h1" }));
+  assert.equal(hifiOnly.smallest, null, "a Hi-Fi piece is never the week's smallest");
+  assert.ok(!canWin(dailies[3]) && canWin(dailies[0]) && isHifi(dailies[2]) && !isHifi(dailies[0]));
+  // The page: both winners, each in its own lane, newest week first.
+  const html = contestPage({ now: w, weeks: [w], people: PEOPLE, base: "../", urlOf: (id) => `gallery/#${id}` });
+  const past = html.slice(html.indexOf('id="ct-past"'));
+  assert.ok(past.indexOf("#m0\"") > 0 && past.indexOf("#m0\"") < past.indexOf("#h0\""), "past winners: the micro, then the Hi-Fi winner");
+  assert.match(past, /2026-W45<\/span> Fall · 2 Hi-Fi pieces<\/p><h3><a href="\.\.\/gallery\/#h0">[^<]+<\/a> <span class="win-badge">[^]*?WINNER<\/span> <span class="win-badge ct-hifi">HI-FI<\/span>/);
+  assert.match(html, /Hi-Fi has its own lane/);
+  assert.match(html, /a Hi-Fi piece can't win the micro week, and a micro can't win Hi-Fi/);
+  assert.match(html, /href="\.\.\/gallery\/hifi\/"/, "the contest links the Hi-Fi lane");
 });
 
 test("contest: the page leads with this week, else the next one, else the latest; the shipped data checks", () => {
@@ -201,7 +230,7 @@ test("contest: the page leads with this week, else the next one, else the latest
   const shipped = contestWeeks([], PEOPLE);
   assert.ok(shipped.some((w) => w.week === "2026-W44" && w.theme === "Halloween"), "launch week: Halloween");
   const html = contestPage({ now: contestNow(shipped, "2026-10-31"), weeks: shipped, people: PEOPLE, base: "../", urlOf: (id) => `gallery/#${id}` });
-  for (const rule of ["Tiny examples, made every day. It's how we test the engine. We turned it into a contest.", "Small wins", "10 KB gzip or less", "10,240 B", "Too big to win", "Smallest",
+  for (const rule of ["Tiny examples, made every day. It's how we test the engine. We turned it into a contest.", "Small wins", "10 KB gzip or less", "10,240 B", "Hi-Fi has its own lane", "Smallest",
     "Up to 40 entries a day", "top 1 to 5", "posted at the end of the week", "weekly winner", "monthly winner", "backfills", "approved by the owner",
     "Monday, October 26 to Sunday, November 1, 2026", "Winner badge", "Not live yet", "No winners yet", "issues/new?title=Contest%202026-W44%3A%20&amp;body="]) assert.ok(html.includes(rule), `the page says: ${rule}`);
   for (const name of ["Frame Zero", "DJ Mempool", "Hex Hazel", "Quill", "Pip", "Chris Cooley"]) assert.ok(html.includes(`>${name}</a>`), `voter ${name} is named`);

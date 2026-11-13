@@ -1,9 +1,11 @@
-// Gallery search: every word of the query must appear in an entry's title, prompt, theme or author
+// Gallery search: every word of the query must appear in an entry's title, prompt, theme, author or lane
 // (any case, any order). Pure, so the unit tests and the page share it (browse.ts).
 export interface IndexRow {
   id: string;
   no: number;
   kind: string;
+  /** "micro" or "hifi" (the Hi-Fi lane): "hifi" and "hi-fi" find it. */
+  lane: string;
   theme: string;
   themeTitle: string;
   title: string;
@@ -22,7 +24,7 @@ export function search(rows: readonly IndexRow[], query: string): IndexRow[] {
   const words = fold(query).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
   if (!words.length) return [];
   return rows.filter((r) => {
-    const hay = fold(`${r.title} ${r.prompt} ${r.theme} ${r.themeTitle} ${r.author} ${r.authorName} ${r.kind}`);
+    const hay = fold(`${r.title} ${r.prompt} ${r.theme} ${r.themeTitle} ${r.author} ${r.authorName} ${r.kind}${r.lane === "hifi" ? " hifi hi-fi" : ""}`);
     return words.every((w) => hay.includes(w));
   });
 }
