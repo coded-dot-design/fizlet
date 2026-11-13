@@ -22,7 +22,7 @@ test("wishbone: in the spot you hold the knob; dead centre is golden; the chips 
   S[2] = S[5];
   I[0] = 1, r.step(DT);
   assert.equal(S[0], SNAP);
-  assert.ok(S[8] < -0.5, "broke far down their arm: the big half is yours");
+  assert.ok(S[8] < -0.24 && S[8] > -0.26, "dead centre: broke on their arm, near the knob, you hold 65%");
   assert.deepEqual([S[9], S[10], S[12], S[13]], [1, 1, 1, 1], "win, golden, streak 1, best 1");
   settle(r);
   for (let i = 0; i < NC; i++) assert.ok(!r.CON[i] && Math.abs(r.CY[i] + r.CS[i] * 0.5 - TABLE) < 1e-6, `chip ${i} rests on the table`);
@@ -37,7 +37,7 @@ test("wishbone: outside the spot it breaks on your side; waiting too long, they 
   assert.equal(S[0], SWEEP, "a press after the result grabs a new one");
   S[2] = S[5] > 0.5 ? 0 : 1;
   I[0] = 1, r.step(DT);
-  assert.ok(S[8] > 0, "broke on your arm");
+  assert.ok(S[8] > 0.06 && S[8] < 0.26, "broke on your arm, near the knob (they hold 55% to 65%)");
   assert.deepEqual([S[9], S[12], S[13]], [0, 0, 1], "a loss, the streak resets, best stays");
   settle(r);
   I[0] = 1, r.step(DT);

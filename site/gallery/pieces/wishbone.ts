@@ -36,8 +36,10 @@ export function wishbone(seed: number, I: Float64Array) {
   function pull(slow: boolean) {
     const d = slow ? 9 : Math.abs(S[P]! - S[C]!) / (S[W]! / 2), win = d <= 1;
     (S[MODE] = SNAP), (S[RT] = 0), (S[WIN] = win ? 1 : 0), (S[GOLD] = d < 0.25 ? 1 : 0), (S[SLOW] = slow ? 1 : 0);
-    // −1 is the left (their) tip, 0 the knob, 1 your tip; the half with the knob wins.
-    S[UB] = win ? -(0.2 + 0.55 * (1 - d)) : 0.2 + 0.5 * Math.min(1, (d - 1) / 3);
+    // −1 is the left (their) tip, 0 the knob, 1 your tip; the half with the knob wins. It breaks near
+    // the middle, so both halves read: the winner holds 55% of the bone at the spot's edge, 65% dead
+    // centre (u −0.068 to −0.249 along the V); a loss mirrors it, 55% just outside to 65% way off.
+    S[UB] = win ? -(0.068 + 0.181 * (1 - d)) : 0.068 + 0.181 * Math.min(1, (d - 1) / 3);
     S[STREAK] = win ? S[STREAK]! + 1 : 0;
     if (S[STREAK]! > S[BEST]!) S[BEST] = S[STREAK]!;
     // The hands fly apart; the winner's further.
