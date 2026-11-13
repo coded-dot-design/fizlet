@@ -93,6 +93,8 @@ export const BUDGETS = [
   // A deck of cards for tabletop games (diorama is a type-only import): 3,383 B gz when added, with
   // dioramaCards; deck() alone 868 B.
   ["@fzlt/core/cards", "src/cards.ts", 3456],
+  // Tabletop physics for diorama pieces (steer's exact hypot): 5,414 B gz when added, with aim.
+  ["@fzlt/core/flick", "src/flick.ts", 5504],
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, @fzlt/core/hud included). The Board UI kit CSS is the game's (it bakes
