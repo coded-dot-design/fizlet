@@ -1,0 +1,23 @@
+{
+  "id": "wishbone",
+  "date": "2026-11-23",
+  "prompt": "two hands each pinch an end of a wishbone; a tension meter sweeps, tap at the sweet spot to pull: the bone cracks, chips fly and bounce on the table, and whoever holds the bigger half (the knob) gets the wish, WISH GRANTED or NEXT YEAR; dead centre is a golden wish, wait too long and the other hand pulls first; a streak counter, and the spot narrows as it grows",
+  "title": "Wishbone",
+  "kind": "micro",
+  "theme": "thanksgiving",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.21.3",
+  "made": "by hand",
+  "module": "pieces/wishbone.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-23"
+}
