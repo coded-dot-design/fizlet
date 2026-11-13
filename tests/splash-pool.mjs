@@ -120,6 +120,8 @@ try {
       assert.equal(await p.evaluate(() => scene.state.drops), 1, `${at}: a tap drops`);
       await p.waitForFunction(() => scene.state.floaters === 3, null, { timeout: 4000 });
       await p.tap(".gk[aria-label^='What you drop']");
+      // The pick changes on the piece's next update after the tap: wait on that state, not the same instant.
+      await p.waitForFunction(() => scene.state.item === 1, null, { timeout: 3000 }).catch(() => {});
       assert.equal(await p.evaluate(() => scene.state.item), 1, `${at}: the item key cycles`);
       await p.tap(".gk[aria-label^='Drain']");
       assert.equal(await p.evaluate(() => scene.state.drain), true, `${at}: DRAIN drains`);

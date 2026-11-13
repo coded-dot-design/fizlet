@@ -92,6 +92,8 @@ try {
       await p.touchscreen.tap(...(await at(p, "truck")));
       await p.waitForFunction(() => scene.town.T[1] >= 0, null, { timeout: 3000 }).catch(() => assert.fail(`${where}: a tap sends the truck`));
       await p.tap(".ph-nk");
+      // Day comes on the piece's next update after the tap: wait on that state, not the same instant.
+      await p.waitForFunction(() => scene.state.night === false, null, { timeout: 3000 }).catch(() => {});
       assert.equal(await p.evaluate(() => scene.state.night), false, `${where}: the key brings day`);
     }
     const after = await p.evaluate(() => (h.destroy(), { same: document.body.innerHTML === window.before, running: scene.engine.running }));
