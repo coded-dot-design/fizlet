@@ -61,8 +61,8 @@ export const FAMILIES = [
 /**
  * Every brick, shipped and planned, carries three periodic-table fields, kept here and nowhere else:
  * - `no`: its number. The kernel is 1; shipped bricks in the order they shipped (`since`, then this
- *   list), planned ones after, in roadmap order. A new brick takes the next free number; numbers
- *   never move.
+ *   list), planned ones after, in roadmap order. A shipped brick's number never moves; planned
+ *   numbers shift up by one when a new brick ships ahead of them (owner, 2026-11-13).
  * - `sym`: its two-letter symbol, lowercase mono like the fzlt mark (fizlet, vowels out: fzlt), for
  *   recognising a brick at a glance. The rule: the name's first letter, then its next consonant
  *   (vowels and a repeat of the first letter skipped: kernel kr, coach ch); on a clash the lower
@@ -206,6 +206,14 @@ fit(cam, l, t, r - l, b - t); // frame it with @fzlt/core/camera` },
     snippet: `const v = viewCanvas(e, diagram, { label: "Brick graph", draw(ctx, box) { paint(ctx); } });
 box.set([x - 12, y - 12, 24, 24]); // a node moved: [x, y, w, h], CSS px
 v.dirty(box); // only those device pixels are cleared and redrawn; v.dirty() is all of it` },
+  { id: "diorama", no: 28, sym: "dr", family: "render", status: "experimental", since: "0.22.0", tests: ["diorama.test.mjs", "diorama.mjs"], used: ["Salvo Bay prototype (gallery piece to follow)"], why: "New: software 3D for tabletop scenes, lifted from the Salvo Bay prototype; its API may still change before a gallery piece ships on it.",
+    tag: "DIORAMA", role: "fire", modules: [mod("@fzlt/core/diorama", "diorama")],
+    snippet: `const d = diorama(canvas, { background: "#efe8de" }); // a canvas you own, no WebGL
+d.add({ id: "table", size: [10, 0.4, 7], color: "#c69a6f" });
+d.add({ id: "boat", size: [2, 0.6, 0.8], on: "table", color: "#e04a3a", shadow: 0.3 });
+d.fit(d.cam, corners, { x0: 16, y0: 16, x1: w - 16, y1: h - 16 });
+e.add({ render: () => d.draw() }); // painter's sort, shadows, 0 allocations
+canvas.onclick = (ev) => d.pick(ev.offsetX, ev.offsetY); // the boat` },
   { id: "arcade", no: 20, sym: "ar", family: "game", status: "complete", since: "0.11.0", tests: ["arcade.test.mjs", "arcade.mjs", "arcade-game.mjs", "arcade-hud.mjs"], used: [GAME.invaders, GAME.runner, GAME.sherman],
     tag: "ARCADE", role: "go", modules: [mod("@fzlt/core/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
@@ -228,12 +236,12 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
  * builds on. Each phase is a planned phase of site/roadmap.mjs (E9–E16), which lists these under it.
  */
 export const PLANNED = [
-  { name: "@fzlt/core/actor", no: 28, sym: "ac", family: "game", phase: "E11", purpose: "Entities on typed arrays: spawn, kill, side, health and tags, with fixed capacity.", target: 1229, needs: ["@fzlt/core"] },
-  { name: "@fzlt/core/aim", no: 29, sym: "am", family: "game", phase: "E11", purpose: "Lead targeting, firing cones and line of sight for bots and turrets.", target: 1024, needs: ["@fzlt/core/steer", "@fzlt/core/grid"] },
-  { name: "@fzlt/core/view-dom", no: 30, sym: "vd", family: "render", phase: "E11", purpose: "Pooled DOM nodes bound to actors, written change-only through the ledger.", target: 1536, needs: ["@fzlt/core/actor"] },
-  { name: "@fzlt/core/snapshot", no: 31, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
-  { name: "@fzlt/core/agent", no: 32, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
-  { name: "@fzlt/core/scene", no: 33, sym: "sc", family: "render", phase: "E13", purpose: "An animation recipe as data (stage, cast, cue, gag) mounted as a scene.", target: 2048, needs: ["@fzlt/core/sprite", "@fzlt/core/fx", "@fzlt/core/timeline", "@fzlt/core/slot"] },
-  { name: "@fzlt/core/announce", no: 34, sym: "an", family: "page", phase: "E14", purpose: "Game events read out to screen readers through one polite live region, rate-limited.", target: 614, needs: ["@fzlt/core"] },
-  { name: "@fzlt/core/music", no: 35, sym: "ms", family: "render", phase: "E15", purpose: "A tiny step sequencer on the kernel clock: patterns and tempo on the sound brick's synth.", target: 1229, needs: ["@fzlt/core/sound"] },
+  { name: "@fzlt/core/actor", no: 29, sym: "ac", family: "game", phase: "E11", purpose: "Entities on typed arrays: spawn, kill, side, health and tags, with fixed capacity.", target: 1229, needs: ["@fzlt/core"] },
+  { name: "@fzlt/core/aim", no: 30, sym: "am", family: "game", phase: "E11", purpose: "Lead targeting, firing cones and line of sight for bots and turrets.", target: 1024, needs: ["@fzlt/core/steer", "@fzlt/core/grid"] },
+  { name: "@fzlt/core/view-dom", no: 31, sym: "vd", family: "render", phase: "E11", purpose: "Pooled DOM nodes bound to actors, written change-only through the ledger.", target: 1536, needs: ["@fzlt/core/actor"] },
+  { name: "@fzlt/core/snapshot", no: 32, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
+  { name: "@fzlt/core/agent", no: 33, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
+  { name: "@fzlt/core/scene", no: 34, sym: "sc", family: "render", phase: "E13", purpose: "An animation recipe as data (stage, cast, cue, gag) mounted as a scene.", target: 2048, needs: ["@fzlt/core/sprite", "@fzlt/core/fx", "@fzlt/core/timeline", "@fzlt/core/slot"] },
+  { name: "@fzlt/core/announce", no: 35, sym: "an", family: "page", phase: "E14", purpose: "Game events read out to screen readers through one polite live region, rate-limited.", target: 614, needs: ["@fzlt/core"] },
+  { name: "@fzlt/core/music", no: 36, sym: "ms", family: "render", phase: "E15", purpose: "A tiny step sequencer on the kernel clock: patterns and tempo on the sound brick's synth.", target: 1229, needs: ["@fzlt/core/sound"] },
 ];

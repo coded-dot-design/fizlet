@@ -72,6 +72,10 @@ export const BUDGETS = [
   // One DPR-correct overlay canvas with dirty-box redraw (no kernel code: it takes an engine):
   // 936 B gz when added (target 1,229).
   ["@fzlt/core/view-canvas", "src/view-canvas.ts", 1229],
+  // Software 3D for tabletop scenes on a 2D canvas (no kernel code: draw() goes in a render system):
+  // 6,360 B gz when added (meshes, orbit camera and fit, painter's merge sort, shadows, points, pick;
+  // steer's exact hypot for the shadow axes).
+  ["@fzlt/core/diorama", "src/diorama.ts", 6464],
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, @fzlt/core/hud included). The Board UI kit CSS is the game's (it bakes
