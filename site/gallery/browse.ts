@@ -52,7 +52,7 @@ if (form) {
       const li = document.createElement("li"), a = document.createElement("a"), small = document.createElement("small");
       a.href = new URL(r.url, base).href;
       a.textContent = r.title;
-      small.textContent = ` ${r.themeTitle} · by ${r.authorName} · ${r.kind} · ${(r.sizes.total / 1024).toFixed(1)} KB gz`;
+      small.textContent = ` ${r.themeTitle} · by ${r.authorName} · ${r.kind}${r.lane === "hifi" ? " · Hi-Fi" : ""} · ${(r.sizes.total / 1024).toFixed(1)} KB gz`;
       li.append(a, small);
       return li;
     }));

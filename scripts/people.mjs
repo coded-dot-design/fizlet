@@ -5,7 +5,7 @@
 // (`avatars`; the first is the still one) drawn with avatar tokens only (AVATAR_PALETTE: site.css
 // --av-*, each a Board UI token or a mix of two), one <path> per color.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { contributors as galleryContributors } from "./gallery.mjs";
+import { MICRO_CAP, contributors as galleryContributors, laneOf } from "./gallery.mjs";
 
 const WEEKS = "site/contest/weeks";
 const NEED = ["id", "name", "role", "bio", "description", "kind", "style", "hobbies", "favoriteGames", "avatars"];
@@ -30,15 +30,20 @@ export const KINDS = ["owner", "agent", "persona"];
  * Contest rules the data must keep (and Daily and the contest page state, from here). Each day takes
  * up to `perDay` entries; the voters pick the day's top `picks[0]` to `picks[1]`; the picks are all
  * posted at the end of the week, then one weekly winner and one monthly winner are picked. When a day
- * has too few entries, the team backfills it with its own pieces. Size decides, not the prompt: a
- * piece whose live chunk (gzip bytes, measured at build: its size badge) is at most `maxLive` can
- * win; over it, it is posted and labelled too big to win, and the build fails if it is a week's
- * winner. 10,240 B is the budget a hero's live chunk already has (scripts/sizes.mjs, page build:
- * bricks ≤ 7 KB + scene ≥ 3 KB). `voters`: contributor ids (site/contributors), in the order named.
+ * has too few entries, the team backfills it with its own pieces. Two lanes (owner, 2026-11-13):
+ * the micro contest, where size decides, not the prompt: a piece whose live chunk (gzip bytes,
+ * measured at build: its size badge) is at most `maxLive` can win; and Hi-Fi (`"lane": "hifi"` on
+ * the entry: dioramas, 2.5D, full mini-games, heroes over the cap), whose pieces compete only with
+ * each other for their own weekly winner (`hifiWinner`). A piece over the cap is Hi-Fi (the
+ * gallery build fails otherwise). 10,240 B is the budget a hero's live chunk already has
+ * (scripts/sizes.mjs, page build: bricks ≤ 7 KB + scene ≥ 3 KB). `voters`: contributor ids
+ * (site/contributors), in the order named.
  */
-export const CONTEST = { maxLive: 10240, perDay: 40, picks: [1, 5], voters: ["frame-zero", "dj-mempool", "hex-hazel", "quill", "pip", "chris-cooley"] };
-/** Whether a measured gallery entry can win a contest week (its live bytes at or under the cap). */
-export const canWin = (e) => e.size <= CONTEST.maxLive;
+export const CONTEST = { maxLive: MICRO_CAP, perDay: 40, picks: [1, 5], voters: ["frame-zero", "dj-mempool", "hex-hazel", "quill", "pip", "chris-cooley"] };
+/** Whether a measured gallery entry can win a micro week: a micro, its live bytes at or under the cap. */
+export const canWin = (e) => laneOf(e) === "micro" && e.size <= CONTEST.maxLive;
+/** Whether a gallery entry is in the Hi-Fi lane (it can win only the week's Hi-Fi award). */
+export const isHifi = (e) => laneOf(e) === "hifi";
 
 const DAY = 86400000;
 /** The ISO 8601 week of a date (UTC): "2026-10-31" → "2026-W44". */
@@ -124,8 +129,10 @@ export function avatarSvg(rows, { size = 64, label = null, cls = "" } = {}) {
  * The contest weeks, checked against the gallery, oldest first. A week's entries are its dailies:
  * the live gallery entries dated inside it (measured: `size` is set by the gallery build), smallest
  * first; archived entries (site/gallery/archive) are never entries. Its winner is one of them, only
- * on a closed week, and never one over the size cap (CONTEST.maxLive). Each week also gets
- * `smallest` (the id of its smallest entry that can win, or null) and `dates` (Monday to Sunday).
+ * on a closed week, a micro and never one over the size cap (CONTEST.maxLive); its `hifiWinner`
+ * (optional) is one of its Hi-Fi entries, also only on a closed week. Each week also gets `micro`
+ * and `hifi` (its entries by lane), `smallest` (the id of its smallest entry that can win, or null)
+ * and `dates` (Monday to Sunday).
  * The old per-day `contest` stamp on an entry fails the build. `files`: [{ f, v }] (file name,
  * parsed JSON), read from site/contest/weeks by default.
  */
@@ -144,12 +151,17 @@ export function contestWeeks(gallery, people, files = read(WEEKS)) {
     const entries = gallery.filter((e) => !e.archived && isoWeek(e.date) === w.week);
     for (const e of entries) if (!Number.isInteger(e.size)) throw new Error(`gallery/${e.id}: a contest entry is measured first (no size)`);
     entries.sort((a, b) => a.size - b.size || a.id.localeCompare(b.id));
-    const week = { ...w, dates: weekDates(w.week), entries, smallest: entries.find(canWin)?.id ?? null };
-    if (!w.winner) return week;
-    const win = entries.find((e) => e.id === w.winner);
-    if (!win) throw new Error(`${at}: winner ${w.winner} is not one of its dailies (${entries.map((e) => e.id).join(", ") || "none"})`);
-    if (w.status !== "closed") throw new Error(`${at}: a winner is set only once the week is closed`);
-    if (!canWin(win)) throw new Error(`${at}: winner ${win.id} is too big to win (${win.size} B live, the cap is ${CONTEST.maxLive} B)`);
+    const micro = entries.filter((e) => !isHifi(e)), hifi = entries.filter(isHifi);
+    const week = { hifiWinner: null, ...w, dates: weekDates(w.week), entries, micro, hifi, smallest: micro.find(canWin)?.id ?? null };
+    const pick = (key, lane) => {
+      const win = entries.find((e) => e.id === w[key]);
+      if (!win) throw new Error(`${at}: ${key} ${w[key]} is not one of its dailies (${entries.map((e) => e.id).join(", ") || "none"})`);
+      if (w.status !== "closed") throw new Error(`${at}: a winner is set only once the week is closed`);
+      if (laneOf(win) !== lane) throw new Error(`${at}: ${key} ${win.id} is ${lane === "hifi" ? "a micro: it competes for the micro winner (winner)" : "a Hi-Fi piece: it competes only in the Hi-Fi lane (hifiWinner)"}`);
+      return win;
+    };
+    if (w.winner && !canWin(pick("winner", "micro"))) throw new Error(`${at}: winner ${w.winner} is too big to win (${entries.find((e) => e.id === w.winner).size} B live, the cap is ${CONTEST.maxLive} B)`);
+    if (w.hifiWinner) pick("hifiWinner", "hifi");
     return week;
   });
   return weeks.sort((a, b) => a.week.localeCompare(b.week));

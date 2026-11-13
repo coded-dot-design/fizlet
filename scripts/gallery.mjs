@@ -12,6 +12,21 @@ import { assignNumbers, duplicateMessage, duplicateNumbers } from "./gallery-num
 
 const DIR = "site/gallery";
 export const KINDS = ["hero", "micro"];
+/**
+ * Daily's two lanes (owner, 2026-11-13). "micro" (the default, no field) is the micro contest: a
+ * live chunk of at most MICRO_CAP gzip bytes. "hifi" is for bigger, high-fidelity pieces
+ * (dioramas, 2.5D, full mini-games, heroes over the cap): they compete only with each other. The
+ * entry's `"lane"` is the source of truth; the build measures every live entry and fails on one
+ * over the cap that is not `"lane": "hifi"` (laneErrors).
+ */
+export const LANES = ["micro", "hifi"];
+/** The micro cap: 10,240 B live (gzip), the budget a hero's live chunk already has (scripts/sizes.mjs). */
+export const MICRO_CAP = 10240;
+/** An entry's lane: its `"lane"`, else micro. */
+export const laneOf = (e) => e.lane ?? "micro";
+/** Errors for measured entries (`size` set) over the micro cap that are not in the Hi-Fi lane. */
+export const laneErrors = (list, what = "gallery/entries") => list.filter((e) => Number.isInteger(e.size) && e.size > MICRO_CAP && laneOf(e) !== "hifi")
+  .map((e) => `${what}/${e.id}.json: ${e.size.toLocaleString("en-US")} B live is over the ${MICRO_CAP.toLocaleString("en-US")} B micro cap: set "lane": "hifi" (the Hi-Fi lane)`);
 /** Entries per gallery page: /gallery/ holds the newest PAGE_SIZE, /gallery/page/2/ the next. */
 export const PAGE_SIZE = 24;
 const NEED = ["id", "kind", "theme", "date", "prompt", "title", "author", "recipe", "bricks", "made", "module", "export"];
@@ -64,6 +79,7 @@ export function entries({ dir = `${DIR}/entries`, what = "gallery/entries", them
     const at = `${what}/${e.id}.json`;
     for (const k of NEED) if (e[k] === undefined) throw new Error(`${at}: missing ${k}`);
     if (!KINDS.includes(e.kind)) throw new Error(`${at}: kind is "hero" or "micro", not ${e.kind}`);
+    if (e.lane !== undefined && !LANES.includes(e.lane)) throw new Error(`${at}: lane is "micro" or "hifi", not ${JSON.stringify(e.lane)}`);
     if (!themeIds.includes(e.theme)) throw new Error(`${at}: theme ${e.theme} has no site/gallery/themes/${e.theme}.json`);
     if (!people[e.author]) throw new Error(`${at}: author ${e.author} has no site/contributors/${e.author}.json`);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(e.date)) throw new Error(`${at}: date ${e.date}`);
@@ -90,6 +106,8 @@ export function entries({ dir = `${DIR}/entries`, what = "gallery/entries", them
 
 /** The site path of gallery page `n` (1-based): "gallery/", then "gallery/page/2/". */
 export const galleryPath = (n) => (n === 1 ? "gallery/" : `gallery/page/${n}/`);
+/** The Hi-Fi lane's page. */
+export const HIFI_PATH = "gallery/hifi/";
 /** The profile path of a contributor. */
 export const personPath = (id) => `people/${id}/`;
 
@@ -108,7 +126,7 @@ export function galleryIndex(list, { pages, people, themeList, loader }) {
   const page = Object.fromEntries(pages.flatMap((p) => p.entries.map((e) => [e.id, p.path])));
   const title = Object.fromEntries(themeList.map((t) => [t.id, t.title]));
   return list.map((e) => ({
-    id: e.id, no: e.no, kind: e.kind, theme: e.theme, themeTitle: title[e.theme], title: e.title, prompt: e.prompt,
+    id: e.id, no: e.no, kind: e.kind, lane: laneOf(e), theme: e.theme, themeTitle: title[e.theme], title: e.title, prompt: e.prompt,
     author: e.author, authorName: people[e.author].name, date: e.date, demo: `gallery/${e.id}.js`, url: `${page[e.id]}#${e.id}`,
     sizes: { live: e.size, total: e.size + loader },
   }));
@@ -147,6 +165,9 @@ export async function buildGallery(out) {
     write(r, join(out, "gallery", `${e.id}.js`));
     e.size = gz(r);
   }
+  // Size decides the lane: a live entry over the micro cap is Hi-Fi, said in its JSON (the archive never enters).
+  const over = laneErrors(live);
+  if (over.length) throw new Error(over.join("\n"));
   const loader = await build({ ...common, entryPoints: [`${DIR}/gallery.ts`] });
   write(loader, join(out, "gallery", "gallery.js"));
   write(await build({ ...common, entryPoints: [`${DIR}/browse.ts`] }), join(out, "gallery", "browse.js"));
@@ -154,5 +175,7 @@ export async function buildGallery(out) {
   const index = galleryIndex(live, { pages, people, themeList, loader: gz(loader) });
   writeFileSync(join(out, "gallery", "index.json"), JSON.stringify(index) + "\n");
   const archivePage = { n: 1, path: "gallery/archive/", entries: arch.entries };
-  return { entries: live, pending: pending.map((e) => e.id), loader: gz(loader), themes: themeList, people, pages, index, archive: { ...arch, page: archivePage } };
+  // The Hi-Fi lane's own page: every live Hi-Fi entry, newest first, by theme.
+  const hifiPage = { n: 1, path: HIFI_PATH, entries: live.filter((e) => laneOf(e) === "hifi") };
+  return { entries: live, hifi: hifiPage, pending: pending.map((e) => e.id), loader: gz(loader), themes: themeList, people, pages, index, archive: { ...arch, page: archivePage } };
 }
