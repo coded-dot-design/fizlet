@@ -3,13 +3,14 @@
 // lands); a pour stopped in time fills a crater to the gold line (PERFECT, the streak grows, best
 // follows); held too long it overflows (a star gone, stains on the cloth, the streak resets), and
 // three overflows end it; a plate with no pour is MORE GRAVY! and two of them in a row make the table
-// wait (it settles); the plates speed up to a cap; steps allocate nothing.
+// wait (it settles); gravy that misses the crater runs down the mound as a short drip and fades; the
+// plates speed up to a cap; steps allocate nothing.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { minorGCs } from "./gc.mjs";
 
 const G = await import("../site/gallery/pieces/gravy-boat.ts");
-const { gravy, IDLE, PLAY, OVER, WAIT, LINE, SX, CR, V0, VMAX, NB, EV_PERFECT, EV_OVERFLOW, EV_DRY } = G;
+const { gravy, IDLE, PLAY, OVER, WAIT, LINE, SX, CR, V0, VMAX, NB, ND, DLIFE, EV_PERFECT, EV_OVERFLOW, EV_DRY } = G;
 const DT = 1 / 60;
 const inflight = (r) => { let v = 0; for (let j = 0; j < NB; j++) if (r.BA[j]) v += r.BV[j]; return v; };
 /** The plate nearest the stream that has not passed it yet. */
@@ -90,11 +91,35 @@ test("gravy boat: no pour is MORE GRAVY!, and two in a row make the table wait (
   assert.notDeepEqual(Array.from(r.X), x, "the table moves again");
 });
 
+test("gravy boat: gravy that misses the crater drips down the mound, then fades", () => {
+  const I = new Float64Array(1), r = gravy(11, I);
+  I[0] = 1;
+  let seen = 0, ran = 0, oldest = 0;
+  for (let i = 0; i < 60 * 12; i++) {
+    r.step(DT);
+    for (let k = 0; k < ND; k++) {
+      if (!r.KA[k]) continue;
+      seen++;
+      oldest = Math.max(oldest, r.KT[k]);
+      if (Math.abs(r.K1[k]) > Math.abs(r.K0[k]) + 2 && r.mound(r.K1[k]) > r.mound(r.K0[k])) ran++;
+    }
+  }
+  assert.ok(seen > 0, "a pour across the plates drips on the mash");
+  assert.ok(ran > 0, "a drip runs down the mound");
+  assert.ok(oldest <= DLIFE, "and is short-lived");
+  I[0] = 0;
+  let i = 0;
+  while (r.step(DT) && i++ < 900);
+  assert.ok(i < 900, "it settles");
+  for (let k = 0; k < ND; k++) assert.equal(r.KA[k], 0, "every drip gone");
+});
+
 test("gravy boat: the plates speed up to a cap", () => {
   const I = new Float64Array(1), r = gravy(2, I);
   assert.equal(r.speed(), V0);
   r.S[6] = 500;
   assert.equal(r.speed(), VMAX);
+  assert.ok(VMAX <= 16, "the top speed stays fair");
 });
 
 test("gravy boat: steps allocate nothing", async () => {

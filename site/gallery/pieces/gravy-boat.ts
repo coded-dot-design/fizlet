@@ -2,8 +2,9 @@
 // Hold (pointer, Space or Enter) and it tilts: the stream starts thin and thickens the longer you
 // hold; let go and it stops (what is already falling still lands). Fill each plate's mashed-potato
 // crater to the gold line as it passes under the spout: dead on is PERFECT, close is GOOD, short is
-// MORE GRAVY!. Over the rim it overflows, drips down onto the tablecloth (the stains stay) and costs
-// a star; lose all three and the tablecloth is ruined. The plates speed up as you go; a streak of
+// MORE GRAVY!. Gravy that misses the crater smears down the mound in a short drip and fades. Over
+// the rim it overflows, drips down onto the tablecloth (the stains stay) and costs a star; lose all
+// three and the tablecloth is ruined. The plates speed up as you go (to a fair cap); a streak of
 // filled plates and the best one. Two plates with no pour and the table waits (it settles).
 // Bricks: the kernel (fixed step; settle; its ledger for the canvas and the play key, so Recall
 // gives the page back byte for byte), @fzlt/core/slot, @fzlt/core/sound. The game is `gravy()`,
@@ -20,9 +21,10 @@ export const IDLE = 0, PLAY = 1, OVER = 2, WAIT = 3;
 export const LIPX = -15, LIPY = -5.4;
 export const TABLE = 20, PY = 30, CR = 7.5, SX = -8, SY = -12, G = 420, FMAX = 1.7, LINE = 0.8;
 /** Plates: how many in the row, the gap between them, the speed at the start and its cap. */
-export const NP = 4, GAP = 48, V0 = 11, VMAX = 19;
-/** Drops in flight and stains on the cloth. */
-export const NB = 120, NS = 48;
+export const NP = 4, GAP = 48, V0 = 11, VMAX = 16;
+/** Drops in flight, stains on the cloth, drips on the mash (gravy that missed the crater runs down
+ *  the mound and fades; DLIFE seconds). */
+export const NB = 120, NS = 48, ND = 24, DLIFE = 1.1;
 export const EV_START = 0, EV_POUR = 1, EV_PERFECT = 2, EV_GOOD = 3, EV_DRY = 4, EV_OVERFLOW = 5, EV_OVER = 6, EV_SPLASH = 7;
 // State slots.
 const MODE = 0, T = 1, TILT = 2, TV = 3, HOLD = 4, FLOW = 5, SERVED = 6, STREAK = 7, BEST = 8, STARS = 9, SCORE = 10, IDLE_N = 11, POURED = 12, LAST = 13, LASTT = 14;
@@ -37,6 +39,8 @@ export function gravy(seed: number, I: Float64Array) {
   const BX = new Float64Array(NB), BY = new Float64Array(NB), BVX = new Float64Array(NB), BVY = new Float64Array(NB), BW = new Float64Array(NB), BV = new Float64Array(NB), BA = new Uint8Array(NB), BO = new Float64Array(NB);
   // Stains: x, y, size.
   const STX = new Float64Array(NS), STY = new Float64Array(NS), STR = new Float64Array(NS);
+  // Drips: the plate, where it hit and where its head is (x from the plate's middle), its age, width, alive.
+  const KP = new Uint8Array(ND), K0 = new Float64Array(ND), K1 = new Float64Array(ND), KT = new Float64Array(ND), KW = new Float64Array(ND), KA = new Uint8Array(ND);
   let nb = 0, ns = 0, order = 0;
 
   function reset() {
@@ -44,11 +48,24 @@ export function gravy(seed: number, I: Float64Array) {
     S[STARS] = 3;
     S[LAST] = -1;
     BA.fill(0);
+    KA.fill(0);
     ns = 0;
     for (let i = 0; i < NP; i++) (X[i] = 34 + i * GAP), plate(i, X[i]!);
   }
   function plate(i: number, x: number) {
     (X[i] = x), (LV[i] = 0), (W[i] = WV[i] = 0), (GR[i] = OV[i] = PO[i] = 0);
+    for (let k = 0; k < ND; k++) if (KP[k] === i) KA[k] = 0;
+  }
+  /** Gravy on the mash or the plate, off the crater: a drip that runs down the mound and fades. A
+   *  stream on the same spot keeps its drip fed (it stays, a little wider) instead of a new one. */
+  function drip(i: number, dx: number, w: number) {
+    let o = -1;
+    for (let k = 0; k < ND; k++) {
+      if (!KA[k]) o < 0 && (o = k);
+      else if (KP[k] === i && Math.abs(K0[k]! - dx) < 2.5 && K0[k]! * dx >= 0) return void ((KT[k] = Math.min(KT[k]!, 0.2)), (KW[k] = Math.min(2.2, KW[k]! + 0.04)));
+    }
+    if (o < 0) for (let k = 0, a = -1; k < ND; k++) if (KT[k]! > a) (a = KT[k]!), (o = k);
+    (KP[o] = i), (K0[o] = K1[o] = dx), (KT[o] = 0), (KW[o] = Math.min(1.6, 0.7 + w * 0.4)), (KA[o] = 1);
   }
   const speed = () => Math.min(VMAX, V0 + S[SERVED]! * 0.45);
   /** The surface a drop at x meets: the plate's crater it falls in (its index), else −1 (the cloth). */
@@ -163,7 +180,19 @@ export function gravy(seed: number, I: Float64Array) {
           drop(X[p]! + (R() < 0.5 ? -CR : CR), PY - 13, (R() - 0.5) * 8, 0, 0.9, 0);
           stain(X[p]! + (R() - 0.5) * 44, TABLE + 13 + R() * 4, 1.5 + R() * 2);
         }
-      } else if (p < 0 && onPlate(BX[j]!) < 0 && BV[j]! > 0) stain(BX[j]!, TABLE + 12 + R() * 4, 1 + BW[j]! * 0.8);
+      } else if (q >= 0 && BV[j]! > 0) drip(q, BX[j]! - X[q]!, BW[j]!);
+      else if (q < 0 && BV[j]! > 0) stain(BX[j]!, TABLE + 12 + R() * 4, 1 + BW[j]! * 0.8);
+    }
+    // Drips run down the mound (faster as it steepens), stop at its foot, fade.
+    for (let k = 0; k < ND; k++) {
+      if (!KA[k]) continue;
+      busy = true;
+      if ((KT[k] = KT[k]! + dt) > DLIFE) {
+        KA[k] = 0;
+        continue;
+      }
+      const d = Math.abs(K1[k]!);
+      if (d < 12.8) K1[k] = K1[k]! + (K1[k]! < 0 ? -1 : 1) * Math.min(12.8 - d, (4 + d * 1.1) * dt);
     }
     if (S[LASTT]! < 1.2) busy = true;
     return busy;
@@ -172,8 +201,13 @@ export function gravy(seed: number, I: Float64Array) {
   function surf(p: number) {
     return PY - 9 - LV[p]! * 5;
   }
+  /** The mash's dome (or the plate, past its foot) at x from the plate's middle. */
+  function mound(dx: number) {
+    const u = Math.abs(dx) / 13;
+    return u < 1 ? PY - 12.5 * Math.sqrt(1 - u * u) : PY - 0.6;
+  }
   reset();
-  return { S, I, ev, X, LV, W, GR, OV, PO, BX, BY, BW, BV, BA, BO, STX, STY, STR, step, reset, surf, speed, get ns() { return ns; } };
+  return { S, I, ev, X, LV, W, GR, OV, PO, BX, BY, BW, BV, BA, BO, STX, STY, STR, KP, K0, K1, KT, KW, KA, step, reset, surf, mound, speed, get ns() { return ns; } };
 }
 export type Gravy = ReturnType<typeof gravy>;
 
@@ -276,6 +310,7 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
       for (let i = 0; i < run.ns; i++) g.beginPath(), g.ellipse(run.STX[i]!, run.STY[i]!, run.STR[i]!, run.STR[i]! * 0.42, 0, 0, 6.3), g.fill();
       g.globalAlpha = 1;
       for (let i = 0; i < NP; i++) if (Math.abs(run.X[i]!) < hw + 26) plate(i);
+      drips();
       stream();
       boat(S[TILT]!);
       // Stage space: the stickers, the stars, the words.
@@ -375,6 +410,24 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, first: SlotTap | n
       for (const s of [-1, 1]) g.moveTo(x + s * 5.5, PY - 12.6), g.quadraticCurveTo(x + s * 10.5, PY - 11, x + s * 12, PY - 3), g.lineTo(x + s * 12.5, PY + 1);
       g.stroke();
     }
+  }
+  /** Drips: a smear from where the gravy hit down the mound to a bead at its head, fading out. */
+  function drips() {
+    g.strokeStyle = g.fillStyle = col[GRAVY]!;
+    for (let k = 0; k < ND; k++) {
+      if (!run.KA[k]) continue;
+      const x = run.X[run.KP[k]!]!, a = run.K0[k]!, b = run.K1[k]!, w = run.KW[k]!;
+      g.globalAlpha = Math.min(1, (DLIFE - run.KT[k]!) / 0.4);
+      g.lineWidth = w;
+      g.beginPath();
+      g.moveTo(x + a, run.mound(a));
+      for (let t = 1; t <= 4; t++) g.lineTo(x + a + ((b - a) * t) / 4, run.mound(a + ((b - a) * t) / 4));
+      g.stroke();
+      g.beginPath();
+      g.arc(x + b, run.mound(b) + w * 0.2, w * 0.62, 0, 6.3);
+      g.fill();
+    }
+    g.globalAlpha = 1;
   }
   /** The stream: every drop in flight, joined in pour order while they are close; a gloss line. */
   function stream() {
