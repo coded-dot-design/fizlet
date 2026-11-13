@@ -84,6 +84,8 @@ try {
       await p.waitForFunction(() => scene.state.idx === 2, null, { timeout: 3000 });
       await p.keyboard.press("m");
       assert.equal(await p.evaluate(() => document.querySelector("[data-fizlet-slot] .gk").getAttribute("aria-pressed")), "false", `${at}: M mutes`);
+      // The sticker repaints on the next frame after the score changes: wait on that state, not the same instant.
+      await p.waitForFunction(() => document.querySelector(".ls-chip span").textContent === "" + scene.state.score, null, { timeout: 3000 }).catch(() => {});
       assert.equal(await p.evaluate(() => document.querySelector(".ls-chip span").textContent), "" + (await p.evaluate(() => scene.state.score)), `${at}: the score sticker counts`);
     } else {
       await p.tap(".ls-go");
