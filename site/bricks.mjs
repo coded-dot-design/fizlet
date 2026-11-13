@@ -234,6 +234,14 @@ w.wake(boat); // bow waves and a trail that follow it
 w.splash(x, z); // a column, spray, a crown of drops, rings: pooled, 0 allocations
 e.add({ step: (_, dt) => w.step(dt) && e.busy(), render: () => d.draw() }); // rests, then settles
 w.height(x, z); // the surface under a surfer, the same on every run` },
+  { id: "props", no: 32, sym: "ps", family: "render", status: "experimental", since: "0.22.0", tests: ["props.test.mjs", "props.mjs"], used: [], why: "New: a starter kit of low-poly models for @fzlt/core/diorama scenes; its API may still change before a game ships on it.",
+    tag: "PROPS", role: "attack", modules: [mod("@fzlt/core/props", "props")],
+    snippet: `import { house, pineTree, car } from "@fzlt/core/props"; // only what you use
+d.cluster("floor", { fixed: 0 }); // what props stand on draws first
+house(d, { id: "home", on: "floor", pos: [2, 0, -1], rot: 0.3 }); // a group root + its parts
+for (let i = 0; i < 5; i++) pineTree(d, { on: "floor", pos: [i * 2 - 4, 0, 3], seed: matchSeed + i }); // same seed, same trees
+car(d, { on: "floor", colors: { paint: "#6db0cf" } }); // any colour by key
+d.root(d.pick(x, y)); // a click on any part → the prop's root (tag "house")` },
   { id: "arcade", no: 20, sym: "ar", family: "game", status: "complete", since: "0.11.0", tests: ["arcade.test.mjs", "arcade.mjs", "arcade-game.mjs", "arcade-hud.mjs"], used: [GAME.invaders, GAME.runner, GAME.sherman],
     tag: "ARCADE", role: "go", modules: [mod("@fzlt/core/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
@@ -256,12 +264,12 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
  * builds on. Each phase is a planned phase of site/roadmap.mjs (E9–E16), which lists these under it.
  */
 export const PLANNED = [
-  { name: "@fzlt/core/actor", no: 32, sym: "ac", family: "game", phase: "E11", purpose: "Entities on typed arrays: spawn, kill, side, health and tags, with fixed capacity.", target: 1229, needs: ["@fzlt/core"] },
-  { name: "@fzlt/core/aim", no: 33, sym: "am", family: "game", phase: "E11", purpose: "Lead targeting, firing cones and line of sight for bots and turrets.", target: 1024, needs: ["@fzlt/core/steer", "@fzlt/core/grid"] },
-  { name: "@fzlt/core/view-dom", no: 34, sym: "vd", family: "render", phase: "E11", purpose: "Pooled DOM nodes bound to actors, written change-only through the ledger.", target: 1536, needs: ["@fzlt/core/actor"] },
-  { name: "@fzlt/core/snapshot", no: 35, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
-  { name: "@fzlt/core/agent", no: 36, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
-  { name: "@fzlt/core/scene", no: 37, sym: "sc", family: "render", phase: "E13", purpose: "An animation recipe as data (stage, cast, cue, gag) mounted as a scene.", target: 2048, needs: ["@fzlt/core/sprite", "@fzlt/core/fx", "@fzlt/core/timeline", "@fzlt/core/slot"] },
-  { name: "@fzlt/core/announce", no: 38, sym: "an", family: "page", phase: "E14", purpose: "Game events read out to screen readers through one polite live region, rate-limited.", target: 614, needs: ["@fzlt/core"] },
-  { name: "@fzlt/core/music", no: 39, sym: "ms", family: "render", phase: "E15", purpose: "A tiny step sequencer on the kernel clock: patterns and tempo on the sound brick's synth.", target: 1229, needs: ["@fzlt/core/sound"] },
+  { name: "@fzlt/core/actor", no: 33, sym: "ac", family: "game", phase: "E11", purpose: "Entities on typed arrays: spawn, kill, side, health and tags, with fixed capacity.", target: 1229, needs: ["@fzlt/core"] },
+  { name: "@fzlt/core/aim", no: 34, sym: "am", family: "game", phase: "E11", purpose: "Lead targeting, firing cones and line of sight for bots and turrets.", target: 1024, needs: ["@fzlt/core/steer", "@fzlt/core/grid"] },
+  { name: "@fzlt/core/view-dom", no: 35, sym: "vd", family: "render", phase: "E11", purpose: "Pooled DOM nodes bound to actors, written change-only through the ledger.", target: 1536, needs: ["@fzlt/core/actor"] },
+  { name: "@fzlt/core/snapshot", no: 36, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
+  { name: "@fzlt/core/agent", no: 37, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
+  { name: "@fzlt/core/scene", no: 38, sym: "sc", family: "render", phase: "E13", purpose: "An animation recipe as data (stage, cast, cue, gag) mounted as a scene.", target: 2048, needs: ["@fzlt/core/sprite", "@fzlt/core/fx", "@fzlt/core/timeline", "@fzlt/core/slot"] },
+  { name: "@fzlt/core/announce", no: 39, sym: "an", family: "page", phase: "E14", purpose: "Game events read out to screen readers through one polite live region, rate-limited.", target: 614, needs: ["@fzlt/core"] },
+  { name: "@fzlt/core/music", no: 40, sym: "ms", family: "render", phase: "E15", purpose: "A tiny step sequencer on the kernel clock: patterns and tempo on the sound brick's synth.", target: 1229, needs: ["@fzlt/core/sound"] },
 ];

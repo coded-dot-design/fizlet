@@ -84,6 +84,9 @@ export const BUDGETS = [
   // Animated water for diorama scenes (diorama is a type-only import; steer's exact hypot): 5,264 B gz
   // when added, the wave pool's swell (height, slope, crest, its painting) about 0.4 KB of it.
   ["@fzlt/core/water", "src/water.ts", 5376],
+  // Low-poly props for diorama scenes (diorama is a type-only import): the whole kit of 17, 3,115 B gz
+  // when added; one prop alone tree-shakes to 835 B (pineTree), 947 B (truck): ~0.65 KB of shared helpers.
+  ["@fzlt/core/props", "src/props.ts", 3200],
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, @fzlt/core/hud included). The Board UI kit CSS is the game's (it bakes
