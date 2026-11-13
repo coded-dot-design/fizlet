@@ -4,6 +4,7 @@
   "prompt": "tabletop shuffleboard on a long polished table in a games room: four pucks each for you and a bot, turn about; drag back to aim and set the power, the puck glides down the lane leaving a trail, clacks into others, drops into the gutter or off the far end; zones 1, 2, 3 and a hanging 4; only the furthest side scores; first to 15; a neon night in the dark",
   "title": "Shuffle Shot",
   "kind": "hero",
+  "lane": "hifi",
   "theme": "tabletop",
   "author": "pip",
   "recipe": "hand-built",

@@ -4,6 +4,7 @@
   "prompt": "a tiny seaside town on a tabletop built from a low-poly props kit: houses, shops, lampposts, a lighthouse, a dock with boats, trees and crates; poke it to life: lamps come on at dusk, the lighthouse beam sweeps, the boat leaves the dock and loops back, the truck drives the harbour road, the gulls lift off; a day and night switch, and a hidden cat to find in five spots",
   "title": "Pocket Harbour",
   "kind": "hero",
+  "lane": "hifi",
   "theme": "tabletop",
   "author": "pip",
   "recipe": "hand-built",
