@@ -53,7 +53,8 @@ export interface DioramaObjectDef {
   /** Faces whose centre is under the plane y draw on `layer` (a hull under the water line). */
   below?: { y: number; layer: number } | null;
   /** Layers it and its children drop by while it is on the far side of its parent: its place across
-   *  the parent (`pos` x, z, turned with the parent) points away from the camera. A wheel set above
+   *  the parent (`pos` x, z, turned with the parent) points away from the eye, along the ray from the
+   *  eye to the parent (right anywhere on screen, not only in the middle). A wheel set above
    *  the body with `behind` past it draws over the body on the near side and under it on the far
    *  side, at any heading and view (default 0: off). */
   behind?: number;
@@ -571,7 +572,8 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
       let sh = p ? SH[p.i]! : 0;
       if (ob.behind && p) {
         const q = p.M;
-        if ((q[0]! * px + q[2]! * pz) * B[9]! + (q[3]! * px + q[5]! * pz) * B[10]! + (q[6]! * px + q[8]! * pz) * B[11]! > 0) sh += ob.behind;
+        // Along the ray from the eye to the parent (not the camera's axis: off the middle of the picture it differs).
+        if ((q[0]! * px + q[2]! * pz) * (q[9]! - B[0]!) + (q[3]! * px + q[5]! * pz) * (q[10]! - B[1]!) + (q[6]! * px + q[8]! * pz) * (q[11]! - B[2]!) > 0) sh += ob.behind;
       }
       SH[ob.i] = sh;
       if (ob.hidden || !me.nf || EA[ob.i]! <= 0.01) continue;
