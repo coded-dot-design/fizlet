@@ -6,13 +6,18 @@ import { search, type IndexRow } from "./search";
 const MAX = 24;
 const root = document.documentElement;
 
-// ---------- Theme filter: a chip whose section is on this page shows only that section ----------
+// ---------- Theme filter: under All a Daily page is one flat list, newest first; a chip whose theme
+// is on this page groups it: that theme's head, over only its cards (the Hi-Fi page: only its section) ----------
 const chips = [...document.querySelectorAll<HTMLAnchorElement>("a[data-theme-chip]")];
 const secs = [...document.querySelectorAll<HTMLElement>("section[data-theme-section]")];
+const heads = [...document.querySelectorAll<HTMLElement>("[data-gal-flat] [data-theme-head]")];
+const cards = [...document.querySelectorAll<HTMLElement>("[data-gal-flat] li.gal-item")];
 function filter(id: string) {
-  const here = id === "all" || secs.some((s) => s.dataset.themeSection === id);
+  const here = id === "all" || secs.some((s) => s.dataset.themeSection === id) || heads.some((h) => h.dataset.themeHead === id);
   if (!here) return false;
   for (const s of secs) s.hidden = id !== "all" && s.dataset.themeSection !== id;
+  for (const h of heads) h.hidden = h.dataset.themeHead !== id;
+  for (const c of cards) c.hidden = id !== "all" && c.dataset.theme !== id;
   for (const c of chips) c.dataset.themeChip === id ? c.setAttribute("aria-current", "true") : c.removeAttribute("aria-current");
   root.dataset.galFilter = id;
   return true;
@@ -23,16 +28,21 @@ for (const c of chips)
     const next = id !== "all" && root.dataset.galFilter === id ? "all" : id; // a second press shows all again
     if (filter(next)) {
       ev.preventDefault();
-      history.replaceState(null, "", next === "all" ? location.pathname : `#theme-${next}`);
+      history.replaceState(null, "", next === "all" ? location.pathname + location.search : `#theme-${next}`);
     }
   });
 // A #theme- address filters on arrival, and when the address changes on the same page (a link, back).
-const fromHash = () => {
+// Any other address while filtered is All again (a search hit's card may be in another theme). A head
+// or card hidden when the address changed is gone to once it shows.
+const fromHash = (arrival: boolean) => {
   const id = location.hash.match(/^#theme-([a-z0-9-]+)$/)?.[1];
-  if (id) filter(id);
+  if (id) {
+    if (!filter(id)) return;
+  } else if (arrival || (root.dataset.galFilter ?? "all") === "all" || !filter("all")) return;
+  if (location.hash) document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
 };
-fromHash();
-addEventListener("hashchange", fromHash);
+fromHash(true);
+addEventListener("hashchange", () => fromHash(false));
 
 // ---------- Search: the generated index, matched on the page ----------
 const form = document.querySelector<HTMLFormElement>("form[data-gal-search]");
