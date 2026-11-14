@@ -52,6 +52,11 @@ export interface DioramaObjectDef {
   layer?: number;
   /** Faces whose centre is under the plane y draw on `layer` (a hull under the water line). */
   below?: { y: number; layer: number } | null;
+  /** Layers it and its children drop by while it is on the far side of its parent: its place across
+   *  the parent (`pos` x, z, turned with the parent) points away from the camera. A wheel set above
+   *  the body with `behind` past it draws over the body on the near side and under it on the far
+   *  side, at any heading and view (default 0: off). */
+  behind?: number;
   /** Its cluster's name; default: its parent's, or its own (anchored on itself) at the root. */
   cluster?: string;
   /** Full brightness: the light does not shade it (a lamp). */
@@ -72,7 +77,7 @@ export interface DioramaObjectDef {
   taper?: number;
 }
 
-/** A live object: change `pos`, `rot`, `color`, `alpha`, `tint`, `hidden`, `shadow`, `layer` between
+/** A live object: change `pos`, `rot`, `color`, `alpha`, `tint`, `hidden`, `shadow`, `layer`, `behind` between
  *  draws. `M` is its world matrix from the last draw (3 × 3 rotation row by row, then x, y, z). */
 export interface DioramaObject {
   /** Its name, or null. */
@@ -99,6 +104,8 @@ export interface DioramaObject {
   layer: number;
   /** The cut plane. */
   below: { y: number; layer: number } | null;
+  /** Layers it drops by on the far side of its parent. */
+  behind: number;
   /** Unshaded. */
   emissive: boolean;
   /** Pickable. */
@@ -318,7 +325,7 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
   const B = new Float64Array(13), FB = new Float64Array(13), C = new Float64Array(10), T = new Float64Array(3), Q = new Float64Array(3), BOX = new Float64Array(4), L = new Float64Array(3);
   const objs: Obj[] = [], order: Obj[] = [], byId = new Map<string, Obj>(), clusters = new Map<string, Cluster>(), clist: Cluster[] = [];
   const decals: Decal[] = [], pools: DioramaPoints[] = [], meshes = new Map<string, Mesh>(), SHADES = new Map<string, string[]>();
-  let EA = new Float64Array(64), CD = new Float64Array(16), CR = new Int32Array(16), ORD = O1;
+  let EA = new Float64Array(64), SH = new Float64Array(64), CD = new Float64Array(16), CR = new Int32Array(16), ORD = O1;
   let amb = 0.56, nf = 0, nv = 0, W = 1, H = 1, dpr = 1;
   const cam: DioramaCamera = { yaw: -0.5, pitch: 0.85, dist: 30, tx: 0, ty: 0, tz: 0, ox: 0, oy: 0, fov: 0.62 };
   const stats = { faces: 0, shadows: 0, points: 0, verts: 0, objects: 0, dropped: 0 };
@@ -339,12 +346,12 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
     if (nv + mesh.nv > MAXV) throw new RangeError("diorama: more vertices than maxVerts");
     const ob: Obj = {
       id: d.id ?? null, shape, size, pos: Float64Array.from(d.pos || [0, 0, 0]), rot: Float64Array.from(d.rot || [0, 0, 0]), color: d.color || "#cccccc",
-      alpha: d.alpha ?? 1, tint: d.tint ?? null, hidden: !!d.hidden, shadow: d.shadow || 0, layer: d.layer ?? (on && byId.has(on) ? byId.get(on)!.layer + 1 : 4), below: d.below || null,
+      alpha: d.alpha ?? 1, tint: d.tint ?? null, hidden: !!d.hidden, shadow: d.shadow || 0, layer: d.layer ?? (on && byId.has(on) ? byId.get(on)!.layer + 1 : 4), below: d.below || null, behind: d.behind || 0,
       emissive: !!d.emissive, pick: d.pick !== false, tag: d.tag ?? null, on, parent: null, M: new Float64Array(12),
       mesh, vb: nv, top: shape === "group" ? 0 : size[1]!, i: objs.length, cl: null, clName: d.cluster || null, sq: shape === "box", et: null,
     };
     nv += mesh.nv;
-    if (objs.length >= EA.length) { const e = new Float64Array(EA.length * 2); e.set(EA); EA = e; }
+    if (objs.length >= EA.length) { const e = new Float64Array(EA.length * 2); e.set(EA); EA = e; SH = new Float64Array(EA.length); }
     if (ob.clName && !clusters.has(ob.clName)) cluster(ob.clName, {}, ob);
     objs.push(ob);
     if (ob.id) byId.set(ob.id, ob);
@@ -556,10 +563,17 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
     }
     for (let i = 0; i < clist.length; i++) CR[clist[i]!.ci] = i;
   }
-  /** 3) Vertices to screen; faces to keys (back faces and faces reaching behind the camera dropped). */
+  /** 3) Vertices to screen; faces to keys (back faces and faces reaching behind the camera dropped).
+   *  SH: each object's layer drop (`behind`, summed down the tree), parents first. */
   function faces() {
     for (let n = 0; n < order.length; n++) {
-      const ob = order[n]!, me = ob.mesh;
+      const ob = order[n]!, me = ob.mesh, p = ob.parent, px = ob.pos[0]!, pz = ob.pos[2]!;
+      let sh = p ? SH[p.i]! : 0;
+      if (ob.behind && p) {
+        const q = p.M;
+        if ((q[0]! * px + q[2]! * pz) * B[9]! + (q[3]! * px + q[5]! * pz) * B[10]! + (q[6]! * px + q[8]! * pz) * B[11]! > 0) sh += ob.behind;
+      }
+      SH[ob.i] = sh;
       if (ob.hidden || !me.nf || EA[ob.i]! <= 0.01) continue;
       const m = ob.M, v = me.v, base = ob.vb * 3, rank = ob.cl ? CR[ob.cl.ci]! : 0, bl = ob.below;
       N[3] = N[3]! + me.nv;
@@ -581,7 +595,7 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
         let k = 0;
         while (k < c && SV[base + me.fv[s0 + k]! * 3 + 2]! >= 0.1) k++;
         if (k < c) continue;
-        const e = slot(0, keyA(rank, bl && wy < bl.y ? bl.layer : ob.layer), ob.i, f);
+        const e = slot(0, keyA(rank, (bl && wy < bl.y ? bl.layer : ob.layer) - sh), ob.i, f);
         if (e < 0) continue;
         KD[e] = vx * B[9]! + vy * B[10]! + vz * B[11]!;
         FLVL[e] = Math.round((ob.emissive ? 1 : amb + (1 - amb) * Math.max(0, nx * L[0]! + ny * L[1]! + nz * L[2]!)) * 32);
@@ -618,7 +632,7 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
         SHP[(s * SHN + k) * 2 + 1] = T[1]!;
       }
       if (!ok) continue;
-      const e = slot(1, keyA(p.cl ? CR[p.cl.ci]! : 0, p.layer + 0.5), ob.i, s);
+      const e = slot(1, keyA(p.cl ? CR[p.cl.ci]! : 0, p.layer + 0.5 - SH[p.i]!), ob.i, s);
       if (e < 0) continue;
       Q[0] = q[9]! + q[0]! * ox + q[1]! * gy + q[2]! * oz;
       Q[1] = q[10]! + q[3]! * ox + q[4]! * gy + q[5]! * oz;

@@ -1,6 +1,6 @@
 // @fzlt/core/diorama in Node (a fake canvas and a recording 2D context): the projection math, `fit`
 // keeps every point in the safe rect, the painter's sort (a near face after a far one; fixed clusters,
-// anchored clusters and layers; `below`; points and decals in the sort), `on` (a child follows its
+// anchored clusters and layers; `below`; `behind`; points and decals in the sort), `on` (a child follows its
 // parent's move, tilt and sink; alpha and tint inherited; its shadow lies on the tilted top), picking
 // returns the front-most object, `ground` hits the plane, capacities, and a draw() every frame
 // allocates nothing. Real pixels and a real click in Chromium: tests/diorama.mjs.
@@ -166,6 +166,47 @@ test("diorama: points and decals sort among the faces", () => {
   p.reset(); d.draw();
   assert.deepEqual(own.map(([i]) => i), [0]);
   close(own[0][1], 200, 1e-9, "paint reads its screen position");
+});
+
+test("diorama: `behind`: a wheel draws over the body on the near side, under it on the far side", () => {
+  const p = fakeCanvas(), d = diorama(p.canvas, { background: "#ffffff" });
+  // A car: a body on the root (layer 5), four hubs above it (their tyres at 6) that drop 1.5 on the far
+  // side (to 4.5, under the body). Each wheel has its own colour.
+  d.add({ id: "car", shape: "group", size: [2, 0, 1.2] });
+  d.add({ size: [2.4, 0.8, 1.2], pos: [0, 0.2, 0], color: "#ff0000", emissive: true, on: "car" });
+  const W = [[1, 0.8, "#00ff00", "rgb(0,253,0)"], [1, -0.8, "#0000ff", "rgb(0,0,253)"], [-1, 0.8, "#ffff00", "rgb(253,253,0)"], [-1, -0.8, "#00ffff", "rgb(0,253,253)"]];
+  const hubs = W.map(([x, z, col], i) => {
+    const hub = d.add({ id: "h" + i, shape: "group", size: [0.6, 0, 0.6], pos: [x, 0, z], on: "car", behind: 1.5 });
+    d.add({ size: [0.7, 0.7, 0.3], color: col, emissive: true, on: "h" + i });
+    return hub;
+  });
+  const span = (style) => { const i = p.fills.map((f, k) => (f.style === style ? k : -1)).filter((k) => k >= 0); return [Math.min(...i), Math.max(...i)]; };
+  const car = d.get("car");
+  let checked = 0;
+  for (let h = 0; h < 16; h++)
+    for (const yaw of [0, 0.7, 2, 3.5, 5]) {
+      Object.assign(d.cam, { yaw, pitch: 0.45, dist: 12, tx: 0, ty: 0, tz: 0, ox: 0, oy: 0, fov: 0.8 });
+      const a = (car.rot[1] = (h / 16) * Math.PI * 2);
+      car.rot[2] = h % 3 ? 0.2 : 0; // pitched too (a turn about the car's own z leaves x, z across it level)
+      d.draw(); p.reset(); d.draw();
+      const r = span(FULL["#ff0000"]), fx = -Math.sin(yaw), fz = -Math.cos(yaw);
+      for (const [x, z, , style] of W) {
+        // The wheel's place across the car, turned with it (y, then z: x tips with the pitch), on the camera's forward.
+        const c2 = Math.cos(car.rot[2]), wx = Math.cos(a) * x * c2 + Math.sin(a) * z, wz = -Math.sin(a) * x * c2 + Math.cos(a) * z;
+        const dz = wx * fx * Math.cos(0.45) + wz * fz * Math.cos(0.45) - Math.sin(car.rot[2]) * x * Math.sin(0.45);
+        if (Math.abs(dz) < 0.05) continue; // side on to the camera: either order is right
+        const s = span(style);
+        if (s[1] < 0) continue;
+        checked++;
+        if (dz > 0) assert.ok(s[1] < r[0], `heading ${h} yaw ${yaw} wheel ${x},${z}: a far wheel before the body`);
+        else assert.ok(s[0] > r[1], `heading ${h} yaw ${yaw} wheel ${x},${z}: a near wheel after the body`);
+      }
+    }
+  assert.ok(checked > 200, `checked ${checked}`);
+  // Off (0, the default): every wheel draws on its own layer over the body again.
+  for (const hb of hubs) hb.behind = 0;
+  d.draw(); p.reset(); d.draw();
+  for (const [, , , style] of W) assert.ok(span(style)[0] > span(FULL["#ff0000"])[1], "behind 0: every wheel on its layer, over the body");
 });
 
 test("diorama: `on`: a child follows its parent's move, tilt and sink; alpha and tint inherited", () => {
