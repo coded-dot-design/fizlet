@@ -126,6 +126,32 @@ test("terrain: stamps: bump, ramp (rise, lip, back), whoops, berm, ribbon (flat,
   assert.equal(g.sample(2, 0.5, s), 1, "sample returns the kind (for grip)");
 });
 
+test("terrain: a berm runs out past each end: no lump on the centre line beyond it, the bank fades to the ground over edge", () => {
+  // A straight bank and a bent one (a left turn), each 4 wide with a 1 unit edge.
+  for (const pts of [[-8, 0, 8, 0], [-8, 0, 0, 0, 6, -6]]) {
+    const t = terrain({ cols: 80, rows: 80, cell: 0.25 });
+    t.berm(pts, { width: 4, height: 1, edge: 1, side: 1 });
+    const n = pts.length / 2;
+    for (const [e, p] of [[0, 1], [n - 1, n - 2]]) {
+      // Out of the end along the end segment's direction: the centre line's height (0.25 inside) only falls.
+      const ex = pts[e * 2], ez = pts[e * 2 + 1], dx = ex - pts[p * 2], dz = ez - pts[p * 2 + 1], l = Math.hypot(dx, dz), ux = dx / l, uz = dz / l;
+      const inside = t.height(ex - ux * 0.5, ez - uz * 0.5);
+      close(inside, 0.25, 0.03, `the bank's centre just inside end ${e}`);
+      let last = inside;
+      for (let s = 0; s <= 3; s += 0.125) {
+        const y = t.height(ex + ux * s, ez + uz * s);
+        assert.ok(y <= last + 1e-9, `end ${e}, ${s} past it: ${y.toFixed(3)} after ${last.toFixed(3)} (no lump)`);
+        last = y;
+      }
+      close(t.height(ex + ux * 1.25, ez + uz * 1.25), 0, 1e-9, `flat ground ${1.25} past end ${e}`);
+      // The outside of the bank (its high side) runs out the same way.
+      const sg = e === 0 ? -1 : 1, ox = ex - sg * uz * 2, oz = ez + sg * ux * 2; // right of travel (u points out of the end: against travel at the start)
+      assert.ok(t.height(ox - ux * 0.5, oz - uz * 0.5) > 0.85, "the high side just inside the end");
+      assert.ok(t.height(ox + ux * 0.5, oz + uz * 0.5) < t.height(ox, oz) && t.height(ox + ux * 1.25, oz + uz * 1.25) === 0, "and runs out past it");
+    }
+  }
+});
+
 test("terrain: seeded noise: the same seed, the same heights bit for bit; the generator has no sine or cosine", () => {
   const make = (seed, o = {}) => terrain({ cols: 48, rows: 32, cell: 0.5 }).noise({ seed, amp: 2.5, scale: 7, octaves: 4, ...o });
   const a = make(20261113), b = make(20261113), c = make(20261114);

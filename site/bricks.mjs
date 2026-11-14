@@ -267,20 +267,22 @@ const a = sling({ pull: 2.5, max: 14 }); // a slingshot drag: a.power is the met
 a.begin(w.x[puck], w.z[puck], px, pz); a.move(px, pz); // pointer on the table (diorama's ground)
 if (a.end()) w.flick(puck, a.jx, a.jz); // send [a.angle, a.level]: the same shot everywhere
 e.add({ step: (_, dt) => w.step(dt) && e.busy(), render: () => w.apply(puck, ob) });` },
-  { id: "terrain", no: 36, sym: "tn", family: "render", status: "experimental", since: "0.22.0", tests: ["terrain.test.mjs", "terrain-drive.mjs"], used: [], why: "New, for the diorama vehicle games (trail, desert and circuit racers); its API may still change before a game ships on it.",
+  { id: "terrain", no: 36, sym: "tn", family: "render", status: "experimental", since: "0.22.0", tests: ["terrain.test.mjs", "terrain-drive.mjs", "drive-drift.mjs"], used: [], why: "New, for the diorama vehicle games (trail, desert and circuit racers); its API may still change before a game ships on it.",
     tag: "TERRAIN", role: "fallin", modules: [mod("@fzlt/core/terrain", "terrain")],
     snippet: `const t = terrain({ cols: 96, rows: 64, cell: 0.5 });
 t.noise({ seed, amp: 2.2, ridge: 0.7, wind: [1, 0.3], stretch: 2.5 }); // dunes, the same in every browser
 t.ribbon(loop, { width: 3.6, kind: 1 }).ramp([-3, 8], [1, 8], { height: 0.9 }); // a flat track, a jump
 terrainView(d, t, { bands, kinds: ["#9c7a55"], lod: [26] }); // flat-shaded faces in d.draw()
 t.sample(x, z, out); // [height, nx, ny, nz] under a wheel: the drawn triangle's` },
-  { id: "drive", no: 37, sym: "dv", family: "motion", status: "experimental", since: "0.22.0", tests: ["drive.test.mjs", "terrain-drive.mjs"], used: [], why: "New, for the diorama vehicle games; its feel and API may still change before a game ships on it.",
+  { id: "drive", no: 37, sym: "dv", family: "motion", status: "experimental", since: "0.22.0", tests: ["drive.test.mjs", "terrain-drive.mjs", "drive-drift.mjs"], used: [], why: "New, for the diorama vehicle games; its feel and API may still change before a game ships on it.",
     tag: "DRIVE", role: "advance", modules: [mod("@fzlt/core/drive", "drive")],
     snippet: `const v = drive(t, { kind: "bike" }); // or "car": four springs, rollovers
 v.reset(-9, 8, 0);
 e.add({ step(_, dt) { v.set(throttle, brake, steer, drift); if (v.step(dt)) e.busy(); chase(d.cam, v, follow, dt); } });
 car.pos.set(v.pos); car.rot.set(v.rot); // body pose; v.comp, v.spin, v.steerAngle for the wheels
-if (v.crashed) v.reset(x, z, yaw); // a nose-down landing; v.dust scales an emitter` },
+if (v.crashed) v.reset(x, z, yaw); // a nose-down landing; v.dust scales an emitter
+score += v.drift * dt; // handbrake drifts (drift input 1); drive:drift banks each chain
+touchAll(cars, { onHit: (a, b) => b.drift > 0.3 && b.spinOut(7, 1.2) }); // ram a drifter: it spins` },
   { id: "arcade", no: 20, sym: "ar", family: "game", status: "complete", since: "0.11.0", tests: ["arcade.test.mjs", "arcade.mjs", "arcade-game.mjs", "arcade-hud.mjs"], used: [GAME.invaders, GAME.runner, GAME.sherman],
     tag: "ARCADE", role: "go", modules: [mod("@fzlt/core/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",

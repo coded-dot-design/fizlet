@@ -217,11 +217,21 @@ export function terrain(o: TerrainOptions) {
     },
     /** A banked turn along `points` [x0, z0, x1, z1, …]: a bowl across its width, rising toward
      *  `side` (1, the default: the right of the direction of travel, the outside of a left turn; −1
-     *  the left). */
+     *  the left). Past each end the bank keeps its cross-section and runs out to the ground over
+     *  `edge` (no lump on the centre line beyond the ends). */
     berm(points: ArrayLike<number>, so: StampOptions & { side?: number } = {}) {
-      const hh = so.height ?? 1, side = so.side ?? 1;
+      const hh = so.height ?? 1, side = so.side ?? 1, half = (so.width ?? 2) / 2, edge = so.edge ?? 1, m = (points.length >> 1) - 1;
       // `near`'s side is +1 on the right of travel (diorama's +z, seen heading +x).
       return line(points, so, (_, sd, across, w, i) => {
+        const s = T[2]!, u = T[3]!;
+        if ((s === 0 && u === 0) || (s === m - 1 && u === 1)) {
+          // Past an end: across from the end segment's line (not the distance to its end point), faded lengthwise.
+          const e = (u === 0 ? s : s + 1) * 2, k = s * 2, dx = points[k + 2]! - points[k]!, dz = points[k + 3]! - points[k + 1]!, l = hypot(dx, dz) || 1;
+          const px = x0 + (i % W1) * c - points[e]!, pz = z0 + Math.floor(i / W1) * c - points[e + 1]!, perp = (dx * pz - dz * px) / l, d = Math.abs(perp);
+          sd = perp >= 0 ? 1 : -1;
+          across = d / (half || 1);
+          w = (1 - smooth(half, half + edge, d)) * (1 - smooth(0, edge, Math.abs(px * dx + pz * dz) / l));
+        }
         const t = Math.min(1, Math.max(0, (1 + side * sd * across) / 2));
         h[i] = h[i]! + w * hh * t * t;
       });
