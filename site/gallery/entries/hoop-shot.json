@@ -1,0 +1,27 @@
+{
+  "no": 113,
+  "id": "hoop-shot",
+  "date": "2026-11-16",
+  "prompt": "the arcade basketball cabinet in the corner of the games room: four balls on a ramp that rolls them back, a hoop on a backboard under a glowing scoreboard, 45 seconds on the clock from your first shot; drag back from the ball to aim and set the power, let go to shoot, fire as fast as the balls come back; after 15 seconds the hoop slides side to side, the last 10 seconds are worth 3 a basket, a swish adds 1; the rim rattles and clangs, the net swishes; a neon night in the dark",
+  "title": "Hoop Shot",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "bar-games",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/flick",
+    "@fzlt/core/diorama",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.22.0",
+  "made": "by hand",
+  "module": "pieces/hoop-shot/hoop-shot.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-16"
+}

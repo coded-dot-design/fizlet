@@ -1,0 +1,27 @@
+{
+  "no": 116,
+  "id": "solitaire",
+  "date": "2026-11-17",
+  "prompt": "Klondike solitaire on Flip Match's felt card table with a standard deck and a Fizlet back: twenty-eight cards dealt in arcs into seven columns, tap a card and it goes where it can or drag it there, draw 1 or 3 from the stock, safe cards fly up to their foundations by themselves, undo any move, and when the last king lands the deck flies off the foundations into a spiral round the table; a lamp-lit night in the dark",
+  "title": "Solitaire",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "tabletop",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/cards",
+    "@fzlt/core/diorama",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.22.0",
+  "made": "by hand",
+  "module": "pieces/solitaire/solitaire.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-17"
+}

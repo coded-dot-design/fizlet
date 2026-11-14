@@ -1,0 +1,27 @@
+{
+  "no": 111,
+  "id": "blackjack",
+  "date": "2026-11-15",
+  "prompt": "blackjack on Flip Match's felt card table: you against the dealer with a standard deck and a Fizlet back; pick a bet, deal from the shoe, hit, stand, double or split; the dealer turns the hole card and draws to 17; play chips slide from the tray to your bet and home to your stack; the house rules printed on the felt; a lamp-lit night in the dark",
+  "title": "Blackjack",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "tabletop",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/cards",
+    "@fzlt/core/diorama",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.22.0",
+  "made": "by hand",
+  "module": "pieces/blackjack/blackjack.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-15"
+}

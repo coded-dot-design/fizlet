@@ -1,0 +1,27 @@
+{
+  "no": 117,
+  "id": "gin-rummy",
+  "date": "2026-11-19",
+  "prompt": "gin rummy against a bot on Flip Match's felt card table with a standard deck and a Fizlet back: draw from the stock or take the discard, throw a card, your hand sorted with its melds underlined in colour and the deadwood counted; knock with 10 or less or go gin, both hands laid down in melds with the loose cards laid off, undercuts, scoring to 100; a lamp-lit night in the dark",
+  "title": "Gin Rummy",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "tabletop",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/cards",
+    "@fzlt/core/diorama",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.22.0",
+  "made": "by hand",
+  "module": "pieces/gin/gin-rummy.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-19"
+}

@@ -1,0 +1,27 @@
+{
+  "no": 115,
+  "id": "air-hockey",
+  "date": "2026-11-17",
+  "prompt": "a top-down air hockey table in the games room against a bot: drag your mallet (it chases your finger) or steer it with the arrow keys; the puck glides on air, banks off the rails, cracks off the mallets and drops into a goal; the bot defends its mouth, lines up behind a slow puck and strikes it straight or off a rail; first to 7; a scoreboard on a post; a neon night in the dark, the puck aglow",
+  "title": "Air Hockey",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "bar-games",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/flick",
+    "@fzlt/core/diorama",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.22.0",
+  "made": "by hand",
+  "module": "pieces/air-hockey/air-hockey.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-17"
+}

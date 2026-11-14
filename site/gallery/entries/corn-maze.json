@@ -1,0 +1,27 @@
+{
+  "no": 119,
+  "id": "corn-maze",
+  "date": "2026-11-26",
+  "prompt": "a corn field maze at dusk on a tabletop diorama, for Thanksgiving: walk in through the gate and find the scarecrow in the middle before the light goes, picking up pumpkins on the way; lanterns along the paths light as you pass and mark where you have been, crows on the corn scatter when you come near; the sky and the light go from late afternoon to night and the dark closes in round your lantern; hold an arrow, swipe or tap a spot, MAP to look over the field",
+  "title": "Corn Maze",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "mazes",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/grid",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.22.0",
+  "made": "by hand",
+  "module": "pieces/maze/corn-maze.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-26"
+}

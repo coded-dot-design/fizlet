@@ -1,0 +1,26 @@
+{
+  "no": 110,
+  "id": "tilt-maze",
+  "date": "2026-11-14",
+  "prompt": "the classic wooden labyrinth box on a tabletop diorama: tilt the board (drag, the arrows, or the phone itself after a permission key) to roll a steel ball along a numbered line past the holes; fall in one and it drops through and comes back to the start; real rolling physics with gravity from the tilt, friction, wall bounces, the ball's shadow and highlight, the board leaning on its frame and the knobs turning with it; three boards of rising difficulty, a timer and a best time",
+  "title": "Tilt Maze",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "mazes",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.22.0",
+  "made": "by hand",
+  "module": "pieces/maze/tilt-maze.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-14"
+}

@@ -1,0 +1,27 @@
+{
+  "no": 112,
+  "id": "cup-toss",
+  "date": "2026-11-15",
+  "prompt": "a games-room table with a triangle of ten cups at the far end and twenty ping-pong balls: drag back from the ball to aim and set the power (a dotted arc shows the toss), pick a spin to curve it, let go; the ball flies, bounces off the table, rattles round a rim or drops in; a cup clears when a ball lands in it and hops off to a stack; re-racks at six and three; clear the rack in as few balls as you can; family friendly, the cups hold nothing; a neon night in the dark",
+  "title": "Cup Toss",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "bar-games",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/flick",
+    "@fzlt/core/diorama",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.22.0",
+  "made": "by hand",
+  "module": "pieces/cup-toss/cup-toss.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-15"
+}
