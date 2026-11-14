@@ -1,0 +1,28 @@
+{
+  "id": "moto-track",
+  "date": "2026-11-18",
+  "prompt": "a tabletop motocross race at night: neon-edged dirt loop with berms, a rhythm section, whoops, a big triple and a finish tabletop; pick a light peaky 2-stroke or a heavy torquey 4-stroke, hold the gas on the gate, three laps against three rivals; the stick is the rider's weight (back lifts the front, the brake brings a wheelie down, in the air it pitches the bike), loop it, case it or nose it in and you go down",
+  "title": "Moto Track",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "bikes",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/terrain",
+    "@fzlt/core/drive",
+    "@fzlt/core/input",
+    "@fzlt/core/pad",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.23.0",
+  "made": "by hand",
+  "module": "pieces/bikes/moto-track.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own"
+}
