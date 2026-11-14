@@ -20,5 +20,6 @@
   "export": "mount",
   "aspect": "16 / 9",
   "phone": "4 / 5",
-  "stage": "own"
+  "stage": "own",
+  "approved": "2026-11-14"
 }
