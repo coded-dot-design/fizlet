@@ -1,0 +1,30 @@
+{
+  "no": 121,
+  "id": "big-air",
+  "date": "2026-11-20",
+  "prompt": "a tabletop freestyle motocross show at night: an oval of dirt in a little arena with two big neon-lipped steel kickers over gaps onto dirt landings and a crowd stand that lights up; pick a light 2-stroke that flips fast or a heavy steady 4-stroke, then a minute on the clock: in the air hold TRICK and the stick picks a trick, weight all the way back for a flip, put it away and land on the down ramp to score, clean landings in a row build the combo, five judges score the run",
+  "title": "Big Air",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "bikes",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/terrain",
+    "@fzlt/core/drive",
+    "@fzlt/core/input",
+    "@fzlt/core/pad",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.23.0",
+  "made": "by hand",
+  "module": "pieces/bikes/big-air.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own",
+  "approved": "2026-11-20"
+}
