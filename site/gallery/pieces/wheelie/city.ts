@@ -1,31 +1,37 @@
 // Wheelie City's block and session, headless (tests/wheelie-city.test.mjs plays it with no browser).
-// The table: a ring of streets round two blocks with a cross street between them; the west block is
-// four houses with lawns and driveways, the east block an apartment building and a corner store over
-// two more houses, one with a dog in a fenced front yard. Curbs, two crosswalks, a speed bump, a
+// The table: two long boulevards (north and south, 94 units end to end: room for a wheelie of eight
+// seconds and more without a turn) joined by four avenues and a cross street, round four blocks. The
+// middle two are the old town: four houses with lawns and driveways in the west, an apartment building
+// and a corner store over two more houses in the east (one with a dog in a fenced front yard); the
+// outer two are rows of houses along the boulevards, with their own crosswalks and sprinklers. Curbs, two crosswalks, a speed bump, a
 // plywood kicker someone left on the west avenue, parked cars, trees and streetlights. The bike is
 // the Bikes series' shared bike (../bikes/bike.ts) through ./ride.ts on this ground; ./tricks.ts scores it. A session is one
 // minute from the first touch of the gas: wheelies, manuals and hops score, with bonuses for a
 // trick across a crosswalk, through a sprinkler or past a neighbour who has come out to shake a
 // fist. Loop it out, nose it in or land off balance and it is a crash: the trick and the combo are
-// gone, a tumble, then back up; ride hard into something and it is a bonk (the combo goes too). `autopilot` rides the loop with wheelies (the poster, the
+// gone, a tumble, then back up; ride hard into something and it is a crash too (a bonk). `autopilot` rides the loop with wheelies (the poster, the
 // tests). Zero allocation per step.
 import { hypot } from "../../../../src/steer";
 import { ride, RIDES } from "./ride";
 import { B_CRASH, B_STOPPIE } from "../bikes/bike";
 import { tricks, ON, F_CROSS, F_SPRINK, F_GRUMP, BANKED } from "./tricks";
 
-export const HX = 21, HZ = 14, CURB = 0.12, SESSION = 60;
+export const HX = 49, HZ = 14, CURB = 0.12, SESSION = 60;
 export const READY = 0, RUN = 1, CRASH = 2, DONE = 3;
 /** Ground kinds. */
 export const K_ROAD = 0, K_WALK = 1, K_LAWN = 2, K_DRIVE = 3;
 /** Events (one ring, read and cleared each step): what, and a value. */
-export const E_START = 1, E_TRICK = 2, E_CRASH = 3, E_RESPAWN = 4, E_GRUMP = 5, E_BARK = 6, E_SPLASH = 7, E_BONUS = 8, E_END = 9, E_HOP = 10, E_AIR = 11, E_BONK = 12;
+export const E_START = 1, E_TRICK = 2, E_CRASH = 3, E_RESPAWN = 4, E_GRUMP = 5, E_BARK = 6, E_SPLASH = 7, E_BONUS = 8, E_END = 9, E_HOP = 10, E_AIR = 11;
 const TAU = 6.283185307179586, CRASH_T = 1.8, R_BIKE = 0.45, BONK_V = 5;
 
 /** Streets as rects [x0, z0, x1, z1]: north, south, west avenue, east avenue, the cross street. */
-export const ROADS = [-17, -10.5, 17, -6.5, -17, 6.5, 17, 10.5, -17, -10.5, -13, 10.5, 13, -10.5, 17, 10.5, -2, -6.5, 2, 6.5];
+export const ROADS = [-47, -10.5, 47, -6.5, -47, 6.5, 47, 10.5, -47, -10.5, -43, 10.5, 43, -10.5, 47, 10.5, -17, -10.5, -13, 10.5, 13, -10.5, 17, 10.5, -2, -6.5, 2, 6.5];
+/** The boulevards' length end to end (the long straights). */
+export const BOULEVARD = 94;
 /** The two blocks [x0, z0, x1, z1]. */
-export const BLOCKS = [-13, -6.5, -2, 6.5, 2, -6.5, 13, 6.5];
+export const BLOCKS = [-13, -6.5, -2, 6.5, 2, -6.5, 13, 6.5, -43, -6.5, -17, 6.5, 17, -6.5, 43, 6.5];
+/** Driveways [x0, z0, x1, z1] (from the curb to the house's side). */
+export const DRIVES = [-8.9, -6.5, -7.6, -0.8, -4.4, -6.5, -3.1, -0.8, -8.9, 0.8, -7.6, 6.5, -4.4, 0.8, -3.1, 6.5, 6.1, 0.8, 7.4, 6.5, 10.6, 0.8, 11.9, 6.5];
 /** Buildings: x, z (centre), w, d, height, face (−1 faces north, +1 south), look (0..3 house, 4 flats, 5 store). */
 export const HOUSES = [
   -10.5, -2.2, 3, 2.8, 1.9, -1, 0,
@@ -37,26 +43,31 @@ export const HOUSES = [
   4.5, 2.2, 3, 2.8, 1.9, 1, 1,
   9.0, 2.2, 3, 2.8, 1.9, 1, 0,
 ];
+// The outer blocks: five houses a row facing each boulevard, a driveway beside each.
+for (const x0 of [-42, 18]) for (let k = 0; k < 5; k++) for (const f of [-1, 1]) {
+  const x = x0 + 1.5 + k * 4.75;
+  HOUSES.push(x, f * 2.2, 3, 2.8, 1.9, f, (k * 2 + (f > 0 ? 1 : 0) + (x0 > 0 ? 1 : 0)) % 4);
+  DRIVES.push(x + 1.6, f < 0 ? -6.5 : 0.8, x + 2.9, f < 0 ? -0.8 : 6.5);
+}
 export const NH = HOUSES.length / 7;
-/** Driveways [x0, z0, x1, z1] (from the curb to the house's side). */
-export const DRIVES = [-8.9, -6.5, -7.6, -0.8, -4.4, -6.5, -3.1, -0.8, -8.9, 0.8, -7.6, 6.5, -4.4, 0.8, -3.1, 6.5, 6.1, 0.8, 7.4, 6.5, 10.6, 0.8, 11.9, 6.5];
 /** Parked cars: x, z, yaw, look. */
-export const CARS = [-10.6, -7.3, 0, 0, 7.6, -7.3, 0, 1, -10.6, 7.3, Math.PI, 2, 13.8, -1.5, Math.PI / 2, 3, -3.75, -4.4, Math.PI / 2, 1, 11.25, 4.4, -Math.PI / 2, 2];
+export const CARS = [-10.6, -7.3, 0, 0, 7.6, -7.3, 0, 1, -10.6, 7.3, Math.PI, 2, 13.8, -1.5, Math.PI / 2, 3, -3.75, -4.4, Math.PI / 2, 1, -35.5, 7.3, Math.PI, 3, 30, -7.3, 0, 2, 43.8, 2.5, Math.PI / 2, 0, -24, -7.3, 0, 1, 11.25, 4.4, -Math.PI / 2, 2];
 export const NCARS = CARS.length / 4, CAR_L = 2.3, CAR_W = 1.1;
 /** Crosswalks [x0, z0, x1, z1]: on the cross street by the north corner, on the south street by the east corner. */
-export const CROSS = [-2, -5.9, 2, -4.7, 10.6, 6.5, 11.8, 10.5];
+export const CROSS = [-2, -5.9, 2, -4.7, 10.6, 6.5, 11.8, 10.5, -30.6, 6.5, -29.4, 10.5, 25.6, 6.5, 26.8, 10.5, -21.4, -10.5, -20.2, -6.5, 34.4, -10.5, 35.6, -6.5];
 /** The speed bump on the north street (x, half width) and the kicker on the west avenue (z0, z1, x0, x1, height). */
 export const BUMP = [4, 0.45, 0.16];
 export const KICK = [0.8, 2.2, -16.4, -13.6, 0.42];
 /** Sprinklers: x, z, aim (radians: 0 is +x), phase. */
-export const SPRINK = [-10.5, -4.6, -Math.PI / 2, 0, -6.0, 4.6, Math.PI / 2, 2.1, 4.5, 4.6, Math.PI / 2, 4.2];
+export const SPRINK = [-10.5, -4.6, -Math.PI / 2, 0, -6.0, 4.6, Math.PI / 2, 2.1, 4.5, 4.6, Math.PI / 2, 4.2, -35.25, 4.6, Math.PI / 2, 1.3, 24.25, 4.6, Math.PI / 2, 3.3, 33.75, -4.6, -Math.PI / 2, 5.1, -21, -4.6, -Math.PI / 2, 2.6];
 export const NSP = SPRINK.length / 4, SP_REACH = 2.6;
 /** The dog's yard (in front of the last house): x0, x1, z (where it trots), and its fence [x0, z0, x1, z1]. */
 export const DOG = [7.8, 10.2, 5.0];
 export const FENCE = [7.4, 3.6, 10.6, 5.6];
 /** Neighbours: house index (−1 store front), door x, door z, face, zone [x0, z0, x1, z1]. */
 export const NEIGH: number[] = [];
-for (const h of [0, 1, 2, 3, 6, 4, 5]) {
+// (On the outer blocks, every other house has someone at home.)
+for (const h of [0, 1, 2, 3, 6, 4, 5, ...Array.from({ length: NH - 8 }, (_, k) => 8 + k).filter((h) => ((h - 8) >> 1) % 2 === 0)]) {
   const o = h * 7, x = HOUSES[o]!, z = HOUSES[o + 1]!, d = HOUSES[o + 3]!, f = HOUSES[o + 5]!, fz = z + (f * d) / 2;
   NEIGH.push(h, x - 0.5, fz, f, x - 3.4, f < 0 ? -10.5 : fz, x + 3.4, f < 0 ? fz : 10.5);
 }
@@ -64,22 +75,24 @@ export const NN = NEIGH.length / 8;
 /** What they shout (comic and generic, never mean). */
 export const LINES = ["HEY! MY LAWN!", "SLOW DOWN!", "I JUST MOWED THAT!", "WHEELS DOWN, KID!", "NOT THE PETUNIAS!", "IT'S SUNDAY!", "BACK IN MY DAY…", "KEEP IT ON THE ROAD!"];
 /** Trees and streetlights: x, z (on the verge outside the ring and in the back yards). */
-export const TREES = [-19, -12.4, -12, -12.4, -5, -12.4, 5, -12.4, 12, -12.4, 19, -12.4, -19, 12.4, -9, 12.4, 1, 12.4, 9, 12.4, 19, 12.4, -19.2, -4, -19.2, 4, 19.2, -4, 19.2, 4, -8.3, 0, -3.5, 0.2, 3.3, 0.1, 11.6, 0];
-export const LAMPS = [-17.6, -11.2, 17.6, -11.2, -17.6, 11.2, 17.6, 11.2, -2.5, -6.0, 2.5, 6.0, -12.5, -6.0, 12.5, 6.0];
+export const TREES = [-48.2, -12.4, -41, -12.4, -33, -12.4, -26, -12.4, -19, -12.4, -12, -12.4, -5, -12.4, 5, -12.4, 12, -12.4, 19, -12.4, 26, -12.4, 33, -12.4, 41, -12.4, 48.2, -12.4, -48.2, 12.4, -40, 12.4, -30, 12.4, -21, 12.4, -9, 12.4, 1, 12.4, 9, 12.4, 21, 12.4, 30, 12.4, 40, 12.4, 48.2, 12.4, -48.4, -4, -48.4, 4, 48.4, -4, 48.4, 4, -8.3, 0, -3.5, 0.2, 3.3, 0.1, 11.6, 0, -37.5, 0, -27.5, 0.1, -22, 0, 22.5, 0, 28, 0.1, 37.5, 0];
+export const LAMPS = [-47.6, -11.2, 47.6, -11.2, -47.6, 11.2, 47.6, 11.2, -32, -11.2, 32, 11.2, -17.6, -11.2, 17.6, 11.2, -2.5, -6.0, 2.5, 6.0, -12.5, -6.0, 12.5, 6.0, -25, 11.2, 25, -11.2, -38, 11.2, 38, -11.2];
 /** The autopilot's loop round the ring (x, z), anticlockwise from above starting east on the south street. */
-export const ROUTE = [15.1, 8.6, 15.1, -8.6, -15, -8.6, -15, 8.6];
+export const ROUTE = [45.1, 8.6, 45.1, -8.6, -45, -8.6, -45, 8.6];
 export const START = [-9, 8.7, 0];
-/** The autopilot's gains (tuned headless): under the balance point by, gas over it, gas per radian over, rate look-ahead s, lean per radian, gas share over the speed cap, corner look-ahead s, speed cap (share of top speed), brake margin, brake gain. */
-export const AP = [0.033, 0.415, 2.925, 0.217, 4.242, 0.827, 0.488, 0.461, 0.065, 7.712];
+/** The autopilot's gains (tuned headless): under the balance point by, gas at rest, nose rate per radian off, most nose rate, gas per rate error, gas per unit of speed under the target, lean per rate error, target speed, brake dead band, brake gain. */
+export const AP = [0.008, 0.077, 33.317, 2.172, 0.387, 0.04, 0.729, 3.383, 0.391, 1.244];
 
 const inR = (x: number, z: number, R: ArrayLike<number>, o: number) => x >= R[o]! && x <= R[o + 2]! && z >= R[o + 1]! && z <= R[o + 3]!;
 // (Results go through Q, never returned: a double returned from a call that is not inlined is boxed.)
 const Q = new Float64Array(2);
+// The rects the ground reads each sample, as typed arrays (a plain array of doubles can change shape).
+const RD = Float64Array.from(ROADS), DR = Float64Array.from(DRIVES), BL = Float64Array.from(BLOCKS);
 /** Distance to the nearest road (0 on one), for the curb's edge: into Q[0]. */
 function roadGap(x: number, z: number) {
   Q[0] = 1e9;
-  for (let o = 0; o < ROADS.length; o += 4) {
-    const ax = ROADS[o]! - x, bx = x - ROADS[o + 2]!, az = ROADS[o + 1]! - z, bz = z - ROADS[o + 3]!;
+  for (let o = 0; o < RD.length; o += 4) {
+    const ax = RD[o]! - x, bx = x - RD[o + 2]!, az = RD[o + 1]! - z, bz = z - RD[o + 3]!;
     const dx = ax > bx ? (ax > 0 ? ax : 0) : bx > 0 ? bx : 0, dz = az > bz ? (az > 0 ? az : 0) : bz > 0 ? bz : 0, d = dx > dz ? dx : dz;
     if (d < Q[0]!) Q[0] = d;
   }
@@ -107,9 +120,9 @@ export function kindAt(x: number, z: number) {
   roadGap(x, z);
   const g = Q[0]!;
   if (g <= 0) return K_ROAD;
-  for (let o = 0; o < DRIVES.length; o += 4) if (inR(x, z, DRIVES, o)) return K_DRIVE;
-  for (let o = 0; o < BLOCKS.length; o += 4)
-    if (inR(x, z, BLOCKS, o)) return x - BLOCKS[o]! < 1 || BLOCKS[o + 2]! - x < 1 || z - BLOCKS[o + 1]! < 1 || BLOCKS[o + 3]! - z < 1 ? K_WALK : K_LAWN;
+  for (let o = 0; o < DR.length; o += 4) if (x >= DR[o]! && x <= DR[o + 2]! && z >= DR[o + 1]! && z <= DR[o + 3]!) return K_DRIVE;
+  for (let o = 0; o < BL.length; o += 4)
+    if (x >= BL[o]! && x <= BL[o + 2]! && z >= BL[o + 1]! && z <= BL[o + 3]!) return x - BL[o]! < 1 || BL[o + 2]! - x < 1 || z - BL[o + 1]! < 1 || BL[o + 3]! - z < 1 ? K_WALK : K_LAWN;
   return g < 1.2 ? K_WALK : K_LAWN;
 }
 /** The ground for the bike: height and normal (from the neighbours), and the kind. */
@@ -179,19 +192,20 @@ export function cityRun() {
       if (dd > 1e-6) (dx /= dd), (dz /= dd);
       else (dx = -bike.b.cy), (dz = bike.b.sy);
       p[0] = cx + dx * R_BIKE; p[2] = cz + dz * R_BIKE;
-      hit(bike.wall(dx, dz));
+      hit(bike.wall(dx, dz, BONK_V));
     }
     for (let a = 0; a < 3; a += 2) {
       const lim = (a ? HZ : HX) - 0.5;
       if (Math.abs(p[a]!) > lim) {
         const s = p[a]! > 0 ? 1 : -1;
         p[a] = s * lim;
-        hit(bike.wall(a ? 0 : -s, a ? -s : 0));
+        hit(bike.wall(a ? 0 : -s, a ? -s : 0, BONK_V));
       }
     }
   }
   function hit(v: number) {
-    if (v > BONK_V && S[0] === RUN && !bike.b.crashed) (S[10] = v), sc.drop(), emit(E_BONK, v);
+    // (A hard hit is a crash, STRIKE, called through the shared bike's own crash event.)
+    S[10] = v;
   }
   function step(dt: number, gas: number, brake: number, lean: number, steer: number, hop: number) {
     const ph = S[0]!;
@@ -303,14 +317,14 @@ export function cityRun() {
     I[4] = 0;
     const straight = Math.abs(err) < 0.3 && ahead > 3.5, goal = bike.balance - AP[0]!, om = b.S[3]!, e = goal - th;
     if (straight && v > 2.5) {
-      // Hold it under the balance point: under it, gas and the weight back; over it, ease off and
-      // lean in; well over, the brake (the nose turns no faster than a rider can catch it).
-      const p = th + om * AP[3]!;
-      I[0] = p < goal ? 1 : Math.max(0, AP[1]! + (goal - p) * AP[2]!);
-      I[2] = Math.max(-1, Math.min(1, (p - goal) * AP[4]!));
-      I[1] = p > goal + AP[8]! ? Math.min(1, (p - goal - AP[8]!) * AP[9]!) : 0;
-      const g = bike.spec.power.gears;
-      if (v > g[g.length - 1]! * AP[7]!) I[0] = I[0]! * AP[5]!;
+      // Hold it just under the balance point at a steady speed: a wanted nose rate from the angle off
+      // it; the gas and the weight back give rate, the weight forward and the brake take it away; the
+      // gas also holds the speed (past it the bike would run into its limiter and drop the front).
+      const want = Math.max(-AP[3]!, Math.min(AP[3]!, e * AP[2]!)), er = want - om, vt = AP[7]!;
+      I[0] = Math.max(0, Math.min(1, AP[1]! + er * AP[4]! + (vt - v) * AP[5]!));
+      I[2] = Math.max(-1, Math.min(1, -er * AP[6]!));
+      I[1] = er < -AP[8]! || v > vt + 2 ? Math.min(1, (-er - AP[8]!) * AP[9]! + (v > vt + 2 ? 0.3 : 0)) : 0;
+      if (I[1]! < 0) I[1] = 0;
     } else if (up) {
       I[0] = 0; I[1] = 0.3; I[2] = 1;
     } else {

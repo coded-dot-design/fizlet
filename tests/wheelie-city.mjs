@@ -86,7 +86,7 @@ try {
       await p.waitForFunction(() => scene.state.phase === 2, null, { timeout: 8000 }).catch(() => assert.fail(`${at}: gas and the weight back loop it out`));
       await p.keyboard.up("Space");
       await p.keyboard.up("KeyS");
-      assert.match(await p.evaluate(() => document.querySelector(".wc-toast").textContent), /LOOPED OUT|OVER THE BARS|BAILED|CASED|BOTTOMED/, `${at}: the crash is called`);
+      assert.match(await p.evaluate(() => document.querySelector(".wc-toast").textContent), /LOOPED OUT|OVER THE BARS|BAILED|CASED|BONK/, `${at}: the crash is called`);
       assert.equal((await st(p)).combo, 0, `${at}: the combo is gone`);
       await p.waitForFunction(() => scene.state.phase === 1, null, { timeout: 5000 });
       await p.keyboard.press("m");

@@ -1,16 +1,19 @@
-// "Wheelie City" (hero, Hi-Fi): electric bikes on a tabletop neighbourhood. A city block sits on a
-// plinth: a ring of streets with a cross street, houses with lawns and driveways, an apartment
-// building and a corner store, parked cars, two crosswalks, a speed bump, a plywood kicker, trees and
-// streetlights; at night (dark) the curbs glow cyan and the windows warm, by day (light) a pastel
-// suburb. Pick a ride in the garage (VOLT the e-bike, JOLT the electric dirt bike, STUBBY the fat-tyre
-// mini), then one minute from the first touch of the gas: lift the front with the gas, balance it
-// with your weight (stick or W/S: lean forward and back), save it with the brake, and score
-// wheelies and manuals (distance, time, and the time held at the balance point) and hops. A trick
-// across a crosswalk, through a sprinkler or past a neighbour who came out to shake a fist pays a
-// bonus. Loop it out and it is a crash: the trick and the combo are gone.
+// "Wheelie City" (hero, Hi-Fi): electric bikes on a tabletop neighbourhood. A long strip of town sits
+// on a plinth: two boulevards 94 units end to end (room to hold a wheelie for seven seconds and more
+// without a turn) joined by avenues and a cross street round four blocks: houses with lawns and
+// driveways, an apartment building and a corner store, parked cars, crosswalks, sprinklers, a speed
+// bump, a plywood kicker, trees and streetlights; at night (dark) the curbs glow cyan and the windows
+// warm, by day (light) a pastel suburb. Pick a ride in the garage (VOLT the e-bike, JOLT the electric
+// dirt bike, STUBBY the fat-tyre mini), then one minute from the first touch of the gas: lift the
+// front with the gas, balance it with your weight (stick or W/S: lean forward and back), save it with
+// the brake, and score wheelies and manuals (distance, time, and the time held at the balance point),
+// hops and stoppies. A trick across a crosswalk, through a sprinkler or past a neighbour who came out
+// to shake a fist pays a bonus. Loop it out, or ride hard into something, and it is a crash: the
+// trick and the combo are gone.
 // Bricks: the kernel (fixed step, settle, the ledger for every page write so Recall gives the page
 // back byte for byte), @fzlt/core/diorama (the 3D), the Bikes series' shared bike (../bikes/bike.ts,
-// through ./ride.ts), @fzlt/core/drive (its `chase` camera), @fzlt/core/input + @fzlt/core/pad (keys, the
+// through ./ride.ts), its rig (../bikes/rig.ts: the rider for every ride, all of JOLT) and kit
+// (../bikes/kit.ts: particle pools, the motor's voice, the gamepad), @fzlt/core/drive (its `chase` camera), @fzlt/core/input + @fzlt/core/pad (keys, the
 // touch stick and keys), @fzlt/core/slot, @fzlt/core/sound. The block and the session are ./city.ts,
 // the scorer ./tricks.ts, both headless (tests/wheelie-city.test.mjs); this file is the scene
 // (tests/wheelie-city.mjs).
@@ -24,10 +27,12 @@ import { sound } from "../../../../src/sound";
 import type { SlotScene, SlotTap } from "../../../../src/slot";
 import {
   BLOCKS, BUMP, CARS, CAR_L, CAR_W, CROSS, DOG, DONE, DRIVES, E_AIR, E_BARK, E_BONUS, E_CRASH, E_END, E_GRUMP, E_HOP, E_RESPAWN, E_SPLASH, E_START, E_TRICK,
-  FENCE, HOUSES, HX, HZ, KICK, LAMPS, LINES, NCARS, NEIGH, NH, NN, NSP, READY, RIDES, ROADS, RUN, CRASH, SESSION, SPRINK, SP_REACH, TREES, CURB, E_BONK, cityRun,
+  FENCE, HOUSES, HX, HZ, KICK, LAMPS, LINES, NCARS, NEIGH, NH, NN, NSP, READY, RIDES, ROADS, RUN, CRASH, SESSION, SPRINK, SP_REACH, TREES, CURB, cityRun,
 } from "./city";
 import { LOOP, ENDO, CASE, BAIL } from "../bikes/bike";
-import { SC, CB, ON, DIST, TIME, SWEET, PTS, KIND, BEST_W, BEST_WS, BEST_M, HOPS, TOP, MANUAL, HOP, F_CROSS, F_SPRINK, F_GRUMP } from "./tricks";
+import { rig, type Rig, type RigColors } from "../bikes/rig";
+import { pool, voice, gamepad, type Pool } from "../bikes/kit";
+import { SC, CB, ON, DIST, TIME, SWEET, PTS, KIND, BEST_W, BEST_WS, BEST_M, HOPS, TOP, MANUAL, HOP, STOPPIE, F_CROSS, F_SPRINK, F_GRUMP } from "./tricks";
 
 const TAU = 6.283185307179586;
 // Palettes by role: a neon night (dark) and a pastel day (light).
@@ -44,6 +49,8 @@ const DARK = {
   robes: ["#9d7bff", "#ff8fb8", "#6fd3ff", "#ffd166", "#7ee0a8", "#ff9e6b", "#c0c6ff"], hair: ["#e7e7ef", "#3a2a22", "#8a8a96", "#c06a3a"],
   dog: "#c98e5a", dog2: "#6b4a2e", water: "#8fe8ff", dust: "#8a84b8", spark: "#ffd166", smoke: "#c9c4e8", shadow: "#000000",
   ink: "#0b0a14", paper: "#f6f3ff", good: "#22e6ff", warn: "#ffd166", bad: "#ff4f5e", line: "#22e6ff",
+  // The rig's parts that are not the ride's own colours (../bikes/rig.ts).
+  kit: { seat: "#14121f", frame: "#2b2a3d", tyre: "#0f0f16", rim: "#9aa0c8", metal: "#c9cde6", pipe: "#7e86a8", visor: "#0a0c16", boots: "#e9ecff", gloves: "#14121f", glow: "#22e6ff" },
 };
 type Pal = typeof DARK;
 const LIGHT: Pal = {
@@ -58,6 +65,7 @@ const LIGHT: Pal = {
   jacket: "#118ab2", pants: "#33334a", shoe: "#ffffff", helmet: "#ef476f", visor: "#11131c",
   dog: "#c98e5a", dog2: "#6b4a2e", water: "#4cc9f0", dust: "#d9d2c3", spark: "#ffb703", smoke: "#ffffff", shadow: "#3a2a24",
   ink: "#1b1420", paper: "#ffffff", good: "#06a77d", warn: "#f4a261", bad: "#e63946", line: "#ffffff",
+  kit: { seat: "#2a2833", frame: "#3a3a4c", tyre: "#24232b", rim: "#d9dbe6", metal: "#eceef7", pipe: "#9aa0b8", visor: "#1b1d2a", boots: "#ffffff", gloves: "#2a2833", glow: "#06d6a0" },
 };
 // FX pools: dust and tyre smoke, sparks, sprinkler water (per sprinkler DROPS), splashes.
 const DUST = 70, SPARK = 40, DROPS = 18, WATER = NSP * DROPS, SPLASH = 40;
@@ -121,8 +129,12 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     host: stage,
   });
   thePad.el.classList.add("wc-pad");
+  // The motor's whine (../bikes/kit.ts): nothing is made until a gesture.
+  const vox = voice();
+  engine.signal.addEventListener("abort", () => vox.close(), { once: true });
   const toggle = () => {
     snd.on = !snd.on;
+    vox.on = snd.on;
     muteK.textContent = snd.on ? "♪" : "×";
     muteK.setAttribute("aria-pressed", "" + snd.on);
   };
@@ -130,11 +142,9 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   // ---- the run and the diorama ----
   const run = cityRun(), bike = run.bike, S = run.S, sc = run.sc.S;
   const dio = diorama(canvas, { light: P.light, ambient: P.amb, background: () => P.table, overlay: drawOverlay, get shadowColor() { return P.shadow; } });
-  const bikes: DioramaObject[] = [], hubs: DioramaObject[][] = [], riders: DioramaObject[] = [], torsos: DioramaObject[] = [], tails: DioramaObject[] = [];
-  let thrown: DioramaObject;
+  const rigs: Rig[] = [], hubs: DioramaObject[][] = [];
   const nbs: DioramaObject[] = [], arms: DioramaObject[] = [], sprHeads: DioramaObject[] = [];
-  let dog: DioramaObject, dogTail: DioramaObject, dust: DioramaPoints, spark: DioramaPoints, water: DioramaPoints, splash: DioramaPoints;
-  const DV = new Float64Array(DUST * 5), SV = new Float64Array(SPARK * 5), PV = new Float64Array(SPLASH * 5);
+  let dog: DioramaObject, dogTail: DioramaObject, dust: Pool, spark: Pool, water: DioramaPoints, splash: Pool;
   const rnd = seeded(20261122);
   let sky: CanvasGradient | null = null;
   const STARS = new Float32Array(90);
@@ -144,7 +154,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
 
   function buildScene() {
     dio.clear();
-    bikes.length = hubs.length = riders.length = torsos.length = tails.length = nbs.length = arms.length = sprHeads.length = 0;
+    rigs.length = hubs.length = nbs.length = arms.length = sprHeads.length = 0;
     dio.setLight(P.light, P.amb);
     dio.cluster("sky", { fixed: -10 });
     dio.cluster("ground", { fixed: -5 });
@@ -160,13 +170,16 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       for (const [a, b, cc, d] of [[x0, z0, x1, z0 + 1], [x0, z1 - 1, x1, z1], [x0, z0, x0 + 1, z1], [x1 - 1, z0, x1, z1]]) G([cc! - a!, CURB + 0.01, d! - b!], [(a! + cc!) / 2, 0, (b! + d!) / 2], P.walk, 4);
     }
     // The outer sidewalks, along the ring's outside edges.
-    G([36.4, CURB + 0.01, 1.2], [0, 0, -11.1], P.walk, 4); G([36.4, CURB + 0.01, 1.2], [0, 0, 11.1], P.walk, 4);
-    G([1.2, CURB + 0.01, 21], [-17.6, 0, 0], P.walk, 4); G([1.2, CURB + 0.01, 21], [17.6, 0, 0], P.walk, 4);
+    G([96.4, CURB + 0.01, 1.2], [0, 0, -11.1], P.walk, 4); G([96.4, CURB + 0.01, 1.2], [0, 0, 11.1], P.walk, 4);
+    G([1.2, CURB + 0.01, 21], [-47.6, 0, 0], P.walk, 4); G([1.2, CURB + 0.01, 21], [47.6, 0, 0], P.walk, 4);
     for (let o = 0; o < ROADS.length; o += 4) G([ROADS[o + 2]! - ROADS[o]!, 0.01, ROADS[o + 3]! - ROADS[o + 1]!], [(ROADS[o]! + ROADS[o + 2]!) / 2, -0.01, (ROADS[o + 1]! + ROADS[o + 3]!) / 2], P.road, 5);
     for (let o = 0; o < DRIVES.length; o += 4) G([DRIVES[o + 2]! - DRIVES[o]!, 0.03, DRIVES[o + 3]! - DRIVES[o + 1]!], [(DRIVES[o]! + DRIVES[o + 2]!) / 2, CURB, (DRIVES[o + 1]! + DRIVES[o + 3]!) / 2], P.drive, 6);
     // Road markings: dashes down the middle of each street, zebra crossings, the bump, the kicker.
-    for (let x = -11; x <= 11; x += 2.2) if (Math.abs(x) > 2.6) for (const z of [-8.5, 8.5]) G([1, 0.01, 0.12], [x, 0.002, z], P.dash, 7, P.night);
-    for (let z = -5; z <= 5; z += 2.2) for (const x of [-15, 15]) G([0.12, 0.01, 1], [x, 0.002, z], P.dash, 7, P.night);
+    for (let x = -41.8; x <= 42; x += 2.2) {
+      const a = Math.abs(x);
+      if (a > 2.6 && (a < 12.4 || a > 17.6)) for (const z of [-8.5, 8.5]) G([1, 0.01, 0.12], [x, 0.002, z], P.dash, 7, P.night);
+    }
+    for (let z = -5; z <= 5; z += 2.2) for (const x of [-45, -15, 15, 45]) G([0.12, 0.01, 1], [x, 0.002, z], P.dash, 7, P.night);
     for (let o = 0; o < CROSS.length; o += 4) {
       const x0 = CROSS[o]!, z0 = CROSS[o + 1]!, x1 = CROSS[o + 2]!, z1 = CROSS[o + 3]!, along = x1 - x0 > z1 - z0;
       for (let k = 0; k < 6; k++) {
@@ -263,84 +276,63 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       nbs.push(nb);
       arms.push(arm);
     }
-    // The bikes (one shown: the ride picked), each with wheels on hubs and the rider.
+    // The rides (one shown: the ride picked). Each is the series' rig (../bikes/rig.ts: bike and
+    // rider, posed from the shared bike); JOLT is its electric dirt bike as it is, VOLT and STUBBY keep
+    // the rig's rider on our own frames and wheels (the rig's bike parts hidden).
     for (let r = 0; r < 3; r++) {
-      const id = "bike" + r, b = dio.add({ id, shape: "group", size: [1.6, 0, 0.5], alpha: r === S[2] ? 1 : 0, tag: { bike: 1 } });
+      const id = "bike" + r, C: RigColors = { ...P.kit, plastic: P.frame[r]!, plastic2: P.accent, jersey: P.jacket, pants: P.pants, helmet: P.helmet, stripe: P.night ? P.accent : P.paper, plate: P.paper, ink: P.ink };
+      const rg = rig(dio, id, C, "e");
+      rg.root.alpha = r === S[2] ? 1 : 0;
+      rigs.push(rg);
+      const hs: DioramaObject[] = [];
+      hubs.push(hs);
+      if (r === 1) continue;
+      for (const pt of rg.parts) {
+        let o: DioramaObject | null = pt;
+        while (o && o !== rg.rider) o = o.parent;
+        if (!o) pt.hidden = true;
+      }
       const bp = (size: number[], pos: number[], color: string, o: { shape?: "box" | "wedge" | "cyl"; rot?: number[]; emissive?: boolean; sides?: number; top?: number } = {}) =>
         dio.add({ shape: o.shape || "box", size, pos, rot: o.rot, sides: o.sides, top: o.top, on: id, color, emissive: o.emissive, pick: false });
       const fr = P.frame[r]!;
       if (r === 0) {
-        // VOLT: an e-bike: a light frame, a battery on the down tube, a rack.
+        // VOLT: an e-bike: a light frame, a battery on the down tube, a crank.
         bp([0.66, 0.06, 0.06], [0.12, 0.2, 0], fr, { rot: [0, 0, -0.08] });
         bp([0.62, 0.13, 0.12], [0.16, -0.12, 0], fr, { rot: [0, 0, 0.62] });
         bp([0.5, 0.09, 0.11], [0.12, -0.1, 0], P.accent, { rot: [0, 0, 0.62], emissive: P.night });
         bp([0.07, 0.48, 0.07], [-0.2, -0.2, 0], fr, { rot: [0, 0, 0.3] });
         bp([0.62, 0.05, 0.05], [-0.32, -0.3, 0.07], fr, { rot: [0, 0, 0.1] });
         bp([0.07, 0.62, 0.07], [0.52, -0.42, 0], P.fork, { rot: [0, 0, -0.32] });
-        bp([0.3, 0.06, 0.14], [-0.24, 0.27, 0], P.seat);
-        bp([0.06, 0.06, 0.62], [0.44, 0.38, 0], P.seat);
+        bp([0.3, 0.06, 0.14], [-0.24, 0.12, 0], P.seat);
+        bp([0.06, 0.06, 0.62], [0.42, 0.3, 0], P.seat);
         bp([0.12, 0.12, 0.08], [0.0, -0.32, 0.12], P.hub, { shape: "cyl", sides: 8, rot: [Math.PI / 2, 0, 0] });
-      } else if (r === 1) {
-        // JOLT: an electric dirt bike: a tall seat and tank, a glowing battery block, plates, fenders.
-        bp([0.86, 0.16, 0.28], [-0.08, 0.12, 0], fr);
-        bp([0.44, 0.3, 0.26], [0.06, -0.18, 0], P.seat);
-        bp([0.42, 0.05, 0.27], [0.06, -0.02, 0], P.accent, { emissive: P.night });
-        bp([0.12, 0.3, 0.32], [0.5, 0.2, 0], fr, { rot: [0, 0, -0.3] });
-        bp([0.44, 0.04, 0.18], [0.62, 0.04, 0], fr, { rot: [0, 0, -0.1] });
-        bp([0.5, 0.05, 0.2], [-0.62, 0.18, 0], fr, { rot: [0, 0, 0.4] });
-        bp([0.07, 0.66, 0.07], [0.55, -0.4, 0.1], P.fork, { rot: [0, 0, -0.3] });
-        bp([0.07, 0.66, 0.07], [0.55, -0.4, -0.1], P.fork, { rot: [0, 0, -0.3] });
-        bp([0.6, 0.06, 0.06], [-0.32, -0.28, 0.09], P.fork, { rot: [0, 0, 0.12] });
-        bp([0.06, 0.06, 0.66], [0.44, 0.42, 0], P.seat);
       } else {
         // STUBBY: a fat-tyre mini: a chunky low body, a long seat, tall bars.
-        bp([0.86, 0.26, 0.4], [-0.02, -0.12, 0], fr);
-        bp([0.86, 0.05, 0.41], [-0.02, -0.02, 0], P.accent, { emissive: P.night });
-        bp([0.56, 0.1, 0.34], [-0.14, 0.14, 0], P.seat);
+        bp([0.86, 0.26, 0.4], [-0.02, -0.16, 0], fr);
+        bp([0.86, 0.05, 0.41], [-0.02, -0.06, 0], P.accent, { emissive: P.night });
+        bp([0.56, 0.1, 0.34], [-0.14, 0.04, 0], P.seat);
         bp([0.08, 0.56, 0.08], [0.48, -0.1, 0], P.fork, { rot: [0, 0, -0.2] });
-        bp([0.06, 0.06, 0.7], [0.5, 0.36, 0], P.seat);
-        bp([0.3, 0.16, 0.36], [0.38, 0.02, 0], fr, { rot: [0, 0, -0.2] });
+        bp([0.06, 0.06, 0.7], [0.42, 0.3, 0], P.seat);
+        bp([0.3, 0.16, 0.36], [0.38, -0.02, 0], fr, { rot: [0, 0, -0.2] });
       }
-      tails.push(bp([0.04, 0.07, 0.14], [-0.66, 0.08, 0], P.tail, { emissive: true }));
+      bp([0.04, 0.07, 0.14], [-0.66, 0.08, 0], P.tail, { emissive: true });
       bp([0.04, 0.08, 0.14], [0.6, 0.3, 0], P.head, { emissive: true });
-      const hs: DioramaObject[] = [];
       for (let i = 0; i < 2; i++) {
         const hub = dio.add({ id: id + "w" + i, shape: "group", size: [0.6, 0, 0.6], on: id, pick: false });
-        const rr = RIDES[r]!.shape.radius!, wide = r === 2 ? 0.3 : r === 1 ? 0.16 : 0.09;
+        const rr = RIDES[r]!.shape.radius!, wide = r === 2 ? 0.3 : 0.09;
         dio.add({ shape: "cyl", sides: 14, size: [rr * 2, wide, rr * 2], pos: [0, 0, -wide / 2], rot: [Math.PI / 2, 0, 0], on: id + "w" + i, color: P.tyre, pick: false });
         dio.add({ shape: "cyl", sides: 8, size: [rr * (r === 0 ? 1.5 : 1.1), 0.02, rr * (r === 0 ? 1.5 : 1.1)], pos: [0, 0, wide / 2 + 0.005], rot: [Math.PI / 2, 0, 0], on: id + "w" + i, color: P.hub, pick: false });
         dio.add({ size: [rr * 1.5, 0.05, 0.03], pos: [0, -0.025, wide / 2 + 0.02], on: id + "w" + i, color: P.night ? P.accent : P.tyre, emissive: P.night, pick: false });
         hs.push(hub);
       }
-      // The rider: legs to the pegs, a torso that leans with the weight shift, arms to the bars, a helmet.
-      const rid = id + "r", rider = dio.add({ id: rid, shape: "group", size: [0.3, 0, 0.3], pos: [-0.12, 0.18, 0], on: id, pick: false });
-      torsos.push(riderParts(rid));
-      bikes.push(b);
-      hubs.push(hs);
-      riders.push(rider);
     }
-    // The rider thrown clear in a crash (the bike's own rider hides).
-    thrown = dio.add({ id: "thrown", shape: "group", size: [0.3, 0, 0.3], alpha: 0, pick: false });
-    riderParts("thrown");
-    dust = dio.points({ cap: DUST, color: P.smoke, layer: 4 });
-    spark = dio.points({ cap: SPARK, color: P.spark, layer: 6 });
+    dust = pool(dio, DUST, P.smoke, 4);
+    spark = pool(dio, SPARK, P.spark, 6);
     water = dio.points({ cap: WATER, color: P.water, layer: 6 });
-    splash = dio.points({ cap: SPLASH, color: P.water, layer: 6 });
+    splash = pool(dio, SPLASH, P.water, 6);
     sky = null;
     pose();
   }
-  /** A rider's parts on group `rid`; returns the torso (it leans). */
-  function riderParts(rid: string) {
-      for (const z of [-0.12, 0.12]) dio.add({ size: [0.36, 0.11, 0.11], pos: [0.08, -0.12, z], rot: [0, 0, -0.5], on: rid, color: P.pants, pick: false }), dio.add({ size: [0.1, 0.36, 0.1], pos: [0.18, -0.46, z], rot: [0, 0, 0.25], on: rid, color: P.pants, pick: false }), dio.add({ size: [0.2, 0.08, 0.12], pos: [0.24, -0.5, z], on: rid, color: P.shoe, pick: false });
-      const tid = rid + "t", torso = dio.add({ id: tid, shape: "group", size: [0.2, 0, 0.3], pos: [0, 0, 0], on: rid, pick: false });
-      dio.add({ size: [0.22, 0.5, 0.32], pos: [0, 0, 0], on: tid, color: P.jacket, pick: false });
-      dio.add({ size: [0.23, 0.06, 0.33], pos: [0, 0.3, 0], on: tid, color: P.night ? P.accent : P.paper, emissive: P.night, pick: false });
-      dio.add({ shape: "cyl", sides: 9, top: 0.8, size: [0.3, 0.3, 0.3], pos: [0.02, 0.52, 0], on: tid, color: P.helmet, pick: false });
-      dio.add({ size: [0.06, 0.1, 0.22], pos: [0.16, 0.6, 0], on: tid, color: P.visor, pick: false });
-      for (const z of [-0.16, 0.16]) dio.add({ size: [0.46, 0.09, 0.09], pos: [0.22, 0.34, z], rot: [0, 0, -0.45], on: tid, color: P.jacket, pick: false });
-      return torso;
-  }
-
   // ---- state ----
   const I = new Float64Array(5), tmp = new Float64Array(3), tmp2 = new Float64Array(3);
   // [0] measure, [1] theme, [2] poster resolution, [3] safe top, [4] safe bottom, [5] drawn once, [6] gamepad on.
@@ -363,31 +355,23 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   }
 
   function pose() {
-    const r = S[2]!, b = bikes[r]!, d = bike.b, tum = d.crashed;
+    const r = S[2]!, d = bike.b, tum = d.crashed;
     // (A group has no faces of its own: alpha 0 hides its parts.)
-    for (let k = 0; k < 3; k++) bikes[k]!.alpha = k === r ? 1 : 0;
-    // The shared bike draws from its centre of mass (it tumbles on its own in a crash).
-    b.pos.set(d.pos);
-    b.rot.set(d.rot);
+    for (let k = 0; k < 3; k++) rigs[k]!.root.alpha = k === r ? 1 : 0;
+    // The rig poses the bike from its centre of mass, the rider's weight and the crash (thrown clear);
+    // seated on the e-bike and the mini, up in the attack position on the dirt bike.
+    rigs[r]!.pose(d, r === 1 ? 0.75 : 0.3);
     const hs = hubs[r]!;
-    for (let i = 0; i < 2; i++) {
-      // Our hubs are front (0) then rear (1); the shared bike's wheels are rear (0) then front (1).
-      const h = hs[i]!, j = 1 - i;
-      h.pos[0] = i ? d.rear : d.front;
-      h.pos[1] = -d.drop + d.comp[j]!;
-      h.pos[2] = 0;
-      h.rot[1] = i === 0 && !tum ? -d.steerAngle : 0;
-      h.rot[2] = -d.spin[j]!;
-    }
-    // The rider's weight: forward and back with the lean (the shared bike's lean is + back), back in a wheelie.
-    const rd = riders[r]!, ln = -d.lean, nose = bike.nose;
-    rd.alpha = tum ? 0 : 1;
-    rd.pos[0] = -0.12 + ln * 0.1;
-    rd.rot[2] = -nose * 0.35;
-    torsos[r]!.rot[2] = -0.45 - ln * 0.3 + nose * 0.25;
-    thrown.alpha = tum ? 1 : 0;
-    if (tum) (thrown.pos[0] = d.rider[0]!), (thrown.pos[1] = d.rider[1]! - 0.3), (thrown.pos[2] = d.rider[2]!), thrown.rot.set(d.riderRot);
-    tails[r]!.color = P.tail;
+    if (hs.length)
+      for (let i = 0; i < 2; i++) {
+        // Our hubs are front (0) then rear (1); the shared bike's wheels are rear (0) then front (1).
+        const h = hs[i]!, j = 1 - i;
+        h.pos[0] = i ? d.rear : d.front;
+        h.pos[1] = -d.drop + d.comp[j]!;
+        h.pos[2] = 0;
+        h.rot[1] = i === 0 && !tum ? -d.steerAngle * 0.6 : 0;
+        h.rot[2] = -d.spin[j]!;
+      }
     // The dog: along its fence; a hop when it barks.
     dog.pos[0] = run.DG[0]!;
     dog.pos[1] = CURB + (run.DG[2]! > 0 ? Math.abs(Math.sin(run.DG[2]! * 10)) * 0.12 : 0);
@@ -408,40 +392,6 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   }
 
   // ---- FX ----
-  function puff(pool: DioramaPoints, VV: Float64Array, cap: number, x: number, y: number, z: number, vx: number, vy: number, vz: number, life: number, r: number, a: number) {
-    let j = pool.n < cap ? pool.n++ : -1;
-    if (j < 0) {
-      let lo = Infinity;
-      for (let i = 0; i < cap; i++) if (VV[i * 5 + 3]! < lo) (lo = VV[i * 5 + 3]!), (j = i);
-    }
-    pool.x[j] = x; pool.y[j] = y; pool.z[j] = z; pool.r[j] = r; pool.a[j] = a;
-    VV[j * 5] = vx; VV[j * 5 + 1] = vy; VV[j * 5 + 2] = vz; VV[j * 5 + 3] = life; VV[j * 5 + 4] = life;
-  }
-  function stepPool(pool: DioramaPoints, VV: Float64Array, dt: number, grav: number, grow: number, a0: number) {
-    let live = 0;
-    for (let i = 0; i < pool.n; i++) {
-      const l = VV[i * 5 + 3]!;
-      if (l <= 0) continue;
-      const nl = l - dt;
-      VV[i * 5 + 3] = nl;
-      VV[i * 5 + 1] = VV[i * 5 + 1]! - grav * dt;
-      pool.x[i] = pool.x[i]! + VV[i * 5]! * dt;
-      pool.y[i] = Math.max(0.1, pool.y[i]! + VV[i * 5 + 1]! * dt);
-      pool.z[i] = pool.z[i]! + VV[i * 5 + 2]! * dt;
-      VV[i * 5] = VV[i * 5]! * (1 - 1.6 * dt);
-      VV[i * 5 + 2] = VV[i * 5 + 2]! * (1 - 1.6 * dt);
-      pool.r[i] = pool.r[i]! + grow * dt;
-      pool.a[i] = nl > 0 ? a0 * (nl / VV[i * 5 + 4]!) : 0;
-      if (nl > 0) live++;
-    }
-    return live > 0;
-  }
-  function burst(pool: DioramaPoints, VV: Float64Array, cap: number, x: number, y: number, z: number, n: number, sp: number, r: number) {
-    for (let k = 0; k < n; k++) {
-      const a = rnd() * TAU, u = 0.4 + rnd();
-      puff(pool, VV, cap, x, y, z, Math.cos(a) * sp * u, 2 + rnd() * sp, Math.sin(a) * sp * u, 0.45 + rnd() * 0.5, r, 1);
-    }
-  }
   function stepFx(dt: number) {
     const d = bike.b, v = bike.vel, ph = S[0]!;
     // Tyre smoke off the back wheel: on the gas in a wheelie, or spinning up from a stop.
@@ -450,7 +400,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       emitK += k * 28 * dt;
       while (emitK >= 1) {
         emitK -= 1;
-        puff(dust, DV, DUST, w[0]! + (rnd() - 0.5) * 0.2, w[1]! - 0.2, w[2]! + (rnd() - 0.5) * 0.2, -v[0]! * 0.2 + (rnd() - 0.5) * 0.6, 0.4 + rnd() * 0.5, -v[2]! * 0.2 + (rnd() - 0.5) * 0.6, 0.6 + rnd() * 0.4, 0.1, 0.45);
+        dust.puff(w[0]! + (rnd() - 0.5) * 0.2, w[1]! - 0.2, w[2]! + (rnd() - 0.5) * 0.2, -v[0]! * 0.2 + (rnd() - 0.5) * 0.6, 0.4 + rnd() * 0.5, -v[2]! * 0.2 + (rnd() - 0.5) * 0.6, 0.6 + rnd() * 0.4, 0.1, 0.45);
       }
     }
     // Sprinkler water: each head throws an arc of drops along its aim.
@@ -470,14 +420,14 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         }
       }
     }
-    let any = stepPool(dust, DV, dt, -0.3, 0.3, 0.45);
-    if (stepPool(spark, SV, dt, 14, -0.05, 1)) any = true;
-    if (stepPool(splash, PV, dt, 9, -0.02, 0.9)) any = true;
+    let any = dust.step(dt, -0.3, 0.3, 0.45);
+    if (spark.step(dt, 14, -0.05, 1)) any = true;
+    if (splash.step(dt, 9, -0.02, 0.9)) any = true;
     return any || on;
   }
 
   // ---- events: stickers, sound, FX ----
-  const TRICK = ["", "WHEELIE", "MANUAL", "HOP"];
+  const TRICK = ["", "WHEELIE", "MANUAL", "HOP", "STOPPIE"];
   function events() {
     const d = bike.b;
     for (let k = 0; k < run.n; k++) {
@@ -487,13 +437,14 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       else if (type === E_TRICK) {
         engine.events.emit("trick");
         const kind = sc[KIND]!, bonus = sc[16]!;
-        toast(`${TRICK[kind]} ${sc[DIST]!.toFixed(1)} m · ${sc[TIME]!.toFixed(1)}s${sc[SWEET]! > 0.3 ? ` · SWEET ${sc[SWEET]!.toFixed(1)}s` : ""}${bonus ? " · BONUS" : ""} +${sc[PTS]!.toLocaleString("en-US")}${sc[CB]! > 0 ? ` ×${1 + sc[CB]!}` : ""}`, kind === MANUAL ? "clean" : "go");
+        if (kind === STOPPIE) toast(`STOPPIE +${sc[PTS]!.toLocaleString("en-US")}${sc[CB]! > 0 ? ` ×${1 + sc[CB]!}` : ""}`, "meh");
+        else toast(`${TRICK[kind]} ${sc[DIST]!.toFixed(1)} m · ${sc[TIME]!.toFixed(1)}s${sc[SWEET]! > 0.3 ? ` · SWEET ${sc[SWEET]!.toFixed(1)}s` : ""}${bonus ? " · BONUS" : ""} +${sc[PTS]!.toLocaleString("en-US")}${sc[CB]! > 0 ? ` ×${1 + sc[CB]!}` : ""}`, kind === MANUAL ? "clean" : "go");
         say(`${TRICK[kind]}, ${sc[PTS]} points`);
         void val;
       } else if (type === E_HOP) {
         engine.events.emit("hop");
         toast(`HOP +${sc[PTS]}${sc[CB]! > 0 ? ` ×${1 + sc[CB]!}` : ""}`, "meh");
-        burst(dust, DV, DUST, d.pos[0]!, d.pos[1]! - 0.4, d.pos[2]!, 6, 1.4, 0.16);
+        dust.ring(rnd, d.pos[0]!, d.pos[1]! - 0.4, d.pos[2]!, 6, 1.4, 1.5, 0.7, 0.16, 0.6);
       } else if (type === E_AIR) {
         // (nothing to call yet: the landing says it)
       } else if (type === E_CRASH) {
@@ -501,17 +452,11 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         crashes++;
         crashT = 0;
         shake = 0.45;
-        burst(spark, SV, SPARK, d.pos[0]!, d.pos[1]!, d.pos[2]!, 22, 4, 0.06);
-        burst(dust, DV, DUST, d.pos[0]!, d.pos[1]! - 0.3, d.pos[2]!, 12, 2, 0.2);
-        const what = val === LOOP ? "LOOPED OUT!" : val === ENDO ? "OVER THE BARS!" : val === CASE ? "CASED IT!" : val === BAIL ? "BAILED!" : "BOTTOMED OUT!";
+        spark.ring(rnd, d.pos[0]!, d.pos[1]!, d.pos[2]!, 22, 4, 4, 0.7, 0.06, 1);
+        dust.ring(rnd, d.pos[0]!, d.pos[1]! - 0.3, d.pos[2]!, 12, 2, 1.5, 0.8, 0.2, 0.6);
+        const what = val === LOOP ? "LOOPED OUT!" : val === ENDO ? "OVER THE BARS!" : val === CASE ? "CASED IT!" : val === BAIL ? "BAILED!" : "BONK!";
         toast(what, "bad");
         say(what);
-      } else if (type === E_BONK) {
-        shake = 0.3;
-        burst(spark, SV, SPARK, d.pos[0]!, d.pos[1]!, d.pos[2]!, 10, 3, 0.05);
-        toast("BONK!", "bad");
-        say("Bonk");
-        engine.events.emit("crash");
       } else if (type === E_RESPAWN) {
         engine.events.emit("respawn");
       } else if (type === E_GRUMP) {
@@ -527,7 +472,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         BW[NN] = ctx.measureText("WOOF!").width;
       } else if (type === E_SPLASH) {
         engine.events.emit("splash");
-        burst(splash, PV, SPLASH, d.pos[0]!, d.pos[1]! + 0.4, d.pos[2]!, 14, 2.2, 0.05);
+        splash.ring(rnd, d.pos[0]!, d.pos[1]! + 0.4, d.pos[2]!, 14, 2.2, 3, 0.6, 0.05, 0.9);
       } else if (type === E_BONUS) {
         engine.events.emit("bonus");
         toast(val === F_CROSS ? "CROSSWALK WHEELIE!" : val === F_SPRINK ? "SPRINKLER RUN!" : "GRUMPY BONUS!", "meh");
@@ -587,7 +532,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     card.hidden = true;
     crashes = 0;
     shake = crashT = 0;
-    dust.n = spark.n = splash.n = water.n = 0;
+    dust.clear(), spark.clear(), splash.clear(), (water.n = 0);
     TF.fill(0);
     setView(0);
     was.fill(-1);
@@ -604,6 +549,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   }
   function pick(i: number) {
     restart(i);
+    vox.use(RIDES[i]!.power);
     garage.hidden = true;
     for (let k = 0; k < 3; k++) rideBtns[k]!.setAttribute("aria-pressed", "" + (k === i));
     toast(`${RIDES[i]!.name} · ${RIDES[i]!.kind}`, "go");
@@ -615,8 +561,9 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   function frameTable() {
     const pts = [-HX - 0.4, -1.1, -HZ - 0.4, HX + 0.4, -1.1, -HZ - 0.4, -HX - 0.4, -1.1, HZ + 0.4, HX + 0.4, -1.1, HZ + 0.4, -HX, 2.4, -HZ, HX, 2.4, -HZ, 5.4, 4.5, -2.3];
     const W = dio.width, H = dio.height, tall = H / W > 0.75;
-    TABLE.yaw = tall ? -0.55 : 0;
-    TABLE.pitch = tall ? 0.98 : 0.86;
+    // The town is a long strip: across a wide stage, up and down a tall one.
+    TABLE.yaw = tall ? -Math.PI / 2 : 0;
+    TABLE.pitch = tall ? 1.0 : 0.98;
     TABLE.dist = 40;
     TABLE.tx = TABLE.ty = TABLE.ox = TABLE.oy = 0;
     TABLE.tz = 0.6;
@@ -702,7 +649,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       const x0 = BLOCKS[o]!, z0 = BLOCKS[o + 1]!, x1 = BLOCKS[o + 2]!, z1 = BLOCKS[o + 3]!;
       seg(ctx, x0, y, z0, x1, y, z0); seg(ctx, x1, y, z0, x1, y, z1); seg(ctx, x1, y, z1, x0, y, z1); seg(ctx, x0, y, z1, x0, y, z0);
     }
-    seg(ctx, -17, y, -10.5, 17, y, -10.5); seg(ctx, 17, y, -10.5, 17, y, 10.5); seg(ctx, 17, y, 10.5, -17, y, 10.5); seg(ctx, -17, y, 10.5, -17, y, -10.5);
+    seg(ctx, -47, y, -10.5, 47, y, -10.5); seg(ctx, 47, y, -10.5, 47, y, 10.5); seg(ctx, 47, y, 10.5, -47, y, 10.5); seg(ctx, -47, y, 10.5, -47, y, -10.5);
     ctx.stroke();
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
@@ -830,20 +777,8 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   }
 
   // ---- the loop ----
-  const PAD = new Float64Array(5);
-  function readPad() {
-    PAD.fill(0);
-    if (!V[6]) return;
-    const gp = navigator.getGamepads ? navigator.getGamepads()[0] : null;
-    if (!gp) return;
-    const ax = gp.axes, bt = gp.buttons, dz = (v: number) => (Math.abs(v) < 0.18 ? 0 : v);
-    PAD[0] = bt[7] ? bt[7].value : 0;
-    PAD[1] = bt[6] ? bt[6].value : 0;
-    PAD[2] = -dz(ax[1] || 0);
-    PAD[3] = dz(ax[0] || 0);
-    PAD[4] = bt[0] && bt[0].pressed ? 1 : 0;
-    if (PAD[0] || PAD[1] || PAD[2] || PAD[3] || PAD[4]) auto = false;
-  }
+  // The gamepad (../bikes/kit.ts): [stick x, stick y, gas, brake, trick (our hop), start].
+  const GP = new Float64Array(6);
   engine.add({
     read() {
       if (V[1]) {
@@ -862,7 +797,8 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         if (!view) Object.assign(dio.cam, TABLE);
         hudDirty = dirty = true;
       }
-      readPad();
+      if (V[6] && !gamepad(GP)) GP.fill(0);
+      if (V[6] && (GP[0] || GP[1] || GP[2] || GP[3] || GP[4])) auto = false;
       if (first && V[5]) (first = null), (garage.hidden ? play : rideBtns[S[2]!]!).focus({ preventScroll: true });
     },
     step(e, dt) {
@@ -870,11 +806,11 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       if (auto) run.autopilot(I);
       else {
         const stick = c.stick.active;
-        I[0] = Math.max(c.down(GAS) ? 1 : 0, PAD[0]!);
-        I[1] = Math.max(c.down(BRAKE) ? 1 : 0, PAD[1]!);
-        I[2] = PAD[2] || (stick ? -c.stick.y : c.axis("back", "fwd"));
-        I[3] = PAD[3] || (stick ? c.stick.x : c.axis("left", "right"));
-        I[4] = c.hit(HOPK) || PAD[4] ? 1 : 0;
+        I[0] = Math.max(c.down(GAS) ? 1 : 0, GP[2]!);
+        I[1] = Math.max(c.down(BRAKE) ? 1 : 0, GP[3]!);
+        I[2] = -GP[1]! || (stick ? -c.stick.y : c.axis("back", "fwd"));
+        I[3] = GP[0]! || (stick ? c.stick.x : c.axis("left", "right"));
+        I[4] = c.hit(HOPK) || GP[4]! > 0.5 ? 1 : 0;
       }
       if (!card.hidden || !garage.hidden) I[0] = I[1] = I[2] = I[3] = I[4] = 0;
       let moving = run.step(dt, I[0]!, I[1]!, I[2]!, I[3]!, I[4]!);
@@ -895,14 +831,18 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       const cam = dio.cam, k = shake * shake * 10, sx = Math.sin(engine.time * 71) * k, sy = Math.cos(engine.time * 53) * k * 0.7;
       (cam.ox += sx), (cam.oy += sy);
       dio.draw();
+      vox.set(bike.b.rpm, bike.b.throttle, S[0] === RUN && snd.on);
       (cam.ox -= sx), (cam.oy -= sy), (V[5] = 1);
     },
   });
 
   // ---- input: keys on the stage, hold-to-gas on the play surface, the stickers and the garage ----
   const MAP: Record<string, string> = { ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right", ArrowUp: "fwd", KeyW: "fwd", ArrowDown: "back", KeyS: "back", Space: "gas", KeyJ: "gas", KeyK: "brake", ShiftLeft: "brake", ShiftRight: "brake", KeyL: "hop" };
+  const wake = () => vox.wake(RIDES[S[2]!]!.power);
+  stage.addEventListener("pointerdown", wake, sig);
   stage.addEventListener("keydown", (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    wake();
     if (!garage.hidden) {
       const n = e.code === "Digit1" ? 0 : e.code === "Digit2" ? 1 : e.code === "Digit3" ? 2 : -1;
       if (n >= 0) return void (e.preventDefault(), pick(n));

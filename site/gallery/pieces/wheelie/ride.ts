@@ -4,7 +4,7 @@
 // jump of its own: brick candidate), lean as "+1 forward" like the rest of the piece, a velocity
 // for the chase camera, and a bump off a wall (speed along the heading turned back). Zero
 // allocation per step. Once at rest it stays parked until the rider does something.
-import { bike, E_BIKE, E_MOTO, type Bike, type BikeGround, type BikeShape, type Power } from "../bikes/bike";
+import { bike, E_BIKE, E_MOTO, STRIKE, type Bike, type BikeGround, type BikeShape, type Power } from "../bikes/bike";
 
 /** A fat-tyre mini e-moto: low and heavy, a soft pull, slow to rotate (long, steady manuals). */
 export const E_MINI: Power = {
@@ -14,9 +14,10 @@ export const E_MINI: Power = {
   airPitch: 5.5, grip: 1.28, brake: 18, voice: [150, 520, "triangle"],
 };
 
-/** VOLT: the shared pedal-assist e-bike with a two-speed hub, so the assist does not cut out
- *  mid-wheelie at its top speed. */
-export const E_BIKE_2: Power = { ...E_BIKE, gears: [6.2, 10.5], up: 0.93, down: 0.55 };
+/** VOLT: the shared pedal-assist e-bike with a three-speed hub and a little more assist, a touch
+ *  slower to rotate: on the single speed the assist cut out at the limiter (9 u/s) mid-wheelie and
+ *  gave nothing to hold a wheelie with at street speed. */
+export const E_BIKE_2: Power = { ...E_BIKE, gears: [5.8, 8.8, 12], up: 0.85, down: 0.5, gyr: 0.62, force: 12 };
 
 /** One ride: what the garage says, the engine, the chassis, the sweet spot, the hop. */
 export interface RideSpec {
@@ -61,10 +62,13 @@ export function ride(ground: BikeGround) {
     return moving || hopT > 0;
   }
   /** Bump off a wall with outward normal (nx, nz): the speed into it turned back. Returns the speed it hit at. */
-  function wall(nx: number, nz: number) {
+  function wall(nx: number, nz: number, hard: number) {
     const into = -(vel[0]! * nx + vel[2]! * nz);
     if (into <= 0) return 0;
-    k.S[5] = -k.S[5]! * 0.25;
+    // Hard: the shared bike's own crash (the frame hits it); soft: it bounces back (the shared bike
+    // has no bump of its own, so the speed along the heading, S[5], turns back).
+    if (into > hard && !k.crashed) k.knock(STRIKE);
+    else k.S[5] = -k.S[5]! * 0.25;
     bonk = into;
     return into;
   }
