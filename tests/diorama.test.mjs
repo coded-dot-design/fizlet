@@ -183,25 +183,32 @@ test("diorama: `behind`: a wheel draws over the body on the near side, under it 
   const span = (style) => { const i = p.fills.map((f, k) => (f.style === style ? k : -1)).filter((k) => k >= 0); return [Math.min(...i), Math.max(...i)]; };
   const car = d.get("car");
   let checked = 0;
-  for (let h = 0; h < 16; h++)
-    for (const yaw of [0, 0.7, 2, 3.5, 5]) {
-      Object.assign(d.cam, { yaw, pitch: 0.45, dist: 12, tx: 0, ty: 0, tz: 0, ox: 0, oy: 0, fov: 0.8 });
-      const a = (car.rot[1] = (h / 16) * Math.PI * 2);
-      car.rot[2] = h % 3 ? 0.2 : 0; // pitched too (a turn about the car's own z leaves x, z across it level)
-      d.draw(); p.reset(); d.draw();
-      const r = span(FULL["#ff0000"]), fx = -Math.sin(yaw), fz = -Math.cos(yaw);
-      for (const [x, z, , style] of W) {
-        // The wheel's place across the car, turned with it (y, then z: x tips with the pitch), on the camera's forward.
-        const c2 = Math.cos(car.rot[2]), wx = Math.cos(a) * x * c2 + Math.sin(a) * z, wz = -Math.sin(a) * x * c2 + Math.cos(a) * z;
-        const dz = wx * fx * Math.cos(0.45) + wz * fz * Math.cos(0.45) - Math.sin(car.rot[2]) * x * Math.sin(0.45);
-        if (Math.abs(dz) < 0.05) continue; // side on to the camera: either order is right
-        const s = span(style);
-        if (s[1] < 0) continue;
-        checked++;
-        if (dz > 0) assert.ok(s[1] < r[0], `heading ${h} yaw ${yaw} wheel ${x},${z}: a far wheel before the body`);
-        else assert.ok(s[0] > r[1], `heading ${h} yaw ${yaw} wheel ${x},${z}: a near wheel after the body`);
+  let differ = 0;
+  for (const [cx, cz, dist] of [[0, 0, 12], [4, -3, 7]]) // centred, and off to one side of a close camera
+    for (let h = 0; h < 16; h++)
+      for (const yaw of [0, 0.7, 2, 3.5, 5]) {
+        Object.assign(d.cam, { yaw, pitch: 0.45, dist, tx: 0, ty: 0, tz: 0, ox: 0, oy: 0, fov: 0.8 });
+        car.pos[0] = cx; car.pos[2] = cz;
+        const a = (car.rot[1] = (h / 16) * Math.PI * 2);
+        car.rot[2] = h % 3 ? 0.2 : 0; // pitched too (a turn about the car's own z leaves x, z across it level)
+        d.draw(); p.reset(); d.draw();
+        const r = span(FULL["#ff0000"]), cp = Math.cos(0.45), sp = Math.sin(0.45);
+        // The ray from the eye to the car, and the camera's forward axis.
+        const rx = cx - dist * Math.sin(yaw) * cp, ry = -dist * sp, rz = cz - dist * Math.cos(yaw) * cp, rl = Math.sqrt(rx * rx + ry * ry + rz * rz);
+        for (const [x, z, , style] of W) {
+          // The wheel's place across the car, turned with it (y, then z: x tips with the pitch).
+          const c2 = Math.cos(car.rot[2]), wx = Math.cos(a) * x * c2 + Math.sin(a) * z, wy = Math.sin(car.rot[2]) * x, wz = -Math.sin(a) * x * c2 + Math.cos(a) * z;
+          const dz = (wx * rx + wy * ry + wz * rz) / rl, axis = -wx * Math.sin(yaw) * cp - wy * sp - wz * Math.cos(yaw) * cp;
+          if (Math.abs(dz) < 0.05) continue; // side on to the eye: either order is right
+          if (dz > 0 !== axis > 0) differ++;
+          const s = span(style);
+          if (s[1] < 0) continue;
+          checked++;
+          if (dz > 0) assert.ok(s[1] < r[0], `at ${cx},${cz} heading ${h} yaw ${yaw} wheel ${x},${z}: a far wheel before the body`);
+          else assert.ok(s[0] > r[1], `at ${cx},${cz} heading ${h} yaw ${yaw} wheel ${x},${z}: a near wheel after the body`);
+        }
       }
-    }
+  assert.ok(differ > 0, "off the middle, the ray and the camera's axis disagree on some wheels (the ray wins)");
   assert.ok(checked > 200, `checked ${checked}`);
   // Off (0, the default): every wheel draws on its own layer over the body again.
   for (const hb of hubs) hb.behind = 0;
