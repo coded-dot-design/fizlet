@@ -126,7 +126,7 @@ export const ROADMAP = [
   ] },
   { id: "E17", name: "Tabletop", status: "in progress", note: "0.22.0", goal: "A game tier beside Board: diorama 3D games on a plain 2D canvas, no WebGL and no libraries, built from a family of 3D bricks.", items: [
     [1, "diorama: the 3D renderer on a plain 2D canvas, EXPERIMENTAL in 0.22.0", "E17.diorama"],
-    [1, "dice · track · water · props · beam · cards · flick · terrain · drive, EXPERIMENTAL in 0.22.0; drive drift, spin-outs and car contact, terrain berm run-out in 0.23.0", "E17.bricks"],
+    [1, "dice · track · water · props · beam · cards · flick · terrain · drive, EXPERIMENTAL in 0.22.0; drive drift, spin-outs and car contact, terrain berm run-out in 0.23.0; drive long-travel suspension in 0.24.0", "E17.bricks"],
     [1, "Salvo Bay: the first diorama piece, on diorama", "E17.salvo-bay"],
     [1, "Daily: a Hi-Fi lane for pieces over the micro cap, with its own weekly winner; 0.23.0 adds eleven, with new Mazes and Bar games themes", "E17.hifi"],
     [0, "Salvo Bay online for two, on presence", "E17.salvo-online"],
