@@ -1,4 +1,5 @@
 {
+  "no": 123,
   "id": "moon-rover",
   "date": "2026-11-23",
   "prompt": "a little lunar rover on a small round moon that turns under it as it drives: the rover stays at the top of the picture, the planet rolls beneath it and the horizon curves away; light eight beacons round the whole moon for a lap; crystals, crates, rocks, craters and ramps all over; on the light side friendly aliens by their domes wave, beep and hand you a boost, crystals or a shield; past the terminator little ships chase you in the dark and you shoot them down",
@@ -24,5 +25,6 @@
   "export": "mount",
   "aspect": "16 / 9",
   "phone": "4 / 5",
-  "stage": "own"
+  "stage": "own",
+  "approved": "2026-11-23"
 }
