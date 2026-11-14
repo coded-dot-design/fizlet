@@ -96,9 +96,9 @@ export function prof(s: number) {
       // Up a tall face, a hump in the gap (the middle jump of the three), then the landing face and its long down ramp.
       if (d < 3.2) return void (PF[0] = 1.45 * (d / 3.2) ** 1.25);
       if (d < 3.8) return void (PF[0] = 1.45 - 1.05 * sm((d - 3.2) / 0.6));
-      if (d < 7.4) return void (PF[0] = 0.4 + 0.4 * Math.sin(((d - 3.8) / 3.6) * Math.PI));
-      if (d < 8.5) return void (PF[0] = 0.4 + sm((d - 7.4) / 1.1));
-      if (d < 13) return void (PF[0] = 1.4 * (1 - sm((d - 8.5) / 4.5)));
+      if (d < 6.9) return void (PF[0] = 0.4 + 0.35 * Math.sin(((d - 3.8) / 3.1) * Math.PI));
+      if (d < 8) return void (PF[0] = 0.4 + sm((d - 6.9) / 1.1));
+      if (d < 12.6) return void (PF[0] = 1.4 * (1 - sm((d - 8) / 4.6)));
       continue;
     }
     if (kind === F_TABLE) {

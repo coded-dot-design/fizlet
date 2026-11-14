@@ -378,7 +378,7 @@ export function bike(ground: BikeGround, power: Power, shape: BikeShape = {}) {
     if (nc) {
       tq += lean * MK[0]! * 2.6;
       if (contact[0] !== contact[1]) w -= w * 3.2 * h + (contact[0] ? br * 20 * h : 0);
-    } else w += (lean * MK[12]! + thr * 0.9 - br * 2.4) * h - w * 0.35 * h;
+    } else w += (lean * MK[12]! + thr * 0.9 - br * 2.4) * h - w * 0.8 * h;
     // Air drag and the speed: forward along the heading, heave, pitch.
     Ff -= 0.0035 * MK[0]! * vf * avf;
     vf += (Ff / MK[0]!) * h;
@@ -412,7 +412,8 @@ export function bike(ground: BikeGround, power: Power, shape: BikeShape = {}) {
     S[BP] = bpa;
     S[BAL] = rel / bpa;
     if (!nc) {
-      if (!F[1]) (F[1] = 1), (S[ASPIN] = 0);
+      // Take-off: the rider soaks most of the kick the lip gives the bike (time to set up the air).
+      if (!F[1]) (F[1] = 1), (S[ASPIN] = 0), (w *= 0.4);
       if (S[AIR]! < 0.1 && S[AIR]! + h >= 0.1) emit(B_AIR, 0);
       S[AIR] = S[AIR]! + h;
       S[ASPIN] = S[ASPIN]! + w * h;
