@@ -34,6 +34,8 @@
  *   can spin out a drifting car it rams.
  * - `chase(cam, target, opts, dt)` eases a diorama camera behind and above anything with `pos` and
  *   `yaw` (cosmetic: it uses the builtin maths; pass `snap` for reduced motion).
+ * - Rollback: `state` is every byte the model carries from step to step (one buffer); `save(dst)` and
+ *   `load(src)` copy it out and back, so a game can rewind and replay a car bit for bit.
  * Zero allocation per step, also with several vehicles in one process (typed arrays; locals; one class
  * for every vehicle, its model in module functions, so a loop over cars keeps one call target). Speeds
  * are world units per second, angles radians.
@@ -148,10 +150,13 @@ function atan(s: number) {
  *  take it (one call target for every vehicle: per-vehicle closures made a loop over several cars
  *  deoptimise on "wrong call target" and box doubles, 10 to 15 young GCs per 200,000 rounds of 4 cars). */
 class Ride {
-  /** @internal The model's state (see `S` below). */
-  _s = new Float64Array(25);
+  /** Everything the model carries from one step to the next (and its read-outs), as bytes over one
+   *  buffer: copy it out and back in to roll back and replay bit for bit (`save` / `load`). */
+  state: Uint8Array;
+  /** @internal The model's state (see `S` below), first in `state`'s buffer. */
+  _s: Float64Array;
   /** @internal Flags: crashed, air, rest. */
-  _f = new Uint8Array(3);
+  _f: Uint8Array;
   /** @internal The options, resolved (see `P` below). */
   _p = new Float64Array(35);
   /** @internal Scratch: slope (pitch, roll), substep; trig; spring sums; one ground sample. */
@@ -171,13 +176,13 @@ class Ride {
   _raw: Float64Array;
   _sr: Float64Array;
   /** World velocity. */
-  vel = new Float64Array(3);
+  vel: Float64Array;
   /** Inputs, each step: [throttle 0..1, brake 0..1 (reverse at a stop), steer −1..1 (+1 right), drift (handbrake) 0..1]. */
-  input = new Float64Array(4);
+  input: Float64Array;
   /** The body's origin (at the spring tops), world. */
-  pos = new Float64Array(3);
+  pos: Float64Array;
   /** Body rotation in diorama's order, [roll about x, yaw about y, pitch about z (nose up +)]. */
-  rot = new Float64Array(3);
+  rot: Float64Array;
   /** Wheel offsets [forward, right, …] as given. */
   wheels: Float64Array;
   /** Per wheel: spring compression, 0..travel (the wheel centre sits rest − comp under the body origin). */
@@ -206,8 +211,16 @@ class Ride {
     const w0 = o.stiffness ? Math.sqrt(o.stiffness) : TAU * (o.hz ?? 2.2), k = o.stiffness || w0 * w0, z = o.damping ?? 0.75, prog = o.progressive ?? 0;
     this._g = ground; this._ev = o.events; this._n = n; this._bike = bike ? 1 : 0; this._surf = o.surfaces || [];
     this.wheels = W; this.radius = R; this.rest = rest; this.travel = travel; this.mass = o.mass ?? (bike ? 0.5 : 1);
-    this.comp = new Float64Array(n); this.press = new Float64Array(n); this.spin = new Float64Array(n); this.contact = new Uint8Array(n); this.wheel = new Float64Array(n * 3);
-    this._gh = new Float64Array(n); this._raw = new Float64Array(n); this._sr = new Float64Array(n); this._drv = new Uint8Array(n);
+    // The state: one buffer, the doubles first (S at 0: a game may read it as a Float64Array), then the
+    // flags and contacts, padded to whole doubles.
+    const nd = 38 + 8 * n, buf = new ArrayBuffer(nd * 8 + (((3 + n + 7) >> 3) << 3));
+    let at = 0;
+    const f = (k: number) => ((at += k), new Float64Array(buf, (at - k) * 8, k));
+    this._s = f(25); this.vel = f(3); this.input = f(4); this.pos = f(3); this.rot = f(3);
+    this.comp = f(n); this.press = f(n); this.spin = f(n); this.wheel = f(n * 3); this._raw = f(n); this._sr = f(n);
+    this._f = new Uint8Array(buf, nd * 8, 3); this.contact = new Uint8Array(buf, nd * 8 + 3, n);
+    this.state = new Uint8Array(buf);
+    this._gh = new Float64Array(n); this._drv = new Uint8Array(n);
     this.landing = this._s.subarray(11, 13);
     // Pitch and roll inertia per unit mass matched to the springs (same bounce as heave), times `inertia`; wheelbase.
     let ip = 0, ir = 0, fmax = -Infinity, fmin = Infinity, side = 0, nDrv = 0;
@@ -231,6 +244,14 @@ class Ride {
       o.crashPitch ?? (bike ? 0.65 : 1), o.crashRoll ?? 1.1, o.crashDrop ?? 30, o.swing ?? 1, o.slide ?? 0.8, o.recover ?? 0.35,
       ip, ir, fmax - fmin || 1, sag, o.bump ?? 10, prog, o.droop ?? Infinity, o.substeps ?? 2, o.id ?? 0, nDrv]);
     this.reset(0, 0, 0);
+  }
+  /** Copy the whole state into `dst` (at least `state.length` bytes); allocates nothing. */
+  save(dst: Uint8Array) {
+    dst.set(this.state);
+  }
+  /** Put back a state `save` copied (from this vehicle or one made with the same options); allocates nothing. */
+  load(src: Uint8Array) {
+    this.state.set(src.length === this.state.length ? src : src.subarray(0, this.state.length));
   }
   /** Set the inputs (the same as writing `input`). */
   set(throttle: number, brake: number, steer: number, drift = 0) {

@@ -549,3 +549,28 @@ test("drive: a car comes to rest with a wheel hanging (over a dip, teetering) in
   assert.equal(woke, 0, "it stays asleep");
   assert.deepEqual(Array.from(v.pos), Array.from(p), "exactly put");
 });
+
+test("drive: state, save and load: roll back and replay bit for bit (a car and a bike; into a twin); no allocation", async () => {
+  const g = terrain({ cols: 128, rows: 128, cell: 0.5 });
+  g.noise({ seed: 9, amp: 1.4, scale: 7 }); g.ramp([-4, 0], [2, 0], { height: 1.3 }); g.whoops([4, 4], [16, 4], { height: 0.3, width: 4 });
+  const input = (v, i) => v.set(i % 300 < 260 ? 0.9 : 0, i % 300 >= 260 ? 0.7 : 0, Math.sin(i / 23) * 0.9, i % 120 < 30 ? 1 : 0);
+  for (const kind of ["car", "bike"]) {
+    const o = { kind, ...LONG, droop: 3 }, v = drive(g, o), twin = drive(g, o);
+    assert.equal(v.state.length % 8, 0, "whole doubles");
+    assert.equal(v.state.buffer, v.landing.buffer, "one buffer: the read-outs are views into it");
+    v.reset(-20, 0, 0.2);
+    for (let i = 0; i < 200; i++) input(v, i), v.step(DT);
+    const snap = new Uint8Array(v.state.length);
+    v.save(snap);
+    const run = (car) => { const out = []; for (let i = 200; i < 500; i++) input(car, i), car.step(DT), out.push(Buffer.from(car.state)); return Buffer.concat(out); };
+    const first = run(v);
+    v.load(snap);
+    assert.deepEqual(Buffer.from(v.state), Buffer.from(snap), `${kind}: loaded`);
+    assert.ok(run(v).equals(first), `${kind}: step, save, step 300, load, step 300 again: the same bytes`);
+    twin.load(snap);
+    assert.ok(run(twin).equals(first), `${kind}: loaded into a twin made with the same options: the same bytes`);
+  }
+  const v = drive(g), buf = new Uint8Array(v.state.length);
+  const n = await minorGCs(() => { for (let i = 0; i < 200000; i++) v.save(buf), v.load(buf); });
+  assert.ok(n <= 1, `save + load: ${n} young GCs over 200,000`);
+});
