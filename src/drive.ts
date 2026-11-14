@@ -14,9 +14,22 @@
  * - Outputs for drawing: `pos` and `rot` (diorama's order: [roll, yaw, pitch]) for the body, per
  *   wheel `comp` (how far its spring is pushed in), `spin` (radians) and `contact`, the front wheels'
  *   `steerAngle`, and `dust` (0..1: how hard the tyres throw dirt, spray or sand) for an emitter.
+ * - Drift: the handbrake input lets the rear go (the grip drops to `drift`, the tail swings out by
+ *   `swing`, the slide is held under `slide` radians and counter-steer catches it; letting go hands
+ *   `recover` of the sideways speed back as forward speed). `drift` (0..1) says how hard it is
+ *   drifting right now, `slide` the body's angle to its travel, `chain` the drift score so far
+ *   (∫ drift dt); a chain that ends banks as `drive:drift` (v: its score; b: 1 when a crash or a
+ *   spin-out broke it). `spinOut(rate, secs)` spins it round with no control for a moment.
+ * - Contact between vehicles: `touch(a, b, opts)` (or `touchAll(list, opts)`, every pair in order)
+ *   pushes two hulls apart (a box from `hull` [half length, half width], or a circle: one radius) by
+ *   their `mass` and bounces their velocities along the contact normal; `onHit(a, b, hit)` gets the
+ *   impulse in `hit` (`touchHit`: [impulse, nx, nz, depth, x, z], the normal from a to b), so a game
+ *   can spin out a drifting car it rams.
  * - `chase(cam, target, opts, dt)` eases a diorama camera behind and above anything with `pos` and
  *   `yaw` (cosmetic: it uses the builtin maths; pass `snap` for reduced motion).
- * Zero allocation per step (typed arrays; locals). Speeds are world units per second, angles radians.
+ * Zero allocation per step, also with several vehicles in one process (typed arrays; locals; the
+ * read-outs are getters on one shared prototype, so a loop over cars stays monomorphic). Speeds are
+ * world units per second, angles radians.
  */
 import { hypot } from "./steer";
 
@@ -60,8 +73,18 @@ export interface DriveOptions {
   coast?: number;
   /** Sideways grip, in g (car 1, bike 1.15): the most sideways acceleration the tyres hold. */
   grip?: number;
-  /** Grip left at the full handbrake / drift input (default 0.4). */
+  /** Rear grip left at the full handbrake / drift input (default 0.4). */
   drift?: number;
+  /** How far the tail swings out on the handbrake: the turn tightens by 1 + swing (default 1). */
+  swing?: number;
+  /** Most slide angle (body to travel) a drift holds before the swing stops, radians (default 0.8). */
+  slide?: number;
+  /** Share of the sideways speed the tyres hand back as forward speed coming out of a drift (default 0.35). */
+  recover?: number;
+  /** For `touch`: mass (car 1, bike 0.5). */
+  mass?: number;
+  /** For `touch`: the hull, [half length, half width] (a box; default the wheels plus their radius), or one radius (a circle). */
+  hull?: number | ArrayLike<number>;
   /** Most steering, as a wheel angle (car 0.6, bike 0.7). */
   steer?: number;
   /** Speed at which steering is down to half (default 12). */
@@ -82,7 +105,8 @@ export interface DriveOptions {
   surfaces?: ArrayLike<number>;
   /** Steps per `step()` (default 2: the springs stay stable at 60 Hz). */
   substeps?: number;
-  /** An event ring: `drive:air`, `drive:land` (v: how far off the slope), `drive:crash`, with `id` as a. */
+  /** An event ring: `drive:air`, `drive:land` (v: how far off the slope), `drive:crash`, `drive:drift`
+   *  (v: the chain's score; b: 1 when broken), with `id` as a. */
   events?: DriveEvents;
   /** The id events carry (default 0). */
   id?: number;
@@ -98,6 +122,56 @@ function atan(s: number) {
   return s < 0 ? -v : v;
 }
 
+/** The read-outs, as getters on one prototype that every vehicle shares (per-vehicle getters would make
+ *  a loop over several cars polymorphic, and a double read through one is boxed: young GCs). */
+class Ride {
+  /** @internal The model's state (see `S` in `drive`). */
+  _s: Float64Array;
+  /** @internal Flags: crashed, air, rest. */
+  _f: Uint8Array;
+  /** World velocity. */
+  vel: Float64Array;
+  /** Inputs, each step: [throttle 0..1, brake 0..1 (reverse at a stop), steer −1..1 (+1 right), drift (handbrake) 0..1]. */
+  input: Float64Array;
+  constructor(s: Float64Array, f: Uint8Array, v: Float64Array, i: Float64Array) {
+    this._s = s; this._f = f; this.vel = v; this.input = i;
+  }
+  /** Set the inputs (the same as writing `input`). */
+  set(throttle: number, brake: number, steer: number, drift = 0) {
+    const i = this.input;
+    i[0] = throttle; i[1] = brake; i[2] = steer; i[3] = drift;
+  }
+  /** Heading, radians (forward is (cos yaw, 0, −sin yaw), diorama's rot y). */
+  get yaw() { return this._s[0]!; }
+  /** Speed along the heading (negative backwards). */
+  get speed() { return this._s[8]!; }
+  /** Ground speed, any direction. */
+  get groundSpeed() { return hypot(this.vel[0]!, this.vel[2]!); }
+  /** Sideways slide speed: drifting when it is over a unit or so. */
+  get slip() { return this._s[7]!; }
+  /** 0..1: how hard the tyres throw dust or spray (scale an emitter by it). */
+  get dust() { return this._s[9]!; }
+  /** The front wheels' steering angle (draw them turned). */
+  get steerAngle() { return this._s[10]!; }
+  /** Seconds in the air (0 on the ground). */
+  get air() { return this._s[6]!; }
+  /** 0..1: how hard it is drifting now (the slide angle past a small slip, scaled by speed; 0 in the air,
+   *  crashed or spun out): score it per second. */
+  get drift() { return this._s[14]!; }
+  /** The body's angle to its travel, radians (+: the nose points left of where it is going). */
+  get slide() { return this._s[15]!; }
+  /** The current drift chain's score so far (∫ drift dt; banked by `drive:drift` half a second after it ends). */
+  get chain() { return this._s[16]!; }
+  /** The last chain banked (or broken). */
+  get lastChain() { return this._s[19]!; }
+  /** Seconds of a spin-out left (no control while it lasts). */
+  get spinning() { return this._s[13]!; }
+  /** Crashed (inputs ignored until `reset`). */
+  get crashed() { return this._f[0] === 1; }
+  /** At rest: nothing moves (the engine may settle). */
+  get resting() { return this._f[2] === 1; }
+}
+
 /** A vehicle on `ground`: set `input` (or `set`), `step(dt)` from the engine's step, draw from `pos`, `rot`, `comp`. */
 export function drive(ground: DriveGround, o: DriveOptions = {}) {
   const bike = o.kind === "bike", W = Float64Array.from(o.wheels || (bike ? [0.6, 0, -0.6, 0] : [0.75, -0.5, 0.75, 0.5, -0.75, -0.5, -0.75, 0.5]));
@@ -106,12 +180,17 @@ export function drive(ground: DriveGround, o: DriveOptions = {}) {
   const accel = o.accel ?? (bike ? 12 : 10), top = o.top ?? (bike ? 18 : 16), brake = o.brake ?? 22, rev = o.reverse ?? 5, coast = o.coast ?? 2.5;
   const grip = o.grip ?? (bike ? 1.15 : 1), driftK = o.drift ?? 0.4, maxSteer = o.steer ?? (bike ? 0.7 : 0.6), fall = o.steerFall ?? 12, cg = o.cg ?? (bike ? 0.3 : 0.35);
   const maxLean = o.lean ?? 0.9, airP = o.airPitch ?? (bike ? 6 : 2), crashP = o.crashPitch ?? (bike ? 0.65 : 1), crashR = o.crashRoll ?? 1.1, crashV = o.crashDrop ?? 30;
-  const sub = o.substeps ?? 2, surf = o.surfaces || [], ev = o.events, id = o.id ?? 0;
+  const sub = o.substeps ?? 2, surf = o.surfaces || [], ev = o.events, id = o.id ?? 0, swing = o.swing ?? 1, maxSlide = o.slide ?? 0.8, recover = o.recover ?? 0.35;
   // Pitch and roll inertia per unit mass matched to the springs (same bounce as heave); wheelbase.
   let ip = 0, ir = 0, fmax = -Infinity, fmin = Infinity;
   for (let i = 0; i < n; i++) (ip += (W[i * 2]! * W[i * 2]!) / n), (ir += (W[i * 2 + 1]! * W[i * 2 + 1]!) / n), (fmax = Math.max(fmax, W[i * 2]!)), (fmin = Math.min(fmin, W[i * 2]!));
   ip = ip || 0.25; ir = ir || 0.25;
-  const base = fmax - fmin || 1, sag = g / (w0 * w0);
+  const base = fmax - fmin || 1, sag = g / (w0 * w0), hl = o.hull, HU = new Float64Array(2);
+  let side = 0;
+  for (let i = 0; i < n; i++) side = Math.max(side, Math.abs(W[i * 2 + 1]!));
+  if (typeof hl === "number") HU[0] = hl;
+  else if (hl) HU.set([hl[0]!, hl[1]!]);
+  else (HU[0] = Math.max(fmax, -fmin) + R), (HU[1] = side + R * 0.5);
   /** Driven wheels: all on a car, the rear on a bike. */
   const DRV = new Uint8Array(n);
   let nDrv = 0;
@@ -119,8 +198,9 @@ export function drive(ground: DriveGround, o: DriveOptions = {}) {
 
   const input = new Float64Array(4), pos = new Float64Array(3), vel = new Float64Array(3), rot = new Float64Array(3);
   const comp = new Float64Array(n), spin = new Float64Array(n), contact = new Uint8Array(n), wheel = new Float64Array(n * 3), GH = new Float64Array(n);
-  // S: yaw, yaw rate, pitch, pitch rate, roll, roll rate, air time, slip, forward speed, dust, steer angle, impact, landing error.
-  const S = new Float64Array(13), SL = new Float64Array(3), AC = new Float64Array(12), TR = new Float64Array(4), G = new Float64Array(4), RAW = new Float64Array(n), SR = new Float64Array(n), F = new Uint8Array(3); // F: crashed, air, rest
+  // S: yaw, yaw rate, pitch, pitch rate, roll, roll rate, air time, slip, forward speed, dust, steer angle, impact, landing error,
+  // spin-out left, drift, slide angle, chain, chain gap, drift memory, last chain, cos yaw, sin yaw.
+  const S = new Float64Array(22), SL = new Float64Array(3), AC = new Float64Array(12), TR = new Float64Array(4), G = new Float64Array(4), RAW = new Float64Array(n), SR = new Float64Array(n), F = new Uint8Array(3); // F: crashed, air, rest
 
   /** Ground slope along the body (pitch) or across it (roll) under the wheels, by least squares, as an angle. */
   // (Into SL, never returned: a double crossing a call the JIT does not inline is boxed.)
@@ -178,15 +258,15 @@ export function drive(ground: DriveGround, o: DriveOptions = {}) {
   function sub1() {
     const h = SL[2]!;
     springs();
-    const crashed = F[0]!, t = crashed ? 0 : Math.min(1, Math.max(0, input[0]!)), b = crashed ? 0 : Math.min(1, Math.max(0, input[1]!));
-    const st = crashed ? 0 : Math.min(1, Math.max(-1, input[2]!)), dr = crashed ? 0 : Math.min(1, Math.max(0, input[3]!));
+    const crashed = F[0]!, sp = S[13]! > 0, off = crashed || sp, t = off ? 0 : Math.min(1, Math.max(0, input[0]!)), b = off ? 0 : Math.min(1, Math.max(0, input[1]!));
+    const st = off ? 0 : Math.min(1, Math.max(-1, input[2]!)), dr = crashed ? 0 : sp ? 1 : Math.min(1, Math.max(0, input[3]!));
     let x = pos[0]!, y = pos[1]!, z = pos[2]!, vx = vel[0]!, vy = vel[1]!, vz = vel[2]!;
     let yaw = S[0]!, yr = S[1]!, p = S[2]!, pr = S[3]!, rl = S[4]!, rr = S[5]!;
     const nc = AC[0]!, nd = AC[1]!, fs = AC[2]!, tp = AC[3]!, tr = AC[4]!, gx = AC[5]!, gy = AC[6]!, gz = AC[7]!, gr = AC[8]!, deep = AC[9]!;
     const fx = AC[10]!, fz = -AC[11]!, rx = AC[11]!, rz = AC[10]!;
     // Along and across the heading.
-    let vf = vx * fx + vz * fz, vs = vx * rx + vz * rz, af = 0, as = 0, slip = 0;
-    const frac = nc / n;
+    let vf = vx * fx + vz * fz, vs = vx * rx + vz * rz, af = 0, as = 0, slip = 0, da = 0;
+    const frac = nc / n, beta = atan(vs / (Math.abs(vf) + 0.5));
     if (nc) {
       const gf = frac * (gr / nc), dfr = nd / (nDrv || 1);
       // Pedals: throttle pulls up to top speed; brake slows, then reverses up to `reverse`; no pedal coasts.
@@ -199,13 +279,21 @@ export function drive(ground: DriveGround, o: DriveOptions = {}) {
       const nx = gx / nc, ny = gy / nc, nz = gz / nc;
       af += g * (nx * fx + nz * fz) * ny * frac;
       as += g * (nx * rx + nz * rz) * ny * frac;
-      // Sideways: the tyres cancel the slide up to their grip, less with the drift input.
-      const most = grip * g * gf * (1 - (1 - driftK) * dr) * (crashed ? 0.4 : 1), want = -vs / h;
-      as += want > most ? most : want < -most ? -most : want;
+      // Sideways: the tyres cancel the slide up to their grip, less with the drift input (the rear lets go).
+      const most = grip * g * gf * (1 - (1 - driftK) * dr) * (crashed ? 0.4 : 1), want = -vs / h, fix = want > most ? most : want < -most ? -most : want;
+      as += fix;
       slip = Math.abs(vs + as * h);
-      // Steering: a curvature that tightens less at speed; the heading follows it as the tyres allow.
-      const goal = -vf * ((st * maxSteer) / base / (1 + Math.abs(vf) / fall)) * (1 + 0.5 * dr);
-      yr += (goal - yr) * Math.min(1, 10 * gf * h);
+      // Out of a drift the tyres hand part of the slide back as forward speed (its share of the speed, so never more energy).
+      if (S[18]! > 0) af += Math.abs(fix) * recover * S[18]! * (Math.abs(vs) / (Math.abs(vs) + Math.abs(vf) + 0.01)) * (vf < 0 ? -1 : 1);
+      // Steering: a curvature that tightens less at speed; the heading follows it as the tyres allow, the
+      // tail swinging out on the handbrake until the slide reaches `slide`. Spun out, the spin dies away.
+      const goal = -vf * ((st * maxSteer) / base / (1 + Math.abs(vf) / fall)) * (1 + swing * dr);
+      if (sp) yr -= yr * Math.min(1, 1.5 * h);
+      else {
+        yr += (goal - yr) * Math.min(1, 10 * gf * h);
+        if (dr > 0 && beta * yr > 0 && Math.abs(beta) > maxSlide) yr -= yr * Math.min(1, 60 * dr * h);
+      }
+      if (!off) da = Math.min(1, Math.max(0, (Math.abs(beta) - 0.15) / (maxSlide * 0.6))) * Math.min(1, hypot(vf, vs) / (0.35 * top));
     } else yr += st * -1.5 * h - yr * 0.5 * h;
     vf += af * h;
     vs += as * h;
@@ -256,6 +344,11 @@ export function drive(ground: DriveGround, o: DriveOptions = {}) {
       const a = spin[i]! + SR[i]! * h;
       spin[i] = a - TAU * Math.floor(a / TAU);
     }
+    // Drift: the amount now, the chain (banked half a second after the drift ends), the memory that recovers speed.
+    S[14] = da; S[15] = beta; S[18] = Math.max(dr, S[18]! - 2 * h);
+    if (sp) S[13] = Math.max(0, S[13]! - h);
+    if (da > 0.05) (S[16] = S[16]! + da * h), (S[17] = 0);
+    else if (S[16]! > 0 && (S[17] = S[17]! + h) > 0.5) bank(0, x, z);
     pos[0] = x; pos[1] = y; pos[2] = z; vel[0] = vx; vel[1] = vy; vel[2] = vz;
     S[0] = yaw - TAU * Math.floor(yaw / TAU + 0.5); S[1] = yr; S[2] = p; S[3] = pr; S[4] = rl; S[5] = rr; S[7] = slip; S[8] = vf;
     S[9] = frac * Math.min(1, (Math.abs(vf) / top) * 0.8 + slip * 0.15 + (t * (1 - Math.abs(vf) / top)) * 0.3);
@@ -264,11 +357,19 @@ export function drive(ground: DriveGround, o: DriveOptions = {}) {
   function crash(x: number, z: number) {
     F[0] = 1;
     ev && ev.emit("drive:crash", id, 0, x, z);
+    if (S[16]! > 0) bank(1, x, z);
+  }
+  /** End the drift chain: `drive:drift` with its score (b: 1 when broken). */
+  function bank(broken: number, x: number, z: number) {
+    S[19] = S[16]!; S[16] = S[17] = 0;
+    ev && ev.emit("drive:drift", id, broken, x, z, S[19]!);
   }
   function step(dt: number) {
     SL[2] = dt / sub;
     for (let i = 0; i < sub; i++) sub1();
     rot[0] = -S[4]!; rot[1] = S[0]!; rot[2] = S[2]!;
+    trig();
+    S[20] = TR[0]!; S[21] = TR[1]!;
     return !F[2];
   }
   /** Put it down at (x, z) facing `yaw`, on the ground at the springs' sag, still and not crashed. */
@@ -288,24 +389,26 @@ export function drive(ground: DriveGround, o: DriveOptions = {}) {
     S[4] = bike ? 0 : SL[1]!;
     pos[0] = x; pos[1] = m + R + rest - sag; pos[2] = z;
     rot[0] = -S[4]!; rot[1] = yaw; rot[2] = S[2]!;
+    S[20] = TR[0]!; S[21] = TR[1]!;
+  }
+  /** Spin it round at `rate` rad/s (+ left) for `secs` with no control (the handbrake's grip, the spin dying
+   *  away): a rammed drifter. Breaks the drift chain. */
+  function spinOut(rate: number, secs = 1) {
+    if (F[0]) return;
+    S[1] = rate; S[13] = secs; S[14] = 0;
+    if (S[16]! > 0) bank(1, pos[0]!, pos[2]!);
   }
   reset(0, 0, 0);
 
-  return {
-    /** Inputs, each step: [throttle 0..1, brake 0..1 (reverse at a stop), steer −1..1 (+1 right), drift 0..1]. */
-    input,
-    /** Set the inputs (the same as writing `input`). */
-    set(throttle: number, brake: number, steer: number, drift = 0) {
-      input[0] = throttle; input[1] = brake; input[2] = steer; input[3] = drift;
-    },
+  return Object.assign(new Ride(S, F, vel, input), {
     /** Advance dt seconds (the engine's fixed step) in `substeps`; returns true while anything moves. */
     step,
     /** Place it (see above); also after a crash. */
     reset,
+    /** Spin it out (see above). */
+    spinOut,
     /** The body's origin (at the spring tops), world. */
     pos,
-    /** World velocity. */
-    vel,
     /** Body rotation in diorama's order, [roll about x, yaw about y, pitch about z (nose up +)]. */
     rot,
     /** Wheel offsets [forward, right, …] as given. */
@@ -320,27 +423,76 @@ export function drive(ground: DriveGround, o: DriveOptions = {}) {
     wheel,
     /** Wheel radius, spring rest length and travel. */
     radius: R, rest, travel,
-    /** Heading, radians (forward is (cos yaw, 0, −sin yaw), diorama's rot y). */
-    get yaw() { return S[0]!; },
-    /** Speed along the heading (negative backwards). */
-    get speed() { return S[8]!; },
-    /** Ground speed, any direction. */
-    get groundSpeed() { return hypot(vel[0]!, vel[2]!); },
-    /** Sideways slide speed: drifting when it is over a unit or so. */
-    get slip() { return S[7]!; },
-    /** 0..1: how hard the tyres throw dust or spray (scale an emitter by it). */
-    get dust() { return S[9]!; },
-    /** The front wheels' steering angle (draw them turned). */
-    get steerAngle() { return S[10]!; },
-    /** Seconds in the air (0 on the ground). */
-    get air() { return S[6]!; },
     /** The last landing: [downward speed, how far off the slope it was (radians)]. */
     landing: S.subarray(11, 13),
-    /** Crashed (inputs ignored until `reset`). */
-    get crashed() { return F[0] === 1; },
-    /** At rest: nothing moves (the engine may settle). */
-    get resting() { return F[2] === 1; },
-  };
+    /** For `touch`: mass. */
+    mass: o.mass ?? (bike ? 0.5 : 1),
+    /** For `touch`: [half length, half width] (a box), or [radius, 0] (a circle). */
+    hull: HU,
+  });
+}
+
+/** `touch`'s last contact: [impulse, normal x, normal z (from a to b), depth, contact x, contact z]. */
+export const touchHit = new Float64Array(6);
+
+/** Options for `touch` and `touchAll`. */
+export interface TouchOptions {
+  /** Bounce along the normal, 0 (dead) .. 1 (elastic) (default 0.3). */
+  bounce?: number;
+  /** Two bodies further apart than this in height pass (one in the air over the other; default 1). */
+  height?: number;
+  /** Called on each contact, after the push: `hit` is `touchHit`. */
+  onHit?: (a: Drive, b: Drive, hit: Float64Array) => void;
+}
+const NO: TouchOptions = {};
+
+/** Push vehicles `a` and `b` apart if their hulls overlap (box against box, box against circle, circle
+ *  against circle, on the ground plane) by their masses, and bounce their velocities along the contact
+ *  normal. Deterministic (no builtin trig: the headings' cosines come from the model). True on a contact. */
+export function touch(a: Drive, b: Drive, o: TouchOptions = NO) {
+  const pa = a.pos, pb = b.pos, A = a._s, B = b._s, ha = a.hull, hb = b.hull;
+  if (Math.abs(pa[1]! - pb[1]!) > (o.height ?? 1)) return false;
+  const dx = pb[0]! - pa[0]!, dz = pb[2]! - pa[2]!, H = touchHit;
+  let depth = Infinity;
+  if (!ha[1] && !hb[1]) {
+    const d = hypot(dx, dz);
+    depth = ha[0]! + hb[0]! - d; H[1] = d ? dx / d : 1; H[2] = d ? dz / d : 0;
+  } else if (ha[1] && hb[1]) {
+    // Separating axes: each body's forward (cos, −sin) and right (sin, cos).
+    for (let k = 0; k < 4; k++) {
+      const c = (k < 2 ? A : B)[20]!, s = (k < 2 ? A : B)[21]!, ux = k & 1 ? s : c, uz = k & 1 ? c : -s;
+      const r = ha[0]! * Math.abs(A[20]! * ux - A[21]! * uz) + ha[1]! * Math.abs(A[21]! * ux + A[20]! * uz) + hb[0]! * Math.abs(B[20]! * ux - B[21]! * uz) + hb[1]! * Math.abs(B[21]! * ux + B[20]! * uz);
+      const along = dx * ux + dz * uz, over = r - Math.abs(along);
+      if (over < depth) (depth = over), (H[1] = along < 0 ? -ux : ux), (H[2] = along < 0 ? -uz : uz);
+    }
+  } else {
+    // A box and a circle: the box's nearest point to the circle's centre, in the box's frame.
+    const box = ha[1] ? A : B, bh = ha[1] ? ha : hb, r = ha[1] ? hb[0]! : ha[0]!, sg = ha[1] ? 1 : -1, c = box[20]!, s = box[21]!;
+    const lx = (dx * c - dz * s) * sg, lz = (dx * s + dz * c) * sg, cx = Math.max(-bh[0]!, Math.min(bh[0]!, lx)), cz = Math.max(-bh[1]!, Math.min(bh[1]!, lz));
+    let ex = lx - cx, ez = lz - cz;
+    const d = hypot(ex, ez);
+    if (d > 0) (depth = r - d), (ex /= d), (ez /= d);
+    else if (bh[0]! - Math.abs(lx) < bh[1]! - Math.abs(lz)) (depth = r + bh[0]! - Math.abs(lx)), (ex = lx < 0 ? -1 : 1), (ez = 0);
+    else (depth = r + bh[1]! - Math.abs(lz)), (ex = 0), (ez = lz < 0 ? -1 : 1);
+    H[1] = (ex * c + ez * s) * sg; H[2] = (ez * c - ex * s) * sg;
+  }
+  if (!(depth > 1e-9)) return false;
+  const ia = 1 / a.mass, ib = 1 / b.mass, im = ia + ib || 1, nx = H[1]!, nz = H[2]!, va = a.vel, vb = b.vel;
+  pa[0] = pa[0]! - nx * depth * (ia / im); pa[2] = pa[2]! - nz * depth * (ia / im);
+  pb[0] = pb[0]! + nx * depth * (ib / im); pb[2] = pb[2]! + nz * depth * (ib / im);
+  const vn = (vb[0]! - va[0]!) * nx + (vb[2]! - va[2]!) * nz, j = vn < 0 ? (-(1 + (o.bounce ?? 0.3)) * vn) / im : 0;
+  va[0] = va[0]! - nx * j * ia; va[2] = va[2]! - nz * j * ia;
+  vb[0] = vb[0]! + nx * j * ib; vb[2] = vb[2]! + nz * j * ib;
+  H[0] = j; H[3] = depth; H[4] = (pa[0]! + pb[0]!) / 2; H[5] = (pa[2]! + pb[2]!) / 2;
+  o.onHit && o.onHit(a, b, H);
+  return true;
+}
+
+/** `touch` every pair of `list`, in order (i < j: the same order on every machine); returns the contacts. */
+export function touchAll(list: ArrayLike<Drive>, o: TouchOptions = NO) {
+  let n = 0;
+  for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) if (touch(list[i]!, list[j]!, o)) n++;
+  return n;
 }
 
 /** Options for `chase`: where the camera sits behind its target and how fast it follows. */

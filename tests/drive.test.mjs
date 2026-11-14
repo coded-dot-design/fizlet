@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { minorGCs } from "./gc.mjs";
 
-const { drive, chase } = await import("../src/drive.ts");
+const { drive, chase, touch, touchAll, touchHit } = await import("../src/drive.ts");
 const { terrain } = await import("../src/terrain.ts");
 const { EventRing } = await import("../src/kernel/ring.ts");
 
@@ -232,4 +232,160 @@ test("drive: zero allocation per step (car and bike on a bumpy course, with the 
     t.diagnostic(`${kind}: young GCs over 100k steps: ${n} (bare ${bare})`);
     assert.ok(n <= bare + 1, `${kind}: ${n} young GCs`);
   }
+});
+
+test("drive: handbrake drift: the rear lets go, the slide builds to `slide` and holds, counter-steer catches it; drift, chain, drive:drift", () => {
+  /** Up to speed, then a left turn for 1.5 s (handbrake `dr`), then counter-steer and drive on. */
+  const turn = (dr, o = {}) => {
+    const ev = new EventRing(16), v = drive(flat(), { events: ev, id: 3, ...o });
+    v.reset(-40, 0, 0);
+    run(v, 240, () => [0.9, 0, 0]);
+    let slide = 0, drift = 0, held = 0, n = 0;
+    run(v, 90, (i) => {
+      if (i > 30) (slide = Math.max(slide, Math.abs(v.slide))), (drift = Math.max(drift, v.drift)), (held += v.slide), n++;
+      return [0.8, 0, -1, dr];
+    });
+    const exit = Math.abs(v.slide), speed = v.groundSpeed;
+    run(v, 30, () => [0.8, 0, Math.max(-1, Math.min(1, v.slide * 2)), 0]); // steer into the slide
+    const caught = Math.abs(v.slide), after = v.groundSpeed;
+    run(v, 60, () => [0.8, 0, 0, 0]);
+    const types = [];
+    for (let i = 0; i < ev.size; i++) types.push(ev.at(i));
+    return { v, slide, drift, mean: held / n, exit, caught, speed, after, banked: types.filter((e) => e.type === "drive:drift") };
+  };
+  const grip = turn(0), hand = turn(1), tight = turn(1, { slide: 0.5 }), noRecover = turn(1, { recover: 0 });
+  assert.ok(hand.slide > grip.slide + 0.1, `the handbrake swings the tail out: ${hand.slide.toFixed(2)} vs ${grip.slide.toFixed(2)} rad`);
+  assert.ok(hand.mean > 0.7 && hand.slide < 0.8 + 0.03, `and holds the slide at about \`slide\` (0.8): mean ${hand.mean.toFixed(2)}, max ${hand.slide.toFixed(2)}`);
+  assert.ok(tight.slide < 0.5 + 0.03 && tight.slide > 0.45, `slide: 0.5 holds 0.5: ${tight.slide.toFixed(2)}`);
+  assert.ok(hand.mean > 0, "+: the nose points left of the travel in a left drift");
+  assert.equal(hand.drift, 1, "full drift while it holds");
+  assert.ok(hand.caught < 0.1, `counter-steer catches it: ${hand.caught.toFixed(3)} rad after half a second`);
+  assert.ok(hand.after > noRecover.after + 0.3, `recover hands slide back as speed: ${hand.after.toFixed(2)} vs ${noRecover.after.toFixed(2)} with recover 0`);
+  assert.equal(hand.banked.length, 1, "one drift chain banked");
+  assert.ok(hand.banked[0].v > 1.3 && hand.banked[0].a === 3 && hand.banked[0].b === 0, `drive:drift: score ${hand.banked[0].v.toFixed(2)} (∫ drift dt), id, not broken`);
+  close(hand.v.lastChain, hand.banked[0].v, 1e-12, "lastChain");
+  assert.equal(hand.v.chain, 0, "the chain is empty again");
+  assert.ok(hand.banked[0].v > (grip.banked[0]?.v ?? 0), "the handbrake drift scores more than a grip slide");
+  // In a straight line there is nothing to score; the handbrake alone does not drift.
+  const v = drive(flat());
+  v.reset(-40, 0, 0);
+  let d = 0;
+  run(v, 240, () => (d = Math.max(d, v.drift), [1, 0, 0, 1]));
+  assert.equal(d, 0, "straight on the handbrake: no drift");
+});
+
+test("drive: spinOut spins it round with no control, breaks the drift chain, then it drives again", () => {
+  const ev = new EventRing(16), v = drive(flat(), { events: ev, id: 5 });
+  v.reset(-40, 0, 0);
+  run(v, 200, () => [0.9, 0, 0]);
+  run(v, 40, () => [0.8, 0, -1, 1]);
+  assert.ok(v.chain > 0.2, `drifting: chain ${v.chain.toFixed(2)}`);
+  const yaw0 = v.yaw;
+  v.spinOut(9, 1);
+  assert.equal(v.chain, 0, "the chain is broken");
+  const e = ev.at(ev.size - 1);
+  assert.ok(e.type === "drive:drift" && e.b === 1 && e.v > 0.2, "drive:drift with b = 1: broken");
+  let turned = 0, prev = v.yaw;
+  run(v, 64, () => {
+    let dy = v.yaw - prev;
+    dy -= 2 * Math.PI * Math.round(dy / (2 * Math.PI));
+    turned += dy; prev = v.yaw;
+    if (v.spinning > 0) assert.ok(v.drift === 0, "no drift points while spun out");
+    return [1, 0, 1, 0]; // ignored
+  });
+  assert.ok(turned > 3, `it spun round: ${turned.toFixed(2)} rad from ${yaw0.toFixed(2)}`);
+  assert.ok(v.spinning === 0, "and the spin is over");
+  const s = v.speed;
+  run(v, 90, () => [1, 0, 0]);
+  assert.ok(v.speed > s + 2 && !v.crashed, `control is back: ${s.toFixed(1)} → ${v.speed.toFixed(1)}`);
+});
+
+test("drive: touch pushes hulls apart by mass and bounces along the normal (box, circle); onHit; height passes; touchAll", () => {
+  const g = flat();
+  const pair = (oa = {}, ob = {}) => {
+    const a = drive(g, oa), b = drive(g, ob);
+    a.reset(0, 0, 0); b.reset(1.8, 0, 0);
+    return [a, b];
+  };
+  // Box against box, nose to tail along x: hulls 1.03 long each, 0.26 deep.
+  const [a, b] = pair({}, { mass: 2 });
+  a.vel[0] = 10;
+  const hits = [];
+  assert.equal(touch(a, b, { onHit: (p, q, h) => hits.push([p, q, ...h]) }), true);
+  close(touchHit[1], 1, 1e-9, "normal from a to b (x)");
+  close(touchHit[2], 0, 1e-9, "normal (z)");
+  close(touchHit[3], 0.26, 1e-9, "depth");
+  close(b.pos[0] - a.pos[0], 2.06, 1e-9, "pushed apart to just touching");
+  close(a.pos[0], -0.26 * (2 / 3), 1e-9, "the lighter one moves twice as far");
+  close(a.vel[0] + 2 * b.vel[0], 10, 1e-9, "momentum kept");
+  close(b.vel[0] - a.vel[0], 0.3 * 10, 1e-9, "bounce 0.3 of the closing speed");
+  close(touchHit[0], (1.3 * 10) / 1.5, 1e-9, "impulse");
+  assert.equal(hits.length, 1);
+  assert.ok(hits[0][0] === a && hits[0][1] === b && hits[0][2] === touchHit[0], "onHit(a, b, hit)");
+  assert.equal(touch(a, b), false, "apart now: no second contact");
+  // Moving apart: pushed out, but no bounce.
+  const [c, d] = pair();
+  c.vel[0] = -3;
+  touch(c, d);
+  close(c.vel[0], -3, 1e-12, "already separating: velocity kept");
+  // Side by side, one turned 90°: the box's width counts on that axis.
+  const [e, f] = pair();
+  f.reset(0, 1.5, Math.PI / 2); // f across e's flank: e half width 0.64 + f half length 1.03 > 1.5
+  assert.equal(touch(e, f), true);
+  close(touchHit[2], 1, 1e-6, "normal along +z");
+  close(touchHit[3], 0.64 + 1.03 - 1.5, 1e-6, "depth on the z axis");
+  // Circle against circle and against a box.
+  const [r, s] = pair({ hull: 0.5 }, { hull: 0.5 });
+  s.reset(0.6, 0.6, 0);
+  assert.equal(touch(r, s), true);
+  close(touchHit[3], 1 - Math.hypot(0.6, 0.6), 1e-9, "circles: radii less the distance");
+  close(touchHit[1], Math.SQRT1_2, 1e-9, "along the centre line");
+  const [k, m] = pair({}, { hull: 0.4 });
+  m.reset(1.2, 0.3, 0); // past the box's nose (1.03): nearest point (1.03, 0.3)
+  assert.equal(touch(k, m), true);
+  close(touchHit[3], 0.4 - 0.17, 1e-9, "box and circle: the radius less the distance to the nearest point");
+  close(touchHit[1], 1, 1e-9, "out of the nose");
+  touch(m, k);
+  close(touchHit[1], -1, 1e-9, "the other way round: the normal flips (from a to b)");
+  // One over the other (a jump): no contact.
+  const [u, w] = pair();
+  w.pos[1] += 1.5;
+  assert.equal(touch(u, w), false, "in the air over it: passes");
+  // touchAll: every pair, in order; the result is the same every time.
+  const pack = () => {
+    const cars = [0, 1, 2, 3].map((i) => drive(g, { mass: 1 + i * 0.25 }));
+    cars.forEach((v, i) => v.reset(i * 1.5, (i % 2) * 0.3, i * 0.4));
+    return cars;
+  };
+  const p1 = pack(), p2 = pack();
+  assert.ok(touchAll(p1) >= 3, "neighbours touch");
+  touchAll(p2);
+  assert.deepEqual(p1.map((v) => Array.from(v.pos)), p2.map((v) => Array.from(v.pos)), "deterministic");
+});
+
+test("drive: zero allocation per step with 4 cars in one process (drift, contact and every read-out)", async (t) => {
+  const g = terrain({ cols: 128, rows: 128, cell: 0.5 });
+  g.noise({ seed: 7, amp: 1.2, scale: 8 });
+  const cars = [], acc = new Float64Array(1), hits = new Uint32Array(2), o = { onHit: (a, b) => { hits[0]++; if (b.drift > 0.3) b.spinOut(6, 0.5), hits[1]++; } };
+  for (let k = 0; k < 4; k++) (cars[k] = drive(g, { kind: k === 3 ? "bike" : "car" })), cars[k].reset(-6 + k * 2.5, 0, k);
+  const steps = (on) => {
+    for (let i = 0; i < 100; i++) {
+      for (let k = 0; k < 4; k++) {
+        const v = cars[k];
+        // (Computed inputs go straight into `input`: `set`'s double arguments box when a big loop does not inline it.)
+        const inp = v.input;
+        inp[0] = 0.9; inp[1] = 0; inp[2] = 0.6 - k * 0.3 + v.yaw * 0.001; inp[3] = (i + k * 13) % 40 < 18 ? 1 : 0;
+        if (on) v.step(DT);
+        acc[0] += v.speed + v.yaw + v.slip + v.air + v.drift + v.slide + v.chain + v.dust + v.steerAngle + v.groundSpeed + v.spinning + (v.crashed ? 1 : 0);
+        if (v.crashed || Math.abs(v.pos[0]) > 28 || Math.abs(v.pos[2]) > 28) v.reset(-6 + k * 2.5, 0, k);
+      }
+      if (on) touchAll(cars, o);
+    }
+  };
+  for (let i = 0; i < 200; i++) steps(true);
+  const bare = await minorGCs(() => { for (let i = 0; i < 2000; i++) steps(false); });
+  const n = await minorGCs(() => { for (let i = 0; i < 2000; i++) steps(true); });
+  t.diagnostic(`4 cars: young GCs over 800k car steps: ${n} (bare ${bare}); ${hits[0]} contacts, ${hits[1]} spin-outs`);
+  assert.ok(hits[0] > 100 && hits[1] > 10, "the cars bump and spin each other out");
+  assert.ok(n <= bare + 1, `4 cars: ${n} young GCs`);
 });
