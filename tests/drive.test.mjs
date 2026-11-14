@@ -533,3 +533,19 @@ test("drive: zero allocation per step across many races in one process (other gr
   t.diagnostic(`many races: young GCs over 200k car steps: ${n} (bare ${bare})`);
   assert.ok(n <= bare + 1, `many races: ${n} young GCs`);
 });
+
+test("drive: a car comes to rest with a wheel hanging (over a dip, teetering) instead of creeping or rocking on", () => {
+  // A pit under the front right wheel on a gentle side slope: the car settles, and stays asleep.
+  const g = terrain({ cols: 80, rows: 80, cell: 0.25 });
+  g.shape((x, z) => (x > 0.45 && x < 1.05 && z > 0.25 && z < 0.75 ? -0.5 : 0) + z * 0.12);
+  const v = drive(g);
+  v.reset(0, 0, 0);
+  let i = 0;
+  for (; i < 900 && v.step(DT); i++) v.set(0, 0, 0);
+  assert.ok(i < 900 && v.resting, `at rest after ${i} steps`);
+  const p = Float64Array.from(v.pos);
+  let woke = 0;
+  for (let k = 0; k < 300; k++) v.set(0, 0, 0), (woke += v.step(DT) ? 1 : 0);
+  assert.equal(woke, 0, "it stays asleep");
+  assert.deepEqual(Array.from(v.pos), Array.from(p), "exactly put");
+});
