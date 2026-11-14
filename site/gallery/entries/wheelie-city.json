@@ -1,0 +1,27 @@
+{
+  "id": "wheelie-city",
+  "date": "2026-11-22",
+  "prompt": "electric bikes on a tabletop neighbourhood: a city block of houses, lawns, driveways, a crosswalk, parked cars and sprinklers, neon curbs at night; pick an e-bike, an electric dirt bike or a fat-tyre mini, then one minute of wheelies and manuals scored by distance, time and the balance point, little hops, and grumpy neighbours who pop out to shake a fist",
+  "title": "Wheelie City",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "bikes",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/drive",
+    "@fzlt/core/input",
+    "@fzlt/core/pad",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.23.0",
+  "made": "by hand",
+  "module": "pieces/wheelie/wheelie-city.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own"
+}
