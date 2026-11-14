@@ -107,9 +107,10 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, _first: SlotTap | 
     for (let i = 0; i < 3; i++) Object.assign(lay[VW + i]!, { x: colX(1) + i * G.fan, z: G.top, a: 0 });
     for (let s = 0; s < 4; s++) Object.assign(lay[VF + s]!, { x: colX(3 + s), z: G.top });
     for (let j = 0; j < 7; j++) for (let i = 0; i < ROWS; i++) Object.assign(lay[VT + j * ROWS + i]!, { x: colX(j), z: G.z0 + i * G.up });
+    // The win spiral; on a phone a little lower and flatter, clear of the HUD at the top.
     for (let i = 0; i < 52; i++) {
       const a = i * 0.47 + 0.3, r = 0.55 + i * 0.062;
-      Object.assign(lay[VWIN + i]!, { x: Math.cos(a) * r * (T.tall ? 0.78 : 1.45), z: (G.top + G.zEnd) / 2 + Math.sin(a) * r * (T.tall ? 0.95 : 0.9), a: -a - Math.PI / 2 });
+      Object.assign(lay[VWIN + i]!, { x: Math.cos(a) * r * (T.tall ? 0.78 : 1.45), z: (G.top + G.zEnd) / 2 + (T.tall ? 0.35 : 0) + Math.sin(a) * r * (T.tall ? 0.85 : 0.9), a: -a - Math.PI / 2 });
     }
     spread();
   }

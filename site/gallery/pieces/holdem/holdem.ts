@@ -48,8 +48,8 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, _first: SlotTap | 
     puck: [-1.25, 2.85, -3.45, -1.05, 1.25, -2.7, 3.45, -1.05], board: -0.45, bgap: 1.12, pot: 1.1, deck: [2.6, -2.6], muck: [3.65, -2.5], gap: 0.55, cw: 1,
   };
   const TALL = {
-    seat: [0, 3.3, -2.3, -2.0, 0, -4.0, 2.3, -2.0], chips: [1.5, 3.35, -2.35, -3.15, 1.45, -4.0, 2.35, -3.15], bet: [-1.25, 2.2, -2.3, -0.95, 0, -2.95, 2.3, -0.95],
-    puck: [-1.15, 3.6, -1.4, -2.65, -1.2, -4.1, 1.4, -2.65], board: 0, bgap: 0.92, pot: 1.3, deck: [-2.55, -4.35], muck: [-2.55, -4.35], gap: 0.46, cw: 0.82,
+    seat: [0, 3.3, -2.3, -2.3, 0, -4.0, 2.3, -2.3], chips: [1.5, 3.35, -2.35, -3.15, 1.45, -4.0, 2.35, -3.15], bet: [-1.25, 2.2, -2.3, -0.95, 0, -2.95, 2.3, -0.95],
+    puck: [-1.15, 3.6, -1.4, -2.65, -1.2, -4.1, 1.4, -2.65], board: 0.1, bgap: 0.92, pot: 1.3, deck: [-2.55, -4.35], muck: [-2.55, -4.35], gap: 0.46, cw: 0.82,
   };
   let L = W;
 
@@ -158,12 +158,15 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, _first: SlotTap | 
   }
 
   // ---- the overlay: each seat's name, chips and last move; the hands named at the showdown ----
-  function badge(ctx: CanvasRenderingContext2D, s: string, x: number, z: number, fill: string) {
+  function badge(ctx: CanvasRenderingContext2D, s: string, x: number, z: number, edge: number, fill: string) {
+    // Never over the cards: the badge's top stays below their near edge on screen (the side seats' cards lean into it).
+    T.screen(x, 0.05, edge, tmp);
+    const below = tmp[1]! + 3;
     T.screen(x, 0.05, z, tmp);
     ctx.font = `900 ${T.tall ? 11 : 13}px ${FONT}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    const w = ctx.measureText(s).width + 14, h = T.tall ? 21 : 24, bx = Math.max(4, Math.min(T.dio.width - w - 4, tmp[0]! - w / 2)), by = tmp[1]! - h / 2;
+    const w = ctx.measureText(s).width + 14, h = T.tall ? 21 : 24, bx = Math.max(4, Math.min(T.dio.width - w - 4, tmp[0]! - w / 2)), by = Math.max(tmp[1]! - h / 2, below), cy = by + h / 2;
     ctx.fillStyle = INK;
     ctx.beginPath();
     ctx.roundRect(bx + 3, by + 3, w, h, 7);
@@ -176,7 +179,7 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, _first: SlotTap | 
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = INK;
-    ctx.fillText(s, bx + w / 2, tmp[1]! + 1);
+    ctx.fillText(s, bx + w / 2, cy + 1);
   }
   const shown = () => g.phase === PAID || g.phase === OVER;
   function overlay(ctx: CanvasRenderingContext2D) {
@@ -195,7 +198,7 @@ export function mount(stage: HTMLElement, _slot: HTMLElement, _first: SlotTap | 
       const sd = end && g.score[s]! >= 0 && !g.folded[s];
       const word = sd ? name(g.score[s]!) : shown() && g.won[s] ? `takes ${num(g.won[s]!)}` : DID[g.last[s]!]!;
       const label = (s ? NAMES[s] + " " : "") + num(g.stack[s]!) + (word ? " · " + word : "");
-      badge(ctx, label, x, z, g.won[s] && shown() ? "#ffd36b" : g.toAct === s ? "#c9f5e2" : g.folded[s] ? "#d6d2e0" : "#f4efe4");
+      badge(ctx, label, x, z, L.seat[s * 2 + 1]! + L.cw * 0.7 + 0.12, g.won[s] && shown() ? "#ffd36b" : g.toAct === s ? "#c9f5e2" : g.folded[s] ? "#d6d2e0" : "#f4efe4");
     }
     // The winning five, outlined.
     if (end && payTo >= 0 && g.score[payTo]! >= 0) {

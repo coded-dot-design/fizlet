@@ -313,9 +313,10 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     (g.yaw = (port ? -6 : -10) * D), (g.fov = 0.6);
     const box = { x0: 10, x1: W - 10, y0: V[3]!, y1: Math.max(V[3]! + 80, H - V[4]!) };
     if (!follow) {
-      const h = FS / 2 + 0.6;
+      // The far corn and the table's near edge (the plinth, FS + 6 deep), clear of the keys.
+      const h = FS / 2 + 0.6, e = FS / 2 + 3;
       (g.pitch = (port ? 62 : 54) * D), (g.tx = 0), (g.ty = FY), (g.tz = 0);
-      dio.fit(g, [-h, FY + CORN + 0.6, -h, h, FY + CORN, -h, -h, TT, h + 2, h, TT, h + 2], box);
+      dio.fit(g, [-h, FY + CORN + 0.6, -h, h, FY + CORN, -h, -h, TT, e, h, TT, e], box);
     } else {
       // About seven cells round you in view, from up behind.
       const h = CELL * (port ? 3.4 : 4.2);
