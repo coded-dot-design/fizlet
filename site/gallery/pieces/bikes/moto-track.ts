@@ -268,7 +268,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       if (type === E_COUNT) engine.events.emit("count"), toast("" + val, "go");
       else if (type === E_GATE) (gateT = 0.001), engine.events.emit("gate"), toast("GATE DROP!", "go"), say("Go");
       else if (type === E_LAP && !r) engine.events.emit("lap"), toast(val === LAPS - 1 ? "LAST LAP!" : `LAP ${val + 1}/${LAPS}`, "go"), say(`Lap ${val + 1}`);
-      else if (type === E_PLACE && race.phase === RACE) toast(ORD[val]!, val < race.place(0) ? "go" : "meh"), engine.events.emit("pass");
+      else if (type === E_PLACE && race.phase === RACE && !(toastT > 0.5 && toastEl.className.endsWith("bad"))) toast(ORD[val]!, val < race.place(0) ? "go" : "meh"), engine.events.emit("pass");
       else if (type === E_LAND) {
         if (me.crashed) continue;
         const clean = val < 0.25;
