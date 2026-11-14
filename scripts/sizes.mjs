@@ -102,8 +102,12 @@ export const BUDGETS = [
   // Vehicle feel on a heightfield plus the chase camera (steer's exact hypot): 3,170 B gz when added.
   // 4,478 B (+1,308 B) with the handbrake drift (slide, drift score, chains, spinOut), car-to-car
   // contact (touch, touchAll: box and circle hulls by mass) and the read-outs moved onto one shared
-  // prototype (zero allocation with several cars in one process).
-  ["@fzlt/core/drive", "src/drive.ts", 4544],
+  // prototype (zero allocation with several cars in one process). 5,086 B (+608 B) with long-travel
+  // suspension (stiffness, progressive, rebound, bump, inertia, droop; press, stroke, bodyPitch,
+  // bodyRoll) and the model moved from per-car closures to one class and module functions (several
+  // races in one process deoptimised on "wrong call target" and boxed: 10 to 15 young GCs per 200,000
+  // rounds of 4 cars in Dune Hop's race test; 1 after).
+  ["@fzlt/core/drive", "src/drive.ts", 5152],
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, @fzlt/core/hud included). The Board UI kit CSS is the game's (it bakes

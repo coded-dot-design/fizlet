@@ -274,12 +274,13 @@ t.noise({ seed, amp: 2.2, ridge: 0.7, wind: [1, 0.3], stretch: 2.5 }); // dunes,
 t.ribbon(loop, { width: 3.6, kind: 1 }).ramp([-3, 8], [1, 8], { height: 0.9 }); // a flat track, a jump
 terrainView(d, t, { bands, kinds: ["#9c7a55"], lod: [26] }); // flat-shaded faces in d.draw()
 t.sample(x, z, out); // [height, nx, ny, nz] under a wheel: the drawn triangle's` },
-  { id: "drive", no: 37, sym: "dv", family: "motion", status: "experimental", since: "0.22.0", tests: ["drive.test.mjs", "terrain-drive.mjs", "drive-drift.mjs"], used: [], why: "New, for the diorama vehicle games; its feel and API may still change before a game ships on it.",
+  { id: "drive", no: 37, sym: "dv", family: "motion", status: "experimental", since: "0.22.0", tests: ["drive.test.mjs", "terrain-drive.mjs", "drive-drift.mjs", "drive-suspension.mjs"], used: [], why: "New, for the diorama vehicle games; its feel and API may still change before a game ships on it.",
     tag: "DRIVE", role: "advance", modules: [mod("@fzlt/core/drive", "drive")],
     snippet: `const v = drive(t, { kind: "bike" }); // or "car": four springs, rollovers
 v.reset(-9, 8, 0);
 e.add({ step(_, dt) { v.set(throttle, brake, steer, drift); if (v.step(dt)) e.busy(); chase(d.cam, v, follow, dt); } });
 car.pos.set(v.pos); car.rot.set(v.rot); // body pose; v.comp, v.spin, v.steerAngle for the wheels
+// long travel: drive(t, { travel: 0.6, stiffness: 70, progressive: 1.2, rebound: 0.85 }); v.press[i], v.bodyRoll
 if (v.crashed) v.reset(x, z, yaw); // a nose-down landing; v.dust scales an emitter
 score += v.drift * dt; // handbrake drifts (drift input 1); drive:drift banks each chain
 touchAll(cars, { onHit: (a, b) => b.drift > 0.3 && b.spinOut(7, 1.2) }); // ram a drifter: it spins` },
