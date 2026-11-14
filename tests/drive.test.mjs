@@ -389,3 +389,147 @@ test("drive: zero allocation per step with 4 cars in one process (drift, contact
   assert.ok(hits[0] > 100 && hits[1] > 10, "the cars bump and spin each other out");
   assert.ok(n <= bare + 1, `4 cars: ${n} young GCs`);
 });
+
+/** A fixed run (a car and a bike, the drift input pulsing, over noise, a ramp and whoops) hashed bit for bit. */
+function pathHash(o = {}) {
+  const g = terrain({ cols: 160, rows: 160, cell: 0.5 });
+  g.noise({ seed: 4, amp: 1.2, scale: 6 }); g.ramp([-10, 0], [-6, 0], { height: 1.2, width: 4 }); g.whoops([0, 0], [14, 0], { height: 0.3, width: 4 });
+  let h = 0;
+  const mix = (a) => { for (const x of new Uint32Array(Float64Array.from(a).buffer)) h = (Math.imul(h, 31) + x) | 0; };
+  for (const kind of ["car", "bike"]) {
+    const v = drive(g, { kind, ...o });
+    v.reset(-30, 0, 0.1);
+    for (let i = 0; i < 1500; i++) {
+      v.set(i % 500 < 400 ? 0.9 : 0, i % 500 >= 400 ? 0.6 : 0, Math.sin(i / 37) * 0.8, i % 200 < 40 ? 1 : 0);
+      v.step(DT);
+      mix(v.pos); mix(v.rot); mix(v.comp); mix(v.spin); mix(v.vel);
+      if (v.crashed) v.reset(-30, 0, 0.1);
+    }
+  }
+  return h;
+}
+
+test("drive: the defaults ride exactly as 0.23.0 did; 0.22.0's drift is three options away, bit for bit", () => {
+  // Hashes measured on the released sources (src/drive.ts at v0.23.0 and v0.22.0) with this run.
+  assert.equal(pathHash(), 97294112, "defaults: the 0.23.0 path");
+  assert.equal(pathHash({ swing: 0.5, slide: 9, recover: 0 }), -2063471579, "swing 0.5, slide 9, recover 0: the 0.22.0 path");
+});
+
+/** A long-travel buggy's springs (soft, progressive, more rebound than compression damping, a heavy body). */
+const LONG = { travel: 0.6, rest: 0.62, stiffness: 70, progressive: 1.2, damping: 0.4, rebound: 0.85, inertia: 1.5 };
+/** Drop a car from `height` onto the flat; the run's read-outs. */
+function drop(o, height = 3) {
+  const v = drive(flat(), o);
+  v.reset(0, 0, 0);
+  const y0 = v.pos[1], sag = v.comp[0];
+  v.pos[1] += height;
+  let land = -1, peak = 0, dip = 0, up = -1, over = -Infinity, settled = -1, press = 0;
+  for (let i = 0; i < 300; i++) {
+    v.set(0, 0, 0);
+    v.step(DT);
+    if (land < 0 && v.contact[0]) land = i;
+    if (land < 0) continue;
+    peak = Math.max(peak, v.stroke); dip = Math.min(dip, v.pos[1] - y0); press = Math.max(press, Math.abs(v.press[0] - v.comp[0] / v.travel));
+    if (up < 0 && v.vel[1] > 0.2) up = i;
+    if (up >= 0) over = Math.max(over, v.pos[1] - y0);
+    if (settled < 0 && i > land + 10 && Math.abs(v.pos[1] - y0) < 0.01 && Math.abs(v.vel[1]) < 0.05) settled = i;
+  }
+  return { v, sag, land, peak, dip, up, over, settled: (settled - land) * DT, press };
+}
+
+test("drive: suspension: a big drop compresses the springs, rebounds and settles; long travel soaks up more", () => {
+  const short = drop({}), long = drop(LONG);
+  close(long.sag, 0.24, 0.01, "long travel: softer, progressive springs sag further (0.24 of 0.6)");
+  for (const [name, r] of [["default", short], ["long", long]]) {
+    assert.equal(r.v.crashed, false, `${name}: a flat drop does not crash`);
+    assert.ok(r.up > r.land, `${name}: compressed, then the springs push the body back up (step ${r.up})`);
+    assert.ok(r.settled > 0 && r.settled < 1.5, `${name}: settled back at its sag in ${r.settled.toFixed(2)} s`);
+    close(r.v.comp[0], r.sag, 5e-3, `${name}: back at sag`);
+    assert.ok(r.press < 1e-12, `${name}: press is comp / travel`);
+  }
+  assert.ok(short.peak > 1.2, `default travel bottoms on the bump stop: stroke ${short.peak.toFixed(2)}`);
+  assert.ok(long.peak < short.peak && long.dip < short.dip * 1.8, `long travel uses its stroke: stroke ${long.peak.toFixed(2)}, the body dips ${long.dip.toFixed(2)} (default ${short.dip.toFixed(2)})`);
+  // More rebound damping holds the body down instead of bouncing it back over its ride height.
+  const bouncy = drop({ ...LONG, rebound: 0.2 });
+  assert.ok(bouncy.over > long.over + 0.03, `rebound 0.2 bounces higher than 0.85: ${bouncy.over.toFixed(3)} vs ${long.over.toFixed(3)}`);
+  // A 1-unit drop stays off the bump stop with long travel.
+  assert.ok(drop(LONG, 1).peak < 1, `a small drop: stroke ${drop(LONG, 1).peak.toFixed(2)}`);
+});
+
+test("drive: suspension: each wheel follows the ground on its own; the body rolls and pitches on the loads", () => {
+  // A long bump under the left wheels only (right is +z).
+  const g = terrain({ cols: 80, rows: 40, cell: 0.25 });
+  g.shape((x, z) => (z < -0.2 && x > -2 && x < 2 ? 0.3 * (1 - (x / 2) * (x / 2)) : 0));
+  const v = drive(g, LONG);
+  v.reset(-6, 0, 0);
+  v.vel[0] = 4;
+  let left = 0, right = 0, roll = 0, pitch = 0;
+  for (let i = 0; i < 120; i++) {
+    v.set(0.25, 0, 0);
+    v.step(DT);
+    if (v.press[0] > left) (left = v.press[0]), (right = v.press[1]); // the front pair as the left one peaks
+    if (Math.abs(v.bodyRoll) > Math.abs(roll)) roll = v.bodyRoll;
+    pitch = Math.max(pitch, Math.abs(v.bodyPitch));
+  }
+  assert.ok(left > right + 0.15, `the left spring takes the bump: ${left.toFixed(2)} vs the right ${right.toFixed(2)}`);
+  assert.ok(Math.abs(roll) > 0.03, `the body rolls on the springs: ${roll.toFixed(3)} rad`);
+  assert.ok(pitch > 0.01, `and pitches: ${pitch.toFixed(3)} rad`);
+  for (let i = 0; i < 4; i++) assert.equal(v.contact[i], 1, "all four on the ground after it");
+  // Options: stiffness is the rate behind hz; inertia slows the pitch; droop eases a wheel off the ground.
+  const a = drive(flat()), b = drive(flat(), { stiffness: (2 * Math.PI * 2.2) ** 2 });
+  close(b.comp[0], a.comp[0], 1e-12, "stiffness (2π·2.2)² sags as hz 2.2");
+  const nod = (o) => {
+    const t = terrain({ cols: 80, rows: 20, cell: 0.25 });
+    t.bump(0, 0, 1.2, 0.25);
+    const c = drive(t, o);
+    c.reset(-6, 0, 0); c.vel[0] = 6;
+    let peak = 0, at = 0;
+    for (let i = 0; i < 90; i++) (c.set(0.38, 0, 0), c.step(DT)), c.rot[2] > peak && ((peak = c.rot[2]), (at = i));
+    return at;
+  };
+  assert.ok(nod({ inertia: 3 }) > nod({}), "more pitch inertia: the nose peaks later");
+  const air = (o) => {
+    const c = drive(flat(), o);
+    c.reset(0, 0, 0); c.pos[1] += 2; c.step(DT);
+    return c.comp[0];
+  };
+  assert.equal(air({}), 0, "off the ground a wheel drops to full droop at once (default)");
+  assert.ok(air({ droop: 3 }) > 0.04, `droop 3: it eases down (${air({ droop: 3 }).toFixed(3)} after one step)`);
+});
+
+test("drive: zero allocation per step across many races in one process (other grounds, car counts and options; long travel)", async (t) => {
+  // A game's test file runs race after race in one process: each with its own terrain and cars. The
+  // per-vehicle model closures of 0.23.0 deoptimised here ("wrong call target") and boxed: 10 to 15
+  // young GCs per 200,000 rounds of 4 cars.
+  const course = (seed) => {
+    const g = terrain({ cols: 128, rows: 128, cell: 0.5 });
+    g.noise({ seed, amp: 1.2, scale: 8 }); g.ramp([0, 0], [5, 0], { height: 1 }); g.whoops([-20, 8], [10, 8], { height: 0.3, width: 4 });
+    return g;
+  };
+  const race = (seed, n, o) => {
+    const g = course(seed), cars = [];
+    for (let k = 0; k < n; k++) (cars[k] = drive(g, { id: k, top: 12 + k * 0.1, ...o })), cars[k].reset(-6 + k * 2.5, 0, k);
+    return (m) => {
+      for (let i = 0; i < m; i++) {
+        for (let k = 0; k < n; k++) {
+          const v = cars[k], inp = v.input;
+          inp[0] = 0.9; inp[1] = 0; inp[2] = 0.6 - k * 0.3 + v.yaw * 0.001; inp[3] = (i + k * 13) % 40 < 18 ? 1 : 0;
+          v.step(DT);
+          if (v.crashed || Math.abs(v.pos[0]) > 28 || Math.abs(v.pos[2]) > 28) v.reset(-6 + k * 2.5, 0, k);
+        }
+        touchAll(cars);
+      }
+    };
+  };
+  // One call target for every vehicle: the model is the class's, not a closure per car.
+  const one = drive(flat()), two = drive(course(2), LONG);
+  assert.ok(one.step === two.step && one.reset === two.reset && one.spinOut === two.spinOut, "step, reset and spinOut are shared, not per car");
+  assert.equal(Object.getPrototypeOf(one), Object.getPrototypeOf(two));
+  for (let s = 1; s < 8; s++) race(s, 1 + (s % 4), s % 2 ? LONG : { grip: 1.1 })(3000);
+  const steps = race(9, 4, LONG);
+  steps(20000);
+  const bare = await minorGCs(() => {});
+  const n = await minorGCs(() => steps(50000));
+  t.diagnostic(`many races: young GCs over 200k car steps: ${n} (bare ${bare})`);
+  assert.ok(n <= bare + 1, `many races: ${n} young GCs`);
+});
