@@ -74,8 +74,8 @@ export const BUDGETS = [
   ["@fzlt/core/view-canvas", "src/view-canvas.ts", 1229],
   // Software 3D for tabletop scenes on a 2D canvas (no kernel code: draw() goes in a render system):
   // 6,360 B gz when added (meshes, orbit camera and fit, painter's merge sort, shadows, points, pick;
-  // steer's exact hypot for the shadow axes).
-  ["@fzlt/core/diorama", "src/diorama.ts", 6464],
+  // steer's exact hypot for the shadow axes); `behind` (far-side wheels under the body): 6,472 B.
+  ["@fzlt/core/diorama", "src/diorama.ts", 6528],
   // Seeded dice for tabletop games (diorama is a type-only import; steer's exact hypot): 4,264 B gz
   // when added, with dioramaDice and popDome; roll alone 325 B, dice() 1,920 B (they tree-shake).
   ["@fzlt/core/dice", "src/dice.ts", 4352],
