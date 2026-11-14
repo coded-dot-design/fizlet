@@ -108,7 +108,8 @@ export const BUDGETS = [
   // races in one process deoptimised on "wrong call target" and boxed: 10 to 15 young GCs per 200,000
   // rounds of 4 cars in Dune Hop's race test; 1 after). 5,118 B (+32 B) with a parked car resting on
   // three wheels (or teetering on two) instead of creeping on.
-  ["@fzlt/core/drive", "src/drive.ts", 5152],
+  // 5,260 B (+142 B) with `state`, `save` and `load`: the whole state in one buffer (rollback netcode).
+  ["@fzlt/core/drive", "src/drive.ts", 5312],
   // The whole arcade module with every brick it composes (kernel, board-page, input, pad, sound, hud,
   // ui js) and both HUD presets: 21,634 B gz when the `hud` option came (Unreleased; skirmish is
   // +4,012 B over the card build, @fzlt/core/hud included). The Board UI kit CSS is the game's (it bakes
