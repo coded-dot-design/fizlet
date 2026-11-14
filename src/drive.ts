@@ -462,8 +462,10 @@ function sub1(r: Ride) {
   }
   if (!F[0] && (Math.abs(p) > PI / 2 || Math.abs(rl) > PI / 2)) crash(r, x, z);
   // At rest it stays exactly where it was (no creep down a gentle slope), so the engine can settle.
-  const still = (nc === n || crashed) && t === 0 && b === 0 && Math.abs(vf) < 0.05 && Math.abs(vs) < 0.05;
+  // A car with a wheel or two hanging (over a dip, on a rim, teetering on a diagonal) rests on the others: its rocking damped out.
+  const three = !crashed && n > 3 && nc >= n - 2 && nc < n, still = (nc === n || three || crashed) && t === 0 && b === 0 && Math.abs(vf) < 0.05 && Math.abs(vs) < 0.05;
   if (still) (vx = vz = vf = slip = yr = 0), (x = pos[0]!), (z = pos[2]!), (yaw = S[0]!);
+  if (still && three) (vy *= 0.8), (pr *= 0.8), (rr *= 0.8);
   F[2] = still && Math.abs(vy) < 0.004 && Math.abs(pr) < 0.004 && Math.abs(rr) < 0.004 ? 1 : 0;
   if (F[2]) (vy = pr = rr = 0), (y = pos[1]!), (p = S[2]!), (rl = S[4]!);
   // Wheels spin with the ground under them; in the air the driven ones run up on throttle.
