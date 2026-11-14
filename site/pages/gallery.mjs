@@ -3,8 +3,8 @@
 // on the badge and the total with the shared loader beside it (one size, both parts named).
 // Entries, themes and contributors are data (site/gallery/entries, site/gallery/themes,
 // site/contributors); `fe anim --publish` in the engine adds entries. Each page holds PAGE_SIZE
-// entries (scripts/gallery.mjs paginate) in one flat list, newest first (the Hi-Fi page: in theme
-// sections); a theme filter (it groups) and a search over the generated index (gallery/index.json) sit on top (site/gallery/browse.ts).
+// entries (scripts/gallery.mjs paginate) in one flat list, newest first (the Hi-Fi page too); a theme
+// filter (flat: it never groups) and a search over the generated index (gallery/index.json) sit on top (site/gallery/browse.ts).
 import { crumbs, esc, icon } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
 import { BRICKS } from "../bricks.mjs";
@@ -90,7 +90,7 @@ export function cardStickers(e, { today, winner = false } = {}) {
   ].filter(Boolean).join("");
 }
 
-const card = (e, { loader, figures, base, people, themeTitle, winners, snippets = {}, today }) => {
+const card = (e, { loader, figures, base, people, themeTitle, winners, snippets = {}, today, h = "h3" }) => {
   const fig = entryFigure(e, figures).replace("<figure ", `<figure data-gallery="${esc(e.id)}" `);
   const measured = e.pageCost?.measured;
   const hifi = laneOf(e) === "hifi";
@@ -107,7 +107,7 @@ const card = (e, { loader, figures, base, people, themeTitle, winners, snippets 
       <div class="gal-stage">${fig}${e.phone ? shapeKey(e) : ""}</div>
       <div class="gal-meta">
         <p class="eyebrow gal-line"><span class="index">#${e.archived ? "A" : ""}${String(e.no).padStart(3, "0")}</span> ${esc(e.date)} · ${esc(themeTitle.toUpperCase())} · ${e.made === "fe anim" ? `MADE BY FE ANIM · RECIPE ${esc(e.recipe.toUpperCase())}` : "HAND-BUILT"}</p>
-        <h3 class="gal-title">${esc(e.title)}</h3>${stickers ? `
+        <${h} class="gal-title">${esc(e.title)}</${h}>${stickers ? `
         <p class="gal-stickers">${stickers}</p>` : ""}
         ${byLine(e, people, base)}
         <p class="gal-prompt"><span class="bui-label">${e.made === "fe anim" ? "PROMPT" : "BRIEF"}</span> “${esc(e.prompt)}”</p>
@@ -127,7 +127,7 @@ const card = (e, { loader, figures, base, people, themeTitle, winners, snippets 
  * `winners`: ids of weekly-contest winners, micro and Hi-Fi (site/contest/weeks), featured with
  * the Winner badge; `today`: the build's date (YYYY-MM-DD), for the NEW sticker. `hifi`: the
  * Hi-Fi lane's page ({ n, path, entries }); with `lane: "hifi"` this is that page (its entries
- * by theme, the theme chips counting them), else a Daily page.
+ * flat, newest first, the theme chips counting them), else a Daily page.
  */
 export function galleryPage({ page, pages, all, themes, people, loader, figures, snippets = {}, base, winners = new Set(), hifi = { path: HIFI_PATH, entries: [] }, lane, archived = 0, contributors = [], week, today }) {
   const lanePage = lane === "hifi";
@@ -138,24 +138,17 @@ export function galleryPage({ page, pages, all, themes, people, loader, figures,
   const chips = [`<a class="bui-key gal-chip" href="${base}gallery/" data-theme-chip="all"${page.n === 1 && !lanePage ? ' aria-current="true"' : ""}>All <small>${all.length}</small></a>`,
     // The lane filter: the Hi-Fi page (a plain link; the theme chips filter on the page).
     hifi.entries.length || lanePage ? `<a class="bui-key gal-chip gal-lane-chip" href="${base}${HIFI_PATH}" data-lane-chip="hifi"${lanePage ? ' aria-current="true"' : ""}>Hi-Fi <small>${hifi.entries.length}</small></a>` : "",
-    ...used.map((t) => `<a class="bui-key gal-chip" href="${base}${firstPage[t.id].path}#theme-${esc(t.id)}" data-theme-chip="${esc(t.id)}">${esc(t.title)} <small>${inView.filter((e) => e.theme === t.id).length}</small></a>`)].join("");
+    // The chip is its own #theme-<id> anchor: without script the link lands on the filters; with it, it filters (flat).
+    ...used.map((t) => `<a class="bui-key gal-chip" id="theme-${esc(t.id)}" href="${base}${firstPage[t.id].path}#theme-${esc(t.id)}" data-theme-chip="${esc(t.id)}">${esc(t.title)} <small>${inView.filter((e) => e.theme === t.id).length}</small></a>`)].join("");
   const title = Object.fromEntries(themes.map((t) => [t.id, t.title]));
-  const cardOf = (e) => card(e, { loader, figures, base, people, themeTitle: title[e.theme], winners, snippets, today });
-  // A Daily page under All is one flat list, strictly newest first (date, then number): what is new
-  // is always on top. A theme chip groups it (site/gallery/browse.ts): its head (kept here, hidden)
-  // shows over only its cards. The Hi-Fi page is a lane filter already: it stays in theme sections.
-  const flat = `<div class="gal-flat" data-gal-flat>
-    ${sections(page.entries, themes).map(({ theme: t }) => `<div class="gal-theme-head gal-group-head" id="theme-${esc(t.id)}" data-theme-head="${esc(t.id)}" hidden><h2>${esc(t.title)}</h2><p>${esc(t.blurb)}</p></div>`).join("\n    ")}
-    <ol class="gal">
+  // No theme heads over a flat list, so a card's title is the next level under the page's h1.
+  const cardOf = (e) => card(e, { loader, figures, base, people, themeTitle: title[e.theme], winners, snippets, today, h: "h2" });
+  // Every gallery page (Daily and the Hi-Fi lane) is one flat list, strictly newest first (date,
+  // then number): what is new is always on top. A theme chip filters it in place, never groups it
+  // (site/gallery/browse.ts): only its cards show, in the same order, with no heads (owner, 2026-11-14).
+  const secs = `<ol class="gal" data-gal-flat>
     ${page.entries.map(cardOf).join("\n    ")}
-    </ol>
-  </div>`;
-  const secs = lanePage ? sections(page.entries, themes).map(({ theme: t, entries }) => `<section class="gal-theme" id="theme-${esc(t.id)}" data-theme-section="${esc(t.id)}" aria-labelledby="theme-${esc(t.id)}-h">
-    <div class="gal-theme-head"><h2 id="theme-${esc(t.id)}-h">${esc(t.title)}</h2><p>${esc(t.blurb)}</p></div>
-    <ol class="gal">
-    ${entries.map(cardOf).join("\n    ")}
-    </ol>
-  </section>`).join("\n  ") : flat;
+    </ol>`;
   const nav = pages.length > 1 ? `<nav class="gal-pages" aria-label="Daily pages">${pages.map((p) => p.n === page.n
     ? `<span class="gal-page-now" aria-current="page">${p.n}</span>`
     : `<a class="bui-key" href="${base}${p.path}"${p.n === page.n - 1 ? ' rel="prev"' : p.n === page.n + 1 ? ' rel="next"' : ""} aria-label="Daily page ${p.n}">${p.n}</a>`).join("")}</nav>` : "";
