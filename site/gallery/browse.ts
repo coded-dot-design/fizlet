@@ -1,22 +1,18 @@
-// The gallery pages' browse script: the theme filter (the chips are plain links to each theme's
-// section without it) and the search box over the generated index (gallery/index.json, fetched on
+// The gallery pages' browse script: the theme filter (the chips are plain links to the page with
+// each theme's newest card without it) and the search box over the generated index (gallery/index.json, fetched on
 // the first keystroke). No dependencies; the demos' own loader is gallery.ts.
 import { search, type IndexRow } from "./search";
 
 const MAX = 24;
 const root = document.documentElement;
 
-// ---------- Theme filter: under All a Daily page is one flat list, newest first; a chip whose theme
-// is on this page groups it: that theme's head, over only its cards (the Hi-Fi page: only its section) ----------
+// ---------- Theme filter: every gallery page is one flat list, newest first; a chip whose theme is on
+// this page filters it in place: only its cards show, in the same order, never grouped (owner, 2026-11-14) ----------
 const chips = [...document.querySelectorAll<HTMLAnchorElement>("a[data-theme-chip]")];
-const secs = [...document.querySelectorAll<HTMLElement>("section[data-theme-section]")];
-const heads = [...document.querySelectorAll<HTMLElement>("[data-gal-flat] [data-theme-head]")];
-const cards = [...document.querySelectorAll<HTMLElement>("[data-gal-flat] li.gal-item")];
+const cards = [...document.querySelectorAll<HTMLElement>("[data-gal-flat] > li.gal-item")];
 function filter(id: string) {
-  const here = id === "all" || secs.some((s) => s.dataset.themeSection === id) || heads.some((h) => h.dataset.themeHead === id);
+  const here = id === "all" || cards.some((c) => c.dataset.theme === id);
   if (!here) return false;
-  for (const s of secs) s.hidden = id !== "all" && s.dataset.themeSection !== id;
-  for (const h of heads) h.hidden = h.dataset.themeHead !== id;
   for (const c of cards) c.hidden = id !== "all" && c.dataset.theme !== id;
   for (const c of chips) c.dataset.themeChip === id ? c.setAttribute("aria-current", "true") : c.removeAttribute("aria-current");
   root.dataset.galFilter = id;
@@ -32,14 +28,14 @@ for (const c of chips)
     }
   });
 // A #theme- address filters on arrival, and when the address changes on the same page (a link, back).
-// Any other address while filtered is All again (a search hit's card may be in another theme). A head
-// or card hidden when the address changed is gone to once it shows.
+// Any other address while filtered is All again (a search hit's card may be in another theme). A card
+// hidden when the address changed is gone to once it shows.
 const fromHash = (arrival: boolean) => {
   const id = location.hash.match(/^#theme-([a-z0-9-]+)$/)?.[1];
   if (id) {
     if (!filter(id)) return;
   } else if (arrival || (root.dataset.galFilter ?? "all") === "all" || !filter("all")) return;
-  if (location.hash) document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
+  if (location.hash && !id) document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
 };
 fromHash(true);
 addEventListener("hashchange", () => fromHash(false));

@@ -2931,6 +2931,10 @@ html.bui[data-theme="light"] .phases b {
   padding: 0;
   list-style: none;
 }
+/* A theme filter hides the cards that don't match (browse.ts); display: grid must not show them. */
+.gal-item[hidden] {
+  display: none;
+}
 .gal-item {
   display: grid;
   gap: 24px;
@@ -3416,14 +3420,6 @@ html.bui[data-theme="light"] .phases b {
   color: var(--muted);
 }
 .gal-theme .gal {
-  margin-top: 22px;
-}
-/* Daily under All is flat; a theme chip shows its head over only its cards (browse.ts). */
-.gal-group-head {
-  margin-top: 48px;
-  scroll-margin-top: 96px;
-}
-.gal-group-head:not([hidden]) ~ .gal {
   margin-top: 22px;
 }
 .gal-by,

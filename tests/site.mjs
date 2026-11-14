@@ -234,13 +234,19 @@ try {
     for (const gp of GPAGES) {
       assert.ok(PAGES.includes(gp.path), `${gp.path} is built`);
       const html = readFileSync(pageFile(gp.path), "utf8");
-      // Under All a Daily page is one flat list, strictly newest first (date, then number): no theme
-      // sections, and each theme's head (in theme order) hidden until its chip groups the page.
-      const secs = sections(gp.entries, THEMES);
-      assert.ok(!html.includes('<section class="gal-theme"'), `${gp.path}: no theme sections under All`);
-      assert.deepEqual([...html.matchAll(/<div class="gal-theme-head gal-group-head" id="theme-([^"]+)" data-theme-head="[^"]+" hidden>/g)].map((m) => m[1]), secs.map((x) => x.theme.id), `${gp.path}: theme heads, hidden`);
+      // A Daily page is one flat list, strictly newest first (date, then number): no theme sections,
+      // no theme heads, nothing grouped (owner, 2026-11-14).
+      assert.ok(!html.includes('<section class="gal-theme"'), `${gp.path}: no theme sections`);
+      assert.ok(!/data-theme-head|gal-group-head|class="gal-theme-head/.test(html), `${gp.path}: no theme heads`);
       assert.deepEqual([...html.matchAll(/<li class="panel gal-item" id="([^"]+)"/g)].map((m) => m[1]), gp.entries.map((e) => e.id), `${gp.path}: entries flat, newest first`);
-      if (gp.n === 1) assert.equal(html.match(/<li class="panel gal-item" id="([^"]+)"/)[1], GALLERY[0].id, "gallery/: the first card is the newest approved entry");
+      if (gp.n === 1) {
+        assert.equal(html.match(/<li class="panel gal-item" id="([^"]+)"/)[1], GALLERY[0].id, "gallery/: the first card is the newest approved entry");
+        // A new daily lands on top: the highest-numbered live entry is the first card, and it is dated
+        // no later than the build day (never in the future).
+        const top = GALLERY.reduce((a, b) => (b.no > a.no ? b : a));
+        assert.equal(GALLERY[0].id, top.id, `gallery/: the first card is the highest-numbered entry (#${top.no} ${top.id})`);
+        assert.ok(GALLERY.every((e) => e.date <= new Date().toISOString().slice(0, 10)), "gallery/: no entry dated after the build day");
+      }
       // The chips: All, then every theme that has entries (with its count), linking to its first section.
       const chips = [...html.matchAll(/data-theme-chip="([^"]+)"[^>]*>[^<]*<small>(\d+)<\/small>/g)].map((m) => [m[1], Number(m[2])]);
       assert.deepEqual(chips, [["all", GALLERY.length], ...THEMES.filter((t) => GALLERY.some((e) => e.theme === t.id)).map((t) => [t.id, GALLERY.filter((e) => e.theme === t.id).length])], `${gp.path}: theme chips and counts`);
@@ -270,13 +276,14 @@ try {
         assert.ok(card.includes(`<p class="gal-by">by <a href="${"../".repeat(gp.path.split("/").length - 1)}${personPath(e.author)}">${PEOPLE[e.author].name}</a>${{ persona: ' <small class="gal-persona">studio crew</small>', agent: ' <small class="gal-persona">AI agent</small>' }[PEOPLE[e.author].kind] ?? ""}</p>`), `${e.id}: by ${PEOPLE[e.author].name}, linked`);
       }
     }
-    // The Hi-Fi page: every Hi-Fi entry (and only those) by theme, newest first; its chip is on, its
+    // The Hi-Fi page: every Hi-Fi entry (and only those), one flat list, newest first; its chip is on, its
     // theme chips count its own entries; it is linked from every Daily page.
     {
       const HIFI = GALLERY.filter((e) => laneOf(e) === "hifi");
       assert.ok(HIFI.length >= 2 && PAGES.includes(HIFI_PATH), `${HIFI_PATH} is built, with the Hi-Fi pieces (${HIFI.length})`);
       const html = readFileSync(pageFile(HIFI_PATH), "utf8"), secs = sections(HIFI, THEMES);
-      assert.deepEqual([...html.matchAll(/<li class="panel gal-item" id="([^"]+)"/g)].map((m) => m[1]), secs.flatMap((x) => x.entries.map((e) => e.id)), "hifi: its entries by theme, newest first");
+      assert.deepEqual([...html.matchAll(/<li class="panel gal-item" id="([^"]+)"/g)].map((m) => m[1]), HIFI.map((e) => e.id), "hifi: its entries flat, newest first");
+      assert.ok(!html.includes('<section class="gal-theme"') && !/data-theme-head|class="gal-theme-head/.test(html), "hifi: no theme sections or heads");
       assert.equal([...html.matchAll(/data-lane="hifi"/g)].length, HIFI.length, "hifi: every card is Hi-Fi");
       assert.ok(!html.includes('data-lane="micro"'), "hifi: no micro on it");
       assert.ok(html.includes(`data-lane-chip="hifi" aria-current="true">Hi-Fi <small>${HIFI.length}</small>`), "hifi: its chip is on");
@@ -1200,33 +1207,34 @@ try {
     const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
     const { page, errors } = await open(context, "gallery/");
     const G1 = GPAGES[0].entries, secs = sections(G1, THEMES).map((x) => x.theme.id);
-    // Under All: every card, flat, newest first (as laid out), no group head showing.
-    const view = () => page.evaluate(() => ({
-      heads: [...document.querySelectorAll("[data-theme-head]")].filter((h) => !h.hidden && h.offsetParent).map((h) => h.dataset.themeHead),
-      cards: [...document.querySelectorAll("li.gal-item")].filter((c) => !c.hidden && c.offsetParent).sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top || a.getBoundingClientRect().left - b.getBoundingClientRect().left).map((c) => c.id),
+    // Every view is one flat list, newest first (as laid out): no group head, no section, no heading
+    // among the cards, whatever the filter (owner, 2026-11-14).
+    const view = (p = page) => p.evaluate(() => ({
+      heads: [...document.querySelectorAll("[data-theme-head], .gal-group-head, .gal-sections h2, .gal-sections h3")].filter((h) => h.getClientRects().length > 0 && !h.closest("li.gal-item")).length,
+      // What shows, as laid out (not the hidden attribute: a card's display must honour it).
+      cards: [...document.querySelectorAll("li.gal-item")].filter((c) => c.getClientRects().length > 0).sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top || a.getBoundingClientRect().left - b.getBoundingClientRect().left).map((c) => c.id),
       sections: document.querySelectorAll("section.gal-theme").length,
     }));
-    const flat = { heads: [], cards: G1.map((e) => e.id), sections: 0 };
+    const flat = { heads: 0, cards: G1.map((e) => e.id), sections: 0 };
     assert.deepEqual(await view(), flat, "All on arrival: no groups, every card newest first");
     assert.equal(await page.$eval("li.gal-item", (c) => c.id), GALLERY[0].id, "All: the first card is the newest approved entry");
     for (const id of secs) {
       await page.click(`a[data-theme-chip="${id}"]`);
-      assert.deepEqual(await view(), { heads: [id], cards: G1.filter((e) => e.theme === id).map((e) => e.id), sections: 0 }, `filter ${id}: its group, only its cards`);
+      assert.deepEqual(await view(), { heads: 0, cards: G1.filter((e) => e.theme === id).map((e) => e.id), sections: 0 }, `filter ${id}: only its cards, flat, newest first, no heads`);
       assert.equal(await page.getAttribute(`a[data-theme-chip="${id}"]`, "aria-current"), "true");
       assert.equal(new URL(page.url()).hash, `#theme-${id}`, `filter ${id}: in the address`);
     }
     await page.click('a[data-theme-chip="all"]');
-    assert.deepEqual(await view(), flat, "back to All: flat again, newest first");
+    assert.deepEqual(await view(), flat, "back to All: flat, newest first");
     assert.equal(new URL(page.url()).hash, "", "All: no theme in the address");
     // A second press on a theme's chip is All again.
     await page.click(`a[data-theme-chip="${secs[0]}"]`);
     await page.click(`a[data-theme-chip="${secs[0]}"]`);
     assert.deepEqual(await view(), flat, "a second press: All");
-    // A theme in the address filters on arrival (a fresh page: from this one it is only a hash change).
+    // A theme in the address filters on arrival, flat (a fresh page: from this one it is only a hash change).
     {
       const fresh = await open(context, `gallery/#theme-${secs[0]}`);
-      const there = await fresh.page.$$eval("[data-theme-head]", (l) => l.filter((x) => !x.hidden).map((x) => x.dataset.themeHead));
-      assert.deepEqual(there, [secs[0]], "a #theme- address groups");
+      assert.deepEqual(await view(fresh.page), { heads: 0, cards: G1.filter((e) => e.theme === secs[0]).map((e) => e.id), sections: 0 }, "a #theme- address filters, flat");
       await fresh.page.close();
     }
     // Search: shown with script, every word must match title, prompt, theme or author.
@@ -1241,16 +1249,18 @@ try {
     await q("zzqx nothing");
     assert.match(await page.textContent("[data-gal-found]"), /^0 matches/);
     assert.equal((await hits()).length, 0);
-    // The lane filter: the Hi-Fi chip opens the Hi-Fi page (only Hi-Fi cards, its chip on); a theme
-    // chip there filters its own sections.
+    // The lane filter: the Hi-Fi chip opens the Hi-Fi page (only Hi-Fi cards, flat, newest first, its
+    // chip on); a theme chip there filters it in place, flat too.
     await page.click('a[data-lane-chip="hifi"]');
     await page.waitForURL(`**/${HIFI_PATH}`);
+    const HF = GALLERY.filter((e) => laneOf(e) === "hifi");
     const lanes = await page.$$eval("li.gal-item", (l) => l.map((x) => x.dataset.lane));
     assert.ok(lanes.length >= 2 && lanes.every((x) => x === "hifi"), `Hi-Fi filter: only Hi-Fi cards (${lanes.join(", ")})`);
+    assert.deepEqual(await view(), { heads: 0, cards: HF.map((e) => e.id), sections: 0 }, "Hi-Fi: flat, newest first, no heads");
     assert.equal(await page.getAttribute('a[data-lane-chip="hifi"]', "aria-current"), "true");
-    const hifiSecs = await page.$$eval("section[data-theme-section]", (l) => l.map((x) => x.dataset.themeSection));
-    await page.click(`a[data-theme-chip="${hifiSecs[0]}"]`);
-    assert.deepEqual(await page.$$eval("section[data-theme-section]", (l) => l.filter((x) => !x.hidden).map((x) => x.dataset.themeSection)), [hifiSecs[0]], "a theme chip filters the Hi-Fi page");
+    const hifiTheme = HF[0].theme;
+    await page.click(`a[data-theme-chip="${hifiTheme}"]`);
+    assert.deepEqual(await view(), { heads: 0, cards: HF.filter((e) => e.theme === hifiTheme).map((e) => e.id), sections: 0 }, "a theme chip filters the Hi-Fi page, flat");
     assert.ok(new URL(page.url()).pathname.endsWith(HIFI_PATH), "and stays on it");
     assert.deepEqual(errors, []);
     await context.close();

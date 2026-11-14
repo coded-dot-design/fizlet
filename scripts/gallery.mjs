@@ -73,8 +73,20 @@ export function contributors(dir = "site/contributors") {
  */
 export const isLive = (e) => typeof e.approved === "string";
 
-/** The entries, checked, newest first (then the highest number first). */
-export function entries({ dir = `${DIR}/entries`, what = "gallery/entries", themeIds = themes().map((t) => t.id), people = contributors() } = {}) {
+/** The build day: today's UTC date (YYYY-MM-DD). */
+export const buildDay = () => new Date().toISOString().slice(0, 10);
+/**
+ * Never a daily in the future (owner, 2026-11-14: Daily's main job is to look fresh, newest first).
+ * Errors for entries dated, or approved, after `today` (the build day, UTC). Backdating to fill a
+ * missing past day stays allowed.
+ */
+export const futureErrors = (list, today = buildDay(), what = "gallery/entries") => list.flatMap((e) => [
+  e.date > today ? `${what}/${e.id}.json: date ${e.date} is after the build day ${today} (UTC): a daily is never dated in the future; date it today or an earlier missing day` : "",
+  typeof e.approved === "string" && e.approved > today ? `${what}/${e.id}.json: approved ${e.approved} is after the build day ${today} (UTC): approve it on its date, never in the future` : "",
+].filter(Boolean));
+
+/** The entries, checked (none in the future), newest first (then the highest number first). */
+export function entries({ dir = `${DIR}/entries`, what = "gallery/entries", themeIds = themes().map((t) => t.id), people = contributors(), today = buildDay() } = {}) {
   const list = readDir(dir, what).map((e) => {
     const at = `${what}/${e.id}.json`;
     for (const k of NEED) if (e[k] === undefined) throw new Error(`${at}: missing ${k}`);
@@ -97,6 +109,8 @@ export function entries({ dir = `${DIR}/entries`, what = "gallery/entries", them
   // gallery entry may have none yet. A live one without a number shows the one land will give it.
   for (const e of list) if (e.archived && !Number.isInteger(e.no)) throw new Error(`${what}/${e.id}.json: missing no`);
   for (const e of list) if (e.no !== undefined && !(Number.isInteger(e.no) && e.no > 0)) throw new Error(`${what}/${e.id}.json: no is a whole number from 1`);
+  const future = futureErrors(list, today, what);
+  if (future.length) throw new Error(future.join("\n"));
   const dupes = duplicateNumbers(list);
   if (dupes.length) throw new Error(duplicateMessage(what, dupes));
   const given = assignNumbers(list);
@@ -118,7 +132,8 @@ export function paginate(list, size = PAGE_SIZE) {
   return out;
 }
 
-/** A page's entries in theme sections (theme order; newest first inside each), empty themes left out. */
+/** A page's entries in theme sections (theme order; newest first inside each), empty themes left out.
+ *  Only the archive groups by theme; Daily and every filter are one flat list, newest first. */
 export const sections = (list, themeList) => themeList.map((theme) => ({ theme, entries: list.filter((e) => e.theme === theme.id) })).filter((s) => s.entries.length);
 
 /** The generated index: one row per entry, with its page, its author's name and its measured sizes. */
@@ -175,7 +190,7 @@ export async function buildGallery(out) {
   const index = galleryIndex(live, { pages, people, themeList, loader: gz(loader) });
   writeFileSync(join(out, "gallery", "index.json"), JSON.stringify(index) + "\n");
   const archivePage = { n: 1, path: "gallery/archive/", entries: arch.entries };
-  // The Hi-Fi lane's own page: every live Hi-Fi entry, newest first, by theme.
+  // The Hi-Fi lane's own page: every live Hi-Fi entry, one flat list, newest first.
   const hifiPage = { n: 1, path: HIFI_PATH, entries: live.filter((e) => laneOf(e) === "hifi") };
   return { entries: live, hifi: hifiPage, pending: pending.map((e) => e.id), loader: gz(loader), themes: themeList, people, pages, index, archive: { ...arch, page: archivePage } };
 }

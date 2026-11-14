@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { contributors, entries, galleryIndex, isLive, galleryPath, HIFI_PATH, laneErrors, laneOf, LANES, MICRO_CAP, paginate, PAGE_SIZE, sections, themes } from "../scripts/gallery.mjs";
+import { buildDay, contributors, entries, futureErrors, galleryIndex, isLive, galleryPath, HIFI_PATH, laneErrors, laneOf, LANES, MICRO_CAP, paginate, PAGE_SIZE, sections, themes } from "../scripts/gallery.mjs";
 import { search } from "../site/gallery/search.ts";
 
 const THEMES = [{ id: "halloween", title: "Halloween", order: 1 }, { id: "everyday", title: "Everyday", order: 99 }];
@@ -49,6 +49,30 @@ test("the owner's gate: an entry is live only once approved; pending ones are ch
   assert.deepEqual(all.filter((e) => !isLive(e)).map((e) => e.id), ["e2"], "no approved: pending, off the site");
   put({ ...fake(2), ...base, approved: true });
   assert.throws(() => entries({ dir: d, themeIds, people }), /approved is the date the owner approved it/);
+});
+
+test("never in the future: an entry dated (or approved) after the build day fails, a backdated one is fine", () => {
+  const d = mkdtempSync(join(tmpdir(), "gal-future-"));
+  const people = { "chris-cooley": { name: "Chris Cooley" } }, themeIds = ["everyday"];
+  const base = { recipe: "burst", bricks: [], made: "fe anim", module: "anims/x.ts", export: "mount", theme: "everyday" };
+  const put = (e) => writeFileSync(join(d, `${e.id}.json`), JSON.stringify(e));
+  const today = "2026-11-14";
+  put({ ...fake(1), ...base, date: "2026-11-02", approved: "2026-11-14" }); // backdated into a missing past day
+  put({ ...fake(2), ...base, date: today, approved: today });
+  assert.equal(entries({ dir: d, themeIds, people, today }).length, 2, "today and a past day: fine");
+  put({ ...fake(3), ...base, date: "2026-11-15", approved: today });
+  assert.throws(() => entries({ dir: d, themeIds, people, today }), /e3\.json: date 2026-11-15 is after the build day 2026-11-14 \(UTC\): a daily is never dated in the future/);
+  put({ ...fake(3), ...base, date: today, approved: "2026-11-20" });
+  assert.throws(() => entries({ dir: d, themeIds, people, today }), /e3\.json: approved 2026-11-20 is after the build day/);
+  assert.deepEqual(futureErrors([{ id: "x", date: "2999-01-01" }]).length, 1, "the default is the real build day");
+  assert.match(buildDay(), /^\d{4}-\d{2}-\d{2}$/);
+});
+
+test("the repo's gallery: nothing dated after the build day; newest first; the highest number on top", () => {
+  const live = entries().filter(isLive);
+  assert.deepEqual(futureErrors(live), []);
+  for (let i = 1; i < live.length; i++) assert.ok(live[i - 1].date > live[i].date || (live[i - 1].date === live[i].date && live[i - 1].no > live[i].no), `${live[i - 1].id} before ${live[i].id}`);
+  assert.equal(live[0].no, Math.max(...live.map((e) => e.no)), "the first card is the highest-numbered entry");
 });
 
 test("paginate: PAGE_SIZE a page at gallery/, gallery/page/2/ …; always one page", () => {
