@@ -3418,6 +3418,14 @@ html.bui[data-theme="light"] .phases b {
 .gal-theme .gal {
   margin-top: 22px;
 }
+/* Daily under All is flat; a theme chip shows its head over only its cards (browse.ts). */
+.gal-group-head {
+  margin-top: 48px;
+  scroll-margin-top: 96px;
+}
+.gal-group-head:not([hidden]) ~ .gal {
+  margin-top: 22px;
+}
 .gal-by,
 .hero-by {
   margin: 0;

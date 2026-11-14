@@ -227,17 +227,20 @@ try {
   const pageFile = (path) => `${ROOT}/${path}index.html`;
   {
     const loader = gzipSync(readFileSync(`${ROOT}/gallery/gallery.js`)).length;
-    for (let i = 1; i < GALLERY.length; i++) assert.ok(GALLERY[i - 1].date >= GALLERY[i].date, "newest first");
+    for (let i = 1; i < GALLERY.length; i++) assert.ok(GALLERY[i - 1].date > GALLERY[i].date || (GALLERY[i - 1].date === GALLERY[i].date && GALLERY[i - 1].no > GALLERY[i].no), `newest first, then the highest number (${GALLERY[i - 1].id}, ${GALLERY[i].id})`);
     // Pages: PAGE_SIZE entries each, at gallery/ then gallery/page/<n>/; nothing past the last.
     assert.deepEqual(GPAGES.map((p) => p.path), Array.from({ length: Math.max(1, Math.ceil(GALLERY.length / PAGE_SIZE)) }, (_, i) => galleryPath(i + 1)), "one gallery page per PAGE_SIZE entries");
     assert.ok(!PAGES.includes(galleryPath(GPAGES.length + 1)), "no empty gallery page");
     for (const gp of GPAGES) {
       assert.ok(PAGES.includes(gp.path), `${gp.path} is built`);
       const html = readFileSync(pageFile(gp.path), "utf8");
-      // Theme sections in theme order (data: site/gallery/themes), newest first inside each.
+      // Under All a Daily page is one flat list, strictly newest first (date, then number): no theme
+      // sections, and each theme's head (in theme order) hidden until its chip groups the page.
       const secs = sections(gp.entries, THEMES);
-      assert.deepEqual([...html.matchAll(/<section class="gal-theme" id="theme-([^"]+)"/g)].map((m) => m[1]), secs.map((x) => x.theme.id), `${gp.path}: theme sections in order`);
-      assert.deepEqual([...html.matchAll(/<li class="panel gal-item" id="([^"]+)"/g)].map((m) => m[1]), secs.flatMap((x) => x.entries.map((e) => e.id)), `${gp.path}: entries by theme, newest first`);
+      assert.ok(!html.includes('<section class="gal-theme"'), `${gp.path}: no theme sections under All`);
+      assert.deepEqual([...html.matchAll(/<div class="gal-theme-head gal-group-head" id="theme-([^"]+)" data-theme-head="[^"]+" hidden>/g)].map((m) => m[1]), secs.map((x) => x.theme.id), `${gp.path}: theme heads, hidden`);
+      assert.deepEqual([...html.matchAll(/<li class="panel gal-item" id="([^"]+)"/g)].map((m) => m[1]), gp.entries.map((e) => e.id), `${gp.path}: entries flat, newest first`);
+      if (gp.n === 1) assert.equal(html.match(/<li class="panel gal-item" id="([^"]+)"/)[1], GALLERY[0].id, "gallery/: the first card is the newest approved entry");
       // The chips: All, then every theme that has entries (with its count), linking to its first section.
       const chips = [...html.matchAll(/data-theme-chip="([^"]+)"[^>]*>[^<]*<small>(\d+)<\/small>/g)].map((m) => [m[1], Number(m[2])]);
       assert.deepEqual(chips, [["all", GALLERY.length], ...THEMES.filter((t) => GALLERY.some((e) => e.theme === t.id)).map((t) => [t.id, GALLERY.filter((e) => e.theme === t.id).length])], `${gp.path}: theme chips and counts`);
@@ -1135,7 +1138,7 @@ try {
     const { page, errors } = await open(context, "gallery/");
     await page.waitForTimeout(600);
     const G1 = GPAGES[0].entries;
-    const last = sections(G1, THEMES).flatMap((x) => x.entries).at(-1).id;
+    const last = G1.at(-1).id;
     assert.ok(!loaded.includes(`${last}.js`), `${last} (far below) has not loaded yet`);
     for (const e of G1) {
       await page.$eval(`#${e.id}`, (el) => el.scrollIntoView({ block: "center" }));
@@ -1196,21 +1199,34 @@ try {
   {
     const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
     const { page, errors } = await open(context, "gallery/");
-    const secs = sections(GPAGES[0].entries, THEMES).map((x) => x.theme.id);
-    const shown = () => page.$$eval("section[data-theme-section]", (l) => l.filter((x) => !x.hidden).map((x) => x.dataset.themeSection));
+    const G1 = GPAGES[0].entries, secs = sections(G1, THEMES).map((x) => x.theme.id);
+    // Under All: every card, flat, newest first (as laid out), no group head showing.
+    const view = () => page.evaluate(() => ({
+      heads: [...document.querySelectorAll("[data-theme-head]")].filter((h) => !h.hidden && h.offsetParent).map((h) => h.dataset.themeHead),
+      cards: [...document.querySelectorAll("li.gal-item")].filter((c) => !c.hidden && c.offsetParent).sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top || a.getBoundingClientRect().left - b.getBoundingClientRect().left).map((c) => c.id),
+      sections: document.querySelectorAll("section.gal-theme").length,
+    }));
+    const flat = { heads: [], cards: G1.map((e) => e.id), sections: 0 };
+    assert.deepEqual(await view(), flat, "All on arrival: no groups, every card newest first");
+    assert.equal(await page.$eval("li.gal-item", (c) => c.id), GALLERY[0].id, "All: the first card is the newest approved entry");
     for (const id of secs) {
       await page.click(`a[data-theme-chip="${id}"]`);
-      assert.deepEqual(await shown(), [id], `filter ${id}: only its section`);
+      assert.deepEqual(await view(), { heads: [id], cards: G1.filter((e) => e.theme === id).map((e) => e.id), sections: 0 }, `filter ${id}: its group, only its cards`);
       assert.equal(await page.getAttribute(`a[data-theme-chip="${id}"]`, "aria-current"), "true");
       assert.equal(new URL(page.url()).hash, `#theme-${id}`, `filter ${id}: in the address`);
     }
     await page.click('a[data-theme-chip="all"]');
-    assert.deepEqual(await shown(), secs, "All: every section again");
+    assert.deepEqual(await view(), flat, "back to All: flat again, newest first");
+    assert.equal(new URL(page.url()).hash, "", "All: no theme in the address");
+    // A second press on a theme's chip is All again.
+    await page.click(`a[data-theme-chip="${secs[0]}"]`);
+    await page.click(`a[data-theme-chip="${secs[0]}"]`);
+    assert.deepEqual(await view(), flat, "a second press: All");
     // A theme in the address filters on arrival (a fresh page: from this one it is only a hash change).
     {
       const fresh = await open(context, `gallery/#theme-${secs[0]}`);
-      const there = await fresh.page.$$eval("section[data-theme-section]", (l) => l.filter((x) => !x.hidden).map((x) => x.dataset.themeSection));
-      assert.deepEqual(there, [secs[0]], "a #theme- address filters");
+      const there = await fresh.page.$$eval("[data-theme-head]", (l) => l.filter((x) => !x.hidden).map((x) => x.dataset.themeHead));
+      assert.deepEqual(there, [secs[0]], "a #theme- address groups");
       await fresh.page.close();
     }
     // Search: shown with script, every word must match title, prompt, theme or author.
