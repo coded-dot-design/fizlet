@@ -1,0 +1,27 @@
+{
+  "id": "dom-kaiju",
+  "date": "2026-11-15",
+  "prompt": "a climb-and-smash giant monster on a tabletop city block, side-on: build your own monster first (a biped brute, a hunched beast or a tentacle blob; horns, fins, a crest or one eye; two tones and a pattern), then walk the street, jump, climb the buildings' faces and punch holes in the windows until each one shakes and pancakes down floor by floor in a cloud of dust; swat the helicopter, flick the soldiers away on little parachutes, grab people from the windows for a snack",
+  "title": "DOM Kaiju",
+  "kind": "hero",
+  "lane": "hifi",
+  "theme": "monsters",
+  "author": "pip",
+  "recipe": "hand-built",
+  "bricks": [
+    "@fzlt/core/kernel",
+    "@fzlt/core/diorama",
+    "@fzlt/core/fx",
+    "@fzlt/core/input",
+    "@fzlt/core/pad",
+    "@fzlt/core/slot",
+    "@fzlt/core/sound"
+  ],
+  "fizlet": "0.25.0",
+  "made": "by hand",
+  "module": "pieces/kaiju/dom-kaiju.ts",
+  "export": "mount",
+  "aspect": "16 / 9",
+  "phone": "4 / 5",
+  "stage": "own"
+}
