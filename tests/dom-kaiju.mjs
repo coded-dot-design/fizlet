@@ -1,13 +1,14 @@
 // DOM Kaiju (site/gallery/pieces/kaiju/dom-kaiju.ts) in Chromium, on its own stage in a gallery
 // figure (Board UI kit and the site's sheet), mounted through @fzlt/core/slot: it mounts (the poster
-// steps aside), the block fills the stage and draws, the customiser is up with the monster's name, it
+// steps aside), the block fills the stage and draws, the customiser is up with the ape's name, it
 // settles with no audio before a gesture, keys are 44 px or more, wide (720) and tall (the phone shape,
-// 358 wide, the pad under the block). Wide: the customiser's parts change the monster and its name;
-// SMASH! starts it; the keyboard plays: D walks, W climbs a face, Space punches a hole, L grabs; then
-// the autopilot flattens the whole block (a building pancakes, the helicopter is swatted) to the end
-// card; M mutes; it settles; SMASH AGAIN resets. Tall: the customiser shows one part at a time (the
-// tabs), the stick walks and the pad's PUNCH key punches. Recall mid-round gives the page back byte for
-// byte; reduced motion keeps the still poster. The round itself: tests/dom-kaiju.test.mjs.
+// 358 wide, the pad under the block). Wide: the customiser's parts dress the ape and name it; SMASH!
+// starts it; the keyboard plays: D walks, K at a wall jumps and grabs it, Space punches holes from the
+// wall; 2 brings player two in on the crab and the arrow keys walk it; then the autopilot flattens the
+// whole block to the score card (a line per player); M mutes; it settles; SMASH AGAIN resets. Tall: the
+// customiser shows one part at a time (the tabs), the stick walks and the pad's PUNCH key punches.
+// Recall mid-round gives the page back byte for byte; reduced motion keeps the still poster. The round
+// itself: tests/dom-kaiju.test.mjs.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { build } from "esbuild";
@@ -62,37 +63,47 @@ try {
         touch: getComputedStyle(document.querySelector("[data-fizlet-slot] .kj-play")).touchAction,
       };
     });
-    assert.deepEqual(m, { canvas: 1, poster: "none", fills: true, drawn: true, making: true, name: "RUMBLEHORN", keys: true, touch: "none" }, `${at}: mounts, the poster steps aside, the block fills and draws, the customiser is up, keys ≥ 44 px`);
+    assert.deepEqual(m, { canvas: 1, poster: "none", fills: true, drawn: true, making: true, name: "EMBER BROWLER", keys: true, touch: "none" }, `${at}: mounts, the poster steps aside, the block fills and draws, the customiser is up, keys ≥ 44 px`);
     await settle(p, `${at}: ready`);
     assert.equal(await frames(p), 0, `${at}: settled, no frames`);
     assert.equal(await p.evaluate(() => window.audio || 0), 0, `${at}: no audio before a gesture`);
     if (!phone) {
-      // The customiser: every part changes the monster and its name.
-      await p.click(".kj-opt[data-k='body'][data-i='1']");
-      await p.click(".kj-opt[data-k='head'][data-i='1']");
-      await p.click(".kj-opt[data-k='main'][data-i='2']");
+      // The customiser: fur, trim, pattern, face and gear dress the ape; the name follows.
+      await p.click(".kj-opt[data-k='fur'][data-i='3']");
+      await p.click(".kj-opt[data-k='trim'][data-i='1']");
       await p.click(".kj-opt[data-k='pattern'][data-i='2']");
+      await p.click(".kj-opt[data-k='face'][data-i='2']");
+      await p.click(".kj-opt[data-k='gear'][data-i='2']");
       const look = await p.evaluate(() => ({ ...scene.look, name: document.querySelector(".kj-mname").textContent, chip: document.querySelector(".kj-name span").textContent, pressed: [...document.querySelectorAll(".kj-opt[aria-pressed='true']")].map((b) => b.dataset.k + b.dataset.i).join(" ") }));
-      assert.deepEqual(look, { body: 1, head: 1, main: 2, accent: 5, pattern: 2, name: "SKULKFIN", chip: "SKULKFIN", pressed: "body1 head1 main2 accent5 pattern2" }, `${at}: the customiser builds SKULKFIN`);
+      assert.deepEqual(look, { fur: 3, trim: 1, pattern: 2, face: 2, gear: 7, name: "MIDNIGHT TUSKER", chip: "MIDNIGHT TUSKER", pressed: "fur3 trim1 pattern2 face2 gear0 gear1 gear2" }, `${at}: the customiser dresses MIDNIGHT TUSKER`);
       await p.click(".kj-go");
       assert.deepEqual(await p.evaluate(() => [scene.state.making, scene.state.phase]), [false, 0], `${at}: SMASH! closes it; the round waits`);
-      // The keyboard: D walks right (the round starts), W climbs the face in front, Space punches holes, L grabs.
+      // The keyboard: D walks (the round starts); K at a wall jumps and grabs it; Space punches from the wall.
       await p.focus("[data-fizlet-slot] .kj-play");
       const x0 = (await st(p)).x;
       await p.keyboard.down("KeyD");
-      await p.waitForFunction((x0) => scene.state.phase === 1 && scene.state.x > x0 + 1, x0, { timeout: 5000 }).catch(() => assert.fail(`${at}: D walks`));
+      await p.waitForFunction((x0) => scene.state.phase === 1 && scene.state.x > x0 + 0.5, x0, { timeout: 5000 }).catch(() => assert.fail(`${at}: D walks`));
       await p.keyboard.up("KeyD");
-      await p.evaluate(() => (scene.run.M[0] = -5.4, scene.run.HE[8] = 1e9));
-      await p.keyboard.down("KeyW");
-      await p.waitForFunction(() => scene.state.mode === 2 && scene.state.y > 0.8, null, { timeout: 5000 }).catch(() => assert.fail(`${at}: W climbs`));
-      await p.keyboard.up("KeyW");
-      for (let i = 0; i < 4; i++) {
+      await p.evaluate(() => (scene.run.M[0] = scene.run.wallX(3, -1) - 2, scene.run.M[6] = 1, scene.run.HE[8] = 1e9, scene.run.TK[4] = 1e9, scene.run.MV[1][24] = 0, scene.run.MV[2][24] = 0));
+      await p.keyboard.down("KeyD");
+      await p.keyboard.press("KeyK");
+      await p.waitForFunction(() => scene.state.mode === 2, null, { timeout: 5000 }).catch(() => assert.fail(`${at}: a jump at the wall grabs it`));
+      await p.keyboard.up("KeyD");
+      for (let i = 0; i < 3; i++) {
         await p.keyboard.press("Space");
         await p.waitForFunction((n) => scene.state.holes > n, i, { timeout: 3000 }).catch(() => assert.fail(`${at}: Space punches a hole (${i})`));
       }
-      const holes = await p.evaluate(() => [scene.state.holes, document.querySelector(".kj-score span").textContent]);
-      assert.deepEqual(holes, [4, "40"], `${at}: four holes, ten points each`);
-      await p.keyboard.press("KeyL");
+      assert.deepEqual(await p.evaluate(() => [scene.state.holes, scene.state.mode, document.querySelector(".kj-score span").textContent]), [3, 2, "30"], `${at}: three holes from the wall, still hanging on`);
+      // Player two: 2 brings them in on the crab; the arrows walk it.
+      await p.keyboard.press("Digit2");
+      assert.equal(await p.evaluate(() => scene.state.p2), true, `${at}: player two is in`);
+      await p.evaluate(() => { const C = scene.run.MV[1]; C[24] = 1; C[5] = 0; C[0] = 10; C[1] = 0; });
+      await p.keyboard.down("ArrowLeft");
+      await p.waitForFunction(() => scene.run.MV[1][0] < 9, null, { timeout: 4000 }).catch(() => assert.fail(`${at}: the arrows walk player two`));
+      await p.keyboard.up("ArrowLeft");
+      assert.equal(await p.evaluate(() => !document.querySelector(".kj-r0").hidden && document.querySelector(".kj-r0 i").textContent), "P2", `${at}: the crab's chip says P2`);
+      await p.keyboard.press("Digit2");
+      assert.equal(await p.evaluate(() => scene.state.p2), false, `${at}: and out again`);
       // The whole block on the autopilot: a building pancakes, the helicopter goes down, the end card.
       await p.evaluate(() => {
         window.cov = { shake: false, fall: false, heli: false };
@@ -104,12 +115,15 @@ try {
         };
         tick();
         scene.run.HE[8] = 2;
+        scene.run.TK[4] = 3;
+        scene.run.MV[1][24] = 2;
         scene.auto = true;
       });
       await p.waitForFunction(() => scene.state.card, null, { timeout: 120000 });
-      const end = await p.evaluate(() => ({ ...window.cov, flat: scene.state.flat, head: document.querySelector(".kj-card b").textContent, t: document.querySelector(".kj-card .kj-t").textContent, chip: document.querySelector(".kj-flat span").textContent }));
-      assert.deepEqual(end, { shake: true, fall: true, heli: true, flat: 100, head: "BLOCK FLATTENED!", t: end.t, chip: "100%" }, `${at}: the block shakes, falls, flat; the helicopter swatted; the card`);
-      assert.match(end.t, /^[\d,]+ pts · BEST$/, `${at}: the card has the score`);
+      const end = await p.evaluate(() => ({ shake: cov.shake, fall: cov.fall, flat: scene.state.flat, head: document.querySelector(".kj-card b").textContent, t: document.querySelector(".kj-card .kj-t").textContent, chip: document.querySelector(".kj-flat span").textContent, rows: document.querySelectorAll(".kj-board li").length }));
+      assert.deepEqual(end, { shake: true, fall: true, flat: 100, head: "BLOCK FLATTENED!", t: end.t, chip: "100%", rows: end.rows }, `${at}: the block shakes, falls, flat; the card`);
+      assert.ok(end.rows >= 2, `${at}: a line per player on the card (${end.rows})`);
+      assert.match(end.t, /^[\d,]+ pts together · BEST$/, `${at}: the card has the shared score`);
       await p.keyboard.press("m");
       assert.equal(await p.evaluate(() => document.querySelector(".kj-mute").getAttribute("aria-pressed")), "false", `${at}: M mutes`);
       await settle(p, `${at}: finished`);
@@ -122,11 +136,11 @@ try {
     } else {
       // One part at a time: the tabs.
       const shown = () => p.evaluate(() => [...document.querySelectorAll(".kj-row")].filter((r) => r.offsetParent).map((r) => r.dataset.k).join());
-      assert.equal(await shown(), "body", `${at}: the body row`);
-      await p.click(".kj-tab[data-tab='head']");
-      assert.equal(await shown(), "head", `${at}: HEAD shows the heads`);
-      await p.click(".kj-opt[data-k='head'][data-i='3']");
-      assert.equal(await p.evaluate(() => scene.state.name), "RUMBLEGAZE", `${at}: one eye`);
+      assert.equal(await shown(), "fur", `${at}: the fur row first`);
+      await p.click(".kj-tab[data-tab='face']");
+      assert.equal(await shown(), "face", `${at}: FACE shows the faces`);
+      await p.click(".kj-opt[data-k='face'][data-i='2']");
+      assert.equal(await p.evaluate(() => scene.state.name), "EMBER TUSKER", `${at}: tusks`);
       await p.click(".kj-go");
       const pad = await p.evaluate(() => getComputedStyle(document.querySelector(".kj-pad")).visibility);
       assert.equal(pad, "visible", `${at}: the pad is back`);
@@ -138,7 +152,7 @@ try {
       await p.mouse.move(stick.x + stick.width - 2, stick.y + stick.height / 2, { steps: 4 });
       await p.waitForFunction((x0) => scene.state.phase === 1 && scene.state.x > x0 + 1, x0, { timeout: 5000 }).catch(() => assert.fail(`${at}: the stick walks`));
       await p.mouse.up();
-      await p.evaluate(() => (scene.run.M[0] = -5.4, scene.run.M[6] = 1, scene.run.M[5] = 2, scene.run.M[12] = 1, scene.run.M[1] = 0.5));
+      await p.evaluate(() => { const M = scene.run.M; M[5] = 2; M[12] = 3; M[22] = -1; M[0] = scene.run.wallX(3, -1); M[6] = 1; M[1] = 0.9; for (const k of [1, 2]) scene.run.MV[k][24] = 0; });
       const punch = await p.locator(".kj-pad button[aria-label^='Punch']").boundingBox();
       await p.mouse.click(punch.x + punch.width / 2, punch.y + punch.height / 2);
       await p.waitForFunction(() => scene.state.holes > 0, null, { timeout: 3000 }).catch(() => assert.fail(`${at}: PUNCH punches`));
@@ -163,7 +177,7 @@ try {
   });
   assert.deepEqual(rm, { made: 0, mounted: false, same: true, poster: true, drawn: true }, "reduced motion keeps the poster");
   await ctx.close();
-  console.log("dom-kaiju: mounts with the customiser up and settles (no audio before a gesture); wide: the parts build SKULKFIN, SMASH! starts it, D walks, W climbs, Space punches holes, L grabs, the autopilot flattens the block (shake, pancake, a helicopter swatted) to the card, M mutes, SMASH AGAIN resets; tall: the tabs show one part at a time, the stick walks and PUNCH punches; keys ≥ 44 px; Recall exact; reduced motion still — ok");
+  console.log("dom-kaiju: mounts with the customiser up and settles (no audio before a gesture); wide: the parts dress MIDNIGHT TUSKER, SMASH! starts it, D walks, K at a wall grabs it, Space punches holes from the wall, 2 brings player two in and the arrows walk the crab, the autopilot flattens the block (shake, pancake) to the score card, M mutes, SMASH AGAIN resets; tall: the tabs show one part at a time, the stick walks and PUNCH punches from a wall; keys ≥ 44 px; Recall exact; reduced motion still — ok");
 } finally {
   await browser.close();
 }
