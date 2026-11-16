@@ -1,6 +1,7 @@
 {
+  "no": 124,
   "id": "dom-kaiju",
-  "date": "2026-11-15",
+  "date": "2026-11-16",
   "prompt": "a giant cyber ape against a tabletop city block, side-on: dress him first (fur colour and pattern, a brow, a crest or tusks, a cyber arm, a visor, a chest plate, tail spikes, a neon trim), then jump at the buildings' side walls, hang on and punch the windows next to you until each building shakes and pancakes floor by floor; live wires and neon signs shock you off, people at the windows are snacks, soldiers, a tank and a helicopter fight back; two rival giants of our own (a crystal crab-beast and a tentacle blob) wreck the same block, and a second player can take one",
   "title": "DOM Kaiju",
   "kind": "hero",
@@ -23,5 +24,6 @@
   "export": "mount",
   "aspect": "16 / 9",
   "phone": "4 / 5",
-  "stage": "own"
+  "stage": "own",
+  "approved": "2026-11-16"
 }
