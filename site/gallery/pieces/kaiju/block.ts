@@ -35,7 +35,7 @@ export const OUT = 0, IN = 1, WAIT = 2;
 /** The monster's scale: about four floors tall (./monster.ts draws it at this size). */
 export const MK = 1.3;
 /** The street: x from −SX to SX; z of the street walk, of a side wall being climbed (in the gap), of a roof. */
-export const SX = 17, ZS = 1.9, ZW = -1.3, ZR = -1.45, DEPTH = 3, STREET0 = 0.9, STREET1 = 5.6;
+export const SX = 17, ZS = 1.9, ZW = -0.55, ZR = -1.45, DEPTH = 3, STREET0 = 0.9, STREET1 = 5.6;
 /** The buildings: left x, columns (one unit each), floors (one unit each), look. Gaps of 2.6 between. */
 export const BLD = [
   -15.2, 4, 5, 0,

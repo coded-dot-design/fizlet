@@ -53,6 +53,10 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
     d.add({ shape, size: k3(size), pos: k3(pos), rot: o.rot, sides: o.sides, top: o.top, color, on: on === "" ? id : n(on), emissive: o.emissive, mask: o.mask, pick: false });
   const grp = (gid: string, on: string, pos: number[], rot?: number[]) => d.add({ id: n(gid), shape: "group", size: [0.2, 0, 0.2], pos: k3(pos), rot, on: on === "" ? id : n(on), pick: false });
   const legs: DioramaObject[] = [], arms: DioramaObject[] = [], fore: DioramaObject[] = [], tent: DioramaObject[] = [];
+  // The hero's arm parts (for the recolour: which arm is the smashing one) and its colours: fur, dark fur, skin, dark metal.
+  const kit: { upper: DioramaObject; pad: DioramaObject; fa: DioramaObject; fist: DioramaObject; kn: DioramaObject[]; ln: DioramaObject[] }[] = [];
+  const furs = ["", "", "", ""];
+  let cyberOn = false;
   let tail: DioramaObject | null = null, hipY = 1, height = 3;
   let main: string, acc: string;
   const trim = TRIMS[look.trim]!.c;
@@ -80,19 +84,29 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
       P("hip" + s, "box", [0.72, 0.18, 0.55], [0.12, -0.98, 0], skin);
       legs.push(h);
     }
-    // Arms: long, knuckles on the ground; arm one (the far side) is the cyber arm.
+    // Arms: long, furry, a knuckle fist. Both carry the cyber arm's parts; only the smashing arm (which
+    // one turns with the way it faces) shows them, and only with the gear on (recoloured in the pose).
     for (const s of [-1, 1]) {
-      const cyber = s > 0 && g & 1;
       const sh = grp("sh" + s, "tor", [0.3, 1.0, s * 0.78]);
-      P("sh" + s, "box", [0.5, 1.0, 0.48], [0, -1.0, 0], cyber ? K.metal : s < 0 ? dark : main);
+      const upper = P("sh" + s, "box", [0.5, 1.0, 0.48], [0, -1.0, 0], main);
+      const pad = P("sh" + s, "box", [0.62, 0.34, 0.6], [0, -0.3, 0], K.metal);
       const el = grp("el" + s, "sh" + s, [0, -1.0, 0]);
-      P("el" + s, "box", [0.52, 0.95, 0.5], [0, -0.95, 0], cyber ? K.metal : s < 0 ? dark : main);
-      P("el" + s, "box", [0.66, 0.42, 0.62], [0.03, -1.3, 0], cyber ? shade(K.metal, 0.7) : skin); // the fist
+      const fa = P("el" + s, "box", [0.52, 0.95, 0.5], [0, -0.95, 0], main);
+      const fist = P("el" + s, "box", [0.64, 0.44, 0.6], [0.04, -1.32, 0], skin); // the fist
+      const kn: DioramaObject[] = [];
+      for (let k = 0; k < 4; k++) kn.push(P("el" + s, "box", [0.14, 0.14, 0.13], [0.36, -1.24, -0.22 + k * 0.147], skin)); // the knuckles
       P("el" + s, "box", [0.56, 0.07, 0.54], [0, -0.35, 0], trim, { emissive: true }); // a wrist band
-      if (cyber) for (let k = 0; k < 2; k++) P("el" + s, "box", [0.06, 0.7, 0.06], [0.27, -0.85 + k * 0.05, -0.12 + k * 0.24], trim, { emissive: true });
+      const ln: DioramaObject[] = [];
+      for (let k = 0; k < 2; k++) ln.push(P("el" + s, "box", [0.06, 0.7, 0.06], [0.27, -0.85 + k * 0.05, -0.12 + k * 0.24], trim, { emissive: true }));
+      kit.push({ upper, pad, fa, fist, kn, ln });
       arms.push(sh);
       fore.push(el);
     }
+    furs[0] = main;
+    furs[1] = dark;
+    furs[2] = skin;
+    furs[3] = shade(K.metal, 0.75);
+    cyberOn = (g & 1) > 0;
     if (g & 8) {
       tail = grp("tail", "body", [-0.62, 0.3, 0], [0, 0, -0.9]);
       P("tail", "box", [0.9, 0.22, 0.22], [-0.45, -0.1, 0], main);
@@ -191,7 +205,9 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
   function pose(M: Float64Array, t: number, dt: number) {
     const md = M[5]!, f = M[6]!, ph = M[13]!, pa = M[9]!, ga = M[10]!, nom = M[18]!, squash = M[19]!, zap = M[23]!;
     // Three quarters to the camera; hanging on a side, nearly in profile (facing the wall, or away).
-    const want = md === CLIMB ? (f > 0 ? -0.18 : Math.PI + 0.18) : f > 0 ? -0.35 : Math.PI + 0.35;
+    // Hanging on a wall it turns three quarters to the camera, towards the building's front corner: the inside
+    // arm (nearer the building) holds on round the corner, the outside arm smashes the front.
+    const want = md === CLIMB ? (f > 0 ? -0.72 : Math.PI + 0.72) : f > 0 ? -0.35 : Math.PI + 0.35;
     let dy = want - yaw;
     dy -= 6.283185307179586 * Math.floor(dy / 6.283185307179586 + 0.5);
     yaw += dy * Math.min(1, dt * 12);
@@ -215,40 +231,55 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
       tent[k + 1]!.rot[2] = w * 0.35 + (md === CLIMB ? 0.5 : 0);
     }
     if (tail) (tail.rot[2] = -0.9 + Math.sin(t * 2 + ph) * 0.15), (tail.rot[1] = Math.sin(t * 1.7 + ph * 2) * 0.25);
-    // Arms. Angles swing forward from hanging straight down (0: down, π/2: straight ahead, π: overhead) and
-    // elbows bend the forearm forward, as arms do. Hanging on a wall (facing it): the far hand grips the wall
-    // up in front, the near one rests on it and throws the punch. The punch keeps the round's fixed timing
-    // (./block.ts PUNCH_CD, PUNCH_HIT): the wind-up, the hit frame, a short hold, the recovery; its swing
-    // shows its direction: an overhead slam (up), a straight slam (the window in front), a low hook (down).
-    const near = f > 0 ? 1 : 0, pt = PUNCH_CD - M[8]!, punching = M[8]! > 0 && zap <= 0;
+    // Arms. Angles swing forward from hanging straight down (0: down, π/2: straight ahead, π: overhead), elbows
+    // bend the forearm forward, and a splay (about the arm's own x) brings a hand in towards the middle. The
+    // outside arm (+z when it faces right, −z when it faces left: away from the wall it hangs on, towards the
+    // camera on the street) is the only one that smashes and grabs; on a wall the inside arm wraps the building's
+    // corner and holds on, hand over hand as it climbs, and keeps hold through every punch. The punch keeps
+    // the round's fixed timing (./block.ts PUNCH_CD, PUNCH_HIT): the wind-up, the hit frame, a short hold, the
+    // recovery; its swing shows its direction: an overhead slam (up), a straight slam (middle), a low hook (down).
+    const out = f > 0 ? 1 : 0, pt = PUNCH_CD - M[8]!, punching = M[8]! > 0 && zap <= 0, cl = Math.sin(ph * 2.4);
     for (let i = 0; i < 2; i++) {
-      const s = i ? 1 : -1, a = arms[i]!, e = fore[i]!;
-      let r = 0, er = 0;
-      if (zap > 0) (r = 2.6 + Math.sin(t * 50 + i) * 0.3), (er = 0.3);
-      else if (md === CLIMB) (r = i !== near ? 2.35 + Math.sin(ph * 2.4) * 0.22 : 1.35 + Math.sin(ph * 2.4 + Math.PI) * 0.2), (er = i !== near ? 0.45 : 0.7);
+      const s = i ? 1 : -1, a = arms[i]!, e = fore[i]!, outside = i === out;
+      let r = 0, er = 0, sp = s * 0.08;
+      if (zap > 0) (r = 2.6 + Math.sin(t * 50 + i) * 0.3), (er = 0.3), (sp = s * 0.5);
+      else if (md === CLIMB && !outside) (r = 1.85 + cl * 0.35), (er = 1.05 - cl * 0.25), (sp = -s * 0.42);
+      else if (md === CLIMB) (r = 1.15 - cl * 0.15), (er = 1.45), (sp = -s * 0.18);
       else if (md === AIR) (r = 2.3 - i * 0.4), (er = 0.3);
       else if (md === KO) (r = 0.6), (er = 0.2);
       else if (moving && walking) (r = (kind === HERO ? 0.3 : 0.15) + sw * 0.5 * s), (er = 0.35);
       else (r = 0.22 + Math.sin(t * 1.6 + i) * 0.04), (er = 0.3);
-      if (punching && i === near) {
+      if (punching && outside) {
         const d = M[32]!, wr = d > 0 ? 3.3 : d < 0 ? 1.45 : 0.6, we = d > 0 ? 1.3 : d < 0 ? 1.1 : 1.7, hr = d > 0 ? 2.55 : d < 0 ? 0.8 : 1.6, he = d > 0 ? 0.15 : d < 0 ? 0.15 : 0;
+        const hs = md === CLIMB ? -s * 0.5 : sp;
         if (pt < PUNCH_HIT) {
           const k = pt / PUNCH_HIT;
           (r += (wr - r) * k), (er += (we - er) * k);
         } else {
           const k = Math.max(0, (pt - PUNCH_HIT) / (PUNCH_CD - PUNCH_HIT) - 0.3) / 0.7;
-          (r = hr + (r - hr) * k * k), (er = he + (er - he) * k * k);
+          (r = hr + (r - hr) * k * k), (er = he + (er - he) * k * k), (sp = hs + (sp - hs) * k * k);
         }
       }
-      if (ga > 0 && i === near && zap <= 0) {
+      if (ga > 0 && outside && zap <= 0) {
         // The grab: out to the window, then back to the mouth.
         const k = ga > 0.5 ? (1 - ga) * 2 : 1;
         r = r + (1.9 - r) * k;
         er = ga > 0.5 ? er + (0.2 - er) * k : er + (2.1 - er) * (1 - ga * 2);
       }
       a.rot[2] = r;
-      a.rot[0] = s * (zap > 0 ? 0.5 : 0.08);
+      a.rot[0] = sp;
       e.rot[2] = er;
+    }
+    // The hero's colours follow the smashing arm: fur near, darker fur far; the cyber arm (with the gear on)
+    // on the smashing arm only.
+    for (let i = 0; i < kit.length; i++) {
+      const p = kit[i]!, cy = cyberOn && i === out, fur = i === out ? furs[0]! : furs[1]!;
+      if (p.upper.color !== fur) p.upper.color = fur;
+      const fa = cy ? K.metal : fur, fs = cy ? furs[3]! : furs[2]!;
+      if (p.fa.color !== fa) p.fa.color = fa;
+      if (p.fist.color !== fs) (p.fist.color = fs), p.kn.forEach((k) => (k.color = fs));
+      const la = cy ? 1 : 0;
+      if (p.pad.alpha !== la) (p.pad.alpha = la), (p.ln[0]!.alpha = la), (p.ln[1]!.alpha = la);
     }
     neck.rot[2] = md === KO ? 0.4 : zap > 0 ? 0.3 : Math.sin(t * 1.3) * 0.04 - (nom > 0 ? 0.25 : 0);
     jaw.rot[2] = nom > 0 ? -Math.abs(Math.sin(nom * 18)) * 0.6 : zap > 0 || M[11]! > 0 ? -0.5 : M[8]! > 0 ? -0.35 : -0.05;

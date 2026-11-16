@@ -73,6 +73,7 @@ try {
       await p.click(".kj-opt[data-k='trim'][data-i='1']");
       await p.click(".kj-opt[data-k='pattern'][data-i='2']");
       await p.click(".kj-opt[data-k='face'][data-i='2']");
+      await p.click(".kj-opt[data-k='gear'][data-i='0']");
       await p.click(".kj-opt[data-k='gear'][data-i='2']");
       const look = await p.evaluate(() => ({ ...scene.look, name: document.querySelector(".kj-mname").textContent, chip: document.querySelector(".kj-name span").textContent, pressed: [...document.querySelectorAll(".kj-opt[aria-pressed='true']")].map((b) => b.dataset.k + b.dataset.i).join(" ") }));
       assert.deepEqual(look, { fur: 3, trim: 1, pattern: 2, face: 2, gear: 7, name: "MIDNIGHT TUSKER", chip: "MIDNIGHT TUSKER", pressed: "fur3 trim1 pattern2 face2 gear0 gear1 gear2" }, `${at}: the customiser dresses MIDNIGHT TUSKER`);

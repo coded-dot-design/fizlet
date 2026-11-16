@@ -91,7 +91,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   const engine = createEngine({ root: stage, settle: 0.5, seed: 20261115 });
   const L = engine.ledger, sig = { signal: engine.signal };
   let P: Pal = document.documentElement.dataset.theme === "light" ? LIGHT : DARK;
-  const look: Look = { fur: 1, trim: 0, pattern: 1, face: 0, gear: 3 };
+  const look: Look = { fur: 1, trim: 0, pattern: 1, face: 0, gear: 2 };
   // The camera never shakes for anyone who asked for less motion.
   const calm = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 1;
 
@@ -1347,7 +1347,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     V[2] = 0.6;
     V[0] = 1;
     make.hidden = true;
-    look.fur = 1; look.trim = 0; look.pattern = 1; look.face = 0; look.gear = 3;
+    look.fur = 1; look.trim = 0; look.pattern = 1; look.face = 0; look.gear = 2;
     syncMake();
     buildScene();
     run.reset();
