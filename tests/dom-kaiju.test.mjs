@@ -1,4 +1,4 @@
-// DOM Kaiju's block and round (site/gallery/pieces/kaiju/block.ts) and its monsters' parts
+// CitySmash's block and round (site/gallery/pieces/kaiju/block.ts) and its monsters' parts
 // (monster.ts), headless: the block's numbers; the round waits for the first input; a jump at a side
 // wall grabs it (and W at a wall climbs it, up onto the roof, a wall jump off); a punch from the wall
 // makes a hole in the window next to it (then the next one in; up and down too); a live part shocks

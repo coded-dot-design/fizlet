@@ -1,4 +1,4 @@
-// DOM Kaiju (site/gallery/pieces/kaiju/dom-kaiju.ts) in Chromium, on its own stage in a gallery
+// CitySmash (site/gallery/pieces/kaiju/dom-kaiju.ts) in Chromium, on its own stage in a gallery
 // figure (Board UI kit and the site's sheet), mounted through @fzlt/core/slot: it mounts (the poster
 // steps aside), the block fills the stage and draws, the customiser is up with the ape's name, it
 // settles with no audio before a gesture, keys are 44 px or more, wide (720) and tall (the phone shape,
@@ -22,7 +22,7 @@ const bundle = (await build({
 const css = readFileSync("src/ui/board-ui.css", "utf8") + readFileSync("site/site.css", "utf8");
 const stage = readFileSync("site/gallery/stages/dom-kaiju.html", "utf8");
 const page = (w, phone) => `<!doctype html><html class="bui"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style><body style="margin:0">
-<main><p>Before the piece.</p><div class="gal-stage" style="width:${w}px"><figure class="ae-slot gal-fig gal-re gal-own" data-slot-target="gallery#dom-kaiju" role="img" aria-label="DOM Kaiju" style="aspect-ratio: 16 / 9; --phone: 4 / 5"${phone ? ' data-shape="phone"' : ""}>${stage}</figure></div><p>After it.</p></main>
+<main><p>Before the piece.</p><div class="gal-stage" style="width:${w}px"><figure class="ae-slot gal-fig gal-re gal-own" data-slot-target="gallery#dom-kaiju" role="img" aria-label="CitySmash" style="aspect-ratio: 16 / 9; --phone: 4 / 5"${phone ? ' data-shape="phone"' : ""}>${stage}</figure></div><p>After it.</p></main>
 <script>const A = window.AudioContext; window.AudioContext = class extends A { constructor(...a) { super(...a); window.audio = (window.audio || 0) + 1; } };</script>
 <script>${bundle}</script></body></html>`;
 
@@ -48,6 +48,8 @@ try {
     });
     await p.waitForFunction(() => window.scene);
     await p.waitForFunction(() => scene.engine.stats().frames > 2);
+    // (the customiser's keys laid out)
+    await p.waitForFunction(() => [...document.querySelectorAll("[data-fizlet-slot] .kj-opt, [data-fizlet-slot] .kj-tab")].filter((b) => b.offsetParent).length > 6);
     const m = await p.evaluate(() => {
       const r = (s) => document.querySelector(s).getBoundingClientRect(), fig = r("figure"), art = r("[data-fizlet-slot] canvas");
       const cvs = document.querySelector("[data-fizlet-slot] canvas"), g = cvs.getContext("2d"), px = g.getImageData(cvs.width >> 2, (cvs.height * 0.6) | 0, 1, 1).data;
@@ -98,6 +100,33 @@ try {
         await p.waitForFunction(() => scene.run.M[8] <= 0, null, { timeout: 3000 });
       }
       assert.deepEqual(await p.evaluate(() => [scene.state.holes, scene.state.mode, document.querySelector(".kj-score span").textContent, scene.run.M[0], scene.run.M[1]]), [3, 2, "39", ...spot], `${at}: nine presses, three windows holed in a row from the wall, still on its spot`);
+      // The wall pose: hanging on either face of a building, both hands and both feet are on the wall (the inside
+      // hand round the front corner, the outside hand on the side face, the feet planted on it), and they stay
+      // there through a punch: the outside arm swings, the grip and the feet hold.
+      const grip = await p.evaluate(() => {
+        const r = scene.run, M = r.M, X0 = [-15.2, -8.6, -1, 4.6, 11.2], W = [4, 5, 3, 4, 4], out = [];
+        for (const [b, s] of [[3, -1], [1, 1]]) {
+          M[5] = 2; M[12] = b; M[22] = s; M[0] = r.wallX(b, s); M[2] = -0.55; M[6] = -s; M[1] = 2.2; M[8] = 0; M[33] = 0;
+          scene.engine.stop();
+          for (let i = 0; i < 40; i++) scene.engine.advance(1 / 60);
+          const edge = s < 0 ? X0[b] : X0[b] + W[b], c = scene.contacts(0), d = [];
+          for (let i = 0; i < c.length; i += 3) d.push([(c[i] - edge) * -s, c[i + 2]]); // into the building, z
+          const [outH, inH, f1, f2] = s < 0 ? [d[0], d[1], d[2], d[3]] : [d[1], d[0], d[2], d[3]];
+          const ok = (h) => h && Math.abs(h[0]) < 0.6 && h[1] < 0 && h[1] > -3;
+          out.push({ outside: ok(outH), inside: inH[1] > -0.4 && inH[0] > -0.6 && inH[0] < 1.7, feet: [f1, f2].every((f) => f[0] > -0.95 && f[0] < 0.5) });
+          // A punch: at its hit frame the grip and the feet are still on.
+          const before = scene.contacts(0);
+          scene.engine.start();
+          r.MV[0][20] = 0.3;
+          scene.engine.stop();
+          for (let i = 0; i < 6; i++) scene.engine.advance(1 / 60);
+          const now = scene.contacts(0), inI = s < 0 ? 1 : 0;
+          out.push({ held: Math.hypot(now[inI * 3] - before[inI * 3], now[inI * 3 + 1] - before[inI * 3 + 1]) < 0.9 && [2, 3].every((k) => Math.abs(now[k * 3] - before[k * 3]) < 0.9) });
+          scene.engine.start();
+        }
+        return out;
+      });
+      assert.deepEqual(grip, [{ outside: true, inside: true, feet: true }, { held: true }, { outside: true, inside: true, feet: true }, { held: true }], `${at}: hands and feet on the wall, both faces, through a punch`);
       // Player two: 2 brings them in on the crab; the arrows walk it.
       await p.keyboard.press("Digit2");
       assert.equal(await p.evaluate(() => scene.state.p2), true, `${at}: player two is in`);
@@ -180,7 +209,7 @@ try {
   });
   assert.deepEqual(rm, { made: 0, mounted: false, same: true, poster: true, drawn: true }, "reduced motion keeps the poster");
   await ctx.close();
-  console.log("dom-kaiju: mounts with the customiser up and settles (no audio before a gesture); wide: the parts dress MIDNIGHT TUSKER, SMASH! starts it, D walks, K at a wall grabs it, Space punches the window in front (three presses a hole), 2 brings player two in and the arrows walk the crab, the autopilot flattens the block (shake, pancake) to the score card, M mutes, SMASH AGAIN resets; tall: the tabs show one part at a time, the stick walks and PUNCH punches from a wall; keys ≥ 44 px; Recall exact; reduced motion still — ok");
+  console.log("dom-kaiju: mounts with the customiser up and settles (no audio before a gesture); wide: the parts dress MIDNIGHT TUSKER, SMASH! starts it, D walks, K at a wall grabs it, hands and feet on the wall on both faces (and through a punch), Space punches the window in front (three presses a hole), 2 brings player two in and the arrows walk the crab, the autopilot flattens the block (shake, pancake) to the score card, M mutes, SMASH AGAIN resets; tall: the tabs show one part at a time, the stick walks and PUNCH punches from a wall; keys ≥ 44 px; Recall exact; reduced motion still — ok");
 } finally {
   await browser.close();
 }
