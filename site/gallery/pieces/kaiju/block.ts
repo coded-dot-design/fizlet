@@ -24,9 +24,9 @@ export const WALK = 0, AIR = 1, CLIMB = 2, ROOF = 3, KO = 4;
 /** Events (one ring, read and cleared each step): what, and a value. */
 export const E_START = 1, E_PUNCH = 2, E_HOLE = 3, E_SHAKE = 4, E_FLOOR = 5, E_FLAT = 6, E_HELI = 7, E_HELI_CRASH = 8, E_NOM = 9,
   E_HURT = 10, E_FLING = 11, E_DROP = 12, E_KO = 13, E_END = 14, E_WHIFF = 15, E_SHOT = 16, E_STOMP = 17, E_JUMP = 18, E_LAND = 19, E_CLIMB = 20,
-  E_SHOCK = 21, E_TANK = 22, E_BONK = 23, E_OUT = 24, E_BURN = 25, E_JOIN = 26;
+  E_SHOCK = 21, E_TANK = 22, E_BONK = 23, E_OUT = 24, E_BURN = 25, E_JOIN = 26, E_CHIP = 27, E_CRACK = 28;
 /** The monsters: the hero (an ape, player one), and two rivals (a crystal crab-beast, a tentacle blob), each the AI or player two. */
-export const NM = 3, MW = 34, HERO = 0, CRAB = 1, BLOB = 2;
+export const NM = 3, MW = 36, HERO = 0, CRAB = 1, BLOB = 2;
 /** Who drives a monster. */
 export const P1 = 0, P2 = 1, AI = 2;
 /** A monster in play, waiting to come in, or out (knocked out, run off). */
@@ -60,7 +60,7 @@ export const ANT = new Float64Array(NB);
 for (let b = 0; b < NB; b++) ANT[b] = BLD[b * 4 + 3]! % 2 ? BLD[b * 4]! + BLD[b * 4 + 1]! - 0.8 : NaN;
 /** Holes it takes to bring a building down. */
 export const NEED = new Int32Array(NB);
-for (let b = 0; b < NB; b++) NEED[b] = Math.max(4, Math.ceil(BLD[b * 4 + 1]! * BLD[b * 4 + 2]! * 0.38));
+for (let b = 0; b < NB; b++) NEED[b] = Math.max(4, Math.ceil(BLD[b * 4 + 1]! * BLD[b * 4 + 2]! * 0.26));
 /** Cells: 2 intact, 1 cracked, 0 a hole. Occupants: 0 none, 1 a person, 2 a sniper, 3 something hot (a steaming pot: it burns). */
 export const INTACT = 2, CRACKED = 1, HOLE = 0;
 /** Building states. */
@@ -69,8 +69,11 @@ export const MAX_HP = 100, SHAKE_T = 1.0, FLOOR_T = 0.3, DROP_T = 0.22, SHOCK_HP
 /** Pools: soldiers, pebbles and shells, parachutes. */
 export const NS = 6, NP = 40, NCH = 18;
 /** Hanging on a side: the monster's x from the wall, its hand over its feet, how far under the roof its feet stop. */
-export const WALLX = 1.0, HAND = 2.6, CLIMB_TOP = 1.6;
-const G = 26, PUNCH_CD = 0.26, GRAB_CD = 0.4;
+export const WALLX = 1.0, HAND = 1.9, CLIMB_TOP = 1.6;
+/** The punch, arcade style: always the same timing (a wind-up, the hit on a fixed frame, a recovery), one per
+ *  press, a steady rhythm while held; a window takes a fixed number of hits: a crack, then a hole. */
+export const PUNCH_CD = 0.24, PUNCH_HIT = 0.08, HITS_CRACK = 2, HITS_HOLE = 3;
+const G = 26, GRAB_CD = 0.4;
 
 /** A round on the block. `step(dt, mx, my, punch, jump, grab)`: mx, my −1..1 (my up), the keys 1 on the press. */
 export function blockRun(seed = 20261115, rivals = 2) {
@@ -84,13 +87,16 @@ export function blockRun(seed = 20261115, rivals = 2) {
    *  [22] the side of the building it hangs on (−1 its left wall, 1 its right), [23] shock (flicker time left). */
   /** Per monster (MW numbers each) the fields above, then [24] in play (IN, WAIT, OUT), [25] its score, [26] its snacks, [27] its holes,
    *  [28] who drives it (P1, P2, AI), [29] knocked out (shrunk, running off), [30] the wait before it comes in, [31] its kind,
-   *  [32] its last punch's direction (0 sideways, 1 up, −1 down). */
+   *  [32] its last punch's direction (0 the window in front, 1 the one above, −1 the one below),
+   *  [33] climbing up (> 0) or down (< 0) a moment ago, [34] the time to the punch's hit frame, [35] that punch's direction. */
   const MS = new Float64Array(NM * MW), MV: Float64Array[] = [];
   for (let k = 0; k < NM; k++) MV.push(MS.subarray(k * MW, k * MW + MW));
   let M = MV[0]!, cur = 0;
   const setCur = (k: number) => void ((cur = k), (M = MV[k]!));
   /** The last monster to punch each building (its floors and its fall score to it). */
   const LH = new Int8Array(NB);
+  /** Hits each window has taken. */
+  const HIT = new Uint8Array(NC);
   const cell = new Uint8Array(NC), occ = new Uint8Array(NC), ocT = new Float64Array(NC), crackT = new Float64Array(NC);
   /** Buildings: [state, holes, timer, floors removed, drop (1 → 0), shake] per building. */
   const B = new Float64Array(NB * 6);
@@ -113,7 +119,7 @@ export function blockRun(seed = 20261115, rivals = 2) {
   for (let k = 0; k < NM; k++) AV.push(AS.subarray(k * 8, k * 8 + 8));
   let A = AV[0]!;
   const run = {
-    S, M: MV[0]!, MV, cell, occ, B, SO, PB, CH, HE, TK, ev, n: 0, crackT, rivals,
+    S, M: MV[0]!, MV, cell, HIT, occ, B, SO, PB, CH, HE, TK, ev, n: 0, crackT, rivals,
     reset, step, clear, autopilot, top, yOff, standing, wallX, rowOf, sideTarget, join, setCur,
     /** Humans still in the round. */
     humans,
@@ -189,6 +195,7 @@ export function blockRun(seed = 20261115, rivals = 2) {
     LH.fill(0);
     setCur(0);
     cell.fill(INTACT);
+    HIT.fill(0);
     occ.fill(0);
     ocT.fill(0);
     crackT.fill(0);
@@ -268,6 +275,19 @@ export function blockRun(seed = 20261115, rivals = 2) {
   }
 
   // ---- the buildings ----
+  /** One hit on window i of building b: a chip, a crack, then a hole (HITS_CRACK, HITS_HOLE). */
+  function strike(i: number, b: number) {
+    if (cell[i] === HOLE || LIVE_CELL[i]) return false;
+    HIT[i]!++;
+    LH[b] = cur;
+    crackT[i] = 0.2;
+    if (HIT[i]! < HITS_HOLE) {
+      if (HIT[i] === HITS_CRACK) (cell[i] = CRACKED), pts(2), emit(E_CRACK, i);
+      else pts(1), emit(E_CHIP, i);
+      return true;
+    }
+    return hole(i, b);
+  }
   function hole(i: number, b: number) {
     if (cell[i] === HOLE || LIVE_CELL[i]) return false;
     cell[i] = HOLE;
@@ -283,13 +303,7 @@ export function blockRun(seed = 20261115, rivals = 2) {
     if (occ[i] === 1) chute(x, y, 0.3, 1, (rnd() - 0.5) * 2);
     else if (occ[i] === 2) chute(x, y, 0.3, 2, (rnd() - 0.5) * 2), S[7]!++, pts(50);
     occ[i] = 0;
-    // The neighbours crack.
-    for (let k = 0; k < 4; k++) {
-      const cc = c + (k === 0 ? -1 : k === 1 ? 1 : 0), ff = fl + (k === 2 ? -1 : k === 3 ? 1 : 0);
-      if (cc < 0 || cc >= w || ff < 0 || ff >= BLD[b * 4 + 2]!) continue;
-      const j = C0[b]! + ff * w + cc;
-      if (cell[j] === INTACT && rnd() < 0.55) cell[j] = CRACKED;
-    }
+    void c;
     emit(E_HOLE, i);
     if (B[b * 6] === STAND && B[b * 6 + 1]! >= NEED[b]!) (B[b * 6] = SHAKE), (B[b * 6 + 2] = SHAKE_T), emit(E_SHAKE, b);
     return true;
@@ -305,35 +319,13 @@ export function blockRun(seed = 20261115, rivals = 2) {
     }
     return -1;
   }
-  /** What a punch from the side would hit now: building tb's cell (or −1), by direction d (0 sideways, 1 up, −1 down). */
+  /** The one window a punch from the wall hits now: on the floor at the hand (d 0), the one above (1) or below
+   *  (−1), the first window that is not a hole yet from the wall in; −1 when that floor is gone through. */
   function sideTarget(d: number) {
-    const b = M[12]!, s = M[22]!, f = M[6]!;
-    if (b < 0) return -1;
-    if (d === 0) {
-      // Sideways: the clung building when facing it, else the one across the gap.
-      const tb = f === -s ? b : b + f;
-      if (tb < 0 || tb >= NB || !standing(tb)) return -1;
-      const edge = f > 0 ? BLD[tb * 4]! : BLD[tb * 4]! + BLD[tb * 4 + 1]!;
-      if (Math.abs(edge - M[0]!) > 2.4) return -1;
-      const r0 = rowOf(tb, M[1]! + HAND);
-      for (let k = 0; k < 4; k++) {
-        const i = rowTarget(tb, r0 + (k === 1 ? -1 : k === 2 ? 1 : k === 3 ? -2 : 0), f > 0);
-        if (i >= 0) return i;
-      }
-      return -1;
-    }
-    // Up or down: the floors over or under the hand, in the column at the wall (or the next one in).
-    if (!standing(b)) return -1;
-    const w = BLD[b * 4 + 1]!, fl0 = rowOf(b, M[1]! + HAND), cn = s < 0 ? 0 : w - 1;
-    for (let k = 1; k <= 2; k++) {
-      const fl = fl0 + d * k;
-      if (fl < B[b * 6 + 3]! || fl >= BLD[b * 4 + 2]!) continue;
-      for (let j = 0; j < 2; j++) {
-        const i = C0[b]! + fl * w + cn - s * j;
-        if (cell[i] !== HOLE) return i;
-      }
-    }
-    return -1;
+    const b = M[12]!, s = M[22]!;
+    if (b < 0 || !standing(b)) return -1;
+    const fl = Math.floor(M[1]! + HAND - yOff(b)) + d;
+    return rowTarget(b, fl, s < 0);
   }
   const bOf = (i: number) => {
     let b = 0;
@@ -403,15 +395,23 @@ export function blockRun(seed = 20261115, rivals = 2) {
     else if (md === ROOF) (M[16] = M[0]! + f * 2), (M[17] = M[1]! + 2.4);
     else (M[16] = M[0]! + f * 1.95), (M[17] = M[1]! + 1.6);
   }
+  /** A punch starts: the wind-up; its direction is fixed now (on a wall: the climb's direction, else the
+   *  window in front), the hit lands PUNCH_HIT later, the next punch can start PUNCH_CD later. */
   function punch(my: number) {
+    const md = M[5]!;
+    const d = md === CLIMB ? (my > 0.3 ? 1 : my < -0.3 ? -1 : M[33]! > 0 ? 1 : M[33]! < 0 ? -1 : 0) : md === ROOF && my < -0.4 ? -1 : 0;
     M[8] = PUNCH_CD;
     M[9] = 1;
-    fist();
-    const fx = M[16]!, fy = M[17]!, md = M[5]!;
-    const d = md === CLIMB ? (my > 0.55 ? 1 : my < -0.55 ? -1 : 0) : md === ROOF && my < -0.4 ? -1 : 0;
+    M[34] = PUNCH_HIT;
+    M[35] = d;
     S[14] = d;
     M[32] = d;
     emit(E_PUNCH, d);
+  }
+  /** The punch's hit frame. */
+  function landPunch() {
+    fist();
+    const fx = M[16]!, fy = M[17]!, md = M[5]!, d = M[35]!;
     // The helicopter first (a jump, a wall or a roof gets you up to it).
     if (HE[0] === 1 && Math.abs(HE[1]! - fx) < 2 && Math.abs(HE[2]! - fy) < 1.7) {
       HE[0] = 2;
@@ -422,15 +422,16 @@ export function blockRun(seed = 20261115, rivals = 2) {
       emit(E_HELI, cur);
       return;
     }
-    // Another monster in reach: a bonk (off a wall, off a roof).
+    // Another monster in reach: a bonk (off a wall, off a roof). On a wall, one hanging beside it either way.
     for (let j = 0; j < NM; j++) {
       const O = MV[j]!;
       if (j === cur || O[24] !== IN || O[5] === KO) continue;
-      if (Math.abs(O[0]! - fx) < 1.5 && (O[0]! - M[0]!) * M[6]! > 0 && fy > O[1]! + 0.3 && fy < O[1]! + 3.6) return bonk(j);
+      const side = md === CLIMB ? Math.abs(O[0]! - M[0]!) < 2.6 && fy > O[1]! + 0.2 && fy < O[1]! + 3.6 : false;
+      if (side || (Math.abs(O[0]! - fx) < 1.5 && (O[0]! - M[0]!) * M[6]! > 0 && fy > O[1]! + 0.3 && fy < O[1]! + 3.6)) return bonk(j);
     }
     if (md === CLIMB) {
       const i = sideTarget(d);
-      if (i >= 0) return void (LIVE_CELL[i] ? shock(i) : hole(i, bOf(i)));
+      if (i >= 0) return void (LIVE_CELL[i] ? shock(i) : strike(i, bOf(i)));
       return void emit(E_WHIFF, 0);
     }
     if (md === ROOF) {
@@ -442,7 +443,7 @@ export function blockRun(seed = 20261115, rivals = 2) {
         for (let fl = BLD[b * 4 + 2]! - 1; fl >= B[b * 6 + 3]! && fl >= BLD[b * 4 + 2]! - 2; fl--) {
           const i = C0[b]! + fl * w + c;
           if (cell[i] === HOLE) continue;
-          return void (LIVE_CELL[i] ? shock(i) : hole(i, b));
+          return void (LIVE_CELL[i] ? shock(i) : strike(i, b));
         }
       }
       return void emit(E_WHIFF, 0);
@@ -508,7 +509,7 @@ export function blockRun(seed = 20261115, rivals = 2) {
           for (let k = 0; k < 2; k++) {
             const c = side > 0 ? k : w - 1 - k, i = C0[tb]! + fl * w + c;
             if (!occ[i]) continue;
-            const d = Math.abs(fl - r0) + k * 0.6 + (side === M[6] ? 0 : 0.5);
+            const d = Math.abs(fl - r0) + k * 0.6 + (side === M[6] ? 0 : 0.5) + (occ[i] === 3 ? 2 : 0);
             if (d < bd) (bd = d), (best = i);
           }
         }
@@ -574,12 +575,13 @@ export function blockRun(seed = 20261115, rivals = 2) {
     M[3] = 0;
     M[4] = 0;
     M[6] = -s;
+    M[33] = 0;
     if (M[1]! < 0.05) M[1] = 0.05;
     emit(E_CLIMB, b);
   }
   function stepMonster(dt: number, mx: number, my: number, jump: number) {
     const md = M[5]!;
-    if (Math.abs(mx) > 0.25 && md !== KO) M[6] = mx > 0 ? 1 : -1;
+    if (Math.abs(mx) > 0.25 && md !== KO && md !== CLIMB) M[6] = mx > 0 ? 1 : -1;
     M[8] = Math.max(0, M[8]! - dt); M[11] = Math.max(0, M[11]! - dt); M[14] = Math.max(0, M[14]! - dt); M[15] = Math.max(0, M[15]! - dt); M[18] = Math.max(0, M[18]! - dt);
     M[9] = Math.max(0, M[9]! - dt * 4.5); M[10] = Math.max(0, M[10]! - dt * 3.5); M[19] = Math.max(0, M[19]! - dt * 5); M[23] = Math.max(0, M[23]! - dt);
     if (md === WALK) {
@@ -643,11 +645,16 @@ export function blockRun(seed = 20261115, rivals = 2) {
       const b = M[12]!, s = M[22]!, tp = top(b);
       M[2] = M[2]! + (ZW - M[2]!) * Math.min(1, dt * 9);
       M[0] = M[0]! + (wallX(b, s) - M[0]!) * Math.min(1, dt * 12);
-      M[1] = M[1]! + my * 3.4 * dt;
-      M[13] = M[13]! + Math.abs(my) * dt * 2;
+      // Still while a punch is out (it never drifts off its spot); the last way it climbed sets the next punch.
+      const mv = M[8]! > 0 ? 0 : my;
+      M[1] = M[1]! + mv * 3.4 * dt;
+      M[13] = M[13]! + Math.abs(mv) * dt * 2;
+      if (mv > 0.3) M[33] = 0.35;
+      else if (mv < -0.3) M[33] = -0.35;
+      else if (M[8]! <= 0) M[33] = M[33]! > 0 ? Math.max(0, M[33]! - dt) : Math.min(0, M[33]! + dt);
       const hi = tp - CLIMB_TOP;
       if (M[1]! > hi) M[1] = hi;
-      if (M[1]! >= hi - 0.01 && my > 0.5) {
+      if (M[1]! >= hi - 0.01 && mv > 0.5) {
         M[5] = ROOF;
         M[1] = tp;
         M[2] = ZR;
@@ -655,7 +662,7 @@ export function blockRun(seed = 20261115, rivals = 2) {
         M[19] = 0.6;
         return void emit(E_LAND, 2);
       }
-      if (M[1]! <= 0 && my < -0.3) return void ((M[1] = 0), (M[5] = WALK), (M[12] = -1));
+      if (M[1]! <= 0.05 && mv < -0.3 && M[33]! < -0.3) return void ((M[1] = 0), (M[5] = WALK), (M[12] = -1), (M[33] = 0));
       if (M[1]! < 0.05) M[1] = 0.05;
       if (jump) return void ((M[5] = AIR), (M[12] = -1), (M[4] = 7.5), (M[3] = s * 5.5), (M[6] = s), emit(E_JUMP, 1));
     } else if (md === ROOF) {
@@ -679,7 +686,7 @@ export function blockRun(seed = 20261115, rivals = 2) {
     // Soldiers walk in from the ends, stop at their range, and throw.
     T[0]! -= dt;
     if (T[0]! <= 0) {
-      T[0] = Math.max(1.7, 3.6 - t * 0.035) * (0.7 + rnd() * 0.6);
+      T[0] = Math.max(2.4, 4.2 - t * 0.03) * (0.7 + rnd() * 0.6);
       for (let s = 0; s < NS; s++) {
         const o = s * 8;
         if (SO[o]! > 0) continue;
@@ -790,7 +797,7 @@ export function blockRun(seed = 20261115, rivals = 2) {
         if (dx * dx + dy * dy * 0.45 + dz * dz * 0.4 < 1.35) {
           PB[o] = 0;
           setCur(k);
-          hurt(PB[o + 7] === 2 ? 7 : PB[o + 7] ? 4 : 3);
+          hurt(PB[o + 7] === 2 ? 6 : PB[o + 7] ? 3 : 3);
           break;
         }
       }
@@ -838,6 +845,7 @@ export function blockRun(seed = 20261115, rivals = 2) {
         if (IA[2]) M[20] = 0.3;
         if (IA[4]) M[21] = 0.3;
         if (M[20]! > 0 && M[8]! <= 0) (M[20] = 0), punch(IA[1]!);
+        if (M[34]! > 0 && (M[34] = M[34]! - dt) <= 0) (M[34] = 0), M[5] !== KO && landPunch();
         if (M[21]! > 0 && M[14]! <= 0 && M[5] !== KO) (M[21] = 0), grab();
         M[20] = Math.max(0, M[20]! - dt);
         M[21] = Math.max(0, M[21]! - dt);
@@ -923,7 +931,7 @@ export function blockRun(seed = 20261115, rivals = 2) {
     }
     // Hungry: grab the person next to the hand.
     // Hungry (a rival always is: it steals the snacks): grab the person next to the hand.
-    if ((rival || M[7]! < 75) && md === CLIMB && A[4]! <= 0 && personNear()) return void ((I[4] = 1), (A[4] = rival ? 0.9 : 0.5));
+    if ((rival || M[7]! < 85) && md === CLIMB && A[4]! <= 0 && personNear()) return void ((I[4] = 1), (A[4] = rival ? 0.9 : 0.5));
     if (md === ROOF) return void ((I[0] = A[1]! < 0 ? -1 : 1), (I[3] = 0));
     // On a wall: work it; nothing left this side, the other.
     if (md === CLIMB) {
@@ -935,7 +943,8 @@ export function blockRun(seed = 20261115, rivals = 2) {
       // What a punch would hit from here: a window that is not live, punch; else climb on, then the other side.
       const i = sideTarget(0);
       if (i >= 0 && !LIVE_CELL[i] && B[b * 6] === STAND) {
-        if (M[8]! <= 0 && M[20]! <= 0) I[2] = 1;
+        // Settled (no climb a moment ago): the punch goes to the window in front; hold it.
+        if (M[33] === 0) I[2] = 1;
         return;
       }
       if (B[b * 6] === STAND && M[1]! < top(b) - CLIMB_TOP - 0.05 && A[3]! < 1) return void (I[1] = 1);

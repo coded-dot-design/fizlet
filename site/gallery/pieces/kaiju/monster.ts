@@ -8,7 +8,7 @@
 // walk, hang on a side wall and climb, the punch (sideways, up or down), the grab and the nom, a hit,
 // a shock (it flickers dark and light), a landing, the knock-out. Posing allocates nothing.
 import type { Diorama, DioramaObject } from "../../../../src/diorama";
-import { AIR, CLIMB, ROOF, KO, MK, HERO, CRAB } from "./block";
+import { AIR, CLIMB, ROOF, KO, MK, HERO, CRAB, PUNCH_CD, PUNCH_HIT } from "./block";
 
 /** The hero's fur, with the word its name takes. */
 export const FURS = [
@@ -187,7 +187,7 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
   const body = d.get(n("body"))!, neck = d.get(n("neck"))!, jaw = d.get(n("jaw"))!;
 
   // ---- the pose ----
-  let yaw = -0.35, arm = 1, lastPa = 0;
+  let yaw = -0.35;
   function pose(M: Float64Array, t: number, dt: number) {
     const md = M[5]!, f = M[6]!, ph = M[13]!, pa = M[9]!, ga = M[10]!, nom = M[18]!, squash = M[19]!, zap = M[23]!;
     // Three quarters to the camera; hanging on a side, nearly in profile (facing the wall, or away).
@@ -215,35 +215,43 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
       tent[k + 1]!.rot[2] = w * 0.35 + (md === CLIMB ? 0.5 : 0);
     }
     if (tail) (tail.rot[2] = -0.9 + Math.sin(t * 2 + ph) * 0.15), (tail.rot[1] = Math.sin(t * 1.7 + ph * 2) * 0.25);
-    // Arms: swing; hanging on a wall, one reaches up to it in turn; the punch throws one (sideways,
-    // up or down); the grab reaches and comes back to the mouth; a shock throws them wide.
-    if (pa > lastPa + 0.5) arm ^= 1;
-    lastPa = pa;
+    // Arms. Angles swing forward from hanging straight down (0: down, π/2: straight ahead, π: overhead) and
+    // elbows bend the forearm forward, as arms do. Hanging on a wall (facing it): the far hand grips the wall
+    // up in front, the near one rests on it and throws the punch. The punch keeps the round's fixed timing
+    // (./block.ts PUNCH_CD, PUNCH_HIT): the wind-up, the hit frame, a short hold, the recovery; its swing
+    // shows its direction: an overhead slam (up), a straight slam (the window in front), a low hook (down).
+    const near = f > 0 ? 1 : 0, pt = PUNCH_CD - M[8]!, punching = M[8]! > 0 && zap <= 0;
     for (let i = 0; i < 2; i++) {
       const s = i ? 1 : -1, a = arms[i]!, e = fore[i]!;
       let r = 0, er = 0;
-      if (zap > 0) (r = -2.6 + Math.sin(t * 50 + i) * 0.3), (er = -0.4);
-      else if (md === CLIMB) (r = i === 0 ? -2.9 + Math.sin(ph * 2.4) * 0.25 : -1.35 + Math.sin(ph * 2.4 + Math.PI) * 0.3), (er = -0.5);
-      else if (md === AIR) (r = -2.2 + i * 0.4), (er = -0.3);
-      else if (md === KO) (r = -0.6), (er = 0);
-      else (r = moving && walking ? -sw * 0.55 * s : -0.12 + Math.sin(t * 1.6 + i) * 0.04), (er = kind === HERO ? 0.15 : -0.25);
-      if (pa > 0 && i === arm && zap <= 0) {
-        // The punch: straight out (sideways), up over the head, or down at the floor below.
-        const k = Math.sin(Math.min(1, pa) * Math.PI), aim = M[32]! > 0 ? -2.9 : M[32]! < 0 ? -0.75 : -1.62;
-        r = r + (aim - r) * k;
-        er = er * (1 - k);
+      if (zap > 0) (r = 2.6 + Math.sin(t * 50 + i) * 0.3), (er = 0.3);
+      else if (md === CLIMB) (r = i !== near ? 2.35 + Math.sin(ph * 2.4) * 0.22 : 1.35 + Math.sin(ph * 2.4 + Math.PI) * 0.2), (er = i !== near ? 0.45 : 0.7);
+      else if (md === AIR) (r = 2.3 - i * 0.4), (er = 0.3);
+      else if (md === KO) (r = 0.6), (er = 0.2);
+      else if (moving && walking) (r = (kind === HERO ? 0.3 : 0.15) + sw * 0.5 * s), (er = 0.35);
+      else (r = 0.22 + Math.sin(t * 1.6 + i) * 0.04), (er = 0.3);
+      if (punching && i === near) {
+        const d = M[32]!, wr = d > 0 ? 3.3 : d < 0 ? 1.45 : 0.6, we = d > 0 ? 1.3 : d < 0 ? 1.1 : 1.7, hr = d > 0 ? 2.55 : d < 0 ? 0.8 : 1.6, he = d > 0 ? 0.15 : d < 0 ? 0.15 : 0;
+        if (pt < PUNCH_HIT) {
+          const k = pt / PUNCH_HIT;
+          (r += (wr - r) * k), (er += (we - er) * k);
+        } else {
+          const k = Math.max(0, (pt - PUNCH_HIT) / (PUNCH_CD - PUNCH_HIT) - 0.3) / 0.7;
+          (r = hr + (r - hr) * k * k), (er = he + (er - he) * k * k);
+        }
       }
-      if (ga > 0 && i === 1 && zap <= 0) {
-        const k = ga > 0.5 ? (1 - ga) * 2 : ga * 2;
-        r = r + (-1.9 - r) * k;
-        er = er + (-1.2 - er) * (ga < 0.5 ? 1 - k : 0);
+      if (ga > 0 && i === near && zap <= 0) {
+        // The grab: out to the window, then back to the mouth.
+        const k = ga > 0.5 ? (1 - ga) * 2 : 1;
+        r = r + (1.9 - r) * k;
+        er = ga > 0.5 ? er + (0.2 - er) * k : er + (2.1 - er) * (1 - ga * 2);
       }
       a.rot[2] = r;
-      a.rot[0] = s * 0.08;
+      a.rot[0] = s * (zap > 0 ? 0.5 : 0.08);
       e.rot[2] = er;
     }
     neck.rot[2] = md === KO ? 0.4 : zap > 0 ? 0.3 : Math.sin(t * 1.3) * 0.04 - (nom > 0 ? 0.25 : 0);
-    jaw.rot[2] = nom > 0 ? -Math.abs(Math.sin(nom * 18)) * 0.6 : zap > 0 || M[11]! > 0 ? -0.5 : pa > 0.3 ? -0.35 : -0.05;
+    jaw.rot[2] = nom > 0 ? -Math.abs(Math.sin(nom * 18)) * 0.6 : zap > 0 || M[11]! > 0 ? -0.5 : M[8]! > 0 ? -0.35 : -0.05;
   }
   return { root, pose, height: height * MK, main, acc };
 }

@@ -90,28 +90,69 @@ test("dom kaiju: a jump at a side wall grabs it; W at a wall climbs; up onto the
   assert.deepEqual([N[5], N[12], N[22]], [CLIMB, 3, -1], "across the gap: building 3's left wall");
 });
 
-test("dom kaiju: hanging on a side, a punch makes a hole in the window next to it, then the next one in; up and down too", () => {
-  const run = quiet(), M = run.M;
+test("dom kaiju: from the wall every punch lands on the one window in front (chip, crack, hole: 3 presses), the monster never moves", () => {
+  const run = quiet(), M = run.M, { PUNCH_CD, PUNCH_HIT, HITS_CRACK, HITS_HOLE, CRACKED, INTACT } = K;
+  assert.deepEqual([HITS_CRACK, HITS_HOLE], [2, 3]);
   hangAt(run, M, 3, -1, 3);
-  play(run, 1, (I) => (I[2] = 1));
-  assert.equal(run.cell[cellOf(3, 3, 0)], HOLE, "the window at the wall, on the hand's floor");
-  play(run, 20);
-  play(run, 1, (I) => (I[2] = 1));
-  assert.equal(run.cell[cellOf(3, 3, 1)], HOLE, "then the next one in");
-  play(run, 20);
-  play(run, 1, (I) => ((I[2] = 1), (I[1] = 1)));
-  assert.equal(run.cell[cellOf(3, 4, 0)], HOLE, "up: the floor above");
-  play(run, 20);
-  M[1] = 3 + 0.5 - HAND;
-  play(run, 1, (I) => ((I[2] = 1), (I[1] = -1)));
-  assert.equal(run.cell[cellOf(3, 2, 0)], HOLE, "down: the floor below");
-  assert.equal(run.S[3], 4);
-  assert.equal(M[5], CLIMB, "still hanging on");
-  // From the street, a punch never holes a building (it is smashed from its sides).
+  play(run, 30, () => {});
+  const at0 = [M[0], M[1], M[2]], i = cellOf(3, 3, 0), seen = [];
+  // N presses, one each punch cycle: the window at the hand, nothing else.
+  for (let n = 0; n < 3; n++) {
+    const ev = play(run, Math.round(PUNCH_CD * 60) + 2, (I, f) => (I[2] = f === 0 ? 1 : 0));
+    seen.push([run.HIT[i], run.cell[i]]);
+    assert.ok(ev.filter((e) => e[0] === K.E_PUNCH).length === 1, "one punch per press");
+    assert.deepEqual([M[0], M[1], M[2]], at0, "it stays on its spot");
+  }
+  assert.deepEqual(seen, [[1, INTACT], [2, CRACKED], [3, HOLE]], "a chip, a crack, a hole");
+  for (let k = 0; k < NC; k++) if (k !== i) assert.equal(run.HIT[k], 0, `no other window touched (${k})`);
+  // The hit lands on a fixed frame of the punch.
+  const r = quiet(), N = r.M, j = cellOf(3, 3, 0);
+  hangAt(r, N, 3, -1, 3);
+  play(r, 30, () => {});
+  let frame = -1;
+  play(r, 30, (I, f) => { I[2] = f === 0 ? 1 : 0; if (frame < 0 && r.HIT[j]) frame = f; });
+  assert.equal(frame, Math.round(PUNCH_HIT * 60), "the hit frame");
+  // Held, it punches at a steady rhythm: one punch per cycle.
+  const h = quiet(), H = h.M;
+  hangAt(h, H, 3, -1, 3);
+  play(h, 30, () => {});
+  const ev = play(h, 60 * 2, (I) => (I[2] = 1));
+  const starts = [];
+  ev.forEach((e, k) => e[0] === K.E_PUNCH && starts.push(k));
+  assert.ok(starts.length >= 7 && starts.length <= 9, `steady repeats (${starts.length} in 2 s)`);
+  // Then the next window in, once that one is a hole.
+  assert.equal(h.cell[cellOf(3, 3, 0)], HOLE);
+  assert.ok(h.HIT[cellOf(3, 3, 1)] > 0, "on through the hole");
+});
+
+test("dom kaiju: wall punches: the window in front by default, the one above while climbing up, below while climbing down", () => {
+  const go = (input, settle) => {
+    const run = quiet(), M = run.M;
+    hangAt(run, M, 3, -1, 3);
+    M[1] += 0.5;
+    play(run, 30, () => {});
+    if (settle) play(run, settle.n, settle.f);
+    const y = M[1], fl = Math.floor(y + HAND - run.yOff(3));
+    play(run, 20, input);
+    const hit = [];
+    for (let k = 0; k < NC; k++) if (run.HIT[k]) hit.push(k);
+    return { hit, fl };
+  };
+  const mid = go((I, f) => (I[2] = f === 0 ? 1 : 0));
+  assert.deepEqual(mid.hit, [cellOf(3, mid.fl, 0)], "middle: the window at the hand, from the wall");
+  const up = go((I, f) => ((I[1] = 1), (I[2] = f === 0 ? 1 : 0)));
+  assert.deepEqual(up.hit, [cellOf(3, up.fl + 1, 0)], "holding up: the window above");
+  const upAgo = go((I, f) => (I[2] = f === 0 ? 1 : 0), { n: 10, f: (I) => (I[1] = 1) });
+  assert.deepEqual(upAgo.hit, [cellOf(3, upAgo.fl + 1, 0)], "just climbed up: the window above");
+  const down = go((I, f) => ((I[1] = -1), (I[2] = f === 0 ? 1 : 0)), { n: 10, f: (I) => (I[1] = -1) });
+  assert.deepEqual(down.hit, [cellOf(3, down.fl - 1, 0)], "climbing down: the window below");
+  const later = go((I, f) => (I[2] = f === 0 ? 1 : 0), { n: 60, f: (I, f) => (I[1] = f < 10 ? 1 : 0) });
+  assert.deepEqual(later.hit, [cellOf(3, later.fl, 0)], "a moment after the climb stops: the middle again");
+  // From the street, a punch never touches a building.
   const s = quiet(), N = s.M;
   N[0] = BLD[1 * 4] + 2; N[6] = 1;
-  const ev = play(s, 1, (I) => (I[2] = 1));
-  assert.ok(ev.some((e) => e[0] === K.E_WHIFF) && s.S[3] === 0);
+  const ev = play(s, 20, (I, f) => (I[2] = f === 0 ? 1 : 0));
+  assert.ok(ev.some((e) => e[0] === K.E_WHIFF) && s.HIT.every((v) => v === 0));
 });
 
 test("dom kaiju: a live part shocks: a little health, it lets go and drops; a grab on one too", () => {
@@ -119,7 +160,7 @@ test("dom kaiju: a live part shocks: a little health, it lets go and drops; a gr
   // Building 0 has a power box on floor 2 at its right edge.
   assert.equal(LIVE_CELL[cellOf(0, 2, 3)], 1);
   hangAt(run, M, 0, 1, 2);
-  const ev = play(run, 1, (I) => (I[2] = 1));
+  const ev = play(run, 10, (I, f) => (I[2] = f === 0 ? 1 : 0));
   assert.ok(ev.some((e) => e[0] === K.E_SHOCK && e[1] === cellOf(0, 2, 3)), "zap");
   assert.equal(M[7], K.MAX_HP - K.SHOCK_HP, "a little health");
   assert.equal(M[5], AIR, "it lets go");
@@ -134,7 +175,7 @@ test("dom kaiju: a live part shocks: a little health, it lets go and drops; a gr
   // A roof antenna bites.
   const a = quiet(), A = a.M, b = 1;
   A[5] = ROOF; A[12] = b; A[1] = a.top(b); A[2] = K.ZR; A[0] = K.ANT[b] - 1.6; A[6] = 1;
-  const ev3 = play(a, 1, (I) => (I[2] = 1));
+  const ev3 = play(a, 10, (I, f) => (I[2] = f === 0 ? 1 : 0));
   assert.ok(ev3.some((e) => e[0] === K.E_SHOCK && e[1] === -1 - b), "the antenna");
 });
 
@@ -162,10 +203,10 @@ test("dom kaiju: enough holes and it shakes, pancakes floor by floor (the roof s
   const run = quiet(), M = run.M, B = run.B, b = 3, f = BLD[b * 4 + 2];
   hangAt(run, M, b, -1, 2);
   for (let k = 0; k < 40 && B[b * 6] === 0; k++) {
-    const fl = k % 3 === 0 ? 2 : k % 3 === 1 ? 3 : 1;
-    M[1] = Math.max(0.05, Math.min(run.top(b) - K.CLIMB_TOP, fl + 0.5 - HAND));
-    play(run, 16, (I, i) => (I[2] = i === 0 ? 1 : 0));
-    if (M[5] !== CLIMB) hangAt(run, M, b, -1, 2);
+    const fl = 1 + (k % 4);
+    hangAt(run, M, b, -1, fl);
+    M[1] = Math.max(0.05, M[1]);
+    play(run, Math.round(K.PUNCH_CD * 60) * 4, (I) => (I[2] = 1));
   }
   assert.ok(B[b * 6] >= SHAKE, `it shakes after ${B[b * 6 + 1]} holes`);
   let prev = run.top(b), jumps = 0;
@@ -184,7 +225,7 @@ test("dom kaiju: the helicopter goes down to a punch; the tank blows up; pebbles
   assert.ok(ev.some((e) => e[0] === K.E_HELI) && ev.some((e) => e[0] === K.E_HELI_CRASH), "swatted, and it crashes");
   const t = quiet(), N = t.M;
   t.TK[0] = 1; t.TK[1] = N[0] + 2.4; t.TK[2] = -1; t.TK[3] = 1e9; t.TK[7] = 4;
-  const ev2 = play(t, 2, (I, i) => ((I[0] = 0.3), (I[2] = i === 0 ? 1 : 0)));
+  const ev2 = play(t, 10, (I, i) => ((I[0] = 0.3), (I[2] = i === 0 ? 1 : 0)));
   assert.ok(ev2.some((e) => e[0] === K.E_TANK), "the tank blows");
   assert.equal(t.TK[0], 2, "a wreck");
   const h = K.blockRun(5, 0);
@@ -238,8 +279,8 @@ test("dom kaiju: a hero punch knocks a rival off a wall (and the rival punches b
   // The gap between buildings 2 and 3: the crab on 3's left wall, the hero on 2's right wall, facing it.
   hangAt(run, C, 3, -1, 3);
   hangAt(run, M, 2, 1, 3);
-  M[6] = 1;
-  const ev = play(run, 1, (I) => ((I[0] = 0.3), (I[2] = 1)));
+  C[8] = C[34] = C[20] = 0; // (no punch of its own under way)
+  const ev = play(run, 7, (I, f) => (I[2] = f === 0 ? 1 : 0));
   assert.ok(ev.some((e) => e[0] === K.E_BONK && e[1] === CRAB), "bonk");
   assert.equal(C[5], AIR, "off the wall");
   assert.ok(C[7] < 100, "it hurts");
@@ -280,7 +321,7 @@ test("dom kaiju: the autopilot flattens the whole block, swats a helicopter, bus
     const run = K.blockRun(seed, rivals), ev = play(run, 60 * 90, "auto");
     assert.equal(run.S[0], DONE, `seed ${seed}: over`);
     assert.equal(run.S[4], NB, `seed ${seed}: every building flat`);
-    assert.ok(run.S[1] < 60, `seed ${seed}: ${run.S[1].toFixed(1)} s`);
+    assert.ok(run.S[1] < 60, `seed ${seed}: ${run.S[1].toFixed(1)} s (a round of 30 to 60 s)`);
     assert.ok(run.S[6] >= 1, `seed ${seed}: a snack`);
     assert.ok(run.S[11] >= 1, `seed ${seed}: a tank busted`);
     if (!rivals) assert.ok(run.S[5] >= 1, `seed ${seed}: a helicopter swatted`);

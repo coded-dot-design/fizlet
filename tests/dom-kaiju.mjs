@@ -59,7 +59,7 @@ try {
         drawn: px[3] === 255,
         making: scene.state.making,
         name: document.querySelector(".kj-mname").textContent,
-        keys: keys.every(Boolean) && keys.length > 6,
+        keys: keys.every(Boolean) && keys.length > 6 ? true : [...document.querySelectorAll("[data-fizlet-slot] .kj-key, [data-fizlet-slot] .kj-opt, [data-fizlet-slot] .kj-tab, [data-fizlet-slot] .kj-go")].filter((b) => b.offsetParent).map((b) => { const k = b.getBoundingClientRect(); return b.className + (b.dataset.k || "") + b.dataset.i + ":" + Math.round(k.width) + "x" + Math.round(k.height); }).filter((x) => /:(\d|[1-3]\d|4[0-3])x|x(\d|[1-3]\d|4[0-3])$/.test(x)).join(" "),
         touch: getComputedStyle(document.querySelector("[data-fizlet-slot] .kj-play")).touchAction,
       };
     });
@@ -89,11 +89,14 @@ try {
       await p.keyboard.press("KeyK");
       await p.waitForFunction(() => scene.state.mode === 2, null, { timeout: 5000 }).catch(() => assert.fail(`${at}: a jump at the wall grabs it`));
       await p.keyboard.up("KeyD");
-      for (let i = 0; i < 3; i++) {
+      // Each press is one punch at the window in front: a chip, a crack, a hole (three presses); it never moves.
+      const spot = await p.evaluate(() => [scene.run.M[0], scene.run.M[1]]);
+      for (let n = 1; n <= 9; n++) {
         await p.keyboard.press("Space");
-        await p.waitForFunction((n) => scene.state.holes > n, i, { timeout: 3000 }).catch(() => assert.fail(`${at}: Space punches a hole (${i})`));
+        await p.waitForFunction((n) => scene.run.HIT.reduce((a, v) => a + v, 0) >= n, n, { timeout: 3000 }).catch(() => assert.fail(`${at}: Space punch ${n} lands`));
+        await p.waitForFunction(() => scene.run.M[8] <= 0, null, { timeout: 3000 });
       }
-      assert.deepEqual(await p.evaluate(() => [scene.state.holes, scene.state.mode, document.querySelector(".kj-score span").textContent]), [3, 2, "30"], `${at}: three holes from the wall, still hanging on`);
+      assert.deepEqual(await p.evaluate(() => [scene.state.holes, scene.state.mode, document.querySelector(".kj-score span").textContent, scene.run.M[0], scene.run.M[1]]), [3, 2, "39", ...spot], `${at}: nine presses, three windows holed in a row from the wall, still on its spot`);
       // Player two: 2 brings them in on the crab; the arrows walk it.
       await p.keyboard.press("Digit2");
       assert.equal(await p.evaluate(() => scene.state.p2), true, `${at}: player two is in`);
@@ -114,9 +117,8 @@ try {
           if (!scene.state.card) requestAnimationFrame(tick);
         };
         tick();
-        scene.run.HE[8] = 2;
-        scene.run.TK[4] = 3;
-        scene.run.MV[1][24] = 2;
+        scene.run.reset();
+        scene.run.S[0] = 1;
         scene.auto = true;
       });
       await p.waitForFunction(() => scene.state.card, null, { timeout: 120000 });
@@ -155,7 +157,7 @@ try {
       await p.evaluate(() => { const M = scene.run.M; M[5] = 2; M[12] = 3; M[22] = -1; M[0] = scene.run.wallX(3, -1); M[6] = 1; M[1] = 0.9; for (const k of [1, 2]) scene.run.MV[k][24] = 0; });
       const punch = await p.locator(".kj-pad button[aria-label^='Punch']").boundingBox();
       await p.mouse.click(punch.x + punch.width / 2, punch.y + punch.height / 2);
-      await p.waitForFunction(() => scene.state.holes > 0, null, { timeout: 3000 }).catch(() => assert.fail(`${at}: PUNCH punches`));
+      await p.waitForFunction(() => scene.run.HIT.some((v) => v > 0), null, { timeout: 3000 }).catch(() => assert.fail(`${at}: PUNCH punches`));
     }
     // Recall mid-round: the page comes back byte for byte.
     const after = await p.evaluate(() => (h.destroy(), { same: document.body.innerHTML === window.before, running: scene.engine.running }));
@@ -177,7 +179,7 @@ try {
   });
   assert.deepEqual(rm, { made: 0, mounted: false, same: true, poster: true, drawn: true }, "reduced motion keeps the poster");
   await ctx.close();
-  console.log("dom-kaiju: mounts with the customiser up and settles (no audio before a gesture); wide: the parts dress MIDNIGHT TUSKER, SMASH! starts it, D walks, K at a wall grabs it, Space punches holes from the wall, 2 brings player two in and the arrows walk the crab, the autopilot flattens the block (shake, pancake) to the score card, M mutes, SMASH AGAIN resets; tall: the tabs show one part at a time, the stick walks and PUNCH punches from a wall; keys ≥ 44 px; Recall exact; reduced motion still — ok");
+  console.log("dom-kaiju: mounts with the customiser up and settles (no audio before a gesture); wide: the parts dress MIDNIGHT TUSKER, SMASH! starts it, D walks, K at a wall grabs it, Space punches the window in front (three presses a hole), 2 brings player two in and the arrows walk the crab, the autopilot flattens the block (shake, pancake) to the score card, M mutes, SMASH AGAIN resets; tall: the tabs show one part at a time, the stick walks and PUNCH punches from a wall; keys ≥ 44 px; Recall exact; reduced motion still — ok");
 } finally {
   await browser.close();
 }

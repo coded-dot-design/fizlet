@@ -31,7 +31,7 @@ import {
   blockRun, BLD, NB, C0, NC, NS, NP, NCH, NM, DEPTH, SX, STREET0, STREET1, TOTAL_FLOORS, READY, DONE, CLIMB, ROOF, KO, HERO, CRAB, BLOB, P2, AI, IN,
   INTACT, CRACKED, HOLE, SHAKE, FALL, RUBBLE, LIVE, LIVE_CELL, ANT,
   E_START, E_PUNCH, E_HOLE, E_SHAKE, E_FLOOR, E_FLAT, E_HELI, E_HELI_CRASH, E_NOM, E_HURT, E_FLING, E_DROP, E_KO, E_END, E_STOMP, E_JUMP, E_LAND, E_CLIMB,
-  E_SHOCK, E_TANK, E_BONK, E_OUT, E_BURN, E_JOIN,
+  E_SHOCK, E_TANK, E_BONK, E_OUT, E_BURN, E_JOIN, E_CHIP, E_CRACK,
 } from "./block";
 import { buildMonster, heroName, FURS, TRIMS, PATTERNS, FACES, GEAR, RIVALS, type Look, type Monster } from "./monster";
 
@@ -81,6 +81,8 @@ export type KaijuScene = SlotScene & {
   set(k: keyof Look, v: number): void;
   /** Player two in (true) or out. */
   join(on: boolean): void;
+  /** Where monster k's chest is on the stage, CSS px (the tests and the contact sheet frame it). */
+  where(k: number): number[];
   poster(): void;
   destroy(): void;
 };
@@ -141,7 +143,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     scheme: "stick",
     move: ["up", "down", "left", "right"],
     actions: [
-      { intent: "punch", label: "", icon: ICON_PUNCH, name: "Punch (Space or J)", key: "J", role: "fire" },
+      { intent: "punch", label: "", icon: ICON_PUNCH, name: "Punch (Space or J; hold to keep punching)", key: "J", role: "fire", hold: true },
       { intent: "jump", label: "", icon: ICON_JUMP, name: "Jump (K)", key: "K", role: "go" },
       { intent: "grab", label: "", icon: ICON_GRAB, name: "Grab (L)", key: "L", role: "aim" },
     ],
@@ -294,7 +296,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   let auto = false, dirty = true, hudDirty = true, shake = 0, toastT = 0, endT = -1, flash = 0, makeTop = 0, lastDt = 1 / 60;
   const was = new Float64Array(16).fill(-1);
   const HF = new Float64Array(2); // the horizontal half-width the stage shows at the target, wide and tall
-  HF[0] = 18.4; HF[1] = 7.8;
+  HF[0] = 12; HF[1] = 7.8;
   const ro = new ResizeObserver(() => ((V[0] = 1), engine.wake()));
   ro.observe(stage);
   const mo = new MutationObserver(() => ((V[1] = 1), engine.wake()));
@@ -308,24 +310,28 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     V[7] = tall ? 1 : 0;
     const cam = dio.cam;
     cam.yaw = 0;
-    cam.pitch = tall ? 0.18 : 0.2;
-    cam.dist = tall ? 24 : 38;
-    cam.ty = tall ? 4.0 : 4.4;
+    cam.pitch = tall ? 0.18 : 0.24;
+    cam.dist = tall ? 24 : 30;
+    cam.ty = tall ? 4.0 : 5.0;
     cam.tz = 0.2;
     cam.fov = 2 * Math.atan((HF[V[7]!]! / cam.dist) * (H / W));
     cam.ox = 0;
-    cam.oy = V[4] = tall ? H * 0.06 : Math.min(H * 0.12, V[3]! * 0.5);
-    if (!tall) cam.tx = 0;
+    cam.oy = V[4] = tall ? H * 0.06 : Math.min(H * 0.05, V[3]! * 0.3);
+    cam.tx = camWant();
+  }
+  /** Where the camera looks along the street: at the hero (to the left of the customiser while it is up), never past the table's ends. */
+  function camWant() {
+    const hf = HF[V[7]!]!, lim = SX + 1.5 - hf, off = !make.hidden && !V[7] ? hf * 0.42 : 0;
+    return Math.max(-lim, Math.min(lim, M[0]! + off));
   }
   function stepCam(dt: number) {
-    if (!V[7]) return false;
-    // Tall: the camera walks along the street with the hero (it never zooms); while the customiser
-    // covers the bottom, the picture slides up so the ape stands just over it.
-    const cam = dio.cam, want = Math.max(-SX + 6.5, Math.min(SX - 6.5, M[0]!)), d = want - cam.tx;
+    // The camera walks along the street with the hero, steady (it never zooms); on a phone, while the
+    // customiser covers the bottom, the picture slides up so the ape stands just over it.
+    const cam = dio.cam, d = camWant() - cam.tx;
     let moving = false;
     if (Math.abs(d) > 0.005) (cam.tx += d * Math.min(1, dt * 3)), (moving = true);
     let oy = V[4]!;
-    if (!make.hidden && V[3] && dio.project(M[0]!, 0, M[2]!, tmp)) oy = cam.oy + (makeTop - 14 - tmp[1]!);
+    if (V[7] && !make.hidden && V[3] && dio.project(M[0]!, 0, M[2]!, tmp)) oy = cam.oy + (makeTop - 14 - tmp[1]!);
     const e = oy - cam.oy;
     if (Math.abs(e) > 0.3) (cam.oy += e * Math.min(1, dt * 6)), (moving = true);
     return moving;
@@ -467,7 +473,19 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       hudDirty = true;
       if (type === E_START) engine.events.emit("start"), toast("SMASH THE BLOCK!", "go"), say("Go: smash the block");
       else if (type === E_PUNCH) engine.events.emit("punch");
-      else if (type === E_HOLE) {
+      else if (type === E_CHIP || type === E_CRACK) {
+        // A hit that holds: a chip (sparks, dust), then a crack (glass flies).
+        engine.events.emit("punch");
+        const b = cellPos(val | 0);
+        for (let n = 0; n < (type === E_CRACK ? 8 : 4); n++) spark.puff(tmp2[0]!, tmp2[1]!, tmp2[2]!, (rnd() - 0.5) * 5, (rnd() - 0.2) * 4, 1 + rnd() * 2, 0.3, 0.05, 1);
+        if (type === E_CRACK) {
+          for (let n = 0; n < 5; n++) shard.puff(tmp2[0]!, tmp2[1]!, 0.25, (rnd() - 0.5) * 3, 1 + rnd() * 2, 1 + rnd() * 2, 0.6, 0.06, 1);
+          if (at(tmp2[0]!, tmp2[1]!, 0.3)) fx.word(tmp[0]!, tmp[1]! - 8, 1, 3, 13);
+        }
+        dust.puff(tmp2[0]!, tmp2[1]!, 0.3, 0, 0.3, 0.5, 0.5, 0.22, 0.4);
+        shake = Math.max(shake, type === E_CRACK ? 0.12 : 0.07);
+        void b;
+      } else if (type === E_HOLE) {
         engine.events.emit("hole");
         const b = cellPos(val | 0);
         burst(tmp2[0]!, tmp2[1]!, tmp2[2]!, 1, P.walls[BLD[b * 4 + 3]!]!);
@@ -823,7 +841,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       if (run.B[b * 6] === RUBBLE) return;
       for (let fl = rem; fl < f; fl++) for (let col = 0; col < w; col++) {
         const i = C0[b]! + fl * w + col, cs = run.cell[i]!;
-        if (cs === INTACT || LIVE_CELL[i]) continue;
+        if ((cs === INTACT && !run.HIT[i]) || LIVE_CELL[i]) continue;
         const x = g.pos[0]! - w / 2 + col + 0.5, y = yo + fl + (fl === 0 ? 0.45 : 0.5);
         if (!at(x, y, 0.06)) continue;
         const s = fc / tmp[2]!, cx = tmp[0]!, cy = tmp[1]!, seed = (i * 7919) % 97;
@@ -851,12 +869,14 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
             ctx.globalAlpha = 1;
           }
         } else {
+          // One hit: a chip, a few short lines; two hits: the crack across the pane.
+          const heavy = cs === CRACKED;
           ctx.strokeStyle = P.ink;
-          ctx.lineWidth = Math.max(1, s * 0.025);
-          ctx.globalAlpha = 0.7;
+          ctx.lineWidth = Math.max(1, s * (heavy ? 0.03 : 0.02));
+          ctx.globalAlpha = heavy ? 0.85 : 0.6;
           ctx.beginPath();
-          for (let k = 0; k < 4; k++) {
-            const a = k * 1.7 + seed, rr = s * 0.24;
+          for (let k = 0; k < (heavy ? 6 : 3); k++) {
+            const a = k * 1.7 + seed, rr = s * (heavy ? 0.3 : 0.14);
             ctx.moveTo(cx - s * 0.05, cy - s * 0.04);
             ctx.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.9);
           }
@@ -1185,7 +1205,6 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         sky = null;
         frame();
         makeTop = make.getBoundingClientRect().top - cr.top;
-        if (V[7]) dio.cam.tx = Math.max(-SX + 6.5, Math.min(SX - 6.5, M[0]!));
         hudDirty = dirty = true;
       }
       if (V[6]) gamepadRead();
@@ -1198,7 +1217,8 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         const stick = c.stick.active;
         I[0] = GP[0]! || (stick ? c.stick.x : c.axis("left", "right"));
         I[1] = -GP[1]! || (stick ? -c.stick.y : c.axis("down", "up"));
-        I[2] = c.hit(PUNCH) || GP[2]! ? 1 : 0;
+        // A press punches once; held, it keeps punching at the punch's own steady rhythm.
+        I[2] = c.hit(PUNCH) || c.down(PUNCH) || GP[2]! || GP[5]! ? 1 : 0;
         I[3] = c.hit(JUMP) || GP[3]! ? 1 : 0;
         I[4] = c.hit(GRAB) || GP[4]! ? 1 : 0;
         GP[2] = GP[3] = GP[4] = 0;
@@ -1247,6 +1267,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       GP[o] = dz(ax[0] ?? 0) || v(15) - v(14);
       GP[o + 1] = dz(ax[1] ?? 0) || v(13) - v(12);
       const now0 = v(2) || v(7), now1 = v(0), now2 = v(1) || v(3), g = n * 3;
+      if (n === 0) GP[5] = now0;
       if (now0 && !GB[g]) GP[o + 2] = 1;
       if (now1 && !GB[g + 1]) GP[o + 3] = 1;
       if (now2 && !GB[g + 2]) GP[o + 4] = 1;
@@ -1357,6 +1378,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     look,
     set,
     join,
+    where: (k: number) => (dio.project(MV[k]![0]!, MV[k]![1]! + mons[k]!.height * 0.5, MV[k]![2]!, tmp), [tmp[0]!, tmp[1]!, dio.focal() / tmp[2]!]),
     poster,
     destroy: () => engine.destroy(),
   };
