@@ -88,6 +88,8 @@ export type KaijuScene = SlotScene & {
   where(k: number): number[];
   /** Where monster k's hands, then its feet, are in the world, as of the last draw: [x, y, z, …] (the tests check its grip on a wall). */
   contacts(k: number): number[];
+  /** Monster k's torso, as of the last draw: its centre and which way its front faces, [x, y, z, fx, fy, fz] (the tests check it hugs the building). */
+  torso(k: number): number[];
   poster(): void;
   destroy(): void;
 };
@@ -1456,6 +1458,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     set,
     join,
     contacts: (k: number) => [...mons[k]!.hands, ...mons[k]!.feet].flatMap((o) => [o.M[9]!, o.M[10]!, o.M[11]!]),
+    torso: (k: number) => { const M = mons[k]!.tor.M; return [M[9]!, M[10]!, M[11]!, M[0]!, M[3]!, M[6]!]; },
     where: (k: number) => (dio.project(MV[k]![0]!, MV[k]![1]! + mons[k]!.height * 0.5, MV[k]![2]!, tmp), [tmp[0]!, tmp[1]!, dio.focal() / tmp[2]!]),
     poster,
     destroy: () => engine.destroy(),
