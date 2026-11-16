@@ -100,33 +100,37 @@ try {
         await p.waitForFunction(() => scene.run.M[8] <= 0, null, { timeout: 3000 });
       }
       assert.deepEqual(await p.evaluate(() => [scene.state.holes, scene.state.mode, document.querySelector(".kj-score span").textContent, scene.run.M[0], scene.run.M[1]]), [3, 2, "39", ...spot], `${at}: nine presses, three windows holed in a row from the wall, still on its spot`);
-      // The wall pose: hanging on either face of a building, both hands and both feet are on the wall (the inside
-      // hand round the front corner, the outside hand on the side face, the feet planted on it), and they stay
-      // there through a punch: the outside arm swings, the grip and the feet hold.
+      // The wall pose: hanging on either side of a building, the monster is beside it, seen from the front.
+      // The hand by the building grips the side edge at the front corner and holds through every punch; the
+      // other hand smashes: at each punch's hit frame (down, level, up) its fist is on the window the round
+      // hits, in front of the facade (never behind the body). Feet stay by the edge.
       const grip = await p.evaluate(() => {
         const r = scene.run, M = r.M, X0 = [-15.2, -8.6, -1, 4.6, 11.2], W = [4, 5, 3, 4, 4], out = [];
-        for (const [b, s] of [[3, -1], [1, 1]]) {
-          M[5] = 2; M[12] = b; M[22] = s; M[0] = r.wallX(b, s); M[2] = -0.55; M[6] = -s; M[1] = 2.2; M[8] = 0; M[33] = 0;
+        for (const [b, s] of [[3, -1], [4, 1]]) for (const d of [-1, 0, 1]) {
+          r.cell.fill(2); r.HIT.fill(0); r.B[b * 6 + 1] = 0;
+          M[5] = 2; M[12] = b; M[22] = s; M[0] = r.wallX(b, s); M[2] = -0.55; M[6] = -s; M[1] = 1.6; M[8] = 0; M[33] = 0; M[7] = 100; M[15] = 0; M[23] = 0;
           scene.engine.stop();
           for (let i = 0; i < 40; i++) scene.engine.advance(1 / 60);
-          const edge = s < 0 ? X0[b] : X0[b] + W[b], c = scene.contacts(0), d = [];
-          for (let i = 0; i < c.length; i += 3) d.push([(c[i] - edge) * -s, c[i + 2]]); // into the building, z
-          const [outH, inH, f1, f2] = s < 0 ? [d[0], d[1], d[2], d[3]] : [d[1], d[0], d[2], d[3]];
-          const ok = (h) => h && Math.abs(h[0]) < 0.6 && h[1] < 0 && h[1] > -3;
-          out.push({ outside: ok(outH), inside: inH[1] > -0.4 && inH[0] > -0.6 && inH[0] < 1.7, feet: [f1, f2].every((f) => f[0] > -0.95 && f[0] < 0.5) });
-          // A punch: at its hit frame the grip and the feet are still on.
-          const before = scene.contacts(0);
-          scene.engine.start();
-          r.MV[0][20] = 0.3;
-          scene.engine.stop();
-          for (let i = 0; i < 6; i++) scene.engine.advance(1 / 60);
-          const now = scene.contacts(0), inI = s < 0 ? 1 : 0;
-          out.push({ held: Math.hypot(now[inI * 3] - before[inI * 3], now[inI * 3 + 1] - before[inI * 3 + 1]) < 0.9 && [2, 3].every((k) => Math.abs(now[k * 3] - before[k * 3]) < 0.9) });
+          const edge = s < 0 ? X0[b] : X0[b] + W[b], g = s < 0 ? 0 : 1, before = scene.contacts(0);
+          M[33] = d * 0.35; M[20] = 0.3;
+          const i = r.sideTarget(d), h0 = r.HIT[i];
+          let n = 0;
+          while (r.HIT[i] === h0 && n++ < 40) scene.engine.advance(1 / 60);
+          const c = scene.contacts(0), hit = c.slice((1 - g) * 3, (1 - g) * 3 + 3), hold = c.slice(g * 3, g * 3 + 3);
+          const rel = i - [0, 20, 60, 72, 100][b], row = (rel / W[b]) | 0, cx = X0[b] + (rel - row * W[b]) + 0.5, cy = r.yOff(b) + row + 0.5;
+          out.push({
+            hit: r.HIT[i] > h0 && row - 3 === d && Math.abs(hit[0] - cx) < 0.75 && Math.abs(hit[1] - cy) < 0.8 && hit[2] > -0.1,
+            grip: Math.abs(hold[0] - edge) < 0.75 && hold[2] < 0.7 && Math.hypot(hold[0] - before[g * 3], hold[1] - before[g * 3 + 1]) < 0.9,
+            feet: [2, 3].every((k) => Math.abs(c[k * 3] - edge) < 2.2),
+            why: [b, s, d, row, hit.map((v) => +v.toFixed(2)), cx, cy],
+          });
+          for (let k = 0; k < 30; k++) scene.engine.advance(1 / 60);
           scene.engine.start();
         }
         return out;
       });
-      assert.deepEqual(grip, [{ outside: true, inside: true, feet: true }, { held: true }, { outside: true, inside: true, feet: true }, { held: true }], `${at}: hands and feet on the wall, both faces, through a punch`);
+      const want = { hit: true, grip: true, feet: true };
+      assert.deepEqual(grip.map(({ hit, grip, feet }) => ({ hit, grip, feet })), [want, want, want, want, want, want], `${at}: the grip hand on the edge, the fist on the window it hits (down, level, up), both sides ${JSON.stringify(grip.map((g) => g.why))}`);
       // Player two: 2 brings them in on the crab; the arrows walk it.
       await p.keyboard.press("Digit2");
       assert.equal(await p.evaluate(() => scene.state.p2), true, `${at}: player two is in`);
@@ -209,7 +213,7 @@ try {
   });
   assert.deepEqual(rm, { made: 0, mounted: false, same: true, poster: true, drawn: true }, "reduced motion keeps the poster");
   await ctx.close();
-  console.log("dom-kaiju: mounts with the customiser up and settles (no audio before a gesture); wide: the parts dress MIDNIGHT TUSKER, SMASH! starts it, D walks, K at a wall grabs it, hands and feet on the wall on both faces (and through a punch), Space punches the window in front (three presses a hole), 2 brings player two in and the arrows walk the crab, the autopilot flattens the block (shake, pancake) to the score card, M mutes, SMASH AGAIN resets; tall: the tabs show one part at a time, the stick walks and PUNCH punches from a wall; keys ≥ 44 px; Recall exact; reduced motion still — ok");
+  console.log("dom-kaiju: mounts with the customiser up and settles (no audio before a gesture); wide: the parts dress MIDNIGHT TUSKER, SMASH! starts it, D walks, K at a wall grabs it, on a wall the grip hand on the edge and the fist on the window it hits (down, level, up, both sides), Space punches the window in front (three presses a hole), 2 brings player two in and the arrows walk the crab, the autopilot flattens the block (shake, pancake) to the score card, M mutes, SMASH AGAIN resets; tall: the tabs show one part at a time, the stick walks and PUNCH punches from a wall; keys ≥ 44 px; Recall exact; reduced motion still — ok");
 } finally {
   await browser.close();
 }
