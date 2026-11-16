@@ -1,4 +1,4 @@
-// DOM Kaiju's city block and round, headless (tests/dom-kaiju.test.mjs plays it with no browser).
+// CitySmash's city block and round, headless (tests/dom-kaiju.test.mjs plays it with no browser).
 // One block on a table, seen side-on: five buildings of different heights along the back of a street,
 // with gaps between them. The monster walks the street, jumps at a building's side wall (a jump at a
 // wall grabs it) and climbs it, hanging on the side. Hanging there, it punches the face right next to
@@ -69,7 +69,7 @@ export const MAX_HP = 100, SHAKE_T = 1.0, FLOOR_T = 0.3, DROP_T = 0.22, SHOCK_HP
 /** Pools: soldiers, pebbles and shells, parachutes. */
 export const NS = 6, NP = 40, NCH = 18;
 /** Hanging on a side: the monster's x from the wall, its hand over its feet, how far under the roof its feet stop. */
-export const WALLX = 1.0, HAND = 1.9, CLIMB_TOP = 1.6;
+export const WALLX = 1.3, HAND = 1.9, CLIMB_TOP = 1.6;
 /** The punch, arcade style: always the same timing (a wind-up, the hit on a fixed frame, a recovery), one per
  *  press, a steady rhythm while held; a window takes a fixed number of hits: a crack, then a hole. */
 export const PUNCH_CD = 0.24, PUNCH_HIT = 0.08, HITS_CRACK = 2, HITS_HOLE = 3;

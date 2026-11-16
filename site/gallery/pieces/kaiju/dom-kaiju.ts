@@ -1,4 +1,4 @@
-// "DOM Kaiju" (hero, Hi-Fi): a giant cyber ape against a tabletop city block, side-on. Dress him in
+// "CitySmash" (hero, Hi-Fi): a giant cyber ape against a tabletop city block, side-on. Dress him in
 // the customiser (fur colour and pattern, a brow, a crest or tusks, and gear: a cyber arm, a visor, a
 // chest plate, tail spikes, in a neon trim), then wreck the block. Jump at a building's side wall (the
 // jump grabs it), hang on and climb; from the wall, punch the face next to you (left or right by where
@@ -29,11 +29,11 @@ import type { SlotScene, SlotTap } from "../../../../src/slot";
 import { pool, type Pool } from "../bikes/kit";
 import {
   blockRun, BLD, NB, C0, NC, NS, NP, NCH, NM, DEPTH, SX, STREET0, STREET1, TOTAL_FLOORS, READY, DONE, CLIMB, ROOF, KO, HERO, CRAB, BLOB, P2, AI, IN,
-  INTACT, CRACKED, HOLE, SHAKE, FALL, RUBBLE, LIVE, LIVE_CELL, ANT,
+  INTACT, CRACKED, HOLE, SHAKE, FALL, RUBBLE, LIVE, LIVE_CELL, ANT, NEED,
   E_START, E_PUNCH, E_HOLE, E_SHAKE, E_FLOOR, E_FLAT, E_HELI, E_HELI_CRASH, E_NOM, E_HURT, E_FLING, E_DROP, E_KO, E_END, E_STOMP, E_JUMP, E_LAND, E_CLIMB,
   E_SHOCK, E_TANK, E_BONK, E_OUT, E_BURN, E_JOIN, E_CHIP, E_CRACK,
 } from "./block";
-import { buildMonster, heroName, FURS, TRIMS, PATTERNS, FACES, GEAR, RIVALS, type Look, type Monster } from "./monster";
+import { buildMonster, heroName, shade, FURS, TRIMS, PATTERNS, FACES, GEAR, RIVALS, type Look, type Monster } from "./monster";
 
 const TAU = 6.283185307179586;
 // Palettes by role: a neon night (dark) and a pastel day (light).
@@ -66,7 +66,9 @@ const LIGHT: Pal = {
 };
 const WORDS = ["CRUNCH!", "KRAK!", "SMASH!", "TIMBER!", "FLAT!", "SWAT!", "KA-BLAM!", "NOM!", "BOINK!", "STOMP!", "OOF!", "ZZAP!", "BONK!", "KER-THOOM!", "OUCH! HOT!", "POOF!"];
 const W_CRUNCH = 0, W_TIMBER = 3, W_FLAT = 4, W_SWAT = 5, W_BLAM = 6, W_NOM = 7, W_BOINK = 8, W_STOMP = 9, W_OOF = 10, W_ZAP = 11, W_BONK = 12, W_THOOM = 13, W_HOT = 14, W_POOF = 15;
-const DUST = 160, SHARD = 80, CHUNK = 70, SPARK = 70, SMOKE = 60;
+const DUST = 160, SHARD = 90, CHUNK = 90, SPARK = 80, SMOKE = 60;
+/** Bits of facade knocked off: they fall to the street and stay there as rubble (until the round restarts). */
+const BITS = 180;
 
 export type KaijuScene = SlotScene & {
   engine: ReturnType<typeof createEngine>;
@@ -83,6 +85,8 @@ export type KaijuScene = SlotScene & {
   join(on: boolean): void;
   /** Where monster k's chest is on the stage, CSS px (the tests and the contact sheet frame it). */
   where(k: number): number[];
+  /** Where monster k's hands, then its feet, are in the world, as of the last draw: [x, y, z, …] (the tests check its grip on a wall). */
+  contacts(k: number): number[];
   poster(): void;
   destroy(): void;
 };
@@ -101,7 +105,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   const play = L.add(document.createElement("button"));
   play.type = "button";
   play.className = "kj-play";
-  play.setAttribute("aria-label", "DOM Kaiju: A and D walk, W and S climb, K jumps (a jump at a wall grabs it), Space or J punches (with W or S held, up or down), L grabs. Player two: the arrow keys, comma punches, period jumps, slash grabs. C dresses the ape, R restarts, M mutes, 2 adds or drops player two");
+  play.setAttribute("aria-label", "CitySmash: A and D walk, W and S climb, K jumps (a jump at a wall grabs it), Space or J punches (with W or S held, up or down), L grabs. Player two: the arrow keys, comma punches, period jumps, slash grabs. C dresses the ape, R restarts, M mutes, 2 adds or drops player two");
   const hud = L.add(document.createElement("div"));
   hud.className = "kj-hud";
   const row = (k: string, label: string, items: string[], swatch = false, names: string[] = items) =>
@@ -163,7 +167,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   const groups: DioramaObject[] = [], floors: DioramaObject[][] = [], wins: DioramaObject[] = new Array(NC), rubble: DioramaObject[] = [], roofs: DioramaObject[] = [], lives: DioramaObject[] = [];
   const mons: Monster[] = [];
   let heli: DioramaObject, rotor: DioramaObject, tailRotor: DioramaObject, tank: DioramaObject, turret: DioramaObject;
-  let soldiers: DioramaPoints, pebbles: DioramaPoints, chutes: DioramaPoints, runners: DioramaPoints, dust: Pool, shard: Pool, chunk: Pool, spark: Pool, smoke: Pool;
+  let bits: DioramaPoints, soldiers: DioramaPoints, pebbles: DioramaPoints, chutes: DioramaPoints, runners: DioramaPoints, dust: Pool, shard: Pool, chunk: Pool, spark: Pool, smoke: Pool;
   const folk: DioramaPoints[] = [];
   const rnd = seeded(20261115);
   let sky: CanvasGradient | null = null;
@@ -235,7 +239,10 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         dio.add({ shape: k % 4 === 1 ? "wedge" : "box", size: [s * 1.5, s * 0.5, s * 0.9], pos: [-w / 2 + 0.6 + u * (w - 1.2), hgt, -1 + v * 2], rot: [0, k * 0.9, ((k % 3) - 1) * 0.22], on: id + "x", color: col, pick: false });
       }
       rubble.push(rb);
+      dio.decal(cl, 6.5, paintScars(b));
       dio.decal(cl, 7.5, paintHoles(b));
+      SCAR[b] = shade(P.walls[lk]!, P.night ? 0.42 : 0.55);
+      DENT[b] = shade(P.walls[lk]!, P.night ? 0.75 : 0.84);
       folk.push(dio.points({ cap: w * f, cluster: cl, layer: 7.6, paint: paintFolk }));
     }
     // The live parts: power boxes (a hazard stripe) and neon signs (a bolt) over their windows.
@@ -275,6 +282,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     tp([1.2, 0.14, 0.14], [0.95, 0.18, 0], P.army2, "tur");
     tp([0.1, 0.08, 0.3], [0.2, 0.46, 0], P.antenna, "tur");
     // The street's little people, the pebbles and shells, the parachutes, a knocked-out monster running, the debris.
+    bits = dio.points({ cap: BITS, paint: paintBit });
     soldiers = dio.points({ cap: NS, paint: paintSoldier });
     chutes = dio.points({ cap: NCH, paint: paintChute });
     runners = dio.points({ cap: NM, paint: paintRunner });
@@ -290,6 +298,12 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
 
   // ---- state ----
   const I = new Float64Array(5), I2 = new Float64Array(5), tmp = new Float64Array(3), tmp2 = new Float64Array(3);
+  // The damage each hit shows: the scar colours per building, its lean (wanted, now), the rubble bits
+  // ([x, y, z, vx, vy, vz, spin, look, landed] each, a ring), the punch flash ([x, y, z, time]), the hit-stop
+  // (frames) and the camera's nudge (px).
+  const SCAR: string[] = new Array(NB).fill(""), DENT: string[] = new Array(NB).fill("");
+  const LEAN = new Float64Array(NB * 2), BIT = new Float64Array(BITS * 9), FLASH = new Float64Array(4);
+  let nBits = 0, stopF = 0, nudge = 0;
   // [0] measure, [1] theme, [2] poster resolution, [3] safe top, [4] base oy, [5] drawn once, [6] gamepad on, [7] tall.
   const V = new Float64Array(8);
   V[0] = V[1] = 1;
@@ -350,7 +364,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       const st = run.B[b * 6]!, rem = run.B[b * 6 + 3]!, g = groups[b]!, fs = floors[b]!, sh = run.B[b * 6 + 5]!;
       g.pos[1] = run.yOff(b);
       g.pos[0] = BLD[b * 4]! + BLD[b * 4 + 1]! / 2 + (sh ? Math.sin(engine.time * 47 + b) * 0.07 * sh * calm : 0);
-      g.rot[2] = sh ? Math.sin(engine.time * 31 + b * 2) * 0.014 * sh * calm : 0;
+      g.rot[2] = LEAN[b * 2 + 1]! * (st === RUBBLE ? 0 : 1) + (sh ? Math.sin(engine.time * 31 + b * 2) * 0.014 * sh * calm : 0);
       // (alpha, not hidden: a floor's ledge, windows and awning go with it)
       for (let fl = 0; fl < fs.length; fl++) fs[fl]!.alpha = fl < rem ? 0 : 1;
       roofs[b]!.alpha = st === RUBBLE ? 0 : 1;
@@ -399,6 +413,11 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       soldiers.a[s] = run.SO[o]! > 0 ? 1 : 0;
       soldiers.x[s] = run.SO[o + 1]!; soldiers.y[s] = 0.32; soldiers.z[s] = run.SO[o + 2]!; soldiers.r[s] = 0.34;
     }
+    bits.n = Math.min(nBits, BITS);
+    for (let k = 0; k < bits.n; k++) {
+      const o = k * 9;
+      bits.x[k] = BIT[o]!; bits.y[k] = BIT[o + 1]!; bits.z[k] = BIT[o + 2]!; bits.r[k] = 0.17; bits.a[k] = 1;
+    }
     pebbles.n = NP;
     for (let k = 0; k < NP; k++) {
       const o = k * 8;
@@ -422,8 +441,60 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     for (let n = 0; n < 7 * big; n++) spark.puff(x, y, z + 0.1, (rnd() - 0.5) * 7, (rnd() - 0.3) * 6, 1 + rnd() * 3, 0.35, 0.05, 1);
     smoke.puff(x, y, z + 0.2, (rnd() - 0.5) * 0.6, 0.8, 0.5, 1.1 * big, 0.3, 0.5);
   }
+  /** n bits of building b's facade knocked off at (x, y): they fly out, fall and stay on the street. */
+  function knock(x: number, y: number, n: number, b: number) {
+    for (let k = 0; k < n; k++) {
+      const o = (nBits++ % BITS) * 9;
+      BIT[o] = x + (rnd() - 0.5) * 0.8; BIT[o + 1] = y + (rnd() - 0.5) * 0.6; BIT[o + 2] = 0.15;
+      BIT[o + 3] = (rnd() - 0.5) * 3; BIT[o + 4] = 0.5 + rnd() * 2.5; BIT[o + 5] = 0.8 + rnd() * 2.2;
+      BIT[o + 6] = rnd() * 6; BIT[o + 7] = BLD[b * 4 + 3]!; BIT[o + 8] = 0;
+    }
+  }
+  /** Building b after a hit: it leans towards its damaged side and sags a little; live parts beside the hit spark. */
+  function hurtBuilding(b: number, i: number) {
+    const w = BLD[b * 4 + 1]!, f = BLD[b * 4 + 2]!;
+    let sum = 0, all = 0;
+    for (let k = C0[b]!; k < C0[b + 1]!; k++) {
+      const h = run.HIT[k]!;
+      if (!h) continue;
+      const col = (k - C0[b]!) % w;
+      sum += h * (col - (w - 1) / 2);
+      all += h;
+    }
+    LEAN[b * 2] = Math.max(-0.07, Math.min(0.07, (-sum / (NEED[b]! * 6)) * 0.07)) - Math.min(0.02, all * 0.0006);
+    const r = i - C0[b]!, fl = (r / w) | 0, col = r - fl * w;
+    for (let k = 0; k < LIVE.length; k += 4) {
+      if (LIVE[k] !== b || Math.abs(LIVE[k + 1]! - fl) > 1 || Math.abs(LIVE[k + 2]! - col) > 1) continue;
+      const x = BLD[b * 4]! + LIVE[k + 2]! + 0.5, y = run.yOff(b) + LIVE[k + 1]! + 0.5;
+      for (let n = 0; n < 10; n++) spark.puff(x, y, 0.2, (rnd() - 0.5) * 6, (rnd() - 0.3) * 5, 1 + rnd() * 2, 0.4, 0.05, 1);
+    }
+    void f;
+  }
+  /** Every hit: the hit-stop, the punch flash at the window, the camera's nudge into the wall. */
+  function heavy(x: number, y: number, size: number) {
+    stopF = 3;
+    FLASH[0] = x; FLASH[1] = y; FLASH[2] = 0.3; FLASH[3] = 0.1 * size;
+    nudge = (M[5] === CLIMB ? M[6]! : 1) * 7 * size * calm;
+  }
   function stepFx(dt: number) {
     let any = dust.step(dt, -0.25, 0.5, 0.55, 1.2);
+    // The rubble bits fall and stay; the buildings ease into their lean; the flash and the nudge fade.
+    for (let k = 0; k < BITS; k++) {
+      const o = k * 9;
+      if (k >= nBits || BIT[o + 8]) continue;
+      BIT[o + 4] = BIT[o + 4]! - 16 * dt;
+      BIT[o] = BIT[o]! + BIT[o + 3]! * dt; BIT[o + 1] = BIT[o + 1]! + BIT[o + 4]! * dt; BIT[o + 2] = Math.min(STREET0 + 1.6, BIT[o + 2]! + BIT[o + 5]! * dt);
+      BIT[o + 6] = BIT[o + 6]! + dt * 8;
+      if (BIT[o + 1]! <= 0.07) (BIT[o + 1] = 0.07), (BIT[o + 8] = 1);
+      any = true;
+    }
+    for (let b = 0; b < NB; b++) {
+      const e = LEAN[b * 2]! - LEAN[b * 2 + 1]!;
+      if (Math.abs(e) > 1e-4) (LEAN[b * 2 + 1] = LEAN[b * 2 + 1]! + e * Math.min(1, dt * 6)), (any = true);
+    }
+    if (FLASH[3]! > 0) (FLASH[3] = Math.max(0, FLASH[3]! - dt)), (any = true);
+    if (Math.abs(nudge) > 0.05) (nudge *= Math.exp(-dt * 14)), (any = true);
+    else nudge = 0;
     for (let i = 0; i < NC; i++) if (run.crackT[i]! > 0) (run.crackT[i] = Math.max(0, run.crackT[i]! - dt)), (any = true);
     if (shard.step(dt, 16, -0.05, 1, 0.6)) any = true;
     if (chunk.step(dt, 18, 0, 1, 0.4)) any = true;
@@ -477,20 +548,27 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
         // A hit that holds: a chip (sparks, dust), then a crack (glass flies).
         engine.events.emit("punch");
         const b = cellPos(val | 0);
-        for (let n = 0; n < (type === E_CRACK ? 8 : 4); n++) spark.puff(tmp2[0]!, tmp2[1]!, tmp2[2]!, (rnd() - 0.5) * 5, (rnd() - 0.2) * 4, 1 + rnd() * 2, 0.3, 0.05, 1);
-        if (type === E_CRACK) {
-          for (let n = 0; n < 5; n++) shard.puff(tmp2[0]!, tmp2[1]!, 0.25, (rnd() - 0.5) * 3, 1 + rnd() * 2, 1 + rnd() * 2, 0.6, 0.06, 1);
-          if (at(tmp2[0]!, tmp2[1]!, 0.3)) fx.word(tmp[0]!, tmp[1]! - 8, 1, 3, 13);
-        }
-        dust.puff(tmp2[0]!, tmp2[1]!, 0.3, 0, 0.3, 0.5, 0.5, 0.22, 0.4);
-        shake = Math.max(shake, type === E_CRACK ? 0.12 : 0.07);
-        void b;
+        const crack = type === E_CRACK, x = tmp2[0]!, y = tmp2[1]!, wall = P.walls[BLD[b * 4 + 3]!]!;
+        for (let n = 0; n < (crack ? 12 : 8); n++) spark.puff(x, y, tmp2[2]!, (rnd() - 0.5) * 6, (rnd() - 0.2) * 5, 1 + rnd() * 2, 0.3, 0.05, 1);
+        chunk.P.colorAll = wall;
+        for (let n = 0; n < (crack ? 7 : 4); n++) chunk.puff(x + (rnd() - 0.5) * 0.9, y + (rnd() - 0.5) * 0.7, 0.25, (rnd() - 0.5) * 4, 1 + rnd() * 2.5, 1 + rnd() * 2.5, 0.9, 0.1 + rnd() * 0.09, 1);
+        for (let n = 0; n < (crack ? 9 : 4); n++) shard.puff(x, y, 0.25, (rnd() - 0.5) * 3.5, 0.5 + rnd() * 2, 1 + rnd() * 2, 0.8, 0.06, 1);
+        for (let n = 0; n < 3; n++) dust.puff(x + (rnd() - 0.5) * 0.6, y + (rnd() - 0.5) * 0.5, 0.35, (rnd() - 0.5) * 0.8, 0.2 + rnd() * 0.5, 0.6, 0.7, 0.28, 0.5);
+        knock(x, y, crack ? 3 : 2, b);
+        if (crack && at(x, y, 0.3)) fx.word(tmp[0]!, tmp[1]! - 8, 1, 3, 14);
+        shake = Math.max(shake, crack ? 0.16 : 0.1);
+        hurtBuilding(b, val | 0);
+        heavy(x, y, crack ? 1 : 0.8);
       } else if (type === E_HOLE) {
         engine.events.emit("hole");
         const b = cellPos(val | 0);
-        burst(tmp2[0]!, tmp2[1]!, tmp2[2]!, 1, P.walls[BLD[b * 4 + 3]!]!);
-        if (at(tmp2[0]!, tmp2[1]!, 0.3)) fx.blast(tmp[0]!, tmp[1]!, 0.22, 1), fx.word(tmp[0]!, tmp[1]! - 10, W_CRUNCH + (wordK++ % 3), 1, 15);
-        shake = Math.max(shake, 0.16);
+        burst(tmp2[0]!, tmp2[1]!, tmp2[2]!, 1.6, P.walls[BLD[b * 4 + 3]!]!);
+        knock(tmp2[0]!, tmp2[1]!, 6, b);
+        for (let n = 0; n < 5; n++) dust.puff(tmp2[0]! + (rnd() - 0.5), tmp2[1]! + (rnd() - 0.5) * 0.6, 0.4, (rnd() - 0.5) * 1.5, rnd(), 0.8, 1, 0.38, 0.55);
+        if (at(tmp2[0]!, tmp2[1]!, 0.3)) fx.blast(tmp[0]!, tmp[1]!, 0.32, 1), fx.word(tmp[0]!, tmp[1]! - 10, W_CRUNCH + (wordK++ % 3), 1, 16);
+        shake = Math.max(shake, 0.24);
+        hurtBuilding(b, val | 0);
+        heavy(tmp2[0]!, tmp2[1]!, 1.3);
       } else if (type === E_SHAKE) toast(`IT'S GOING!`, "meh"), say("The building shakes");
       else if (type === E_DROP) {
         if (at(BLD[val * 4]! + BLD[val * 4 + 1]! / 2, BLD[val * 4 + 2]! + 0.5, 0)) fx.word(tmp[0]!, tmp[1]!, W_TIMBER, 2, 24);
@@ -651,6 +729,10 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     endT = -1;
     toastEl.hidden = true;
     dust.clear(), shard.clear(), smoke.clear(), chunk.clear(), spark.clear(), fx.clear();
+    nBits = stopF = 0;
+    nudge = 0;
+    LEAN.fill(0);
+    FLASH[3] = 0;
     was.fill(-1);
     hudDirty = dirty = true;
     pose(1);
@@ -835,6 +917,52 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     ctx.fill();
     ctx.stroke();
   }
+  /** The facade round every hit window: a scar of broken render (bigger with each hit), the wall panels beside
+   *  it dented, under the windows. */
+  function paintScars(b: number) {
+    return (ctx: CanvasRenderingContext2D) => {
+      const w = BLD[b * 4 + 1]!, f = BLD[b * 4 + 2]!, rem = run.B[b * 6 + 3]!, g = groups[b]!, yo = run.yOff(b), fc = dio.focal();
+      if (run.B[b * 6] === RUBBLE) return;
+      for (let fl = rem; fl < f; fl++) for (let col = 0; col < w; col++) {
+        const i = C0[b]! + fl * w + col, h = run.HIT[i]! || (run.cell[i] === HOLE ? 3 : 0);
+        if (!h || LIVE_CELL[i]) continue;
+        const x = g.pos[0]! - w / 2 + col + 0.5, y = yo + fl + 0.5;
+        if (!at(x, y, 0.03)) continue;
+        const s = fc / tmp[2]!, cx = tmp[0]!, cy = tmp[1]!, seed = (i * 7919) % 97, R0 = s * (0.42 + 0.16 * Math.min(3, h));
+        // Dents in the panels beside it.
+        ctx.fillStyle = DENT[b]!;
+        for (let k = 0; k < 4; k++) {
+          const dx = k === 0 ? -0.5 : k === 1 ? 0.5 : 0, dy = k === 2 ? -0.5 : k === 3 ? 0.5 : 0, q = s * (0.08 + 0.05 * Math.min(3, h));
+          ctx.fillRect(cx + dx * s - q, cy + dy * s - q * 0.7, q * 2, q * 1.4);
+        }
+        // The scar: a jagged patch of bare wall.
+        ctx.fillStyle = SCAR[b]!;
+        ctx.beginPath();
+        for (let k = 0; k < 12; k++) {
+          const a = (k / 12) * TAU + seed * 0.11, rr = R0 * (k & 1 ? 0.72 : 1 + ((seed + k * 7) % 5) * 0.06);
+          k ? ctx.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.9) : ctx.moveTo(cx + rr, cy);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+    };
+  }
+  /** A bit of facade (flying, then lying on the street). */
+  function paintBit(ctx: CanvasRenderingContext2D, k: number, p: DioramaPoints) {
+    const x = p.sx[k]!, y = p.sy[k]!, r = p.sr[k]!, o = k * 9, a = BIT[o + 6]!;
+    if (r < 1) return;
+    ctx.fillStyle = P.walls[BIT[o + 7]!]!;
+    ctx.strokeStyle = P.ink;
+    ctx.lineWidth = Math.max(1, r * 0.15);
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(a) * r, y + Math.sin(a) * r * 0.7);
+    ctx.lineTo(x + Math.cos(a + 2.1) * r * 0.8, y + Math.sin(a + 2.1) * r * 0.6);
+    ctx.lineTo(x + Math.cos(a + 3.9) * r, y + Math.sin(a + 3.9) * r * 0.7);
+    ctx.lineTo(x + Math.cos(a + 5.2) * r * 0.6, y + Math.sin(a + 5.2) * r * 0.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
   function paintHoles(b: number) {
     return (ctx: CanvasRenderingContext2D) => {
       const w = BLD[b * 4 + 1]!, f = BLD[b * 4 + 2]!, rem = run.B[b * 6 + 3]!, g = groups[b]!, yo = run.yOff(b), fc = dio.focal();
@@ -859,6 +987,19 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
           ctx.closePath();
           ctx.fill();
           ctx.stroke();
+          // Cracks run out from the hole across the wall.
+          ctx.strokeStyle = P.ink;
+          ctx.lineWidth = Math.max(1, s * 0.03);
+          ctx.globalAlpha = 0.8;
+          ctx.beginPath();
+          for (let k = 0; k < 6; k++) {
+            const a = k * 1.05 + seed * 0.3, r1 = s * 0.3, r2 = s * (0.9 + ((seed + k * 3) % 4) * 0.12), m = a + (((seed + k) % 3) - 1) * 0.25;
+            ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+            ctx.lineTo(cx + Math.cos(m) * (r1 + r2) * 0.5, cy + Math.sin(m) * (r1 + r2) * 0.5);
+            ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
+          }
+          ctx.stroke();
+          ctx.globalAlpha = 1;
           // A fresh hole glows inside for a moment (the fire behind the glass).
           if (run.crackT[i]! > 0) {
             ctx.globalAlpha = run.crackT[i]! * 2;
@@ -870,13 +1011,13 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
           }
         } else {
           // One hit: a chip, a few short lines; two hits: the crack across the pane.
-          const heavy = cs === CRACKED;
+          const heavy = cs === CRACKED, hh = run.HIT[i]!;
           ctx.strokeStyle = P.ink;
           ctx.lineWidth = Math.max(1, s * (heavy ? 0.03 : 0.02));
           ctx.globalAlpha = heavy ? 0.85 : 0.6;
           ctx.beginPath();
-          for (let k = 0; k < (heavy ? 6 : 3); k++) {
-            const a = k * 1.7 + seed, rr = s * (heavy ? 0.3 : 0.14);
+          for (let k = 0; k < (heavy ? 8 : 5); k++) {
+            const a = k * 1.7 + seed, rr = s * (0.32 + 0.3 * hh) * (0.7 + ((seed + k * 5) % 4) * 0.12);
             ctx.moveTo(cx - s * 0.05, cy - s * 0.04);
             ctx.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.9);
           }
@@ -1155,6 +1296,20 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
   }
   function drawOverlay(ctx: CanvasRenderingContext2D) {
     if (fx.live) fx.draw(ctx, !P.night);
+    // The punch flash: a white star where the fist lands.
+    if (FLASH[3]! > 0 && at(FLASH[0]!, FLASH[1]!, FLASH[2]!)) {
+      const r = (dio.focal() / tmp[2]!) * (0.5 + (0.1 - Math.min(0.1, FLASH[3]!)) * 6), cx = tmp[0]!, cy = tmp[1]!;
+      ctx.globalAlpha = Math.min(1, FLASH[3]! * 12);
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      for (let k = 0; k < 12; k++) {
+        const a = (k / 12) * TAU, rr = k & 1 ? r * 0.35 : r;
+        k ? ctx.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr) : ctx.moveTo(cx + rr, cy);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
     for (let k = 0; k < NM; k++) {
       paintZap(ctx, k);
       // The nom puff by a mouth.
@@ -1231,6 +1386,8 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       K2P.fill(0);
       GP[8] = GP[9] = GP[10] = 0;
       if (!card.hidden || !make.hidden) I.fill(0), I2.fill(0);
+      // A hit's hit-stop: everything holds for a few frames (the round included), then goes on.
+      if (stopF > 0) return void (stopF--, e.busy(), (dirty = true));
       let moving = run.step(dt, I[0]!, I[1]!, I[2]!, I[3]!, I[4]!, I2[0]!, I2[1]!, I2[2]!, I2[3]!, I2[4]!);
       if (run.n) events(), (moving = true);
       if (stepFx(dt)) moving = true;
@@ -1247,9 +1404,9 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
       dirty = false;
       pose(lastDt);
       const cam = dio.cam, k = (shake * shake * 16 + fx.shake * 0.5) * calm, sx = Math.sin(engine.time * 71) * k, sy = Math.cos(engine.time * 53) * k * 0.7;
-      (cam.ox += sx), (cam.oy += sy);
+      (cam.ox += sx + nudge), (cam.oy += sy);
       dio.draw();
-      (cam.ox -= sx), (cam.oy -= sy), (V[5] = 1);
+      (cam.ox -= sx + nudge), (cam.oy -= sy), (V[5] = 1);
     },
   });
   // Gamepads: the first is player one, the second player two (it joins on its first press). The left
@@ -1378,6 +1535,7 @@ export function mount(stage: HTMLElement, slot: HTMLElement, first: SlotTap | nu
     look,
     set,
     join,
+    contacts: (k: number) => [...mons[k]!.hands, ...mons[k]!.feet].flatMap((o) => [o.M[9]!, o.M[10]!, o.M[11]!]),
     where: (k: number) => (dio.project(MV[k]![0]!, MV[k]![1]! + mons[k]!.height * 0.5, MV[k]![2]!, tmp), [tmp[0]!, tmp[1]!, dio.focal() / tmp[2]!]),
     poster,
     destroy: () => engine.destroy(),
