@@ -153,7 +153,7 @@ export function periodicHero({ els, version, js }) {
         <p class="pt-hint bui-label" aria-hidden="true">PRESS A BRICK · ARROWS MOVE · ESC CLOSES</p>
       </div>
     </div>
-    <div class="pt-board" style="--rows:${rows};--bay:${bay - ROW0}">
+    <div class="pt-board" style="--rows:${rows};--bay:${bay - ROW0};--n2:${span(DIMS[0]).length};--n3:${span(DIMS[1]).length};--c1:${d3[0].els.length}">
       <div class="pt-scroll">
         <div class="pt-table" style="grid-template-columns:${tracks};grid-template-rows:var(--gh) var(--fh) repeat(${rows},var(--ts))" role="group" aria-label="The Fizlet periodic table: ${shipped + later} bricks in two blocks, ${DIMS.map((d) => `${d.label} (${[...new Set(cols.filter((c) => c.dim === d).map((c) => c.fam.label))].join(", ")})`).join(" and ")}. Arrow keys move between bricks; Enter opens a quick view.">
           ${dims}
@@ -165,6 +165,10 @@ export function periodicHero({ els, version, js }) {
           ${legend}
         </div>
       </div>
+      <div class="pt-zone" data-go="3d" aria-hidden="true"></div>
+      <div class="pt-zone" data-go="2d" aria-hidden="true"></div>
+      <button type="button" class="bui-key bui-arcade bui-go pt-go" data-go="3d" aria-label="Slide the table to the 3D block"><b>3D</b><span aria-hidden="true">→</span></button>
+      <button type="button" class="bui-key bui-arcade bui-sys pt-go" data-go="2d" aria-label="Slide the table back to the 2D block"><span aria-hidden="true">←</span><b>2D</b></button>
       <p class="pt-swipe bui-label" aria-hidden="true">SWIPE THE TABLE <span>→</span></p>
       <section class="pt-card" id="pt-card" aria-label="Quick view" hidden>
         <button type="button" class="bui-key pt-x" aria-label="Close the quick view">${icon("close", 16)}</button>
@@ -272,7 +276,58 @@ html.bui[data-theme="light"] .pt-swipe{color:var(--hl)}
 .pt-q-import code{font:12px/1.4 var(--mono);color:var(--k-sys-ink);overflow-wrap:anywhere}
 .bui .pt-q-go{justify-self:start;min-height:44px;margin-top:2px}
 .bui .pt-x{position:absolute;top:10px;right:10px;display:grid;place-items:center;width:44px;height:44px;min-height:0;padding:0}
-@media (max-width:1100px){
+/* Copy on the left, the table to its right (1000 px and up). The board reaches to the screen's right
+   edge (its margin and the hero's clip) and to the copy's left edge (padding --x0), so the table can
+   slide under the copy. --wl: the content's inset from the hero's edges. Narrower desktops: the 2D
+   block sizes to fit beside the copy and leaves the 3D block hanging off the right edge by --P; the
+   script sets data-peek when it does (and --shift, how far the table slides to show it), data-slid
+   when it is slid in. */
+.pt-zone,.bui .pt-go{display:none}
+@property --fr{syntax:"<length>";inherits:false;initial-value:0px}
+@media (min-width:1000px){
+  .pt-hero{overflow-x:clip;container-type:inline-size;--maxw:var(--page);--C:clamp(320px,30cqw,440px);--G:clamp(28px,3cqw,48px);--P:112px}
+  .pt-grid{max-width:var(--maxw);grid-template-columns:var(--C) minmax(0,1fr);column-gap:var(--G);align-items:center}
+  .pt-copy{position:relative;z-index:2;grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "h1" "side";align-items:start}
+  .pt-hero h1{margin:18px 0 22px;font-size:clamp(40px,calc(var(--C) * .15),80px)}
+  .pt-side{padding:0}
+  .pt-board{--wl:calc((100cqw - min(100cqw,var(--maxw))) / 2 + var(--gutter));--x0:calc(var(--C) + var(--G));--tg:7px;
+    --ts:clamp(56px,calc((100cqw - var(--P) - var(--wl) - var(--x0) - (var(--n2) + 1) * var(--tg) - var(--sg)) / var(--n2)),80px);
+    --x3:calc(var(--n2) * (var(--ts) + var(--tg)) + var(--tg) + var(--sg));
+    z-index:1;justify-self:stretch;width:auto;max-width:none;margin:0 calc(-1 * var(--wl)) 0 calc(-1 * var(--x0));padding:0 0 0 var(--x0);pointer-events:none}
+  .pt-board > *{pointer-events:auto}
+  .pt-scroll{overflow:visible;margin:0;padding:10px 0 12px}
+  .pt-table{transition:translate 350ms var(--bui-out)}
+  .pt-card{left:var(--x0);margin-top:10px}
+  /* Peeking: fades at the copy's edge and the screen's; touch swipes sideways here. */
+  /* (Its box runs 240 px below the table, so a tall quick view is not masked off.) */
+  .pt-board[data-peek]{--fr:44px;padding-bottom:240px;margin-bottom:-240px;mask-image:linear-gradient(90deg,transparent calc(var(--x0) - 10px),#000 calc(var(--x0) - 2px),#000 calc(100% - var(--fr)),transparent 100%);transition:--fr 350ms var(--bui-out);touch-action:pan-y}
+  .pt-board[data-slid]{--fr:0px}
+  .pt-board[data-slid] .pt-table{translate:calc(-1 * var(--shift,0px)) 0}
+  .pt-board[data-peek]:not([data-slid]):has([data-go="3d"]:hover) .pt-table{translate:-14px 0}
+  .pt-board[data-slid] .pt-card{left:calc(var(--x0) + 4 * (var(--ts) + var(--tg)) - var(--shift,0px))}
+  /* The way in and back: a zone over the peeking block (and, slid, over the copy's side) and a key. */
+  .pt-zone{position:absolute;z-index:3;top:0;bottom:0;display:none;cursor:pointer}
+  .pt-zone[data-go="3d"]{left:calc(var(--x0) + var(--x3) - var(--tg) - var(--sg) / 2);right:0}
+  .pt-zone[data-go="2d"]{left:0;width:var(--x0)}
+  .bui .pt-go{position:absolute;z-index:4;top:calc(10px + var(--gh) + var(--fh) + var(--rg) * 2 + (var(--ts) + var(--rg)) * var(--c1) + var(--ts) / 2);display:none;align-items:center;gap:8px;min-height:44px;padding:0 14px;font:800 13px/1 var(--mono);letter-spacing:.08em;translate:0 -50%}
+  .pt-go b{font:900 18px/1 var(--sans);letter-spacing:-.02em}
+  .pt-go[data-go="3d"]{left:min(calc(var(--x0) + var(--x3)),calc(100% - 128px))}
+  .pt-go[data-go="2d"]{left:var(--x0);top:calc(10px + var(--gh) / 2)}
+  /* Slid: the 2D block's label and the legend (they run under the copy) step out; the key names it. */
+  .pt-table > :is(.pt-dim:first-of-type,.pt-legend){transition:opacity 200ms ease-out}
+  .pt-board[data-slid] .pt-table > :is(.pt-dim:first-of-type,.pt-legend){opacity:0}
+  .pt-board[data-peek]:not([data-slid]) [data-go="3d"],.pt-board[data-peek][data-slid] [data-go="2d"]{display:block}
+  .pt-board[data-peek]:not([data-slid]) .pt-go[data-go="3d"],.pt-board[data-peek][data-slid] .pt-go[data-go="2d"]{display:inline-flex}
+}
+/* Wide screens: everything fits. The copy keeps the page's left edge (under the logo); the table may
+   grow past the page's right edge by --grow (up to 120 px, 24 px short of the screen), the 3D
+   block sitting further right and the split widening a little with it. */
+@property --grow{syntax:"<length>";inherits:true;initial-value:0px}
+@media (min-width:1400px){
+  .pt-hero{--C:clamp(400px,26cqw,500px);--G:clamp(40px,3.4cqw,64px);--grow:clamp(0px,calc((100cqw - min(100cqw,var(--maxw))) / 2 + var(--gutter) - 24px),120px)}
+  .pt-board{--tg:8px;--sg:clamp(28px,calc(4cqw - 20px),64px);--ts:clamp(60px,calc((min(100cqw,var(--maxw)) - 2 * var(--gutter) + var(--grow) - var(--x0) - (var(--n2) + var(--n3)) * var(--tg) - var(--sg)) / (var(--n2) + var(--n3))),80px)}
+}
+@media (max-width:999px){
   .pt-copy{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "h1" "side";align-items:start}
   .pt-hero h1{margin-bottom:20px}
   .pt-hero{align-items:start}
@@ -297,5 +352,5 @@ html.bui[data-theme="light"] .pt-swipe{color:var(--hl)}
   .pt-top,.pt-hero h1{grid-area:auto}
   .pt-top{order:-3}.pt-hero h1{order:-2}
 }
-@media (prefers-reduced-motion:reduce){.pt-card,.pt-board::after{transition:none}}
+@media (prefers-reduced-motion:reduce){.pt-card,.pt-board,.pt-table,.pt-table > *,.pt-board::after{transition:none}}
 `;
