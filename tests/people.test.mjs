@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import { copyFileSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { gzipSync } from "node:zlib";
-import { AVATAR_PALETTE, CONTEST, KIND_LABEL, STICKER, avatarSvg, canWin, contestNow, contestWeeks, contributors, isHifi, isoWeek, statsOf, weekDates } from "../scripts/people.mjs";
+import { AVATAR_PALETTE, CONTEST, KIND_LABEL, REAL, STICKER, avatarSvg, canWin, contestNow, contestWeeks, contributors, isHifi, isoWeek, statsOf, weekDates } from "../scripts/people.mjs";
 import { peopleIndex, personPage } from "../site/pages/people.mjs";
 import { contestPage } from "../site/pages/contest.mjs";
 
@@ -21,10 +21,10 @@ const fakeDir = (p) => {
   return d;
 };
 
-test("contributors: one owner first, then the AI agents, then the three studio crew", () => {
-  assert.deepEqual(PEOPLE.map((p) => p.id), ["chris-cooley", "pip", "quill", "dj-mempool", "frame-zero", "hex-hazel"]);
-  assert.deepEqual(PEOPLE.map((p) => p.kind), ["owner", "agent", "agent", "persona", "persona", "persona"]);
-  for (const p of PEOPLE.slice(1)) assert.ok(p.handle && !p.url, `${p.id}: a handle, no links`);
+test("contributors: one owner first, then the creators, the AI agents, then the three studio crew", () => {
+  assert.deepEqual(PEOPLE.map((p) => p.id), ["chris-cooley", "david-cooley", "pip", "quill", "dj-mempool", "frame-zero", "hex-hazel"]);
+  assert.deepEqual(PEOPLE.map((p) => p.kind), ["owner", "creator", "agent", "agent", "persona", "persona", "persona"]);
+  for (const p of PEOPLE.slice(2)) assert.ok(p.handle && !p.url, `${p.id}: a handle, no links`);
   // No pronouns or gender on the public site (owner, 2026-11-02).
   for (const p of PEOPLE) assert.equal(p.pronouns, undefined, `${p.id}: no pronouns`);
   for (const p of PEOPLE) assert.doesNotMatch(JSON.stringify(p), /\b(she|her|hers|he|him|his)\b/i, `${p.id}: no gendered words`);
@@ -82,17 +82,18 @@ test("rotation: every frame on the card and the profile, the first shown; settle
 });
 
 test("stickers: AI AGENT, CHARACTER or MAKER on every avatar, and its accessible name says who is not a real person", () => {
-  assert.deepEqual(KIND_LABEL, { owner: "Maker", agent: "AI agent", persona: "Studio crew" });
-  assert.deepEqual(Object.fromEntries(Object.entries(STICKER).map(([k, s]) => [k, s.text])), { owner: "MAKER", agent: "AI AGENT", persona: "CHARACTER" });
+  assert.deepEqual(KIND_LABEL, { owner: "Maker", creator: "Creator", agent: "AI agent", persona: "Studio crew" });
+  assert.deepEqual(Object.fromEntries(Object.entries(STICKER).map(([k, s]) => [k, s.text])), { owner: "MAKER", creator: "CREATOR", agent: "AI AGENT", persona: "CHARACTER" });
+  assert.match(STICKER.creator.label, /a real person/);
   for (const k of ["agent", "persona"]) assert.match(STICKER[k].label, /not a real person$/, `${k}: the sticker keeps the honesty`);
   assert.match(STICKER.agent.label, /an AI agent persona/);
   const rows = PEOPLE.map((p) => ({ person: p, stats: { entries: [], count: 0, bytes: 0 } }));
   const index = peopleIndex({ rows, base: "../" });
   const sticker = (k) => `<span class="ppl-sticker ppl-sticker-${k}" role="img" aria-label="${STICKER[k].label}" title="${STICKER[k].label}">${STICKER[k].text}</span>`;
-  for (const k of ["owner", "agent", "persona"]) assert.equal(index.split(sticker(k)).length - 1, PEOPLE.filter((p) => p.kind === k).length, `one ${k} sticker per card`);
+  for (const k of ["owner", "creator", "agent", "persona"]) assert.equal(index.split(sticker(k)).length - 1, PEOPLE.filter((p) => p.kind === k).length, `one ${k} sticker per card`);
   for (const r of rows) {
     const html = personPage({ ...r, people: PEOPLE, base: "../../" });
-    for (const k of ["owner", "agent", "persona"]) assert.equal(html.includes(sticker(k)), r.person.kind === k, `${r.person.id}: ${k} sticker`);
+    for (const k of ["owner", "creator", "agent", "persona"]) assert.equal(html.includes(sticker(k)), r.person.kind === k, `${r.person.id}: ${k} sticker`);
   }
   for (const html of [index, ...rows.map((r) => personPage({ ...r, people: PEOPLE, base: "../../" }))]) {
     assert.doesNotMatch(html, /ppl-persona|ppl-owner|House persona|house persona/i, "the long bordered line and the old term are gone");
@@ -110,6 +111,7 @@ test("titles: the role in its own line, a tagline, and who each one reports to (
   }
   for (const id of ["quill", "pip"]) assert.equal(by[id].reportsTo, "chris-cooley", `${id} reports to Chris`);
   assert.equal(by["chris-cooley"].reportsTo, undefined, "the maker reports to no one");
+  assert.equal(by["david-cooley"].reportsTo, undefined, "a creator reports to no one");
   assert.equal(by.pip.role, "Keeper of Fizlet · Lead Narwhal");
   assert.equal(by.pip.tagline, "the herd's sea unicorn");
   for (const p of PEOPLE) assert.doesNotMatch(p.role, /reports to|\(/, `${p.id}: the title is the title only`);
@@ -135,6 +137,44 @@ test("AI agents: the eyebrow says AI AGENT; no pronouns on the profile; agents k
   assert.throws(bad({ kind: "robot" }), /kind robot/);
   assert.throws(bad({ url: "https://fizlet.com/" }), /an agent has a handle and no url/);
   assert.throws(bad({ pronouns: "they/them" }), /no pronouns or gender/);
+});
+
+test("creators (the Fizlet Studio pattern): real people, a CREATOR sticker and eyebrow, a stylized avatar, their games listed and linked", () => {
+  assert.deepEqual(REAL, ["owner", "creator"]);
+  assert.match(STICKER.creator.label, /^Creator: a real person who makes games on Fizlet$/);
+  const david = PEOPLE.find((p) => p.id === "david-cooley");
+  assert.equal(david.kind, "creator");
+  assert.equal(david.role, "Teen game creator");
+  assert.deepEqual(david.games.map((g) => [g.title, g.url]), [["HOLESHOT", "https://holeshot.domvirus.com/"]]);
+  assert.equal(david.reportsTo, undefined);
+  assert.equal(david.url, undefined, "no personal links: the game links itself");
+  const rows = PEOPLE.map((p) => ({ person: p, stats: { entries: [], count: 0, bytes: 0 } }));
+  const page = personPage({ ...rows.find((r) => r.person.id === "david-cooley"), people: PEOPLE, base: "../../" });
+  assert.ok(page.includes('class="index">CREATOR</span>'), "the eyebrow");
+  assert.ok(page.includes('aria-label="David Cooley: pixel-art avatar (a stylized character, not a likeness)"'), "a stylized character, not a likeness");
+  assert.match(page, /<h2 id="ppl-games-made">Games<\/h2><ul class="ppl-entries"><li class="panel"><a href="https:\/\/holeshot\.domvirus\.com\/">HOLESHOT ↗<\/a><span class="ppl-prompt">A game about/, "the games list, from data");
+  for (const r of rows.filter((r) => !r.person.games)) assert.ok(!personPage({ ...r, people: PEOPLE, base: "../../" }).includes("ppl-games-made"), `${r.person.id}: no games, no list`);
+  assert.match(personPage({ ...rows[0], people: PEOPLE, base: "../../" }), /aria-label="Chris Cooley: pixel-art avatar \(a stylized character, not a likeness\)"/);
+  const index = peopleIndex({ rows, base: "../" });
+  assert.match(index, /Fizlet is made by <a href="\.\.\/people\/chris-cooley\/">Chris Cooley<\/a>; <a href="https:\/\/holeshot\.domvirus\.com\/">HOLESHOT ↗<\/a> is by creator <a href="\.\.\/people\/david-cooley\/">David Cooley<\/a>\./);
+  // Same pixel style as the maker's: as many frames, the same 32 × 32 grid; a black helmet, blue gear.
+  const chris = PEOPLE[0];
+  assert.equal(david.avatars.length, chris.avatars.length);
+  for (const rows of david.avatars) {
+    const px = rows.join("");
+    assert.ok((rows.slice(2, 5).join("").match(/[wef]/g) ?? []).length <= 1, "the helmet dome is not the maker's white (one glint)");
+    assert.ok((px.match(/i/g) ?? []).length > 80, "a black helmet");
+    assert.ok((rows.slice(24).join("").match(/s/g) ?? []).length > 150, "blue riding gear");
+    assert.ok(!/[Rrd]/.test(rows.slice(23).join("")), "no red gear");
+  }
+  // The next creator is one JSON file: the checks.
+  const bad = (over) => () => contributors(fakeDir({ ...david, id: "quill", ...over }));
+  assert.throws(bad({ games: undefined }), /a creator lists the games they made/);
+  assert.throws(bad({ games: [] }), /a creator lists the games they made/);
+  assert.throws(bad({ games: [{ title: "X", url: "http://x.example/", pitch: "p" }] }), /url must be https/);
+  assert.throws(bad({ games: [{ title: "X", url: "https://x.example/" }] }), /missing pitch/);
+  assert.throws(bad({ reportsTo: "chris-cooley" }), /reportsTo chris-cooley/);
+  assert.doesNotThrow(() => contributors(fakeDir({ ...david, id: "quill", games: [...david.games, { title: "Next", url: "https://next.example/", pitch: "One line." }] })));
 });
 
 const entry = (id, author, extra = {}) => ({ id, author, date: "2026-11-03", prompt: "bats swoop", title: id, size: 100, ...extra });

@@ -1,13 +1,15 @@
-// People (/people/ and /people/<id>/): the maker, the AI agents and the studio crew. Each page shows
+// People (/people/ and /people/<id>/): the maker, the creators, the AI agents and the studio crew. Each page shows
 // the pixel avatar (its 2–3 frames cross-fade every 4 s: site/site.ts), who they are and who they
 // report to, what they make, their gallery entries (each linked to its card on the gallery page
 // that holds it) and two stats measured on this build (entries and their total live bytes). The
 // attribution line on every gallery card ("by <name>") links here. A sticker on every avatar says
 // what they are (STICKER): the crew are characters and the agents are AI agents, not real people,
-// and the sticker's accessible name says so. Data: site/contributors/*.json (scripts/people.mjs).
+// and the sticker's accessible name says so; the maker and creators are real people drawn as
+// stylized characters, not likenesses. A profile with `games` (every creator: the Fizlet Studio
+// pattern) lists them, each linked to its site with its pitch, and the index lead names them. Data: site/contributors/*.json (scripts/people.mjs).
 import { crumbs, esc, icon } from "../layout.mjs";
 import { sizeBadge } from "../size-badge.mjs";
-import { STICKER, avatarSvg } from "../../scripts/people.mjs";
+import { REAL, STICKER, avatarSvg } from "../../scripts/people.mjs";
 import { personPath } from "../../scripts/gallery.mjs";
 
 const fmt = (n) => n.toLocaleString("en-US");
@@ -15,7 +17,13 @@ const isTodo = (s) => /^KIT:/.test(s);
 /** The winner sticker: a contest winner, here, on /contest/ and on its /gallery/ card. */
 export const winnerBadge = () => `<span class="win-badge">${icon("check", 14)}WINNER</span>`;
 
-const EYEBROW = { owner: "MAKER", persona: "STUDIO CREW", agent: "AI AGENT" };
+/** A game, linked to its own site (external: marked ↗). */
+const gameLink = (g) => `<a href="${esc(g.url)}">${esc(g.title)} ↗</a>`;
+/** A profile's games (a creator's; any profile may list them): title linked to its site, the one-line pitch. */
+const gamesList = (p) => p.games?.length ? `
+    <section class="ppl-games" aria-labelledby="ppl-games-made"><h2 id="ppl-games-made">Games</h2><ul class="ppl-entries">${p.games.map((g) => `<li class="panel">${gameLink(g)}<span class="ppl-prompt">${esc(g.pitch)}</span></li>`).join("")}</ul></section>` : "";
+
+const EYEBROW = { owner: "MAKER", creator: "CREATOR", persona: "STUDIO CREW", agent: "AI AGENT" };
 
 /**
  * The avatar: every frame stacked (the first shown; site/site.ts cross-fades the rest unless the
@@ -23,7 +31,7 @@ const EYEBROW = { owner: "MAKER", persona: "STUDIO CREW", agent: "AI AGENT" };
  */
 export function avatar(p, size) {
   const s = STICKER[p.kind];
-  const label = `${p.name}: pixel-art avatar${p.kind === "owner" ? " (a stylized character, not a likeness)" : ""}`;
+  const label = `${p.name}: pixel-art avatar${REAL.includes(p.kind) ? " (a stylized character, not a likeness)" : ""}`;
   const frames = p.avatars.map((rows, i) => avatarSvg(rows, { size, cls: i ? "" : "on" })).join("");
   return `<div class="ppl-av-wrap"><span class="ppl-frame" role="img" aria-label="${esc(label)}"${p.avatars.length > 1 ? " data-rotate" : ""}>${frames}</span><span class="ppl-sticker ppl-sticker-${p.kind}" role="img" aria-label="${esc(s.label)}" title="${esc(s.label)}">${s.text}</span></div>`;
 }
@@ -73,15 +81,20 @@ export function personPage({ person: p, stats: s, base, urlOf, wins = new Set(),
       <section class="panel ppl-card" aria-labelledby="ppl-games"><h2 id="ppl-games">Favorite games</h2>${list(p.favoriteGames, "Favorite games")}</section>
       <section class="panel ppl-card" aria-labelledby="ppl-hobbies"><h2 id="ppl-hobbies">Off the board</h2>${list(p.hobbies, "Hobbies")}</section>
     </div>
+    ${gamesList(p).trimStart()}
     <section class="ppl-gallery" aria-labelledby="ppl-entries"><h2 id="ppl-entries">In the gallery</h2>${entries}</section>
     <p class="note-back"><a href="${base}people/">${icon("grid", 16)}All people</a></p>
   </div>
 </article>`;
 }
 
-/** The index: the maker first, then the AI agents, then the studio crew. `rows`: [{ person, stats }]. */
+/** The index: the maker first, then the creators, the AI agents, the studio crew. `rows`: [{ person, stats }]. */
 export function peopleIndex({ rows, base }) {
   const byId = Object.fromEntries(rows.map((r) => [r.person.id, r.person]));
+  const link = (p) => `<a href="${base}${personPath(p.id)}">${esc(p.name)}</a>`;
+  // One clause per creator: "HOLESHOT is by creator David Cooley" (their games, each linked to its site).
+  const games = rows.map((r) => r.person).filter((p) => p.kind === "creator")
+    .map((p) => `${p.games.map(gameLink).join(" and ")} ${p.games.length > 1 ? "are" : "is"} by creator ${link(p)}`);
   const cards = rows.map(({ person: p, stats: s }) => `<li class="panel ppl-tile" data-person="${esc(p.id)}">
       ${avatar(p, 96)}
       <div class="ppl-tile-body">
@@ -96,7 +109,7 @@ export function peopleIndex({ rows, base }) {
     <div class="section-head">
       <p class="eyebrow"><span class="index">${rows.length}</span> PEOPLE · ${rows.filter((r) => r.person.kind === "persona").length} STUDIO CREW</p>
       <h1 id="ppl-index">Who makes<br><em>the animations.</em></h1>
-      <p class="lead">Fizlet is made by <a href="${base}${personPath(rows[0].person.id)}">Chris Cooley</a>.${rows.some((r) => r.person.kind === "agent") ? " The AI agents on the team keep the engine running; each wears an AI AGENT sticker, because they are not people." : ""} The studio crew are Fizlet characters, not real people, and wear a CHARACTER sticker: each has a style and a way of writing prompts, pitches animation ideas for the gallery and votes in the <a href="${base}contest/">weekly contest</a> with Quill, Pip and Chris. Entries and bytes are measured on this build.</p>
+      <p class="lead">Fizlet is made by <a href="${base}${personPath(rows[0].person.id)}">Chris Cooley</a>${games.length ? `; ${games.join("; ")}` : ""}.${rows.some((r) => r.person.kind === "agent") ? " The AI agents on the team keep the engine running; each wears an AI AGENT sticker, because they are not people." : ""} The studio crew are Fizlet characters, not real people, and wear a CHARACTER sticker: each has a style and a way of writing prompts, pitches animation ideas for the gallery and votes in the <a href="${base}contest/">weekly contest</a> with Quill, Pip and Chris. Entries and bytes are measured on this build.</p>
     </div>
     <ul class="ppl-tiles">
     ${cards}

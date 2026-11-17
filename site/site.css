@@ -3691,6 +3691,9 @@ html.bui[data-theme="light"] .phases b {
 .ppl-sticker-owner {
   --tone: var(--k-go);
 }
+.ppl-sticker-creator {
+  --tone: var(--k-fallin);
+}
 .ppl-frame {
   display: grid;
   padding: 6px;
@@ -3809,6 +3812,7 @@ html.bui[data-theme="light"] .phases b {
 .ppl-card h2,
 .ct-card h2,
 .ppl-gallery h2,
+.ppl-games h2,
 .ct-past h2 {
   margin: 0 0 12px;
   font-size: clamp(22px, 2.6vw, 28px);
@@ -3840,6 +3844,7 @@ html.bui[data-theme="light"] .phases b {
   font-style: italic;
 }
 .ppl-gallery,
+.ppl-games,
 .ct-past {
   margin-top: 48px;
 }
