@@ -8,7 +8,7 @@
 // walk, hang on a side wall and climb, the punch (sideways, up or down), the grab and the nom, a hit,
 // a shock (it flickers dark and light), a landing, the knock-out. Posing allocates nothing.
 import type { Diorama, DioramaObject } from "../../../../src/diorama";
-import { AIR, CLIMB, ROOF, KO, MK, HERO, CRAB, PUNCH_CD, PUNCH_HIT } from "./block";
+import { AIR, CLIMB, ROOF, KO, MK, HERO, CRAB, PUNCH_CD, PUNCH_HIT, DEPTH } from "./block";
 
 /** The hero's fur, with the word its name takes. */
 export const FURS = [
@@ -40,6 +40,24 @@ export const heroName = (fur: number, face: number) => FURS[fur]!.word + " " + F
 export interface Look { fur: number; trim: number; pattern: number; face: number; gear: number }
 export interface RigInk { ink: string; eye: string; pupil: string; teeth: string; night: boolean; metal: string }
 
+/** A rig mounted on a wall (for a monster facing +x, on a building's left side; the other side mirrors). It
+ *  hugs the building's front corner: chest pressed to the corner, its back three quarters to the camera.
+ *  The far arm and far leg wrap round onto the side wall (drawn behind the building, so only their tips
+ *  show); the near leg clamps the front corner; the near arm is the free one and does the smashing. Fields:
+ *  its turn into the corner, how far it sits in towards the building and out towards the camera, the
+ *  torso's lean in, the far arm [swing, splay, elbow], the far leg and the near leg [thigh, knee, splay],
+ *  the free arm at rest, its wind-up and its hit for a punch down, level, up ([swing, splay, elbow] each),
+ *  the head's turn. Measured per kind (CitySmash's; tests/dom-kaiju.mjs checks them). */
+export interface Wall { yaw: number; ox: number; oz: number; lean: number; far: number[]; fleg: number[]; nleg: number[]; rest: number[]; wind: number[]; hit: number[]; neck: number }
+export const WALL: Wall[] = [
+  // the ape
+  { yaw: 0.5, ox: 0.55, oz: 0.95, lean: -0.4, far: [2.181,  -0.566,  1.916], fleg: [1.406,  -0.494,  -0.35], nleg: [1.428,  -0.922,  0.047], rest: [-0.8,  0.144,  2.337], wind: [-0.8,  0.531,  0,  -0.8,  0.681,  0,  3.497,  -1.8,  1.463], hit: [-0.55,  0.403,  1.966,  1.1,  -1.8,  2.644,  1.862,  -0.672,  2.506], neck: -1 },
+  // SHARDCLAW
+  { yaw: 0.5, ox: 0.35, oz: 1.2, lean: 0.9, far: [-0.244,  0.456,  1.572], fleg: [0.188,  0,  0.363], nleg: [-0.175,  0,  0.441], rest: [-0.8,  0.1,  1.3], wind: [3.253,  -1.347,  1.862,  2.956,  -1.075,  2.075,  2.587,  -0.891,  2.275], hit: [-0.7,  0.247,  0.816,  -0.8,  0.341,  1.787,  -0.334,  0.544,  2.091], neck: -0.5 },
+  // GLOOPMAW
+  { yaw: 0.5, ox: 0.25, oz: 1.1, lean: 0.35, far: [1.981,  -1.369,  0.059], fleg: [0.9,  0.6,  0], nleg: [0.9,  0.6,  0], rest: [0.038,  0.375,  1.828], wind: [2.391,  -1.322,  2.231,  2.275,  -0.991,  2.125,  2.156,  -0.747,  1.959], hit: [0.194,  0.456,  1.041,  0.488,  0.991,  1.284,  1.641,  -0.938,  0.641], neck: -0.5 },
+];
+
 type Shape = "box" | "wedge" | "cyl" | "prism";
 interface PartOpts { rot?: number[]; sides?: number; top?: number; emissive?: boolean; mask?: number }
 
@@ -51,7 +69,13 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
   const k3 = (v: number[]) => [v[0]! * MK, v[1]! * MK, v[2]! * MK];
   const P = (on: string, shape: Shape, size: number[], pos: number[], color: string, o: PartOpts = {}) =>
     d.add({ shape, size: k3(size), pos: k3(pos), rot: o.rot, sides: o.sides, top: o.top, color, on: on === "" ? id : n(on), emissive: o.emissive, mask: o.mask, pick: false });
-  const grp = (gid: string, on: string, pos: number[], rot?: number[]) => d.add({ id: n(gid), shape: "group", size: [0.2, 0, 0.2], pos: k3(pos), rot, on: on === "" ? id : n(on), pick: false });
+  // Each side's limbs sort as their own cluster, anchored each frame (./pose): on a wall the far side's
+  // behind the building (so the facade covers all but their tips), the near side's in front of the body.
+  const atL = new Float64Array(3), atR = new Float64Array(3);
+  d.cluster(n("L"), { at: atL });
+  d.cluster(n("R"), { at: atR });
+  const side = (s: number) => n(s < 0 ? "L" : "R");
+  const grp = (gid: string, on: string, pos: number[], rot?: number[], s = 0) => d.add({ id: n(gid), shape: "group", size: [0.2, 0, 0.2], pos: k3(pos), rot, on: on === "" ? id : n(on), pick: false, cluster: s ? side(s) : undefined });
   const legs: DioramaObject[] = [], arms: DioramaObject[] = [], fore: DioramaObject[] = [], tent: DioramaObject[] = [];
   // The hero's arm parts (for the recolour: which arm is the smashing one) and its colours: fur, dark fur, skin, dark metal.
   const kit: { upper: DioramaObject; pad: DioramaObject; fa: DioramaObject; fist: DioramaObject; kn: DioramaObject[]; ln: DioramaObject[] }[] = [];
@@ -81,7 +105,7 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
     else if (look.pattern === 2) for (let k = 0; k < 4; k++) for (const s of [-1, 1]) P("tor", "cyl", [0.3 + (k % 2) * 0.12, 0.05, 0.3 + (k % 2) * 0.12], [-0.35 + k * 0.22, 0.25 + ((k * 3) % 4) * 0.2, s * 0.61], shade(main, 1.35), { sides: 8, rot: [(s * Math.PI) / 2, 0, 0] });
     // Legs: short and thick, a knee to bend (on a wall the feet plant on it).
     for (const s of [-1, 1]) {
-      const h = grp("hip" + s, "body", [-0.25, 0.05, s * 0.38]);
+      const h = grp("hip" + s, "body", [-0.25, 0.05, s * 0.38], undefined, s);
       P("hip" + s, "box", [0.52, 0.46, 0.5], [0, -0.46, 0], s < 0 ? dark : main);
       const kn = grp("kn" + s, "hip" + s, [0, -0.44, 0]);
       P("kn" + s, "box", [0.48, 0.42, 0.48], [0, -0.42, 0], s < 0 ? dark : main);
@@ -92,7 +116,7 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
     // Arms: long, furry, a knuckle fist. Both carry the cyber arm's parts; only the smashing arm (which
     // one turns with the way it faces) shows them, and only with the gear on (recoloured in the pose).
     for (const s of [-1, 1]) {
-      const sh = grp("sh" + s, "tor", [0.3, 1.0, s * 0.78]);
+      const sh = grp("sh" + s, "tor", [0.3, 1.0, s * 0.78], undefined, s);
       const upper = P("sh" + s, "box", [0.5, 1.0, 0.48], [0, -1.0, 0], main);
       const pad = P("sh" + s, "box", [0.62, 0.34, 0.6], [0, -0.3, 0], K.metal);
       const el = grp("el" + s, "sh" + s, [0, -1.0, 0]);
@@ -146,7 +170,7 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
     for (let k = 0; k < 5; k++) P("body", "cyl", [0.3, 0.7 + (k % 2) * 0.35, 0.3], [-0.65 + k * 0.32, 1.05, ((k * 7) % 3 - 1) * 0.3], k % 2 ? acc : "#c9a6ff", { sides: 5, top: 0, emissive: true, rot: [0, 0, 0.3 - k * 0.15] });
     // Six legs.
     for (let k = 0; k < 6; k++) {
-      const s = k < 3 ? -1 : 1, x = -0.65 + (k % 3) * 0.6, h = grp("hip" + k, "body", [x, 0.2, s * 0.8], [s * 0.6, 0, 0]);
+      const s = k < 3 ? -1 : 1, x = -0.65 + (k % 3) * 0.6, h = grp("hip" + k, "body", [x, 0.2, s * 0.8], [s * 0.6, 0, 0], s);
       void h;
       const lg = P("hip" + k, "box", [0.18, 1.3, 0.18], [0, -1.3, 0], dark);
       if (k === 2 || k === 5) feet.push(lg);
@@ -154,7 +178,7 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
     }
     // Two claws on the arms.
     for (const s of [-1, 1]) {
-      const sh = grp("sh" + s, "body", [0.9, 0.5, s * 0.7]);
+      const sh = grp("sh" + s, "body", [0.9, 0.5, s * 0.7], undefined, s);
       P("sh" + s, "box", [0.32, 0.9, 0.32], [0, -0.9, 0], claw);
       const el = grp("el" + s, "sh" + s, [0, -0.9, 0]);
       P("el" + s, "box", [0.55, 0.6, 0.5], [0, -0.6, 0], claw);
@@ -191,7 +215,7 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
       tent.push(tg, tip);
     }
     for (const s of [-1, 1]) {
-      const sh = grp("sh" + s, "body", [0.15, 1.0, s * 0.92]);
+      const sh = grp("sh" + s, "body", [0.15, 1.0, s * 0.92], undefined, s);
       P("sh" + s, "box", [0.32, 0.9, 0.3], [0, -0.9, 0], main);
       const el = grp("el" + s, "sh" + s, [0, -0.9, 0]);
       P("el" + s, "box", [0.26, 0.8, 0.26], [0, -0.8, 0], acc);
@@ -206,81 +230,89 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
     P("jaw", "box", [0.55, 0.2, 0.9], [0.2, -0.2, 0], dark);
     for (let t = 0; t < 5; t++) P("jaw", "box", [0.09, 0.12, 0.09], [0.4, 0, -0.32 + t * 0.16], K.teeth);
   }
-  const body = d.get(n("body"))!, neck = d.get(n("neck"))!, jaw = d.get(n("jaw"))!;
+  const body = d.get(n("body"))!, neck = d.get(n("neck"))!, jaw = d.get(n("jaw"))!, tor = d.get(n("tor")) ?? null, lean0 = tor ? tor.rot[2]! : 0;
 
   // ---- the pose ----
-  // Its holds on a wall, per kind (measured so the hands and feet sit on the wall: tests/dom-kaiju.mjs):
-  // the inside arm (shoulder, elbow, splay out), the outside arm, the legs (thigh, knee, splay).
-  const WI = kind === HERO ? [2.0, 1.45, 0.3] : kind === CRAB ? [2.6, 0.4, 0.5] : [2.4, 0.3, 0.4];
-  const WO = kind === HERO ? [2.85, 0.3, -0.05] : kind === CRAB ? [2.9, 0.2, -0.4] : [2.6, -0.2, -0.2];
-  const WL = [1.95, -1.15, 0.2];
-  /** How far off the wall it hangs, drawn (the crab's long shell sits further out). */
-  const OFF = kind === CRAB ? 0.45 : 0;
-  let yaw = -0.35, lean = 0;
+  // On a wall (measured per kind: tests/dom-kaiju.mjs): mounted on the building's front corner, chest pressed to
+  // it and its back three quarters to the camera; the far arm and leg wrap round onto the side wall (the
+  // building covers them but for their tips), the near leg clamps the corner, the near arm is free and
+  // smashes across the front face. Climbing it shimmies: the far arm reaches up, the hips push in, the body
+  // pulls up, the legs follow.
+  const W = WALL[kind]!;
+  let yaw = -0.35;
   function pose(M: Float64Array, t: number, dt: number) {
     const md = M[5]!, f = M[6]!, ph = M[13]!, ga = M[10]!, nom = M[18]!, squash = M[19]!, zap = M[23]!;
     const wall = md === CLIMB, pt = PUNCH_CD - M[8]!, punching = M[8]! > 0 && zap <= 0;
-    // On the street: three quarters to the camera. On a wall: chest and belly to the wall, seen from behind
-    // three quarters (the head turns to the camera); a punch leans it out from the wall a moment.
-    const lw = wall && punching ? Math.sin(Math.min(1, pt / PUNCH_CD) * Math.PI) : 0;
-    lean += (lw - lean) * Math.min(1, dt * 20);
-    const want = wall ? (f > 0 ? 0.35 - lean * 0.75 : Math.PI - 0.35 + lean * 0.75) : f > 0 ? -0.35 : Math.PI + 0.35;
+    // On the street: three quarters to the camera. On a wall: into the corner, its back to the camera.
+    const want = wall ? (f > 0 ? W.yaw : Math.PI - W.yaw) : f > 0 ? -0.35 : Math.PI + 0.35;
     let dy = want - yaw;
     dy -= 6.283185307179586 * Math.floor(dy / 6.283185307179586 + 0.5);
     yaw += dy * Math.min(1, dt * 14);
     // The climb's cycle (it runs only while it moves up or down) and the idle breath.
-    const moving = Math.abs(M[3]!) > 0.3 || (wall && Math.abs(M[33]!) > 0.3), cyc = Math.sin(ph * 2.4), br = Math.sin(t * 1.9);
-    root.pos[0] = M[0]! - (wall ? f * (lean * 0.35 * MK + OFF) : 0);
-    root.pos[1] = M[1]! + (wall ? (moving ? Math.abs(Math.cos(ph * 2.4)) * 0.12 : br * 0.03) * MK : 0);
-    root.pos[2] = M[2]!;
+    const moving = Math.abs(M[3]!) > 0.3 || (wall && Math.abs(M[33]!) > 0.3), a = ph * 2.4, cyc = Math.sin(a), br = Math.sin(t * 1.9);
+    // The shimmy: reach (cyc), then the hips push in (hump), then the body pulls up (lift), then the legs.
+    const hump = wall ? (moving ? 0.5 + 0.5 * Math.sin(a - 1.3) : 0.3 + br * 0.08) : 0, lift = moving ? 0.5 + 0.5 * Math.sin(a - 2.3) : 0, step = moving ? Math.sin(a - 3.1) : 0;
+    root.pos[0] = M[0]! + (wall ? f * W.ox : 0);
+    root.pos[1] = M[1]! + (wall ? (moving ? lift * 0.16 : br * 0.03) * MK : 0);
+    root.pos[2] = M[2]! + (wall ? W.oz : 0);
     root.rot[1] = yaw;
     root.rot[2] = md === KO ? -1.35 : zap > 0 ? Math.sin(t * 60) * 0.06 : 0;
     // A shock flickers it light and dark; a hit flashes it white.
     root.tint = zap > 0 ? ((t * 16) | 0) & 1 ? "#ffffff" : K.ink : M[11]! > 0.18 ? "#ffffff" : null;
     const walking = md === 0 || md === ROOF, sw = walking ? Math.sin(ph * 3.2) : 0;
     const bob = walking && moving ? Math.abs(Math.cos(ph * 3.2)) * 0.1 : 0;
+    body.pos[0] = hump * 0.14 * MK;
     body.pos[1] = (hipY + bob - squash * 0.25) * MK;
-    // Legs. On a wall both feet plant on it: thighs up, knees bent and splayed, pushing in turn as it climbs.
+    if (tor) tor.rot[2] = wall ? W.lean - hump * 0.12 : lean0;
+    else body.rot[2] = wall ? W.lean + hump * 0.08 : 0;
+    // Which side is the far one (away from the camera): its arm and leg climb, the near arm smashes.
+    const far = wall ? (f > 0 ? 0 : 1) : -1, out = wall ? 1 - far : f > 0 ? 1 : 0;
+    // Legs. On a wall the far foot plants on the side wall, the near foot clamps the front corner; they push in turn.
     for (let i = 0; i < legs.length; i++) {
-      const s = i & 1 ? 1 : -1, lg = legs[i]!, push = i & 1 ? -cyc : cyc;
-      if (kind === CRAB) (lg.rot[2] = wall ? 0.5 + push * (moving ? 0.35 : 0.04) : Math.sin(ph * 6 + i * 2.1) * (moving ? 0.35 : 0.04));
-      else if (wall) (lg.rot[2] = WL[0]! + (moving ? push * 0.35 : br * 0.03)), (lg.rot[0] = -s * WL[2]!);
+      const s = kind === CRAB ? (i < 3 ? -1 : 1) : i & 1 ? 1 : -1, lg = legs[i]!, isFar = (s > 0 ? 1 : 0) === far, L = isFar ? W.fleg : W.nleg, push = isFar ? step : -step;
+      if (kind === CRAB) {
+        const j = i % 3;
+        lg.rot[2] = wall ? L[0]! + (j - 2) * 0.25 + push * 0.2 : Math.sin(ph * 6 + i * 2.1) * (moving ? 0.35 : 0.04);
+        lg.rot[0] = s * (wall ? L[2]! : 0.6);
+      } else if (wall) (lg.rot[2] = L[0]! + push * 0.3 + br * 0.02), (lg.rot[0] = (f > 0 ? -s : s) * L[2]!);
       else (lg.rot[2] = md === AIR ? (i ? 0.6 : -0.1) : moving ? sw * 0.6 * s : 0), (lg.rot[0] = 0);
     }
     for (let i = 0; i < knees.length; i++) {
-      const push = i & 1 ? -cyc : cyc;
-      knees[i]!.rot[2] = wall ? WL[1]! - (moving ? push * 0.3 : 0) : md === AIR ? -0.5 : walking && moving ? -Math.max(0, Math.sin(ph * 3.2 + i * Math.PI)) * 0.5 : 0;
+      const isFar = i === far, push = isFar ? step : -step;
+      knees[i]!.rot[2] = wall ? (isFar ? W.fleg[1]! : W.nleg[1]!) - push * 0.35 : md === AIR ? -0.5 : walking && moving ? -Math.max(0, Math.sin(ph * 3.2 + i * Math.PI)) * 0.5 : 0;
     }
     for (let k = 0; k < tent.length; k += 2) {
       const w = Math.sin(t * 4 + k + ph * 3);
-      tent[k]!.rot[2] = (md === AIR ? 0.4 : wall ? 0.9 : 0) + w * (moving ? 0.25 : 0.06);
-      tent[k + 1]!.rot[2] = w * 0.35 + (wall ? 0.6 : 0);
+      tent[k]!.rot[2] = (md === AIR ? 0.4 : wall ? W.fleg[0]! : 0) + w * (moving ? 0.25 : 0.06);
+      tent[k + 1]!.rot[2] = w * 0.35 + (wall ? W.fleg[1]! : 0);
     }
     if (tail) (tail.rot[2] = -0.9 + Math.sin(t * 2 + ph) * 0.15), (tail.rot[1] = Math.sin(t * 1.7 + ph * 2) * 0.25);
     // Arms. Angles swing forward from hanging straight down (0: down, π/2: straight ahead, π: overhead), elbows
-    // bend the forearm forward, a splay (about the arm's own x) takes a hand in or out. On a wall the inside arm
-    // (the one on the camera's side, by the building's front corner) grips the corner and never lets go; the
-    // outside arm reaches above it, hand over hand with it as they climb, and does the smashing, leaning out.
-    // On the street the outside (smashing) arm is the one nearer the camera. The punch keeps the round's fixed
-    // timing (./block.ts PUNCH_CD, PUNCH_HIT): wind-up, the hit frame, a short hold, the recovery; its swing shows
-    // its direction: an overhead slam (up), a straight slam (middle), a low hook (down).
-    const inside = wall ? (f > 0 ? 1 : 0) : -1, out = wall ? 1 - inside : f > 0 ? 1 : 0;
+    // bend the forearm forward, a splay (about the arm's own x) takes a hand in or out. On a wall the far arm
+    // wraps round onto the side wall, reaching up as it climbs, and never lets go; the near arm rests cocked by
+    // the chest and does the smashing (and the grabbing) across the front face. On the street the smashing arm
+    // is the one nearer the camera. The punch keeps the round's fixed timing (./block.ts PUNCH_CD, PUNCH_HIT):
+    // the wind-up (pulled back along the body), the hit frame (the fist in the window the round hits: the one
+    // level with the hand, above or below), a short hold, the recovery.
     for (let i = 0; i < 2; i++) {
-      const s = i ? 1 : -1, a = arms[i]!, e = fore[i]!, outside = i === out;
+      const s = i ? 1 : -1, ar = arms[i]!, e = fore[i]!, outside = i === out;
       let r = 0, er = 0, sp = s * 0.08;
       if (zap > 0) (r = 2.6 + Math.sin(t * 50 + i) * 0.3), (er = 0.3), (sp = s * 0.5);
-      else if (wall && i === inside) (r = WI[0]! + (moving ? cyc * 0.3 : br * 0.04)), (er = WI[1]! - (moving ? cyc * 0.3 : 0)), (sp = s * WI[2]!);
-      else if (wall) (r = WO[0]! - (moving ? cyc * 0.3 : br * 0.04)), (er = WO[1]! + (moving ? cyc * 0.3 : 0)), (sp = s * WO[2]!);
+      else if (wall && i === far) (r = W.far[0]! + (moving ? cyc * 0.3 : br * 0.02)), (sp = s * W.far[1]!), (er = W.far[2]! - (moving ? cyc * 0.3 : 0));
+      else if (wall) (r = W.rest[0]! + br * 0.04), (sp = s * W.rest[1]!), (er = W.rest[2]!);
       else if (md === AIR) (r = 2.3 - i * 0.4), (er = 0.3);
       else if (md === KO) (r = 0.6), (er = 0.2);
       else if (moving && walking) (r = (kind === HERO ? 0.3 : 0.15) + sw * 0.5 * s), (er = 0.35);
       else (r = 0.22 + Math.sin(t * 1.6 + i) * 0.04), (er = 0.3);
       if (punching && outside) {
-        const d = M[32]!, wr = d > 0 ? 3.3 : d < 0 ? 1.45 : 0.6, we = d > 0 ? 1.3 : d < 0 ? 1.1 : 1.7, hr = d > 0 ? 2.55 : d < 0 ? 0.8 : 1.6, he = d > 0 ? 0.15 : d < 0 ? 0.15 : 0;
-        const hs = wall ? -s * 0.6 : sp;
-        if (pt < PUNCH_HIT) {
-          const k = pt / PUNCH_HIT;
-          (r += (wr - r) * k), (er += (we - er) * k);
+        const d = M[32]!, j = (d > 0 ? 2 : d < 0 ? 0 : 1) * 3;
+        // On a wall the hit and the wind-up come from the table; on the street, a slam by the direction.
+        const wr = wall ? W.wind[j]! : d > 0 ? 3.3 : d < 0 ? 1.45 : 0.6, ws = wall ? s * W.wind[j + 1]! : sp, we = wall ? W.wind[j + 2]! : d > 0 ? 1.3 : d < 0 ? 1.1 : 1.7;
+        const hr = wall ? W.hit[j]! : d > 0 ? 2.55 : d < 0 ? 0.8 : 1.6, hs = wall ? s * W.hit[j + 1]! : sp, he = wall ? W.hit[j + 2]! : d !== 0 ? 0.15 : 0;
+        // (The round's hit frame is when its countdown M[34] runs out: until then the wind-up.)
+        if (M[34]! > 0) {
+          const k = Math.min(1, pt / PUNCH_HIT);
+          (r += (wr - r) * k), (sp += (ws - sp) * k), (er += (we - er) * k);
         } else {
           const k = Math.max(0, (pt - PUNCH_HIT) / (PUNCH_CD - PUNCH_HIT) - 0.3) / 0.7;
           (r = hr + (r - hr) * k * k), (er = he + (er - he) * k * k), (sp = hs + (sp - hs) * k * k);
@@ -289,13 +321,23 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
       if (ga > 0 && outside && zap <= 0) {
         // The grab: out to the window, then back to the mouth.
         const k = ga > 0.5 ? (1 - ga) * 2 : 1;
-        r = r + (1.9 - r) * k;
-        er = ga > 0.5 ? er + (0.2 - er) * k : er + (2.1 - er) * (1 - ga * 2);
+        const gr = wall ? W.hit[3]! : 1.9, gs = wall ? s * W.hit[4]! : sp, ge = wall ? W.hit[5]! : 0.2;
+        r = r + (gr - r) * k;
+        sp = sp + (gs - sp) * (ga > 0.5 ? k : 1 - (1 - ga * 2));
+        er = ga > 0.5 ? er + (ge - er) * k : er + (2.1 - er) * (1 - ga * 2);
       }
-      a.rot[2] = r;
-      a.rot[0] = sp;
+      ar.rot[2] = r;
+      ar.rot[0] = sp;
       e.rot[2] = er;
     }
+    // The limbs' clusters: on a wall the far side's behind the building, the near side's in front of the body;
+    // elsewhere just behind and just in front of it (the side nearer the camera in front).
+    const nearR = Math.cos(yaw) > 0, rx = root.pos[0]!, ry = root.pos[1]! + 1.5 * MK, rz = root.pos[2]!;
+    const zf = wall ? -DEPTH - 0.5 : rz - 0.4, zn = rz + (wall ? 1.2 : 0.4);
+    atL[0] = atR[0] = rx;
+    atL[1] = atR[1] = ry;
+    atL[2] = nearR ? zf : zn;
+    atR[2] = nearR ? zn : zf;
     // The hero's colours follow the smashing arm: fur near, darker fur far; the cyber arm (with the gear on)
     // on the smashing arm only.
     for (let i = 0; i < kit.length; i++) {
@@ -311,11 +353,11 @@ export function buildMonster(d: Diorama, kind: number, look: Look, K: RigInk, id
       if (p.pad.alpha !== la) (p.pad.alpha = la), (p.ln[0]!.alpha = la), (p.ln[1]!.alpha = la);
     }
     // The head turns to the camera on a wall.
-    neck.rot[1] = wall ? (f > 0 ? -0.85 : 0.85) * (1 - lean * 0.5) : 0;
+    neck.rot[1] = wall ? (f > 0 ? W.neck : -W.neck) : 0;
     neck.rot[2] = md === KO ? 0.4 : zap > 0 ? 0.3 : wall ? 0.25 : Math.sin(t * 1.3) * 0.04 - (nom > 0 ? 0.25 : 0);
     jaw.rot[2] = nom > 0 ? -Math.abs(Math.sin(nom * 18)) * 0.6 : zap > 0 || M[11]! > 0 ? -0.5 : M[8]! > 0 ? -0.35 : -0.05;
   }
-  return { root, pose, height: height * MK, main, acc, hands, feet };
+  return { root, pose, height: height * MK, main, acc, hands, feet, tor: tor ?? body, arms, fore, legs, knees };
 }
 export type Monster = ReturnType<typeof buildMonster>;
 
