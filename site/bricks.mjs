@@ -17,10 +17,10 @@ export const STATUS = {
     criteria: ["Its own export in package.json, with a size budget that `npm run size` checks in CI", "Tests in the suites (Node, and Chromium where it touches the page), including zero allocation per step where it runs per step", "Documented: a README row and a generated brick page", "Shipped: used by at least one released game or production page beyond its own demo", "API stable: no breaking change since it first shipped; one would need a CHANGELOG entry and moves it back to BETA"] },
   beta: { label: "BETA", tone: "sys", line: "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
     criteria: ["Its own export, a size budget, tests and docs, like COMPLETE", "Not yet used by a released game or production page, or its API is still growing", "Safe to build on; a minor release may change it, and the CHANGELOG says how"] },
-  experimental: { label: "EXPERIMENTAL", tone: "aim", line: "In the package to try; no promise yet.",
+  experimental: { label: "ALPHA", tone: "aim", line: "In the package to try; no promise yet.",
     criteria: ["Its own export and a size budget", "Tests may be partial", "May change or go away in any release"] },
   roadmap: { label: "ROADMAP", tone: "next", line: "Planned, not shipped: a name, a purpose, a size target.",
-    criteria: ["Not in the package: nothing to import yet", "Has a purpose, a size target and the bricks it depends on", "Moves to EXPERIMENTAL or BETA when it lands with tests and a budget"] },
+    criteria: ["Not in the package: nothing to import yet", "Has a purpose, a size target and the bricks it depends on", "Moves to ALPHA or BETA when it lands with tests and a budget"] },
   deprecated: { label: "DEPRECATED", tone: "hurt", line: "Still in the package, replaced by something named.",
     criteria: ["Names its replacement", "Removed in the first minor release after the replacement is COMPLETE"] },
 };
@@ -50,13 +50,27 @@ export const FAMILIES = [
   { id: "kernel", label: "Kernel", tone: "go" },
   { id: "input", label: "Input", tone: "sys" },
   { id: "network", label: "Network", tone: "cmd" },
+  // IN_HOUSE's bricks (above): its column, beside Network (presence is the multiplayer brick), with
+  // its line as the note.
+  { id: "inhouse", label: "In-house", tone: "hurt", note: IN_HOUSE.line },
   { id: "motion", label: "Motion", tone: "advance" },
   { id: "render", label: "Render", tone: "attack" },
   { id: "game", label: "Game", tone: "fire" },
   { id: "page", label: "Page", tone: "fallin" },
-  // IN_HOUSE's bricks (above): its column, with its line as the note.
-  { id: "inhouse", label: "In-house", tone: "hurt", note: IN_HOUSE.line },
 ];
+
+/**
+ * The periodic table's two blocks (bricks/ hero), side by side: 2D (the kernel and the DOM, CSS and
+ * 2D-canvas bricks) and 3D (the tabletop bricks on `@fzlt/core/diorama`: roadmap E17). Each block
+ * has its own family columns, in FAMILIES order; a brick is 3D when DIMS[1].ids lists it.
+ */
+export const DIMS = [
+  { id: "2d", label: "2D", sub: "kernel, DOM, CSS, canvas" },
+  { id: "3d", label: "3D", sub: "tabletop, on diorama", line: "Software 3D on a 2D canvas you own: diorama draws the scene; the rest furnish it, move it and play on it.",
+    ids: ["diorama", "dice", "track", "water", "props", "beam", "cards", "flick", "terrain", "drive"] },
+];
+/** A brick's block in the table: "3d" or "2d". */
+export const dimOf = (b) => (DIMS[1].ids.includes(b.id) ? "3d" : "2d");
 
 /**
  * Every brick, shipped and planned, carries three periodic-table fields, kept here and nowhere else:

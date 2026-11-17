@@ -15,6 +15,18 @@ if (root) {
   const cols = Math.max(...at.map(([, c]) => c));
   let open: HTMLButtonElement | null = null;
 
+  // Wider than its box (narrow screens): say so. The board gets data-scrolls (the SWIPE label and an
+  // edge fade) and data-end once scrolled to the end; measured on resize and scroll, no frame loop.
+  const board = root.querySelector<HTMLElement>(".pt-board")!;
+  const scroller = root.querySelector<HTMLElement>(".pt-scroll")!;
+  const fit = () => {
+    const over = scroller.scrollWidth - scroller.clientWidth;
+    board.toggleAttribute("data-scrolls", over > 1);
+    board.toggleAttribute("data-end", over <= 1 || scroller.scrollLeft >= over - 2);
+  };
+  scroller.addEventListener("scroll", fit, { passive: true });
+  new ResizeObserver(fit).observe(scroller);
+
   const close = (focus = false) => {
     if (!open) return;
     const k = open;

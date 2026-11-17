@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Site: the bricks page's periodic table in two blocks, 2D and 3D, at the page's full width; the EXPERIMENTAL flag reads ALPHA (owner feedback).** The table moves under the hero copy and splits into a 2D block (Kernel, Input, Network, In-house, Motion, Render, Game, Page) and a 3D block (Motion, Render, Game: the ten tabletop bricks on diorama, `site/bricks.mjs` `DIMS`), so the longest column is seven rows (was nine, plus a dashed tail below the fold) and the roadmap tiles end the columns in one row. In-house moves beside Network; its column head and note get their colour back (`--k-hurt` is no token: the kit's `--hurt`). The legend and the quick view share the bay under the first four columns; the quick view keeps everything inside its border (one track, `minmax(0, 1fr)`; the sticker clears the close key). Narrow screens: the table scrolls in its own box with a SWIPE label and an edge fade (`data-scrolls`, `data-end`, measured on resize and scroll, no frame loop); the quick view is a bottom sheet up to 840 px, at most 560 px wide. The `experimental` key stays (export doc tags `@experimental`, the factory's audit); only the label changes, in `STATUS`, the README tables and the tests. `tests/periodic.mjs` checks the blocks, the fit at 1440, the card's contents and the swipe hint.
+
 - **Site: the first weekly winners (2026-W44 to W46).** The contest's three finished weeks are
   closed with a winner per lane, generated from the engine's content model (`site/contest/weeks/`,
   never by hand): W44 micro ILOVEYOU (#065, 7,224 B live) and Hi-Fi Oodles o' Moles (#070); W45

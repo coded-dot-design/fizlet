@@ -152,7 +152,7 @@ try {
         assert.equal(f.widths, 1, `card ${i}: one border width all round`);
         assert.equal(f.border, f.line, `card ${i}: at rest, the neutral card border`);
         assert.equal(f.pill, 0, `card ${i}: no pill or top row`);
-        assert.match(f.sticker, i === 0 ? /^KERNEL$/ : /^(COMPLETE|BETA|EXPERIMENTAL|DEPRECATED)$/, `card ${i}: the status is a sticker (the kernel's is KERNEL)`);
+        assert.match(f.sticker, i === 0 ? /^KERNEL$/ : /^(COMPLETE|BETA|ALPHA|DEPRECATED)$/, `card ${i}: the status is a sticker (the kernel's is KERNEL)`);
         assert.equal(f.stickers, 1, `card ${i}: one sticker`);
         assert.ok(!f.name.includes(f.sticker), `card ${i}: the status is not in the name`);
       }
@@ -233,7 +233,7 @@ try {
         assert.ok(Math.abs(look.tilt) >= 2 && Math.abs(look.tilt) <= 6 && look.dx <= 6 && Math.abs(look.dy) <= 2, `${c.id}: a small tilt and nudge`);
         assert.equal(c.peel, c.flag === "beta", `${where} ${c.id}: ${c.flag === "beta" ? "BETA peels" : "only BETA peels"}`);
         if (c.peel) assert.deepEqual(c.pseudo, ['""', '""'], `${where} ${c.id}: the curl and the wear are empty (the label is read once)`);
-        assert.match(c.text, /^(COMPLETE|BETA|EXPERIMENTAL|DEPRECATED)$/, `${where} ${c.id}: the label is the sticker's only text`);
+        assert.match(c.text, /^(COMPLETE|BETA|ALPHA|DEPRECATED)$/, `${where} ${c.id}: the label is the sticker's only text`);
         for (const o of [c.name, ...c.chips]) assert.ok(!hit(c.sticker, o), `${where} ${c.id}: the sticker overlaps no name or chip`);
       }
       // No sticker hangs off its card: every sticker on a card (brick cards, the roadmap's cards, the

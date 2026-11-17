@@ -1,13 +1,16 @@
 // The Fizlet periodic table, the hero of /bricks/ (site/periodic.mjs, site/periodic.ts), in Chromium.
 // Run `npm run site` first.
+// - Two blocks side by side, 2D and 3D (site/bricks.mjs DIMS), each with its own family columns; no
+//   column runs past the table's rows, and the table sits under the copy at the page's full width.
 // - Every brick and every planned brick is a key, by number, in its family's column, like a brick card
 //   at tile scale: its status sticker on the top edge, its size measured on this build with its colour
 //   dot top right (planned keys: dashed, no size), its symbol in the middle.
 // - A click (or Enter) presses the key (aria-expanded: the kit's press), lights it, says PRESSED and
 //   opens that brick's quick view, one at a time; Esc and the close key close it; arrow keys move.
 // - 0 frames at rest and after opening and closing; reduced motion: the quick view simply appears.
-// - Phones (390): no page-level sideways scroll (the table scrolls in its own box), the quick view is
-//   a bottom sheet. No console errors.
+// - The quick view sits in the bay over the legend, everything inside its border (no overflow).
+// - Phones (390): no page-level sideways scroll (the table scrolls in its own box, with a SWIPE label
+//   and an edge fade), the quick view is a bottom sheet. No console errors.
 // - The sticker sheet: one valid SVG per brick, each a download. Symbol chips: the name on hover and
 //   focus, and as the accessible name.
 import assert from "node:assert/strict";
@@ -16,7 +19,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
-import { BRICKS, PLANNED } from "../site/bricks.mjs";
+import { BRICKS, PLANNED, DIMS, STATUS } from "../site/bricks.mjs";
 import { measure } from "../scripts/sizes.mjs";
 
 const ROOT = "site-dist";
@@ -98,10 +101,21 @@ await check("every brick and every planned brick is a key, by number, in its fam
       assert.equal(k.border, "solid", `${e.id}: solid`);
       assert.equal(k.sz, `${(SIZES.find((s) => s.name === e.size).gzip / 1024).toFixed(1)}K`, `${e.id}: the measured size`);
       assert.ok(k.dot, `${e.id}: the size has its colour dot`);
-      assert.deepEqual(k.flags, [e.id === "kernel" ? "KERNEL" : e.status.toUpperCase()], `${e.id}: its one sticker on the top edge (the kernel's: KERNEL alone)`);
+      assert.deepEqual(k.flags, [e.id === "kernel" ? "KERNEL" : STATUS[e.status].label], `${e.id}: its one sticker on the top edge (the kernel's: KERNEL alone)`);
     }
   }
-  assert.match(keys[0].area, /^2 \/ 1/, "the kernel: top of the first column");
+  assert.match(keys[0].area, /^3 \/ 1/, "the kernel: top of the first column (under the block and family heads)");
+  // 2D and 3D: every 3D brick right of the split, every other brick left of it; the blocks labelled.
+  const split = await page.evaluate(() => getComputedStyle(document.querySelector(".pt-split")).gridColumnStart);
+  for (const k of keys) {
+    const col = Number(k.area.split(" / ")[1]);
+    assert.equal(col > Number(split), DIMS[1].ids.includes(k.id), `${k.id}: in the ${DIMS[1].ids.includes(k.id) ? "3D" : "2D"} block (column ${col}, split ${split})`);
+  }
+  assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll(".pt-dim b")].map((b) => b.textContent)), ["2D", "3D"]);
+  // The table fits the page at 1440 (no sideways scroll in its box) and sits under the copy.
+  const fit = await page.evaluate(() => { const s = document.querySelector(".pt-scroll"), t = document.querySelector(".pt-table").getBoundingClientRect(), c = document.querySelector(".pt-copy").getBoundingClientRect(); return { over: s.scrollWidth - s.clientWidth, below: t.top >= c.bottom, scrolls: document.querySelector(".pt-board").hasAttribute("data-scrolls") }; });
+  assert.ok(fit.over <= 1 && !fit.scrolls, `the table fits at 1440 (${fit.over} px over)`);
+  assert.ok(fit.below, "the table sits under the copy");
   // The kernel shows exactly one sticker, KERNEL, on its tile, in the legend and in its quick view.
   const legend = await page.evaluate(() => [...document.querySelectorAll(".pt-leg-key .brick-sticker")].map((x) => x.textContent));
   assert.deepEqual(legend, ["KERNEL"], "the legend's kernel: KERNEL alone");
@@ -144,9 +158,14 @@ await check("a click opens that brick's quick view (pressed, lit, PRESSED); one 
     assert.ok(q.inside, `${id}: the quick view's sticker sits inside the card`);
     assert.equal(q.peel, q.flag === "beta", `${id}: only BETA peels in the quick view`);
   }
-  await page.click('.el-key[data-el="fx"]');
-  await page.mouse.move(2, 2);
-  await page.waitForTimeout(400);
+  // The longest names and a long purpose stay inside the card: nothing pokes out of its border.
+  for (const id of ["view-canvas", "diorama"]) {
+    await page.click(`.el-key[data-el="${id}"]`); await page.mouse.move(2, 2); await page.waitForTimeout(400);
+    const out = await page.evaluate(() => { const c = document.querySelector(".pt-card").getBoundingClientRect(); return [...document.querySelectorAll(".pt-card *")].filter((e) => { const r = e.getBoundingClientRect(); return r.width && (r.left < c.left - 0.5 || r.right > c.right + 0.5); }).map((e) => e.className || e.localName); });
+    assert.deepEqual(out, [], `${id}: everything inside the quick view`);
+    const clear = await page.evaluate(() => { const a = document.querySelector(".pt-q-meta .brick-sticker").getBoundingClientRect(), b = document.querySelector(".pt-x").getBoundingClientRect(); return a.right <= b.left || a.bottom <= b.top; });
+    assert.ok(clear, `${id}: the sticker clears the close key`);
+  }
   await page.click('.el-key[data-el="actor"]');
   s = await state(page);
   assert.deepEqual(s.expanded, ["actor"], "one open at a time");
@@ -221,6 +240,11 @@ await check("phone 390: no page-level sideways scroll; the table scrolls in its 
   assert.ok(m.page <= m.vw, `no sideways page scroll (${m.page} > ${m.vw})`);
   assert.ok(m.box, "the table scrolls sideways in its own box");
   assert.ok(m.tile >= 44, `tiles are 44 px targets or more (${m.tile})`);
+  const hint = await page.evaluate(() => ({ on: document.querySelector(".pt-board").hasAttribute("data-scrolls"), label: getComputedStyle(document.querySelector(".pt-swipe")).display, fade: getComputedStyle(document.querySelector(".pt-board"), "::after").opacity }));
+  assert.ok(hint.on && hint.label !== "none", "the SWIPE label shows when the table scrolls");
+  await page.evaluate(() => { const s = document.querySelector(".pt-scroll"); s.scrollLeft = s.scrollWidth; });
+  await page.waitForFunction(() => document.querySelector(".pt-board").hasAttribute("data-end"));
+  await page.evaluate(() => { document.querySelector(".pt-scroll").scrollLeft = 0; });
   await page.tap('.el-key[data-el="fx"]');
   await page.waitForTimeout(500);
   const c = await page.evaluate(() => { const r = document.querySelector(".pt-card").getBoundingClientRect(); return { pos: getComputedStyle(document.querySelector(".pt-card")).position, l: r.left, r: r.right, b: r.bottom, t: r.top, vw: innerWidth, vh: innerHeight, page: document.documentElement.scrollWidth }; });
