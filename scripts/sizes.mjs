@@ -98,7 +98,9 @@ export const BUDGETS = [
   // A heightfield for diorama scenes (diorama is a type-only import; steer's exact hypot): 4,600 B gz
   // when added, with terrainView (chunks, LOD stitching, shadows); terrain() alone tree-shakes to 1,933 B.
   // 4,772 B (+172 B) when the berm's ends got their run-out (no lump past either end).
-  ["@fzlt/core/terrain", "src/terrain.ts", 4840],
+  // 4,933 B (+161 B) with `split: "adaptive"` (each cell's diagonal along its smaller height
+  // difference, in the queries and the view: sharp dune crests without stair-steps).
+  ["@fzlt/core/terrain", "src/terrain.ts", 4992],
   // Vehicle feel on a heightfield plus the chase camera (steer's exact hypot): 3,170 B gz when added.
   // 4,478 B (+1,308 B) with the handbrake drift (slide, drift score, chains, spinOut), car-to-car
   // contact (touch, touchAll: box and circle hulls by mass) and the read-outs moved onto one shared

@@ -247,6 +247,91 @@ test("terrain view: depth sort puts a cluster per chunk in diorama's ranking; sh
   assert.equal(tv.chunks[0] * tv.chunks[1], 16);
 });
 
+/** A sharp dune crest across the fixed diagonal: the crest line x + z = 0 runs through vertices, a
+ *  gentle windward side (slope 0.3 along x + z) and a steep slip face (1.5). Exact on adaptive cells. */
+const dune = (x, z) => (x + z < 0 ? 3 + 0.3 * (x + z) : 3 - 1.5 * (x + z));
+
+test("terrain: split adaptive follows a crest: heights exact on the ridge, normals agree with slopes, kinds in range", () => {
+  const fixed = terrain({ cols: 24, rows: 24, cell: 1 }), ad = terrain({ cols: 24, rows: 24, cell: 1, split: "adaptive" });
+  fixed.shape(dune); ad.shape(dune);
+  assert.equal(fixed.split, "fixed");
+  assert.equal(ad.split, "adaptive");
+  let eF = 0, eA = 0;
+  for (let k = 0, r = 12345; k < 4000; k++) {
+    r = (Math.imul(r, 1103515245) + 12345) >>> 0;
+    const x = (r & 0xffff) / 3277 - 10, z = (r >>> 16) / 3277 - 10;
+    eF = Math.max(eF, Math.abs(fixed.height(x, z) - dune(x, z)));
+    eA = Math.max(eA, Math.abs(ad.height(x, z) - dune(x, z)));
+  }
+  assert.ok(eF > 0.4, `the fixed diagonal cuts the crest: max error ${eF}`);
+  assert.ok(eA < 1e-9, `the adaptive one lies on it: max error ${eA}`);
+  // Both triangles of a split-along-10–01 cell: height continuous, normal from the face's own slopes.
+  const t = terrain({ cols: 1, rows: 1, cell: 2, x0: 0, z0: 0, split: "adaptive", heights: [0, 3, 1, 3.2] });
+  for (const [i, j, h] of [[0, 0, 0], [1, 0, 3], [0, 1, 1], [1, 1, 3.2]]) close(t.height(i * 2, j * 2), h, 1e-12, `vertex ${i},${j}`);
+  close(t.height(1, 1), 2, 1e-12, "on the 10–01 diagonal: the mean of its ends");
+  const n = new Float64Array(3), o = new Float64Array(4);
+  for (const [x, z] of [[0.4, 0.5], [1.6, 1.3]]) {
+    const e = 1e-4, sx = (t.height(x + e, z) - t.height(x - e, z)) / (2 * e), sz = (t.height(x, z + e) - t.height(x, z - e)) / (2 * e), l = Math.sqrt(sx * sx + sz * sz + 1);
+    t.normal(x, z, n);
+    close(n[0], -sx / l, 1e-6, "nx"); close(n[1], 1 / l, 1e-6, "ny"); close(n[2], -sz / l, 1e-6, "nz");
+  }
+  t.kind[0] = 7; t.kind[1] = 9;
+  assert.equal(t.sample(1.6, 1.3, o), 7, "the triangle with 11 is kind's first");
+  assert.equal(t.kindAt(0.4, 0.5), 9, "the one with 00 its second");
+  // A tie (flat, or the same difference both ways) keeps the fixed diagonal.
+  const flat = terrain({ cols: 1, rows: 1, cell: 1, x0: 0, z0: 0, split: "adaptive", heights: [0, 2, 1, -1] });
+  close(flat.height(0.3, 0.6), 0, 1e-12, "tie: split along 00–11 (along 10–01 it would be 1.2)");
+});
+
+test("terrain view: split adaptive draws a sharp crest as one straight fold (no stair-step faces); default is bit for bit 0.25.0", () => {
+  // Shades: every face is either the windward slope's or the slip face's; a fold face across the crest has its own.
+  const fills = (shape, split, yaw) => {
+    const cv = canvas(), d = diorama(cv), t = terrain({ cols: 24, rows: 24, cell: 1 });
+    t.shape(shape);
+    terrainView(d, t, { light: [0.6, 1, 0.6], ambient: 0.3, steep: 1, split });
+    Object.assign(d.cam, { yaw, pitch: 0.7, dist: 30, tx: 0, ty: 0, tz: 0 });
+    cv.ctx.rec = true;
+    d.draw();
+    return cv.ctx.fills.map((f) => f.fill);
+  };
+  // The two sides' own shades: each plane alone.
+  const pure = new Set([fills((x, z) => 3 + 0.3 * (x + z), undefined, 0.4)[0], fills((x, z) => 3 - 1.5 * (x + z), undefined, 0.4)[0]]);
+  assert.equal(pure.size, 2);
+  for (const yaw of [0.4, 2.2, -2.5]) {
+    const stair = (split) => fills(dune, split, yaw).filter((f) => !pure.has(f)).length;
+    const f = stair(undefined), a = stair("adaptive");
+    assert.ok(f >= 10, `fixed: fold faces (stair-steps) along the crest at yaw ${yaw}: ${f}`);
+    assert.equal(a, 0, `adaptive: every face is the windward or the slip face's shade at yaw ${yaw}`);
+  }
+  // The view takes the terrain's split by default; its own option overrides it.
+  const cv = canvas(), d = diorama(cv), t = terrain({ cols: 8, rows: 8, split: "adaptive" });
+  t.shape(dune);
+  terrainView(d, t, { light: [0.6, 1, 0.6], ambient: 0.3, steep: 1 });
+  Object.assign(d.cam, { yaw: 0.4, pitch: 0.7, dist: 20, tx: 0, ty: 0, tz: 0 });
+  cv.ctx.rec = true;
+  d.draw();
+  assert.equal(new Set(cv.ctx.fills.map((x) => x.fill)).size, 2, "inherits adaptive from the terrain");
+
+  // Default options, drawn and queried: the same strings and numbers as 0.25.0, hashed (FNV-1a).
+  class Rec { constructor() { this.s = ""; this.fillStyle = ""; this.strokeStyle = ""; this.globalAlpha = 1; this.lineWidth = 1; }
+    setTransform() {} fillRect() {} clearRect() {} arc() {} closePath() {}
+    beginPath() { this.s += "B"; } moveTo(x, y) { this.s += "M" + x.toFixed(4) + "," + y.toFixed(4); } lineTo(x, y) { this.s += "L" + x.toFixed(4) + "," + y.toFixed(4); }
+    fill() { this.s += "F" + this.fillStyle; } stroke() { this.s += "S"; } }
+  const ctx = new Rec(), d0 = diorama({ clientWidth: 400, clientHeight: 300, width: 0, height: 0, getContext: () => ctx });
+  const fnv = (str) => { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619); return (h >>> 0).toString(16); };
+  const g = terrain({ cols: 48, rows: 48, cell: 1 });
+  g.noise({ seed: 5, amp: 4, scale: 9, ridge: 0.8, wind: [1, 0.4], stretch: 3 });
+  g.ribbon([-20, 3, 20, 5], { width: 3, kind: 1 });
+  let q = "";
+  const o = new Float64Array(4);
+  for (let i = 0; i < 400; i++) q += g.sample((i % 20) * 2.3 - 23, ((i * 7) % 20) * 2.3 - 23, o) + o.join(",");
+  const tv = terrainView(d0, g, { bands: [[1, "#102030"], [2.5, "#405060"], [99, "#a0b0c0"]], steep: 0.5, steepColor: "#200010", kinds: ["#00ff00"], lod: [14, 26], shadows: 1 });
+  tv.shadow(0, 1, 2, 1, 0.5);
+  for (const [yaw, pitch, dist] of [[0.3, 0.6, 30], [2.1, 0.35, 18], [-1.2, 0.9, 40]]) Object.assign(d0.cam, { yaw, pitch, dist, tx: 0, ty: 0, tz: 0 }), d0.draw();
+  assert.equal(fnv(q), "4ef791d5", "queries as 0.25.0");
+  assert.equal(fnv(ctx.s), "95ee5913", "drawing as 0.25.0");
+});
+
 test("terrain: zero allocation in queries and in drawing (ground, depth, level of detail, shadows)", async (t) => {
   const g = terrain({ cols: 64, rows: 64, cell: 1 });
   g.noise({ seed: 7, amp: 3, scale: 12 });
@@ -257,13 +342,16 @@ test("terrain: zero allocation in queries and in drawing (ground, depth, level o
     normal: () => { for (let i = 0; i < 1000; i++) (S[0] = (i % 60) - 30.3), (S[1] = ((i * 7) % 60) - 29.7), g.normal(S[0], S[1], out); },
     height: () => { for (let i = 0; i < 1000; i++) (S[0] = (i % 60) - 30.3), (S[1] = ((i * 7) % 60) - 29.7), (S[2] += g.height(S[0], S[1])); },
   };
+  const ga = terrain({ cols: 64, rows: 64, cell: 1, split: "adaptive" });
+  ga.h.set(g.h);
+  loops.adaptive = () => { for (let i = 0; i < 1000; i++) (S[0] = (i % 60) - 30.3), (S[1] = ((i * 7) % 60) - 29.7), ga.sample(S[0], S[1], out); };
   for (const [name, q] of Object.entries(loops)) {
     for (let i = 0; i < 300; i++) q();
     const n = await minorGCs(() => { for (let i = 0; i < 2000; i++) q(); });
     t.diagnostic(`${name}: young GCs over 2M queries: ${n}`);
     assert.ok(n <= 1, `${name}: ${n} young GCs`);
   }
-  for (const o of [{}, { sort: "depth" }, { lod: [20, 40] }]) {
+  for (const o of [{}, { sort: "depth" }, { lod: [20, 40] }, { lod: [20, 40], split: "adaptive" }]) {
     const d = diorama(canvas());
     d.add({ id: "car", size: [1.8, 0.5, 1], color: "#e04a3a" });
     Object.assign(d.cam, { yaw: 0.3, pitch: 0.6, dist: 30 });
