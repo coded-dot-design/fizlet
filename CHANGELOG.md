@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Site: the first weekly winners (2026-W44 to W46).** The contest's three finished weeks are
+  closed with a winner per lane, generated from the engine's content model (`site/contest/weeks/`,
+  never by hand): W44 micro ILOVEYOU (#065, 7,224 B live) and Hi-Fi Oodles o' Moles (#070); W45
+  micro Never Loses (#091, 6,878 B) and Hi-Fi Mirror Maze (#096); W46 Hi-Fi Tilt Maze (#110), no
+  micro entries that week. Sizes are the live chunk gzip, measured as the site builds it. The
+  people test checks the shipped week files' shape; the winners are checked by the site build
+  against the measured gallery.
+
 - **Site: creators on the people page (the Fizlet Studio pattern); HOLESHOT by David Cooley.** A new contributor kind, `creator` (scripts/people.mjs `KINDS`, `REAL`): a real person who makes games on Fizlet, with a CREATOR sticker and eyebrow, the maker's avatar label (a stylized character, not a likeness), no handle and no one to report to, and `games`, a list of { title, url, pitch } checked at build (https, one line) and rendered on the profile ("Games", each linked to its site) and in the /people/ lead ("HOLESHOT is by creator David Cooley"); any profile may list games, so the next creator is one JSON file. `site/contributors/david-cooley.json`: teen game creator, [HOLESHOT](https://holeshot.domvirus.com/); the avatar is the maker's pixel rider (same 32 × 32 grid, two frames) in a black helmet and blue riding gear, avatar tokens only. The profile's structured data is a Person. Tests: `tests/people.test.mjs` (kind, sticker, label, games list, lead, avatar, validation), `tests/site.mjs` (built index and profile).
 
 ## 0.26.0

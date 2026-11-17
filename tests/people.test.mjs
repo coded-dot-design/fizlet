@@ -267,7 +267,11 @@ test("contest: the page leads with this week, else the next one, else the latest
   assert.equal(contestNow(weeks, "2026-11-03").week, "2026-W46");
   assert.equal(contestNow(weeks, "2026-12-01").week, "2026-W46");
   assert.equal(contestNow([], "2026-12-01"), null);
-  const shipped = contestWeeks([], PEOPLE);
+  // The shipped week files, winners aside: those are checked against the measured gallery by the
+  // site build (scripts/site.mjs), which this unit test doesn't run.
+  const files = readdirSync("site/contest/weeks").filter((f) => f.endsWith(".json")).sort()
+    .map((f) => ({ f, v: { ...JSON.parse(readFileSync(`site/contest/weeks/${f}`, "utf8")), winner: null, hifiWinner: null } }));
+  const shipped = contestWeeks([], PEOPLE, files);
   assert.ok(shipped.some((w) => w.week === "2026-W44" && w.theme === "Halloween"), "launch week: Halloween");
   const html = contestPage({ now: contestNow(shipped, "2026-10-31"), weeks: shipped, people: PEOPLE, base: "../", urlOf: (id) => `gallery/#${id}` });
   for (const rule of ["Tiny examples, made every day. It's how we test the engine. We turned it into a contest.", "Small wins", "10 KB gzip or less", "10,240 B", "Hi-Fi has its own lane", "Smallest",
