@@ -5,6 +5,8 @@
  * `ribbon` for the track), then queried for physics and drawn into a `@fzlt/core/diorama` scene.
  * - Each cell is two triangles split along the same diagonal the drawing uses, so `height(x, z)` is
  *   exactly the surface on screen and `normal(x, z, out)` its face's normal; `sample` gives both.
+ *   `split: "adaptive"` picks each cell's diagonal along its smaller height difference (sharp crests
+ *   without stair-steps); the default keeps one fixed diagonal.
  * - Generation is pure: integer hashing for the noise and only + − × ÷ and square roots (no sine,
  *   no cosine), so the same seed and stamps give the same heights, bit for bit, in every browser;
  *   both players of an online race drive the same course.
@@ -34,6 +36,10 @@ export interface TerrainOptions {
   heights?: ArrayLike<number>;
   /** The starting height (default 0). */
   base?: number;
+  /** How each cell splits into two triangles: "fixed" (default) along (i, j)–(i + 1, j + 1) in every
+   *  cell; "adaptive" along the diagonal with the smaller height difference (it follows a crest or a
+   *  gully, so a sharp ridge reads as a straight fold, not stair-steps). The queries use the same split. */
+  split?: "fixed" | "adaptive";
 }
 
 /** Options for `noise()`: seeded value noise in octaves, added to the heights. */
@@ -91,22 +97,29 @@ export function terrain(o: TerrainOptions) {
   const cols = o.cols | 0, rows = o.rows | 0;
   if (cols < 1 || rows < 1) throw new RangeError("terrain: cols and rows must be at least 1");
   const c = o.cell ?? 1, x0 = o.x0 ?? (-cols * c) / 2, z0 = o.z0 ?? (-rows * c) / 2, W1 = cols + 1;
-  const h = new Float64Array(W1 * (rows + 1)), kind = new Uint8Array(cols * rows * 2), F = new Float64Array(4);
+  const h = new Float64Array(W1 * (rows + 1)), kind = new Uint8Array(cols * rows * 2), F = new Float64Array(4), adapt = o.split === "adaptive";
   if (o.heights) h.set(o.heights);
   else h.fill(o.base ?? 0);
 
-  /** F = [height, slope x, slope z] of the face under (x, z) (clamped to the grid); returns its triangle. */
-  function face(x: number, z: number) {
-    const u = Math.min(cols, Math.max(0, (x - x0) / c)), v = Math.min(rows, Math.max(0, (z - z0) / c));
+  /** F = [height, slope x, slope z] of the face under (x, z) = (F[0], F[3]) on entry (clamped to the
+   *  grid); returns its triangle. (Doubles go in through F: a call that is not inlined boxes them.) */
+  function face() {
+    const u = Math.min(cols, Math.max(0, (F[0]! - x0) / c)), v = Math.min(rows, Math.max(0, (F[3]! - z0) / c));
     const i = Math.min(cols - 1, Math.floor(u)), j = Math.min(rows - 1, Math.floor(v)), fu = u - i, fv = v - j, k = j * W1 + i;
     const a = h[k]!, b = h[k + 1]!, cc = h[k + W1 + 1]!, d = h[k + W1]!;
     // Two triangles split along (i, j)–(i + 1, j + 1): the one with 10 (fu ≥ fv), the one with 01.
-    const sx = fu >= fv ? b - a : cc - d, sz = fu >= fv ? cc - b : d - a;
+    // Adaptive, where |b − d| is the smaller difference: along (i + 1, j)–(i, j + 1), the one with 11
+    // (fu + fv > 1) first, then the one with 00.
+    const fl = adapt && Math.abs(b - d) < Math.abs(cc - a), up = fl ? fu + fv > 1 : fu >= fv;
+    const sx = up !== fl ? b - a : cc - d, sz = up ? cc - b : d - a;
     F[0] = a + sx * fu + sz * fv;
+    if (fl && up) F[0] += b - a - sx;
     F[1] = sx / c;
     F[2] = sz / c;
-    return (j * cols + i) * 2 + (fu >= fv ? 0 : 1);
+    return (j * cols + i) * 2 + (up ? 0 : 1);
   }
+  /** face() under (x, z). */
+  const under = (x: number, z: number) => ((F[0] = x), (F[3] = z), face());
   /** Run fn(x, z, i) over every vertex, i its index in h. */
   function each(fn: (x: number, z: number, i: number) => void) {
     for (let j = 0, i = 0; j <= rows; j++) for (let k = 0; k <= cols; k++, i++) fn(x0 + k * c, z0 + j * c, i);
@@ -148,28 +161,31 @@ export function terrain(o: TerrainOptions) {
     z0,
     /** Vertex heights, (cols + 1) per row; write them freely, then bump `version`. */
     h,
-    /** A painted kind per triangle (0: none), two per cell (the one with corner (i + 1, j) first):
+    /** A painted kind per triangle (0: none), two per cell (the one with corner (i + 1, j) first; in an
+     *  adaptive cell split along 10–01, the one with (i + 1, j + 1) first):
      *  `ribbon` paints the track; `terrainView` colours it; `sample` returns it. */
     kind,
+    /** The cells' split ("fixed" or "adaptive"): `terrainView` draws the same one by default. */
+    split: adapt ? "adaptive" : "fixed",
     /** Bumped by every stamp: a view re-reads its bounds when it changes. */
     version: 0,
     /** The surface height under (x, z) (the drawn triangle's; outside the grid, its edge). */
-    height: (x: number, z: number) => (face(x, z), F[0]!),
+    height: (x: number, z: number) => (under(x, z), F[0]!),
     /** The face's unit normal under (x, z): out = [nx, ny, nz]; returns out. */
     normal<O extends { [i: number]: number }>(x: number, z: number, out: O): O {
-      face(x, z);
+      under(x, z);
       const sx = F[1]!, sz = F[2]!, l = Math.sqrt(sx * sx + sz * sz + 1);
       out[0] = -sx / l; out[1] = 1 / l; out[2] = -sz / l;
       return out;
     },
     /** Height and normal at once (what a wheel needs): out = [h, nx, ny, nz]; returns the face's kind. */
     sample(x: number, z: number, out: { [i: number]: number }) {
-      const k = face(x, z), sx = F[1]!, sz = F[2]!, l = Math.sqrt(sx * sx + sz * sz + 1);
+      const k = under(x, z), sx = F[1]!, sz = F[2]!, l = Math.sqrt(sx * sx + sz * sz + 1);
       out[0] = F[0]!; out[1] = -sx / l; out[2] = 1 / l; out[3] = -sz / l;
       return kind[k]!;
     },
     /** The kind painted on the face under (x, z) (0: none). */
-    kindAt: (x: number, z: number) => kind[face(x, z)]!,
+    kindAt: (x: number, z: number) => kind[under(x, z)]!,
     /** Vertex height at column i, row j. */
     at: (i: number, j: number) => h[j * W1 + i]!,
     /** Set every vertex: h = fn(x, z, h). */
@@ -240,7 +256,7 @@ export function terrain(o: TerrainOptions) {
      *  each point, or `y`), blended into the ground over `edge`; paints `kind` on the faces whose centre is inside its width. */
     ribbon(points: ArrayLike<number>, so: { width?: number; edge?: number; y?: number; kind?: number } = {}) {
       const n = points.length >> 1, Y = new Float64Array(n), half = (so.width ?? 3) / 2;
-      for (let s = 0; s < n; s++) Y[s] = so.y ?? (face(points[s * 2]!, points[s * 2 + 1]!), F[0]!);
+      for (let s = 0; s < n; s++) Y[s] = so.y ?? (under(points[s * 2]!, points[s * 2 + 1]!), F[0]!);
       line(points, { width: so.width ?? 3, edge: so.edge ?? 1.5 }, (_, __, ___, w, i) => {
         const s = T[2]!, y = Y[s]! + (Y[s + 1]! - Y[s]!) * T[3]!;
         h[i] = h[i]! + (y - h[i]!) * w;
@@ -282,6 +298,9 @@ export interface TerrainViewOptions {
   fixed?: number;
   /** Its layer (default 0). */
   layer?: number;
+  /** The cells' split as drawn (default the terrain's `split`); "adaptive" picks each drawn cell's
+   *  diagonal along its smaller height difference, at every level of detail. */
+  split?: "fixed" | "adaptive";
   /** Stroke each face in its own colour to close anti-aliasing seams (default true). */
   seams?: boolean;
   /** Blob shadows on the slope, set with `shadow(i, …)` (default 8). */
@@ -306,7 +325,7 @@ export function terrainView(d: Diorama, t: Terrain, o: TerrainViewOptions = {}) 
   const C = o.chunk ?? 8, cols = t.cols, rows = t.rows, W1 = cols + 1, cs = t.cell, hs = t.h, kind = t.kind;
   if (C & (C - 1) || C < 1) throw new RangeError("terrainView: chunk must be a power of two");
   const NX = Math.ceil(cols / C), NZ = Math.ceil(rows / C), NC = NX * NZ, lod = o.lod || [], depth = o.sort === "depth", seams = o.seams !== false;
-  const name = o.cluster ?? "terrain", layer = o.layer ?? 0, steep = o.steep ?? 0.35, ns = o.shadows ?? 8;
+  const name = o.cluster ?? "terrain", adapt = (o.split || t.split) === "adaptive", layer = o.layer ?? 0, steep = o.steep ?? 0.35, ns = o.shadows ?? 8;
   // Screen x, y, depth and the height drawn (stitched) per vertex; per chunk its stride, bounds, anchor.
   const NV = W1 * (rows + 1), SX = new Float64Array(NV), SY = new Float64Array(NV), SZ = new Float64Array(NV), HE = new Float64Array(NV);
   const STR = new Int32Array(NC), VIS = new Uint8Array(NC), LO = new Float64Array(NC), HI = new Float64Array(NC), AT = new Float64Array(NC * 3);
@@ -406,8 +425,8 @@ export function terrainView(d: Diorama, t: Terrain, o: TerrainViewOptions = {}) 
   function tri(ctx: CanvasRenderingContext2D, p: number, q: number, r: number, kd: number, a: number) {
     if (SZ[p]! < 0.1 || SZ[q]! < 0.1 || SZ[r]! < 0.1) return;
     if ((SX[q]! - SX[p]!) * (SY[r]! - SY[p]!) - (SY[q]! - SY[p]!) * (SX[r]! - SX[p]!) <= 0) return;
-    // A is (00, 10, 11), B is (00, 11, 01): their slopes along x and z per world unit.
-    const sx = (a ? HE[q]! - HE[p]! : HE[q]! - HE[r]!) / WS[0]!, sz = (a ? HE[r]! - HE[q]! : HE[r]! - HE[p]!) / WS[0]!;
+    // a: 1 is (00, 10, 11), 0 (00, 11, 01), 3 (00, 10, 01), 2 (10, 11, 01): their slopes along x and z per world unit.
+    const sx = (a & 1 ? HE[q]! - HE[p]! : HE[q]! - HE[r]!) / WS[0]!, sz = (a === 1 ? HE[r]! - HE[q]! : a === 2 ? HE[q]! - HE[p]! : HE[r]! - HE[p]!) / WS[0]!;
     const l = Math.sqrt(sx * sx + sz * sz + 1), ny = 1 / l, y = (HE[p]! + HE[q]! + HE[r]!) / 3;
     let ci = IK + kd - 1;
     if (!kd || ci >= SH.length / 33) {
@@ -437,8 +456,13 @@ export function terrainView(d: Diorama, t: Terrain, o: TerrainViewOptions = {}) 
       const b = n < er ? n : nz - 1 - (n - er);
       for (let m = 0; m < nx; m++) {
         const a = m < ec ? m : nx - 1 - (m - ec), g = (j0 + b * s) * W1 + i0 + a * s, g1 = g + s * W1, kd = ((j0 + b * s) * cols + i0 + a * s) * 2;
+        // Adaptive, split along 10–01: the triangle with 00 is on the eye's side when the eye is below that diagonal.
+        if (adapt && Math.abs(HE[g + s]! - HE[g1]!) < Math.abs(HE[g1 + s]! - HE[g]!)) {
+          if (eu - a + ev - b < 1) tri(ctx, g + s, g1 + s, g1, kind[kd]!, 2), tri(ctx, g, g + s, g1, kind[kd + 1]!, 3);
+          else tri(ctx, g, g + s, g1, kind[kd + 1]!, 3), tri(ctx, g + s, g1 + s, g1, kind[kd]!, 2);
+        }
         // Triangle A (00, 10, 11) is on the eye's side when it sits past the diagonal toward +x, −z: draw it last.
-        if (eu - a - (ev - b) > 0) tri(ctx, g, g1 + s, g1, kind[kd + 1]!, 0), tri(ctx, g, g + s, g1 + s, kind[kd]!, 1);
+        else if (eu - a - (ev - b) > 0) tri(ctx, g, g1 + s, g1, kind[kd + 1]!, 0), tri(ctx, g, g + s, g1 + s, kind[kd]!, 1);
         else tri(ctx, g, g + s, g1 + s, kind[kd]!, 1), tri(ctx, g, g1 + s, g1, kind[kd + 1]!, 0);
       }
     }
