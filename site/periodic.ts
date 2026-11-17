@@ -43,7 +43,7 @@ if (root) {
     // The table's right edge as laid out (its offset, so a slide in progress does not count).
     const b = board.getBoundingClientRect(), g = grid.getBoundingClientRect();
     const right = b.left + parseFloat(getComputedStyle(board).paddingLeft) + table.offsetWidth;
-    const edge = g.right - parseFloat(getComputedStyle(grid).paddingRight);
+    const edge = g.right - parseFloat(getComputedStyle(grid).paddingRight) + (parseFloat(getComputedStyle(board).getPropertyValue("--grow")) || 0);
     // Slid, the table moves by whole columns, so the copy's edge falls between two of them.
     const over = wide ? right - edge : 0, unit = (keys[0]?.offsetWidth ?? 1) + (parseFloat(getComputedStyle(table).columnGap) || 0);
     peek = over > 1;

@@ -243,7 +243,7 @@ const layout = (page) => page.evaluate(() => {
   const r = (e) => e.getBoundingClientRect(), b = document.querySelector(".pt-board");
   const keys = [...document.querySelectorAll(".pt-table .el-key")], split = Number(getComputedStyle(document.querySelector(".pt-split")).gridColumnStart);
   const d3 = keys.filter((k) => Number(getComputedStyle(k).gridColumnStart) > split).map(r), d2 = keys.filter((k) => Number(getComputedStyle(k).gridColumnStart) < split).map(r);
-  const g = document.querySelector(".pt-grid"), edge = r(g).right - parseFloat(getComputedStyle(g).paddingRight);
+  const g = document.querySelector(".pt-grid"), edge = r(g).right - parseFloat(getComputedStyle(g).paddingRight) + (parseFloat(getComputedStyle(b).getPropertyValue("--grow")) || 0);
   return {
     vw: innerWidth, page: document.documentElement.scrollWidth, copy: r(document.querySelector(".pt-copy")).right, edge,
     d2l: Math.min(...d2.map((x) => x.left)), d2r: Math.max(...d2.map((x) => x.right)), d3l: Math.min(...d3.map((x) => x.left)), d3r: Math.max(...d3.map((x) => x.right)),

@@ -319,11 +319,13 @@ html.bui[data-theme="light"] .pt-swipe{color:var(--hl)}
   .pt-board[data-peek]:not([data-slid]) [data-go="3d"],.pt-board[data-peek][data-slid] [data-go="2d"]{display:block}
   .pt-board[data-peek]:not([data-slid]) .pt-go[data-go="3d"],.pt-board[data-peek][data-slid] .pt-go[data-go="2d"]{display:inline-flex}
 }
-/* Wide screens: everything fits; the container grows (to 1760 px) and the 3D block sits further
-   right, the split widening a little with it. */
+/* Wide screens: everything fits. The copy keeps the page's left edge (under the logo); the table may
+   grow past the page's right edge by --grow (up to 120 px, 24 px short of the screen), the 3D
+   block sitting further right and the split widening a little with it. */
+@property --grow{syntax:"<length>";inherits:true;initial-value:0px}
 @media (min-width:1400px){
-  .pt-hero{--maxw:1760px;--C:clamp(440px,30cqw,560px);--G:clamp(40px,3.4cqw,64px)}
-  .pt-board{--tg:8px;--sg:clamp(28px,calc(4cqw - 20px),64px);--ts:clamp(60px,calc((min(100cqw,var(--maxw)) - 2 * var(--gutter) - var(--x0) - (var(--n2) + var(--n3)) * var(--tg) - var(--sg)) / (var(--n2) + var(--n3))),80px)}
+  .pt-hero{--C:clamp(400px,26cqw,500px);--G:clamp(40px,3.4cqw,64px);--grow:clamp(0px,calc((100cqw - min(100cqw,var(--maxw))) / 2 + var(--gutter) - 24px),120px)}
+  .pt-board{--tg:8px;--sg:clamp(28px,calc(4cqw - 20px),64px);--ts:clamp(60px,calc((min(100cqw,var(--maxw)) - 2 * var(--gutter) + var(--grow) - var(--x0) - (var(--n2) + var(--n3)) * var(--tg) - var(--sg)) / (var(--n2) + var(--n3))),80px)}
 }
 @media (max-width:999px){
   .pt-copy{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "h1" "side";align-items:start}
