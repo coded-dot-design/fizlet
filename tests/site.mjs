@@ -440,7 +440,8 @@ try {
           const r = el.getBoundingClientRect();
           if (r.width === 0 || r.right <= w + 1) return false;
           // A slot's scene (figure.ae-slot) clips its own stage: what it draws past its edge is cut, by design.
-          for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) if (/auto|scroll/.test(getComputedStyle(p).overflowX) || p.matches("figure.ae-slot")) return false;
+          // The bricks table's 3D block hangs off the right edge on purpose (data-peek; its hero clips, tests/periodic.mjs).
+          for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) if (/auto|scroll/.test(getComputedStyle(p).overflowX) || p.matches("figure.ae-slot, .pt-board[data-peek]")) return false;
           return true;
         }).slice(0, 5).map((el) => `${el.tagName.toLowerCase()}.${el.className} → ${Math.round(el.getBoundingClientRect().right)}`);
         return { scroll: document.documentElement.scrollWidth, w, wide };
