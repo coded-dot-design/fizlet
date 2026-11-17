@@ -1,7 +1,11 @@
 // The Fizlet periodic table, the hero of /bricks/ (site/periodic.mjs, site/periodic.ts), in Chromium.
 // Run `npm run site` first.
 // - Two blocks side by side, 2D and 3D (site/bricks.mjs DIMS), each with its own family columns; no
-//   column runs past the table's rows, and the table sits under the copy at the page's full width.
+//   column runs past the table's rows. From 1000 px the copy sits on the left and the table to its
+//   right: wide screens (1440, 1920) fit both blocks; narrower ones (1024, 1280) leave the 3D block
+//   hanging off the right edge, and a click, a tap on it, Enter on its key or an arrow into a 3D
+//   brick slides the table left (the 2D block under the copy); the "2D" key, Esc or an arrow back
+//   slides it back. The page never scrolls sideways; under reduced motion the slide is instant.
 // - Every brick and every planned brick is a key, by number, in its family's column, like a brick card
 //   at tile scale: its status sticker on the top edge, its size measured on this build with its colour
 //   dot top right (planned keys: dashed, no size), its symbol in the middle.
@@ -112,10 +116,10 @@ await check("every brick and every planned brick is a key, by number, in its fam
     assert.equal(col > Number(split), DIMS[1].ids.includes(k.id), `${k.id}: in the ${DIMS[1].ids.includes(k.id) ? "3D" : "2D"} block (column ${col}, split ${split})`);
   }
   assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll(".pt-dim b")].map((b) => b.textContent)), ["2D", "3D"]);
-  // The table fits the page at 1440 (no sideways scroll in its box) and sits under the copy.
-  const fit = await page.evaluate(() => { const s = document.querySelector(".pt-scroll"), t = document.querySelector(".pt-table").getBoundingClientRect(), c = document.querySelector(".pt-copy").getBoundingClientRect(); return { over: s.scrollWidth - s.clientWidth, below: t.top >= c.bottom, scrolls: document.querySelector(".pt-board").hasAttribute("data-scrolls") }; });
-  assert.ok(fit.over <= 1 && !fit.scrolls, `the table fits at 1440 (${fit.over} px over)`);
-  assert.ok(fit.below, "the table sits under the copy");
+  // The table fits the page at 1440, right of the copy: no peek, no SWIPE.
+  const fit = await page.evaluate(() => { const t = document.querySelector(".pt-table").getBoundingClientRect(), c = document.querySelector(".pt-copy").getBoundingClientRect(), b = document.querySelector(".pt-board"); return { right: t.right, vw: innerWidth, beside: t.left >= c.right, peek: b.hasAttribute("data-peek"), scrolls: b.hasAttribute("data-scrolls") }; });
+  assert.ok(fit.right <= fit.vw - 24 && !fit.peek && !fit.scrolls, `the table fits at 1440 (${JSON.stringify(fit)})`);
+  assert.ok(fit.beside, "the table sits right of the copy");
   // The kernel shows exactly one sticker, KERNEL, on its tile, in the legend and in its quick view.
   const legend = await page.evaluate(() => [...document.querySelectorAll(".pt-leg-key .brick-sticker")].map((x) => x.textContent));
   assert.deepEqual(legend, ["KERNEL"], "the legend's kernel: KERNEL alone");
@@ -230,6 +234,129 @@ await check("reduced motion: the quick view simply appears (no transition), 0 fr
   assert.equal(m.op, "1");
   assert.equal(m.tr, "none");
   assert.equal(await frames(page, 800), 0);
+  assert.deepEqual(errs, []);
+  await ctx.close();
+});
+
+// The layout at a width: where the copy, the 2D and the 3D blocks are, peek and slide state.
+const layout = (page) => page.evaluate(() => {
+  const r = (e) => e.getBoundingClientRect(), b = document.querySelector(".pt-board");
+  const keys = [...document.querySelectorAll(".pt-table .el-key")], split = Number(getComputedStyle(document.querySelector(".pt-split")).gridColumnStart);
+  const d3 = keys.filter((k) => Number(getComputedStyle(k).gridColumnStart) > split).map(r), d2 = keys.filter((k) => Number(getComputedStyle(k).gridColumnStart) < split).map(r);
+  const g = document.querySelector(".pt-grid"), edge = r(g).right - parseFloat(getComputedStyle(g).paddingRight);
+  return {
+    vw: innerWidth, page: document.documentElement.scrollWidth, copy: r(document.querySelector(".pt-copy")).right, edge,
+    d2l: Math.min(...d2.map((x) => x.left)), d2r: Math.max(...d2.map((x) => x.right)), d3l: Math.min(...d3.map((x) => x.left)), d3r: Math.max(...d3.map((x) => x.right)),
+    peek: b.hasAttribute("data-peek"), slid: b.hasAttribute("data-slid"), go3: getComputedStyle(document.querySelector('.pt-go[data-go="3d"]')).display, go2: getComputedStyle(document.querySelector('.pt-go[data-go="2d"]')).display,
+  };
+});
+
+await check("copy on the left from 1024; 1920 and 1440 fit both blocks; 1280 and 1024 leave the 3D block peeking; never a sideways page scroll", async () => {
+  for (const width of [1920, 1440, 1280, 1024, 900, 768, 390]) {
+    const { ctx, page, errs } = await open({ viewport: { width, height: 900 } });
+    const m = await layout(page);
+    assert.ok(m.page <= m.vw, `${width}: no sideways page scroll (${m.page} > ${m.vw})`);
+    if (width >= 1024) assert.ok(m.copy <= m.d2l, `${width}: the copy left of the table (${m.copy} > ${m.d2l})`);
+    if (width >= 1440) {
+      assert.ok(!m.peek && m.d3r <= m.edge + 1, `${width}: both blocks fit (${JSON.stringify(m)})`);
+      assert.equal(m.go3, "none", `${width}: no way in to show`);
+    } else if (width >= 1024) {
+      assert.ok(m.peek, `${width}: the 3D block peeks`);
+      assert.ok(m.d3l < m.vw - 60 && m.d3r > m.vw, `${width}: its first column shows, the rest runs off the edge (${m.d3l}..${m.d3r} of ${m.vw})`);
+      assert.ok(m.d2r <= m.vw, `${width}: the 2D block is whole`);
+      assert.notEqual(m.go3, "none", `${width}: the 3D key shows`);
+      const k = await page.locator('.pt-go[data-go="3d"]').boundingBox();
+      assert.ok(k.x >= 0 && k.x + k.width <= m.vw, `${width}: the 3D key is on screen`);
+    }
+    const cls = await page.evaluate(() => new Promise((done) => new PerformanceObserver((l) => done(l.getEntries().reduce((a, e) => a + e.value, 0))).observe({ type: "layout-shift", buffered: true }) || setTimeout(() => done(0), 300)));
+    assert.equal(cls, 0, `${width}: no layout shift on load`);
+    if (width === 1920) assert.ok(m.d3l - m.d2r > 60, "1920: the 3D block sits further right (the split widens)");
+    assert.deepEqual(errs, []);
+    await ctx.close();
+  }
+});
+
+await check("1280: a click on the peek slides the 3D block in (2D under the copy), 2D and Esc slide back; arrows and the keys slide too; the quick view fits; 0 frames", async () => {
+  const { ctx, page, errs } = await open({ viewport: { width: 1280, height: 900 } });
+  await page.waitForTimeout(600);
+  const zone = await page.locator('.pt-zone[data-go="3d"]').boundingBox();
+  // A click on a peeking brick (the zone over it) slides; it does not open the brick.
+  await page.mouse.click(zone.x + 30, zone.y + zone.height / 2);
+  await page.waitForTimeout(500);
+  let m = await layout(page);
+  assert.ok(m.slid, "slid in");
+  assert.ok(m.d3r <= m.edge + 1 && m.d3r > m.edge - 120, `the 3D block ends at the content's edge (${m.d3r} vs ${m.edge})`);
+  assert.ok(m.d2l < m.copy, "the 2D block slid under the copy");
+  assert.ok(m.page <= m.vw, "no sideways page scroll");
+  assert.equal((await state(page)).hidden, true, "the slide opened nothing");
+  assert.notEqual(m.go2, "none", "the 2D key shows");
+  assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector(".pt-copy")).opacity), "1", "the copy stays readable");
+  // Slid, a 3D brick opens; its quick view sits beside the 3D block, on screen, clear of the copy.
+  await page.click('.el-key[data-el="drive"]');
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(400);
+  const c = await page.evaluate(() => { const a = document.querySelector(".pt-card").getBoundingClientRect(), k = document.querySelector('.el-key[aria-expanded="true"]').getBoundingClientRect(), p = document.querySelector(".pt-copy").getBoundingClientRect(); return { l: a.left, r: a.right, t: a.top, b: a.bottom, kl: k.left, kt: k.top, kb: k.bottom, kr: k.right, copy: p.right, vw: innerWidth }; });
+  assert.ok(c.l >= c.copy && c.r <= c.vw, `the quick view is on screen, clear of the copy (${JSON.stringify(c)})`);
+  assert.ok(c.r <= c.kl || c.l >= c.kr || c.t >= c.kb || c.b <= c.kt, "it leaves the pressed brick in view");
+  const out = await page.evaluate(() => { const c = document.querySelector(".pt-card").getBoundingClientRect(); return [...document.querySelectorAll(".pt-card *")].filter((e) => { const r = e.getBoundingClientRect(); return r.width && (r.left < c.left - 0.5 || r.right > c.right + 0.5); }).length; });
+  assert.equal(out, 0, "everything inside the quick view");
+  await page.keyboard.press("Escape");
+  assert.equal((await state(page)).hidden, true, "Esc closes the quick view first");
+  assert.ok((await layout(page)).slid, "and keeps the table slid");
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(500);
+  m = await layout(page);
+  assert.ok(!m.slid && m.d2l >= m.copy, "a second Esc slides back");
+  // The keys: Enter on 3D, then on 2D.
+  await page.focus('.pt-go[data-go="3d"]');
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(500);
+  assert.ok((await layout(page)).slid, "Enter on the 3D key slides in");
+  assert.equal(await page.evaluate(() => document.activeElement.dataset.go), "2d", "focus moves to the 2D key");
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(500);
+  assert.ok(!(await layout(page)).slid, "Enter on the 2D key slides back");
+  // Arrows: right along the top row into the 3D block slides it in; back left to the first column
+  // (under the copy) slides back.
+  await page.focus('.el-key[data-el="kernel"]');
+  for (let i = 0; i < 12 && !(await layout(page)).slid; i++) await page.keyboard.press("ArrowRight");
+  await page.waitForTimeout(500);
+  assert.ok((await layout(page)).slid, "an arrow into a 3D brick slides it in");
+  const f = await page.evaluate(() => { const r = document.activeElement.getBoundingClientRect(); return { r: r.right, vw: innerWidth }; });
+  assert.ok(f.r <= f.vw, "the focused brick is on screen");
+  await page.keyboard.press("Home");
+  await page.waitForTimeout(500);
+  assert.ok(!(await layout(page)).slid, "back to the kernel (under the copy) slides back");
+  await page.waitForTimeout(400);
+  assert.equal(await frames(page, 800), 0, "0 frames after sliding");
+  assert.deepEqual(errs, []);
+  await ctx.close();
+});
+
+await check("1280 touch: a swipe left slides the 3D block in, right slides it back", async () => {
+  const { ctx, page, errs } = await open({ viewport: { width: 1280, height: 900 }, hasTouch: true });
+  const swipe = (dx) => page.evaluate((dx) => {
+    const b = document.querySelector(".pt-board"), r = document.querySelector(".pt-table").getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + 200;
+    const ev = (type, cx) => b.dispatchEvent(new PointerEvent(type, { pointerType: "touch", clientX: cx, clientY: y, bubbles: true }));
+    ev("pointerdown", x); ev("pointerup", x + dx);
+  }, dx);
+  await swipe(-120);
+  assert.ok((await layout(page)).slid, "swipe left: slid in");
+  await swipe(120);
+  assert.ok(!(await layout(page)).slid, "swipe right: back");
+  assert.deepEqual(errs, []);
+  await ctx.close();
+});
+
+await check("reduced motion at 1280: the slide is instant", async () => {
+  const { ctx, page, errs } = await open({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
+  await page.click('.pt-go[data-go="3d"]');
+  const m = await page.evaluate(() => { const t = document.querySelector(".pt-table"); return { dur: getComputedStyle(t).transitionDuration, running: document.getAnimations().length }; });
+  assert.match(m.dur, /^0s(, 0s)*$/, `no transition (${m.dur})`);
+  assert.equal(m.running, 0, "nothing animates");
+  const l = await layout(page);
+  assert.ok(l.slid && l.d3r <= l.edge + 1, "slid at once");
+  assert.equal(await frames(page, 600), 0);
   assert.deepEqual(errs, []);
   await ctx.close();
 });

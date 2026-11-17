@@ -19,13 +19,13 @@ if (root) {
   // edge fade) and data-end once scrolled to the end; measured on resize and scroll, no frame loop.
   const board = root.querySelector<HTMLElement>(".pt-board")!;
   const scroller = root.querySelector<HTMLElement>(".pt-scroll")!;
-  // Copy on the left (960 px and up, site/periodic.mjs): when the 3D block runs past the content's
+  // Copy on the left (1000 px and up, site/periodic.mjs): when the 3D block runs past the content's
   // right edge it hangs off the screen (data-peek); sliding (data-slid) moves the table left by
   // --shift, so the 3D block ends at the content's edge and the 2D block slides under the copy. All
   // measured on resize; the slide is one CSS transition, no frame loop.
   const table = root.querySelector<HTMLElement>(".pt-table")!;
   const grid = root.querySelector<HTMLElement>(".pt-grid")!;
-  const side = matchMedia("(min-width:960px)");
+  const side = matchMedia("(min-width:1000px)");
   const split = parseInt(getComputedStyle(root.querySelector<HTMLElement>(".pt-split")!).gridColumnStart, 10) || Infinity;
   let peek = false, slid = false;
   const slide = (on: boolean) => {
@@ -33,6 +33,7 @@ if (root) {
     if (on === slid) return;
     slid = on;
     board.toggleAttribute("data-slid", on);
+    close(); // its place moves with the table: a press opens it again where it belongs
   };
   const fit = () => {
     const wide = side.matches;

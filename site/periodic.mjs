@@ -276,7 +276,7 @@ html.bui[data-theme="light"] .pt-swipe{color:var(--hl)}
 .pt-q-import code{font:12px/1.4 var(--mono);color:var(--k-sys-ink);overflow-wrap:anywhere}
 .bui .pt-q-go{justify-self:start;min-height:44px;margin-top:2px}
 .bui .pt-x{position:absolute;top:10px;right:10px;display:grid;place-items:center;width:44px;height:44px;min-height:0;padding:0}
-/* Copy on the left, the table to its right (960 px and up). The board reaches to the screen's right
+/* Copy on the left, the table to its right (1000 px and up). The board reaches to the screen's right
    edge (its margin and the hero's clip) and to the copy's left edge (padding --x0), so the table can
    slide under the copy. --wl: the content's inset from the hero's edges. Narrower desktops: the 2D
    block sizes to fit beside the copy and leaves the 3D block hanging off the right edge by --P; the
@@ -284,8 +284,8 @@ html.bui[data-theme="light"] .pt-swipe{color:var(--hl)}
    when it is slid in. */
 .pt-zone,.bui .pt-go{display:none}
 @property --fr{syntax:"<length>";inherits:false;initial-value:0px}
-@media (min-width:960px){
-  .pt-hero{overflow-x:clip;container-type:inline-size;--maxw:var(--page);--C:clamp(340px,30cqw,440px);--G:clamp(28px,3cqw,48px);--P:112px}
+@media (min-width:1000px){
+  .pt-hero{overflow-x:clip;container-type:inline-size;--maxw:var(--page);--C:clamp(320px,30cqw,440px);--G:clamp(28px,3cqw,48px);--P:112px}
   .pt-grid{max-width:var(--maxw);grid-template-columns:var(--C) minmax(0,1fr);column-gap:var(--G);align-items:center}
   .pt-copy{position:relative;z-index:2;grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "h1" "side";align-items:start}
   .pt-hero h1{margin:18px 0 22px;font-size:clamp(40px,calc(var(--C) * .15),80px)}
@@ -311,7 +311,7 @@ html.bui[data-theme="light"] .pt-swipe{color:var(--hl)}
   .pt-zone[data-go="2d"]{left:0;width:var(--x0)}
   .bui .pt-go{position:absolute;z-index:4;top:calc(10px + var(--gh) + var(--fh) + var(--rg) * 2 + (var(--ts) + var(--rg)) * var(--c1) + var(--ts) / 2);display:none;align-items:center;gap:8px;min-height:44px;padding:0 14px;font:800 13px/1 var(--mono);letter-spacing:.08em;translate:0 -50%}
   .pt-go b{font:900 18px/1 var(--sans);letter-spacing:-.02em}
-  .pt-go[data-go="3d"]{left:calc(var(--x0) + var(--x3))}
+  .pt-go[data-go="3d"]{left:min(calc(var(--x0) + var(--x3)),calc(100% - 128px))}
   .pt-go[data-go="2d"]{left:var(--x0);top:calc(10px + var(--gh) / 2)}
   /* Slid: the 2D block's label and the legend (they run under the copy) step out; the key names it. */
   .pt-table > :is(.pt-dim:first-of-type,.pt-legend){transition:opacity 200ms ease-out}
@@ -325,7 +325,7 @@ html.bui[data-theme="light"] .pt-swipe{color:var(--hl)}
   .pt-hero{--maxw:1760px;--C:clamp(440px,30cqw,560px);--G:clamp(40px,3.4cqw,64px)}
   .pt-board{--tg:8px;--sg:clamp(28px,calc(4cqw - 20px),64px);--ts:clamp(60px,calc((min(100cqw,var(--maxw)) - 2 * var(--gutter) - var(--x0) - (var(--n2) + var(--n3)) * var(--tg) - var(--sg)) / (var(--n2) + var(--n3))),80px)}
 }
-@media (max-width:959px){
+@media (max-width:999px){
   .pt-copy{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "h1" "side";align-items:start}
   .pt-hero h1{margin-bottom:20px}
   .pt-hero{align-items:start}
