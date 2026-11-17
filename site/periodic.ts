@@ -19,13 +19,56 @@ if (root) {
   // edge fade) and data-end once scrolled to the end; measured on resize and scroll, no frame loop.
   const board = root.querySelector<HTMLElement>(".pt-board")!;
   const scroller = root.querySelector<HTMLElement>(".pt-scroll")!;
+  // Copy on the left (960 px and up, site/periodic.mjs): when the 3D block runs past the content's
+  // right edge it hangs off the screen (data-peek); sliding (data-slid) moves the table left by
+  // --shift, so the 3D block ends at the content's edge and the 2D block slides under the copy. All
+  // measured on resize; the slide is one CSS transition, no frame loop.
+  const table = root.querySelector<HTMLElement>(".pt-table")!;
+  const grid = root.querySelector<HTMLElement>(".pt-grid")!;
+  const side = matchMedia("(min-width:960px)");
+  const split = parseInt(getComputedStyle(root.querySelector<HTMLElement>(".pt-split")!).gridColumnStart, 10) || Infinity;
+  let peek = false, slid = false;
+  const slide = (on: boolean) => {
+    on &&= peek;
+    if (on === slid) return;
+    slid = on;
+    board.toggleAttribute("data-slid", on);
+  };
   const fit = () => {
-    const over = scroller.scrollWidth - scroller.clientWidth;
-    board.toggleAttribute("data-scrolls", over > 1);
-    board.toggleAttribute("data-end", over <= 1 || scroller.scrollLeft >= over - 2);
+    const wide = side.matches;
+    const box = wide ? 0 : scroller.scrollWidth - scroller.clientWidth;
+    board.toggleAttribute("data-scrolls", box > 1);
+    board.toggleAttribute("data-end", box <= 1 || scroller.scrollLeft >= box - 2);
+    // The table's right edge as laid out (its offset, so a slide in progress does not count).
+    const b = board.getBoundingClientRect(), g = grid.getBoundingClientRect();
+    const right = b.left + parseFloat(getComputedStyle(board).paddingLeft) + table.offsetWidth;
+    const edge = g.right - parseFloat(getComputedStyle(grid).paddingRight);
+    // Slid, the table moves by whole columns, so the copy's edge falls between two of them.
+    const over = wide ? right - edge : 0, unit = (keys[0]?.offsetWidth ?? 1) + (parseFloat(getComputedStyle(table).columnGap) || 0);
+    peek = over > 1;
+    const shift = peek ? Math.ceil(over / unit) * unit : 0;
+    board.toggleAttribute("data-peek", peek);
+    board.style.setProperty("--shift", `${shift}px`);
+    if (!peek) slide(false);
   };
   scroller.addEventListener("scroll", fit, { passive: true });
-  new ResizeObserver(fit).observe(scroller);
+  new ResizeObserver(fit).observe(board);
+  for (const go of root.querySelectorAll<HTMLElement>("[data-go]")) {
+    go.addEventListener("click", () => {
+      const on = go.dataset.go === "3d";
+      slide(on);
+      // The keys: focus follows to the other one, so Enter, Enter goes there and back.
+      if (go.localName === "button") root.querySelector<HTMLElement>(`.pt-go[data-go="${on ? "2d" : "3d"}"]`)?.focus();
+    });
+  }
+  // Swipe on touch: left shows the 3D block, right brings the 2D block back.
+  let x0 = 0, y0 = 0;
+  board.addEventListener("pointerdown", (e) => { if (e.pointerType !== "mouse") { x0 = e.clientX; y0 = e.clientY; } }, { passive: true });
+  board.addEventListener("pointerup", (e) => {
+    if (e.pointerType === "mouse" || !peek) return;
+    const dx = e.clientX - x0, dy = e.clientY - y0;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) slide(dx < 0);
+  }, { passive: true });
 
   const close = (focus = false) => {
     if (!open) return;
@@ -72,10 +115,20 @@ if (root) {
     }
     return i;
   };
+  // A key in the 3D block slides it in; a 2D key under the copy (or pressed while slid) slides back.
+  const is3d = (i: number) => (at[i]?.[1] ?? 0) > split;
+  const reveal = (i: number, press = false) => {
+    if (!peek) return;
+    const k = keys[i]!;
+    if (is3d(i)) slide(true);
+    else if (slid && (press || k.offsetLeft - parseFloat(board.style.getPropertyValue("--shift")) < 0)) slide(false);
+  };
   for (const [i, k] of keys.entries()) {
     k.tabIndex = i === 0 ? 0 : -1;
+    k.addEventListener("focus", () => reveal(i));
     k.addEventListener("click", () => {
       for (const [j, x] of keys.entries()) x.tabIndex = j === i ? 0 : -1;
+      reveal(i, true);
       show(k);
     });
     k.addEventListener("keydown", (e) => {
@@ -88,9 +141,16 @@ if (root) {
   }
   card.querySelector(".pt-x")!.addEventListener("click", () => close(true));
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && open) {
+    if (e.key !== "Escape") return;
+    if (open) {
       e.preventDefault();
       close(root.contains(document.activeElement));
+    } else if (slid) {
+      e.preventDefault();
+      const k = document.activeElement;
+      slide(false);
+      // Focus on a 3D key would slide it straight back in: hand it to the way in.
+      if (k instanceof HTMLButtonElement && k.matches(".el-key") && is3d(keys.indexOf(k))) root.querySelector<HTMLElement>('.pt-go[data-go="3d"]')?.focus();
     }
   });
 }
