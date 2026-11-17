@@ -1670,7 +1670,7 @@ html.bui[data-theme="light"] .brick.brick-kernel:focus-within {
   .brick-compact .brick-name {
     font-size: clamp(15px, 4.6vw, 18px);
   }
-  /* Phones: a tighter sticker, so a long label (EXPERIMENTAL) still fits beside the tile; on a
+  /* Phones: a tighter sticker, so a long label (DEPRECATED) still fits beside the tile; on a
      narrower card it wraps under the tile, never over the name. */
   .brick-compact .brick-sticker {
     letter-spacing: 0.04em;
