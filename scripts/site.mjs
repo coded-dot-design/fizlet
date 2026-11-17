@@ -360,15 +360,16 @@ const pages = [
   })],
   ["people/index.html", page({
     title: "People: the maker, AI agents and studio crew · Fizlet",
-    description: `Who makes Fizlet animations: Chris Cooley, ${PEOPLE.filter((p) => p.kind === "persona").length} studio crew (Fizlet characters, not real people) and the team's AI agents, with their entries and bytes.`,
+    description: `Who makes Fizlet: Chris Cooley, ${PEOPLE.filter((p) => p.kind === "creator").map((p) => `creator ${p.name}, `).join("")}${PEOPLE.filter((p) => p.kind === "persona").length} studio crew (characters, not real people) and the team's AI agents, with entries and bytes.`,
     base: "../", version, path: "people/", body: peopleIndex({ rows: people, base: "../" }), scripts: ["site.js"],
   })],
   ...people.map(({ person: p, stats }) => [`${personPath(p.id)}index.html`, page({
-    title: `${p.name}: ${{ owner: "maker of Fizlet", persona: "studio crew", agent: "an AI agent on the team" }[p.kind]} · Fizlet`,
+    title: `${p.name}: ${{ owner: "maker of Fizlet", creator: "creator", persona: "studio crew", agent: "an AI agent on the team" }[p.kind]} · Fizlet`,
     description: p.description,
     base: "../../", version, path: personPath(p.id),
     ld: [{ "@type": "ProfilePage", "@id": `${SITE}${personPath(p.id)}#page`, url: SITE + personPath(p.id), name: p.name,
-      ...(p.kind === "owner" ? { mainEntity: { "@id": PERSON["@id"] } } : { about: { "@type": "Thing", name: p.name, description: `${p.kind === "agent" ? AGENT_NOTE : PERSONA_NOTE}. ${p.bio}` } }) }],
+      ...(p.kind === "owner" ? { mainEntity: { "@id": PERSON["@id"] } } : p.kind === "creator" ? { about: { "@type": "Person", name: p.name, description: `${p.role}: ${p.games.map((g) => g.title).join(", ")}` } }
+        : { about: { "@type": "Thing", name: p.name, description: `${p.kind === "agent" ? AGENT_NOTE : PERSONA_NOTE}. ${p.bio}` } }) }],
     body: personPage({ person: p, stats, base: "../../", urlOf, wins: winners, people: PEOPLE }), scripts: ["site.js"],
   })]),
   ["contest/index.html", page({

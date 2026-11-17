@@ -391,6 +391,7 @@ try {
   {
     const people = profiles(), index = readFileSync(`${ROOT}/people/index.html`, "utf8");
     assert.deepEqual([...index.matchAll(/data-person="([^"]+)"/g)].map((m) => m[1]), people.map((p) => p.id), "the index lists everyone, the maker first");
+    assert.match(index, /<a href="https:\/\/holeshot\.domvirus\.com\/">HOLESHOT ↗<\/a> is by creator <a href="\.\.\/people\/david-cooley\/">David Cooley<\/a>/, "the lead names the creator and the game");
     for (const p of people) {
       assert.ok(PAGES.includes(`people/${p.id}/`), `${p.id}: built`);
       const html = readFileSync(`${ROOT}/people/${p.id}/index.html`, "utf8");
@@ -398,9 +399,12 @@ try {
       const bytes = mine.reduce((n, e) => n + gzipSync(readFileSync(`${ROOT}/gallery/${e.id}.js`)).length, 0);
       assert.ok(html.includes(`data-stat="entries">${mine.length}</b>`) && html.includes(`data-stat="bytes">${bytes.toLocaleString("en-US")}</b><p>${bytes === 1 ? "byte" : "bytes"} of live code`), `${p.id}: ${mine.length} entries, ${bytes} B, measured`);
       assert.ok(html.includes(`aria-label="${STICKER[p.kind].label}" title="${STICKER[p.kind].label}">${STICKER[p.kind].text}</span>`), `${p.id}: the ${STICKER[p.kind].text} sticker says what they are`);
+      for (const g of p.games ?? []) assert.ok(html.includes(`<a href="${g.url}">${g.title} ↗</a>`), `${p.id}: lists ${g.title}, linked`);
       const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
       const profile = graph.find((x) => x["@type"] === "ProfilePage");
-      assert.ok(p.kind === "owner" ? profile.mainEntity["@id"].endsWith("#author") : !profile.mainEntity && profile.about["@type"] !== "Person", `${p.id}: only the maker is a Person`);
+      assert.ok(p.kind === "owner" ? profile.mainEntity["@id"].endsWith("#author")
+        : p.kind === "creator" ? !profile.mainEntity && profile.about["@type"] === "Person" && profile.about.name === p.name
+          : !profile.mainEntity && profile.about["@type"] !== "Person", `${p.id}: only the maker and creators are a Person`);
     }
     const contest = readFileSync(`${ROOT}/contest/index.html`, "utf8");
     assert.match(contest, /10 KB gzip or less/);
