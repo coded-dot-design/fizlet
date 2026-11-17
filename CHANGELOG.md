@@ -4,6 +4,14 @@
 
 - **Site: the bricks page's periodic table in two blocks, 2D and 3D, at the page's full width; the EXPERIMENTAL flag reads ALPHA (owner feedback).** The table moves under the hero copy and splits into a 2D block (Kernel, Input, Network, In-house, Motion, Render, Game, Page) and a 3D block (Motion, Render, Game: the ten tabletop bricks on diorama, `site/bricks.mjs` `DIMS`), so the longest column is seven rows (was nine, plus a dashed tail below the fold) and the roadmap tiles end the columns in one row. In-house moves beside Network; its column head and note get their colour back (`--k-hurt` is no token: the kit's `--hurt`). The legend and the quick view share the bay under the first four columns; the quick view keeps everything inside its border (one track, `minmax(0, 1fr)`; the sticker clears the close key). Narrow screens: the table scrolls in its own box with a SWIPE label and an edge fade (`data-scrolls`, `data-end`, measured on resize and scroll, no frame loop); the quick view is a bottom sheet up to 840 px, at most 560 px wide. The `experimental` key stays (export doc tags `@experimental`, the factory's audit); only the label changes, in `STATUS`, the README tables and the tests. `tests/periodic.mjs` checks the blocks, the fit at 1440, the card's contents and the swipe hint.
 
+- **Site: the first weekly winners (2026-W44 to W46).** The contest's three finished weeks are
+  closed with a winner per lane, generated from the engine's content model (`site/contest/weeks/`,
+  never by hand): W44 micro ILOVEYOU (#065, 7,224 B live) and Hi-Fi Oodles o' Moles (#070); W45
+  micro Never Loses (#091, 6,878 B) and Hi-Fi Mirror Maze (#096); W46 Hi-Fi Tilt Maze (#110), no
+  micro entries that week. Sizes are the live chunk gzip, measured as the site builds it. The
+  people test checks the shipped week files' shape; the winners are checked by the site build
+  against the measured gallery.
+
 - **Site: creators on the people page (the Fizlet Studio pattern); HOLESHOT by David Cooley.** A new contributor kind, `creator` (scripts/people.mjs `KINDS`, `REAL`): a real person who makes games on Fizlet, with a CREATOR sticker and eyebrow, the maker's avatar label (a stylized character, not a likeness), no handle and no one to report to, and `games`, a list of { title, url, pitch } checked at build (https, one line) and rendered on the profile ("Games", each linked to its site) and in the /people/ lead ("HOLESHOT is by creator David Cooley"); any profile may list games, so the next creator is one JSON file. `site/contributors/david-cooley.json`: teen game creator, [HOLESHOT](https://holeshot.domvirus.com/); the avatar is the maker's pixel rider (same 32 × 32 grid, two frames) in a black helmet and blue riding gear, avatar tokens only. The profile's structured data is a Person. Tests: `tests/people.test.mjs` (kind, sticker, label, games list, lead, avatar, validation), `tests/site.mjs` (built index and profile).
 
 ## 0.26.0
