@@ -108,7 +108,7 @@ jobs:
   perf:
     # Measured, not claimed: frame times, dropped frames, first paint, heap and minor GCs under a
     # 4x CPU throttle, failing over tests/perf/budgets.json; plus the game-level allocation test.
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
