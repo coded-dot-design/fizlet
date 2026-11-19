@@ -92,10 +92,26 @@ jobs:
         run: |
           set -o pipefail
           npm run test:settle 2>&1 | tee /tmp/step.log || { grep -E "✖|not ok|Error|error TS|AssertionError|expected|actual|OVER|failed|quiet for" /tmp/step.log | head -40 | sed 's/^/::error::/'; exit 1; }
+  webkit:
+    # Touch and pointer in WebKit as well as Chromium (npm run test:webkit; BROWSERS=chromium,webkit):
+    # input's pointer and stick, pad's controls, the touch lock, with the shapes iOS ends a touch in
+    # (only lostpointercapture, or nothing). Chromium's CDP touch is not WebKit's, so a control can
+    # pass every Chromium test and still fail on iPhone Safari. Playwright's Linux WebKit is WebKit,
+    # not iOS: it catches engine differences, not iOS's touch delivery (real devices stay manual).
+    # ubuntu-24.04: Playwright 1.58 has no WebKit build for ubuntu-latest (26.04).
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          browser: "true"
+      - run: npx playwright install --with-deps webkit
+      - run: npm run test:webkit
   check:
     # The required check: green only when every job above is green. `always()` so a failed or
     # cancelled job makes this red instead of skipped (a skipped required check would count as passed).
-    needs: [unit, browser, site, settle]
+    needs: [unit, browser, site, settle, webkit]
     if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -103,7 +119,7 @@ jobs:
       - env:
           RESULTS: ${{ join(needs.*.result, ' ') }}
         run: |
-          echo "unit browser site settle: $RESULTS"
+          echo "unit browser site settle webkit: $RESULTS"
           for r in $RESULTS; do [ "$r" = success ] || { echo "::error::a check job did not pass ($RESULTS)"; exit 1; }; done
   perf:
     # Measured, not claimed: frame times, dropped frames, first paint, heap and minor GCs under a

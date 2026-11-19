@@ -110,7 +110,10 @@ export function controls(e: Engine, o: ControlsOptions = {}) {
     if (editing(pe.target)) return;
     e.wake();
     measure(); // a press is rare and decides the stick side: measure it fresh
-    if (pe.pointerType === "touch" && o.stick && s[5]! < 0 && (o.stick === "any" || pe.clientX - p[6]! < p[8]! / 2)) {
+    // A touch on the stick side takes a free stick, and a held one too when it is the primary
+    // pointer: no other finger is down, so the old one is stale (iOS can end a touch with no
+    // pointerup). A second finger while the stick is held stays a pointer (multi-touch).
+    if (pe.pointerType === "touch" && o.stick && (s[5]! < 0 || pe.isPrimary) && (o.stick === "any" || pe.clientX - p[6]! < p[8]! / 2)) {
       s[2] = 1;
       s[3] = pe.clientX;
       s[4] = pe.clientY;

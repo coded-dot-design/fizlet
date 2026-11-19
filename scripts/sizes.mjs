@@ -134,7 +134,8 @@ export const BUDGETS = [
   // +3 B #122: the fps cap counts its slot from the frame's start (kernel).
   // 24,280 B in 0.21.0; 24,031 B with size/treeshake (−249 B: numbers as literals in the kernel and the
   // bricks it composes, the kernel's short private names; no behaviour change). Budget lowered by that delta.
-  ["@fzlt/core/arcade", "src/arcade.ts", 24150],
+  // +6 B (24,147 → 24,153): input's stick takes a new primary touch when its old finger never ended (a fix).
+  ["@fzlt/core/arcade", "src/arcade.ts", 24156],
   // A card game (`hud` left out): the shell and the `arcade` preset, skirmish tree-shaken away.
   // 17,622 B gz with the `hud` option (+311 B: the preset contract, header and nav choice); 17,311
   // in 0.17.0, 17,206 in 0.14.0 (17,081 in 0.13.0, 16,960 in 0.12.1, 16,946 in 0.12.0, 16,731 in
@@ -157,7 +158,8 @@ export const BUDGETS = [
   // Train 0.21.3 (size/treeshake + S8 on main with #218): 18,192 B measured (main 18,334 B). #218's
   // own synth cues (@fzlt/core/sound notes) add +22 B on main, so the budget is size/treeshake's 18,179
   // plus that need: 18,201.
-  ["@fzlt/core/arcade (hud omitted)", "scripts/arcade-card.ts", 18201],
+  // +7 B (18,200 → 18,207): input's stick takes a new primary touch when its old finger never ended (a fix).
+  ["@fzlt/core/arcade (hud omitted)", "scripts/arcade-card.ts", 18208],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
   // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B). 4,162 B
