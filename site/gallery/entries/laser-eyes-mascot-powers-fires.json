@@ -13,7 +13,7 @@
     "@fzlt/core/sprite",
     "@fzlt/core/slot"
   ],
-  "fizlet": "0.20.0",
+  "@fzlt/core": "0.20.0",
   "made": "by hand",
   "module": "pieces/laser-eyes-mascot-powers-fires.ts",
   "export": "mount",
