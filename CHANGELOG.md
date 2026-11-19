@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **`@fzlt/core/actor`, `@fzlt/core/aim` and `@fzlt/core/view-dom` (E11, ALPHA).** `actors({ cap, sides, x, y, a, events })`: units, bots and shots as one fixed table of typed arrays (spawn, kill, hurt, heal, sweep, handles, side counts, tags, nearest), 908 B gz. `aim({ x, y, a, vx, vy, board, mask, clear, foe })`: lead, cones, line of sight and target picking, 691 B gz. `viewDom(engine, actors, host, opts)`: an actor table as pooled DOM nodes, change-only through the ledger, settles when still, Recall removes every node, 882 B gz. All DOM-free or ledger-only, zero allocation per step; budgets 1,229 / 1,024 / 1,536 B. `src/ACTORS.md`: the migration note for DOM Battlefield onto them. Tests: `tests/actor.test.mjs`, `tests/aim.test.mjs`, `tests/view-dom.test.mjs`, `tests/view-dom.mjs` (Chromium).
+
 - **Page-cost gate (`npm run perf:page`, CI `perf` job).** Each page in `tests/perf/page-budgets.json`
   is loaded live and poster-only (module scripts removed but the site chrome), at desktop and mobile
   (4× CPU), best of 3; it fails when the live page adds more than CLS 0, a tap on page text +8 / +24 ms
