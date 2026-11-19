@@ -104,7 +104,7 @@ export function terrain(o: TerrainOptions) {
   /** F = [height, slope x, slope z] of the face under (x, z) = (F[0], F[3]) on entry (clamped to the
    *  grid); returns its triangle. (Doubles go in through F: a call that is not inlined boxes them.) */
   function face() {
-    const u = Math.min(cols, Math.max(0, (F[0]! - x0) / c)), v = Math.min(rows, Math.max(0, (F[3]! - z0) / c));
+    const u = Math.min(cols, Math.max(0, (F[0]! - api.x0) / c)), v = Math.min(rows, Math.max(0, (F[3]! - api.z0) / c));
     const i = Math.min(cols - 1, Math.floor(u)), j = Math.min(rows - 1, Math.floor(v)), fu = u - i, fv = v - j, k = j * W1 + i;
     const a = h[k]!, b = h[k + 1]!, cc = h[k + W1 + 1]!, d = h[k + W1]!;
     // Two triangles split along (i, j)–(i + 1, j + 1): the one with 10 (fu ≥ fv), the one with 01.
@@ -122,7 +122,7 @@ export function terrain(o: TerrainOptions) {
   const under = (x: number, z: number) => ((F[0] = x), (F[3] = z), face());
   /** Run fn(x, z, i) over every vertex, i its index in h. */
   function each(fn: (x: number, z: number, i: number) => void) {
-    for (let j = 0, i = 0; j <= rows; j++) for (let k = 0; k <= cols; k++, i++) fn(x0 + k * c, z0 + j * c, i);
+    for (let j = 0, i = 0; j <= rows; j++) for (let k = 0; k <= cols; k++, i++) fn(api.x0 + k * c, api.z0 + j * c, i);
     api.version++;
     return api;
   }
@@ -155,9 +155,9 @@ export function terrain(o: TerrainOptions) {
     rows,
     /** A cell's side, world units. */
     cell: c,
-    /** World x of vertex column 0. */
+    /** World x of vertex column 0 (`terrainWindow` moves it). */
     x0,
-    /** World z of vertex row 0. */
+    /** World z of vertex row 0 (`terrainWindow` moves it). */
     z0,
     /** Vertex heights, (cols + 1) per row; write them freely, then bump `version`. */
     h,
@@ -243,7 +243,7 @@ export function terrain(o: TerrainOptions) {
         if ((s === 0 && u === 0) || (s === m - 1 && u === 1)) {
           // Past an end: across from the end segment's line (not the distance to its end point), faded lengthwise.
           const e = (u === 0 ? s : s + 1) * 2, k = s * 2, dx = points[k + 2]! - points[k]!, dz = points[k + 3]! - points[k + 1]!, l = hypot(dx, dz) || 1;
-          const px = x0 + (i % W1) * c - points[e]!, pz = z0 + Math.floor(i / W1) * c - points[e + 1]!, perp = (dx * pz - dz * px) / l, d = Math.abs(perp);
+          const px = api.x0 + (i % W1) * c - points[e]!, pz = api.z0 + Math.floor(i / W1) * c - points[e + 1]!, perp = (dx * pz - dz * px) / l, d = Math.abs(perp);
           sd = perp >= 0 ? 1 : -1;
           across = d / (half || 1);
           w = (1 - smooth(half, half + edge, d)) * (1 - smooth(0, edge, Math.abs(px * dx + pz * dz) / l));
@@ -263,11 +263,89 @@ export function terrain(o: TerrainOptions) {
       });
       if (so.kind)
         for (let j = 0; j < rows; j++)
-          for (let i = 0; i < cols * 2; i++) if ((near(points, x0 + ((i >> 1) + (i & 1 ? 1 : 2) / 3) * c, z0 + (j + (i & 1 ? 2 : 1) / 3) * c), T[0]! <= half)) kind[j * cols * 2 + i] = so.kind;
+          for (let i = 0; i < cols * 2; i++) if ((near(points, api.x0 + ((i >> 1) + (i & 1 ? 1 : 2) / 3) * c, api.z0 + (j + (i & 1 ? 2 : 1) / 3) * c), T[0]! <= half)) kind[j * cols * 2 + i] = so.kind;
       return api;
     },
   };
   return api;
+}
+
+/** Options for `terrainWindow()`: the window's grid, how far it slides, and the ground it shows. */
+export interface TerrainWindowOptions {
+  /** Cells along x (vertices: cols + 1). */
+  cols: number;
+  /** Cells along z (default `cols`). */
+  rows?: number;
+  /** A cell's side in world units (default 1). */
+  cell?: number;
+  /** Cells per slide (default 8): `follow` moves the window in whole steps. */
+  step?: number;
+  /** The cells' split, as `terrain()`'s (the queries and `terrainView` use it). */
+  split?: "fixed" | "adaptive";
+  /** Write the ground into the window: heights `t.h[j * (t.cols + 1) + i]` for every vertex i0..i1,
+   *  j0..j1 (window indices, inclusive), and kinds (0: none) for every cell inside that range, if the
+   *  game paints any. Vertex (i, j) is at lattice point (t.origin[0] + i, t.origin[1] + j), world
+   *  ((t.origin[0] + i) × cell, (t.origin[1] + j) × cell). It must be a pure function of the place: a
+   *  range can repeat one vertex row or column the window already holds. Only integers cross this call. */
+  fill(i0: number, j0: number, i1: number, j1: number, t: TerrainWindow): void;
+}
+
+/** A terrain whose origin follows a point: what `terrainWindow` returns. */
+export type TerrainWindow = Terrain & {
+  /** The first vertex on the world lattice [i, j] (x0 = i × cell, z0 = j × cell). */
+  origin: Int32Array;
+  /** Moves so far (the first fill included); vertices `fill` was asked for so far. */
+  stats: { slides: number; filled: number };
+  /** Put the first vertex at lattice point (i, j): keep the overlap, fill the rest. True if it moved. */
+  moveTo(i: number, j: number): boolean;
+  /** Keep (x, z) in the middle step: slide by whole steps when it leaves it. True if it slid. */
+  follow(x: number, z: number): boolean;
+};
+
+/** Slide grid a (rows of r, n rows) by dx along a row and dz rows, keeping what overlaps (copyWithin
+ *  in the order that never reads a moved value). */
+function shift(a: Float64Array | Uint8Array, r: number, n: number, dx: number, dz: number) {
+  if (dz > 0) a.copyWithin(0, dz * r);
+  else if (dz < 0) a.copyWithin(-dz * r, 0, (n + dz) * r);
+  for (let j = 0, q = 0; dx && j < n; j++, q += r) dx > 0 ? a.copyWithin(q, q + dx, q + r) : a.copyWithin(q - dx, q, q + r + dx);
+}
+
+/** An endless ground: a `terrain` of cols × rows cells that slides over the world lattice and asks
+ *  `fill` only for the rows and columns it gains. The same queries (the same face rule) and the same
+ *  `terrainView`; `version` bumps once per slide. The window decides no height (they come from `fill`),
+ *  so where it sits is not game state. Nothing is filled until the first `follow` or `moveTo`. */
+export function terrainWindow(o: TerrainWindowOptions): TerrainWindow {
+  const cols = o.cols | 0, rows = (o.rows ?? cols) | 0, S = (o.step ?? 8) | 0, c = o.cell ?? 1;
+  const w = Object.assign(terrain({ ...o, cols, rows, x0: 0, z0: 0 }), {
+    origin: new Int32Array(2),
+    stats: { slides: 0, filled: 0 },
+    moveTo(i: number, j: number) {
+      const O = w.origin, dx = i - O[0]!, dz = j - O[1]!, n = w.stats.slides;
+      if (n && !dx && !dz) return false;
+      O[0] = i; O[1] = j;
+      w.x0 = i * c; w.z0 = j * c;
+      if (!n || Math.abs(dx) >= cols || Math.abs(dz) >= rows) fill(0, 0, cols, rows);
+      else {
+        shift(w.h, cols + 1, rows + 1, dx, dz);
+        shift(w.kind, cols * 2, rows, dx * 2, dz);
+        // The new rows, then the new columns beside the rows kept; each range takes one kept vertex
+        // line on its inner side so every new cell lies inside it.
+        if (dz) fill(0, dz > 0 ? rows - dz : 0, cols, dz > 0 ? rows : -dz);
+        if (dx) fill(dx > 0 ? cols - dx : 0, dz < 0 ? -dz : 0, dx > 0 ? cols : -dx, dz < 0 ? rows : rows - dz);
+      }
+      w.stats.slides++;
+      w.version++;
+      return true;
+    },
+    follow(x: number, z: number) {
+      return w.moveTo(Math.floor(x / c / S) * S - (cols >> 1) + (S >> 1), Math.floor(z / c / S) * S - (rows >> 1) + (S >> 1));
+    },
+  });
+  function fill(i0: number, j0: number, i1: number, j1: number) {
+    o.fill(i0, j0, i1, j1, w);
+    w.stats.filled += (i1 - i0 + 1) * (j1 - j0 + 1);
+  }
+  return w;
 }
 
 /** Options for `terrainView`: colours, light, chunks and level of detail, how it sorts, shadows. */
