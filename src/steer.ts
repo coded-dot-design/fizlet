@@ -12,11 +12,13 @@
  * Each writes the distance moved this call to `moved[i]` (0 when standing). The heading turn and the per-axis
  * wall check (`blocked`, so a mover slides along walls) are DOM Battlefield Blitz's `drive`, and the
  * defaults are its tank numbers, so a port keeps its feel. Nothing allocates: call them from a step,
- * one mover at a time. Pass `engine.random` as `random` so seeded runs replay. Options are checked
+ * one mover at a time. Pass `engine.random` as `random` so seeded runs replay: the heading's trig is
+ * `@fzlt/core/math`'s, so a replay gives the same bits in every browser (in Node, the builtins' bits:
+ * the moves are Blitz's to the bit). Options are checked
  * at setup: a bad number throws a RangeError with its name instead of turning into NaN mid-game.
  */
 import { need } from "./kernel/need";
-import { hypot } from "./math";
+import { atan2, cos, hypot, sin } from "./math";
 
 /** Options for `steer()`: how many movers, their pace, turn rate and arrival bands, the wander area
  *  and timing, the wall check and the random source. */
@@ -50,7 +52,7 @@ export interface SteerOptions {
 
 /** Turn `from` toward `to` by at most `max` radians, the short way round. */
 export const turn = (from: number, to: number, max: number) => {
-  const d = Math.atan2(Math.sin(to - from), Math.cos(to - from));
+  const d = atan2(sin(to - from), cos(to - from));
   return from + Math.sign(d) * Math.min(Math.abs(d), max);
 };
 
@@ -77,9 +79,9 @@ export function steer(o: SteerOptions) {
   function go(i: number) {
     const m = Math.min(1, hypot(v[0]!, v[1]!));
     if (m < 0.05) return void (moved[i] = 0);
-    const to = Math.atan2(v[1]!, v[0]!), d = Math.atan2(Math.sin(to - a[i]!), Math.cos(to - a[i]!)), dt = v[2]!;
+    const to = atan2(v[1]!, v[0]!), d = atan2(sin(to - a[i]!), cos(to - a[i]!)), dt = v[2]!;
     a[i] = a[i]! + Math.sign(d) * Math.min(Math.abs(d), rate * dt);
-    const sp = speed * m * scale * dt, nx = x[i]! + Math.cos(a[i]!) * sp, ny = y[i]! + Math.sin(a[i]!) * sp;
+    const sp = speed * m * scale * dt, nx = x[i]! + cos(a[i]!) * sp, ny = y[i]! + sin(a[i]!) * sp;
     at[0] = nx; at[1] = y[i]!;
     if (!blocked?.(i, at)) x[i] = nx;
     at[0] = x[i]!; at[1] = ny;

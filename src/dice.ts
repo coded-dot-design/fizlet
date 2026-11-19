@@ -4,8 +4,10 @@
  * value the seed picked, so every player who rolls the same seed sees the same roll.
  * - The values come from integer maths only (a 32-bit hash generator): the same seed gives the same
  *   values in every browser. The tumble is made to end on them (it is not a physics run that might
- *   land on an edge), so the face that lands up is the value by construction; its path is the same
- *   on every engine up to float rounding in `Math.sin` and friends.
+ *   land on an edge), so the face that lands up is the value by construction. The tumble is the
+ *   look and never feeds a result: it keeps the builtin `Math.sin`, `cos`, `acos` and `**`, whose
+ *   last bit may differ between engines (a path may differ in its last bits; the values never do), so
+ *   an online sim reads `value`, never `path`.
  * - The path is data: `path` holds `frames` samples per die of [x, y, z, qx, qy, qz, qw] (y up, the
  *   centre's height over the floor, a unit quaternion), and `pose(i, t, out)` reads it at any time.
  * - `dioramaDice` builds the dice into an `@fzlt/core/diorama` scene (a chamfered body, pips painted
@@ -151,6 +153,7 @@ export function dice(o: DiceOptions = {}) {
     total: 0,
     /** Roll `n` dice from `seed`: values as `roll(seed, n, 6)`, and their tumbles. Returns the total. */
     roll(seed: number, t: ThrowOptions = {}) {
+      // (Builtin trig below: the path is render-only; see the top of this file.)
       const n = api.n, pop = !!t.pop, to = t.to, h0 = t.height ?? 2.5 * s, sp = t.spread ?? 1.7 * s, jit = t.jitter ?? 0.35 * s;
       const tx = to ? to[0]! : 0, tz = to ? to[1]! : 0, fx = t.from ? t.from[0]! : tx - 4 * s, fz = t.from ? t.from[1]! : tz;
       api.total = roll(seed, n, 6, value);

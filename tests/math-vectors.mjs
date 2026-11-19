@@ -78,3 +78,31 @@ export function bits(x) {
   const F = new Float64Array([x]), U = new Uint32Array(F.buffer);
   return U[1].toString(16).padStart(8, "0") + " " + U[0].toString(16).padStart(8, "0");
 }
+
+/**
+ * A seeded steer run (wander, seek, arrive and patrol, a wall to slide on, 1,200 frames) as one
+ * FNV-1a digest of every mover's x, y and heading bits each frame: `steer` is @fzlt/core/steer's
+ * `steer`, `seeded` the kernel's. Node and every browser must give the same number.
+ */
+export function steerDigest(steer, seeded) {
+  const F = new Float64Array(1), U = new Uint32Array(F.buffer);
+  const wall = (x, y) => x > 300 && x < 360 && y > 120 && y < 260;
+  const s = steer({ cap: 4, random: seeded(9), area: [20, 20, 600, 400], blocked: (_, at) => wall(at[0], at[1]) });
+  const route = new Float64Array([60, 60, 560, 80, 520, 380, 80, 360]);
+  for (let i = 0; i < 4; i++) s.place(i, 80 + i * 140, 200, i * 1.3);
+  let h = 2166136261;
+  for (let f = 0; f < 1200; f++) {
+    const dt = 1 / 60;
+    s.wander(0, dt);
+    s.seek(1, route[(f >> 7) & 6], route[((f >> 7) & 6) + 1] + 40, dt); // (a goal from the table: no builtin trig here)
+    s.arrive(2, s.x[0], s.y[0], dt);
+    s.patrol(3, route, dt);
+    for (let i = 0; i < 4; i++)
+      for (const v of [s.x[i], s.y[i], s.a[i]]) {
+        F[0] = v;
+        h = Math.imul(h ^ U[0], 16777619) >>> 0;
+        h = Math.imul(h ^ U[1], 16777619) >>> 0;
+      }
+  }
+  return h;
+}
