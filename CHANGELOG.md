@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- **CI: the perf job runs weekly too** (Mondays 06:17 UTC, `schedule:` in `ci.yml`; every other job
+  skips scheduled runs). Each run uploads `perf-results.json`, kept 90 days. Each result line (and each
+  over-budget line) is also a GitHub annotation, readable through the API without the artifact, and
+  the machine line carries the load average at the start and end of the run.
+- **Perf budgets are measured** (`tests/perf/budgets.json`, no longer provisional): the demo's from
+  the medians of 3 CI `perf` runs (p50 16.7 ms, 0% dropped, layerize 1.49 ms, FCP 320 ms, heap
+  3.55 MB, 4 minor GCs; load ≤ 1.15), Blitz's from 3 local runs (load 17–26, noted). Ceilings
+  tighten: demo p50 25 → 20 ms, p95 67 → 34, p99 117 → 34, dropped 45 → 5%, layerize 4 → 3 ms,
+  FCP 2,000 → 700 ms, heap 8 → 7 MB, minor GC 10 → 8. Each run, and the rule from median to ceiling,
+  is in the file.
+
 - **PERF-LOG.md: five more measured wins** (roadmap E6, G9), each with its merged PR's numbers:
   the layers story's CLS 0.002 → 0 (#129, #123); the Battlefield landing hero 91.7 → 49.4 % main
   thread busy on a 4× phone (dom-battlefield#21); the fps cap's slot from the frame's start, that
