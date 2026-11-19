@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **`@fzlt/core/announce` (E14, BETA): game events read out through one polite live region, rate-limited.** `announce(engine, { words, gap, doc })` → `{ say, flush, destroy }`: one `[data-fz-announce]` status region per page, made on the first word; `words(event)` turns ring events into sentences in render, coalesced by key (the latest score, not ten), at most one write per gap; `destroy()` removes the region. Measured gz is in `npm run size` (budget 614 B). Tests: `tests/announce.test.mjs`, `tests/announce.mjs` (Chromium).
+
 - **`@fzlt/core/actor`, `@fzlt/core/aim` and `@fzlt/core/view-dom` (E11, ALPHA).** `actors({ cap, sides, x, y, a, events })`: units, bots and shots as one fixed table of typed arrays (spawn, kill, hurt, heal, sweep, handles, side counts, tags, nearest), 908 B gz. `aim({ x, y, a, vx, vy, board, mask, clear, foe })`: lead, cones, line of sight and target picking, 691 B gz. `viewDom(engine, actors, host, opts)`: an actor table as pooled DOM nodes, change-only through the ledger, settles when still, Recall removes every node, 882 B gz. All DOM-free or ledger-only, zero allocation per step; budgets 1,229 / 1,024 / 1,536 B. `src/ACTORS.md`: the migration note for DOM Battlefield onto them. Tests: `tests/actor.test.mjs`, `tests/aim.test.mjs`, `tests/view-dom.test.mjs`, `tests/view-dom.mjs` (Chromium).
 
 - **Page-cost gate (`npm run perf:page`, CI `perf` job).** Each page in `tests/perf/page-budgets.json`

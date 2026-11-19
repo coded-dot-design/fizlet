@@ -302,6 +302,11 @@ if (j >= 0 && s.lead(i, j, 400)) fire(i, s.out[0], s.out[1]); // where it will b
 
 viewDom(e, A, board, { linger: 0.4 }); // one pooled node per row
 // moved rows write one transform; a still board writes nothing and settles` },
+  { id: "announce", no: 42, sym: "an", family: "page", status: "beta", since: "0.28.0", tests: ["announce.test.mjs", "announce.mjs"], used: [], why: "New (E14): no released game reads out through it yet.",
+    tag: "ANNOUNCE", role: "sys", modules: [mod("@fzlt/core/announce", "announce")],
+    snippet: `const a = announce(e, { words: (ev) => ev.type === "score" ? \`Score \${ev.a}\` : null });
+e.events.emit("score", score); // in a step, as for sound: read once per gap, latest value
+a.say("over", "Game over"); a.flush(); // from a HUD or a result screen` },
   { id: "terrain", no: 36, sym: "tn", family: "render", status: "experimental", since: "0.22.0", tests: ["terrain.test.mjs", "terrain-drive.mjs", "drive-drift.mjs"], used: [], why: "New, for the diorama vehicle games (trail, desert and circuit racers); its API may still change before a game ships on it.",
     tag: "TERRAIN", role: "fallin", modules: [mod("@fzlt/core/terrain", "terrain")],
     snippet: `const t = terrain({ cols: 96, rows: 64, cell: 0.5 });
@@ -345,9 +350,8 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
  * builds on. Each phase is a planned phase of site/roadmap.mjs (E9–E16), which lists these under it.
  */
 export const PLANNED = [
-  { name: "@fzlt/core/snapshot", no: 42, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
-  { name: "@fzlt/core/agent", no: 43, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
-  { name: "@fzlt/core/scene", no: 44, sym: "sc", family: "render", phase: "E13", purpose: "An animation recipe as data (stage, cast, cue, gag) mounted as a scene.", target: 2048, needs: ["@fzlt/core/sprite", "@fzlt/core/fx", "@fzlt/core/timeline", "@fzlt/core/slot"] },
-  { name: "@fzlt/core/announce", no: 45, sym: "an", family: "page", phase: "E14", purpose: "Game events read out to screen readers through one polite live region, rate-limited.", target: 614, needs: ["@fzlt/core"] },
+  { name: "@fzlt/core/snapshot", no: 43, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
+  { name: "@fzlt/core/agent", no: 44, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
+  { name: "@fzlt/core/scene", no: 45, sym: "sc", family: "render", phase: "E13", purpose: "An animation recipe as data (stage, cast, cue, gag) mounted as a scene.", target: 2048, needs: ["@fzlt/core/sprite", "@fzlt/core/fx", "@fzlt/core/timeline", "@fzlt/core/slot"] },
   { name: "@fzlt/core/music", no: 46, sym: "ms", family: "render", phase: "E15", purpose: "A tiny step sequencer on the kernel clock: patterns and tempo on the sound brick's synth.", target: 1229, needs: ["@fzlt/core/sound"] },
 ];

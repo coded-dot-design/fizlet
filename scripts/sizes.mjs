@@ -138,6 +138,9 @@ export const BUDGETS = [
   // An actor table as pooled DOM nodes, change-only through the ledger (E11). Measured alone: on a
   // page the kernel's ledger and the actor table are the game's already. Planned target 1,536.
   ["@fzlt/core/view-dom", "src/view-dom.ts", 1536],
+  // Game events read out through one polite live region, rate-limited: 611 B gz when added (the
+  // kernel comes in as types only). Planned under 614 B (0.6 KB, E14); the budget is that target.
+  ["@fzlt/core/announce", "src/announce.ts", 614],
   // Vehicle feel on a heightfield plus the chase camera (steer's exact hypot): 3,170 B gz when added.
   // 4,478 B (+1,308 B) with the handbrake drift (slide, drift score, chains, spinOut), car-to-car
   // contact (touch, touchAll: box and circle hulls by mass) and the read-outs moved onto one shared
