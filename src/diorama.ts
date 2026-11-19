@@ -11,6 +11,9 @@
  * - Limits: faces are never split, so two faces that cross each other, or a big face beside a small
  *   one at the wrong depth, can draw in the wrong order: split them into parts, or order them with
  *   clusters and layers. A face with a vertex behind the camera is dropped, not clipped.
+ * - Pools: there is no `remove`; add a fixed pool up front and let go of an object (a composite with
+ *   its parts) with `ob.off = true`: its whole subtree stops drawing, shadowing, picking and costing
+ *   matrix work. `hidden` hides the object alone (an invisible parent whose parts still show).
  * - No allocation per `draw()` in the steady state (typed arrays, a merge sort into fixed buffers,
  *   shades cached as strings). No DOM of its own and no clock: call `draw()` from the engine's render
  *   phase (`engine.add({ render: () => d.draw() })`) or on your own, and `resize()` after a resize.
@@ -41,8 +44,11 @@ export interface DioramaObjectDef {
   alpha?: number;
   /** A colour that replaces this object's and its children's (a hit flash, a selection). */
   tint?: string | null;
-  /** Not drawn (its children still are). */
+  /** Not drawn (its children still are: an invisible parent). */
   hidden?: boolean;
+  /** Off with its whole subtree: none of them draw, cast a shadow or pick, and their matrices are not
+   *  computed (`M` keeps its last value until it is on again). Let go of a pooled composite with it. */
+  off?: boolean;
   /** The id of the object it rests on. */
   on?: string | null;
   /** Blob shadow strength on the parent's top, 0..1 (0: none); drawn on the parent's layer + 0.5. */
@@ -78,8 +84,8 @@ export interface DioramaObjectDef {
   taper?: number;
 }
 
-/** A live object: change `pos`, `rot`, `color`, `alpha`, `tint`, `hidden`, `shadow`, `layer`, `behind` between
- *  draws. `M` is its world matrix from the last draw (3 × 3 rotation row by row, then x, y, z). */
+/** A live object: change `pos`, `rot`, `color`, `alpha`, `tint`, `hidden`, `off`, `shadow`, `layer`, `behind`
+ *  between draws. `M` is its world matrix from the last draw it was on in (3 × 3 rotation row by row, then x, y, z). */
 export interface DioramaObject {
   /** Its name, or null. */
   readonly id: string | null;
@@ -97,8 +103,10 @@ export interface DioramaObject {
   alpha: number;
   /** Colour override for it and its children, or null. */
   tint: string | null;
-  /** Not drawn. */
+  /** Not drawn (its children still are). */
   hidden: boolean;
+  /** Off with its whole subtree: not drawn, no shadows, not picked, matrices not computed. */
+  off: boolean;
   /** Blob shadow strength. */
   shadow: number;
   /** Order inside its cluster. */
@@ -347,7 +355,7 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
     if (nv + mesh.nv > MAXV) throw new RangeError("diorama: more vertices than maxVerts");
     const ob: Obj = {
       id: d.id ?? null, shape, size, pos: Float64Array.from(d.pos || [0, 0, 0]), rot: Float64Array.from(d.rot || [0, 0, 0]), color: d.color || "#cccccc",
-      alpha: d.alpha ?? 1, tint: d.tint ?? null, hidden: !!d.hidden, shadow: d.shadow || 0, layer: d.layer ?? (on && byId.has(on) ? byId.get(on)!.layer + 1 : 4), below: d.below || null, behind: d.behind || 0,
+      alpha: d.alpha ?? 1, tint: d.tint ?? null, hidden: !!d.hidden, off: !!d.off, shadow: d.shadow || 0, layer: d.layer ?? (on && byId.has(on) ? byId.get(on)!.layer + 1 : 4), below: d.below || null, behind: d.behind || 0,
       emissive: !!d.emissive, pick: d.pick !== false, tag: d.tag ?? null, on, parent: null, M: new Float64Array(12),
       mesh, vb: nv, top: shape === "group" ? 0 : size[1]!, i: objs.length, cl: null, clName: d.cluster || null, sq: shape === "box", et: null,
     };
@@ -520,12 +528,15 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
   /** The view depth of Q. */
   const depthQ = () => (Q[0]! - B[0]!) * B[9]! + (Q[1]! - B[1]!) * B[10]! + (Q[2]! - B[2]!) * B[11]!;
   const rankOf = (name: string | null) => { const c = name ? clusters.get(name) : undefined; return c ? CR[c.ci]! : clist.length; };
-  const N = new Int32Array(4); // faces, shadows, points, verts this frame
+  const N = new Int32Array(5); // faces, shadows, points, verts, objects this frame
 
-  /** 1) World matrices, parents first: R = Rparent · (Ry Rx Rz); t = tparent + Rparent · (pos + parent's top). */
+  /** 1) World matrices, parents first: R = Rparent · (Ry Rx Rz); t = tparent + Rparent · (pos + parent's top).
+   *  An `off` object and its subtree are skipped: alpha −1 marks them for every later pass. */
   function matrices() {
     for (let n = 0; n < order.length; n++) {
       const ob = order[n]!, r = ob.rot, m = ob.M, p = ob.parent;
+      if (ob.off || (p && EA[p.i]! < 0)) { EA[ob.i] = -1; continue; }
+      N[4] = N[4]! + 1;
       const cx = Math.cos(r[0]!), sx = Math.sin(r[0]!), cy = Math.cos(r[1]!), sy = Math.sin(r[1]!), cz = Math.cos(r[2]!), sz = Math.sin(r[2]!);
       const a00 = cy, a01 = sy * sx, a02 = sy * cx, a11 = cx, a12 = -sx, a20 = -sy, a21 = cy * sx, a22 = cy * cx;
       const l00 = cz * a00 + sz * a01, l10 = sz * a11, l20 = cz * a20 + sz * a21;
@@ -708,9 +719,9 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
   }
   function draw() {
     sync();
+    nf = stats.dropped = N[0] = N[1] = N[2] = N[3] = N[4] = 0;
     matrices();
     ranks();
-    nf = stats.dropped = N[0] = N[1] = N[2] = N[3] = 0;
     faces();
     shadows();
     extras();
@@ -721,7 +732,7 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
     stats.shadows = N[1]!;
     stats.points = N[2]!;
     stats.verts = N[3]!;
-    stats.objects = objs.length;
+    stats.objects = N[4]!;
   }
   const clusterBefore = (a: Cluster, b: Cluster) => {
     const fa = a.fixed != null, fb = b.fixed != null;
@@ -765,7 +776,7 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
     ctx,
     /** The camera `draw`, `project`, `ground` and `pick` use: change it freely between draws. */
     cam,
-    /** The last draw: faces, shadows, points, verts and objects drawn, and entries dropped (over maxFaces). */
+    /** The last draw: faces, shadows, points, verts, objects on (matrices computed; `off` subtrees left out), and entries dropped (over maxFaces). */
     stats,
     /** Add an object (`DioramaObjectDef`); returns its live handle. Throws past `maxVerts`. */
     add,
