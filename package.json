@@ -216,6 +216,7 @@
     "prepack": "npm run build",
     "perf": "npm run site && node tests/perf/run.mjs",
     "test:alloc": "node tests/perf/alloc.mjs",
+    "perf:page": "node tests/perf/page-cost-run.mjs",
     "test:alloc:cards": "node tests/brick-cards-alloc.mjs",
     "test:stress": "node tests/stress/run.mjs"
   },
