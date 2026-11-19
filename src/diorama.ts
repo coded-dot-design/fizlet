@@ -842,6 +842,12 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
       sync();
       return proj(B, cam, x, y, z, out);
     },
+    /** The camera's world position (the eye): out = [x, y, z]; returns out. */
+    eye<T extends { [i: number]: number }>(out: T): T {
+      sync();
+      out[0] = B[0]!; out[1] = B[1]!; out[2] = B[2]!;
+      return out;
+    },
     /** Screen px per world unit at depth 1 (a size s at depth z is s × focal() / z px). */
     focal: () => (sync(), B[12]!),
     /** Call fn on every object (recolour on a theme change, find parts). */
@@ -871,3 +877,76 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
 }
 /** What `diorama` returns. */
 export type Diorama = ReturnType<typeof diorama>;
+
+/** Options for `occlude`: the objects that may stand in the way and how they fade. */
+export interface OccludeOptions {
+  /** Root objects (no `on`) whose boxes (`size` from `pos`, turned by `rot[1]`) can hide the targets. */
+  objects: DioramaObject[];
+  /** The alpha of an object in the way (default 0.16). */
+  ghost?: number;
+  /** Seconds a full fade takes (default 0.15). */
+  t?: number;
+  /** Reduced motion: snap instead of fading (also a live field on the result). */
+  reduced?: boolean;
+  /** A box met within this distance of a target is touching it, not in the way (default 0). */
+  near?: number;
+}
+
+/** Fade what stands between the eye and the targets (a chase camera in a town): each `step(dt, pts)`
+ *  casts rays from `d.eye()` to every target point (`pts`: [x, y, z, …], world; `n` of them, default
+ *  all) against each object's box; one in the way eases its `alpha` toward `ghost`, one the eye is
+ *  inside toward 0, the rest back to 1. Returns true while anything is still fading (keep the engine
+ *  awake). Writes `alpha` only (render side, never the sim). Boxes off the bounds of the eye and the
+ *  targets are skipped; `tested` counts the boxes ray-tested in the last step. No allocation per step. */
+export function occlude(d: Diorama, o: OccludeOptions) {
+  const obs = o.objects, A = new Float64Array(obs.length).fill(1), E = new Float64Array(3);
+  const R = new Float64Array(9), Bd = new Float64Array(6); // R: local origin, direction, extent; Bd: the rays' bounds
+  const ghost = o.ghost ?? 0.16, near = o.near ?? 0, t = o.t ?? 0.15;
+  const oc = {
+    reduced: !!o.reduced,
+    tested: 0,
+    step(dt: number, pts: ArrayLike<number>, n = (pts.length / 3) | 0) {
+      d.eye(E);
+      let busy = false;
+      for (let j = 0; j < 3; j++) {
+        Bd[j] = Bd[j + 3] = E[j]!;
+        for (let k = j; k < n * 3; k += 3) (Bd[j] = Math.min(Bd[j]!, pts[k]!)), (Bd[j + 3] = Math.max(Bd[j + 3]!, pts[k]!));
+      }
+      const rate = oc.reduced || t <= 0 ? 2 : dt / t;
+      oc.tested = 0;
+      for (let i = 0; i < obs.length; i++) {
+        const ob = obs[i]!, s = ob.size, p = ob.pos, hx = s[0]! / 2, hz = s[2]! / 2, r = hx + hz;
+        let goal = 1, j = 0;
+        while (j < 3 && p[j]! + (j === 1 ? s[1]! : r) >= Bd[j]! && p[j]! - (j === 1 ? 0 : r) <= Bd[j + 3]!) j++;
+        if (j > 2) {
+          oc.tested++;
+          const c = Math.cos(ob.rot[1]!), sn = Math.sin(ob.rot[1]!), ax = E[0]! - p[0]!, az = E[2]! - p[2]!;
+          // World to the box's frame (turned by yaw, origin at its bottom centre).
+          const lx = c * ax - sn * az, ly = E[1]! - p[1]!, lz = sn * ax + c * az;
+          R[0] = lx; R[1] = ly; R[2] = lz; R[6] = hx; R[7] = s[1]!; R[8] = hz;
+          for (let k = 0; k < n * 3; k += 3) {
+            const bx = pts[k]! - p[0]!, bz = pts[k + 2]! - p[2]!;
+            R[3] = c * bx - sn * bz - lx; R[4] = pts[k + 1]! - p[1]! - ly; R[5] = sn * bx + c * bz - lz;
+            // Slabs: the segment's t range inside the box, eye at 0, target at 1; w counts the axes the eye is inside.
+            let t0 = 0, t1 = 1, w = 0;
+            for (j = 0; j < 3; j++) {
+              const lo = j === 1 ? 0 : -R[6 + j]!, hi = R[6 + j]!, q = R[j]!, dd = R[3 + j]!;
+              // Parallel to a slab: ±Infinity, so a miss outside it and no limit inside (IEEE does the case).
+              const u = (lo - q) / dd, v = (hi - q) / dd;
+              if (q > lo && q < hi) w++;
+              t0 = Math.max(t0, Math.min(u, v)); t1 = Math.min(t1, Math.max(u, v));
+            }
+            if (w > 2) { goal = 0; break; }
+            if (t0 <= t1 && (1 - t0) * Math.sqrt(R[3]! * R[3]! + R[4]! * R[4]! + R[5]! * R[5]!) > near) { goal = ghost; break; }
+          }
+        }
+        let a = A[i]!;
+        a = a < goal ? Math.min(goal, a + rate) : Math.max(goal, a - rate);
+        A[i] = ob.alpha = a;
+        if (a !== goal) busy = true;
+      }
+      return busy;
+    },
+  };
+  return oc;
+}
