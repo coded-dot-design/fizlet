@@ -298,6 +298,10 @@ car.pos.set(v.pos); car.rot.set(v.rot); // body pose; v.comp, v.spin, v.steerAng
 if (v.crashed) v.reset(x, z, yaw); // a nose-down landing; v.dust scales an emitter
 score += v.drift * dt; // handbrake drifts (drift input 1); drive:drift banks each chain
 touchAll(cars, { onHit: (a, b) => b.drift > 0.3 && b.spinOut(7, 1.2) }); // ram a drifter: it spins` },
+  { id: "math", no: 38, sym: "mh", family: "motion", status: "beta", since: "0.27.0", tests: ["math.test.mjs", "math-engines.mjs"], used: [], why: "New: no released game runs its sim on it yet.",
+    tag: "MATH", role: "advance", modules: [mod("@fzlt/core/math", "math")],
+    snippet: `const a = atan2(ty - y, tx - x); // in a step: the same bits on an iPhone and a desktop
+x += cos(a) * v * dt; y += sin(a) * v * dt;` },
   { id: "arcade", no: 20, sym: "ar", family: "game", status: "complete", since: "0.11.0", tests: ["arcade.test.mjs", "arcade.mjs", "arcade-game.mjs", "arcade-hud.mjs"], used: [GAME.invaders, GAME.runner, GAME.sherman],
     tag: "ARCADE", role: "go", modules: [mod("@fzlt/core/arcade", "arcade")],
     snippet: `const game = arcade({ id: "null-invaders", title: "Null Invaders", color: "#06c4ff",
@@ -320,12 +324,12 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
  * builds on. Each phase is a planned phase of site/roadmap.mjs (E9–E16), which lists these under it.
  */
 export const PLANNED = [
-  { name: "@fzlt/core/actor", no: 38, sym: "ac", family: "game", phase: "E11", purpose: "Entities on typed arrays: spawn, kill, side, health and tags, with fixed capacity.", target: 1229, needs: ["@fzlt/core"] },
-  { name: "@fzlt/core/aim", no: 39, sym: "am", family: "game", phase: "E11", purpose: "Lead targeting, firing cones and line of sight for bots and turrets.", target: 1024, needs: ["@fzlt/core/steer", "@fzlt/core/grid"] },
-  { name: "@fzlt/core/view-dom", no: 40, sym: "vd", family: "render", phase: "E11", purpose: "Pooled DOM nodes bound to actors, written change-only through the ledger.", target: 1536, needs: ["@fzlt/core/actor"] },
-  { name: "@fzlt/core/snapshot", no: 41, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
-  { name: "@fzlt/core/agent", no: 42, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
-  { name: "@fzlt/core/scene", no: 43, sym: "sc", family: "render", phase: "E13", purpose: "An animation recipe as data (stage, cast, cue, gag) mounted as a scene.", target: 2048, needs: ["@fzlt/core/sprite", "@fzlt/core/fx", "@fzlt/core/timeline", "@fzlt/core/slot"] },
-  { name: "@fzlt/core/announce", no: 44, sym: "an", family: "page", phase: "E14", purpose: "Game events read out to screen readers through one polite live region, rate-limited.", target: 614, needs: ["@fzlt/core"] },
-  { name: "@fzlt/core/music", no: 45, sym: "ms", family: "render", phase: "E15", purpose: "A tiny step sequencer on the kernel clock: patterns and tempo on the sound brick's synth.", target: 1229, needs: ["@fzlt/core/sound"] },
+  { name: "@fzlt/core/actor", no: 39, sym: "ac", family: "game", phase: "E11", purpose: "Entities on typed arrays: spawn, kill, side, health and tags, with fixed capacity.", target: 1229, needs: ["@fzlt/core"] },
+  { name: "@fzlt/core/aim", no: 40, sym: "am", family: "game", phase: "E11", purpose: "Lead targeting, firing cones and line of sight for bots and turrets.", target: 1024, needs: ["@fzlt/core/steer", "@fzlt/core/grid"] },
+  { name: "@fzlt/core/view-dom", no: 41, sym: "vd", family: "render", phase: "E11", purpose: "Pooled DOM nodes bound to actors, written change-only through the ledger.", target: 1536, needs: ["@fzlt/core/actor"] },
+  { name: "@fzlt/core/snapshot", no: 42, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
+  { name: "@fzlt/core/agent", no: 43, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
+  { name: "@fzlt/core/scene", no: 44, sym: "sc", family: "render", phase: "E13", purpose: "An animation recipe as data (stage, cast, cue, gag) mounted as a scene.", target: 2048, needs: ["@fzlt/core/sprite", "@fzlt/core/fx", "@fzlt/core/timeline", "@fzlt/core/slot"] },
+  { name: "@fzlt/core/announce", no: 45, sym: "an", family: "page", phase: "E14", purpose: "Game events read out to screen readers through one polite live region, rate-limited.", target: 614, needs: ["@fzlt/core"] },
+  { name: "@fzlt/core/music", no: 46, sym: "ms", family: "render", phase: "E15", purpose: "A tiny step sequencer on the kernel clock: patterns and tempo on the sound brick's synth.", target: 1229, needs: ["@fzlt/core/sound"] },
 ];

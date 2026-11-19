@@ -705,7 +705,7 @@ test("fx: a word draws at 0, 0 about its own origin (Chromium boxes fractional f
   assert.deepEqual(calls, [["translate", 10.25, 20.75], ["strokeText", 0, 0], ["fillText", 0, 0]]);
 });
 
-test("K5: no plain-sqrt distance in a brick; the exact hypot (@fzlt/core/steer) is the one place", async () => {
+test("K5: no plain-sqrt distance in a brick; the exact hypot (@fzlt/core/math, re-exported by steer) is the one place", async () => {
   // Math.sqrt(x * x + y * y) differs from Math.hypot in the last bit for ~40% of inputs, and a
   // replay that keeps every bit needs the same distance everywhere (the Fizlet factory's lesson K5).
   const { readdirSync, readFileSync } = await import("node:fs");
@@ -714,7 +714,7 @@ test("K5: no plain-sqrt distance in a brick; the exact hypot (@fzlt/core/steer) 
   for (const d of dirs)
     for (const f of readdirSync(d).filter((f) => f.endsWith(".ts")))
       readFileSync(`${d}/${f}`, "utf8").split("\n").forEach((l, i) => {
-        if (plain.test(l) && !(f === "steer.ts" && /\bp \* p \+ q \* q\b/.test(l))) found.push(`${d}/${f}:${i + 1}`);
+        if (plain.test(l) && !(f === "math.ts" && /\bp \* p \+ q \* q\b/.test(l))) found.push(`${d}/${f}:${i + 1}`);
       });
-  assert.deepEqual(found, [], "use hypot from ./steer");
+  assert.deepEqual(found, [], "use hypot from ./math (or ./steer)");
 });

@@ -62,6 +62,10 @@ export const BUDGETS = [
   // seek, flee, arrive, wander, patrol on typed arrays: 950 B gz when added. 958 B with arriveGoal (+8 B,
   // the goal read from gx/gy: Blitz's wingmen boxed their per-frame slot as arrive's arguments).
   ["@fzlt/core/steer", "src/steer.ts", 1280],
+  // Trig with the same bits on every engine (fdlibm's sin, cos, atan, atan2; steer's hypot moved here):
+  // 1,746 B gz when added (goal was 1,536: ~0.4 KB of it is fdlibm's 41 constants, which gzip cannot
+  // shrink); sin and cos alone 926 B, atan2 alone 949 B, hypot alone 143 B (they tree-shake).
+  ["@fzlt/core/math", "src/math.ts", 1792],
   // flag + tour + the kit card (its look inline on the tokens): 1,192 B gz when added; flag and tour alone tree-shake to less.
   ["@fzlt/core/coach", "src/coach.ts", 1536],
   // Keyframe tracks, easings (tables), stagger, labels, repeat/yoyo, controls, events, revert:
