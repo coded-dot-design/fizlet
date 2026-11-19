@@ -46,6 +46,10 @@ export const BUDGETS = [
   // with the seat's token, LOBBY and the host's START (+373 B; fizlet#210, pending owner review).
   ["@fzlt/core/presence", "src/presence.ts", 2240],
   ["@fzlt/core/presence/check", "src/presence-check.ts", 5120],
+  // Rollback on presence's wire (guessed inputs, a snapshot ring, resim, hashes on final frames, delay
+  // and lead balancing), lifted from the copy three games carried: 2,176 B gz when added (goal 2,560;
+  // hash32 and the wire kinds come from presence, the rest of presence tree-shakes away).
+  ["@fzlt/core/presence/rollback", "src/rollback.ts", 2304],
   ["@fzlt/core/hud", "src/hud.ts", 1536],
 
   ["@fzlt/core/match", "src/match.ts", 2816],

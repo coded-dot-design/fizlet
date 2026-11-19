@@ -92,6 +92,10 @@
       "types": "./dist/presence-check.d.ts",
       "default": "./dist/presence-check.js"
     },
+    "./presence/rollback": {
+      "types": "./dist/rollback.d.ts",
+      "default": "./dist/rollback.js"
+    },
     "./hud": {
       "types": "./dist/hud.d.ts",
       "default": "./dist/hud.js"
