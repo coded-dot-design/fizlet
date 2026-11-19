@@ -177,7 +177,7 @@ launch(startKey, start); // press, invert, shatter` },
     tag: "PERF", role: "sys", modules: [mod("@fzlt/core/perf", "perf")] },
   { id: "rules", no: 17, sym: "rl", family: "game", status: "complete", since: "0.6.0", tests: ["rules.test.mjs"], used: ["DOM Battlefield 1.0.0 (supply drops: drops in src/model.ts, dom-battlefield#11)", "Battlefield Blitz 0.8.0+ (supply crates: drops in src/game.ts, Blitz#4)", "Null Invaders 1.0 (drops, score)", "Sherman Bytes 1.0 (drops, score, waves)"],
     tag: "RULES", role: "advance", modules: [mod("@fzlt/core/rules", "rules")] },
-  { id: "steer", no: 21, sym: "st", family: "motion", status: "beta", since: "0.17.0", tests: ["steer.test.mjs"], used: [], why: "No released game moves on it yet (Battlefield Blitz is first in line).",
+  { id: "steer", no: 21, sym: "st", family: "motion", status: "beta", since: "0.17.0", tests: ["steer.test.mjs", "math-engines.mjs"], used: [], why: "No released game moves on it yet (Battlefield Blitz is first in line).",
     tag: "STEER", role: "advance", modules: [mod("@fzlt/core/steer", "steer")],
     snippet: `const m = steer({ cap: 16, random: e.random, blocked: (i, at) => wall(at[0], at[1]) });
 m.place(0, 100, 200);

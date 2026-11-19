@@ -61,7 +61,10 @@ export const BUDGETS = [
   ["@fzlt/core/rules", "src/rules.ts", 1536],
   // seek, flee, arrive, wander, patrol on typed arrays: 950 B gz when added. 958 B with arriveGoal (+8 B,
   // the goal read from gx/gy: Blitz's wingmen boxed their per-frame slot as arrive's arguments).
-  ["@fzlt/core/steer", "src/steer.ts", 1280],
+  // 2,759 B (+1,608 B) when the step's heading trig (atan2, sin, cos) moved onto @fzlt/core/math, so a
+  // seeded run ends on the same bits in every browser (Chromium 153 and WebKit 26 ended elsewhere than
+  // Node on builtins); budget raised from 1,280 by that need. Bricks that take only hypot don't move.
+  ["@fzlt/core/steer", "src/steer.ts", 2816],
   // Trig with the same bits on every engine (fdlibm's sin, cos, atan, atan2; steer's hypot moved here):
   // 1,746 B gz when added (goal was 1,536: ~0.4 KB of it is fdlibm's 41 constants, which gzip cannot
   // shrink); sin and cos alone 926 B, atan2 alone 949 B, hypot alone 143 B (they tree-shake).
