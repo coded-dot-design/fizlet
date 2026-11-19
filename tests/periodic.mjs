@@ -170,14 +170,14 @@ await check("a click opens that brick's quick view (pressed, lit, PRESSED); one 
     const clear = await page.evaluate(() => { const a = document.querySelector(".pt-q-meta .brick-sticker").getBoundingClientRect(), b = document.querySelector(".pt-x").getBoundingClientRect(); return a.right <= b.left || a.bottom <= b.top; });
     assert.ok(clear, `${id}: the sticker clears the close key`);
   }
-  await page.click('.el-key[data-el="actor"]');
+  await page.click('.el-key[data-el="snapshot"]');
   s = await state(page);
-  assert.deepEqual(s.expanded, ["actor"], "one open at a time");
-  assert.equal(s.name, "@fzlt/core/actor");
+  assert.deepEqual(s.expanded, ["snapshot"], "one open at a time");
+  assert.equal(s.name, "@fzlt/core/snapshot");
   assert.equal(s.meter, false, "planned: no size");
   assert.match(await page.textContent(".pt-card"), /Planned/);
   assert.equal(s.link, "#planned");
-  await page.click('.el-key[data-el="actor"]');
+  await page.click('.el-key[data-el="snapshot"]');
   s = await state(page);
   assert.deepEqual(s.expanded, [], "pressed again: closed");
   assert.equal(s.hidden, true);
