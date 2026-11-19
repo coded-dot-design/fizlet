@@ -48,8 +48,12 @@ try {
     });
     await p.waitForFunction(() => window.scene);
     await p.waitForFunction(() => scene.engine.stats().frames > 2);
-    // (the customiser's keys laid out)
-    await p.waitForFunction(() => [...document.querySelectorAll("[data-fizlet-slot] .kj-opt, [data-fizlet-slot] .kj-tab")].filter((b) => b.offsetParent).length > 6);
+    // (the customiser's keys laid out, and still: a key's press transition, transform 120 ms in the
+    // kit, moves its box by a fraction of a pixel while it runs, so the sizes are read once none runs)
+    await p.waitForFunction(() => {
+      const ks = [...document.querySelectorAll("[data-fizlet-slot] .kj-key, [data-fizlet-slot] .kj-opt, [data-fizlet-slot] .kj-tab, [data-fizlet-slot] .kj-go")].filter((b) => b.offsetParent);
+      return ks.filter((b) => b.matches(".kj-opt, .kj-tab")).length > 6 && ks.every((b) => !b.getAnimations().some((a) => a instanceof CSSTransition));
+    });
     const m = await p.evaluate(() => {
       const r = (s) => document.querySelector(s).getBoundingClientRect(), fig = r("figure"), art = r("[data-fizlet-slot] canvas");
       const cvs = document.querySelector("[data-fizlet-slot] canvas"), g = cvs.getContext("2d"), px = g.getImageData(cvs.width >> 2, (cvs.height * 0.6) | 0, 1, 1).data;
