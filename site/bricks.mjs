@@ -281,6 +281,32 @@ const a = sling({ pull: 2.5, max: 14 }); // a slingshot drag: a.power is the met
 a.begin(w.x[puck], w.z[puck], px, pz); a.move(px, pz); // pointer on the table (diorama's ground)
 if (a.end()) w.flick(puck, a.jx, a.jz); // send [a.angle, a.level]: the same shot everywhere
 e.add({ step: (_, dt) => w.step(dt) && e.busy(), render: () => w.apply(puck, ob) });` },
+  { id: "actor", no: 39, sym: "ac", family: "game", status: "experimental", since: "0.28.0", tests: ["actor.test.mjs"], used: [], why: "New (E11): no game moves its units on it yet; DOM Battlefield is first in line (src/ACTORS.md).",
+    tag: "ACTOR", role: "cmd", modules: [mod("@fzlt/core/actor", "actor")],
+    snippet: `const A = actors({ cap: 64, sides: 2, events: e.events });
+const i = A.spawn(0, 5); A.x[i] = 120; A.y[i] = 80; // side 0, 5 hp
+const foe = A.nearest(i, 300, 1 << 1);  // closest side-1 actor in range
+if (foe >= 0 && A.hurt(foe, 1)) score++; // true: that killed it
+A.sweep(); // once per step: dead rows come back` },
+  { id: "aim", no: 40, sym: "am", family: "game", status: "experimental", since: "0.28.0", tests: ["aim.test.mjs"], used: [], why: "New (E11): no game aims on it yet; DOM Battlefield is first in line (src/ACTORS.md).",
+    tag: "AIM", role: "aim", modules: [mod("@fzlt/core/aim", "aim")],
+    snippet: `const s = aim({ x: A.x, y: A.y, a: A.a, vx: A.vx, vy: A.vy, board,
+  foe: (i, j) => A.alive[j] === 1 && A.side[j] !== A.side[i] });
+const j = s.pick(i, A.list, A.n, 0.6, 460); // nearest foe in the cone, in sight
+if (j >= 0 && s.lead(i, j, 400)) fire(i, s.out[0], s.out[1]); // where it will be` },
+  { id: "view-dom", no: 41, sym: "vd", family: "render", status: "experimental", since: "0.28.0", tests: ["view-dom.test.mjs", "view-dom.mjs"], used: [], why: "New (E11): no game draws its units with it yet; DOM Battlefield is first in line (src/ACTORS.md).",
+    tag: "VIEW DOM", role: "fire", modules: [mod("@fzlt/core/view-dom", "view-dom")],
+    snippet: `/* CSS: the look is the page's */
+.board i { position: absolute; left: 0; top: 0; width: 24px; height: 24px; }
+.board i[data-side="1"] { background: var(--hurt); }
+
+viewDom(e, A, board, { linger: 0.4 }); // one pooled node per row
+// moved rows write one transform; a still board writes nothing and settles` },
+  { id: "announce", no: 42, sym: "an", family: "page", status: "beta", since: "0.28.0", tests: ["announce.test.mjs", "announce.mjs"], used: [], why: "New (E14): no released game reads out through it yet.",
+    tag: "ANNOUNCE", role: "sys", modules: [mod("@fzlt/core/announce", "announce")],
+    snippet: `const a = announce(e, { words: (ev) => ev.type === "score" ? \`Score \${ev.a}\` : null });
+e.events.emit("score", score); // in a step, as for sound: read once per gap, latest value
+a.say("over", "Game over"); a.flush(); // from a HUD or a result screen` },
   { id: "terrain", no: 36, sym: "tn", family: "render", status: "experimental", since: "0.22.0", tests: ["terrain.test.mjs", "terrain-drive.mjs", "drive-drift.mjs"], used: [], why: "New, for the diorama vehicle games (trail, desert and circuit racers); its API may still change before a game ships on it.",
     tag: "TERRAIN", role: "fallin", modules: [mod("@fzlt/core/terrain", "terrain")],
     snippet: `const t = terrain({ cols: 96, rows: 64, cell: 0.5 });
@@ -324,12 +350,8 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
  * builds on. Each phase is a planned phase of site/roadmap.mjs (E9–E16), which lists these under it.
  */
 export const PLANNED = [
-  { name: "@fzlt/core/actor", no: 39, sym: "ac", family: "game", phase: "E11", purpose: "Entities on typed arrays: spawn, kill, side, health and tags, with fixed capacity.", target: 1229, needs: ["@fzlt/core"] },
-  { name: "@fzlt/core/aim", no: 40, sym: "am", family: "game", phase: "E11", purpose: "Lead targeting, firing cones and line of sight for bots and turrets.", target: 1024, needs: ["@fzlt/core/steer", "@fzlt/core/grid"] },
-  { name: "@fzlt/core/view-dom", no: 41, sym: "vd", family: "render", phase: "E11", purpose: "Pooled DOM nodes bound to actors, written change-only through the ledger.", target: 1536, needs: ["@fzlt/core/actor"] },
-  { name: "@fzlt/core/snapshot", no: 42, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
-  { name: "@fzlt/core/agent", no: 43, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
-  { name: "@fzlt/core/scene", no: 44, sym: "sc", family: "render", phase: "E13", purpose: "An animation recipe as data (stage, cast, cue, gag) mounted as a scene.", target: 2048, needs: ["@fzlt/core/sprite", "@fzlt/core/fx", "@fzlt/core/timeline", "@fzlt/core/slot"] },
-  { name: "@fzlt/core/announce", no: 45, sym: "an", family: "page", phase: "E14", purpose: "Game events read out to screen readers through one polite live region, rate-limited.", target: 614, needs: ["@fzlt/core"] },
+  { name: "@fzlt/core/snapshot", no: 43, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
+  { name: "@fzlt/core/agent", no: 44, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
+  { name: "@fzlt/core/scene", no: 45, sym: "sc", family: "render", phase: "E13", purpose: "An animation recipe as data (stage, cast, cue, gag) mounted as a scene.", target: 2048, needs: ["@fzlt/core/sprite", "@fzlt/core/fx", "@fzlt/core/timeline", "@fzlt/core/slot"] },
   { name: "@fzlt/core/music", no: 46, sym: "ms", family: "render", phase: "E15", purpose: "A tiny step sequencer on the kernel clock: patterns and tempo on the sound brick's synth.", target: 1229, needs: ["@fzlt/core/sound"] },
 ];

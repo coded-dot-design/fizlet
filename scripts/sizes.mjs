@@ -129,6 +129,18 @@ export const BUDGETS = [
   ["@fzlt/core/terrain", "src/terrain.ts", 5568],
   // terrainWindow alone (no view): 2,630 B gz when added.
   ["@fzlt/core/terrain (terrainWindow alone)", "scripts/terrain-window.ts", 2688],
+  // Units, bots and shots as one fixed table of typed arrays (E11): spawn, kill, sweep, handles,
+  // side counts, tags, nearest. Measured when added (see the CHANGELOG); planned target 1,229.
+  ["@fzlt/core/actor", "src/actor.ts", 1229],
+  // Lead, cones, line of sight and target picking on body arrays (E11), with steer's exact hypot;
+  // grid comes in as a type only (the board is the game's). Planned target 1,024.
+  ["@fzlt/core/aim", "src/aim.ts", 1024],
+  // An actor table as pooled DOM nodes, change-only through the ledger (E11). Measured alone: on a
+  // page the kernel's ledger and the actor table are the game's already. Planned target 1,536.
+  ["@fzlt/core/view-dom", "src/view-dom.ts", 1536],
+  // Game events read out through one polite live region, rate-limited: 611 B gz when added (the
+  // kernel comes in as types only). Planned under 614 B (0.6 KB, E14); the budget is that target.
+  ["@fzlt/core/announce", "src/announce.ts", 614],
   // Vehicle feel on a heightfield plus the chase camera (steer's exact hypot): 3,170 B gz when added.
   // 4,478 B (+1,308 B) with the handbrake drift (slide, drift score, chains, spinOut), car-to-car
   // contact (touch, touchAll: box and circle hulls by mass) and the read-outs moved onto one shared

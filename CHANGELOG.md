@@ -2,6 +2,48 @@
 
 ## Unreleased
 
+- **Site: the roadmap marks E6 Performance wins and E7 Page interactions done.** E6.weekly (the weekly perf run, #92) and E7.page-cost (the page-cost gate, #97) are ticked; with the win log (#135) and the CI split (#316) every E6 box is ticked. The engine's ROADMAP.md agrees (`fe roadmap check`).
+
+- **`@fzlt/core/announce` (E14, BETA): game events read out through one polite live region, rate-limited.** `announce(engine, { words, gap, doc })` → `{ say, flush, destroy }`: one `[data-fz-announce]` status region per page, made on the first word; `words(event)` turns ring events into sentences in render, coalesced by key (the latest score, not ten), at most one write per gap; `destroy()` removes the region. Measured gz is in `npm run size` (budget 614 B). Tests: `tests/announce.test.mjs`, `tests/announce.mjs` (Chromium).
+
+- **`@fzlt/core/actor`, `@fzlt/core/aim` and `@fzlt/core/view-dom` (E11, ALPHA).** `actors({ cap, sides, x, y, a, events })`: units, bots and shots as one fixed table of typed arrays (spawn, kill, hurt, heal, sweep, handles, side counts, tags, nearest), 908 B gz. `aim({ x, y, a, vx, vy, board, mask, clear, foe })`: lead, cones, line of sight and target picking, 691 B gz. `viewDom(engine, actors, host, opts)`: an actor table as pooled DOM nodes, change-only through the ledger, settles when still, Recall removes every node, 882 B gz. All DOM-free or ledger-only, zero allocation per step; budgets 1,229 / 1,024 / 1,536 B. `src/ACTORS.md`: the migration note for DOM Battlefield onto them. Tests: `tests/actor.test.mjs`, `tests/aim.test.mjs`, `tests/view-dom.test.mjs`, `tests/view-dom.mjs` (Chromium).
+
+- **Page-cost gate (`npm run perf:page`, CI `perf` job).** Each page in `tests/perf/page-budgets.json`
+  is loaded live and poster-only (module scripts removed but the site chrome), at desktop and mobile
+  (4× CPU), best of 3; it fails when the live page adds more than CLS 0, a tap on page text +8 / +24 ms
+  or idle CPU +3 / +10 points. Waits count frames, never wall time; the tap is timed in the page at
+  sub-ms resolution. Writes `page-cost-results.json`; on GitHub Actions every result, each run's idle
+  CPU, rAF calls a second by script and layout-shift sources are annotations. Unit tests:
+  `tests/page-cost.test.mjs`.
+  - Measured in CI (six runs, best of 3 each): home desktop idle is +7.0 to +10.7 points against +3,
+    all of it the layers story's 30 fps autoplay (`layers.js` 30 rAF/s; poster page 0). Every CLS
+    and tap measure and home mobile pass in the last four runs (the first two runs showed mobile at
+    30 rAF/s and desktop CLS 0.0008, before the per-script annotations; not seen since).
+  - **One named exception** (`exceptions` in `page-budgets.json`): home desktop idle, tracked as G20
+    (#139, the story on compositor animations). It is reported as a warning on every run and fails
+    past its ceiling, +12 (the highest run, +10.7, plus about a point of runner spread). The budget stays +3. An exception
+    must name a roadmap task, link its tracking issue, say why and record its measured runs; CLS
+    can't be excepted (tested).
+
+- **CI: the perf job runs weekly too** (Mondays 06:17 UTC, `schedule:` in `ci.yml`; every other job
+  skips scheduled runs). Each run uploads `perf-results.json`, kept 90 days. Each result line (and each
+  over-budget line) is also a GitHub annotation, readable through the API without the artifact, and
+  the machine line carries the load average at the start and end of the run.
+- **Perf budgets are measured** (`tests/perf/budgets.json`, no longer provisional): the demo's from
+  the medians of 3 CI `perf` runs (p50 16.7 ms, 0% dropped, layerize 1.49 ms, FCP 320 ms, heap
+  3.55 MB, 4 minor GCs; load ≤ 1.15), Blitz's from 3 local runs (load 17–26, noted). Ceilings
+  tighten: demo p50 25 → 20 ms, p95 67 → 34, p99 117 → 34, dropped 45 → 5%, layerize 4 → 3 ms,
+  FCP 2,000 → 700 ms, heap 8 → 7 MB, minor GC 10 → 8. Each run, and the rule from median to ceiling,
+  is in the file.
+
+- **PERF-LOG.md: five more measured wins** (roadmap E6, G9), each with its merged PR's numbers:
+  the layers story's CLS 0.002 → 0 (#129, #123); the Battlefield landing hero 91.7 → 49.4 % main
+  thread busy on a 4× phone (dom-battlefield#21); the fps cap's slot from the frame's start, that
+  hero 22.6 → 27.8 rAF/s of the 30 it asks for (#122); presence's WebSocket send 22 → 0 young GCs
+  per 400k (#104); fizlet.com's two stylesheets 19,831 → 13,975 B gzip (#105). A win may name
+  another repo (`repo`: a game site running Fizlet, with that repo's version), and `Unreleased` is a
+  version. `tests/site.mjs` now checks the served stylesheets are minified (the CSS win had no test).
+
 - **Site: the roadmap ticks E6.ci-split (CI split into shards, #316) and E8.match (a released game on `@fzlt/core/match`, #276).** From `fe roadmap sync`; the engine's ROADMAP.md agrees (`fe roadmap check`).
 
 - **`@fzlt/core/terrain`: the default steep colour is the first band darkened, not black.** Without `steepColor`, `terrainView` made the steep colour as an `rgb()` string, and the shade ramp parses `#rrggbb`, so every default steep face drew black. Now the default is the first band × 0.8 as `#rrggbb`, as the option's doc meant. A view that sets `steepColor` is unchanged. Size: the terrain module 5,511 → 5,566 B gz (+55 B, inside the 5,568 B budget). Tests: `tests/terrain.test.mjs` (a slope with no `steepColor`: its steep faces take the band × 0.8 and no face is black; fails on the old code).

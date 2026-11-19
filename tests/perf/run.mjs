@@ -17,6 +17,12 @@ const mid = (xs) => { const s = xs.filter((x) => x != null).sort((a, b) => a - b
 const budgets = JSON.parse(readFileSync(new URL("./budgets.json", import.meta.url), "utf8"));
 if (!existsSync("site-dist/index.html")) throw new Error("site-dist/ is missing: run `npm run site` first");
 
+// The machine's load at the start and end of the run is part of every result (numbers on a busy
+// machine are not numbers on an idle one). On GitHub Actions each line is also an annotation, so a
+// weekly run can be read through the API without downloading the artifact.
+const load = () => loadavg().map((n) => n.toFixed(2)).join(" ");
+const note = (line) => process.env.GITHUB_ACTIONS && console.log(`::notice title=perf::${line}`);
+const loadStart = load();
 const servers = [], targets = [];
 const site = await serve("site-dist", "/fizlet/");
 servers.push(site);
@@ -48,6 +54,7 @@ try {
     const r = runs === 1 ? all[0] : { ...all[0], ...Object.fromEntries(["fcp", "frames", "p50", "p95", "p99", "max", "dropped", "layerizeMs", "heapMB", "minorGC", "majorGC"].map((k) => [k, mid(all.map((x) => x[k]))])), errors: all.flatMap((x) => x.errors), runs: all };
     if (runs > 1) console.log(`${fmt(r)}  (median of ${runs})`);
     results.push(r);
+    note(fmt(r));
     if (r.errors.length) over.push(`${r.name}: page errors: ${r.errors.join("; ")}`);
     const b = budgets[t.name] ?? {};
     for (const [key, max] of Object.entries(b)) {
@@ -62,12 +69,15 @@ try {
   await browser.close();
   for (const s of servers) await s.close();
 }
-const machine = `${cpus()[0]?.model ?? "unknown CPU"} × ${cpus().length}, Chromium ${browser.version()}, ${throttle}× CPU throttle, ${seconds} s${runs > 1 ? `, median of ${runs} runs` : ""}, load ${loadavg().map((l) => l.toFixed(2)).join(" ")}`;
+const machine = `${cpus()[0]?.model ?? "unknown CPU"} × ${cpus().length}, Chromium ${browser.version()}, ${throttle}× CPU throttle, ${seconds} s${runs > 1 ? `, median of ${runs} runs` : ""}, load ${loadStart} → ${load()}`;
 console.log(`machine  ${machine}`);
+note(`machine  ${machine}`);
+if (alloc) note(`alloc    idle ${alloc.idle.minorGC} minor GC / ${alloc.idle.frames} frames · scripted ${alloc.scripted.minorGC} / ${alloc.scripted.frames}`);
 const out = process.env.PERF_OUT ?? "perf-results.json";
 writeFileSync(out, JSON.stringify({ machine, throttle, seconds, runs, budgets, results, alloc, over, pass: over.length === 0 }, null, 2) + "\n");
 console.log(`report   ${out}`);
 if (over.length) {
   console.error("Over budget:\n  " + over.join("\n  "));
+  for (const o of over) process.env.GITHUB_ACTIONS && console.log(`::error title=perf over budget::${o}`);
   process.exit(1);
 }
