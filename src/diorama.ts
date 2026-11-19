@@ -7,7 +7,8 @@
  * - Painter's sort by cluster → layer → depth: a cluster is a group drawn together (fixed ranks
  *   first, then far to near by its anchor), a layer orders parts inside it, and depth orders the
  *   rest. `below` puts the faces under a cut plane on their own layer (hulls under water).
- * - Points (sparks, shells, smoke) and decals go into the same sort, so effects sit between faces.
+ * - Points (sparks, shells, smoke) and decals go into the same sort, so effects sit between faces;
+ *   a pool with `rank: "depth"` sorts each point among the clusters by its own depth.
  * - Limits: faces are never split, so two faces that cross each other, or a big face beside a small
  *   one at the wrong depth, can draw in the wrong order: split them into parts, or order them with
  *   clusters and layers. A face with a vertex behind the camera is dropped, not clipped.
@@ -182,6 +183,10 @@ export interface PointsOptions {
   cluster?: string;
   /** Their layer inside it (default 5). */
   layer?: number;
+  /** `"depth"`: each point sorts among the clusters by its own depth, as if it were an unfixed
+   *  cluster anchored on itself (debris behind a figure draws before it, in front after it);
+   *  `cluster` is then ignored. Default: the pool sorts in one cluster. */
+  rank?: "depth";
   /** Fill colour of the default disc (default `#ffffff`; `color[i]` overrides one). */
   color?: string;
   /** Paint point i yourself: its screen centre and radius are `sx[i]`, `sy[i]`, `sr[i]` (CSS px). */
@@ -215,6 +220,8 @@ export interface DioramaPoints {
   cluster: string | null;
   /** Their layer. */
   layer: number;
+  /** `"depth"`: each point ranks among the clusters by its depth; null: in `cluster`. */
+  rank: "depth" | null;
   /** The default disc colour. */
   colorAll: string;
   /** A custom painter, or null. */
@@ -527,7 +534,15 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
   }
   /** The view depth of Q. */
   const depthQ = () => (Q[0]! - B[0]!) * B[9]! + (Q[1]! - B[1]!) * B[10]! + (Q[2]! - B[2]!) * B[11]!;
-  const rankOf = (name: string | null) => { const c = name ? clusters.get(name) : undefined; return c ? CR[c.ci]! : clist.length; };
+  // Cluster i in draw order ranks 2i; the odd ranks between are for depth-ranked points.
+  const rankOf = (name: string | null) => { const c = name ? clusters.get(name) : undefined; return c ? CR[c.ci]! : clist.length * 2; };
+  /** A depth-ranked point at view depth T[2]: the odd rank after every cluster drawn before it
+   *  (fixed ones, and unfixed ones at least as far); a binary search, clist being in draw order. */
+  function rankT() {
+    let lo = 0, hi = clist.length;
+    while (lo < hi) { const m = (lo + hi) >> 1, c = clist[m]!; c.fixed != null || CD[c.ci]! >= T[2]! ? (lo = m + 1) : (hi = m); }
+    return lo * 2 - 1;
+  }
   const N = new Int32Array(5); // faces, shadows, points, verts, objects this frame
 
   /** 1) World matrices, parents first: R = Rparent · (Ry Rx Rz); t = tparent + Rparent · (pos + parent's top).
@@ -573,7 +588,7 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
       for (; j >= 0 && clusterBefore(c, clist[j]!); j--) clist[j + 1] = clist[j]!;
       clist[j + 1] = c;
     }
-    for (let i = 0; i < clist.length; i++) CR[clist[i]!.ci] = i;
+    for (let i = 0; i < clist.length; i++) CR[clist[i]!.ci] = i * 2;
   }
   /** 3) Vertices to screen; faces to keys (back faces and faces reaching behind the camera dropped).
    *  SH: each object's layer drop (`behind`, summed down the tree), parents first. */
@@ -663,7 +678,7 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
         if (P.a[i]! <= 0) continue;
         Q[0] = P.x[i]!; Q[1] = P.y[i]!; Q[2] = P.z[i]!;
         if (!projQ()) continue;
-        const e = slot(2, ka, g, i);
+        const e = slot(2, P.rank ? keyA(rankT(), P.layer) : ka, g, i);
         if (e < 0) continue;
         P.sx[i] = T[0]!; P.sy[i] = T[1]!; P.sr[i] = (P.r[i]! * B[12]!) / T[2]!;
         KD[e] = T[2]!;
@@ -801,7 +816,7 @@ export function diorama(canvas: HTMLCanvasElement, o: DioramaOptions = {}) {
     points(p: PointsOptions): DioramaPoints {
       const f = () => new Float64Array(p.cap), pool: DioramaPoints = {
         n: 0, x: f(), y: f(), z: f(), r: f(), a: f().fill(1), color: new Array(p.cap).fill(undefined), sx: f(), sy: f(), sr: f(),
-        cluster: p.cluster ?? null, layer: p.layer ?? 5, colorAll: p.color || "#ffffff", paint: p.paint || null,
+        cluster: p.cluster ?? null, layer: p.layer ?? 5, rank: p.rank || null, colorAll: p.color || "#ffffff", paint: p.paint || null,
       };
       pools.push(pool);
       return pool;

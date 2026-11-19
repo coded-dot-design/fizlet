@@ -168,6 +168,97 @@ test("diorama: points and decals sort among the faces", () => {
   close(own[0][1], 200, 1e-9, "paint reads its screen position");
 });
 
+test("diorama: points with `rank: \"depth\"` sort among clusters by their own depth", () => {
+  const p = fakeCanvas(), d = diorama(p.canvas);
+  side(d);
+  d.cluster("room", { fixed: 0 });
+  d.add({ size: [30, 0.2, 0.2], pos: [0, -4, -12], color: "#ffff00", emissive: true, cluster: "room" });
+  d.cluster("wall", { at: [0, 0, -6] });
+  d.cluster("fig", { at: [0, 0, 0] });
+  d.add({ size: [8, 8, 0.2], pos: [0, -4, -6], color: "#00ff00", emissive: true, cluster: "wall" });
+  d.add({ size: [2, 2, 0.2], pos: [0, -1, 0], color: "#ff0000", emissive: true, cluster: "fig", layer: 0 });
+  const dust = d.points({ cap: 512, rank: "depth", layer: 9, color: "#0000ff" });
+  const put = (P, i, z, col) => ((P.x[i] = 0), (P.y[i] = 0), (P.z[i] = z), (P.r[i] = 0.2), (P.color[i] = col));
+  dust.n = 4;
+  put(dust, 0, -3, "#000001"); // between the wall and the figure
+  put(dust, 1, 3, "#000002"); // in front of the figure
+  put(dust, 2, -9, "#000003"); // behind the wall, still after the fixed room
+  put(dust, 3, -6, "#000004"); // level with the wall's anchor: after it, like a cluster added later
+  const at = (s) => p.fills.findIndex((f) => f.style === s);
+  const ROOM = "rgb(253,253,0)"; // the emissive yellow, at full shade
+  const order = () => (p.reset(), d.draw(), [ROOM, "#000003", FULL["#00ff00"], "#000004", "#000001", FULL["#ff0000"], "#000002"].map(at));
+  const o1 = order();
+  assert.ok(o1.every((v) => v >= 0), `every entry drawn: ${o1}`);
+  assert.deepEqual([...o1].sort((a, b) => a - b), o1, `room, far dust, wall, level dust, mid dust, figure, near dust: ${o1}`);
+  assert.equal(d.stats.points, 4);
+  // A pool without rank keeps today's order: after every cluster, whatever its depth.
+  const old = d.points({ cap: 1, layer: 9, color: "#000005" });
+  old.n = 1;
+  put(old, 0, -9, "#000005");
+  order();
+  assert.ok(at("#000005") > at(FULL["#ff0000"]), "no rank: after every cluster");
+  old.rank = "depth";
+  order();
+  assert.ok(at("#000005") < at(FULL["#00ff00"]), "rank is live: the same point now sorts behind the wall");
+  old.n = 0;
+  // They re-rank each draw: walk the mid point in front of the figure.
+  dust.z[0] = 2;
+  order();
+  assert.ok(at("#000001") > at(FULL["#ff0000"]) && at("#000001") < at("#000002"), "moved in front: after the figure, before the nearer point");
+  // A cluster's `layer` can't pull a depth point inside it: the rank beats the layer.
+  dust.z[0] = -3;
+  order();
+  assert.ok(at("#000001") < at(FULL["#ff0000"]), "layer 9 on the point still draws before a layer 0 figure in front of it");
+  // Deterministic: the same scene draws the same fills, entry for entry.
+  const a = (p.reset(), d.draw(), p.fills.map((f) => f.style + f.pts.join()).join("|"));
+  const b = (p.reset(), d.draw(), p.fills.map((f) => f.style + f.pts.join()).join("|"));
+  assert.equal(a, b, "two draws of one scene paint the same sequence");
+});
+
+test("diorama: depth-ranked points: 512 of them drop and count past maxFaces, allocate nothing, cost measured", async (t) => {
+  const make = (rank, maxFaces) => {
+    const p = fakeCanvas(400, 300, false), d = diorama(p.canvas, maxFaces ? { maxFaces } : {});
+    d.cluster("room", { fixed: 0 });
+    d.add({ id: "floor", size: [24, 0.5, 24], pos: [0, -0.5, 0], color: "#d9d3ca", cluster: "room" });
+    for (let i = 0; i < 24; i++) d.add({ size: [1, 1 + (i % 4), 1], on: "floor", pos: [(i % 6) * 3 - 7.5, 0, ((i / 6) | 0) * 3 - 4.5], color: "#4f8fb5" });
+    const P = d.points(rank ? { cap: 512, rank: "depth" } : { cap: 512 });
+    P.n = 512;
+    for (let i = 0; i < 512; i++) (P.x[i] = Math.sin(i) * 10), (P.y[i] = 0.5 + (i % 5) * 0.4), (P.z[i] = Math.cos(i * 1.3) * 10), (P.r[i] = 0.08);
+    Object.assign(d.cam, { yaw: 0.4, pitch: 0.6, dist: 30, tx: 0, ty: 0, tz: 0, fov: 0.8 });
+    return { d, P };
+  };
+  // Drops: a tight maxFaces counts what didn't fit, whatever the rank.
+  for (const rank of [false, true]) {
+    const { d } = make(rank, 300);
+    d.draw();
+    assert.ok(d.stats.dropped > 0 && d.stats.faces + d.stats.shadows + d.stats.points <= 300, `rank ${rank}: dropped ${d.stats.dropped}, kept ≤ 300`);
+  }
+  {
+    const a = make(false).d, b = make(true).d;
+    a.draw(); b.draw();
+    assert.deepEqual({ ...b.stats }, { ...a.stats }, "the same entries counted with and without rank");
+  }
+  const time = (d, n) => { const t0 = performance.now(); for (let i = 0; i < n; i++) (d.cam.yaw = i * 0.001), d.draw(); return (performance.now() - t0) / n; };
+  const A = make(false).d, R = make(true).d;
+  for (let w = 0; w < 3; w++) time(A, 200), time(R, 200);
+  const aMs = time(A, 1000), rMs = time(R, 1000);
+  t.diagnostic(`24 boxes in 25 clusters + 512 points: ${A.stats.faces} faces, ${A.stats.points} points; ${aMs.toFixed(3)} ms per draw in one cluster, ${rMs.toFixed(3)} ms ranked by depth`);
+  const minors = async (on) => {
+    const { d, P } = make(true), s = new Int32Array(1);
+    const frame = () => {
+      const k = s[0]++;
+      d.cam.yaw = k * 0.002;
+      P.z[k % 512] = Math.sin(k) * 10;
+      if (on) d.draw();
+    };
+    for (let i = 0; i < 1000; i++) frame();
+    return minorGCs(() => { for (let i = 0; i < 10000; i++) frame(); });
+  };
+  const bare = await minors(false), withDraw = await minors(true);
+  t.diagnostic(`young GCs over 10k draws of 512 depth-ranked points: bare ${bare}, with draw ${withDraw}`);
+  assert.ok(withDraw <= bare + 1, `young-generation GCs: ${withDraw} with diorama, ${bare} bare`);
+});
+
 test("diorama: `behind`: a wheel draws over the body on the near side, under it on the far side", () => {
   const p = fakeCanvas(), d = diorama(p.canvas, { background: "#ffffff" });
   // A car: a body on the root (layer 5), four hubs above it (their tyres at 6) that drop 1.5 on the far
