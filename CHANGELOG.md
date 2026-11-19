@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Site: the roadmap ticks E6.ci-split (CI split into shards, #316) and E8.match (a released game on `@fzlt/core/match`, #276).** From `fe roadmap sync`; the engine's ROADMAP.md agrees (`fe roadmap check`).
+
 - **`@fzlt/core/terrain`: the default steep colour is the first band darkened, not black.** Without `steepColor`, `terrainView` made the steep colour as an `rgb()` string, and the shade ramp parses `#rrggbb`, so every default steep face drew black. Now the default is the first band × 0.8 as `#rrggbb`, as the option's doc meant. A view that sets `steepColor` is unchanged. Size: the terrain module 5,511 → 5,566 B gz (+55 B, inside the 5,568 B budget). Tests: `tests/terrain.test.mjs` (a slope with no `steepColor`: its steep faces take the band × 0.8 and no face is black; fails on the old code).
 
 ## 0.27.0
