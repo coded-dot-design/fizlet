@@ -149,6 +149,7 @@ protocol presence speaks, the one-room-one-object pattern and a threat checklist
 |---|---|---|---|
 | `@fzlt/core/presence` | BETA | `presence(engine, { transport, slot, players, input, step })`: lockstep input exchange (input delay, never guesses), state-hash desync check; `memory()` and `websocket()` / `join(url)` transports | 2.1 KB |
 | `@fzlt/core/presence/check` | BETA | `syncCheck(setup, opts)`: runs a sim as lockstep clients and finds the first diverged frame (tests only) | 4.8 KB |
+| `@fzlt/core/presence/rollback` | BETA | `rollback(engine, { transport, slot, players, input(frame), step(inputs, frame, live, sure), bytes, confirm, gone, window, delay })`: rollback on presence's wire and room: every frame runs at once on guessed remote inputs, a late input that differs runs the frames since again from a snapshot ring of the sim's byte views; hashes on final frames (`desync`), the input delay 1..3 from the measured latency, a screen ahead waits a frame now and then (`lead`), a seat that left plays `gone`. Deterministic; zero allocation per frame. API may move | 2.1 KB |
 
 ### Status flags
 
@@ -460,7 +461,36 @@ differed (or -1). `setup(e, slot, players)` returns `{ input(), step(e, inputs, 
 `state` is a byte view of the sim's typed arrays.
 
 `net.frame`, `net.stalls`, `net.desync`, `net.lost`, `net.away` (seats reconnecting), `net.confirmed(slot, frame)` (the input log
-a rollback layer can replay). A transport is `{ send(bytes), listen(fn), close() }`. Presence is
+a rollback layer can replay).
+
+**Rollback instead of lockstep** (`@fzlt/core/presence/rollback`, BETA, API may move): lockstep waits for
+every input, so on a phone's network the sim runs only as fast as the slowest round trip. `rollback()`
+runs each frame at once on your own input and a guess for everyone else's (the last input heard), and
+when a real input differs it loads the snapshot of that frame and runs the frames since again. Same
+12-byte wire and room as presence, so nothing in the room server changes. Your sim keeps every bit of
+its state in typed arrays (its random state too) and gives their byte views as `bytes`; the step may
+change nothing else, and render-only work never feeds it.
+
+```js
+import { rollback } from "@fzlt/core/presence/rollback";
+
+const S = new Float64Array(64), R = new Uint32Array(1); // the whole sim, its own random state in R
+const net = rollback(e, {
+  transport, slot, players, bytes: [new Uint8Array(S.buffer), new Uint8Array(R.buffer)],
+  input: (frame) => keyBits(),                      // your bits for a frame, read `delay` frames ahead
+  step: (inputs, frame, live, sure) => sim(inputs), // `live`: first run; `sure`: final, never runs again
+  confirm: (inputs, frame) => log(frame),           // each final frame once, in order (scores, sounds)
+  gone: 0,                                          // what a seat that left plays
+});
+```
+
+`net.frame` (run, some on guesses), `net.final` (every input real: the same frames on every screen),
+`net.desync` (the first final frame whose hash differed, or -1; every `hashEvery` frames, default 30),
+`net.delay` (1..3 frames, from the measured trip; `delay` fixes it), `net.lead` (frames ahead of the
+others), `net.stalls` (the `window` was full: someone went quiet), `net.waits`, `net.resims`,
+`net.corrections`, `net.left` and `net.leftAt(seat)`, `net.hold = frame` (stop there; tests and a
+match's end), `net.destroy()`. Test it the way `tests/rollback.test.mjs` does: screens over `memory()`
+with latency and jitter must end byte for byte on the run with no network. A transport is `{ send(bytes), listen(fn), close() }`. Presence is
 in-house / experimental: our games run it against our own room server, which isn't a hosted
 service. [Build your own room server](https://fizlet.com/guides/build-your-own-room-server/) specs
 the wire protocol, so a server you write interoperates.
