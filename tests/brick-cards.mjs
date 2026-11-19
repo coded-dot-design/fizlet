@@ -12,7 +12,7 @@ import { launchOptions } from "./chromium.mjs";
 
 import { CARD_IDS as IDS } from "../site/brick-cards.mjs";
 import { stickerLook } from "../site/brick-ui.mjs";
-import { BRICKS } from "../site/bricks.mjs";
+import { BRICKS, PLANNED } from "../site/bricks.mjs";
 
 const ROOT = "site-dist";
 if (!existsSync(`${ROOT}/brick-cards.js`)) throw new Error("site-dist/brick-cards.js is missing: run `npm run site` first");
@@ -368,7 +368,7 @@ try {
       await m.focus();
       await sleep(250);
       assert.equal(...(await m.evaluate((a) => { const p = document.createElement("i"); p.style.color = "var(--tone)"; a.append(p); const c = getComputedStyle(p).color; p.remove(); return [getComputedStyle(a).borderTopColor, c]; })), "mini: the brick's colour on focus");
-      if (path === "bricks/") assert.ok(await page.locator("a.brick-mini.brick-kernel").count() > 0, "a kernel mini on the roadmap's needs");
+      if (path === "bricks/" && PLANNED.some((p) => p.needs.includes("@fzlt/core"))) assert.ok(await page.locator("a.brick-mini.brick-kernel").count() > 0, "a kernel mini on the roadmap's needs");
       assert.deepEqual(errors, []);
       await page.close();
     }
