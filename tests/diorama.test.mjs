@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { minorGCs } from "./gc.mjs";
 
-const { diorama } = await import("../src/diorama.ts");
+const { diorama, occlude } = await import("../src/diorama.ts");
 const { createEngine } = await import("../src/index.ts");
 
 /** A 2D context that records each fill as { style, alpha, pts } (an arc is a one-point path), or
@@ -531,6 +531,95 @@ test("diorama: `off` skips the matrix work (a measured cost) and toggling a pool
   const bare = await minors(false), withDraw = await minors(true);
   t.diagnostic(`young GCs over 10k draws toggling a pool of 200: bare ${bare}, with draw ${withDraw}`);
   assert.ok(withDraw <= bare + 1, `young-generation GCs: ${withDraw} with diorama, ${bare} bare`);
+});
+
+test("diorama: eye() is the camera's world position", () => {
+  const d = diorama(fakeCanvas().canvas);
+  side(d);
+  assert.deepEqual(Array.from(d.eye(new Float64Array(3))), [0, 0, 20], "side view: on +z at dist");
+  Object.assign(d.cam, { yaw: Math.PI / 2, pitch: Math.PI / 6, dist: 10, tx: 1, ty: 2, tz: 3 });
+  const e = d.eye([0, 0, 0]);
+  [1 + 10 * Math.cos(Math.PI / 6), 2 + 5, 3].forEach((v, i) => close(e[i], v, 1e-9, `eye[${i}]`));
+});
+
+test("diorama: occlude() ghosts what stands between the eye and the targets, over t; back when clear; 0 with the eye inside", () => {
+  const d = diorama(fakeCanvas().canvas);
+  side(d); // eye at (0, 0, 20)
+  const wall = d.add({ id: "wall", size: [4, 4, 1], pos: [0, -2, 10], rot: [0, 0.3, 0] });
+  const side2 = d.add({ id: "side", size: [2, 2, 2], pos: [6, -1, 10] });
+  const oc = occlude(d, { objects: [wall, side2] }), pts = new Float64Array([0, 0, 0, 0, 1, 0]);
+  const run = (n, dt = 0.05) => { const busy = []; for (let i = 0; i < n; i++) busy.push(oc.step(dt, pts)); return busy; };
+  assert.deepEqual(run(4), [true, true, false, false], "eases over 0.15 s (there in three 50 ms steps), then idle");
+  close(wall.alpha, 0.16, 1e-12, "in the way: the ghost alpha");
+  assert.equal(side2.alpha, 1, "off the ray: untouched");
+  wall.pos[0] = -5; // out of the way
+  run(1);
+  close(wall.alpha, 0.16 + 1 / 3, 1e-12, "fading back at dt / t a step");
+  assert.deepEqual(run(3), [true, false, false]);
+  assert.equal(wall.alpha, 1, "clear: back to 1");
+  // The eye inside a box: that one fades out.
+  side2.pos[0] = 0; side2.pos[2] = 20;
+  run(4);
+  assert.equal(side2.alpha, 0, "the eye inside: 0");
+  // Reduced motion snaps.
+  side2.pos[0] = 6; side2.pos[2] = 10; wall.pos[0] = 0;
+  oc.reduced = true;
+  assert.equal(oc.step(0.016, pts), false, "reduced: no fade left after one step");
+  assert.deepEqual([wall.alpha, side2.alpha], [0.16, 1], "reduced: snapped");
+  // Only a target given: n.
+  wall.pos[1] = 0.5; // now above the first target's ray, under the second's
+  oc.step(0.016, pts, 1);
+  assert.equal(wall.alpha, 1, "n = 1: only the first target counts");
+  oc.step(0.016, pts);
+  assert.equal(wall.alpha, 0.16, "both targets: the second is hidden");
+});
+
+test("diorama: occlude() `near` keeps a box touching the target (a rider against a wall)", () => {
+  const d = diorama(fakeCanvas().canvas);
+  side(d);
+  const mk = (near) => {
+    const w = d.add({ size: [4, 4, 1], pos: [0, -2, 1], alpha: 1 });
+    return { w, oc: occlude(d, { objects: [w], near, reduced: true }) };
+  };
+  const pts = new Float64Array([0, 0, 0]);
+  const a = mk(0), b = mk(2);
+  a.oc.step(0.016, pts); b.oc.step(0.016, pts);
+  assert.equal(a.w.alpha, 0.16, "near 0: a box 0.5 to 1.5 in front of the target is in the way");
+  assert.equal(b.w.alpha, 1, "near 2: met within 2 of the target, it is touching, not in the way");
+});
+
+test("diorama: occlude() broadphase, determinism and zero allocation over 10,000 steps with 256 objects", async (t) => {
+  const make = () => {
+    const d = diorama(fakeCanvas(400, 300, false).canvas);
+    Object.assign(d.cam, { yaw: 0.2, pitch: 0.5, dist: 14, tx: 0, ty: 0, tz: 0, fov: 0.8 });
+    const objects = [];
+    for (let i = 0; i < 256; i++) objects.push(d.add({ size: [2, 3 + (i % 4), 2], pos: [(i % 16) * 4 - 30, 0, ((i / 16) | 0) * 4 - 30], rot: [0, i * 0.1, 0] }));
+    return { d, objects, oc: occlude(d, { objects }) };
+  };
+  const pts = new Float64Array(15);
+  const at = (k) => { for (let j = 0; j < 5; j++) (pts[j * 3] = Math.sin(k * 0.01) * 2 + j * 0.2), (pts[j * 3 + 1] = 0.5 + j * 0.3), (pts[j * 3 + 2] = Math.cos(k * 0.013) * 2); };
+  {
+    const { oc, objects } = make();
+    at(0);
+    oc.step(0.016, pts);
+    assert.ok(oc.tested > 0 && oc.tested < 40, `only boxes inside the eye-target bounds are ray-tested: ${oc.tested} of 256`);
+    for (let i = 0; i < 30; i++) oc.step(0.016, pts);
+    const ghosts = objects.filter((o) => o.alpha < 1).length;
+    t.diagnostic(`256 objects, 5 targets: ${oc.tested} ray-tested, ${ghosts} ghosted`);
+    assert.ok(ghosts > 0, "something between the eye and the targets is ghosted");
+  }
+  // Deterministic: two runs, the same alphas step for step.
+  const trace = () => { const { oc, objects } = make(), out = []; for (let k = 0; k < 300; k++) at(k), oc.step(0.016, pts), out.push(objects.map((o) => o.alpha).join()); return out.join("|"); };
+  assert.equal(trace(), trace(), "the same inputs give the same alphas");
+  const minors = async (on) => {
+    const { oc, d } = make(), s = new Int32Array(1);
+    const frame = () => { const k = s[0]++; at(k); d.cam.yaw = k * 0.001; if (on) oc.step(0.016, pts); };
+    for (let i = 0; i < 1000; i++) frame();
+    return minorGCs(() => { for (let i = 0; i < 10000; i++) frame(); });
+  };
+  const bare = await minors(false), withStep = await minors(true);
+  t.diagnostic(`young GCs over 10k steps, 256 objects: bare ${bare}, with occlude ${withStep}`);
+  assert.ok(withStep <= bare + 1, `young-generation GCs: ${withStep} with occlude, ${bare} bare`);
 });
 
 test("diorama: capacities drop and count, never overflow", () => {

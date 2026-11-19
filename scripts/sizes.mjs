@@ -85,7 +85,10 @@ export const BUDGETS = [
   // steer's exact hypot for the shadow axes); `behind` (far-side wheels under the body): 6,472 B.
   // `off` (subtree hide): 6,511 B. Points with `rank: "depth"` (each sorts among the clusters by
   // its own depth, a binary search over the ranked clusters): 6,589 B (+78 B), budget 6,528 → 6,656.
-  ["@fzlt/core/diorama", "src/diorama.ts", 6656],
+  // With `occlude` (fade what stands between the eye and targets; tree-shakes): 7,257 B when added;
+  // diorama() alone (with `eye()`, +22 B) 6,611 B, budgeted on its own just below.
+  ["@fzlt/core/diorama", "src/diorama.ts", 7296],
+  ["@fzlt/core/diorama (diorama() alone)", "scripts/diorama-card.ts", 6656],
   // Seeded dice for tabletop games (diorama is a type-only import; steer's exact hypot): 4,264 B gz
   // when added, with dioramaDice and popDome; roll alone 325 B, dice() 1,920 B (they tree-shake).
   ["@fzlt/core/dice", "src/dice.ts", 4352],
