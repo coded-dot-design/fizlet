@@ -104,7 +104,7 @@ export const ROADMAP = [
     [1, "An API snapshot test for every COMPLETE brick", "E9.api-snapshot"],
   ] },
   { id: "E10", name: "Diagrams", status: "in progress", goal: "Interactive diagrams that settle: graphs laid out on the kernel clock.", items: [
-    [1, "layout (force layout + Barnes-Hut) and view-canvas bricks, EXPERIMENTAL in 0.21.0", "E10.bricks"],
+    [1, "layout (force layout + Barnes-Hut) and view-canvas bricks, ALPHA in 0.21.0", "E10.bricks"],
     [1, "An interactive diagram on a marketing page, settled at 0 frames", "E10.diagram"],
     [0, "Page cost green on the diagram page, in CI", "E10.page-cost"],
   ] },
@@ -125,8 +125,8 @@ export const ROADMAP = [
     [0, "@fzlt/core@1.0.0", "E16.release"],
   ] },
   { id: "E17", name: "Tabletop", status: "in progress", note: "0.22.0", goal: "A game tier beside Board: diorama 3D games on a plain 2D canvas, no WebGL and no libraries, built from a family of 3D bricks.", items: [
-    [1, "diorama: the 3D renderer on a plain 2D canvas, EXPERIMENTAL in 0.22.0", "E17.diorama"],
-    [1, "dice · track · water · props · beam · cards · flick · terrain · drive, EXPERIMENTAL in 0.22.0; drive drift, spin-outs and car contact, terrain berm run-out in 0.23.0; drive long-travel suspension in 0.24.0; drive state, save and load (rollback) and diorama behind in 0.25.0", "E17.bricks"],
+    [1, "diorama: the 3D renderer on a plain 2D canvas, ALPHA in 0.22.0", "E17.diorama"],
+    [1, "dice · track · water · props · beam · cards · flick · terrain · drive, ALPHA in 0.22.0; drive drift, spin-outs and car contact, terrain berm run-out in 0.23.0; drive long-travel suspension in 0.24.0; drive state, save and load (rollback) and diorama behind in 0.25.0", "E17.bricks"],
     [1, "Salvo Bay: the first diorama piece, on diorama", "E17.salvo-bay"],
     [1, "Daily: a Hi-Fi lane for pieces over the micro cap, with its own weekly winner; 0.23.0 adds eleven, with new Mazes and Bar games themes", "E17.hifi"],
     [0, "Salvo Bay online for two, on presence", "E17.salvo-online"],
