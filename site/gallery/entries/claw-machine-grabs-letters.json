@@ -1,6 +1,7 @@
 {
+  "no": 127,
   "id": "claw-machine-grabs-letters",
-  "date": "2026-10-30",
+  "date": "2026-11-19",
   "prompt": "a wood-grain claw machine whose prizes are the page's letters: tap to drop the claw; half the time it fumbles the block back onto the pile, and a win spits out tickets",
   "title": "Grab-O-Tron",
   "kind": "micro",
@@ -8,14 +9,14 @@
   "author": "chris-cooley",
   "recipe": "hand-built",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/slot"
+    "@fzlt/core/kernel",
+    "@fzlt/core/slot"
   ],
-  "fizlet": "0.20.0",
+  "@fzlt/core": "0.20.0",
   "made": "by hand",
   "module": "pieces/claw-machine-grabs-letters.ts",
   "export": "mount",
   "aspect": "16 / 9",
   "stage": "own",
-  "approved": "2026-10-30"
+  "approved": "2026-11-19"
 }
