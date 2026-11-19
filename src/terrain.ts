@@ -385,6 +385,10 @@ export interface TerrainViewOptions {
   shadows?: number;
   /** Shadow colour (default `#000000`). */
   shadowColor?: string;
+  /** Faces fade into `color` with their distance in the floor plane from the camera's target (the
+   *  player, under a chase camera): untouched before `from`, all `color` past `to` (16 steps between).
+   *  Shadows are not hazed. */
+  haze?: { from: number; to: number; color: string };
 }
 
 /** What `terrainView` returns. */
@@ -392,9 +396,9 @@ export type TerrainView = ReturnType<typeof terrainView>;
 
 const SHN = 12;
 /** `#rrggbb` darkened (b < 1) or lifted toward white (b > 1), as an rgb() string (diorama's ramp). */
-function rgb(col: string, b: number) {
-  const n = parseInt(col.slice(1), 16), f = (c: number) => (b <= 1 ? c * b : c + (255 - c) * (b - 1) * 0.9) | 0;
-  return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`;
+function rgb(col: string, b: number, m = 0, hc = 0) {
+  const n = parseInt(col.slice(1), 16), f = (k: number, c = (n >> k) & 255) => ((c = b <= 1 ? c * b : c + (255 - c) * (b - 1) * 0.9), c + (((hc >> k) & 255) - c) * m) | 0;
+  return `rgb(${f(16)},${f(8)},${f(0)})`;
 }
 
 /** Draw terrain `t` into diorama `d` as flat-shaded faces, painted inside `d.draw()` (decals in the
@@ -412,10 +416,11 @@ export function terrainView(d: Diorama, t: Terrain, o: TerrainViewOptions = {}) 
   const SHX = new Float64Array(ns), SHZ = new Float64Array(ns), SHR = new Float64Array(ns), SHA = new Float64Array(ns), CO = new Float64Array(SHN * 2);
   for (let k = 0; k < SHN; k++) (CO[k * 2] = Math.cos((k / SHN) * 6.283185307179586)), (CO[k * 2 + 1] = Math.sin((k / SHN) * 6.283185307179586));
   const stats = { faces: 0, chunks: 0 };
-  let ver = -1, amb = 0.56, NB = 0, IS = 0, IK = 0;
-  // Colours: the bands, the steep colour, then the kinds; 33 shades each, as strings, made once.
+  let ver = -1, amb = 0.56, NB = 0, IS = 0, IK = 0, NL = 0, HL = 0, HZ = 0, H0 = 0, H1 = 1;
+  // Colours: the bands, the steep colour, then the kinds; 33 shades each (× 17 haze steps with haze),
+  // as strings, made once.
   const tops = new Float64Array(64), SH: string[] = [];
-  function colors(bands: ArrayLike<readonly [number, string]> = [[Infinity, "#d9b27c"]], steepColor?: string, kinds: ArrayLike<string> = []) {
+  function colors(bands: ArrayLike<readonly [number, string]> = [[Infinity, "#d9b27c"]], steepColor?: string, kinds: ArrayLike<string> = [], haze: TerrainViewOptions["haze"] | null = o.haze) {
     const list: string[] = [];
     NB = bands.length;
     for (let i = 0; i < NB; i++) (tops[i] = bands[i]![0]), list.push(bands[i]![1]);
@@ -423,7 +428,10 @@ export function terrainView(d: Diorama, t: Terrain, o: TerrainViewOptions = {}) 
     IK = list.length;
     for (let i = 0; i < kinds.length; i++) list.push(kinds[i]!);
     SH.length = 0;
-    for (const col of list) for (let l = 0; l <= 32; l++) SH.push(rgb(col, 0.5 + (l / 40) * 0.62));
+    NL = list.length;
+    HL = haze ? 16 : (HZ = 0);
+    const hc = haze ? ((H0 = haze.from), (H1 = 16 / (haze.to - H0)), parseInt(haze.color.slice(1), 16)) : 0;
+    for (const col of list) for (let l = 0; l <= 32; l++) for (let z = 0; z <= HL; z++) SH.push(rgb(col, 0.5 + (l / 40) * 0.62, z / 16, hc));
   }
   colors(o.bands, o.steepColor, o.kinds);
   const lv = o.light || [0.5, 1, 0.4], ll = Math.sqrt(lv[0]! * lv[0]! + lv[1]! * lv[1]! + lv[2]! * lv[2]!) || 1;
@@ -507,7 +515,7 @@ export function terrainView(d: Diorama, t: Terrain, o: TerrainViewOptions = {}) 
     const sx = (a & 1 ? HE[q]! - HE[p]! : HE[q]! - HE[r]!) / WS[0]!, sz = (a === 1 ? HE[r]! - HE[q]! : a === 2 ? HE[q]! - HE[p]! : HE[r]! - HE[p]!) / WS[0]!;
     const l = Math.sqrt(sx * sx + sz * sz + 1), ny = 1 / l, y = (HE[p]! + HE[q]! + HE[r]!) / 3;
     let ci = IK + kd - 1;
-    if (!kd || ci >= SH.length / 33) {
+    if (!kd || ci >= NL) {
       ci = 0;
       if (1 - ny > steep) ci = IS;
       else while (ci < NB - 1 && y > tops[ci]!) ci++;
@@ -518,7 +526,7 @@ export function terrainView(d: Diorama, t: Terrain, o: TerrainViewOptions = {}) 
     ctx.lineTo(SX[q]!, SY[q]!);
     ctx.lineTo(SX[r]!, SY[r]!);
     ctx.closePath();
-    ctx.fillStyle = SH[ci * 33 + lvl]!;
+    ctx.fillStyle = SH[(ci * 33 + lvl) * (HL + 1) + HZ]!;
     ctx.fill();
     if (seams) (ctx.strokeStyle = ctx.fillStyle), ctx.stroke();
     stats.faces++;
@@ -534,6 +542,10 @@ export function terrainView(d: Diorama, t: Terrain, o: TerrainViewOptions = {}) 
       const b = n < er ? n : nz - 1 - (n - er);
       for (let m = 0; m < nx; m++) {
         const a = m < ec ? m : nx - 1 - (m - ec), g = (j0 + b * s) * W1 + i0 + a * s, g1 = g + s * W1, kd = ((j0 + b * s) * cols + i0 + a * s) * 2;
+        // The cell's haze step, from its centre's distance to the camera's target.
+        if (HL) {
+          HZ = Math.min(16, Math.max(0, (hypot(t.x0 + (i0 + (a + 0.5) * s) * cs - d.cam.tx, t.z0 + (j0 + (b + 0.5) * s) * cs - d.cam.tz) - H0) * H1 + 0.5)) | 0;
+        }
         // Adaptive, split along 10–01: the triangle with 00 is on the eye's side when the eye is below that diagonal.
         if (adapt && Math.abs(HE[g + s]! - HE[g1]!) < Math.abs(HE[g1 + s]! - HE[g]!)) {
           if (eu - a + ev - b < 1) tri(ctx, g + s, g1 + s, g1, kind[kd]!, 2), tri(ctx, g, g + s, g1, kind[kd + 1]!, 3);
@@ -601,7 +613,7 @@ export function terrainView(d: Diorama, t: Terrain, o: TerrainViewOptions = {}) 
     shadow(i: number, x: number, z: number, r: number, a: number) {
       SHX[i] = x; SHZ[i] = z; SHR[i] = r; SHA[i] = a;
     },
-    /** New colours (a theme change): bands, steep colour, kinds. */
+    /** New colours (a theme change): bands, steep colour, kinds, haze (default the option's). */
     colors,
     /** Project now (draw does it): after a camera change outside a draw, e.g. before `d.pick`. */
     update,

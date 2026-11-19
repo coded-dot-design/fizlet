@@ -122,7 +122,9 @@ export const BUDGETS = [
   // difference, in the queries and the view: sharp dune crests without stair-steps).
   // 5,366 B (+433 B) with `terrainWindow` (a terrain that slides over a pure ground and fills only the
   // strips it gains; the queries read a movable origin: terrain() alone 2,191 → 2,199 B).
-  ["@fzlt/core/terrain", "src/terrain.ts", 5440],
+  // 5,511 B (+145 B) with `haze` on terrainView (faces fade into a colour by distance; shades made
+  // once: terrainView alone 2,901 → 3,050 B).
+  ["@fzlt/core/terrain", "src/terrain.ts", 5568],
   // terrainWindow alone (no view): 2,630 B gz when added.
   ["@fzlt/core/terrain (terrainWindow alone)", "scripts/terrain-window.ts", 2688],
   // Vehicle feel on a heightfield plus the chase camera (steer's exact hypot): 3,170 B gz when added.
