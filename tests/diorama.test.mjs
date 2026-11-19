@@ -352,6 +352,96 @@ test("diorama: zero allocation per draw() (a turning camera, moving parts, shado
   assert.ok(withDraw <= bare + 1, `young-generation GCs over 30k frames: ${withDraw} with diorama, ${bare} bare`);
 });
 
+test("diorama: `off` hides a whole subtree: no faces, shadows or picks, matrices skipped; on again restores it", () => {
+  const p = fakeCanvas(), d = diorama(p.canvas);
+  Object.assign(d.cam, { yaw: 0.3, pitch: 0.6, dist: 16, tx: 0, ty: 0, tz: 0, fov: 0.8 });
+  d.add({ id: "floor", size: [12, 0.5, 12], pos: [0, -0.5, 0], color: "#0000ff", emissive: true });
+  const grp = d.add({ id: "g", shape: "group", size: [2, 0, 2], on: "floor", shadow: 0.3, tag: "g" });
+  const parts = [
+    d.add({ id: "a", size: [1, 1, 1], on: "g", pos: [-0.6, 0, 0], color: "#ff0000", emissive: true, shadow: 0.2 }),
+    d.add({ id: "b", size: [0.6, 1.5, 0.6], on: "g", pos: [0.6, 0, 0], color: "#ff0000", emissive: true }),
+  ];
+  parts.push(d.add({ id: "c", shape: "cyl", size: [0.4, 0.5, 0.4], on: "a", color: "#00ff00", emissive: true, shadow: 0.2 }));
+  const snap = () => { p.reset(); d.draw(); return { ...d.stats, fills: p.fills.map((f) => f.style + "@" + f.alpha).join() }; };
+  const before = snap();
+  const out = new Float64Array(3);
+  d.project(parts[1].M[9], parts[1].M[10] + 1, parts[1].M[11], out);
+  assert.equal(d.root(d.pick(out[0], out[1])), grp, "picked while on");
+  assert.equal(before.objects, 5);
+  assert.ok(before.shadows >= 3, "the group and its parts cast shadows");
+  // Off on the parent: nothing of the subtree is drawn, shadowed or picked.
+  grp.off = true;
+  const off = snap();
+  assert.ok(!p.fills.some((f) => f.style === FULL["#ff0000"] || f.style === FULL["#00ff00"]), "no part's face drawn");
+  assert.equal(off.shadows, 0, "no shadows");
+  assert.equal(off.objects, 1, "stats.objects counts only the floor");
+  assert.ok(off.faces < before.faces);
+  assert.notEqual(d.pick(out[0], out[1]) && d.root(d.pick(out[0], out[1])), grp, "not pickable");
+  // Matrices skipped: moving the parent leaves every child's M where it was.
+  const Ms = parts.map((q) => Array.from(q.M)), gM = Array.from(grp.M);
+  grp.pos[0] = 3; grp.rot[1] = 1;
+  d.draw();
+  assert.deepEqual(Array.from(grp.M), gM, "the off object's M keeps its last value");
+  parts.forEach((q, i) => assert.deepEqual(Array.from(q.M), Ms[i], `child ${q.id}: M not recomputed while off`));
+  // On again: the same draw as before.
+  grp.pos[0] = 0; grp.rot[1] = 0; grp.off = false;
+  const back = snap();
+  assert.deepEqual(back, before, "on again: the same faces, shadows, objects and colours as before");
+  // Off on a mid part takes its child with it; hidden keeps showing children.
+  parts[0].off = true;
+  snap();
+  assert.ok(!p.fills.some((f) => f.style === FULL["#00ff00"]), "off on a part hides what rests on it");
+  assert.equal(d.stats.objects, 3);
+  parts[0].off = false; parts[0].hidden = true;
+  snap();
+  assert.ok(p.fills.some((f) => f.style === FULL["#00ff00"]), "hidden keeps today's meaning: its children still draw");
+  parts[0].hidden = false;
+  // A def flag.
+  const q = d.add({ id: "q", size: [1, 1, 1], pos: [4, 0, 4], color: "#ff0000", emissive: true, off: true });
+  assert.equal(q.off, true);
+  snap();
+  assert.equal(d.stats.objects, 5, "added off");
+});
+
+test("diorama: `off` skips the matrix work (a measured cost) and toggling a pool allocates nothing", async (t) => {
+  const make = () => {
+    const p = fakeCanvas(400, 300, false), d = diorama(p.canvas, { maxFaces: 16384, maxVerts: 65536 });
+    d.add({ id: "floor", size: [40, 0.5, 40], pos: [0, -0.5, 0] });
+    const pool = [];
+    for (let i = 0; i < 200; i++) {
+      const g = d.add({ id: "p" + i, shape: "group", size: [1, 0, 1], on: "floor", pos: [(i % 20) * 2 - 19, 0, ((i / 20) | 0) * 2 - 9], shadow: 0.2 });
+      d.add({ size: [0.8, 0.6, 0.8], on: "p" + i, color: "#4f8fb5" });
+      d.add({ shape: "cyl", sides: 8, size: [0.3, 0.5, 0.3], on: "p" + i, pos: [0.2, 0, 0], color: "#e05a47", shadow: 0.1 });
+      pool.push(g);
+    }
+    return { d, pool };
+  };
+  const time = (d, n) => { const t0 = performance.now(); for (let i = 0; i < n; i++) (d.cam.yaw = i * 0.001), d.draw(); return (performance.now() - t0) / n; };
+  const { d, pool } = make();
+  for (let w = 0; w < 3; w++) time(d, 200);
+  const onMs = time(d, 500), onObjects = d.stats.objects;
+  for (const g of pool) g.off = true;
+  time(d, 200);
+  const offMs = time(d, 500), offObjects = d.stats.objects;
+  t.diagnostic(`200 pooled composites (601 objects): ${onMs.toFixed(3)} ms per draw on, ${offMs.toFixed(3)} ms off; objects with matrices: ${onObjects} → ${offObjects}`);
+  assert.deepEqual([onObjects, offObjects], [601, 1], "off subtrees get no matrix work");
+  assert.ok(offMs < onMs, `off draws cost less: ${offMs} vs ${onMs} ms`);
+  const minors = async (on) => {
+    const { d: dd, pool: pp } = make(), s = new Int32Array(1);
+    const frame = () => {
+      const k = s[0]++;
+      pp[k % 200].off = !pp[k % 200].off;
+      pp[(k * 7) % 200].pos[1] = (k % 5) * 0.1;
+      if (on) dd.draw();
+    };
+    for (let i = 0; i < 1000; i++) frame();
+    return minorGCs(() => { for (let i = 0; i < 10000; i++) frame(); });
+  };
+  const bare = await minors(false), withDraw = await minors(true);
+  t.diagnostic(`young GCs over 10k draws toggling a pool of 200: bare ${bare}, with draw ${withDraw}`);
+  assert.ok(withDraw <= bare + 1, `young-generation GCs: ${withDraw} with diorama, ${bare} bare`);
+});
+
 test("diorama: capacities drop and count, never overflow", () => {
   const p = fakeCanvas(), d = diorama(p.canvas, { maxFaces: 3 });
   side(d);
