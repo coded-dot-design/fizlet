@@ -18,7 +18,11 @@ export const BUDGETS = [
   // −23 B more in S8 (no behaviour change: getComputedStyle?.(), the bar's slot read inline, x0 and the
   // budget line from the canvas width and height).
   ["@fzlt/core/perf", "src/perf.ts", 2022],
-  ["@fzlt/core/input", "src/input.ts", 1536],
+  // The whole module, gamepad() included: 1,343 B gz with controls() alone (the page build and arcade
+  // import only controls() and stay where they were); 1,909 B with gamepad() (+566 B, D3: mapped
+  // buttons and analog values, the left stick past a dead zone, a pad per seat, polling only while
+  // one is connected; goal was +450). Budget raised from 1,536 by that need.
+  ["@fzlt/core/input", "src/input.ts", 1920],
   // 1,995 B gz in 0.19.0; 2,073 B once stickAt/dpadAt/the drag use steer's exact `hypot` (+78 B, #118, K5:
   // `Math.hypot` boxes its arguments, 23 young GCs per 1M drags; now 0). Budget raised by that delta.
   // 2,068 B with its dead zones as literals (−6 B, size/treeshake, no behaviour change). Budget lowered by that delta.

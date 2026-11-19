@@ -34,3 +34,14 @@ export declare function controls(e: Engine, o?: ControlsOptions): {
     system: System;
 };
 export type Controls = ReturnType<typeof controls>;
+export interface GamepadOptions {
+    map?: Record<string, number[]>;
+    dead?: number;
+    index?: number;
+}
+export declare function gamepad(c: Controls, o?: GamepadOptions): {
+    readonly connected: boolean;
+    readonly count: number;
+    value: (intent: string) => number;
+    stop(): void;
+};
