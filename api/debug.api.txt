@@ -6,3 +6,13 @@
 ### dist/debug.d.ts
 import { type Engine } from "./kernel/engine.js";
 export declare function guardLayout(engine: Engine): () => boolean;
+export interface TouchLogOptions {
+    lines?: number;
+    moves?: boolean;
+    host?: HTMLElement;
+}
+export declare function touchLog(o?: TouchLogOptions): {
+    el: HTMLPreElement;
+    lines: readonly string[];
+    stop(): void;
+};
