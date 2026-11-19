@@ -215,3 +215,12 @@ test("ui: zero allocation on the press paths (touches, clicks, keys outside a ke
     page.restore();
   }
 });
+
+test("ui css: [hidden] wins kit-wide; icons in keys and the pad never take a touch", async () => {
+  const { readFileSync } = await import("node:fs");
+  const css = readFileSync("src/ui/board-ui.css", "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.match(css, /\.bui \[hidden\]\s*\{\s*display:\s*none !important;\s*\}/, "one kit-wide [hidden] rule, !important");
+  assert.equal((css.match(/\[hidden\]/g) || []).length, 1, "no per-component [hidden] rules left (the kit-wide one covers them)");
+  const icons = css.match(/([^{}]+)\{\s*pointer-events:\s*none;\s*\}/g)?.find((r) => r.includes(".bui-key svg")) ?? "";
+  for (const sel of [".bui button svg", ".bui .bui-key svg", ".bui .bui-pad svg"]) assert.ok(icons.includes(sel), `${sel} has pointer-events: none`);
+});

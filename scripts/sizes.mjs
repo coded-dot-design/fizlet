@@ -210,6 +210,8 @@ export const BUDGETS = [
   // --bui-sx/-sy) instead of a literal "straight below"; budget raised from 5,120 by that need.
   // 5,139 B with #148 (+14 B): a hidden @fzlt/core/coach card is not drawn (`[hidden]` beats its
   // inline grid); budget raised from 5,136 by that need.
+  // 5,141 B with D4 (+2 B): one kit-wide `.bui [hidden]` rule replaces the overlay's and coach's, and
+  // icons in keys and the pad take `pointer-events: none`; inside the budget.
   ["@fzlt/core/ui (css)", "src/ui/board-ui.css", 5152],
 ];
 
