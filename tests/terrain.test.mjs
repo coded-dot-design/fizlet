@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { minorGCs } from "./gc.mjs";
 
-const { terrain, terrainView } = await import("../src/terrain.ts");
+const { terrain, terrainView, terrainWindow } = await import("../src/terrain.ts");
 const { diorama } = await import("../src/diorama.ts");
 
 const close = (a, b, eps, msg) => assert.ok(Math.abs(a - b) <= eps, `${msg}: ${a} vs ${b}`);
@@ -363,4 +363,170 @@ test("terrain: zero allocation in queries and in drawing (ground, depth, level o
     t.diagnostic(`draw ${JSON.stringify(o)}: young GCs over 3k frames: ${n} (bare diorama ${bare}), ${tv.stats.faces} faces`);
     assert.ok(n <= bare + 1, `draw ${JSON.stringify(o)}: ${n} young GCs, bare ${bare}`);
   }
+});
+
+// terrainWindow: a terrain that slides over a pure ground. The ground here: a hash per vertex and per
+// 8-vertex block (rough, so adaptive cells flip both ways) and kinds on some cells, written straight
+// into the window's arrays by lattice point (only integers cross the fill call).
+const hsh = (i, j, s) => {
+  let n = Math.imul(i, 0x27d4eb2d) ^ Math.imul(j, 0x165667b1) ^ Math.imul(s, 0x9e3779b1);
+  n = Math.imul(n ^ (n >>> 15), 0x85ebca6b);
+  return ((n ^ (n >>> 13)) >>> 0) / 4294967296;
+};
+const ground = (seed) => (i0, j0, i1, j1, t) => {
+  const W1 = t.cols + 1, oi = t.origin[0], oj = t.origin[1], h = t.h, kind = t.kind, c = t.cell;
+  for (let j = j0; j <= j1; j++)
+    for (let i = i0; i <= i1; i++) {
+      const gi = oi + i, gj = oj + j, x = gi * c;
+      h[j * W1 + i] = 2 * hsh(gi >> 3, gj >> 3, seed) + 0.6 * hsh(gi, gj, seed + 1) + Math.sqrt(x * x * 1e-4 + 1);
+    }
+  for (let j = j0; j < j1; j++)
+    for (let i = i0; i < i1; i++) {
+      const k = hsh(oi + i, oj + j, seed + 2) < 0.2 ? 1 : 0, q = (j * t.cols + i) * 2;
+      kind[q] = k; kind[q + 1] = k * 2;
+    }
+};
+/** A plain terrain at lattice point (oi, oj), filled whole by the same ground. */
+const fixedAt = (o, oi, oj, seed) => {
+  const t = terrain({ cols: o.cols, rows: o.rows ?? o.cols, cell: o.cell, split: o.split, x0: oi * o.cell, z0: oj * o.cell });
+  ground(seed)(0, 0, t.cols, t.rows, { ...t, h: t.h, kind: t.kind, origin: [oi, oj] });
+  return t;
+};
+const lcg = (s) => () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
+
+test("terrainWindow: after 200 random slides it equals a fresh terrain at its place, bit for bit (heights, kinds, queries)", () => {
+  for (const o of [{ cols: 32, rows: 24, cell: 0.5, step: 8, split: "adaptive" }, { cols: 20, cell: 1.25, step: 4 }]) {
+    const w = terrainWindow({ ...o, fill: ground(11) }), r = lcg(5), out = new Float64Array(4), ref = new Float64Array(4), n = new Float64Array(3), m = new Float64Array(3);
+    assert.equal(w.split, o.split || "fixed");
+    assert.equal(w.rows, o.rows ?? o.cols, "rows default to cols");
+    let x = 3.3, z = -7.1;
+    for (let s = 0; s < 200; s++) {
+      // Walks (follow), short jumps and far ones (a whole refill) by moveTo, in any direction.
+      const pick = r();
+      if (pick < 0.5) { x += (r() - 0.5) * 40; z += (r() - 0.5) * 40; w.follow(x, z); }
+      else if (pick < 0.85) w.moveTo(w.origin[0] + Math.floor((r() - 0.5) * 2 * (o.cols - 1)), w.origin[1] + Math.floor((r() - 0.5) * 2 * (w.rows - 1)));
+      else w.moveTo(Math.floor((r() - 0.5) * 4000), Math.floor((r() - 0.5) * 4000));
+      const f = fixedAt(o, w.origin[0], w.origin[1], 11);
+      assert.equal(w.x0, f.x0); assert.equal(w.z0, f.z0);
+      assert.deepEqual(new Uint8Array(w.h.buffer), new Uint8Array(f.h.buffer), `heights after slide ${s}`);
+      assert.deepEqual(w.kind, f.kind, `kinds after slide ${s}`);
+      for (let q = 0; q < 40; q++) {
+        // Points inside and a little past the edges (clamped like a fixed terrain's).
+        const px = w.x0 + (r() * 1.1 - 0.05) * w.cols * w.cell, pz = w.z0 + (r() * 1.1 - 0.05) * w.rows * w.cell;
+        assert.equal(w.sample(px, pz, out), f.sample(px, pz, ref));
+        assert.deepEqual(out, ref);
+        assert.equal(w.height(px, pz), f.height(px, pz));
+        assert.deepEqual(w.normal(px, pz, n), f.normal(px, pz, m));
+        assert.equal(w.kindAt(px, pz), f.kindAt(px, pz));
+      }
+    }
+  }
+});
+
+test("terrainWindow: only the new strips are filled; version bumps once per slide; follow slides by whole steps", () => {
+  const calls = [], g = ground(3);
+  const w = terrainWindow({ cols: 32, rows: 32, cell: 0.5, step: 8, fill: (i0, j0, i1, j1, t) => (calls.push([i0, j0, i1, j1]), g(i0, j0, i1, j1, t)) });
+  assert.equal(w.version, 0);
+  assert.equal(calls.length, 0, "nothing filled before the first move");
+  assert.equal(w.follow(0.1, 0.1), true);
+  assert.deepEqual(calls, [[0, 0, 32, 32]], "the first move fills it all");
+  assert.deepEqual([w.stats.slides, w.stats.filled, w.version], [1, 33 * 33, 1]);
+  // (0.1, 0.1) is in step cell 0 (cells 0..7): the window's middle step, origin −16 + 4 = −12.
+  assert.deepEqual(Array.from(w.origin), [-12, -12]);
+  assert.equal(w.follow(3.9, 3.9), false, "inside the middle step: no slide");
+  assert.equal(w.version, 1);
+  // One step along +x: 8 new vertex columns (+ the one kept column the range takes), all rows.
+  calls.length = 0;
+  assert.equal(w.follow(4.1, 0), true);
+  assert.deepEqual(calls, [[24, 0, 32, 32]]);
+  assert.deepEqual([w.stats.slides, w.stats.filled, w.version, w.x0], [2, 33 * 33 + 9 * 33, 2, -4 * 0.5]);
+  // A diagonal step back (−x, −z): the new rows first, then the new columns beside the kept rows.
+  calls.length = 0;
+  w.moveTo(w.origin[0] - 8, w.origin[1] - 8);
+  assert.deepEqual(calls, [[0, 0, 32, 8], [0, 8, 8, 32]]);
+  // +x +z, and an odd stride: every new vertex and cell covered, nothing else but one kept line each.
+  calls.length = 0;
+  w.moveTo(w.origin[0] + 5, w.origin[1] + 3);
+  assert.deepEqual(calls, [[0, 29, 32, 32], [27, 0, 32, 29]]);
+  assert.equal(w.moveTo(w.origin[0], w.origin[1]), false, "no move, no fill, no bump");
+  assert.equal(w.version, 4);
+  // A jump past the window: a whole refill.
+  calls.length = 0;
+  w.moveTo(500, -500);
+  assert.deepEqual(calls, [[0, 0, 32, 32]]);
+});
+
+test("terrainWindow: the same seed streams the same bytes; the surface is continuous across slides and strip seams", () => {
+  const walk = (seed) => {
+    const w = terrainWindow({ cols: 48, cell: 0.5, step: 8, split: "adaptive", fill: ground(seed) }), H = new Float64Array(400);
+    let k = 0;
+    for (let s = 0; s < 4000; s++) {
+      const x = s * 0.37, z = Math.sqrt(s) * 3 - s * 0.11;
+      w.follow(x, z);
+      if (s % 10 === 0) H[k++] = w.height(x, z);
+    }
+    return [new Uint8Array(w.h.buffer).join(), new Uint8Array(H.buffer).join(), w.stats.slides];
+  };
+  const a = walk(42), b = walk(42), c = walk(43);
+  assert.ok(a[2] > 60, `it streamed: ${a[2]} slides`);
+  assert.deepEqual(a, b, "same seed, same window bytes and the same heights on the way");
+  assert.notEqual(a[0], c[0], "another seed, another ground");
+  // A point kept across a slide reads the same height before and after (only the origin moved).
+  const w = terrainWindow({ cols: 48, cell: 0.5, step: 8, split: "adaptive", fill: ground(9) }), r = lcg(77);
+  w.follow(0, 0);
+  for (let s = 0; s < 60; s++) {
+    const pts = [];
+    for (let q = 0; q < 50; q++) pts.push(w.x0 + (0.4 + r() * 0.2) * 24, w.z0 + (0.4 + r() * 0.2) * 24);
+    const before = pts.map((_, q) => (q & 1 ? 0 : w.height(pts[q], pts[q + 1])));
+    w.moveTo(w.origin[0] + ((s & 3) - 1.5 > 0 ? 8 : -8), w.origin[1] + (s % 3) - 1);
+    pts.forEach((_, q) => q & 1 || close(w.height(pts[q], pts[q + 1]), before[q], 1e-9, `kept point after slide ${s}`));
+  }
+  // Across the seam a slide leaves (between the kept columns and the filled ones) the surface has no
+  // step: walking a line over it, each move between samples a hundredth of a cell apart stays tiny.
+  const t = terrainWindow({ cols: 32, cell: 1, step: 8, split: "adaptive", fill: ground(2) });
+  t.moveTo(0, 0); t.moveTo(8, 3);
+  const seam = t.x0 + 24, zz = t.z0 + 10.37;
+  let prev = t.height(seam - 2, zz), worst = 0;
+  for (let x = seam - 2; x <= seam + 2; x += 0.01) worst = Math.max(worst, Math.abs(t.height(x, zz) - prev)), (prev = t.height(x, zz));
+  assert.ok(worst < 0.05, `no step at the seam: ${worst}`);
+});
+
+test("terrainWindow: its view re-anchors on every slide and draws what a fixed terrain at that place draws", () => {
+  for (const vo of [{}, { lod: [10, 20] }, { sort: "depth", lod: [12] }]) {
+    const o = { cols: 32, rows: 32, cell: 0.5, split: "adaptive" };
+    const cw = canvas(), dw = diorama(cw), w = terrainWindow({ ...o, step: 8, fill: ground(4) });
+    w.follow(0, 0);
+    const tw = terrainView(dw, w, { ...vo, kinds: ["#556677", "#887766"], shadows: 1 });
+    for (const [x, z, yaw] of [[0, 0, 0.3], [9.3, 2.1, 1.2], [21, -14, -2.4], [-30, 40, 2.9]]) {
+      w.follow(x, z);
+      const cf = canvas(), df = diorama(cf), f = fixedAt(o, w.origin[0], w.origin[1], 4);
+      const tf = terrainView(df, f, { ...vo, kinds: ["#556677", "#887766"], shadows: 1 });
+      for (const [d, v] of [[dw, tw], [df, tf]]) Object.assign(d.cam, { yaw, pitch: 0.6, dist: 14, tx: x, ty: 0, tz: z }), v.shadow(0, x, z, 0.8, 0.3);
+      // Depth mode ranks chunks on anchors from the last update (diorama ranks clusters before the
+      // view's first decal runs): the fresh view's are from before its camera was set, so both update.
+      tw.update(); tf.update();
+      cw.ctx.rec = cf.ctx.rec = true;
+      cw.ctx.fills.length = 0;
+      dw.draw(); df.draw();
+      assert.ok(tw.stats.faces > 200, `${JSON.stringify(vo)} at ${x},${z}: faces drawn ${tw.stats.faces}`);
+      assert.deepEqual(cw.ctx.fills, cf.ctx.fills, `${JSON.stringify(vo)} at ${x},${z}: the same faces, places and shades`);
+    }
+  }
+});
+
+test("terrainWindow: zero allocation while streaming 10 km (follow and a wheel's sample every step)", async (t) => {
+  const w = terrainWindow({ cols: 64, cell: 0.5, step: 8, split: "adaptive", fill: ground(1) }), out = new Float64Array(4), S = new Float64Array(3);
+  // 10 km at 0.1 a step, bending: 100,000 follows and samples, a slide every 4 units of travel.
+  const run = () => {
+    for (let s = 0; s < 100000; s++) {
+      S[0] += 0.1; S[1] += S[2] * 0.1; S[2] = S[2] > 0.5 ? -0.5 : S[2] + 0.0001;
+      w.follow(S[0], S[1]);
+      w.sample(S[0], S[1], out);
+    }
+  };
+  run();
+  const s0 = w.stats.slides, n = await minorGCs(run);
+  t.diagnostic(`young GCs over 10 km (${w.stats.slides - s0} slides): ${n}`);
+  assert.ok(w.stats.slides - s0 > 2000, `it streamed: ${w.stats.slides - s0} slides`);
+  assert.ok(n <= 1, `${n} young GCs`);
 });

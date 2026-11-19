@@ -4,14 +4,16 @@
 // then brake) under the chase camera, all on the kernel's fixed step. The car leaves the ground off
 // the ramp and lands without crashing, the canvas shows the sand, the track and the car, and once
 // the car stops and the camera has caught up the engine settles to 0 frames. Each brick's maths and
-// zero allocation: tests/terrain.test.mjs, tests/drive.test.mjs.
+// zero allocation: tests/terrain.test.mjs, tests/drive.test.mjs. Then a streaming `terrainWindow`
+// slides under a moving camera and its view paints the same pixels as a fixed terrain built at the
+// window's place each time (ground and depth sort, level of detail).
 import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
 
 const bundle = (await build({
-  stdin: { contents: 'export { createEngine } from "./src/index.ts"; export { diorama } from "./src/diorama.ts"; export { terrain, terrainView } from "./src/terrain.ts"; export { drive, chase } from "./src/drive.ts";', resolveDir: process.cwd(), loader: "ts" },
+  stdin: { contents: 'export { createEngine } from "./src/index.ts"; export { diorama } from "./src/diorama.ts"; export { terrain, terrainView, terrainWindow } from "./src/terrain.ts"; export { drive, chase } from "./src/drive.ts";', resolveDir: process.cwd(), loader: "ts" },
   bundle: true, format: "iife", globalName: "fz", write: false, logLevel: "silent",
 })).outputFiles[0].text;
 
@@ -95,6 +97,42 @@ window.st = () => ({ phase, way: T[1], air: T[2], crashed: v.crashed, resting: v
 window.eng = e; window.dio = d; window.car = v;
 `;
 
+/** A window over a pure ground beside a fixed terrain refilled at the window's place: two canvases. */
+const WINDOW = `
+const ground = (i0, j0, i1, j1, t) => {
+  const W1 = t.cols + 1;
+  for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
+    const x = (t.origin[0] + i) * t.cell, z = (t.origin[1] + j) * t.cell;
+    t.h[j * W1 + i] = 1.2 * Math.sqrt(1 + ((x * 0.37 + z * 0.21) % 3) ** 2) + 0.4 * Math.sqrt(1 + ((z * 0.53 - x * 0.17) % 2) ** 2);
+  }
+  for (let j = j0; j < j1; j++) for (let i = i0; i < i1; i++) t.kind[(j * t.cols + i) * 2] = (t.origin[0] + i + t.origin[1] + j) % 9 === 0 ? 1 : 0;
+};
+const opts = { bands: [[1.8, "#e8c08a"], [2.6, "#dcaa70"], [99, "#cf975c"]], kinds: ["#9c7a55"], lod: [14] };
+window.run = (sort) => {
+  const mk = (id) => { const cv = document.getElementById(id), d = fz.diorama(cv, { background: "#f6e7cf" }); return d; };
+  const dw = mk("a"), df = mk("b"), w = fz.terrainWindow({ cols: 48, rows: 48, cell: 0.5, step: 8, split: "adaptive", fill: ground });
+  w.follow(0, 0);
+  const tw = fz.terrainView(dw, w, { ...opts, sort });
+  const out = [];
+  for (const [x, z, yaw] of [[0, 0, 0.4], [7.3, 1.2, 1.1], [15.8, -6.4, 2.2], [-11, 19, -2.6], [40, 40, 0.9]]) {
+    const slid = w.follow(x, z);
+    const f = fz.terrain({ cols: 48, rows: 48, cell: 0.5, split: "adaptive", x0: w.x0, z0: w.z0 });
+    ground(0, 0, 48, 48, { ...f, h: f.h, kind: f.kind, origin: w.origin });
+    df.clear();
+    const tf = fz.terrainView(df, f, { ...opts, sort });
+    for (const d of [dw, df]) Object.assign(d.cam, { yaw, pitch: 0.55, dist: 13, tx: x, ty: 1, tz: z });
+    tw.update(); tf.update();
+    dw.draw(); df.draw();
+    const a = dw.ctx.getImageData(0, 0, dw.ctx.canvas.width, dw.ctx.canvas.height).data, b = df.ctx.getImageData(0, 0, df.ctx.canvas.width, df.ctx.canvas.height).data;
+    let diff = 0;
+    for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) diff++;
+    out.push({ slid, diff, faces: tw.stats.faces, ver: w.version });
+  }
+  return out;
+};
+`;
+const WPAGE = `<!doctype html><meta charset="utf-8"><body style="margin:0"><canvas id="a" style="display:block;width:480px;height:300px"></canvas><canvas id="b" style="display:block;width:480px;height:300px"></canvas><script>${bundle}</script><script>${WINDOW}</script></body>`;
+
 const PAGE = `<!doctype html><meta charset="utf-8"><body style="margin:0"><canvas id="cv" style="display:block;width:640px;height:400px;margin:10px"></canvas><script>${bundle}</script><script>${SCENE}</script></body>`;
 
 if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split("/").pop())) {
@@ -138,7 +176,23 @@ if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split("/").pop()
       assert.deepEqual(errs, []);
       await p.close();
     }
-    console.log("terrain + drive (Chromium): a desert loop drawn in chunks, a scripted car laps it under the chase camera, jumps the ramp and lands, stops, the engine settles ✓");
+    {
+      const p = await browser.newPage({ viewport: { width: 500, height: 640 }, deviceScaleFactor: 2 });
+      const errs = [];
+      p.on("pageerror", (e) => errs.push(e.message));
+      await p.setContent(WPAGE);
+      for (const sort of ["ground", "depth"]) {
+        const res = await p.evaluate((s) => window.run(s), sort);
+        for (const [k, r] of res.entries()) {
+          assert.equal(r.diff, 0, `${sort}, place ${k}: the window's pixels are the fixed terrain's (${r.diff} bytes differ)`);
+          assert.ok(r.faces > 300, `${sort}, place ${k}: ${r.faces} faces`);
+        }
+        assert.deepEqual(res.map((r) => r.slid), [false, true, true, true, true], `${sort}: slid at each new place`);
+      }
+      assert.deepEqual(errs, []);
+      await p.close();
+    }
+    console.log("terrain + drive (Chromium): a desert loop drawn in chunks, a scripted car laps it under the chase camera, jumps the ramp and lands, stops, the engine settles; a streaming window paints what a fixed terrain at its place paints ✓");
   } finally {
     await browser.close();
   }

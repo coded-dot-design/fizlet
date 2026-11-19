@@ -120,7 +120,11 @@ export const BUDGETS = [
   // 4,772 B (+172 B) when the berm's ends got their run-out (no lump past either end).
   // 4,933 B (+161 B) with `split: "adaptive"` (each cell's diagonal along its smaller height
   // difference, in the queries and the view: sharp dune crests without stair-steps).
-  ["@fzlt/core/terrain", "src/terrain.ts", 4992],
+  // 5,366 B (+433 B) with `terrainWindow` (a terrain that slides over a pure ground and fills only the
+  // strips it gains; the queries read a movable origin: terrain() alone 2,191 → 2,199 B).
+  ["@fzlt/core/terrain", "src/terrain.ts", 5440],
+  // terrainWindow alone (no view): 2,630 B gz when added.
+  ["@fzlt/core/terrain (terrainWindow alone)", "scripts/terrain-window.ts", 2688],
   // Vehicle feel on a heightfield plus the chase camera (steer's exact hypot): 3,170 B gz when added.
   // 4,478 B (+1,308 B) with the handbrake drift (slide, drift score, chains, spinOut), car-to-car
   // contact (touch, touchAll: box and circle hulls by mass) and the read-outs moved onto one shared
