@@ -105,7 +105,7 @@ in included, 1 KB = 1024 bytes.
 | `@fzlt/core` / `@fzlt/core/kernel` | COMPLETE | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | 3.3 KB |
 | `@fzlt/core/debug` | COMPLETE | `guardLayout(engine)`: counts layout reads during a step (dev only) | 0.5 KB |
 | `@fzlt/core/perf` | COMPLETE | `perf(engine, { host, corner })`: the players' performance overlay (off by default): fps, a frame-time bar chart, dropped frames, engine work, live entities, JS heap | 2.0 KB |
-| `@fzlt/core/input` | COMPLETE | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer`, `dispose` | 1.3 KB |
+| `@fzlt/core/input` | COMPLETE | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer`, `dispose`; opt-in `gamepad(controls, { map, dead, index })`: standard-layout buttons press intents, analog `value(intent)`, the left stick steers, polled only while a pad is connected (+0.6 KB when imported) | 1.3 KB |
 | `@fzlt/core/pad` | COMPLETE | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | 2.0 KB |
 | `@fzlt/core/collide` | COMPLETE | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | 1.2 KB |
 | `@fzlt/core/grid` | BETA | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | 1.6 KB |
@@ -342,6 +342,30 @@ touch.setScheme("dpad"); // fingers on the old control let go; no listener is ad
 - Recall: one element through the ledger, listeners delegated on it under the engine's signal.
   `destroy()` (or `engine.destroy()`) gives the page back exactly. Keys are named buttons;
   Enter / Space taps them; reduced motion turns the kit's transitions off.
+
+### Gamepads (`gamepad` in `@fzlt/core/input`)
+
+Standard-layout controllers into the same intents, opt-in: `controls()` alone, the page build and
+arcade don't carry it.
+
+```ts
+import { controls, gamepad } from "@fzlt/core/input";
+
+const input = controls(e, { keys: { fire: ["Space"], jump: ["KeyW"], gas: ["KeyG"] } });
+const pads = gamepad(input, { map: { fire: [0], jump: [1, 12], gas: [7] }, dead: 0.15 }); // A, B or d-pad up, RT
+// in a step: input.hit("fire"), input.down("gas"), pads.value("gas") (0..1), input.axis("left", "right", 0)
+```
+
+- `gamepad(controls, { map?, dead?, index? })` → `{ connected, count, value(intent), stop() }`. A mapped
+  button presses its intent from half a pull; `value` is its analog pull past the dead zone (a
+  trigger). The left stick drives the controller's stick, rescaled past the dead zone (0 at its edge,
+  1 at full tilt). `index` reads only that pad (local multiplayer: one controller per seat); by
+  default every pad is merged.
+- Polls `navigator.getGamepads()` in the controller's read phase, before edges latch, and only while
+  a pad is connected: a page without one never polls. Pads send no events for buttons, so a settled
+  engine is not polled; a pad connecting wakes it. A pad that leaves lets go of everything it held.
+- Zero allocation per read with a pad connected (tested in Node); Chromium and WebKit in
+  `npm run test:webkit`. No Gamepad API, or a frame whose permissions policy blocks it: no pads.
 
 ### Performance overlay (`@fzlt/core/perf`)
 

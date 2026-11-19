@@ -475,6 +475,110 @@ test("input: press() and steer() wake a settled engine (on-screen keys, @fzlt/co
   e.destroy();
 });
 
+// Gamepads: a fake navigator.getGamepads (standard layout: buttons with value/pressed, axes) and a
+// window that dispatches gamepadconnected; the pads are made once, so a read allocates nothing.
+async function padRig(opts, eo) {
+  const { Target } = await import("./fake-dom.mjs");
+  const { createEngine } = await import("../src/index.ts");
+  const { controls, gamepad } = await import("../src/input.ts");
+  const win = new Target(), add = globalThis.addEventListener;
+  globalThis.addEventListener = win.addEventListener.bind(win);
+  const pad = (index) => ({ index, connected: true, buttons: Array.from({ length: 17 }, () => ({ value: 0, pressed: false })), axes: [0, 0, 0, 0] });
+  const pads = [null, null, null, null], calls = { n: 0 };
+  Object.defineProperty(globalThis.navigator, "getGamepads", { configurable: true, value: () => (calls.n++, pads) });
+  const target = { addEventListener() {}, getBoundingClientRect: () => ({ left: 0, top: 0, width: 100 }) };
+  const e = createEngine(eo);
+  const c = controls(e, { target, keys: { fire: ["Space"], jump: ["KeyW"], gas: ["KeyG"] } });
+  const g = gamepad(c, opts);
+  globalThis.addEventListener = add;
+  const plug = (i) => ((pads[i] = pad(i)), win.dispatch("gamepadconnected", { gamepad: pads[i] }), pads[i]);
+  const unplug = (i) => { const p = pads[i]; pads[i] = null; win.dispatch("gamepaddisconnected", { gamepad: p }); };
+  const done = () => (g.stop(), e.destroy(), delete globalThis.navigator.getGamepads);
+  return { e, c, g, pads, calls, plug, unplug, win, done };
+}
+
+test("input gamepad: buttons press intents, the left stick steers past the dead zone, no polling without a pad", async () => {
+  const { e, c, g, calls, plug, unplug, win, done } = await padRig({ map: { fire: [0], jump: [1, 12], gas: [7] }, dead: 0.2 });
+  const seen = [];
+  e.add({ step: () => void seen.push([c.hit("fire"), c.down("fire"), c.down("jump")]) });
+  const setup = calls.n;
+  for (let i = 0; i < 10; i++) e.advance(1 / 60);
+  assert.equal(calls.n, setup, "no pad: reads never call getGamepads()");
+  assert.equal(g.connected, false);
+  const p = plug(0);
+  assert.deepEqual([g.connected, g.count], [true, 1]);
+  p.buttons[0] = { value: 1, pressed: true };
+  e.advance(1 / 60);
+  e.advance(1 / 60);
+  assert.deepEqual(seen.slice(-2), [[true, true, false], [false, true, false]], "a pad press is hit by the first step of its frame, then held");
+  assert.ok(calls.n > setup, "polled once a pad is connected");
+  p.buttons[12] = { value: 1, pressed: true }; // the d-pad's up also jumps
+  e.advance(1 / 60);
+  assert.equal(c.down("jump"), true, "any of an intent's buttons");
+  // Analog trigger (button 7): its value past the dead zone; down from half a pull.
+  p.buttons[7] = { value: 0.1, pressed: true };
+  e.advance(1 / 60);
+  assert.deepEqual([g.value("gas"), c.down("gas")], [0, false], "inside the dead zone: 0, not down");
+  p.buttons[7] = { value: 0.6, pressed: true };
+  e.advance(1 / 60);
+  assert.ok(Math.abs(g.value("gas") - 0.5) < 1e-12 && c.down("gas"), `0.6 reads 0.5 past a 0.2 dead zone, down: ${g.value("gas")}`);
+  assert.equal(g.value("nope"), 0, "a name that is not mapped reads 0");
+  // Left stick: inside the dead zone nothing; past it, rescaled so the edge is 0 and full is 1.
+  p.axes[0] = 0.15;
+  e.advance(1 / 60);
+  assert.equal(c.stick.active, false, "inside the dead zone: the stick is not driven");
+  p.axes[0] = 0.6;
+  e.advance(1 / 60);
+  assert.ok(c.stick.active && Math.abs(c.stick.x - 0.5) < 1e-12 && c.stick.y === 0, `past it: ${c.stick.x}`);
+  p.axes[0] = 1;
+  e.advance(1 / 60);
+  assert.equal(c.stick.x, 1, "full tilt reaches 1");
+  p.axes[0] = 0.05;
+  e.advance(1 / 60);
+  assert.deepEqual([c.stick.active, c.stick.x], [false, 0], "back inside the dead zone: let go");
+  // Disconnect lets go of everything the pad held, and polling stops.
+  p.axes[0] = 1;
+  e.advance(1 / 60);
+  unplug(0);
+  assert.deepEqual([g.connected, c.down("fire"), c.down("jump"), c.down("gas"), c.stick.active, g.value("gas")], [false, false, false, false, false, 0], "unplugged: nothing held");
+  const n = calls.n;
+  for (let i = 0; i < 10; i++) e.advance(1 / 60);
+  assert.ok(calls.n - n <= 0, "no polling after the last pad leaves");
+  const pl = () => win.listeners.filter((l) => l.type.startsWith("gamepad")).length;
+  assert.equal(pl(), 2, "two window listeners (connect, disconnect)");
+  g.stop();
+  assert.equal(pl(), 0, "stop() removes them");
+  done();
+});
+
+test("input gamepad: index reads one pad (a seat each); a connect wakes a settled engine; zero allocation per read", async () => {
+  const { e, c, g, plug, done } = await padRig({ map: { fire: [0] }, index: 1 }, { settle: 0.1 });
+  e.start();
+  const p0 = plug(0);
+  assert.equal(g.connected, false, "pad 0 is not this seat's");
+  p0.buttons[0] = { value: 1, pressed: true };
+  e.advance(1 / 60);
+  assert.equal(c.down("fire"), false, "pad 0's press is not read");
+  for (let i = 0; i < 400 && e.running; i++) e.advance(1 / 60);
+  assert.deepEqual(e.paused, ["settled"], "settles with no pad of its own");
+  const p1 = plug(1);
+  assert.deepEqual([g.connected, g.count, e.running], [true, 1, true], "its pad connects: connected and awake");
+  p1.buttons[0] = { value: 1, pressed: true };
+  e.advance(1 / 60);
+  assert.equal(c.down("fire"), true, "pad 1 presses");
+  if (typeof gc === "function") {
+    const n = new Int32Array(1);
+    e.add({ step: () => void (n[0] += +c.down("fire") + c.stick.x) });
+    for (let i = 0; i < 20000; i++) (p1.axes[0] = (i & 63) / 64), (p1.buttons[0].value = i & 1), e.advance(1 / 60);
+    const minor = await minorGCs(() => {
+      for (let i = 0; i < 1000000; i++) (p1.axes[0] = (i & 63) / 64), (p1.buttons[0].value = i & 1), e.advance(1 / 60);
+    });
+    console.log(`ℹ input with a gamepad over 1M frames: ${minor} young GCs`);
+    assert.ok(minor <= 3, `young-generation GCs over 1M frames with a pad connected: ${minor}`); // input's own bound
+  }
+  done();
+});
+
 // Gravity and named kinds (phase 2: page interactions).
 const { emitter, KINDS } = await import("../src/fx.ts");
 
