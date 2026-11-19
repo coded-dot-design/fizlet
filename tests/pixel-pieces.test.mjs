@@ -75,6 +75,6 @@ test("rain: a tap pours, taps during the storm raise it, shorts dim the sign, th
 
 test("the pieces' posters (between the markers in their stages) are current", async () => {
   const list = await posters();
-  assert.deepEqual(list.map((p) => p.id).sort(), ["cyan-purple-neon-rain-falls", "pink-sparks-burst-tap"]);
+  assert.deepEqual(list.map((p) => p.id).sort(), ["cyan-purple-neon-rain-falls", "pink-sparks-burst-tap", "spin-it-back", "wall-crawler-climbs-page"]);
   for (const p of list) assert.ok(p.html.includes(`<!-- poster -->${p.svg}<!-- /poster -->`), `${p.file}: run node scripts/pixel-posters.mjs`);
 });
