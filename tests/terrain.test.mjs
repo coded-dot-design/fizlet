@@ -351,7 +351,7 @@ test("terrain: zero allocation in queries and in drawing (ground, depth, level o
     t.diagnostic(`${name}: young GCs over 2M queries: ${n}`);
     assert.ok(n <= 1, `${name}: ${n} young GCs`);
   }
-  for (const o of [{}, { sort: "depth" }, { lod: [20, 40] }, { lod: [20, 40], split: "adaptive" }]) {
+  for (const o of [{}, { sort: "depth" }, { lod: [20, 40] }, { lod: [20, 40], split: "adaptive" }, { lod: [20, 40], haze: { from: 8, to: 24, color: "#8899aa" } }]) {
     const d = diorama(canvas());
     d.add({ id: "car", size: [1.8, 0.5, 1], color: "#e04a3a" });
     Object.assign(d.cam, { yaw: 0.3, pitch: 0.6, dist: 30 });
@@ -529,4 +529,48 @@ test("terrainWindow: zero allocation while streaming 10 km (follow and a wheel's
   t.diagnostic(`young GCs over 10 km (${w.stats.slides - s0} slides): ${n}`);
   assert.ok(w.stats.slides - s0 > 2000, `it streamed: ${w.stats.slides - s0} slides`);
   assert.ok(n <= 1, `${n} young GCs`);
+});
+
+test("terrain view: haze fades faces into its colour by distance from the camera's target; none before `from`, all past `to`", () => {
+  // Flat ground seen straight down: every face on screen, screen x and y linear in world x and z.
+  const g = terrain({ cols: 40, rows: 40, cell: 1 });
+  const draw = (o) => {
+    const cv = canvas(), d = diorama(cv), v = terrainView(d, g, { bands: [[99, "#d9b27c"]], ...o });
+    Object.assign(d.cam, { yaw: 0, pitch: Math.PI / 2, dist: 60, tx: 3, ty: 0, tz: -2 });
+    cv.ctx.rec = true;
+    d.draw();
+    return { fills: cv.ctx.fills.slice(), d, v, cv };
+  };
+  const base = draw({}), hz = draw({ haze: { from: 6, to: 12, color: "#4080c0" } });
+  assert.equal(hz.fills.length, base.fills.length, "haze changes no geometry");
+  assert.equal(base.fills.length, 40 * 40 * 2, "every face drawn");
+  const P0 = new Float64Array(3), P1 = new Float64Array(3);
+  hz.d.project(0, 0, 0, P0); hz.d.project(1, 0, 1, P1);
+  const kx = P1[0] - P0[0], kz = P1[1] - P0[1];
+  let past = 0, near = 0, mid = 0;
+  hz.fills.forEach((f, i) => {
+    const sx = (f.pts[0] + f.pts[2] + f.pts[4]) / 3, sy = (f.pts[1] + f.pts[3] + f.pts[5]) / 3;
+    const x = (sx - P0[0]) / kx, z = (sy - P0[1]) / kz, cd = Math.hypot(Math.floor(x) + 0.5 - 3, Math.floor(z) + 0.5 + 2);
+    assert.deepEqual(f.pts, base.fills[i].pts);
+    if (cd >= 12) (past++), assert.equal(f.fill, "rgb(64,128,192)", `face ${i} at ${cd.toFixed(2)}: all haze`);
+    else if (cd <= 6) (near++), assert.equal(f.fill, base.fills[i].fill, `face ${i} at ${cd.toFixed(2)}: untouched`);
+    // (16 steps, rounded: past half a step in, a face has moved.)
+    else if (cd > 6 + 6 / 32) (mid++), assert.notEqual(f.fill, base.fills[i].fill, `face ${i} at ${cd.toFixed(2)}: on its way`);
+  });
+  assert.ok(past > 1000 && near > 150 && mid > 300, `faces past, near, between: ${past}, ${near}, ${mid}`);
+  // It is a pure function of the camera (no clock, nothing animated: reduced motion changes nothing).
+  hz.cv.ctx.fills.length = 0;
+  hz.d.draw();
+  assert.deepEqual(hz.cv.ctx.fills, hz.fills, "a second draw paints the same");
+  const again = draw({ haze: { from: 6, to: 12, color: "#4080c0" } });
+  assert.deepEqual(again.fills, hz.fills, "the same draw twice");
+  // A theme change takes a new haze colour; null turns it off.
+  hz.v.colors([[99, "#d9b27c"]], undefined, [], { from: 6, to: 12, color: "#102030" });
+  hz.cv.ctx.fills.length = 0;
+  hz.d.draw();
+  hz.fills.forEach((f, i) => f.fill === "rgb(64,128,192)" && assert.equal(hz.cv.ctx.fills[i].fill, "rgb(16,32,48)", `face ${i}: the new colour`));
+  hz.v.colors([[99, "#d9b27c"]], undefined, [], null);
+  hz.cv.ctx.fills.length = 0;
+  hz.d.draw();
+  assert.deepEqual(hz.cv.ctx.fills.map((f) => f.fill), base.fills.map((f) => f.fill), "haze off: the plain shades");
 });
