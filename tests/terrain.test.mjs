@@ -171,6 +171,20 @@ test("terrain: seeded noise: the same seed, the same heights bit for bit; the ge
   assert.doesNotMatch(gen, /Math\.(sin|cos|tan|atan2?|exp|log|pow|hypot)\b/, "no builtin transcendental in terrain()");
 });
 
+test("terrain view: the default steep colour is the first band darkened, never black", () => {
+  const cv = canvas(), d = diorama(cv);
+  const t = terrain({ cols: 32, rows: 32, cell: 1 });
+  t.shape((x) => (x > 8 ? (x - 8) * 1.5 : 0));
+  terrainView(d, t, { bands: [[99, "#a08060"]], steep: 0.3, light: [0, 1, 0], ambient: 1 });
+  Object.assign(d.cam, { yaw: 0, pitch: 1.2, dist: 60, tx: 0, ty: 0, tz: 0 });
+  cv.ctx.rec = true;
+  d.draw();
+  const fills = cv.ctx.fills, by = (f) => fills.filter((x) => x.fill === f).length;
+  const lit = (r, g, b) => `rgb(${(r * 0.996) | 0},${(g * 0.996) | 0},${(b * 0.996) | 0})`;
+  assert.ok(by(lit(0x80, 0x66, 0x4c)) > 20, "steep faces in the band × 0.8");
+  assert.equal(by("rgb(0,0,0)"), 0, "no black faces");
+});
+
 test("terrain view: shaded faces by band, steep and kind; culled; far chunks coarser, edges stitched; far to near", () => {
   const cv = canvas(), d = diorama(cv);
   const t = terrain({ cols: 32, rows: 32, cell: 1 });

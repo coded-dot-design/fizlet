@@ -424,7 +424,9 @@ export function terrainView(d: Diorama, t: Terrain, o: TerrainViewOptions = {}) 
     const list: string[] = [];
     NB = bands.length;
     for (let i = 0; i < NB; i++) (tops[i] = bands[i]![0]), list.push(bands[i]![1]);
-    IS = list.push(steepColor || rgb(bands[0]![1], 0.8)) - 1;
+    // Default steep colour: the first band darkened to 0.8, as #rrggbb (the shade ramp parses hex).
+    const b0 = parseInt(bands[0]![1].slice(1), 16);
+    IS = list.push(steepColor || "#" + ((((b0 >> 16) * 0.8) << 16) | ((((b0 >> 8) & 255) * 0.8) << 8) | (((b0 & 255) * 0.8) | 0)).toString(16).padStart(6, "0")) - 1;
     IK = list.length;
     for (let i = 0; i < kinds.length; i++) list.push(kinds[i]!);
     SH.length = 0;
