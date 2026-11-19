@@ -103,7 +103,7 @@ in included, 1 KB = 1024 bytes.
 | Import | Status | What | Size (min + gzip) |
 |---|---|---|---|
 | `@fzlt/core` / `@fzlt/core/kernel` | COMPLETE | `createEngine`, scheduler, `Pool`, `EventRing`, `Ledger`, `seeded` | 3.3 KB |
-| `@fzlt/core/debug` | COMPLETE | `guardLayout(engine)`: counts layout reads during a step (dev only) | 0.5 KB |
+| `@fzlt/core/debug` | COMPLETE | `guardLayout(engine)`: counts layout reads during a step; `touchLog({ lines, moves, host })`: an on-screen log of pointer and touch events and the element each hit (shadow roots too), for real phones; `stop()` (dev only) | 0.5 KB |
 | `@fzlt/core/perf` | COMPLETE | `perf(engine, { host, corner })`: the players' performance overlay (off by default): fps, a frame-time bar chart, dropped frames, engine work, live entities, JS heap | 2.0 KB |
 | `@fzlt/core/input` | COMPLETE | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer`, `dispose`; opt-in `gamepad(controls, { map, dead, index })`: standard-layout buttons press intents, analog `value(intent)`, the left stick steers, polled only while a pad is connected (+0.6 KB when imported) | 1.3 KB |
 | `@fzlt/core/pad` | COMPLETE | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | 2.0 KB |

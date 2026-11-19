@@ -9,6 +9,8 @@ export const BUDGETS = [
   // in a file with imports, and a local one after other code), short private names in the ledger entry,
   // ring and pool. The budget stays the contract's 4 KB.
   ["@fzlt/core (kernel)", "src/index.ts", 4096],
+  // 486 B gz with guardLayout alone; 1,133 B with D5's touchLog() (+647 B: the event names and the
+  // overlay's inline style are strings that barely compress; goal was +400). Inside the budget.
   ["@fzlt/core/debug", "src/debug.ts", 1536],
   // The player-facing performance overlay (off by default). Logic ~1.5 KB gz; its look is inline
   // on the kit tokens (~0.45 KB) so it works on pages without board-ui.css. 2,042 B in train 0.21.0
