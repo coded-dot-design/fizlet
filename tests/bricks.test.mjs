@@ -417,6 +417,32 @@ test("input: hit() and down() in a step allocate nothing", async (t) => {
   assert.ok(minor <= 3, `young-generation GCs over 1M frames: ${minor}`);
 });
 
+test("input: a new primary touch takes the stick when the old finger never ended (iOS dropped its pointerup)", async () => {
+  globalThis.addEventListener ??= () => {};
+  globalThis.Element ??= class {}; // input's field check: a plain object target is never a field
+  const { Target } = await import("./fake-dom.mjs");
+  const { createEngine } = await import("../src/index.ts");
+  const { controls } = await import("../src/input.ts");
+  const target = Object.assign(new Target(), { getBoundingClientRect: () => ({ left: 0, top: 0, width: 400 }) });
+  const e = createEngine();
+  const c = controls(e, { target, stick: "left", radius: 60 });
+  const finger = (type, pointerId, clientX, clientY, isPrimary = true) => target.dispatch(type, { pointerType: "touch", pointerId, clientX, clientY, isPrimary });
+  const read = () => (e.advance(1 / 60), [c.stick.active, c.stick.x, c.stick.y, c.pointer.down]);
+  finger("pointerdown", 1, 100, 100);
+  finger("pointermove", 1, 160, 100);
+  assert.deepEqual(read(), [true, 1, 0, false], "finger 1 drives the stick");
+  // No pointerup for finger 1. Finger 2 lands as the primary pointer: no other finger is down.
+  finger("pointerdown", 2, 50, 200);
+  assert.deepEqual(read(), [true, 0, 0, false], "finger 2 takes the stick at its own origin, vector reset");
+  finger("pointermove", 1, 40, 100);
+  finger("pointermove", 2, 50, 170);
+  assert.deepEqual(read(), [true, 0, -0.5, false], "the stick follows finger 2; finger 1's moves are ignored");
+  // A second finger while the stick is held is not primary: it is the pointer, the stick stays.
+  finger("pointerdown", 3, 80, 80, false);
+  assert.deepEqual(read(), [true, 0, -0.5, true], "a non-primary second finger stays the pointer");
+  e.destroy();
+});
+
 test("input: press() and steer() wake a settled engine (on-screen keys, @fzlt/core/pad)", async () => {
   // A pad key is [data-fizlet-ignore], so its pointerdown never reaches input's own wake: before
   // the fix a tap on a settled engine was latched but never stepped until something else woke it.

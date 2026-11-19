@@ -180,7 +180,9 @@ ROADMAP bricks, each with its phase and size target (a goal until measured): `@f
   between two steps count once. `pointer.hit` works the same way.
 - **Pointer and stick:** each is owned by the pointer id that pressed it. A release anywhere (outside
   the target too), `pointercancel` or `lostpointercapture` lets go; other fingers never move or
-  release the stick, and the stick finger never moves the pointer. Pointer events record client
+  release the stick, and the stick finger never moves the pointer. A new primary touch on the stick
+  side (no other finger down) takes a held stick: iOS can end a touch with no release at all, and
+  the stick never stays dead. Pointer events record client
   coordinates only; the read phase measures the target once per frame when the pointer moved, so a
   pointer event never forces layout (`pointerdown` measures once, to pick the stick side).
 - **No stuck input:** held keys, `press()` holds, the pointer and the stick are dropped on window

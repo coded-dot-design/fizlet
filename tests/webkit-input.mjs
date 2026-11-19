@@ -84,15 +84,7 @@ await eachEngine("input: pointer and touch stick", async (browser) => {
     finger("pointerup", 4, 40, 400); // late, harmless
     return [[stale.active, stale.x], [taken.active, taken.x, taken.down], [ignored.active, ignored.x], [off.active, off.x]];
   });
-  // TODO(D2): input starts the stick only while its slot is free, so this fails until the fix; a
-  // known failure is reported, not fatal, and one that starts passing fails the run (flip it).
-  try {
-    assert.deepEqual(dropped, [[true, 1], [true, 0.5, false], [true, 0.5], [false, 0]], "a dropped pointerup never leaves the stick dead");
-  } catch {
-    console.log("todo a dropped pointerup leaves the stick dead (known, fixed in D2):", JSON.stringify(dropped));
-    dropped.todo = true;
-  }
-  assert.ok(dropped.todo, "the todo case passes now: make it a plain assert");
+  assert.deepEqual(dropped, [[true, 1], [true, 0.5, false], [true, 0.5], [false, 0]], "a dropped pointerup never leaves the stick dead");
 
   // Multi-touch: a second finger on the stick side while the stick is held is the pointer.
   const multi = await page.evaluate(() => {
