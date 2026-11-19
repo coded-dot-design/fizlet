@@ -75,20 +75,20 @@ export const ROADMAP = [
     [1, "Authoring guide and recipes by use case: an action on the page, a shooter, two players", "E5.recipes"],
     [1, "Live kernel stats on Under the Hood", "E5.live-stats"],
   ] },
-  { id: "E6", name: "Performance wins", status: "started", goal: "Smaller and faster every week: the perf harness in CI, the top cost fixed, the win logged.", items: [
+  { id: "E6", name: "Performance wins", status: "done", goal: "Smaller and faster every week: the perf harness in CI, the top cost fixed, the win logged.", items: [
     [1, "Perf harness and allocation test in CI on every push", "E6.ci"],
-    [0, "A weekly run against the baseline", "E6.weekly"],
+    [1, "A weekly run against the baseline", "E6.weekly"],
     [1, "A public log of every win: PERF-LOG.md, generated from the measured wins", "E6.log"],
     [1, "CI test suite split into shards: the check job takes about 41 of its 75 minutes", "E6.ci-split"],
   ] },
-  { id: "E7", name: "Page interactions", status: "nearly", goal: "Heroes, diagrams and micro animations on ordinary pages: lazy, contained, settled when still.", items: [
+  { id: "E7", name: "Page interactions", status: "done", goal: "Heroes, diagrams and micro animations on ordinary pages: lazy, contained, settled when still.", items: [
     [1, "slot, the page profile, camera and timeline", "E7.bricks"],
     [1, "Gallery: one prompt, one animation, its size on show", "E7.gallery"],
     [1, "fizlet.com and the DOM VIRUS home hero on Fizlet", "E7.home-heroes"],
     [1, "The DOM Battlefield landing hero on Fizlet", "E7.battlefield-hero"],
     [1, "The DOM VIRUS Under the Hood labs on Fizlet", "E7.dv-labs"],
     [1, "The DOM VIRUS cartridge console, detail-page scenes and diagrams on Fizlet", "E7.dv-scenes"],
-    [0, "Page cost (CLS, tap delay, idle CPU) gated in CI", "E7.page-cost"],
+    [1, "Page cost (CLS, tap delay, idle CPU) gated in CI", "E7.page-cost"],
   ] },
   { id: "E8", name: "The game kit", status: "in progress", goal: "The shell every page game repeats, so a game is its rules and its art: HUD and control presets, match flow, coach.", items: [
     [1, "arcade: the shell under Null Invaders, Byte Runner and Sherman Bytes", "E8.arcade"],
