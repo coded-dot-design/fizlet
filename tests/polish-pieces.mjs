@@ -1,4 +1,4 @@
-// The three polished gallery pieces (#30 Haunted Page, #32 the transformer's KO, #41 laser eyes),
+// The polished gallery piece #41 laser eyes (Haunted Page and the KO stay on the stage aspect pilot),
 // each hand-built on its own stage (site/gallery/stages/<id>.html), in Chromium through fizlet/slot
 // as the gallery mounts them: the poster steps aside, the opening story plays by itself (the ghost
 // rearranges the page's real elements; the bout ends in a KO; the beams cut the stack), it settles
@@ -13,8 +13,6 @@ import { chromium } from "playwright";
 import { launchOptions } from "./chromium.mjs";
 
 const PIECES = [
-  { id: "haunted-page", module: "pieces/haunted-page.ts" },
-  { id: "transformer-fights-diffuser-ko", module: "pieces/transformer-fights-diffuser-ko.ts" },
   { id: "laser-eyes-mascot-powers-fires", module: "pieces/laser-eyes-mascot-powers-fires.ts" },
 ];
 
