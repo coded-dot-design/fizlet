@@ -16,6 +16,7 @@
  * at setup: a bad number throws a RangeError with its name instead of turning into NaN mid-game.
  */
 import { need } from "./kernel/need";
+import { hypot } from "./math";
 
 /** Options for `steer()`: how many movers, their pace, turn rate and arrival bands, the wander area
  *  and timing, the wall check and the random source. */
@@ -53,16 +54,8 @@ export const turn = (from: number, to: number, max: number) => {
   return from + Math.sign(d) * Math.min(Math.abs(d), max);
 };
 
-/**
- * Math.hypot of two numbers, without the builtin call: V8 boxes Math.hypot's arguments, a heap
- * number per call in a hot loop. Same steps as V8's own (Infinity wins over NaN, scale by the
- * larger, sum, sqrt), so it returns the same bits (tested against Math.hypot).
- */
-export const hypot = (dx: number, dy: number) => {
-  // One expression, no early return: a return of 0 beside a double makes V8 box the result.
-  const ax = Math.abs(dx), ay = Math.abs(dy), max = ax > ay ? ax : ay, z = max === 0 ? 1 : max, p = ax / z, q = ay / z;
-  return ax === Infinity || ay === Infinity ? Infinity : Math.sqrt(p * p + q * q) * max;
-};
+// hypot lives in @fzlt/core/math now (the same function); steer re-exports it so imports keep working.
+export { hypot };
 
 /** Steering for `o.cap` movers on typed arrays: `seek`, `flee`, `arrive`, `wander` and `patrol`, each
  *  with a turn-limited heading and a per-axis wall check. DOM-free and allocation-free: call them

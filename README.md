@@ -119,6 +119,7 @@ in included, 1 KB = 1024 bytes.
 | `@fzlt/core/match` | BETA | `match(engine, root, { count, seconds, begin, end })`: intro → count → play → paused → end on the kit's overlays; Esc / P pause, a hidden tab pauses, surrender, rematch; events on the ring | 2.6 KB |
 | `@fzlt/core/rules` | COMPLETE | `waves(engine, { alive })`, `drops(engine, { kinds, every, place })`, `score(engine, { levels })`: wave clock, pickups, combo and levels; DOM-free, zero allocation, events on the ring | 1.3 KB |
 | `@fzlt/core/steer` | BETA | `steer({ cap, speed, turn, blocked, random })`: movers on typed arrays (`x`, `y`, heading `a`) with `seek`, `flee`, `arrive` (or `arriveGoal`, the goal in `gx`/`gy`), `wander` and `patrol`; a turn-rate-limited heading and per-axis wall slide (Blitz's tank drive); DOM-free, zero allocation | 1.1 KB |
+| `@fzlt/core/math` | BETA | `sin`, `cos`, `atan`, `atan2`, `hypot`: trig with the same bits in every browser (fdlibm, the algorithms V8 ports; Node's builtins bit for bit), for anything that steps a sim online; each tree-shakes on its own; zero allocation | 1.7 KB |
 | `@fzlt/core/coach` | BETA | `flag(key)` (a localStorage switch that never throws), `tour(engine, { steps, tips, every })` (tutorial steps, then tips in turn; `coach:step` on the ring; zero allocation) and `card(host, { onEnd })` (the Board UI coach card, rings the control it is about) | 1.2 KB |
 | `@fzlt/core/touch` | BETA | `lockTouch(doc, sel)`: a pinch (iOS gesture events, multi-touch) on a slot, a game host, the pad or `[data-touch-lock]` never zooms the page; one finger untouched; `null` locks the whole page; returns `release()`. The kit CSS adds `touch-action` (no double-tap zoom) | 0.3 KB |
 | `@fzlt/core/timeline` | BETA | `timeline(engine, { repeat, yoyo, rate, motion })`: DOM choreography on the kernel clock. `to(targets, values, { dur, delay, ease, stagger, at })` keyframe tracks on CSS values (transform, opacity, clip-path, custom properties: the numbers change, the words stay) or typed-array numbers; `label`, `play`, `reverse`, `pause`, `seek`, `finish`, `revert`, `done()`; events on the ring; change-only writes through the ledger (Recall exact), settles when done, jumps to the end with reduced motion, no allocation per step | 2.1 KB |
@@ -636,6 +637,30 @@ engine.add({ step(_, dt) {
 } });
 // Draw from m.x[i], m.y[i], m.a[i]; m.moved[i] is how far it went (tread marks, dust).
 ```
+
+### Math (`@fzlt/core/math`)
+
+The same bits on every engine. The builtins `Math.sin`, `cos` and `atan2` differ between engines in
+the last bit (measured: Chromium 153's and WebKit 26's differ from Node 24's in about 3% of sin and
+cos results and 18% of atan2's), and one bit in a heading is a different game online. These are fdlibm's algorithms written with + − × ÷ and bit reads only:
+in Node they equal the builtins bit for bit (a million seeded arguments per function), and Chromium
+and WebKit give the same digests of 120,000 results (`tests/math-engines.mjs`). A sim that has to
+replay across browsers (presence, rollback, a shared seed) calls these in its step; drawing can keep
+the builtins.
+
+```ts
+import { sin, cos, atan2, hypot } from "@fzlt/core/math";
+
+engine.add({ step(_, dt) {
+  const a = atan2(ty - y, tx - x);       // a heading: the same on an iPhone and a desktop
+  x += cos(a) * speed * dt; y += sin(a) * speed * dt;
+  if (hypot(tx - x, ty - y) < 4) arrived = true;
+} });
+```
+
+Past 2^20·π/2 radians (about 1.6 million) the argument is first taken mod 2π: still the same on
+every engine, but no longer equal to Node's builtin there. Zero allocation wherever they are called
+from (the bodies trade numbers through one shared buffer; the exports are tiny wrappers that inline).
 
 ### Coach (`@fzlt/core/coach`)
 
