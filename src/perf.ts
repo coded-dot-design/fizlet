@@ -39,15 +39,19 @@ export const WINDOW = 500;
 
 /** The last `cap` frame times (ms) in a typed array: `push` never allocates. */
 export class FrameRing {
+  /** Frame times held (the overlay keeps `BARS`, 120). */
   readonly cap: number;
+  /** The frame times in ms, by slot (see `slot()` for the k-th oldest). */
   readonly ms: Float32Array;
   /** The next slot written. */
   head = 0;
+  /** Frames held, up to `cap`. */
   size = 0;
   constructor(cap: number) {
     this.cap = cap; // a plain field, not a parameter property: src/ is erasable (tests/erasable.test.mjs)
     this.ms = new Float32Array(cap);
   }
+  /** Record one frame time in ms, overwriting the oldest when full. Never allocates. */
   push(ms: number) {
     this.ms[this.head] = ms;
     this.head = (this.head + 1) % this.cap;
@@ -174,10 +178,13 @@ export function perf(engine: Engine, o: PerfOptions = {}) {
   host.append(L.add(el));
   if (o.on) show(true);
   return {
+    /** The overlay's root element (`.fizlet-perf`), added through the ledger. */
     el,
+    /** The frame-time ring the chart draws (the last `BARS` frames, in ms). */
     ring,
     /** Show (true), hide (false) or flip (no argument). */
     show,
+    /** Shown right now (default `o.on`, false). */
     get on() {
       return on;
     },

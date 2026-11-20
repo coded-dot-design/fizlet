@@ -198,7 +198,6 @@ export function launch(button: HTMLElement, action: () => void, opts: { reduced?
     layer.setAttribute("aria-hidden", "true");
     // Inline styles only: the burst lives on <body>, outside any shadow root the board is in.
     Object.assign(layer.style, { position: "fixed", contain: "layout style", zIndex: "2147483000", pointerEvents: "none", left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px` });
-    document.body.append(layer);
     // The press travels along the key's base (the domain's shadow direction): its first offset.
     const base = style.boxShadow.match(/(-?[\d.]+)px\s+(-?[\d.]+)px/), sx = base ? +base[1]! : 0, sink = base ? +base[2]! : 5;
     // Freeze the look (the copies live outside the .bui root): read once, before the copies go in,
@@ -207,6 +206,10 @@ export function launch(button: HTMLElement, action: () => void, opts: { reduced?
       const s = getComputedStyle(n);
       return ["color", "background-color", "border", "border-radius", "font", "letter-spacing", "fill", "stroke", "display", "gap", "align-items", "justify-items", "align-content", "padding", "width", "height"].map((p) => [p, s.getPropertyValue(p)]);
     });
+    const css = root ? getComputedStyle(root) : null,
+      tones = opts.tones ?? [ink, ...["--k-attack", "--k-flag", "--k-cmd"].map((v) => css?.getPropertyValue(v).trim() || ink)];
+    // Every read above, before the first write below: one style pass for the whole burst.
+    document.body.append(layer);
     const copy = () => {
       const c = button.cloneNode(true) as HTMLElement;
       c.removeAttribute("id");
@@ -253,8 +256,6 @@ export function launch(button: HTMLElement, action: () => void, opts: { reduced?
     add(dot("bui-flash", R * 0.6, "#fff4ff"), [{ transform: "scale(.3)", opacity: 1 }, { transform: "scale(2.6)", opacity: 0.9, offset: 0.35 }, { transform: "scale(3.2)", opacity: 0 }], 320);
     add(dot("bui-flash", R * 0.45, ink), [{ transform: "scale(.4)", opacity: 1 }, { transform: "scale(2.2)", opacity: 1, offset: 0.4 }, { transform: "scale(.2)", opacity: 0 }], 460);
     add(dot("bui-ring", R * 0.5, ink), [{ transform: "scale(.5)", opacity: 1 }, { transform: "scale(5)", opacity: 0 }], 480);
-    const css = root ? getComputedStyle(root) : null,
-      tones = opts.tones ?? [ink, ...["--k-attack", "--k-flag", "--k-cmd"].map((v) => css?.getPropertyValue(v).trim() || ink)];
     for (let i = 0; i < 12; i++) {
       const a = (i / 12) * Math.PI * 2 + (i % 2) * 0.3, d = R * 0.9 + (i % 3) * 18, s = 5 + (i % 3) * 2;
       const x = Math.cos(a) * d * (W / H > 1.5 ? 1.5 : 1), y = Math.sin(a) * d;

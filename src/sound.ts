@@ -111,8 +111,16 @@ export function sound(e: Engine, o: SoundOptions) {
   }
   e.signal.addEventListener("abort", dispose, sig);
   return {
+    /** Play `cue` now, or at `at` seconds on the audio clock (see `time`): a loop schedules ahead.
+     *  `intensity` (default 1) scales the synth's volume, up to 1.5x. Silent while muted, paused or
+     *  before the first gesture; unknown cues are ignored. Unscheduled repeats of a cue within 0.12 s
+     *  (0.07 s for "fire") are dropped, and at most 8 synth voices sound at once. */
     play,
+    /** Remove this sound provider only (listeners, system, its AudioContext); the engine keeps
+     *  running. Runs on its own at destroy (Recall). */
     dispose,
+    /** Switched on (default `o.on`, true). Setting false mutes and suspends the audio context; true
+     *  resumes it. */
     get on() {
       return on;
     },

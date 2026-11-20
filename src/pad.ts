@@ -203,9 +203,11 @@ export function pad(e: Engine, c: Controls, o: PadOptions = {}) {
   return {
     /** The pad's root element (`.bui-pad`). */
     el,
+    /** The move control on screen now (default "stick"). */
     get scheme() {
       return scheme as Scheme;
     },
+    /** Swap the move control. Fingers on the old one let go first; listeners stay as they are. */
     setScheme,
     /** Let go of every finger, remove the listeners and the pad (engine.destroy() does this too). */
     destroy() {

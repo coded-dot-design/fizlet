@@ -9,8 +9,8 @@
  */
 export const BRICKS =
   "kernel go 3372,input sys 1909,sprite fallin 1437,fx attack 2792,hud aim 1306,timeline fire 2137,camera go 1400," +
-  "grid flag 1652,rules advance 1318,steer advance 2759,presence cmd 2197,sound advance 1062,match go 2617,collide cmd 1265," +
-  "pad advance 2068,coach sys 1220,perf sys 2019,slot sys 1849,board-page attack 4104,ui fire 2907";
+  "grid flag 1652,rules advance 1318,steer advance 2759,presence cmd 2186,sound advance 1062,match go 2617,collide cmd 1251," +
+  "pad advance 2068,coach sys 1220,perf sys 2019,slot sys 1849,board-page attack 4076,ui fire 2900";
 
 /** The intro stacks these (indices into BRICKS): kernel, input, sprite, fx, hud: a shooter. */
 export const DEMO = [0, 1, 2, 3, 4];
