@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+- **`@fzlt/core/ribbon`**: what Holeshot's tracks need (3,793 B gz, was 2,683; budget 2,752 → 3,840 for
+  these four). A scene that uses none of them issues the very canvas commands it did before (a hash of
+  60,507 path commands over 40 views, `tests/ribbon.test.mjs`).
+  - **Colour runs with gaps**: `band(line, from, to, color, closed, { at, colors, period })` changes the
+    band's colour at distances along the line (`null`: a gap), repeating every `period`: a kerb that
+    alternates, a dashed centre line, a strip that stops and starts. `color` may be `null` (painted only
+    where the runs say). Each stretch is cut exactly at its distance.
+  - **Under-lap**: `bands(line, edges, colors, { closed, lap, runs })` lays bands side by side; where two
+    meet, the one painted first reaches `lap` (default 0.15 units) in under the other, and a row's bands
+    share one depth bucket, so no seam shows between them (Chromium: no ground along the seam; edge to
+    edge it shows through).
+  - **Crest cut**: the `cut` option clips a piece exactly where its edges go behind a crest (8 halvings
+    per edge that crosses one) where `hide` alone paints it whole while one corner shows.
+  - **The painter's pieces**, public and documented, for a scene with its own layout (a road graph walked
+    every frame): `layout(fn)` runs inside the decal, `WP` (the polygon's corners), `hy`, `hidden`,
+    `bucket` and `BK`, `emit(color, corners)` (a quad or a triangle, wound either way), `B` (the frame's
+    camera), `color(color, at)` (an index; with `at` a slot repainted: a theme change), `light(dir,
+    ambient)`, and `paint` (the decal's function, to add again after `d.clear()`).
+  - Zero allocation per frame with all four on (0 young GCs over 2,000 frames). Chromium: one still
+    canvas per addition in `tests/ribbon.mjs`.
 - **`@fzlt/core/ribbon`** (new brick, ALPHA; 2,683 B gz, budget 2,752): roads, tracks and edge strips
   drawn along their true curve at their true width on a heightfield, lifted from Holeshot's road-edge
   ribbons (its road graph and materials stay in the game). `ribbon(d, ground, options)` adds one decal to

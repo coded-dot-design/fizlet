@@ -343,7 +343,8 @@ ik2(J, ax, ay, bx, by, 0.3, 0.3, -1); // J = [upper angle, lower angle, elbow x,
 const r = ribbon(d, t, { step: 0.5, hide: true }); // one decal; nothing to call per frame
 r.band(loop, -1.4, 1.4, "#6d4c3a", true); // the track: closed, 2.8 wide, mitred, draped
 r.band(loop, -1.7, -1.4, "#f4f1e6", true); // a white edge strip on its left
-r.band(loop, 1.4, 1.7, "#e8483c", true); // a red one on its right` },
+r.band(loop, 1.4, 1.7, "#e8483c", true, { at: [1], colors: ["#f4f1e6"], period: 2 }); // a kerb: red, white, every unit
+r.band(loop, -0.06, 0.06, "#f4f1e6", true, { at: [2], colors: [null], period: 4 }); // a dashed centre line` },
   { id: "math", no: 38, sym: "mh", family: "motion", status: "beta", since: "0.27.0", tests: ["math.test.mjs", "math-engines.mjs"], used: [], why: "New: no released game runs its sim on it yet.",
     tag: "MATH", role: "advance", modules: [mod("@fzlt/core/math", "math")],
     snippet: `const a = atan2(ty - y, tx - x); // in a step: the same bits on an iPhone and a desktop

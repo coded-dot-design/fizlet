@@ -159,7 +159,10 @@ export const BUDGETS = [
   ["@fzlt/core/rig", "src/rig.ts", 1344],
   // Roads, tracks and edge strips at their true width on a heightfield (diorama is a type-only import;
   // the exact hypot from @fzlt/core/math; lifted from Holeshot's ribbons): 2,683 B gz when added.
-  ["@fzlt/core/ribbon", "src/ribbon.ts", 2752],
+  // 3,793 B (+1,110 B, budget 2,752 → 3,840) with what Holeshot's tracks need: colour runs with gaps
+  // along a band, `bands` with an under-lap and one bucket per row, the exact cut at a crest, and the
+  // painter's pieces public (color, light, layout, paint, WP, B, BK, hy, hidden, bucket, emit).
+  ["@fzlt/core/ribbon", "src/ribbon.ts", 3840],
   // An animation recipe as data: 8,467 B gz with the kernel, fx (effects + emitter), sprite and
   // timeline's easings it composes when added; its own code is 1,928 B (planned at ≤ 2,048; on a
   // page the bricks are shared). tests/scene.test.mjs holds the own-code target.
