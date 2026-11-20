@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **`@fzlt/core/presence`: `send()` writes a message's frame and value through one DataView (−11 B gz).**
+  2,197 → 2,186 B gz (budget 2,240 → 2,208), presence/check 4,870 → 4,850 B. The same 12 little-endian bytes on
+  the wire; 4 peers in lockstep cost the same (1.02–1.08 µs a round before and after, Node 24, median of 7 ×
+  20,000 rounds, 3 runs each); still no allocation per message.
+
 - **`@fzlt/core/ui`: `launch()` reads every computed style before its first write (no forced layout).** The
   burst layer went onto `<body>` before the key's look and the board's tones were read, so those reads forced a
   style and layout pass; now every read comes first. One click on a 4,000-node page at 4× CPU: 6.7–7.8 → 4.6 ms

@@ -58,13 +58,12 @@ export function presence(e: Engine, o: PresenceOptions) {
   // One ring slot per (player, frame % cap): the frame it holds and the bits; same for hashes.
   const tag = new Int32Array(P * C).fill(-1), bits = new Uint32Array(P * C);
   const htag = new Int32Array(P * C).fill(-1), hval = new Uint32Array(P * C);
-  const now = new Uint32Array(P), n = new Int32Array(6), out = new Uint8Array(12);
+  const now = new Uint32Array(P), n = new Int32Array(6), out = new Uint8Array(12), dv = new DataView(out.buffer);
   n[3 /* DESYNC */] = -1;
   const put = (s: number, f: number, b: number) => ((tag[s * C + (f % C)] = f), (bits[s * C + (f % C)] = b));
   for (let s = 0; s < P; s++) for (let f = 0; f < D; f++) put(s, f, 0);
   const send = (k: number, f: number, v: number) => {
-    out[0] = k, out[1] = me, out[4] = f, out[5] = f >>> 8, out[6] = f >>> 16, out[7] = f >>> 24;
-    out[8] = v, out[9] = v >>> 8, out[10] = v >>> 16, out[11] = v >>> 24;
+    out[0] = k, out[1] = me, dv.setUint32(4, f, true), dv.setUint32(8, v, true);
     t.send(out);
   };
   const check = (s: number, f: number, h: number) => {

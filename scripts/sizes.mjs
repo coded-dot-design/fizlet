@@ -52,7 +52,8 @@ export const BUDGETS = [
   ["@fzlt/core/slot", "src/slot.ts", 2048],
   // 1,834 B gz before resume (0.21.2); 2,207 B with it: AWAY/RESUME and the resend, join's reconnect
   // with the seat's token, LOBBY and the host's START (+373 B; fizlet#210, pending owner review).
-  ["@fzlt/core/presence", "src/presence.ts", 2240],
+  // 2,186 B (−11 B) when send() writes the frame and value with one DataView (same little-endian bytes).
+  ["@fzlt/core/presence", "src/presence.ts", 2208],
   ["@fzlt/core/presence/check", "src/presence-check.ts", 5120],
   // Rollback on presence's wire (guessed inputs, a snapshot ring, resim, hashes on final frames, delay
   // and lead balancing), lifted from the copy three games carried: 2,176 B gz when added (goal 2,560;
