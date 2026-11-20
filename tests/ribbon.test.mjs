@@ -4,8 +4,11 @@
 // keep the width, every corner sits on the ground's height (the terrain's own sample), pieces behind
 // the camera are clipped and off-screen ones culled, one fill per colour and shade, far buckets first,
 // `hide` drops a band behind a ridge, `cap` drops and counts, and painting every frame allocates nothing.
+// And its output is pinned: a hash of every path command and fill style over 40 views (60,507 commands),
+// the one the brick gave when it was added (commit 7043a16), so nothing changes what a scene draws unseen.
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { minorGCs } from "./gc.mjs";
 
 const { diorama } = await import("../src/diorama.ts");
@@ -14,13 +17,13 @@ const { ribbon } = await import("../src/ribbon.ts");
 
 /** A canvas context that records paths (point lists) and fills (with their style). */
 class Rec {
-  constructor() { this.paths = []; this.fills = []; this.cur = null; this.fillStyle = ""; this.rec = true; }
+  constructor() { this.paths = []; this.fills = []; this.cur = null; this.fillStyle = ""; this.rec = true; this.log = null; }
   setTransform() {} fillRect() {} clearRect() {} arc() {} stroke() {} save() {} restore() {} rect() {} clip() {} ellipse() {} strokeRect() {} drawImage() {}
-  beginPath() { if (this.rec) this.cur = []; }
-  moveTo(x, y) { if (this.rec) this.cur.push([[x, y]]); }
-  lineTo(x, y) { if (this.rec && this.cur) this.cur.at(-1)?.push([x, y]); }
-  closePath() {}
-  fill() { if (this.rec && this.cur) this.fills.push({ style: this.fillStyle, polys: this.cur }); }
+  beginPath() { if (this.log) this.log.push("b"); if (this.rec) this.cur = []; }
+  moveTo(x, y) { if (this.log) this.log.push("m" + x + "," + y); if (this.rec) this.cur.push([[x, y]]); }
+  lineTo(x, y) { if (this.log) this.log.push("l" + x + "," + y); if (this.rec && this.cur) this.cur.at(-1)?.push([x, y]); }
+  closePath() { if (this.log) this.log.push("c"); }
+  fill() { if (this.log) this.log.push("f" + this.fillStyle); if (this.rec && this.cur) this.fills.push({ style: this.fillStyle, polys: this.cur }); }
 }
 const scene = (ctx) => {
   const d = diorama({ clientWidth: 640, clientHeight: 400, width: 0, height: 0, getContext: () => ctx });
@@ -137,4 +140,26 @@ test("ribbon: painting a track with edge strips every frame allocates nothing", 
   t.diagnostic(`young GCs over 2,000 frames (best of 3 windows): bare ${bare}, drawn ${withRibbon}; pieces ${r.stats.pieces}`);
   assert.ok(r.stats.pieces > 50);
   assert.ok(withRibbon <= bare, `painting allocates: ${withRibbon} young GCs (bare ${bare})`);
+});
+
+test("ribbon: the canvas commands of 40 views are the ones the brick gave when it was added", () => {
+  // Every path call (with its numbers in full) and fill style of 40 views (yaw, pitch and distance
+  // vary: near clips, culls, hides) of a closed track, two strips and an open band on hills, hashed.
+  // The hash is the one the brick gave when it was added (commit 7043a16).
+  const log = [], ctx = new Rec();
+  ctx.rec = false; ctx.log = log;
+  const d = scene(ctx), t = flat();
+  t.noise({ seed: 5, amp: 2.5 });
+  const r = ribbon(d, t, { step: 0.5, hide: true });
+  const loop = [];
+  for (let i = 0; i < 24; i++) loop.push(Math.cos((i / 24) * 6.283) * 9, Math.sin((i / 24) * 6.283) * 6);
+  r.band(loop, -1.5, 1.5, "#c8a070", true);
+  r.band(loop, -1.8, -1.5, "#f0f0e0", true);
+  r.band(loop, 1.5, 1.8, "#f0f0e0", true);
+  r.band([-12, -9, -2, 3, 6, 4, 13, 12], -0.4, 0.4, "#405060");
+  let pieces = 0;
+  for (let f = 0; f < 40; f++) { d.cam.yaw = f * 0.16; d.cam.pitch = 0.15 + (f % 7) * 0.1; d.cam.dist = 6 + (f % 5) * 5; d.draw(); pieces += r.stats.pieces; }
+  assert.equal(pieces, 11741);
+  assert.equal(log.length, 60507);
+  assert.equal(createHash("sha256").update(log.join("\n")).digest("hex"), "9711f00428f8ba9cbeb7989c2baf8bcc57d9ff3ae8edd459bb07f4e8748e2deb");
 });
