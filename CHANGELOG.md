@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **`@fzlt/core/diorama`: `glide(cam, goal, rate, dt, snap)`, a camera ease.** Three games eased a diorama's
+  camera toward a goal by hand each frame and jumped under reduced motion (Salvo Bay's view changes,
+  CitySmash's pan, Dune Hop's reframe). `glide` moves each field the goal names `1 − e^(−rate·dt)` of the
+  way, lands exactly once close (0.0005 rad, 0.01 units, 0.4 px), leaves the other fields alone, and
+  returns true while it moves (settle-friendly); `snap` cuts. API-compatible (a new export; it tree-shakes:
+  `diorama()` alone stays 6,613 B). The whole module: 7,456 B gz (+198 B), budget 7,296 → 7,488.
+  - Tests: `tests/diorama-glide.test.mjs` (the step, the exact landing, partial goals, snap, 0 young GCs
+    over 1M steps).
+
 - **Brick audit (`fe audit fizlet`): no fails, no gaps in exports, README or tests.** `@fzlt/core/presence/rollback`
   no longer reads wall time in its step: the correction meters `resimMs` and `resimTotal` read a clock the
   host passes (`clock: () => performance.now()`, a profiling opt-in) and stay 0 without one (2,181 B gz,
