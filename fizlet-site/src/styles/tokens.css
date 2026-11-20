@@ -9,6 +9,23 @@
   --sans: Inter, "SF Pro Display", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --head-size: clamp(32px, 4.4vw, 54px);
+  --fs-8: 8px;
+  --fs-9: 9px;
+  --fs-10: 10px;
+  --fs-11: 11px;
+  --fs-11-5: 11.5px;
+  --fs-12: 12px;
+  --fs-12-5: 12.5px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-16: 16px;
+  --fs-16-5: 16.5px;
+  --fs-18: 18px;
+  --fs-19: 19px;
+  --fs-24: 24px;
+  --fs-28: 28px;
+  --fs-34: 34px;
+  --fs-40: 40px;
   /* space */
   --page: clamp(1200px, 94vw, 1520px);
   --gutter: 30px;
@@ -17,12 +34,13 @@
   --head-gap: 16px;
   --head-lead-gap: 18px;
   /* radius */
-  --r-4: 4px;
-  --r-5: 5px;
-  --r-6: 6px;
-  --r-8: 8px;
-  --r-10: 10px;
+  --r-14: 14px;
   --r-12: 12px;
+  --r-10: 10px;
+  --r-8: 8px;
+  --r-6: 6px;
+  --r-5: 5px;
+  --r-4: 4px;
   /* shadow */
   --shadow-x: 0;
   --shadow-y: 1;
@@ -61,6 +79,9 @@
   --k-cmd-base: color-mix(in srgb, var(--k-cmd) 50%, var(--rim));
   --k-cmd-deep: color-mix(in srgb, var(--k-cmd) 80%, var(--rim));
   --bui-kbd-alpha: 0.88;
+  --sticker-key-ink: #19f0ff;
+  --sticker-key-bg: #10233f;
+  --scrim: #2a2d38;
   /* space */
   --u: 1px;
   /* shadow */
@@ -83,6 +104,8 @@
   --k-sys-ink: #006e91;
   --k-cmd-ink: #6a3ae6;
   --k-fire-ink: #c01033;
+  --sticker-key-ink: #0a8fa8;
+  --sticker-key-bg: #f6f3ff;
 }
 html.bui[data-theme="light"] {
   /* color */

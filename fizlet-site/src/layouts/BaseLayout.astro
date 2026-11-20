@@ -8,11 +8,12 @@ import "../styles/site.css";
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import { SITE, NOINDEX_BUILD, jsonLd, type PageMeta } from "../lib/site";
-interface Props { meta: PageMeta; styles?: string[]; noindex?: boolean }
-const { meta, styles = [], noindex = false } = Astro.props;
+interface Props { meta: PageMeta; styles?: string[]; noindex?: boolean; robots?: string }
+// `robots`: a page kept out of search on every build (the design system: "noindex,nofollow").
+const { meta, styles = [], noindex = false, robots: own = "" } = Astro.props;
 const path = "/" + meta.path;
 const canonical = SITE + meta.path;
-const robots = noindex || NOINDEX_BUILD ? "noindex" : "";
+const robots = own || (noindex || NOINDEX_BUILD ? "noindex" : "");
 ---
 <!doctype html>
 <html lang="en" class="bui" data-theme="dark">

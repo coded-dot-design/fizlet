@@ -13,7 +13,7 @@
 /* ---------- 1. Tokens ---------- */
 .bui {
   color: var(--ink);
-  font: calc(12 * var(--u)) / 1.3 ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font: calc(12 * var(--u)) / 1.3 var(--mono);
 }
 .bui[data-theme="light"] {
   color-scheme: light;
@@ -247,7 +247,7 @@
 /* Shortcut chip: always on the key's right edge. */
 .bui kbd {
   margin-left: auto;
-  font: calc(9 * var(--u)) ui-monospace, monospace;
+  font: calc(9 * var(--u)) var(--mono);
   border: calc(1 * var(--u)) solid currentColor;
   padding: calc(1 * var(--u)) calc(4 * var(--u));
   border-radius: calc(3 * var(--u));
@@ -276,13 +276,13 @@
   padding: 0 0 calc(2 * var(--u));
 }
 .bui .bui-unit b {
-  font: 900 calc(16 * var(--u)) / 1 ui-monospace, monospace;
+  font: 900 calc(16 * var(--u)) / 1 var(--mono);
   color: var(--rim);
 }
 .bui .bui-unit[data-hp="hurt"] { --c: var(--hurt); }
 .bui .bui-unit[data-hp="critical"] { --c: var(--critical); }
 .bui .bui-unit.active {
-  outline: calc(2 * var(--u)) solid #f6f3ff;
+  outline: calc(2 * var(--u)) solid var(--k-flag);
   outline-offset: calc(2 * var(--u));
 }
 .bui .bui-unit:disabled {
@@ -359,7 +359,7 @@
   left: 50%;
   bottom: calc(8 * var(--u));
   translate: -50% 0;
-  font: 900 calc(9.5 * var(--u)) / 1 ui-monospace, monospace;
+  font: 900 calc(9.5 * var(--u)) / 1 var(--mono);
   color: var(--k-cmd-ink);
   white-space: nowrap;
 }
@@ -370,7 +370,7 @@
   min-width: calc(23 * var(--u));
   height: calc(23 * var(--u));
   padding: 0 calc(4 * var(--u));
-  font: 900 calc(12 * var(--u)) / calc(23 * var(--u)) ui-monospace, monospace;
+  font: 900 calc(12 * var(--u)) / calc(23 * var(--u)) var(--mono);
   color: var(--rim);
   background: var(--team);
   border: calc(2 * var(--u)) solid var(--rim);
@@ -400,9 +400,9 @@
   height: calc(84 * var(--u));
   min-height: 0;
   padding: calc(6 * var(--u)) 0 calc(5 * var(--u));
-  color: #19f0ff;
-  background: #10233f;
-  border: calc(3 * var(--u)) solid #f6f3ff;
+  color: var(--sticker-key-ink);
+  background: var(--sticker-key-bg);
+  border: calc(3 * var(--u)) solid var(--k-flag);
   border-radius: calc(12 * var(--u));
 }
 .bui .bui-sticker-key svg {
@@ -412,13 +412,13 @@
   stroke: none;
 }
 .bui .bui-sticker-key b {
-  font: 900 calc(10 * var(--u)) / 1 ui-monospace, monospace;
+  font: 900 calc(10 * var(--u)) / 1 var(--mono);
   letter-spacing: calc(1.6 * var(--u));
-  color: #f6f3ff;
+  color: var(--k-flag);
   white-space: nowrap;
 }
 .bui .bui-sticker-key.bui-plan {
-  color: #f6f3ff;
+  color: var(--k-flag);
   background: var(--k-cmd);
 }
 .bui .bui-sticker-key.bui-plan b {
@@ -433,15 +433,15 @@
   --edge: var(--rim);
   --edge-hover: var(--rim);
   --border-hover: var(--rim);
-  color: #0a8fa8;
-  background: #f6f3ff;
+  color: var(--sticker-key-ink);
+  background: var(--sticker-key-bg);
   border-color: var(--rim);
 }
 .bui[data-theme="light"] .bui-sticker-key b {
   color: var(--rim);
 }
 .bui[data-theme="light"] .bui-sticker-key.bui-plan {
-  color: #f6f3ff;
+  color: var(--k-flag);
   background: var(--k-cmd);
 }
 .bui[data-theme="light"] .bui-sticker-key.bui-second {
@@ -453,9 +453,9 @@
    <g class="bui-cells">16 rects</g><path class="bui-grid"/><rect class="bui-frame"/>
    <path class="bui-pole"/><path class="bui-cloth"/> (64 × 64). */
 .bui .bui-surrender .bui-cells rect { fill: var(--team); }
-.bui .bui-surrender svg .bui-grid { fill: none; stroke: #07060f; stroke-opacity: 0.3; stroke-width: 1; }
-.bui .bui-surrender svg .bui-frame { fill: none; stroke: #f6f3ff; stroke-width: 2; }
-.bui .bui-surrender svg :is(.bui-pole, .bui-cloth) { fill: #f6f3ff; stroke: #07060f; stroke-width: 2; stroke-linejoin: round; shape-rendering: geometricPrecision; }
+.bui .bui-surrender svg .bui-grid { fill: none; stroke: var(--rim); stroke-opacity: 0.3; stroke-width: 1; }
+.bui .bui-surrender svg .bui-frame { fill: none; stroke: var(--k-flag); stroke-width: 2; }
+.bui .bui-surrender svg :is(.bui-pole, .bui-cloth) { fill: var(--k-flag); stroke: var(--rim); stroke-width: 2; stroke-linejoin: round; shape-rendering: geometricPrecision; }
 .bui .bui-surrender.go .bui-cells rect { animation: bui-whiteout 160ms calc(var(--i) * 18ms) steps(2) forwards; }
 .bui .bui-surrender.go .bui-cloth { animation: bui-wave 120ms ease-in-out 4 alternate; }
 .bui .bui-cloth { transform-box: fill-box; transform-origin: 0 50%; }
@@ -471,7 +471,7 @@
   inset: 0;
   z-index: 30;
   contain: layout style; /* rule 8: already positioned and stacked, so nothing moves or clips */
-  background: color-mix(in srgb, #2a2d38 82%, transparent);
+  background: color-mix(in srgb, var(--scrim) 82%, transparent);
 }
 /* [hidden] wins kit-wide: a component's own display (an overlay's flex, coach's inline grid, a game's
    panel) would beat the browser's [hidden] and leave a hidden part on screen. */
@@ -497,12 +497,12 @@
   animation: bui-slam 1100ms linear both;
 }
 .bui .bui-sticker span {
-  font: 800 calc(8 * var(--u)) / 1 ui-monospace, monospace;
+  font: 800 calc(8 * var(--u)) / 1 var(--mono);
   letter-spacing: calc(4 * var(--u));
   animation: bui-blink 1s steps(2) infinite;
 }
 .bui .bui-sticker b {
-  font: 900 calc(34 * var(--u)) / 1 ui-monospace, monospace;
+  font: 900 calc(34 * var(--u)) / 1 var(--mono);
   letter-spacing: calc(2 * var(--u));
   white-space: nowrap;
   text-shadow: calc(3 * var(--u) * var(--bui-sx)) calc(3 * var(--u) * var(--bui-sy)) 0 color-mix(in srgb, var(--bui-shadow) 35%, transparent);
@@ -580,9 +580,9 @@
   height: calc(22 * var(--u));
   min-height: 0;
   padding: 0 calc(9 * var(--u)) 0 calc(5 * var(--u));
-  font: 800 calc(9 * var(--u)) / 1 ui-monospace, monospace;
+  font: 800 calc(9 * var(--u)) / 1 var(--mono);
   letter-spacing: calc(1.2 * var(--u));
-  color: #f6f3ff;
+  color: var(--k-flag);
   background: var(--k-cmd-deep);
   border: calc(1.5 * var(--u)) solid var(--rim);
   border-radius: calc(6 * var(--u));
@@ -607,7 +607,7 @@
   position: absolute;
   left: calc(16 * var(--u));
   top: calc(21 * var(--u));
-  font: 700 calc(11 * var(--u)) / 1 ui-monospace, monospace;
+  font: 700 calc(11 * var(--u)) / 1 var(--mono);
   letter-spacing: 0.2em;
   color: var(--muted);
 }
@@ -782,7 +782,7 @@
   stroke-width: 2.3;
 }
 .bui .bui-pad small {
-  font: 900 calc(8 * var(--u)) / 1 ui-monospace, monospace;
+  font: 900 calc(8 * var(--u)) / 1 var(--mono);
   letter-spacing: 0.12em;
 }
 .bui .bui-pad kbd {
@@ -791,7 +791,7 @@
   top: calc(-6 * var(--u));
   margin: 0;
   padding: calc(1 * var(--u)) calc(4 * var(--u));
-  font: 800 calc(8 * var(--u)) / 1.3 ui-monospace, monospace;
+  font: 800 calc(8 * var(--u)) / 1.3 var(--mono);
   color: var(--muted);
   background: var(--surface);
   border: calc(1 * var(--u)) solid var(--line);

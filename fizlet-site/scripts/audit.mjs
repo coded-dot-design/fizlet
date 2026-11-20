@@ -11,8 +11,12 @@ const walk = (d) => readdirSync(d).flatMap((f) => { const p = join(d, f); return
 const fail = [];
 const NOINDEX = process.env.PUBLIC_ROBOTS === "noindex";
 
+// Pages kept out of search on every build, not legacy routes: noindex,nofollow always, never in the sitemap.
+const INTERNAL = new Set(["design-system/"]);
+const sitemap = existsSync("dist/sitemap.xml") ? readFileSync("dist/sitemap.xml", "utf8") : "";
 for (const f of walk("dist").filter((f) => f.endsWith(".html"))) {
   const h = readFileSync(f, "utf8"), at = relative("dist", f);
+  const path = at.split("\\").join("/").replace(/index\.html$/, "");
   const need = (ok, what) => { if (!ok) fail.push(`${at}: ${what}`); };
   need(/<html lang="en"/.test(h), "no lang");
   need((h.match(/<title>/g) ?? []).length === 1, "not one <title>");
@@ -22,7 +26,8 @@ for (const f of walk("dist").filter((f) => f.endsWith(".html"))) {
   need(h.indexOf("dom-virus:theme") < h.indexOf("<body"), "theme script after first paint");
   need(/property="og:image"/.test(h), "no og:image");
   need(!/\son(click|load|error|mouseover)=/i.test(h), "inline event handler");
-  need(NOINDEX === /<meta name="robots" content="noindex/.test(h), NOINDEX ? "staging build without noindex" : "production build with noindex");
+  if (INTERNAL.has(path)) { need(/<meta name="robots" content="noindex,nofollow">/.test(h), "internal page without noindex,nofollow"); need(!sitemap.includes(`/${path}<`), "internal page in the sitemap"); }
+  else need(NOINDEX === /<meta name="robots" content="noindex/.test(h), NOINDEX ? "staging build without noindex" : "production build with noindex");
   for (const m of h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) { try { JSON.parse(m[1]); } catch { fail.push(`${at}: JSON-LD does not parse`); } }
 }
 for (const p of JSON.parse(readFileSync("src/data/migration.json", "utf8")).done) {

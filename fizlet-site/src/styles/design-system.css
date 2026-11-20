@@ -1,0 +1,50 @@
+/* The design-system page (/design-system/): its own layout only, on the tokens (the token lint
+   holds this sheet to the shared-component rule). The specimens inside are the real components. */
+.ds { padding-block: var(--section-gap); }
+.ds code { font-family: var(--mono); font-size: 0.92em; }
+.ds-toc ul { display: flex; flex-wrap: wrap; gap: calc(8 * var(--u)) calc(16 * var(--u)); margin: 0; padding: 0; list-style: none; font: 700 var(--fs-12) var(--mono); }
+.ds-toc a { color: var(--k-sys-ink); }
+.ds-sec { margin-top: var(--section-gap); }
+.ds-sec > h2 { margin: 0 0 var(--head-gap); font-size: var(--fs-28); }
+.ds-desc { max-width: 72ch; margin: 0 0 var(--block-gap); color: var(--muted); font-size: var(--fs-14); }
+.ds-scroll { overflow-x: auto; border: var(--u) solid var(--line); border-radius: var(--r-8); }
+.ds-table { width: 100%; border-collapse: collapse; font-size: var(--fs-13); }
+.ds-table :is(th, td) { padding: calc(8 * var(--u)) calc(10 * var(--u)); text-align: left; vertical-align: top; border-bottom: var(--u) solid var(--line); white-space: nowrap; }
+.ds-table thead th { font: 700 var(--fs-11) var(--mono); color: var(--muted); }
+.ds-num { font-family: var(--mono); text-align: right; }
+.ds-num small, .ds-raw { display: block; color: var(--muted); font: var(--fs-11) var(--mono); }
+.ds-chip { display: inline-flex; align-items: center; gap: calc(6 * var(--u)); }
+.ds-sw { display: inline-block; width: calc(22 * var(--u)); height: calc(22 * var(--u)); border: var(--u) solid var(--line); border-radius: var(--r-4); }
+.ds-list { display: grid; gap: calc(12 * var(--u)); margin: 0; padding: 0; list-style: none; }
+.ds-list > li { display: grid; grid-template-columns: minmax(calc(140 * var(--u)), 14rem) minmax(0, 1fr); align-items: center; gap: calc(4 * var(--u)) calc(16 * var(--u)); }
+.ds-list > li > :nth-child(n + 3) { grid-column: 2; }
+.ds-list .ds-raw { overflow-wrap: anywhere; }
+.ds-sample { overflow-wrap: anywhere; }
+.ds-sample-size { font-weight: 800; line-height: 1.1; }
+.ds-bar { display: block; max-width: 100%; height: calc(10 * var(--u)); background: var(--k-sys); border-radius: var(--r-4); }
+.ds-tiles { display: flex; flex-wrap: wrap; gap: calc(16 * var(--u)); margin: 0; padding: 0; list-style: none; }
+.ds-tiles > li { display: grid; gap: calc(4 * var(--u)); justify-items: start; }
+.ds-tile { width: calc(72 * var(--u)); height: calc(72 * var(--u)); background: var(--surface); border: calc(2 * var(--u)) solid var(--line); }
+.ds-shadow-demo { max-width: calc(420 * var(--u)); margin-top: var(--block-gap); }
+.ds-curve { overflow: visible; }
+.ds-curve-axis { fill: none; stroke: var(--line); stroke-width: 1; }
+.ds-curve-line { fill: none; stroke: var(--k-go); stroke-width: 2.5; }
+.ds-spec { margin-top: var(--block-gap); padding-top: var(--block-gap); border-top: var(--u) solid var(--line); }
+.ds-spec > h3 { margin: 0 0 calc(8 * var(--u)); }
+.ds-spec > h3 small { font-weight: 400; color: var(--muted); font-size: var(--fs-12); }
+.ds-cells { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(320 * var(--u))), 1fr)); gap: calc(16 * var(--u)); }
+.ds-cell { margin: 0; padding: calc(12 * var(--u)) calc(14 * var(--u)) calc(18 * var(--u)); background: var(--bg); border: var(--u) dashed var(--line); border-radius: var(--r-8); min-width: 0; }
+.ds-cell figcaption { margin-bottom: calc(10 * var(--u)); font: 700 var(--fs-11) var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; }
+.ds-stage { display: flex; flex-wrap: wrap; align-items: flex-start; gap: calc(12 * var(--u)); min-width: 0; }
+.ds-stage > * { min-width: 0; max-width: 100%; }
+.ds-one { display: block; width: 100%; margin: 0; padding: 0; list-style: none; }
+.ds-cells:has(#spec-docs-sidebar-h), #spec-docs-sidebar .ds-cells, #spec-site-map .ds-cells, #spec-nav-tree .ds-cells, #spec-gallery-card .ds-cells, #spec-brick-card .ds-cells { grid-template-columns: minmax(0, 1fr); }
+.ds .ds-head { position: relative; z-index: auto; width: 100%; }
+.ds .ds-head .site-nav { position: static; }
+.ds .ds-foot { width: 100%; }
+.ds-brand { display: inline-flex; align-items: center; gap: calc(12 * var(--u)); color: var(--ink); text-decoration: none; }
+.ds-marks { display: inline-flex; align-items: end; gap: calc(12 * var(--u)); color: var(--ink); }
+.ds-icons { display: flex; flex-wrap: wrap; gap: calc(14 * var(--u)); margin: 0; padding: 0; list-style: none; }
+.ds-icons li { display: grid; justify-items: center; gap: calc(4 * var(--u)); width: calc(64 * var(--u)); font-size: var(--fs-11); color: var(--muted); }
+.ds-icons svg { color: var(--ink); }
+.ds-chips { display: flex; flex-wrap: wrap; gap: calc(12 * var(--u)); margin: 0; padding: 0; list-style: none; }

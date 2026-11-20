@@ -1,0 +1,192 @@
+---
+// The design system: every token (computed from src/design/tokens.json) and every shared component
+// (src/components/) in each state, rendered from the components themselves. Kept out of search on
+// every build (noindex, nofollow; not in the sitemap). tests/visual.test.mjs snapshots each cell.
+//
+// States: a cell's data-ds-state paints the shared sheets' own :hover / :focus-visible / :active
+// rules (src/lib/css.ts stateSheet reads them out of board-ui.css and site.css), so a static page
+// shows each state exactly as the real rule does. Disabled is the real attribute.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import Key from "../../components/Key.astro";
+import ThemeToggle from "../../components/ThemeToggle.astro";
+import Icon from "../../components/Icon.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import Callout from "../../components/Callout.astro";
+import Crumbs from "../../components/Crumbs.astro";
+import DocSteps from "../../components/DocSteps.astro";
+import DocsSidebar from "../../components/DocsSidebar.astro";
+import BrickCard from "../../components/BrickCard.astro";
+import GalleryCard from "../../components/GalleryCard.astro";
+import SymChip from "../../components/SymChip.astro";
+import Lockup from "../../components/Lockup.astro";
+import Mark from "../../components/Mark.astro";
+import NavTree from "../../components/NavTree.astro";
+import SiteMap from "../../components/SiteMap.astro";
+import "../../styles/design-system.css";
+import boardCss from "../../styles/board-ui.css?raw";
+import siteCss from "../../styles/site.css?raw";
+import { stateSheet } from "../../lib/css";
+import { tokens, description, colour, resolve, contrast, hex, bezier, type Group, type Theme } from "../../lib/tokens";
+import { icons, VERSION, type Tone } from "../../lib/site";
+import HOME from "../../data/legacy/pages/home.json";
+import GALLERY from "../../data/legacy/pages/gallery/index.json";
+import DOC from "../../data/legacy/pages/docs/getting-started.json";
+import FOOTER from "../../data/legacy/footer.json";
+
+const meta = {
+  scripts: ["/site.js"],
+  path: "design-system/",
+  title: "Design system: Fizlet tokens and components · Fizlet",
+  description: "Every Fizlet design token, with contrast measured from the tokens, and every shared component in each state, light and dark.",
+};
+
+// ---- Tokens ----
+const ALL = tokens();
+const THEMES: Theme[] = ["dark", "light"];
+const GROUPS: { id: Group; name: string }[] = [
+  { id: "color", name: "Colour" }, { id: "type", name: "Type" }, { id: "space", name: "Space" },
+  { id: "radius", name: "Radius" }, { id: "shadow", name: "Shadow" }, { id: "motion", name: "Motion" },
+];
+const of = (g: Group) => ALL.filter((t) => t.group === g);
+const grade = (r: number) => (r >= 7 ? "AAA" : r >= 4.5 ? "AA" : r >= 3 ? "AA large · UI" : "below 3");
+const colours = of("color").map((t) => ({
+  ...t,
+  themes: THEMES.map((th) => {
+    const c = colour(t.name, th);
+    const on = (bg: string) => (c ? contrast(c, colour(bg, th)!) : null);
+    return { th, c: c ? hex(c) : null, onBg: on("--bg"), onSurface: on("--surface") };
+  }),
+})).filter((t) => t.themes.some((x) => x.c));
+const values = of("color").filter((t) => !colours.some((c) => c.name === t.name));
+const shadowColours = of("shadow").filter((t) => colour(t.name, "dark"));
+const curves = of("motion").map((t) => ({ ...t, b: bezier(t.raw.dark) }));
+const curvePath = ([x1, y1, x2, y2]: number[]) => {
+  // 0..1 time on x, progress on y (y can overshoot), in a 120 x 120 box with room above and below.
+  const X = (x: number) => 10 + x * 100, Y = (y: number) => 100 - y * 70;
+  return `M${X(0)} ${Y(0)} C${X(x1)} ${Y(y1)} ${X(x2)} ${Y(y2)} ${X(1)} ${Y(1)}`;
+};
+const px = (v: string) => resolve(v, "dark");
+
+// ---- Components ----
+type State = "default" | "hover" | "focus-visible" | "active" | "disabled";
+const TONES = ["", "go", "sys", "cmd", "fire", "attack", "advance", "fallin", "flag"] as Tone[];
+const brick = HOME.sections.flatMap((s: any) => s.blocks ?? []).find((b: any) => b.kind === "bricks")!.items[0];
+const piece = GALLERY.items[0];
+const install = HOME.hero.install;
+const chip = FOOTER.flatMap((c) => c.sections).flatMap((s: any) => s.items).find((i: any) => i.chip)!;
+const SPECS: { id: string; name: string; file: string; states: State[]; note?: string }[] = [
+  { id: "key", name: "Key, arcade", file: "Key.astro", states: ["default", "hover", "focus-visible", "active", "disabled"], note: "Every tone: default, go, sys, cmd, fire, attack, advance, fallin, flag." },
+  { id: "key-small", name: "Key, small", file: "Key.astro (arcade={false})", states: ["default", "hover", "focus-visible", "active", "disabled"] },
+  { id: "icon-key", name: "Header keys", file: "SiteHeader.astro keys, ThemeToggle.astro, Key.astro (a link)", states: ["default", "hover", "focus-visible", "active", "disabled"], note: "Disabled: a button key and a link key (aria-disabled); the theme toggle is never disabled." },
+  { id: "code-block", name: "Code block", file: "CodeBlock.astro", states: ["default", "hover", "focus-visible", "active"], note: "The state is on the Copy key and the code (focusable for keyboard scrolling)." },
+  { id: "callout", name: "Callout", file: "Callout.astro", states: ["default"] },
+  { id: "section-head", name: "Section head", file: "SectionHead.astro", states: ["default"] },
+  { id: "crumbs", name: "Breadcrumbs", file: "Crumbs.astro", states: ["default", "hover", "focus-visible"] },
+  { id: "doc-steps", name: "Previous / next", file: "DocSteps.astro", states: ["default", "hover", "focus-visible"] },
+  { id: "docs-sidebar", name: "Docs map", file: "DocsSidebar.astro", states: ["default", "hover", "focus-visible"] },
+  { id: "brick-card", name: "Brick card", file: "BrickCard.astro", states: ["default", "hover", "focus-visible"] },
+  { id: "gallery-card", name: "Daily card", file: "GalleryCard.astro", states: ["default"] },
+  { id: "sym-chip", name: "Element chip", file: "SymChip.astro", states: ["default", "hover", "focus-visible"] },
+  { id: "nav-tree", name: "Header nav", file: "NavTree.astro", states: ["default", "hover", "focus-visible"] },
+  { id: "site-map", name: "Site map", file: "SiteMap.astro", states: ["default"], note: "Its links and chips take the states shown for the element chip and the docs map; forcing all of them at once would only overlap the chips' names." },
+  { id: "lockup", name: "Lockup and mark", file: "Lockup.astro, Mark.astro", states: ["default"] },
+  { id: "icon", name: "Icons", file: "Icon.astro", states: ["default"] },
+];
+const states = stateSheet(boardCss) + "\n" + stateSheet(siteCss);
+---
+<BaseLayout meta={meta} robots="noindex,nofollow" styles={[states]}>
+  <div class="wrap ds">
+    <SectionHead eyebrow="Design system" line="Tokens and components," accent="each state, both themes." id="ds-title" lead="Generated from <code>src/design/tokens.json</code> and <code>src/components/</code>: nothing on this page is a copy. Contrast is computed from the tokens. Every component cell is a visual test (<code>tests/visual.test.mjs</code>, 1440 and 390 wide, light and dark); the theme key in the header switches this page." />
+
+    <nav class="ds-toc" aria-label="On this page"><ul>{GROUPS.map((g) => <li><a href={`#ds-${g.id}`}>{g.name}</a></li>)}<li><a href="#ds-components">Components</a></li></ul></nav>
+
+    <section class="ds-sec" aria-labelledby="ds-color">
+      <h2 id="ds-color">Colour</h2>
+      <p class="ds-desc">{description("color")} Contrast is WCAG 2 (translucent tokens composited over <code>--bg</code>): AA is 4.5 for text, 3 for large text and controls.</p>
+      <div class="ds-scroll" tabindex="0" role="region" aria-label="Colour tokens">
+        <table class="ds-table">
+          <thead><tr><th scope="col">Token</th>{THEMES.map((th) => <th scope="col" colspan="3">{th === "dark" ? "Dark (default)" : "Light"}: value · on --bg · on --surface</th>)}</tr></thead>
+          <tbody>{colours.map((t) => <tr data-token={t.name}>
+            <th scope="row"><code>{t.name}</code></th>
+            {t.themes.map((x) => <Fragment>
+              <td><span class="ds-chip"><span class="ds-sw" style={x.c ? `background: ${x.c}` : undefined} /><code>{x.c}</code></span><small class="ds-raw">{t.raw[x.th]}</small></td>
+              <td class="ds-num" data-ratio={x.onBg?.toFixed(2)}>{x.onBg?.toFixed(2)}<small>{x.onBg !== null && grade(x.onBg)}</small></td>
+              <td class="ds-num">{x.onSurface?.toFixed(2)}<small>{x.onSurface !== null && grade(x.onSurface)}</small></td>
+            </Fragment>)}
+          </tr>)}</tbody>
+        </table>
+      </div>
+      {values.length > 0 && <p class="ds-desc">Not colours: {values.map((t) => <Fragment><code>{t.name}</code> {t.raw.dark} </Fragment>)}</p>}
+    </section>
+
+    <section class="ds-sec" aria-labelledby="ds-type">
+      <h2 id="ds-type">Type</h2>
+      <p class="ds-desc">{description("type")}</p>
+      <ul class="ds-list">{of("type").map((t) => <li data-token={t.name}>
+        <code>{t.name}</code><small class="ds-raw">{t.raw.dark}</small>
+        {t.name === "--sans" || t.name === "--mono"
+          ? <span class="ds-sample" style={`font-family: var(${t.name})`}>Building blocks for DOM animation · 0123456789</span>
+          : <span class="ds-sample ds-sample-size" style={`font-size: var(${t.name})`}>Fizlet</span>}
+      </li>)}</ul>
+    </section>
+
+    <section class="ds-sec" aria-labelledby="ds-space">
+      <h2 id="ds-space">Space</h2>
+      <p class="ds-desc">{description("space")} Components write every other length as N × <code>--u</code>: <code>calc(12 * var(--u))</code>.</p>
+      <ul class="ds-list">{of("space").map((t) => <li data-token={t.name}><code>{t.name}</code><small class="ds-raw">{px(t.raw.dark)}</small><span class="ds-bar" style={`width: var(${t.name})`} /></li>)}</ul>
+    </section>
+
+    <section class="ds-sec" aria-labelledby="ds-radius">
+      <h2 id="ds-radius">Radius</h2>
+      <p class="ds-desc">{description("radius")}</p>
+      <ul class="ds-tiles">{of("radius").map((t) => <li data-token={t.name}><span class="ds-tile" style={`border-radius: var(${t.name})`} /><code>{t.name}</code><small class="ds-raw">{t.raw.dark}</small></li>)}</ul>
+    </section>
+
+    <section class="ds-sec" aria-labelledby="ds-shadow">
+      <h2 id="ds-shadow">Shadow</h2>
+      <p class="ds-desc">{description("shadow")}</p>
+      <ul class="ds-list">{of("shadow").map((t) => <li data-token={t.name}><code>{t.name}</code><small class="ds-raw">{t.raw.dark}{t.raw.light !== t.raw.dark && ` · light: ${t.raw.light}`}</small>
+        {shadowColours.includes(t) && THEMES.map((th) => <span class="ds-chip"><span class="ds-sw" style={`background: ${hex(colour(t.name, th)!)}`} /><code>{hex(colour(t.name, th)!)}</code></span>)}</li>)}</ul>
+      <Callout class="ds-shadow-demo"><p>A panel (<code>Callout</code>) sits on <code>--base</code>, 6 × <code>--u</code> along the shadow direction.</p></Callout>
+    </section>
+
+    <section class="ds-sec" aria-labelledby="ds-motion">
+      <h2 id="ds-motion">Motion</h2>
+      <p class="ds-desc">{description("motion")}</p>
+      <ul class="ds-tiles">{curves.map((t) => <li data-token={t.name}>
+        {t.b && <svg class="ds-curve" viewBox="0 0 120 120" width="120" height="120" aria-hidden="true"><path class="ds-curve-axis" d="M10 100 H110 M10 100 V10" /><path class="ds-curve-line" d={curvePath(t.b)} /></svg>}
+        <code>{t.name}</code><small class="ds-raw">{t.raw.dark}</small></li>)}</ul>
+    </section>
+
+    <section class="ds-sec" aria-labelledby="ds-components">
+      <h2 id="ds-components">Components</h2>
+      <p class="ds-desc">Each shared component in every state it has. Hover, focus and press the default cells to see the live rules.</p>
+      {SPECS.map((s) => <article class="ds-spec" id={`spec-${s.id}`} aria-labelledby={`spec-${s.id}-h`}>
+        <h3 id={`spec-${s.id}-h`}>{s.name} <small><code>{s.file}</code></small></h3>
+        {s.note && <p class="ds-desc">{s.note}</p>}
+        <div class="ds-cells">{s.states.map((st) => <figure class="ds-cell" data-ds-cell={`${s.id}--${st}`} data-ds-state={st === "default" || st === "disabled" ? undefined : st}>
+          <figcaption>{st}</figcaption>
+          <div class="ds-stage">
+            {s.id === "key" && TONES.map((t) => <Key tone={t} icon="play" label={t || "key"} disabled={st === "disabled"} />)}
+            {s.id === "key-small" && TONES.map((t) => <Key tone={t} arcade={false} label={t || "key"} disabled={st === "disabled"} />)}
+            {s.id === "icon-key" && <Fragment><button class="bui-key bui-icon-key" type="button" aria-label="GitHub" disabled={st === "disabled"}><Icon name="github" /></button>{st !== "disabled" && <ThemeToggle />}<Key href="/#start" tone="go" icon="play" label="Start" class="start-key-sm" aria-disabled={st === "disabled" ? "true" : undefined} /></Fragment>}
+            {s.id === "code-block" && <CodeBlock label={install.label} code={install.code} wrap={install.wrap} copy={install.copy} />}
+            {s.id === "callout" && <Callout><p>A callout sets a note apart from the prose: the contest rules, a warning.</p></Callout>}
+            {s.id === "section-head" && <SectionHead index="01" eyebrow="Section" line="A section head," accent="with its accent." lead="The lead line under it." id={`ds-sh-${st}`} level="h2" />}
+            {s.id === "crumbs" && <Crumbs trail={DOC.crumbs.trail} current={DOC.crumbs.current} />}
+            {s.id === "doc-steps" && <DocSteps steps={[{ href: "/docs/", label: "Docs", dir: "prev" }, ...DOC.steps]} />}
+            {s.id === "docs-sidebar" && <DocsSidebar path="/docs/getting-started/" columns={DOC.map} />}
+            {s.id === "brick-card" && <ul class="bricks compact ds-one"><BrickCard {...brick} /></ul>}
+            {s.id === "gallery-card" && <ul class="gal-grid ds-one"><GalleryCard {...piece} id={`ds-${piece.id}`} /></ul>}
+            {s.id === "sym-chip" && <ul class="map-chips ds-chips"><li><SymChip href={chip.href} sym={chip.chip.sym} tone={chip.chip.tone} label={chip.label} /></li><li><SymChip href={chip.href} sym={chip.chip.sym} tone={chip.chip.tone} label={chip.label + " (this page)"} current="page" /></li></ul>}
+            {s.id === "nav-tree" && <header class="site-head ds-head menu-open"><div class="wrap"><nav class="site-nav" aria-label={`Site (specimen, ${st})`}><NavTree path="/docs/getting-started/" /></nav></div></header>}
+            {s.id === "site-map" && <footer class="site-foot ds-foot"><div class="wrap"><SiteMap path="/docs/getting-started/" /></div></footer>}
+            {s.id === "lockup" && <Fragment><a class="brand ds-brand" href="/"><Lockup version={VERSION} /></a><a class="brand ds-brand" href="/"><Lockup fzlt /></a><span class="ds-marks"><Mark size={16} /><Mark size={24} /><Mark size={40} /><Mark size={64} /></span></Fragment>}
+            {s.id === "icon" && <ul class="ds-icons">{Object.keys(icons).map((n) => <li><Icon name={n} /><code>{n}</code></li>)}</ul>}
+          </div>
+        </figure>)}</div>
+      </article>)}
+    </section>
+  </div>
+</BaseLayout>

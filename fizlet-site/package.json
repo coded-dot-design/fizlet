@@ -13,20 +13,24 @@
     "preview": "astro preview",
     "typecheck": "astro check",
     "validate:content": "node scripts/validate-content.mjs",
-    "test": "node --test tests/*.test.mjs",
+    "test": "node scripts/design-lint.mjs && node --test tests/*.test.mjs",
     "audit": "node scripts/audit.mjs",
     "browse": "node scripts/browse.mjs dist",
     "export:legacy": "node scripts/export-legacy.mjs",
     "compare": "node scripts/compare.mjs",
     "gates": "npm run validate:content && npm test && npm run typecheck && npm run build && npm run audit && npm run browse",
     "tokens": "node scripts/tokens.mjs",
-    "migration": "node scripts/migration.mjs"
+    "migration": "node scripts/migration.mjs",
+    "test:visual:update": "UPDATE_SNAPSHOTS=1 node --test tests/visual.test.mjs",
+    "lint:tokens": "node scripts/design-lint.mjs"
   },
   "dependencies": {
     "astro": "7.4.13"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
+    "@fontsource-variable/inter": "5.3.0",
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
     "node-html-parser": "7.0.2",
     "pixelmatch": "7.1.0",
     "playwright": "1.58.2",
