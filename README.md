@@ -638,7 +638,7 @@ the game decides where and what to spawn, and the HUD, sound and fx react to the
 import { waves, drops, score } from "@fzlt/core/rules";
 
 const w = waves(engine, { alive: () => enemies.length }); // prepare → assault → rebuild
-const d = drops(engine, { kinds: ["repair", "charge"], every: 6, place: (out) => spot(out) });
+const d = drops(engine, { kinds: ["repair", "charge"], every: 6, place: (out) => dropSpot(out) });
 const s = score(engine, { levels: [8, 24, 50] });         // combo 1 + floor(streak / 3), up to 5
 
 engine.add({ step() {
