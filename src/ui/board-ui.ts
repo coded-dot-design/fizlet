@@ -150,9 +150,11 @@ export function setting(button: HTMLElement, key: string, change: (on: boolean) 
   button.addEventListener("click", () => set(!on), { signal });
   set(on, false);
   return {
+    /** Whether the switch is on. */
     get on() {
       return on;
     },
+    /** Flip it from code: paints `aria-pressed`, stores it unless `save` is false (default true), runs `change`. */
     set,
   };
 }

@@ -16,17 +16,22 @@ export type Sticker = [kicker: string, word: string];
 export type MatchKey = "start" | "resume" | "surrender" | "again" | "next";
 /** Every word on the match overlay: the stickers per phase, the countdown kicker and the key labels. */
 export interface MatchLabels extends Record<MatchKey, string> {
+  /** The intro sticker (default PLAYER 1 / READY?). */
   intro: Sticker;
   /** The kicker over the 3-2-1. */
   count: string;
+  /** The pause sticker (default BATTLE PAUSED / GIVE UP?). */
   paused: Sticker;
+  /** The win sticker (default STAGE CLEAR / MISSION COMPLETE). */
   won: Sticker;
+  /** The loss sticker (default INSERT COIN / GAME OVER). */
   lost: Sticker;
   /** Lost by surrender (the white flag). */
   flag: Sticker;
 }
 /** How a match ended: won or lost, why, and the clock. */
 export interface MatchResult {
+  /** True when the player won. */
   won: boolean;
   /** "time" (the clock ran out), "flag" (surrender) or what the game passed to finish(). */
   why: string;
@@ -39,6 +44,7 @@ export interface MatchOptions {
   count?: number;
   /** Match length in seconds; 0 or left out = no time limit (the clock counts up). */
   seconds?: number;
+  /** Words to replace on the overlay; any left out keep the defaults. */
   labels?: Partial<MatchLabels>;
   /** SVG markup per key (64 × 64), e.g. the game's skull on KEEP FIGHTING. */
   icons?: Partial<Record<MatchKey, string>>;
@@ -225,6 +231,7 @@ export function match(e: Engine, root: HTMLElement | null, o: MatchOptions = {})
   e.add(system);
 
   const m = {
+    /** Where the match is now. */
     get phase(): Phase {
       return PH[phase]!;
     },
@@ -266,6 +273,8 @@ export function match(e: Engine, root: HTMLElement | null, o: MatchOptions = {})
       e.start();
       go(0 /* INTRO */);
     },
+    /** The match's system, already added to `e`: the countdown and the clock in step, the overlay painted
+     *  in render. Steps without allocating. */
     system,
   };
   paint();
