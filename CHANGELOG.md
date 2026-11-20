@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+- **Gallery: Stack it, a hero (pending the owner's approval; its number comes at land time).** Fizlet's bricks, by their real
+  names, Board UI colours (the brick catalog's roles) and sizes measured on this build, burst out over
+  the stage; a hand stacks kernel, input, sprite, fx and hud onto the pad (each lands with a slam,
+  dust in its colour and its bytes); the stack stretches into the bands of an app window and becomes
+  a shooter, which plays and gets its stars. Then it is your turn: tap or drag bricks onto the pad,
+  press FINISHED, and the stack becomes its own app (input, pad, steer: a shooter; timeline, camera:
+  a movie; grid, rules, match, board-page, presence: a board game; the kernel alone: hello), rated on
+  what it does and what it weighs (a star each for: it runs, a real app, something shows on it, no
+  dead weight, ≤ 12 KB of bricks; no kernel, no app). The bricks are real Board UI keys (tap, Enter
+  or Space stacks one), the rating is spoken. Built on the kernel alone (its dust, blasts and pop
+  words are one small pool in the scene; fx in your stack turns hits into blasts). Live chunk
+  9,706 B gzip (≤ 9,728), loader 1,932 B; measured in Chromium 153: 0 frames a second once still
+  (it settles after its ~10 s story), 0 off screen, Recall exact, nothing loads under reduced motion
+  (the poster, a still composition).
+  `site/demos/stack/`, poster `site/gallery/stages/stack-it.html`; tests `tests/stack.mjs` (Chromium:
+  intro, tap and drag, FINISHED, rating, no kernel, REBUILD, keyboard, 0 frames, Recall, reduced
+  motion) and `tests/stack.test.mjs` (each brick's bytes and colour against the build, the poster,
+  the stars).
+- Site test: a live scene's own keys (its pieces) are left to its own test in the page keys check.
+
 - **Site: the roadmap marks E6 Performance wins and E7 Page interactions done.** E6.weekly (the weekly perf run, #92) and E7.page-cost (the page-cost gate, #97) are ticked; with the win log (#135) and the CI split (#316) every E6 box is ticked. The engine's ROADMAP.md agrees (`fe roadmap check`).
 
 - **`@fzlt/core/announce` (E14, BETA): game events read out through one polite live region, rate-limited.** `announce(engine, { words, gap, doc })` → `{ say, flush, destroy }`: one `[data-fz-announce]` status region per page, made on the first word; `words(event)` turns ring events into sentences in render, coalesced by key (the latest score, not ten), at most one write per gap; `destroy()` removes the region. Measured gz is in `npm run size` (budget 614 B). Tests: `tests/announce.test.mjs`, `tests/announce.mjs` (Chromium).
