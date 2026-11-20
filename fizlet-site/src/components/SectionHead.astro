@@ -1,13 +1,14 @@
 ---
-// A section head: eyebrow (with its index sticker) → title (a line and its accent) → lead.
-interface Props { index?: string; eyebrow: string; line: string; accent: string; lead?: string; id: string; level?: "h1" | "h2"; class?: string; tag?: "div" | "header" }
-const { index, eyebrow, line, accent, lead, id, level = "h1", class: cls = "section-head", tag = "div" } = Astro.props;
+// A section head: eyebrow (with its index sticker) → title (a line and its accent) → lead. A sub-head
+// inside a section can drop the eyebrow and the accent; `anchor` is the head's own id (a #link).
+interface Props { index?: string; eyebrow?: string; line: string; accent?: string; lead?: string; id?: string; anchor?: string; level?: "h1" | "h2"; class?: string; tag?: "div" | "header" }
+const { index, eyebrow, line, accent, lead, id, anchor, level = "h1", class: cls = "section-head", tag = "div" } = Astro.props;
 const H = level;
 const Tag = tag;
 ---
-<Tag class={cls}>
-      <p class="eyebrow">{index && <span class="index">{index}</span>} {eyebrow}</p>
-      <H id={id}>{line}<br><em>{accent}</em></H>
+<Tag class={cls} id={anchor || undefined}>
+      {eyebrow !== undefined && <p class="eyebrow">{index && <span class="index">{index}</span>} {eyebrow}</p>}
+      <H id={id || undefined}>{line}{accent && <Fragment><br><em>{accent}</em></Fragment>}</H>
       {lead && <p class="lead" set:html={lead} />}
       <slot />
     </Tag>

@@ -51,6 +51,11 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
   above zero, `/bricks/sound.html` (0.000 / 0.003 / 0.008 / 0.008% at 1440 light, 1440 dark, 390
   light, 390 dark) and `/bricks/timeline.html` (0.001% at 1440 light, 0.000% on the other three).
   Same heights on both sites for every shot.
+- **`/bricks/`** (the index): 0.203 / 0.196 / 0.075 / 0.071% (1440 light, 1440 dark, 390 light,
+  390 dark), same heights (18,432 / 27,400 px). All of it is the live brick graph (a force layout
+  still settling) and the toy cards: the legacy page against itself scores 0.176 / 0.169 / 0.041 /
+  0.037% on the same shots. Viewport-only shots: 0.000% on all four. `/` and `/bricks/kernel.html`
+  re-measured after the BrickCard and SectionHead changes: 0.000% on all eight.
 
 ## Design system
 
@@ -64,7 +69,7 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
   tokens. No page or component has a `<style>` block or a colour literal (`npm run audit` checks).
 - **Components** (`src/components/`): SiteHeader (Lockup, NavTree, ThemeToggle, Key), SiteFooter
   (SiteMap, SymChip), Crumbs, SectionHead, CodeBlock (with Copy), DocsSidebar, DocSteps, Callout,
-  Key (buttons), BrickCard, GalleryCard, Icon, Mark, Html (kept-as-built markup).
+  Key (buttons), BrickCard, BrickSticker, StatusCard, GalleryCard, Icon, Mark, Html (kept-as-built markup).
 
 ## Known gaps (to do)
 
@@ -90,14 +95,14 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 ## Route inventory
 
 <!-- INVENTORY:START -->
-148 legacy pages, 46 done, 102 to do (legacy build v0.27.0).
+148 legacy pages, 47 done, 101 to do (legacy build v0.27.0).
 
 | Type | Pages | Done | Template | Components | Next wave |
 |---|---:|---:|---|---|---|
 | home | 1 | 1 | src/pages/index.astro | Hero (in page), stats row, BrickCard, CodeBlock, Key; 14 sections kept as built (Html) | W2-home: componentize origin, play, story, profile, contract, board, loop, recall, specs, ship, games, roadmap, start, final |
 | not-found | 1 | 0 | to build: src/pages/404.astro | SectionHead, Key | W2-misc |
 | brand | 1 | 0 | to build: src/pages/brand/index.astro | Lockup, Mark, Key, token swatches (new, from tokens.json) | W2-misc |
-| bricks-index | 1 | 0 | to build: src/pages/bricks/index.astro | BrickCard, SymChip, periodic table + stickers + factory (Html until componentized) | W2-bricks |
+| bricks-index | 1 | 1 | src/pages/bricks/index.astro | SectionHead, BrickCard (full, in-house and planned tiles), StatusCard, BrickSticker; the periodic table, sticker sheet, factory, live graph and each tile's toy card kept as built (Html) | W2-bricks: done (0.07-0.20%, the live graph's own noise); next componentize the periodic table and the sticker sheet |
 | brick | 43 | 43 | src/pages/bricks/[id].astro | Crumbs, CodeBlock; the head, demo, card and API kept as built (Html) | W2-bricks: all 43 ported (0.000-0.008%); next an ApiDecl component for the API, the head and the demo wrapper |
 | contest | 1 | 0 | to build: src/pages/contest/index.astro | SectionHead, Callout, a week card (new) | W2-daily |
 | legal | 2 | 0 | to build: src/pages/privacy/, src/pages/cookies/ | SectionHead, a table (new) | W2-misc |
@@ -138,7 +143,7 @@ Every route (`/path` · type · status · in sitemap · title):
 
 <details><summary><b>bricks-index</b> (1)</summary>
 
-- [ ] `/bricks/` · to do · Kernel and bricks: every module and its size · Fizlet
+- [x] `/bricks/` · done · Kernel and bricks: every module and its size · Fizlet
 
 </details>
 

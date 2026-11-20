@@ -1,0 +1,23 @@
+---
+// The bricks index (bricks/): the periodic table, the sticker sheet and the factory up top, then
+// every brick as a BrickCard (the shipped ones, the in-house ones, the planned ones), the live
+// dependency graph and the status flags.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import BrickCard from "../../components/BrickCard.astro";
+import StatusCard from "../../components/StatusCard.astro";
+import Html from "../../components/Html.astro";
+import data from "../../data/legacy/pages/bricks-index.json";
+const d: any = data;
+---
+<BaseLayout meta={d.meta} styles={d.styles}>
+{d.preHtml.map((h: string) => <Html html={h} />)}
+<section {...d.attrs}>
+  <div class="wrap">
+    {d.blocks.map((b: any) => b.kind === "head" ? <SectionHead level="h2" {...b} />
+      : b.kind === "bricks" ? <ul class={b.cls}>{b.items.map((it: any) => <BrickCard {...it} />)}</ul>
+      : b.kind === "status" ? <ul class="status-cards">{b.items.map((it: any) => <StatusCard {...it} />)}</ul>
+      : <Html html={b.html} />)}
+  </div>
+</section>
+</BaseLayout>

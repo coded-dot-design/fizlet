@@ -1,12 +1,25 @@
 ---
 // A brick in the bricks grid: its element square and status stickers, its import path (broken at
-// each "/" so it wraps cleanly) linking to its page, and its measured size.
-interface Props { id: string; flag: string; cls: string; tone: string; head: string; level: string; href: string; name: string[]; chips: string }
-const { id, flag, cls, tone, head, level, href, name, chips } = Astro.props;
+// each "/" so it wraps cleanly) linking to its page, and its measured size. The bricks index's
+// fuller tile adds what it does, its toy card (an engine demo slot, kept as built), its budget line
+// and meter; a planned brick has no page, a target for chips, and the bricks it needs.
+import Html from "./Html.astro";
+interface Props {
+  id?: string; flag: string; cls: string; tone: string; head: string; level: string; href?: string; name: string[]; chips: string;
+  what?: string; toy?: string; budget?: string; chipsLabel?: string; meter?: { label: string; v: string }; needs?: string;
+}
+const { id, flag, cls, tone, head, level, href, name, chips, what, toy, budget, chipsLabel = "Measured on this build", meter, needs } = Astro.props;
 const H = level === "h4" ? "h4" : "h3";
 ---
-<li class={cls} data-brick={id} data-flag={flag || undefined} style={`--tone: ${tone}`}>
+<li class={cls} data-brick={id} data-flag={flag || undefined} style={tone ? `--tone: ${tone}` : undefined}>
         <div class="brick-head" set:html={head} />
-        <H class="brick-name"><a href={href}>{name.map((part, i) => <Fragment>{i > 0 && <wbr />}<span class="nw">{part}</span></Fragment>)}</a></H>
-        <ul class="brick-chips" aria-label="Measured on this build" set:html={chips} />
+        {href
+          ? <H class="brick-name"><a href={href}>{name.map((part, i) => <Fragment>{i > 0 && <wbr />}<span class="nw">{part}</span></Fragment>)}</a></H>
+          : <H class="brick-name">{name.join("")}</H>}
+        {what && <p class="brick-what">{what}</p>}
+        {toy && <Html html={toy} />}
+        {budget && <p class="brick-budget" set:html={budget} />}
+        <ul class="brick-chips" aria-label={chipsLabel} set:html={chips} />
+        {meter && <span class="meter brick-meter" role="img" aria-label={meter.label}><i style={`--v:${meter.v}`}></i></span>}
+        {needs && <p class="brick-needs"><small>NEEDS</small> <Html html={needs} /></p>}
       </li>

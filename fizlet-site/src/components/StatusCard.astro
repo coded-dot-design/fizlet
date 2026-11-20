@@ -1,0 +1,11 @@
+---
+// One status flag on the bricks index (#status): its sticker and how many bricks carry it, what it
+// means, and what a brick needs to earn it.
+import BrickSticker from "./BrickSticker.astro";
+interface Props { flag: string; sticker: { flag: string; title: string; label: string; cls?: string; style?: string }; count: string; line: string; criteria: string[] }
+const { flag, sticker, count, line, criteria } = Astro.props;
+---
+<li class="panel status-card" data-flag={flag}><div class="brick-top"><BrickSticker {...sticker} /><small>{count}</small></div>
+        <p>{line}</p>
+        <ul>{criteria.map((c) => <li set:html={c} />)}</ul>
+      </li>

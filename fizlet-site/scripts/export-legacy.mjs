@@ -229,9 +229,17 @@ const brickItem = (li, path) => {
     id: li.getAttribute("data-brick"), flag: li.getAttribute("data-flag") ?? "", cls: li.getAttribute("class"),
     tone: li.getAttribute("style")?.match(/--tone:\s*([^;]+)/)?.[1].trim() ?? "",
     head: inner(li.querySelector(".brick-head"), path),
-    level: name.tagName.toLowerCase(), href: absolute(`href="${name.querySelector("a").getAttribute("href")}"`, path).slice(6, -1),
-    name: name.querySelectorAll(".nw").map((x) => x.text),
+    level: name.tagName.toLowerCase(),
+    ...(name.querySelector("a") ? { href: absolute(`href="${name.querySelector("a").getAttribute("href")}"`, path).slice(6, -1), name: name.querySelectorAll(".nw").map((x) => x.text) } : { name: [text(name)] }),
     chips: inner(li.querySelector(".brick-chips"), path),
+    // The bricks index's fuller tile: what it does, its toy card (an engine demo slot, kept as built),
+    // its budget line, its meter, and (a planned brick) what it needs.
+    ...(li.querySelector(".brick-what") ? { what: text(li.querySelector(".brick-what")) } : {}),
+    ...(li.querySelector(":scope > .bc") ? { toy: outer(li.querySelector(":scope > .bc"), path) } : {}),
+    ...(li.querySelector(".brick-budget") ? { budget: inner(li.querySelector(".brick-budget"), path) } : {}),
+    ...(li.querySelector(".brick-chips")?.getAttribute("aria-label") !== "Measured on this build" ? { chipsLabel: li.querySelector(".brick-chips").getAttribute("aria-label") } : {}),
+    ...(li.querySelector(".brick-meter") ? { meter: { label: li.querySelector(".brick-meter").getAttribute("aria-label"), v: li.querySelector(".brick-meter i").getAttribute("style").match(/--v:\s*([^;]+)/)[1] } } : {}),
+    ...(li.querySelector(".brick-needs") ? { needs: inner(li.querySelector(".brick-needs"), path).replace(/^<small>NEEDS<\/small>\s*/, "") } : {}),
   };
 };
 const bricksSection = (sec, path) => {
@@ -245,6 +253,41 @@ const bricksSection = (sec, path) => {
       : { kind: "html", html: outer(n, path) }),
   };
 };
+
+// ---------- The bricks index (bricks/) ----------
+{
+  const path = "bricks/";
+  const doc = parse(read(`${path}index.html`));
+  const main = doc.querySelector("main");
+  const sec = main.querySelector("section#bricks");
+  const wrap = sec.querySelector(".wrap");
+  const headOf = (h) => {
+    const h2 = h.querySelector("h2"), em = h2.querySelector("em");
+    return {
+      anchor: h.getAttribute("id") ?? "",
+      ...(h.querySelector(".eyebrow") ? { index: text(h.querySelector(".eyebrow .index")), eyebrow: text(h.querySelector(".eyebrow")).replace(/^\S+\s/, "") } : {}),
+      id: h2.getAttribute("id") ?? "",
+      line: em ? h2.childNodes[0].text : text(h2), accent: em ? text(em) : "",
+      lead: inner(h.querySelector(".lead"), path),
+    };
+  };
+  const sticker = (s) => ({ flag: s.getAttribute("data-flag") ?? "", title: s.getAttribute("title") ?? "", label: text(s), cls: s.getAttribute("class"), style: s.getAttribute("style") ?? "" });
+  write("pages/bricks-index.json", {
+    meta: metaOf(doc, path),
+    styles: main.querySelectorAll(":scope > style").map((s) => s.text),
+    // The periodic table, the sticker sheet and the factory: the engine's own figures, kept as built.
+    preHtml: main.childNodes.filter((n) => n.nodeType === 1 && n.tagName !== "STYLE" && n !== sec).map((n) => outer(n, path)),
+    attrs: sec.attributes,
+    blocks: wrap.childNodes.filter((n) => n.nodeType === 1).map((n) =>
+      is(n, "div.section-head") ? { kind: "head", ...headOf(n) }
+      : is(n, "ul.bricks") ? { kind: "bricks", cls: n.getAttribute("class"), items: n.querySelectorAll(":scope > li.brick").map((li) => brickItem(li, path)) }
+      : is(n, "ul.status-cards") ? { kind: "status", items: n.querySelectorAll(":scope > li.status-card").map((li) => ({
+        flag: li.getAttribute("data-flag"), sticker: sticker(li.querySelector(".brick-sticker")), count: text(li.querySelector(".brick-top small")),
+        line: text(li.querySelector(":scope > p")), criteria: li.querySelectorAll(":scope > ul > li").map((x) => inner(x, path)),
+      })) }
+      : { kind: "html", html: outer(n, path) }),
+  });
+}
 
 // ---------- The home page ----------
 {
@@ -279,7 +322,7 @@ const bricksSection = (sec, path) => {
 // Scripts, stylesheets-free: every module script the four pages load, and every file those import.
 const assets = new Set(["icon.svg", "og.png", "robots.txt", "llms.txt", "llms-full.txt", "fizlet.js"]);
 const queue = [];
-for (const f of ["index.html", "docs/getting-started/index.html", "gallery/index.html", ...BRICK_IDS.map((id) => `bricks/${id}.html`)]) {
+for (const f of ["index.html", "docs/getting-started/index.html", "gallery/index.html", "bricks/index.html", ...BRICK_IDS.map((id) => `bricks/${id}.html`)]) {
   const h = read(f);
   for (const m of h.matchAll(/(?:src|href|data-live|data-src|data-module)="([^"#?]+\.(?:js|json|svg|png|webp|css|txt))"/g)) {
     if (/^https?:/.test(m[1])) continue;

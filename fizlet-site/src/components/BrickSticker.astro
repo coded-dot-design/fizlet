@@ -1,0 +1,7 @@
+---
+// A brick's status sticker (COMPLETE, BETA, ALPHA, ROADMAP…): the flag's label on its colour, with
+// the flag's one-line meaning as its title. `style` carries a sticker's tilt on a tile.
+interface Props { flag: string; title: string; label: string; cls?: string; style?: string }
+const { flag, title, label, cls = "brick-sticker", style } = Astro.props;
+---
+<span class={cls} data-flag={flag || undefined} style={style || undefined} title={title || undefined}>{label}</span>
