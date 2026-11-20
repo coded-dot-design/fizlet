@@ -1,0 +1,13 @@
+== check
+check exit 1
+== size
+size exit 0
+== site
+site exit 0
+== test:site
+test:site exit 0
+== test:settle
+test:settle exit 0
+== test:browser
+test:browser exit 1
+ALLDONE
