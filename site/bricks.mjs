@@ -67,7 +67,7 @@ export const FAMILIES = [
 export const DIMS = [
   { id: "2d", label: "2D", sub: "kernel, DOM, CSS, canvas" },
   { id: "3d", label: "3D", sub: "tabletop, on diorama", line: "Software 3D on a 2D canvas you own: diorama draws the scene; the rest furnish it, move it and play on it.",
-    ids: ["diorama", "dice", "track", "water", "props", "beam", "cards", "flick", "terrain", "drive"] },
+    ids: ["diorama", "dice", "track", "water", "props", "beam", "cards", "flick", "terrain", "drive", "turntable"] },
 ];
 /** A brick's block in the table: "3d" or "2d". */
 export const dimOf = (b) => (DIMS[1].ids.includes(b.id) ? "3d" : "2d");
@@ -330,6 +330,12 @@ car.pos.set(v.pos); car.rot.set(v.rot); // body pose; v.comp, v.spin, v.steerAng
 if (v.crashed) v.reset(x, z, yaw); // a nose-down landing; v.dust scales an emitter
 score += v.drift * dt; // handbrake drifts (drift input 1); drive:drift banks each chain
 touchAll(cars, { onHit: (a, b) => b.drift > 0.3 && b.spinOut(7, 1.2) }); // ram a drifter: it spins` },
+  { id: "turntable", no: 44, sym: "tb", family: "motion", status: "experimental", since: "0.28.0", tests: ["turntable.test.mjs", "turntable.mjs"], used: [], why: "New: lifted from the garage turntables of Holeshot and CitySmash (each game still carries its own copy until its port); its API may still change before a game ships on it.",
+    tag: "TURNTABLE", role: "advance", modules: [mod("@fzlt/core/turntable", "turntable")],
+    snippet: `const tt = turntable(engine, canvas, { yaw: -0.15, label: "Turn the bike: drag, or the arrow keys",
+  onTurn: (yaw) => { d.cam.yaw = yaw; d.draw(); } }); // drawn only when the angle changed
+tt.spin(); // show it off after a change (nothing under reduced motion)
+turntable(engine, el, { friction: 4, snap: Math.PI / 2 }); // a throw that coasts and rests on a quarter turn` },
   { id: "math", no: 38, sym: "mh", family: "motion", status: "beta", since: "0.27.0", tests: ["math.test.mjs", "math-engines.mjs"], used: [], why: "New: no released game runs its sim on it yet.",
     tag: "MATH", role: "advance", modules: [mod("@fzlt/core/math", "math")],
     snippet: `const a = atan2(ty - y, tx - x); // in a step: the same bits on an iPhone and a desktop
@@ -356,7 +362,7 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
  * builds on. Each phase is a planned phase of site/roadmap.mjs (E9–E16), which lists these under it.
  */
 export const PLANNED = [
-  { name: "@fzlt/core/snapshot", no: 44, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
-  { name: "@fzlt/core/agent", no: 45, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
-  { name: "@fzlt/core/music", no: 46, sym: "ms", family: "render", phase: "E15", purpose: "A tiny step sequencer on the kernel clock: patterns and tempo on the sound brick's synth.", target: 1229, needs: ["@fzlt/core/sound"] },
+  { name: "@fzlt/core/snapshot", no: 45, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
+  { name: "@fzlt/core/agent", no: 46, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
+  { name: "@fzlt/core/music", no: 47, sym: "ms", family: "render", phase: "E15", purpose: "A tiny step sequencer on the kernel clock: patterns and tempo on the sound brick's synth.", target: 1229, needs: ["@fzlt/core/sound"] },
 ];

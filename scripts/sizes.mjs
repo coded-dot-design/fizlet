@@ -153,6 +153,10 @@ export const BUDGETS = [
   // three wheels (or teetering on two) instead of creeping on.
   // 5,260 B (+142 B) with `state`, `save` and `load`: the whole state in one buffer (rollback netcode).
   ["@fzlt/core/drive", "src/drive.ts", 5312],
+  // A model viewer's angle (drag, keys, Home, a showcase spin, an opt-in throw and snap, a slider's ARIA),
+  // lifted from the turntables two games built by hand: 1,395 B gz when added (~110 B of it the
+  // kernel's `need`, shared on a page; the engine and ledger are type-only imports).
+  ["@fzlt/core/turntable", "src/turntable.ts", 1408],
   // An animation recipe as data: 8,467 B gz with the kernel, fx (effects + emitter), sprite and
   // timeline's easings it composes when added; its own code is 1,928 B (planned at ≤ 2,048; on a
   // page the bricks are shared). tests/scene.test.mjs holds the own-code target.
