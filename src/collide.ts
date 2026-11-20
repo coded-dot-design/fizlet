@@ -28,8 +28,11 @@ function size(name: string, v: number) {
  *   must not drop, so a game should treat any of these counters rising as a bug.
  */
 export class Grid {
+  /** Bucket size in world units (px), a finite number above 0. */
   cell: number;
+  /** Buckets across: ceil(w / cell), at least 1 (set by `resize`). */
   cols = 0;
+  /** Buckets down: ceil(h / cell), at least 1 (set by `resize`). */
   rows = 0;
   /** Entity capacity: valid ids are 0..cap-1. */
   readonly cap: number;
@@ -68,6 +71,7 @@ export class Grid {
     if (this.h.length < this.cols * this.rows) this.h = new Int32Array(this.cols * this.rows);
     this.clear();
   }
+  /** Empty the index (every bucket, the node store); call it each step before inserting again. Counters stay. */
   clear() {
     this.h.fill(-1);
     this.u = 0;
@@ -115,6 +119,8 @@ export class Grid {
     a[2] = r[i]!;
     this.p(i);
   }
+  /** `query` round body i (radius r[i] + `pad`), from typed arrays: ids into `out`, returns the count.
+   *  Body i itself is among them when it was added. */
   near(x: Nums, y: Nums, r: Nums, i: number, out: Int32Array, pad = 0) {
     const a = this.a;
     a[0] = x[i]!;

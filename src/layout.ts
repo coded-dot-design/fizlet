@@ -168,14 +168,19 @@ export function layout(engine: Engine, o: LayoutOptions) {
   }
 
   const lay = {
+    /** Node x positions in px, index = node (`cap` long; [0, size) are in use). */
     x,
+    /** Node y positions in px, like `x`. */
     y,
+    /** Node x velocities, px per tick (0 while pinned). */
     vx,
+    /** Node y velocities, px per tick (0 while pinned). */
     vy,
     /** Nodes and links added so far. */
     get size() {
       return s[NODES]!;
     },
+    /** Links added so far. */
     get links() {
       return s[LINKS]!;
     },
@@ -251,6 +256,8 @@ export function layout(engine: Engine, o: LayoutOptions) {
       }
       return out;
     },
+    /** The engine's step: one tick (the whole run at once under reduced motion), and `busy()` until it
+     *  rests. Nothing while resting; never allocates. Added to the engine by `layout()`. */
     step(e: Engine) {
       if (s[REST]) return;
       // Reduced motion: the whole run now (bounded by the cooling: ≤ `ticks` ticks).
