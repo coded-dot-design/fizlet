@@ -1,0 +1,33 @@
+---
+// A docs page: crumbs, head, the doc's blocks (prose sections, code cards, keys), the steps and the docs map.
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Crumbs from "../../../components/Crumbs.astro";
+import SectionHead from "../../../components/SectionHead.astro";
+import CodeBlock from "../../../components/CodeBlock.astro";
+import Key from "../../../components/Key.astro";
+import Html from "../../../components/Html.astro";
+import DocSteps from "../../../components/DocSteps.astro";
+import DocsSidebar from "../../../components/DocsSidebar.astro";
+import type { Tone } from "../../../lib/site";
+
+const DOCS = import.meta.glob<{ default: any }>("../../../data/legacy/pages/docs/*.json", { eager: true });
+export function getStaticPaths() {
+  const all = import.meta.glob<{ default: any }>("../../../data/legacy/pages/docs/*.json", { eager: true });
+  return Object.keys(all).map((f) => ({ params: { slug: f.match(/([\w-]+)\.json$/)![1] } }));
+}
+const { slug } = Astro.params;
+const doc = Object.entries(DOCS).find(([f]) => f.endsWith(`/${slug}.json`))![1].default;
+---
+<BaseLayout meta={doc.meta}>
+<article class="has-grid section note doc" aria-labelledby="doc-title">
+  <div class="wrap">
+    <Crumbs trail={doc.crumbs.trail} current={doc.crumbs.current} />
+    <SectionHead tag="header" class="section-head note-head" index={doc.index} eyebrow={doc.eyebrow} line={doc.title.line} accent={doc.title.accent} lead={doc.lead} id="doc-title" />
+    {doc.body.map((b: any) => b.kind === "code" ? <CodeBlock label={b.label} code={b.code} wrap={b.wrap} copy={b.copy} class={b.cls} />
+      : b.kind === "keys" ? <div class="split-keys">{b.keys.map((k: any) => <Key href={k.href} tone={k.tone as Tone} arcade={k.arcade} icon={k.icon} label={k.label} />)}</div>
+      : <Html html={b.html} />)}
+    <DocSteps steps={doc.steps} />
+    <DocsSidebar path={"/" + doc.meta.path} columns={doc.map} />
+  </div>
+</article>
+</BaseLayout>

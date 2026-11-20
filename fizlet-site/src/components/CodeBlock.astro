@@ -1,0 +1,7 @@
+---
+// A code card: a label (bold kicker · detail), a Copy key, and the code. `wrap` lets long lines wrap.
+import Icon from "./Icon.astro";
+interface Props { label: string; code: string; wrap?: boolean; copy?: boolean; class?: string }
+const { label, code, wrap = false, copy = true, class: cls = "panel code-card" } = Astro.props;
+---
+<div class={cls}><div class="code-head"><span class="bui-label" set:html={label} />{copy && <button class="bui-key copy" type="button" data-copy><Icon name="copy" size={14} />Copy</button>}</div><pre tabindex="0" class={wrap ? "code wrap" : "code"}><code>{code}</code></pre></div>

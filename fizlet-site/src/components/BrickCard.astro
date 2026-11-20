@@ -1,0 +1,12 @@
+---
+// A brick in the bricks grid: its element square and status stickers, its import path (broken at
+// each "/" so it wraps cleanly) linking to its page, and its measured size.
+interface Props { id: string; flag: string; cls: string; tone: string; head: string; level: string; href: string; name: string[]; chips: string }
+const { id, flag, cls, tone, head, level, href, name, chips } = Astro.props;
+const H = level === "h4" ? "h4" : "h3";
+---
+<li class={cls} data-brick={id} data-flag={flag || undefined} style={`--tone: ${tone}`}>
+        <div class="brick-head" set:html={head} />
+        <H class="brick-name"><a href={href}>{name.map((part, i) => <Fragment>{i > 0 && <wbr />}<span class="nw">{part}</span></Fragment>)}</a></H>
+        <ul class="brick-chips" aria-label="Measured on this build" set:html={chips} />
+      </li>

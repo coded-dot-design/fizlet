@@ -1,0 +1,27 @@
+{
+  "$description": "The migration plan, one source: each legacy page type's Astro template and components, and which routes are ported (done = built here and pixel-compared at <= 3%). scripts/migration.mjs writes MIGRATION.md's inventory from this and src/data/legacy/routes.json.",
+  "done": ["", "docs/getting-started/", "bricks/kernel.html", "gallery/"],
+  "types": {
+    "home": { "template": "src/pages/index.astro", "components": "Hero (in page), stats row, BrickCard, CodeBlock, Key; 14 sections kept as built (Html)", "wave": "W2-home: componentize origin, play, story, profile, contract, board, loop, recall, specs, ship, games, roadmap, start, final" },
+    "doc": { "template": "src/pages/docs/[slug]/index.astro", "components": "Crumbs, SectionHead, CodeBlock, Key, DocSteps, DocsSidebar", "wave": "W2-docs: add the slug to export-legacy.mjs (guides need a guides/[slug] route on the same template), then compare" },
+    "docs-index": { "template": "to build: src/pages/docs/index.astro, src/pages/guides/index.astro", "components": "SectionHead, a doc list card (new)", "wave": "W2-docs" },
+    "brick": { "template": "src/pages/bricks/[id].astro", "components": "Crumbs, CodeBlock; the head, demo, card and API kept as built (Html)", "wave": "W2-bricks: add the ids to export-legacy.mjs, then compare; later an ApiDecl component for the API" },
+    "bricks-index": { "template": "to build: src/pages/bricks/index.astro", "components": "BrickCard, SymChip, periodic table + stickers + factory (Html until componentized)", "wave": "W2-bricks" },
+    "gallery-index": { "template": "src/pages/gallery/index.astro (page 1); to build: gallery/page/[n]/", "components": "SectionHead, Callout, GalleryCard", "wave": "W2-gallery: one [n] route over the same template" },
+    "gallery-lane": { "template": "to build: src/pages/gallery/hifi/index.astro", "components": "GalleryCard", "wave": "W2-gallery" },
+    "gallery-archive": { "template": "to build: src/pages/gallery/archive/index.astro (noindex,nofollow)", "components": "GalleryCard", "wave": "W2-gallery" },
+    "contest": { "template": "to build: src/pages/contest/index.astro", "components": "SectionHead, Callout, a week card (new)", "wave": "W2-daily" },
+    "make": { "template": "to build: src/pages/make/index.astro", "components": "CodeBlock, Key; make.js runtime", "wave": "W2-daily" },
+    "people-index": { "template": "to build: src/pages/people/index.astro", "components": "a person card (new)", "wave": "W2-daily" },
+    "person": { "template": "to build: src/pages/people/[id]/index.astro", "components": "a person card (new), GalleryCard", "wave": "W2-daily" },
+    "notes-index": { "template": "to build: src/pages/notes/index.astro", "components": "a note card (new)", "wave": "W2-notes" },
+    "note": { "template": "to build: src/pages/notes/[slug]/index.astro", "components": "Crumbs, SectionHead, CodeBlock, Callout", "wave": "W2-notes" },
+    "news-index": { "template": "to build: src/pages/news/index.astro", "components": "a release row (new)", "wave": "W2-notes" },
+    "release": { "template": "to build: src/pages/news/[version]/index.astro", "components": "Crumbs, SectionHead", "wave": "W2-notes" },
+    "legal": { "template": "to build: src/pages/privacy/, src/pages/cookies/", "components": "SectionHead, a table (new)", "wave": "W2-misc" },
+    "brand": { "template": "to build: src/pages/brand/index.astro", "components": "Lockup, Mark, Key, token swatches (new, from tokens.json)", "wave": "W2-misc" },
+    "redirect": { "template": "to build: a redirect (Cloudflare _redirects 301, plus the meta-refresh page)", "components": "none", "wave": "W2-misc" },
+    "not-found": { "template": "to build: src/pages/404.astro", "components": "SectionHead, Key", "wave": "W2-misc" },
+    "demo": { "template": "to build: the engine demos' own host pages (no site shell for some)", "components": "kept as built (Html) until the demos build from @fzlt/core here", "wave": "W2-demos" }
+  }
+}

@@ -1,0 +1,6 @@
+---
+// A brick's element chip: its two-letter symbol on its tone, then its name.
+interface Props { href: string; sym: string; tone: string; label: string; current?: "page" | "true" | undefined }
+const { href, sym, tone, label, current } = Astro.props;
+---
+<a class="sym-chip" href={href} aria-current={current} style={`--tone: ${tone}`}><span class="el el-chip" style={`--tone: ${tone}`} aria-hidden="true"><b class="el-sym">{sym}</b></span><span class="sym-name">{label}</span></a>

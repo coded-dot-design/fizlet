@@ -1,0 +1,1482 @@
+[
+ {
+  "path": "",
+  "title": "Fizlet · Building blocks for DOM animation and games",
+  "description": "Fizlet™: building blocks for DOM animation and games, kept for performance, so you bring only logic and style. Kernel 3.3 KB gzip, no dependencies.",
+  "type": "home",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "404.html",
+  "title": "Not found: this square is off the board · Fizlet",
+  "description": "This square is off the board: the page you asked for is not on the Fizlet site.",
+  "type": "not-found",
+  "inSitemap": false,
+  "noindex": true,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "brand/",
+  "title": "Brand: Fizlet™ marks, lockups and colour · Fizlet",
+  "description": "The Fizlet™ and fzlt™ marks, lockups, ™ and casing rules, clear space, colour tokens and the Board UI kit, live, with every mark as an SVG download.",
+  "type": "brand",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/",
+  "title": "Kernel and bricks: every module and its size · Fizlet",
+  "description": "Every Fizlet module with its API and its measured size: the kernel is 3.3 KB gzip, each brick its own import.",
+  "type": "bricks-index",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/actor.html",
+  "title": "@fzlt/core/actor: API and measured size · Fizlet",
+  "description": "@fzlt/core/actor: Units, bots, turrets and shots as data. API and measured size (908 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/aim.html",
+  "title": "@fzlt/core/aim: API and measured size · Fizlet",
+  "description": "@fzlt/core/aim: Where bots and turrets point and when they may fire. API and measured size (691 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/announce.html",
+  "title": "@fzlt/core/announce: API and measured size · Fizlet",
+  "description": "@fzlt/core/announce: Game events read out to screen readers through one polite live region, rate-limited. API and measured size (612 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/arcade.html",
+  "title": "@fzlt/core/arcade: API and measured size · Fizlet",
+  "description": "@fzlt/core/arcade: The shell every page arcade game repeats, so a game is only its rules and its art. API and measured size (24145 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/beam.html",
+  "title": "@fzlt/core/beam: API and measured size · Fizlet",
+  "description": "@fzlt/core/beam: Lasers on a board. API and measured size (4388 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/board-page.html",
+  "title": "@fzlt/core/board-page: API and measured size · Fizlet",
+  "description": "@fzlt/core/board-page: The host page as the board. API and measured size (4104 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/camera.html",
+  "title": "@fzlt/core/camera: API and measured size · Fizlet",
+  "description": "@fzlt/core/camera: The page is the camera. API and measured size (1400 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/cards.html",
+  "title": "@fzlt/core/cards: API and measured size · Fizlet",
+  "description": "@fzlt/core/cards: A deck of cards for tabletop games. API and measured size (3383 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/coach.html",
+  "title": "@fzlt/core/coach: API and measured size · Fizlet",
+  "description": "@fzlt/core/coach: The hints and tutorial layer the board games share, in three small parts. API and measured size (1220 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/collide.html",
+  "title": "@fzlt/core/collide: API and measured size · Fizlet",
+  "description": "@fzlt/core/collide: A fixed-capacity spatial hash (no allocation per insert or query) and the shape tests games need. API and measured size (1265 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/css-clock.html",
+  "title": "@fzlt/core/css-clock: API and measured size · Fizlet",
+  "description": "@fzlt/core/css-clock: A page's own CSS @keyframes, on the kernel clock. API and measured size (5368 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/debug.html",
+  "title": "@fzlt/core/debug: API and measured size · Fizlet",
+  "description": "@fzlt/core/debug: Development-only checks. API and measured size (1133 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/dice.html",
+  "title": "@fzlt/core/dice: API and measured size · Fizlet",
+  "description": "@fzlt/core/dice: Seeded dice for tabletop games. API and measured size (4262 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/diorama.html",
+  "title": "@fzlt/core/diorama: API and measured size · Fizlet",
+  "description": "@fzlt/core/diorama: Software 3D for cutaway tabletop scenes, drawn on a 2D canvas you own. API and measured size (7258 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/drive.html",
+  "title": "@fzlt/core/drive: API and measured size · Fizlet",
+  "description": "@fzlt/core/drive: Vehicle feel on a heightfield, for diorama racing and trail games. API and measured size (5262 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/embed.html",
+  "title": "@fzlt/core/embed: API and measured size · Fizlet",
+  "description": "@fzlt/core/embed: Drop a game onto any page with one small config. API and measured size (2040 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/flick.html",
+  "title": "@fzlt/core/flick: API and measured size · Fizlet",
+  "description": "@fzlt/core/flick: Light tabletop physics for diorama pieces. API and measured size (5410 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/fx.html",
+  "title": "@fzlt/core/fx: API and measured size · Fizlet",
+  "description": "@fzlt/core/fx: Explosions that land. API and measured size (2792 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/grid.html",
+  "title": "@fzlt/core/grid: API and measured size · Fizlet",
+  "description": "@fzlt/core/grid: The game board. A cols × rows tile grid in typed arrays. API and measured size (1652 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/hud.html",
+  "title": "@fzlt/core/hud: API and measured size · Fizlet",
+  "description": "@fzlt/core/hud: Change-only HUD bindings that never allocate in the steady state. API and measured size (1306 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/input.html",
+  "title": "@fzlt/core/input: API and measured size · Fizlet",
+  "description": "@fzlt/core/input: One controller for keys, pointer and a touch stick, mapped to named intents. API and measured size (1909 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/kernel.html",
+  "title": "@fzlt/core: API and measured size · Fizlet",
+  "description": "@fzlt/core: The kernel: one loop, bounded work, and the page always comes back. API and measured size (3372 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/layout.html",
+  "title": "@fzlt/core/layout: API and measured size · Fizlet",
+  "description": "@fzlt/core/layout: Force-directed layout on typed arrays, with a Barnes-Hut pass, for diagrams and graphs that settle. API and measured size (1745 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/match.html",
+  "title": "@fzlt/core/match: API and measured size · Fizlet",
+  "description": "@fzlt/core/match: The match flow every game shares, intro → count → play → paused → end. API and measured size (2617 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/math.html",
+  "title": "@fzlt/core/math: API and measured size · Fizlet",
+  "description": "@fzlt/core/math: Trig that gives the same bits on every engine, for anything that steps a sim. API and measured size (1746 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/pad.html",
+  "title": "@fzlt/core/pad: API and measured size · Fizlet",
+  "description": "@fzlt/core/pad: Swappable on-screen controls for touch (and mouse). API and measured size (2068 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/perf.html",
+  "title": "@fzlt/core/perf: API and measured size · Fizlet",
+  "description": "@fzlt/core/perf: A live performance overlay for players, off until they switch it on. API and measured size (2019 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/presence.html",
+  "title": "@fzlt/core/presence: API and measured size · Fizlet",
+  "description": "@fzlt/core/presence: Lockstep input exchange for multiplayer, behind a tiny transport adapter. API and measured size (2197 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/props.html",
+  "title": "@fzlt/core/props: API and measured size · Fizlet",
+  "description": "@fzlt/core/props: A kit of small low-poly models for @fzlt/core/diorama scenes, so a new diorama starts furnished. API and measured size (3115 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/rules.html",
+  "title": "@fzlt/core/rules: API and measured size · Fizlet",
+  "description": "@fzlt/core/rules: The rules every arcade game repeats, as three small systems on the kernel. API and measured size (1318 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/scene.html",
+  "title": "@fzlt/core/scene: API and measured size · Fizlet",
+  "description": "@fzlt/core/scene: An animation recipe as data. API and measured size (8369 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/slot.html",
+  "title": "@fzlt/core/slot: API and measured size · Fizlet",
+  "description": "@fzlt/core/slot: Mount a Fizlet scene into an Astro page engine slot. API and measured size (1849 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/sound.html",
+  "title": "@fzlt/core/sound: API and measured size · Fizlet",
+  "description": "@fzlt/core/sound: The sound adapter. API and measured size (1062 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/sprite.html",
+  "title": "@fzlt/core/sprite: API and measured size · Fizlet",
+  "description": "@fzlt/core/sprite: The character layer's drawing primitive. API and measured size (1437 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/steer.html",
+  "title": "@fzlt/core/steer: API and measured size · Fizlet",
+  "description": "@fzlt/core/steer: How things move toward, away from and around a point, as DOM-free steering on typed arrays. API and measured size (2759 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/terrain.html",
+  "title": "@fzlt/core/terrain: API and measured size · Fizlet",
+  "description": "@fzlt/core/terrain: A heightfield for diorama scenes. API and measured size (5566 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/timeline.html",
+  "title": "@fzlt/core/timeline: API and measured size · Fizlet",
+  "description": "@fzlt/core/timeline: Scripted DOM choreography on the kernel clock. API and measured size (2137 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/touch.html",
+  "title": "@fzlt/core/touch: API and measured size · Fizlet",
+  "description": "@fzlt/core/touch: Taps and swipes on an animation or a game never zoom or pan the page. API and measured size (310 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/track.html",
+  "title": "@fzlt/core/track: API and measured size · Fizlet",
+  "description": "@fzlt/core/track: Board paths for roll-and-move games. API and measured size (2055 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/ui.html",
+  "title": "@fzlt/core/ui: API and measured size · Fizlet",
+  "description": "@fzlt/core/ui: The tiny behaviour half of board-ui.css. API and measured size (2907 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/view-canvas.html",
+  "title": "@fzlt/core/view-canvas: API and measured size · Fizlet",
+  "description": "@fzlt/core/view-canvas: One overlay canvas per root. API and measured size (936 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/view-dom.html",
+  "title": "@fzlt/core/view-dom: API and measured size · Fizlet",
+  "description": "@fzlt/core/view-dom: A @fzlt/core/actor table drawn as DOM nodes, one per row, pooled. API and measured size (882 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "bricks/water.html",
+  "title": "@fzlt/core/water: API and measured size · Fizlet",
+  "description": "@fzlt/core/water: Animated water for @fzlt/core/diorama scenes. API and measured size (5264 B gzip).",
+  "type": "brick",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "contest/",
+  "title": "Daily contest: top picks, weekly winners · Fizlet",
+  "description": "The Fizlet Daily contest: up to 40 entries a day, the top 1 to 5 picked, a weekly and a monthly winner; over 10,240 B live can't win.",
+  "type": "contest",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "cookies/",
+  "title": "Cookies and storage: none until you say yes · Fizlet",
+  "description": "Every cookie and storage key fizlet.com may use, what each holds, how long it lasts, and how to change your choice or clear them.",
+  "type": "legal",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "demos/before-ai-2015/",
+  "title": "Before AI: 2015, three sprites live · Fizlet",
+  "description": "Three CSS sprite animations Chris Cooley drew by hand in 2015, live beside a Fizlet remake and an arcade version, taken apart with bricks and sizes.",
+  "type": "demo",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "demos/fizz/",
+  "title": "Fizz: crack the can, hear the fizz · Fizlet",
+  "description": "An arcade soda can crunches, pops and sprays fizz out of its card, seen from the side and from the top. 8665 B gzip live chunk, by Chris Cooley.",
+  "type": "demo",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "demos/layers/",
+  "title": "Layers: a game is a stack, each layer one brick · Fizlet",
+  "description": "A game is a stack of layers. Battlefield Blitz fans out into its bricks, one faults, gets patched, and folds back.",
+  "type": "demo",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": false
+ },
+ {
+  "path": "demos/name-shift/",
+  "title": "Fizlet → fzlt: the name shift · Fizlet",
+  "description": "The launch logo: FIZ and LET go into a press and come out as fzlt, then build a wall of bricks. 5,726 B gzip live, still once it ends. By Chris Cooley.",
+  "type": "demo",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "demos/origin/",
+  "title": "Origin: Code. Sleep. Drink. Repeat. · Fizlet",
+  "description": "A day as a loop: sleep, sunrise, headphones, coffee, code, night. The 2015 props alive in 35,611 B gzip. By Chris Cooley.",
+  "type": "demo",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "docs/",
+  "title": "Docs: the contract, the loop, Recall, budgets · Fizlet",
+  "description": "How Fizlet's kernel and bricks work: getting started, the nine-rule contract, the loop, Recall, size budgets and determinism, with numbers from v0.27.0.",
+  "type": "docs-index",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "docs/authoring/",
+  "title": "Authoring with Fizlet: the shape and three recipes",
+  "description": "How to write any Fizlet piece, which bricks to pick by use, and three recipes that run as is: an action on the page, a shooter and two players, measured.",
+  "type": "doc",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "docs/budgets/",
+  "title": "Fizlet size budgets: every module, measured",
+  "description": "Every Fizlet module's gzip size and budget, measured on this build the way CI checks it: a kernel under 4 KB, a page build under 7 KB, heroes under 10.",
+  "type": "doc",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "docs/contract/",
+  "title": "The Fizlet contract: nine tested rules",
+  "description": "One clock, bounded pools, zero steady-state allocation, change-only writes, pause by default, Recall: the nine rules every Fizlet brick keeps, each tested.",
+  "type": "doc",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "docs/determinism/",
+  "title": "Deterministic games in Fizlet: seeds and lockstep",
+  "description": "Make a Fizlet sim replay from a seed: fixed step, seeded random, typed arrays and input bits. syncCheck finds the first frame where two peers differ.",
+  "type": "doc",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "docs/getting-started/",
+  "title": "Getting started with Fizlet: a DOM game engine",
+  "description": "Install Fizlet with one script tag or ES modules, start an engine, and give the page back with destroy(). The kernel is under 4 KB gzip, no dependencies.",
+  "type": "doc",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "docs/loop/",
+  "title": "The Fizlet loop: fixed step, one shared rAF",
+  "description": "How Fizlet runs a frame: read, step and render phases, a fixed 60 Hz step with a catch-up cap, auto-pause, settle and an fps cap for page heroes.",
+  "type": "doc",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "docs/recall/",
+  "title": "Recall: how Fizlet gives the page back",
+  "description": "Fizlet's ledger records every DOM change: change-only writes, an exact restore on destroy(), and a newer edit by the host page always wins.",
+  "type": "doc",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "examples/fizz/",
+  "title": "Crack the can: the fizz as a Fizlet hero",
+  "description": "The fizz as a hero on any page: tap the pixel soda can, it crunches, pops and sprays out of its card. A Fizlet example by Chris Cooley.",
+  "type": "demo",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": false
+ },
+ {
+  "path": "examples/quick-start.html",
+  "title": "Quick start: ten lines to a blast · Fizlet",
+  "description": "Ten lines to a blast: the Fizlet quick start, running as is. Click the board; scroll it away and the engine pauses, switch tabs and it stops.",
+  "type": "demo",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "gallery/",
+  "title": "Daily: tiny examples, made every day · Fizlet",
+  "description": "Tiny Fizlet examples, logic and style on the bricks, made daily as a contest: 122 so far, each live with its size measured on this build.",
+  "type": "gallery-index",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "gallery/archive/",
+  "title": "Gallery archive: earlier runs, kept to revisit · Fizlet",
+  "description": "Earlier Fizlet factory animations taken off the gallery (16), kept to revisit, each with its size measured on this build.",
+  "type": "gallery-archive",
+  "inSitemap": false,
+  "noindex": true,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "gallery/hifi/",
+  "title": "Daily Hi-Fi: bigger pieces, their own lane · Fizlet",
+  "description": "The bigger Fizlet Daily pieces (41): dioramas, 2.5D, mini-games and heroes, with their own weekly winner and sizes measured on this build.",
+  "type": "gallery-lane",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "gallery/page/2/",
+  "title": "Daily, page 2: tiny examples, made every day · Fizlet",
+  "description": "Fizlet Daily page 2 of 6: older tiny examples by theme, each with its brief, its live demo and its size measured on this build.",
+  "type": "gallery-index",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "gallery/page/3/",
+  "title": "Daily, page 3: tiny examples, made every day · Fizlet",
+  "description": "Fizlet Daily page 3 of 6: older tiny examples by theme, each with its brief, its live demo and its size measured on this build.",
+  "type": "gallery-index",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "gallery/page/4/",
+  "title": "Daily, page 4: tiny examples, made every day · Fizlet",
+  "description": "Fizlet Daily page 4 of 6: older tiny examples by theme, each with its brief, its live demo and its size measured on this build.",
+  "type": "gallery-index",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "gallery/page/5/",
+  "title": "Daily, page 5: tiny examples, made every day · Fizlet",
+  "description": "Fizlet Daily page 5 of 6: older tiny examples by theme, each with its brief, its live demo and its size measured on this build.",
+  "type": "gallery-index",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "gallery/page/6/",
+  "title": "Daily, page 6: tiny examples, made every day · Fizlet",
+  "description": "Fizlet Daily page 6 of 6: older tiny examples by theme, each with its brief, its live demo and its size measured on this build.",
+  "type": "gallery-index",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "guides/",
+  "title": "Guides: build with Fizlet, step by step · Fizlet",
+  "description": "Step-by-step Fizlet guides: build a micro game, fill an Astro slot with a scene, port a game onto the kernel and build your own lockstep room server.",
+  "type": "docs-index",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "guides/astro-slot/",
+  "title": "Fill an Astro animation slot with a Fizlet scene",
+  "description": "Fill an Astro page engine slot with @fzlt/core/slot: loads near the viewport, skips reduced motion, settles to zero frames, keeps the text alternative.",
+  "type": "doc",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "guides/build-your-own-room-server/",
+  "title": "Build your own room server for Fizlet multiplayer",
+  "description": "The wire protocol @fzlt/core/presence speaks, as a contract: 12-byte lockstep messages, seats, lobby, resume, one room per object, a threat checklist.",
+  "type": "doc",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "guides/micro-game/",
+  "title": "Build a micro game with Fizlet in one file",
+  "description": "A step-by-step Fizlet guide: a canvas click game with typed-array state, a fixed 60 Hz step, pooled effects, a change-only HUD and Recall on Escape.",
+  "type": "doc",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "guides/multiplayer-rooms/",
+  "title": "Multiplayer rooms moved: build your own room server · Fizlet",
+  "description": "The Fizlet multiplayer rooms guide has moved: Build your own room server specs the wire protocol @fzlt/core/presence speaks, so you can run one like ours.",
+  "type": "redirect",
+  "inSitemap": false,
+  "noindex": true,
+  "redirect": "../../guides/build-your-own-room-server/",
+  "shell": true
+ },
+ {
+  "path": "guides/port-a-game/",
+  "title": "Port an existing game onto the Fizlet kernel",
+  "description": "Move a DOM or canvas game onto Fizlet step by step: one shared loop, writes through the ledger, a seeded step and typed arrays, measured before and after.",
+  "type": "doc",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "heroes/",
+  "title": "Heroes moved to Daily · Fizlet",
+  "description": "The Fizlet heroes page has moved: every hero animation is an entry on Daily, the gallery, with its size measured on this build.",
+  "type": "redirect",
+  "inSitemap": false,
+  "noindex": true,
+  "redirect": "../gallery/",
+  "shell": true
+ },
+ {
+  "path": "make/",
+  "title": "Make one: a prompt in, a snippet out · Fizlet",
+  "description": "Type a prompt, get a drop-in Fizlet animation: one file, only the bricks it uses, its size measured in your browser. No server, no tracking.",
+  "type": "make",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/",
+  "title": "News: every Fizlet release, newest first · Fizlet",
+  "description": "Release notes for all 51 Fizlet versions, newest first, from the changelog: new bricks, fixes and the sizes measured when each shipped.",
+  "type": "news-index",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.1.0/",
+  "title": "Fizlet 0.1.0 release notes · Fizlet",
+  "description": "Fizlet 0.1.0 release notes: createEngine: one shared requestAnimationFrame for every…; Auto-pause: hidden tab, page leaving, root off screen, typing…",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.10.0/",
+  "title": "Fizlet 0.10.0 release notes · Fizlet",
+  "description": "Fizlet 0.10.0 release notes: Both heroes 5% under the 10 KB live budget; Breaking (fizlet/sprite); Breaking (fizlet/camera, new in 0.9.0); fx.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.10.1/",
+  "title": "Fizlet 0.10.1 release notes · Fizlet",
+  "description": "Fizlet 0.10.1 release notes: fizlet/rules drops: per-drop age and landing spot; Website: the gallery (gallery/).",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.11.0/",
+  "title": "Fizlet 0.11.0 release notes · Fizlet",
+  "description": "Fizlet 0.11.0 release notes: fizlet/arcade. Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.12.0/",
+  "title": "Fizlet 0.12.0 release notes · Fizlet",
+  "description": "Fizlet 0.12.0 release notes: fizlet/arcade: in-page art and keys-only games; fizlet/board-page: in-page art never makes the board rescan.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.12.1/",
+  "title": "Fizlet 0.12.1 release notes · Fizlet",
+  "description": "Fizlet 0.12.1 release notes: fizlet/arcade: scoreboard keys keep their labels on one line. Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.13.0/",
+  "title": "Fizlet 0.13.0 release notes · Fizlet",
+  "description": "Fizlet 0.13.0 release notes: fizlet/board-page: hot-path forms hitAt(p, i) and nearAt(p, i…; Size: fizlet/board-page is 3,960 B gzip (3,841 in 0.12.1…",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.14.0/",
+  "title": "Fizlet 0.14.0 release notes · Fizlet",
+  "description": "Fizlet 0.14.0 release notes: Kernel Ledger.unstyle(el, prop); fizlet/board-page letters: true; board-page.char(i).",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.14.1/",
+  "title": "Fizlet 0.14.1 release notes · Fizlet",
+  "description": "Fizlet 0.14.1 release notes: Board UI: page keys press right (.bui-key, links and buttons). Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.15.0/",
+  "title": "Fizlet 0.15.0 release notes · Fizlet",
+  "description": "Fizlet 0.15.0 release notes: fizlet/board-page text: false; fizlet/board-page reads its refresh clock from engine.timing.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.16.0/",
+  "title": "Fizlet 0.16.0 release notes · Fizlet",
+  "description": "Fizlet 0.16.0 release notes: board-page.consume(i, '0' | '1'); board-page.scans; Tests: the camera's reduced-motion check waits for frames, not…",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.17.0/",
+  "title": "Fizlet 0.17.0 release notes · Fizlet",
+  "description": "Fizlet 0.17.0 release notes: Website: people and the daily contest; Website: a themed gallery, a heroes row and contributor profiles.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.18.0/",
+  "title": "Fizlet 0.18.0 release notes · Fizlet",
+  "description": "Fizlet 0.18.0 release notes: fizlet/arcade canvas fills its root on 2x/zoomed screens; Arcade: an array of controls and scoreboards (hud).",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.19.0/",
+  "title": "Fizlet 0.19.0 release notes · Fizlet",
+  "description": "Fizlet 0.19.0 release notes: Contest: weekly, and small wins; Gallery: the owner approves every new piece; Gallery archive: noindex, nofollow.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.2.0/",
+  "title": "Fizlet 0.2.0 release notes · Fizlet",
+  "description": "Fizlet 0.2.0 release notes: fizlet/input: keys → intents with one-frame edges latched in…; fizlet/collide: fixed-capacity spatial hash (add / near take…",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.2.1/",
+  "title": "Fizlet 0.2.1 release notes · Fizlet",
+  "description": "Fizlet 0.2.1 release notes: fizlet/embed: open: false waits closed behind the toggle key (a… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.2.2/",
+  "title": "Fizlet 0.2.2 release notes · Fizlet",
+  "description": "Fizlet 0.2.2 release notes: The website; The site hosts the builds: fizlet.js (one script tag… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.2.3/",
+  "title": "Fizlet 0.2.3 release notes · Fizlet",
+  "description": "Fizlet 0.2.3 release notes: ui: the SURRENDER key's white-flag icon keeps its grid lines… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.2.4/",
+  "title": "Fizlet 0.2.4 release notes · Fizlet",
+  "description": "Fizlet 0.2.4 release notes: ui: .bui-grip matches DOM Battlefield's card grip exactly: a… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.20.0/",
+  "title": "Fizlet 0.20.0 release notes · Fizlet",
+  "description": "Fizlet 0.20.0 release notes: Gallery: the 7 kept pieces, rebuilt by hand as micro games; Fix: the heroes page's Prev key is served disabled.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.21.0/",
+  "title": "Fizlet 0.21.0 release notes · Fizlet",
+  "description": "Fizlet 0.21.0 release notes: Gallery: surf-sesh, three ten-second surf minis by Pip…; fizlet/sound: your own synth cues.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.21.1/",
+  "title": "Fizlet 0.21.1 release notes · Fizlet",
+  "description": "Fizlet 0.21.1 release notes: 0.21.1 — tagged, not published: npm refused fzlt as too similar… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.21.2/",
+  "title": "Fizlet 0.21.2 release notes · Fizlet",
+  "description": "Fizlet 0.21.2 release notes: 0.21.2 — first npm release, published as @fzlt/core (npm…; Layers story: it holds the scroll like every other demo frame…",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.21.3/",
+  "title": "Fizlet 0.21.3 release notes · Fizlet",
+  "description": "Fizlet 0.21.3 release notes: Site: the origin hero, the owner's notes (pending owner review); @fzlt/core/sound: play(cue, intensity, at?) and time.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.22.0/",
+  "title": "Fizlet 0.22.0 release notes · Fizlet",
+  "description": "Fizlet 0.22.0 release notes: Gallery: Salvo Bay, a hand-built hero on @fzlt/core/diorama…; Gallery: Parade Day, a hand-built Hi-Fi diorama hero on…",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.23.0/",
+  "title": "Fizlet 0.23.0 release notes · Fizlet",
+  "description": "Fizlet 0.23.0 release notes: @fzlt/core/drive: handbrake drift, drift scoring, spin-outs and… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.24.0/",
+  "title": "Fizlet 0.24.0 release notes · Fizlet",
+  "description": "Fizlet 0.24.0 release notes: @fzlt/core/drive: long-travel suspension, and zero allocation… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.25.0/",
+  "title": "Fizlet 0.25.0 release notes · Fizlet",
+  "description": "Fizlet 0.25.0 release notes: Site: Daily (/gallery/) under All is one flat list, strictly… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.26.0/",
+  "title": "Fizlet 0.26.0 release notes · Fizlet",
+  "description": "Fizlet 0.26.0 release notes: @fzlt/core/terrain: split: 'adaptive', each cell's diagonal… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.27.0/",
+  "title": "Fizlet 0.27.0 release notes · Fizlet",
+  "description": "Fizlet 0.27.0 release notes: @fzlt/core/debug: touchLog(), an on-screen log of pointer and… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.3.0/",
+  "title": "Fizlet 0.3.0 release notes · Fizlet",
+  "description": "Fizlet 0.3.0 release notes: fizlet/slot; Publish-ready on npm; Types: relative imports in the shipped .d.ts now carry .js, so…",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.3.1/",
+  "title": "Fizlet 0.3.1 release notes · Fizlet",
+  "description": "Fizlet 0.3.1 release notes: fizlet/grid. Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.3.2/",
+  "title": "Fizlet 0.3.2 release notes · Fizlet",
+  "description": "Fizlet 0.3.2 release notes: fizlet/sprite. Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.3.3/",
+  "title": "Fizlet 0.3.3 release notes · Fizlet",
+  "description": "Fizlet 0.3.3 release notes: fizlet/pad; input: controls().steer(x, y, on) drives the stick axes from… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.3.4/",
+  "title": "Fizlet 0.3.4 release notes · Fizlet",
+  "description": "Fizlet 0.3.4 release notes: fizlet/pad: a touch tap's click (some Chromium builds report it… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.3.5/",
+  "title": "Fizlet 0.3.5 release notes · Fizlet",
+  "description": "Fizlet 0.3.5 release notes: kernel: the root's IntersectionObserver is disconnected on…; kernel: starting, stopping or destroying engines from inside a…",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.3.6/",
+  "title": "Fizlet 0.3.6 release notes · Fizlet",
+  "description": "Fizlet 0.3.6 release notes: fizlet/hud: change-only, allocation-free HUD bindings fed by… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.4.0/",
+  "title": "Fizlet 0.4.0 release notes · Fizlet",
+  "description": "Fizlet 0.4.0 release notes: presence; fizlet/presence/check: syncCheck(setup, opts), the determinism… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.4.1/",
+  "title": "Fizlet 0.4.1 release notes · Fizlet",
+  "description": "Fizlet 0.4.1 release notes: pack smoke test: data subpaths (.css, .json) resolve instead of… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.4.2/",
+  "title": "Fizlet 0.4.2 release notes · Fizlet",
+  "description": "Fizlet 0.4.2 release notes: tests: the fx live-scene and input allocation checks use…; fizlet/input; fizlet/sound.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.4.3/",
+  "title": "Fizlet 0.4.3 release notes · Fizlet",
+  "description": "Fizlet 0.4.3 release notes: fizlet/match. Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.4.4/",
+  "title": "Fizlet 0.4.4 release notes · Fizlet",
+  "description": "Fizlet 0.4.4 release notes: fizlet/board-page. Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.5.0/",
+  "title": "Fizlet 0.5.0 release notes · Fizlet",
+  "description": "Fizlet 0.5.0 release notes: kernel: settle option; slot: waits for an idle main thread once near the viewport…",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.5.1/",
+  "title": "Fizlet 0.5.1 release notes · Fizlet",
+  "description": "Fizlet 0.5.1 release notes: CSS containment on every root Fizlet owns; README truth pass. Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.6.0/",
+  "title": "Fizlet 0.6.0 release notes · Fizlet",
+  "description": "Fizlet 0.6.0 release notes: fizlet/rules. Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.6.1/",
+  "title": "Fizlet 0.6.1 release notes · Fizlet",
+  "description": "Fizlet 0.6.1 release notes: The fizz demo. Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.7.0/",
+  "title": "Fizlet 0.7.0 release notes · Fizlet",
+  "description": "Fizlet 0.7.0 release notes: fizlet/perf; kernel: engine.timing, a Float64Array view of this frame ([0]… Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.8.0/",
+  "title": "Fizlet 0.8.0 release notes · Fizlet",
+  "description": "Fizlet 0.8.0 release notes: fizlet/ui readouts. Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.8.1/",
+  "title": "Fizlet 0.8.1 release notes · Fizlet",
+  "description": "Fizlet 0.8.1 release notes: Layers story. Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.8.2/",
+  "title": "Fizlet 0.8.2 release notes · Fizlet",
+  "description": "Fizlet 0.8.2 release notes: Layers story fits the hero budget. Every change, with its measured numbers.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "news/0.9.0/",
+  "title": "Fizlet 0.9.0 release notes · Fizlet",
+  "description": "Fizlet 0.9.0 release notes: fizlet/camera; fx: gravity and named particle kinds as data; Fizz demo on camera + fx kinds.",
+  "type": "release",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "notes/",
+  "title": "Notes: what the games taught the engine · Fizlet",
+  "description": "Field notes from building on Fizlet's bricks, newest first: ports, lessons and the numbers behind them, each one measured (6 so far, by Chris Cooley).",
+  "type": "notes-index",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "notes/before-ai-2015/",
+  "title": "Before AI: 2015, three micro animations · Fizlet",
+  "description": "Three CSS sprite micro animations Chris Cooley drew by hand in 2015, recovered from the Wayback Machine, remade in Fizlet, then turned into an arcade.",
+  "type": "note",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "notes/how-small-is-small/",
+  "title": "How small is small: Fizlet's sizes · Fizlet",
+  "description": "Fizlet's kernel is 3,413 B gzip against a 4 KB budget. Every brick's size, the 10 KB hero budget, and how CI and this site measure them the same way.",
+  "type": "note",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "notes/lockstep-multiplayer-in-a-few-kb/",
+  "title": "Lockstep multiplayer in a few KB · Fizlet",
+  "description": "@fzlt/core/presence is 1,834 B gzip: lockstep inputs, 12 bytes a message, a hash check every 30 frames, and how to build a room server like ours.",
+  "type": "note",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "notes/moving-the-games-onto-a-4-kb-kernel/",
+  "title": "Moving the games onto a 4 KB kernel · Fizlet",
+  "description": "Four games on Fizlet's 4 KB kernel: each grew 7 to 21% in gzip bytes. Every byte, why it is there, and what the shared engine bought.",
+  "type": "note",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "notes/recall-the-page-always-comes-back/",
+  "title": "Recall: how Fizlet gives the page back · Fizlet",
+  "description": "Fizlet writes every DOM change through one ledger: change-only, a newer host edit wins, and destroy() restores the page exactly. How, and how it's tested.",
+  "type": "note",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "notes/why-fzlt/",
+  "title": "Why fzlt: the short mark of Fizlet, the DOM engine",
+  "description": "fzlt is Fizlet's short mark and npm scope: no vowels, a z, nothing autocorrects into it. Install Fizlet with npm i @fzlt/core.",
+  "type": "note",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "people/",
+  "title": "People: the maker, AI agents and studio crew · Fizlet",
+  "description": "Who makes Fizlet: Chris Cooley, creator David Cooley, 3 studio crew (characters, not real people) and the team's AI agents, with entries and bytes.",
+  "type": "people-index",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "people/chris-cooley/",
+  "title": "Chris Cooley: maker of Fizlet · Fizlet",
+  "description": "Chris Cooley, creator of Fizlet and principal UX/application engineer: the work, the gallery entries and their bytes, measured.",
+  "type": "person",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "people/david-cooley/",
+  "title": "David Cooley: creator · Fizlet",
+  "description": "David Cooley, teen game creator: HOLESHOT, a game about the stuff David loves to do, wheelies and bikes.",
+  "type": "person",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "people/dj-mempool/",
+  "title": "DJ Mempool: studio crew · Fizlet",
+  "description": "DJ Mempool, Fizlet studio crew (a character, not a real person): a synthwave DJ who spins crypto-meme bits.",
+  "type": "person",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "people/frame-zero/",
+  "title": "Frame Zero: studio crew · Fizlet",
+  "description": "Frame Zero, Fizlet studio crew (a character, not a real person): a speedrunner whose prompts are 20 characters or fewer.",
+  "type": "person",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "people/hex-hazel/",
+  "title": "Hex Hazel: studio crew · Fizlet",
+  "description": "Hex Hazel, Fizlet studio crew (a character, not a real person): a pixel witch who brews seasonal holiday drops.",
+  "type": "person",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "people/pip/",
+  "title": "Pip: an AI agent on the team · Fizlet",
+  "description": "Pip, the keeper of Fizlet: an AI agent persona, a pixel narwhal who guards the engine's size, speed and quality budgets.",
+  "type": "person",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "people/quill/",
+  "title": "Quill: an AI agent on the team · Fizlet",
+  "description": "Quill, the Fizlet team's keeper — an AI agent persona (Claude), not a person, who runs the sprints, the landers and the daily audits across the engines.",
+  "type": "person",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ },
+ {
+  "path": "privacy/",
+  "title": "Privacy policy: analytics only with consent · Fizlet",
+  "description": "What fizlet.com collects, why and for how long: no analytics, hosting logs, and how to opt out. No ads, no selling data.",
+  "type": "legal",
+  "inSitemap": true,
+  "noindex": false,
+  "redirect": "",
+  "shell": true
+ }
+]

@@ -1,0 +1,36 @@
+{
+  "name": "fizlet-site",
+  "private": true,
+  "version": "0.1.0",
+  "description": "fizlet.com on Astro: the Fizlet website, migrated from the custom build in coded-dot-design/fizlet site/.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "typecheck": "astro check",
+    "validate:content": "node scripts/validate-content.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "audit": "node scripts/audit.mjs",
+    "browse": "node scripts/browse.mjs dist",
+    "export:legacy": "node scripts/export-legacy.mjs",
+    "compare": "node scripts/compare.mjs",
+    "gates": "npm run validate:content && npm test && npm run typecheck && npm run build && npm run audit && npm run browse",
+    "tokens": "node scripts/tokens.mjs",
+    "migration": "node scripts/migration.mjs"
+  },
+  "dependencies": {
+    "astro": "7.4.13"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "node-html-parser": "7.0.2",
+    "pixelmatch": "7.1.0",
+    "playwright": "1.58.2",
+    "pngjs": "7.0.0",
+    "typescript": "6.0.3"
+  }
+}

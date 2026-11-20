@@ -1,0 +1,7 @@
+---
+// The site lockup: the mark, the DOM ENGINE kicker with the version sticker, and FIZLET.
+import Mark from "./Mark.astro";
+interface Props { version?: string; fzlt?: boolean; size?: number }
+const { version = "", fzlt = false, size = 40 } = Astro.props;
+---
+<span class="brand-mark"><Mark size={size} /></span><span class="brand-text"><small>DOM ENGINE{version && <i class="brand-ver">V{version}</i>}</small><b>FIZLET{fzlt && <i class="brand-fzlt">fzlt™</i>}</b></span>

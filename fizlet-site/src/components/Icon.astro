@@ -1,0 +1,7 @@
+---
+// A line icon on the 20px grid (the Battlefield site's stroke style).
+import { icons } from "../lib/site";
+interface Props { name: string; size?: number }
+const { name, size = 20 } = Astro.props;
+---
+<svg viewBox="0 0 20 20" width={size} height={size} fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d={icons[name]}/></svg>

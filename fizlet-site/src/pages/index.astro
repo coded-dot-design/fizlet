@@ -1,0 +1,47 @@
+---
+// The home page: the hero (headline, lead, keys, the script tag), the numbers, then the sections.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Key from "../components/Key.astro";
+import Icon from "../components/Icon.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import BrickCard from "../components/BrickCard.astro";
+import Html from "../components/Html.astro";
+import DATA from "../data/legacy/pages/home.json";
+import type { Tone } from "../lib/site";
+const h = DATA as any;
+const hero = h.hero;
+---
+<BaseLayout meta={h.meta}>
+<section class="hero has-grid" aria-labelledby="hero-title">
+  <div class="hero-field" aria-hidden="true"></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="dot"></span>{hero.eyebrow.text} <span>/</span> <b>{hero.eyebrow.accent}</b></p>
+      <h1 id="hero-title">{hero.title.line}<br><em>{hero.title.accent}</em></h1>
+      <p class="byline">by <a href={hero.byline.href}>{hero.byline.label}</a></p>
+      <p class="beta-line"><span class="status-pill" data-flag="beta">{hero.beta.pill}</span> <Fragment set:html={hero.beta.html} /></p>
+      <p class="lead" set:html={hero.lead} />
+      <div class="hero-keys">
+        {hero.keys.map((k: any) => <Key href={k.href} tone={k.tone as Tone} arcade={k.arcade} icon={k.icon} label={k.label} />)}
+        <a class="hero-link" href={hero.repo.href}><Icon name="github" size={16} />{hero.repo.label}</a>
+      </div>
+      <CodeBlock label={hero.install.label} code={hero.install.code} wrap={hero.install.wrap} copy={hero.install.copy} class={hero.install.cls} />
+    </div>
+
+    <Html html={hero.figureHtml} />
+  </div>
+</section>
+<section class="stats" aria-label="Fizlet in numbers">
+  <div class="wrap stats-row">
+    {h.stats.map((s: any) => s.soon ? <span class="soon"><i></i><b>{s.value}</b><small>{s.label}</small></span> : <span><b>{s.value}</b><small>{s.label}</small></span>)}
+  </div>
+</section>
+{h.sections.map((s: any) => s.kind === "bricks"
+  ? <section {...s.attrs}>
+  <Html html={s.pre} />
+  <div class="wrap">
+    {s.blocks.map((b: any) => b.kind === "bricks" ? <ul class={b.cls}>{b.items.map((it: any) => <BrickCard {...it} />)}</ul> : <Html html={b.html} />)}
+  </div>
+</section>
+  : <Html html={s.html} />)}
+</BaseLayout>

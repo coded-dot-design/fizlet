@@ -1,0 +1,10 @@
+---
+// The header nav: a link per top-level page, a disclosure button and its menu per group (never
+// hover-only). The link to the page you are on, or its section, carries aria-current.
+import { NAV, current } from "../lib/site";
+interface Props { path: string }
+const { path } = Astro.props;
+---
+<ul class="nav-list">{NAV.map((e) => "href" in e
+  ? <li class="nav-item"><a class="nav-top" href={e.href} aria-current={current(e.href, path)}>{e.label}</a></li>
+  : <li class="nav-item"><button class="nav-btn" type="button" aria-expanded="false" aria-controls={`nav-${e.label.toLowerCase()}`}>{e.label}<svg class="nav-chev" viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m5 8 5 5 5-5"/></svg></button><span class="nav-label" aria-hidden="true">{e.label}</span><ul class="nav-menu" id={`nav-${e.label.toLowerCase()}`} aria-label={e.label}>{e.items.map((i) => <li><a href={i.href} aria-current={current(i.href, path)}>{i.label}</a></li>)}</ul></li>)}</ul>

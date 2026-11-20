@@ -1,0 +1,23 @@
+---
+import Lockup from "./Lockup.astro";
+import NavTree from "./NavTree.astro";
+import Icon from "./Icon.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+import { REPO, VERSION } from "../lib/site";
+interface Props { path: string }
+const { path } = Astro.props;
+---
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Fizlet home">
+      <Lockup version={VERSION} />
+    </a>
+    <nav class="site-nav" aria-label="Site" id="site-nav"><NavTree path={path} /></nav>
+    <div class="head-keys">
+      <a class="bui-key bui-icon-key gh" href={REPO} aria-label="Source on GitHub"><Icon name="github" /></a>
+      <ThemeToggle />
+      <a class="bui-key bui-arcade bui-go start-key-sm" href="/#start"><Icon name="play" size={16} />Start</a>
+      <button class="bui-key bui-icon-key menu-key" type="button" data-menu aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><Icon name="menu" /><Icon name="close" /></button>
+    </div>
+  </div>
+</header>

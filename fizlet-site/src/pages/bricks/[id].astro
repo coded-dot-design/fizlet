@@ -1,0 +1,28 @@
+---
+// A brick page (bricks/<id>.html): crumbs, the brick's head with its demo and card, its use
+// snippets as code cards, its status and its whole API.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Crumbs from "../../components/Crumbs.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import Html from "../../components/Html.astro";
+
+export function getStaticPaths() {
+  const all = import.meta.glob<{ default: any }>("../../data/legacy/pages/bricks/*.json", { eager: true });
+  return Object.entries(all).map(([f, m]) => ({ params: { id: f.match(/([\w-]+)\.json$/)![1] }, props: { brick: m.default } }));
+}
+const { brick } = Astro.props;
+---
+<BaseLayout meta={brick.meta} styles={brick.styles}>
+<section class="has-grid section bp" aria-labelledby="bp-title">
+  <div class="wrap">
+    <Crumbs trail={brick.crumbs.trail} current={brick.crumbs.current} />
+    <div class="split bp-top" style={`--tone: ${brick.tone}`}>
+      <div><Html html={brick.leadHtml} /></div>
+      <Html html={brick.asideHtml} />
+    </div>
+    {brick.rest.map((r: any) => r.kind === "use"
+      ? <div class="bp-use">{r.blocks.map((b: any) => <CodeBlock label={b.label} code={b.code} wrap={b.wrap} copy={b.copy} class={b.cls} />)}</div>
+      : <Html html={r.html} />)}
+  </div>
+</section>
+</BaseLayout>

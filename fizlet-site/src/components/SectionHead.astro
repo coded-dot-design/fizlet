@@ -1,0 +1,13 @@
+---
+// A section head: eyebrow (with its index sticker) → title (a line and its accent) → lead.
+interface Props { index?: string; eyebrow: string; line: string; accent: string; lead?: string; id: string; level?: "h1" | "h2"; class?: string; tag?: "div" | "header" }
+const { index, eyebrow, line, accent, lead, id, level = "h1", class: cls = "section-head", tag = "div" } = Astro.props;
+const H = level;
+const Tag = tag;
+---
+<Tag class={cls}>
+      <p class="eyebrow">{index && <span class="index">{index}</span>} {eyebrow}</p>
+      <H id={id}>{line}<br><em>{accent}</em></H>
+      {lead && <p class="lead" set:html={lead} />}
+      <slot />
+    </Tag>

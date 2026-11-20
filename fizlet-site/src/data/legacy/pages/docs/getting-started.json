@@ -1,0 +1,210 @@
+{
+ "meta": {
+  "path": "docs/getting-started/",
+  "title": "Getting started with Fizlet: a DOM game engine",
+  "description": "Install Fizlet with one script tag or ES modules, start an engine, and give the page back with destroy(). The kernel is under 4 KB gzip, no dependencies.",
+  "ld": [
+   {
+    "@type": "TechArticle",
+    "@id": "https://fizlet.com/docs/getting-started/#article",
+    "headline": "Five minutes",
+    "description": "Install Fizlet with one script tag or ES modules, start an engine, and give the page back with destroy(). The kernel is under 4 KB gzip, no dependencies.",
+    "url": "https://fizlet.com/docs/getting-started/",
+    "mainEntityOfPage": "https://fizlet.com/docs/getting-started/",
+    "inLanguage": "en",
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    },
+    "publisher": {
+     "@id": "https://fizlet.com/#org"
+    },
+    "isPartOf": {
+     "@id": "https://fizlet.com/#website"
+    },
+    "about": {
+     "@id": "https://fizlet.com/#code"
+    }
+   },
+   {
+    "@type": "BreadcrumbList",
+    "@id": "https://fizlet.com/docs/getting-started/#crumbs",
+    "itemListElement": [
+     {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Fizlet",
+      "item": "https://fizlet.com/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Docs",
+      "item": "https://fizlet.com/docs/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Getting started",
+      "item": "https://fizlet.com/docs/getting-started/"
+     }
+    ]
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/docs/",
+    "label": "Docs"
+   }
+  ],
+  "current": "Getting started"
+ },
+ "index": "01",
+ "eyebrow": "DOCS · GETTING STARTED",
+ "title": {
+  "line": "Five minutes",
+  "accent": "to a running engine."
+ },
+ "lead": "Fizlet is a micro game and animation engine for the DOM: one shared loop, bounded everything, and the page always comes back exactly as it was. The kernel is 3,372 B gzip (3.3 KB), with no runtime dependencies. This page gets an engine running and shows the four calls everything else builds on.",
+ "body": [
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>Load it</h2><p class=\"body\">Pick one. All three ship the same code, built from the same source on every release (v0.27.0 today).</p><ol class=\"ledger-rules note-list\"><li><b>One script tag.</b> <code>https://fizlet.com/fizlet.js</code> puts the kernel and every brick but <code>@fzlt/core/debug</code> on <code>window.fizlet</code>. No build step. The <a href=\"/examples/quick-start.html\">quick start</a> runs it as is.</li><li><b>ES modules, only what you use.</b> Import each brick from <code>https://fizlet.com/dist/</code>: <code>index.js</code> is the kernel, <code>fx.js</code> is <code>@fzlt/core/fx</code>, and so on. A page that imports the kernel and <code>@fzlt/core/fx</code> ships only those.</li><li><b>npm.</b> <code>npm install @fzlt/core</code> gives you every subpath export (<code>@fzlt/core</code>, <code>@fzlt/core/fx</code>, <code>@fzlt/core/slot</code> …) and its TypeScript types. Or build from source: <code>git clone</code>, <code>npm ci</code>, <code>npm run build</code> gives you the same <code>dist/</code>.</li></ol></section>"
+  },
+  {
+   "kind": "code",
+   "label": "<b>MODULES</b> · game.ts",
+   "code": "import { createEngine } from \"@fzlt/core\";\n\nconst root = document.querySelector(\"#game\")!;\nconst engine = createEngine({ root, seed: 7 });\nconst sparks = engine.pool(\"sparks\", 64, () => ({ x: 0, y: 0, vx: 0, vy: 0 }));\n\nengine.add({\n  read(e) { /* measure the page here, once a frame */ },\n  step(e, dt) { /* the simulation: fixed 60 Hz, no DOM, no allocation */ },\n  render(e, alpha) { /* change-only DOM writes through e.ledger */ },\n});\nengine.start();\n\n// Later: Recall. Every listener goes, every page change is undone.\nengine.destroy();",
+   "wrap": false,
+   "copy": true,
+   "cls": "panel code-card doc-code"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>What each call does</h2><ul class=\"ledger-rules note-list\"><li><code>createEngine({ root, seed })</code> makes an engine. <code>root</code> is the element it lives in: off screen, it pauses. <code>seed</code> feeds <code>engine.random</code>, so a run replays.</li><li><code>engine.pool(name, cap, create)</code> makes every item up front. It never grows: when it is full, <code>acquire()</code> says no. That is <a href=\"/docs/contract/\">contract</a> rule 2.</li><li><code>engine.add(system)</code> adds a system with up to four hooks: <code>read</code> (measure the page), <code>step</code> (simulate, at a fixed 60 Hz), <code>render</code> (write the page) and <code>pause</code>. <a href=\"/docs/loop/\">The loop</a> explains the order.</li><li><code>engine.start()</code> joins the page's one shared <code>requestAnimationFrame</code>. <code>engine.destroy()</code> is <a href=\"/docs/recall/\">Recall</a>: every listener goes and every page change is undone.</li></ul></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>Where next</h2><ul class=\"note-rows\"><li class=\"panel\"><h3>The ideas</h3><p>Read the <a href=\"/docs/contract/\">contract</a>, then <a href=\"/docs/loop/\">the loop</a>, <a href=\"/docs/recall/\">Recall</a>, <a href=\"/docs/budgets/\">budgets</a> and <a href=\"/docs/determinism/\">determinism</a>. Each page is short and says which test proves it.</p></li><li class=\"panel\"><h3>The bricks</h3><p>Input, collision, effects, sprites, sound, timelines, multiplayer and more, each its own import with its own size budget. Every <a href=\"/bricks/\">brick page</a> lists its whole API from the type declarations.</p></li><li class=\"panel\"><h3>A first build</h3><p><a href=\"/guides/micro-game/\">Build a micro game</a> end to end, or <a href=\"/guides/astro-slot/\">fill an Astro slot</a> with a hero scene that costs nothing while it is still.</p></li></ul></section>"
+  },
+  {
+   "kind": "keys",
+   "keys": [
+    {
+     "href": "/examples/quick-start.html",
+     "label": "Run the quick start",
+     "tone": "sys",
+     "arcade": true,
+     "icon": "book"
+    },
+    {
+     "href": "/docs/contract/",
+     "label": "The contract",
+     "tone": "cmd",
+     "arcade": true,
+     "icon": "book"
+    },
+    {
+     "href": "/bricks/",
+     "label": "Every brick",
+     "tone": "go",
+     "arcade": true,
+     "icon": "book"
+    }
+   ]
+  }
+ ],
+ "steps": [
+  {
+   "href": "/docs/authoring/",
+   "label": "Authoring and recipes",
+   "dir": "next"
+  }
+ ],
+ "map": [
+  [
+   {
+    "head": {
+     "href": "/docs/",
+     "label": "Docs"
+    },
+    "items": [
+     {
+      "href": "/docs/getting-started/",
+      "label": "Getting started"
+     },
+     {
+      "href": "/docs/authoring/",
+      "label": "Authoring and recipes"
+     },
+     {
+      "href": "/docs/contract/",
+      "label": "The contract"
+     },
+     {
+      "href": "/docs/loop/",
+      "label": "The loop"
+     },
+     {
+      "href": "/docs/recall/",
+      "label": "Recall and the ledger"
+     },
+     {
+      "href": "/docs/budgets/",
+      "label": "Size budgets"
+     },
+     {
+      "href": "/docs/determinism/",
+      "label": "Determinism"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/guides/",
+     "label": "Guides"
+    },
+    "items": [
+     {
+      "href": "/guides/micro-game/",
+      "label": "Build a micro game"
+     },
+     {
+      "href": "/guides/astro-slot/",
+      "label": "Fill an Astro slot"
+     },
+     {
+      "href": "/guides/port-a-game/",
+      "label": "Port a game"
+     },
+     {
+      "href": "/guides/build-your-own-room-server/",
+      "label": "Your own room server"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/bricks/",
+     "label": "Bricks"
+    },
+    "note": "Every module, its API and its size."
+   },
+   {
+    "head": {
+     "href": "/news/",
+     "label": "News"
+    },
+    "note": "Release notes for every version."
+   }
+  ]
+ ]
+}

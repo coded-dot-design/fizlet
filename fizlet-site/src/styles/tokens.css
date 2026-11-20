@@ -1,0 +1,96 @@
+/* Generated from src/design/tokens.json by scripts/tokens.mjs: edit the JSON, then npm run tokens. */
+:root {
+  /* color */
+  --grid: color-mix(in srgb, var(--k-sys) 9%, transparent);
+  --code-bg: #0b0918;
+  --hl: var(--k-go);
+  --frame-warn: var(--k-fire-ink);
+  /* type */
+  --sans: Inter, "SF Pro Display", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --head-size: clamp(32px, 4.4vw, 54px);
+  /* space */
+  --page: clamp(1200px, 94vw, 1520px);
+  --gutter: 30px;
+  --block-gap: 22px;
+  --section-gap: clamp(70px, 10vw, 120px);
+  --head-gap: 16px;
+  --head-lead-gap: 18px;
+  /* radius */
+  --r-4: 4px;
+  --r-5: 5px;
+  --r-6: 6px;
+  --r-8: 8px;
+  --r-10: 10px;
+  --r-12: 12px;
+  /* shadow */
+  --shadow-x: 0;
+  --shadow-y: 1;
+  --base: color-mix(in srgb, var(--k-cmd) 38%, var(--rim));
+  --sticker-edge: var(--ink);
+  --sticker-shadow: var(--muted);
+}
+.bui {
+  /* color */
+  --bg: #07060f;
+  --surface: #110d22;
+  --raised: #1d1738;
+  --card: #120f26;
+  --ink: #f6f3ff;
+  --muted: #aea4d6;
+  --line: #3b3170;
+  --rim: #07060f;
+  --k-sys: #19f0ff;
+  --k-cmd: #9a63ff;
+  --k-fire: #ff2b4e;
+  --k-aim: #ff7389;
+  --k-attack: #ff2e88;
+  --k-advance: #ff8a1f;
+  --k-fallin: #a8ff3e;
+  --k-flag: #f6f3ff;
+  --k-go: #39ffb0;
+  --team-a: #39ffb0;
+  --team-b: #ff5c8f;
+  --team: var(--team-a);
+  --hurt: #ffc21a;
+  --critical: #f0506e;
+  --k-sys-ink: var(--k-sys);
+  --k-cmd-ink: #b48cff;
+  --k-fire-ink: var(--k-fire);
+  --team-ink: var(--team);
+  --k-cmd-base: color-mix(in srgb, var(--k-cmd) 50%, var(--rim));
+  --k-cmd-deep: color-mix(in srgb, var(--k-cmd) 80%, var(--rim));
+  --bui-kbd-alpha: 0.88;
+  /* space */
+  --u: 1px;
+  /* shadow */
+  --bui-sx: var(--shadow-x, 0);
+  --bui-sy: var(--shadow-y, 1);
+  --bui-shadow: var(--shadow-color, var(--rim));
+  /* motion */
+  --bui-spring: cubic-bezier(0.34, 1.7, 0.5, 1);
+  --bui-out: cubic-bezier(0.15, 0.8, 0.3, 1);
+}
+.bui[data-theme="light"] {
+  /* color */
+  --bg: #eef0fb;
+  --surface: #ffffff;
+  --raised: #e6e4f8;
+  --card: #ffffff;
+  --ink: #1b1636;
+  --muted: #5d5684;
+  --line: #b9b2e3;
+  --k-sys-ink: #006e91;
+  --k-cmd-ink: #6a3ae6;
+  --k-fire-ink: #c01033;
+}
+html.bui[data-theme="light"] {
+  /* color */
+  --grid: color-mix(in srgb, var(--k-cmd) 9%, transparent);
+  --code-bg: #f6f5fd;
+  --hl: #0b7a54;
+  /* shadow */
+  --sticker-edge: var(--rim);
+  --sticker-shadow: var(--rim);
+  --base: color-mix(in srgb, var(--k-cmd) 30%, var(--line));
+}

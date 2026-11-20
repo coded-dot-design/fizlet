@@ -1,0 +1,14 @@
+---
+// A Daily piece: its stage (the piece's poster until it nears the screen, then the piece live),
+// then its line (number · date · theme · how it was made), its title and the rest of its meta.
+interface Props { id: string; cls: string; attrs: Record<string, string>; stage: string; index: string; line: string; title: string; metaHtml: string }
+const { id, cls, attrs, stage, index, line, title, metaHtml } = Astro.props;
+---
+<li class={cls} id={id} {...attrs}>
+      <div class="gal-stage" set:html={stage} />
+      <div class="gal-meta">
+        <p class="eyebrow gal-line"><span class="index">{index}</span> {line}</p>
+        <h2 class="gal-title">{title}</h2>
+        <Fragment set:html={metaHtml} />
+      </div>
+    </li>
