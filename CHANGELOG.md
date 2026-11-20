@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **`@fzlt/core/collide`: Grid's insert and query share one cell-range helper (−14 B gz, about 24 % faster).**
+  1,265 → 1,251 B gz (budget 1,536 → 1,280); 512 inserts + 512 queries a frame 42.5 → 32.0 µs (Node 24, median
+  of 7 × 2,000 frames, 3 runs each); board-page 4,104 → 4,076 B, arcade 24,145 → 24,115 B. Same cells, same
+  ids, same counters: no behaviour change. The API snapshot lists Grid's two new private members (`o`, `b`).
+
 - **Brick audit (`fe audit fizlet`): no fails, no gaps in exports, README or tests.** `@fzlt/core/presence/rollback`
   no longer reads wall time in its step: the correction meters `resimMs` and `resimTotal` read a clock the
   host passes (`clock: () => performance.now()`, a profiling opt-in) and stay 0 without one (2,181 B gz,

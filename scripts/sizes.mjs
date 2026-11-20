@@ -29,7 +29,9 @@ export const BUDGETS = [
   // `Math.hypot` boxes its arguments, 23 young GCs per 1M drags; now 0). Budget raised by that delta.
   // 2,068 B with its dead zones as literals (−6 B, size/treeshake, no behaviour change). Budget lowered by that delta.
   ["@fzlt/core/pad", "src/pad.ts", 2120],
-  ["@fzlt/core/collide", "src/collide.ts", 1536],
+  // 1,265 B gz on 0.27.0; 1,251 B when Grid's insert and query share one cell-range helper (−14 B, ~24 % faster,
+  // no behaviour change). Budget lowered from 1,536 to that + 29 B.
+  ["@fzlt/core/collide", "src/collide.ts", 1280],
   // 1,533 B gz in 0.19.0 (3 B under 1,536); 1,634 B once the constructor checks cols, rows and cell
   // (+101 B, brick audit P8: `cell: 0` made at() NaN, a fractional cols sized the arrays wrong). An
   // inline check, not the kernel's `need` (+181 B: grid runs without the kernel). Raised by that delta.
