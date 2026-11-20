@@ -58,9 +58,9 @@
   the wire; 4 peers in lockstep cost the same (1.02–1.08 µs a round before and after, Node 24, median of 7 ×
   20,000 rounds, 3 runs each); still no allocation per message.
 
-- **`@fzlt/core/ui`: `launch()` reads every computed style before its first write (no forced layout).** The
-  burst layer went onto `<body>` before the key's look and the board's tones were read, so those reads forced a
-  style and layout pass; now every read comes first. One click on a 4,000-node page at 4× CPU: 6.7–7.8 → 4.6 ms
+- **`@fzlt/core/ui`: `launch()` reads the key's look and the board's tones before it adds the burst layer (no
+  forced layout).** The burst layer went onto `<body>` before the key's look and the board's tones were read, so
+  those reads forced a style and layout pass; now they come before the layer is added. One click on a 4,000-node page at 4× CPU: 6.7–7.8 → 4.6 ms
   median (40 clicks, 2 runs each, Chromium), forced layouts in the call 1 → 0. Same burst, same colours; 2,907 →
   2,900 B gz.
 
