@@ -1,0 +1,8 @@
+---
+// One module's measured size: its element tile (filled to its share of the budget, `v`, in its
+// colour family; a build has no symbol), its name and gzip size, and the share for screen readers.
+interface Props { size: string; sym: string; title: string; build: boolean; tone: string; v: string; name: string; value: string; unit: string; sr: string }
+const { size, sym, title, build, tone, v, name, value, unit, sr } = Astro.props;
+const style = tone ? `--tone: var(--k-${tone}); --v: ${v}` : `--v: ${v}`;
+---
+<li class={build ? "size-chip size-build" : "size-chip"} data-size={size} data-sym={sym || undefined} title={title}><span class={build ? "el el-size el-build" : "el el-size"} style={style} aria-hidden="true">{sym && <b class="el-sym">{sym}</b>}</span><span class="size-chip-text"><span class="size-chip-name" set:html={name} /><b>{value}<small>{unit}</small></b></span><span class="sr">{sr}</span></li>

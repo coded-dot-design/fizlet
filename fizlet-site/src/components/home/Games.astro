@@ -1,0 +1,24 @@
+---
+// 08 · Games built on Fizlet: one card each (the first one lit, with its drop-in line and facts).
+import HomeSection from "./HomeSection.astro";
+import SectionCopy from "./SectionCopy.astro";
+import KeyRow from "./KeyRow.astro";
+const { sec, head, games } = Astro.props as any;
+---
+<HomeSection {...sec}>
+  <div class="wrap">
+    <SectionCopy head={head} id={sec.labelledby} cls="section-head" />
+    <div class="games">
+      {games.map((g: any) => <article class={g.cls}>
+        <p class="eyebrow" set:html={g.eyebrow} />
+        <h3>{g.title}</h3>
+        <p set:html={g.text} />
+        {g.drop && <span class="bui-label" set:html={g.drop.label} />}
+        {g.drop && <pre tabindex="0" class="code wrap"><code>{g.drop.code}</code></pre>}
+        {g.facts.length > 0 && <ul class="game-facts">{g.facts.map((f: any) => <li><b>{f.value}</b><span>{f.label}</span></li>)}</ul>}
+        {g.uses && <p class="game-uses" set:html={g.uses} />}
+        <KeyRow keys={g.keys} cls="game-keys" />
+      </article>)}
+    </div>
+  </div>
+</HomeSection>

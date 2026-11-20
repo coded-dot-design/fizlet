@@ -319,6 +319,52 @@ const HOME = {
     sec: secOf(n), head: headOf(n.querySelector(".section-head"), path),
     steps: n.querySelectorAll("ol.pipeline > li").map((li) => ({ n: text(li.querySelector("em")), title: text(li.querySelector("b")), sub: text(li.querySelector("span")) })),
   }),
+  specs: (n, path) => ({
+    sec: secOf(n), head: headOf(n.querySelector(".section-head"), path),
+    cards: n.querySelectorAll("ul.spec-grid > li").map((li) => ({ value: text(li.querySelector("b")), label: text(li.querySelector("span")), note: inner(li.querySelector("small"), path) })),
+    groups: n.querySelectorAll(".size-group").map((g) => {
+      const ul = g.querySelector("ul.size-chips");
+      return {
+        label: inner(g.querySelector(".size-head"), path), aria: ul.getAttribute("aria-label"),
+        chips: ul.querySelectorAll(":scope > li").map((li) => {
+          const el = li.querySelector(".el"), b = li.querySelector(".size-chip-text > b");
+          return {
+            size: li.getAttribute("data-size"), sym: li.getAttribute("data-sym") ?? "", title: li.getAttribute("title"), build: li.classList.contains("size-build"),
+            tone: toneOf(el), v: el.getAttribute("style").match(/--v:\s*([\d.]+)/)[1], name: inner(li.querySelector(".size-chip-name"), path),
+            value: b.childNodes[0].text, unit: b.querySelector("small").text, sr: text(li.querySelector(".sr")),
+          };
+        }),
+      };
+    }),
+    note: inner(n.querySelector(".spec-note"), path),
+  }),
+  games: (n, path) => ({
+    sec: secOf(n), head: headOf(n.querySelector(".section-head"), path),
+    games: n.querySelectorAll(".games > article").map((a) => ({
+      cls: a.getAttribute("class"), eyebrow: inner(a.querySelector(":scope > .eyebrow"), path), title: text(a.querySelector("h3")),
+      text: inner(a.querySelector(":scope > p:not(.eyebrow):not(.game-uses)"), path),
+      drop: a.querySelector(":scope > pre") ? { label: inner(a.querySelector(":scope > .bui-label"), path), code: a.querySelector(":scope > pre code").text } : null,
+      facts: a.querySelectorAll(".game-facts > li").map((li) => ({ value: text(li.querySelector("b")), label: text(li.querySelector("span")) })),
+      uses: inner(a.querySelector(".game-uses"), path),
+      keys: a.querySelectorAll(".game-keys a.bui-key").map((k) => keyOf(k, path)),
+    })),
+  }),
+  roadmap: (n, path) => ({
+    sec: secOf(n), head: headOf(n.querySelector(".section-head"), path),
+    phases: n.querySelectorAll("ol.roadmap > li").map((li) => ({
+      phase: li.getAttribute("data-phase"), id: text(li.querySelector(".phase-id")), pill: text(li.querySelector(".phase-pill")),
+      title: text(li.querySelector("h3")), text: inner(li.querySelector(":scope > p"), path),
+      checks: li.querySelectorAll(".checks > li").map((c) => ({ done: c.classList.contains("done"), text: inner(c.querySelector(":scope > span:not(.sr)"), path), sr: text(c.querySelector(".sr")) })),
+    })),
+  }),
+  start: (n, path) => {
+    const head = n.querySelector(".start-head");
+    return {
+      sec: secOf(n), head: headOf(head, path),
+      steps: head.querySelectorAll("ol.start-steps > li").map((li) => inner(li, path)),
+      code: n.querySelectorAll(".start-code > .code-card").map(codeOf),
+    };
+  },
   final: (n, path) => {
     const w = n.querySelector(".final-inner");
     return {

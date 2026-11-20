@@ -1,0 +1,17 @@
+---
+// 10 · Quick start: the three ways in, two keys, and the script-tag and modules code cards.
+import HomeSection from "./HomeSection.astro";
+import SectionCopy from "./SectionCopy.astro";
+import CodeBlock from "../CodeBlock.astro";
+const { sec, head, steps, code } = Astro.props as any;
+---
+<HomeSection {...sec}>
+  <div class="wrap start">
+    <SectionCopy head={head} id={sec.labelledby} cls="start-head">
+      <ol class="start-steps">{steps.map((s: string) => <li set:html={s} />)}</ol>
+    </SectionCopy>
+    <div class="start-code">
+      {code.map((c: any) => <CodeBlock label={c.label} code={c.code} wrap={c.wrap} copy={c.copy} class={c.cls} />)}
+    </div>
+  </div>
+</HomeSection>

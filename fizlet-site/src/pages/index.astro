@@ -13,13 +13,17 @@ import Board from "../components/home/Board.astro";
 import Loop from "../components/home/Loop.astro";
 import Recall from "../components/home/Recall.astro";
 import Ship from "../components/home/Ship.astro";
+import Specs from "../components/home/Specs.astro";
+import Games from "../components/home/Games.astro";
+import Roadmap from "../components/home/Roadmap.astro";
+import Start from "../components/home/Start.astro";
 import Final from "../components/home/Final.astro";
 import DATA from "../data/legacy/pages/home.json";
 import type { Tone } from "../lib/site";
 const h = DATA as any;
 const hero = h.hero;
 // Each componentized section by its kind; a section without one is still the legacy markup (Html).
-const SECTIONS: Record<string, any> = { "page-toc": PageToc, profile: Profile, contract: Contract, board: Board, loop: Loop, recall: Recall, ship: Ship, final: Final };
+const SECTIONS: Record<string, any> = { "page-toc": PageToc, profile: Profile, contract: Contract, board: Board, loop: Loop, recall: Recall, specs: Specs, ship: Ship, games: Games, roadmap: Roadmap, start: Start, final: Final };
 ---
 <BaseLayout meta={h.meta}>
 <section class="hero has-grid" aria-labelledby="hero-title">

@@ -1,0 +1,20 @@
+---
+// 06 · The spec sheet: the hard limits, then every module's measured size as a tile that fills to
+// its share of the module's budget (bricks, then the kernel, its splits and the builds).
+import HomeSection from "./HomeSection.astro";
+import SectionCopy from "./SectionCopy.astro";
+import SizeChip from "./SizeChip.astro";
+const { sec, head, cards, groups, note } = Astro.props as any;
+---
+<HomeSection {...sec}>
+  <div class="wrap">
+    <SectionCopy head={head} id={sec.labelledby} cls="section-head" />
+    <ul class="spec-grid">
+      {cards.map((c: any) => <li class="panel spec-card"><b>{c.value}</b><span>{c.label}</span><small set:html={c.note} /></li>)}
+    </ul>
+    {groups.map((g: any) => <div class="size-group"><p class="size-head bui-label" set:html={g.label} />
+    <ul class="size-chips" aria-label={g.aria}>{g.chips.map((c: any) => <SizeChip {...c} />)}</ul>
+  </div>)}
+    <p class="spec-note" set:html={note} />
+  </div>
+</HomeSection>

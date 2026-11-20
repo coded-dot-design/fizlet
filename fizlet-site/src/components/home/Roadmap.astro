@@ -1,0 +1,20 @@
+---
+// 09 · The roadmap: one card per phase (done, now, next), each with its checklist.
+import HomeSection from "./HomeSection.astro";
+import SectionCopy from "./SectionCopy.astro";
+import Icon from "../Icon.astro";
+const { sec, head, phases } = Astro.props as any;
+---
+<HomeSection {...sec}>
+  <div class="wrap">
+    <SectionCopy head={head} id={sec.labelledby} cls="section-head" />
+    <ol class="roadmap">
+      {phases.map((p: any) => <li class="panel phase" data-phase={p.phase}>
+        <div class="phase-top"><span class="phase-id">{p.id}</span><span class="phase-pill">{p.pill}</span></div>
+        <h3>{p.title}</h3>
+        <p set:html={p.text} />
+        <ul class="checks">{p.checks.map((c: any) => <li class={c.done ? "done" : undefined}><i aria-hidden="true">{c.done && <Icon name="check" size={14} />}</i><span set:html={c.text} /><span class="sr">{c.sr}</span></li>)}</ul>
+      </li>)}
+    </ol>
+  </div>
+</HomeSection>

@@ -52,6 +52,7 @@ A section without a component still renders through `Html` until it is ported.
 | Chunk | Sections | 1440 light | 1440 dark | 390 light | 390 dark |
 |---|---|---:|---:|---:|---:|
 | 1 | page-toc, profile, contract, board, loop, recall, ship, final | 0.000% | 0.000% | 0.000% | 0.000% |
+| 2 | specs (SizeChip), games, roadmap, start | 0.000% | 0.000% | 0.000% | 0.000% |
 
 Full-page `/` shots against the legacy build (v0.27.0), measured 2026-11-20; same heights on both
 (21,867 / 34,641 px). The rendered `<main>` of each ported section is also element-for-element the
@@ -76,8 +77,8 @@ legacy one (attributes, classes and text).
 - **Runtime**: the ported pages still run the legacy engine bundles from `public/` (`site.js` wires
   the theme toggle, nav menus, Copy keys; the demos and gallery pieces load their chunks). Next:
   build these here from `@fzlt/core` (npm) and move the behaviour into the components' scripts.
-- **Kept as built** (`Html.astro`): the home page's sections origin, play, story, specs, games,
-  roadmap and start (W2-home is porting them; see below),
+- **Kept as built** (`Html.astro`): the home page's sections origin, play and story (W2-home is
+  porting them; see below),
   the home hero's layers figure, the brick page's head, demo, card, status and API, the gallery's
   theme chips, search, page nav, and each piece's stage and meta tail.
 - **Analytics**: the legacy build adds GA4 + PostHog behind consent only when its public ids are
@@ -99,7 +100,7 @@ legacy one (attributes, classes and text).
 
 | Type | Pages | Done | Template | Components | Next wave |
 |---|---:|---:|---|---|---|
-| home | 1 | 1 | src/pages/index.astro | Hero (in page), stats row, BrickCard, CodeBlock, Key; home/: HomeSection, SectionCopy, KeyRow, RuleList, PageToc, Profile, Contract, Board, Loop, Recall, Ship, Final; 7 sections kept as built (Html) | W2-home: componentize origin, play, story, specs, games, roadmap, start |
+| home | 1 | 1 | src/pages/index.astro | Hero (in page), stats row, BrickCard, CodeBlock, Key; home/: HomeSection, SectionCopy, KeyRow, RuleList, SizeChip, PageToc, Profile, Contract, Board, Loop, Recall, Specs, Ship, Games, Roadmap, Start, Final; 3 sections kept as built (Html) | W2-home: componentize origin, play, story |
 | not-found | 1 | 0 | to build: src/pages/404.astro | SectionHead, Key | W2-misc |
 | brand | 1 | 0 | to build: src/pages/brand/index.astro | Lockup, Mark, Key, token swatches (new, from tokens.json) | W2-misc |
 | bricks-index | 1 | 0 | to build: src/pages/bricks/index.astro | BrickCard, SymChip, periodic table + stickers + factory (Html until componentized) | W2-bricks |

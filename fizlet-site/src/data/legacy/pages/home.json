@@ -1226,7 +1226,680 @@
   },
   {
    "id": "specs",
-   "html": "<section id=\"specs\" class=\"section\" data-reveal aria-labelledby=\"specs-title\">\n  <span class=\"sec-rule\" aria-hidden=\"true\"></span>\n  <span class=\"sec-num\" aria-hidden=\"true\">06</span>\n  <div class=\"wrap\">\n    <div class=\"section-head\">\n      <p class=\"eyebrow\"><span class=\"index\">06</span> SPEC SHEET</p>\n      <h2 id=\"specs-title\">Hard limits,<br><em>in actual numbers.</em></h2>\n      <p class=\"lead\">Limits constrain work; they are not frame-rate promises. Real frame time still depends on the page, the fonts and the device.</p>\n    </div>\n    <ul class=\"spec-grid\">\n      <li class=\"panel spec-card\"><b>1</b><span>rAF per page</span><small>However many engines run, one requestAnimationFrame drives them.</small></li>\n      <li class=\"panel spec-card\"><b>60 Hz</b><span>fixed step</span><small>Same results on a 30 Hz phone and a 144 Hz monitor.</small></li>\n      <li class=\"panel spec-card\"><b>4</b><span>catch-up steps</span><small>Past that a frame drops time instead of spiralling.</small></li>\n      <li class=\"panel spec-card\"><b>64</b><span>events a frame</span><small>The default ring. Full means dropped and counted, never grown.</small></li>\n      <li class=\"panel spec-card\"><b>1M</b><span>steps, 0 young GCs</span><small>The kernel test runs a busy system for a million steps.</small></li>\n      <li class=\"panel spec-card\"><b>0</b><span>mutations on rewrite</span><small>Writing the same value twice touches nothing (browser test).</small></li>\n      <li class=\"panel spec-card\"><b>420</b><span>fx particles</span><small>The default cap, struct of arrays. New ones are refused when full.</small></li>\n      <li class=\"panel spec-card\"><b>3.3 KB</b><span>kernel gzip</span><small>Of a 4.0 KB budget, checked on every push.</small></li>\n    </ul>\n    <div class=\"size-group\"><p class=\"size-head bui-label\"><b>BRICKS</b> · <code>@fzlt/core/…</code> · gzip</p>\n    <ul class=\"size-chips\" aria-label=\"Every brick, gzip\"><li class=\"size-chip\" data-size=\"@fzlt/core/debug\" data-sym=\"db\" title=\"@fzlt/core/debug: 74% of its 1.5 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-aim); --v: 0.738\" aria-hidden=\"true\"><b class=\"el-sym\">db</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">debug</span><b>1.11<small> KB</small></b></span><span class=\"sr\">, 74% of its 1.5 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/perf\" data-sym=\"pf\" title=\"@fzlt/core/perf: 100% of its 2.0 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-sys); --v: 0.999\" aria-hidden=\"true\"><b class=\"el-sym\">pf</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">perf</span><b>1.97<small> KB</small></b></span><span class=\"sr\">, 100% of its 2.0 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/input\" data-sym=\"in\" title=\"@fzlt/core/input: 99% of its 1.9 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-sys); --v: 0.994\" aria-hidden=\"true\"><b class=\"el-sym\">in</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">input</span><b>1.86<small> KB</small></b></span><span class=\"sr\">, 99% of its 1.9 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/pad\" data-sym=\"pd\" title=\"@fzlt/core/pad: 98% of its 2.1 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-advance); --v: 0.975\" aria-hidden=\"true\"><b class=\"el-sym\">pd</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">pad</span><b>2.02<small> KB</small></b></span><span class=\"sr\">, 98% of its 2.1 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/collide\" data-sym=\"cl\" title=\"@fzlt/core/collide: 82% of its 1.5 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-cmd); --v: 0.824\" aria-hidden=\"true\"><b class=\"el-sym\">cl</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">collide</span><b>1.24<small> KB</small></b></span><span class=\"sr\">, 82% of its 1.5 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/grid\" data-sym=\"gr\" title=\"@fzlt/core/grid: 99% of its 1.6 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-flag); --v: 0.993\" aria-hidden=\"true\"><b class=\"el-sym\">gr</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">grid</span><b>1.61<small> KB</small></b></span><span class=\"sr\">, 99% of its 1.6 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/fx\" data-sym=\"fx\" title=\"@fzlt/core/fx: 91% of its 3.0 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-attack); --v: 0.909\" aria-hidden=\"true\"><b class=\"el-sym\">fx</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">fx</span><b>2.73<small> KB</small></b></span><span class=\"sr\">, 91% of its 3.0 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/camera\" data-sym=\"cm\" title=\"@fzlt/core/camera: 91% of its 1.5 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-go); --v: 0.911\" aria-hidden=\"true\"><b class=\"el-sym\">cm</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">camera</span><b>1.37<small> KB</small></b></span><span class=\"sr\">, 91% of its 1.5 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/sprite\" data-sym=\"sp\" title=\"@fzlt/core/sprite: 94% of its 1.5 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-fallin); --v: 0.936\" aria-hidden=\"true\"><b class=\"el-sym\">sp</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">sprite</span><b>1.40<small> KB</small></b></span><span class=\"sr\">, 94% of its 1.5 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/sound\" data-sym=\"sn\" title=\"@fzlt/core/sound: 69% of its 1.5 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-advance); --v: 0.691\" aria-hidden=\"true\"><b class=\"el-sym\">sn</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">sound</span><b>1.04<small> KB</small></b></span><span class=\"sr\">, 69% of its 1.5 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/embed\" data-sym=\"em\" title=\"@fzlt/core/embed: 80% of its 2.5 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-fallin); --v: 0.797\" aria-hidden=\"true\"><b class=\"el-sym\">em</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">embed</span><b>1.99<small> KB</small></b></span><span class=\"sr\">, 80% of its 2.5 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/slot\" data-sym=\"sl\" title=\"@fzlt/core/slot: 90% of its 2.0 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-sys); --v: 0.903\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">slot</span><b>1.81<small> KB</small></b></span><span class=\"sr\">, 90% of its 2.0 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/presence\" data-sym=\"pr\" title=\"@fzlt/core/presence: 98% of its 2.2 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-cmd); --v: 0.981\" aria-hidden=\"true\"><b class=\"el-sym\">pr</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">presence</span><b>2.15<small> KB</small></b></span><span class=\"sr\">, 98% of its 2.2 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/presence/check\" data-sym=\"pc\" title=\"@fzlt/core/presence/check: 95% of its 5.0 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-cmd); --v: 0.951\" aria-hidden=\"true\"><b class=\"el-sym\">pc</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">presence/check</span><b>4.76<small> KB</small></b></span><span class=\"sr\">, 95% of its 5.0 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/presence/rollback\" data-sym=\"pr\" title=\"@fzlt/core/presence/rollback: 94% of its 2.3 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-cmd); --v: 0.944\" aria-hidden=\"true\"><b class=\"el-sym\">pr</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">presence/rollback</span><b>2.13<small> KB</small></b></span><span class=\"sr\">, 94% of its 2.3 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/hud\" data-sym=\"hd\" title=\"@fzlt/core/hud: 85% of its 1.5 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-aim); --v: 0.850\" aria-hidden=\"true\"><b class=\"el-sym\">hd</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">hud</span><b>1.28<small> KB</small></b></span><span class=\"sr\">, 85% of its 1.5 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/match\" data-sym=\"mt\" title=\"@fzlt/core/match: 93% of its 2.8 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-go); --v: 0.929\" aria-hidden=\"true\"><b class=\"el-sym\">mt</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">match</span><b>2.56<small> KB</small></b></span><span class=\"sr\">, 93% of its 2.8 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/rules\" data-sym=\"rl\" title=\"@fzlt/core/rules: 86% of its 1.5 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-advance); --v: 0.858\" aria-hidden=\"true\"><b class=\"el-sym\">rl</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">rules</span><b>1.29<small> KB</small></b></span><span class=\"sr\">, 86% of its 1.5 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/steer\" data-sym=\"st\" title=\"@fzlt/core/steer: 98% of its 2.8 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-advance); --v: 0.980\" aria-hidden=\"true\"><b class=\"el-sym\">st</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">steer</span><b>2.69<small> KB</small></b></span><span class=\"sr\">, 98% of its 2.8 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/math\" data-sym=\"mh\" title=\"@fzlt/core/math: 97% of its 1.8 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-advance); --v: 0.974\" aria-hidden=\"true\"><b class=\"el-sym\">mh</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">math</span><b>1.71<small> KB</small></b></span><span class=\"sr\">, 97% of its 1.8 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/coach\" data-sym=\"ch\" title=\"@fzlt/core/coach: 79% of its 1.5 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-sys); --v: 0.794\" aria-hidden=\"true\"><b class=\"el-sym\">ch</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">coach</span><b>1.19<small> KB</small></b></span><span class=\"sr\">, 79% of its 1.5 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/timeline\" data-sym=\"tm\" title=\"@fzlt/core/timeline: 93% of its 2.3 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-fire); --v: 0.928\" aria-hidden=\"true\"><b class=\"el-sym\">tm</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">timeline</span><b>2.09<small> KB</small></b></span><span class=\"sr\">, 93% of its 2.3 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/touch\" data-sym=\"tc\" title=\"@fzlt/core/touch: 61% of its 0.5 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-sys); --v: 0.605\" aria-hidden=\"true\"><b class=\"el-sym\">tc</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">touch</span><b>0.30<small> KB</small></b></span><span class=\"sr\">, 61% of its 0.5 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/css-clock\" data-sym=\"cs\" title=\"@fzlt/core/css-clock: 96% of its 5.4 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-fire); --v: 0.964\" aria-hidden=\"true\"><b class=\"el-sym\">cs</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">css-clock</span><b>5.24<small> KB</small></b></span><span class=\"sr\">, 96% of its 5.4 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/layout\" data-sym=\"ly\" title=\"@fzlt/core/layout: 85% of its 2.0 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-advance); --v: 0.852\" aria-hidden=\"true\"><b class=\"el-sym\">ly</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">layout</span><b>1.70<small> KB</small></b></span><span class=\"sr\">, 85% of its 2.0 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/view-canvas\" data-sym=\"vw\" title=\"@fzlt/core/view-canvas: 76% of its 1.2 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-aim); --v: 0.762\" aria-hidden=\"true\"><b class=\"el-sym\">vw</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">view-canvas</span><b>0.91<small> KB</small></b></span><span class=\"sr\">, 76% of its 1.2 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/diorama\" data-sym=\"dr\" title=\"@fzlt/core/diorama: 99% of its 7.1 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-fire); --v: 0.995\" aria-hidden=\"true\"><b class=\"el-sym\">dr</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">diorama</span><b>7.09<small> KB</small></b></span><span class=\"sr\">, 99% of its 7.1 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/dice\" data-sym=\"dc\" title=\"@fzlt/core/dice: 98% of its 4.3 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-fire); --v: 0.979\" aria-hidden=\"true\"><b class=\"el-sym\">dc</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">dice</span><b>4.16<small> KB</small></b></span><span class=\"sr\">, 98% of its 4.3 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/track\" data-sym=\"tr\" title=\"@fzlt/core/track: 97% of its 2.1 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-advance); --v: 0.973\" aria-hidden=\"true\"><b class=\"el-sym\">tr</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">track</span><b>2.01<small> KB</small></b></span><span class=\"sr\">, 97% of its 2.1 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/water\" data-sym=\"wt\" title=\"@fzlt/core/water: 98% of its 5.3 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-sys); --v: 0.979\" aria-hidden=\"true\"><b class=\"el-sym\">wt</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">water</span><b>5.14<small> KB</small></b></span><span class=\"sr\">, 98% of its 5.3 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/props\" data-sym=\"ps\" title=\"@fzlt/core/props: 97% of its 3.1 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-attack); --v: 0.973\" aria-hidden=\"true\"><b class=\"el-sym\">ps</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">props</span><b>3.04<small> KB</small></b></span><span class=\"sr\">, 97% of its 3.1 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/beam\" data-sym=\"bm\" title=\"@fzlt/core/beam: 98% of its 4.4 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-attack); --v: 0.979\" aria-hidden=\"true\"><b class=\"el-sym\">bm</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">beam</span><b>4.29<small> KB</small></b></span><span class=\"sr\">, 98% of its 4.4 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/cards\" data-sym=\"cr\" title=\"@fzlt/core/cards: 98% of its 3.4 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-cmd); --v: 0.979\" aria-hidden=\"true\"><b class=\"el-sym\">cr</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">cards</span><b>3.30<small> KB</small></b></span><span class=\"sr\">, 98% of its 3.4 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/flick\" data-sym=\"fl\" title=\"@fzlt/core/flick: 98% of its 5.4 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-advance); --v: 0.983\" aria-hidden=\"true\"><b class=\"el-sym\">fl</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">flick</span><b>5.28<small> KB</small></b></span><span class=\"sr\">, 98% of its 5.4 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/terrain\" data-sym=\"tn\" title=\"@fzlt/core/terrain: 100% of its 5.4 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-fallin); --v: 1.000\" aria-hidden=\"true\"><b class=\"el-sym\">tn</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">terrain</span><b>5.44<small> KB</small></b></span><span class=\"sr\">, 100% of its 5.4 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/actor\" data-sym=\"ac\" title=\"@fzlt/core/actor: 74% of its 1.2 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-cmd); --v: 0.739\" aria-hidden=\"true\"><b class=\"el-sym\">ac</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">actor</span><b>0.89<small> KB</small></b></span><span class=\"sr\">, 74% of its 1.2 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/aim\" data-sym=\"am\" title=\"@fzlt/core/aim: 67% of its 1.0 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-aim); --v: 0.675\" aria-hidden=\"true\"><b class=\"el-sym\">am</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">aim</span><b>0.67<small> KB</small></b></span><span class=\"sr\">, 67% of its 1.0 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/view-dom\" data-sym=\"vd\" title=\"@fzlt/core/view-dom: 57% of its 1.5 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-fire); --v: 0.574\" aria-hidden=\"true\"><b class=\"el-sym\">vd</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">view-dom</span><b>0.86<small> KB</small></b></span><span class=\"sr\">, 57% of its 1.5 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/announce\" data-sym=\"an\" title=\"@fzlt/core/announce: 100% of its 0.6 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-sys); --v: 0.997\" aria-hidden=\"true\"><b class=\"el-sym\">an</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">announce</span><b>0.60<small> KB</small></b></span><span class=\"sr\">, 100% of its 0.6 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/drive\" data-sym=\"dv\" title=\"@fzlt/core/drive: 99% of its 5.2 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-advance); --v: 0.991\" aria-hidden=\"true\"><b class=\"el-sym\">dv</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">drive</span><b>5.14<small> KB</small></b></span><span class=\"sr\">, 99% of its 5.2 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/scene\" data-sym=\"sc\" title=\"@fzlt/core/scene: 96% of its 8.5 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-aim); --v: 0.962\" aria-hidden=\"true\"><b class=\"el-sym\">sc</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">scene</span><b>8.17<small> KB</small></b></span><span class=\"sr\">, 96% of its 8.5 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/arcade\" data-sym=\"ar\" title=\"@fzlt/core/arcade: 100% of its 23.6 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-go); --v: 1.000\" aria-hidden=\"true\"><b class=\"el-sym\">ar</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">arcade</span><b>23.58<small> KB</small></b></span><span class=\"sr\">, 100% of its 23.6 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/board-page\" data-sym=\"br\" title=\"@fzlt/core/board-page: 99% of its 4.1 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-attack); --v: 0.987\" aria-hidden=\"true\"><b class=\"el-sym\">br</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">board-page</span><b>4.01<small> KB</small></b></span><span class=\"sr\">, 99% of its 4.1 KB budget</span></li></ul></div>\n    <div class=\"size-group\"><p class=\"size-head bui-label\"><b>KERNEL, SPLITS AND BUILDS</b> · gzip</p>\n    <ul class=\"size-chips\" aria-label=\"The kernel, split sizes and builds, gzip\"><li class=\"size-chip\" data-size=\"@fzlt/core (kernel)\" data-sym=\"kr\" title=\"@fzlt/core (kernel): 82% of its 4.0 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-go); --v: 0.823\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">kernel</span><b>3.29<small> KB</small></b></span><span class=\"sr\">, 82% of its 4.0 KB budget</span></li><li class=\"size-chip size-build\" data-size=\"@fzlt/core/diorama (diorama() alone)\" title=\"@fzlt/core/diorama (diorama() alone): 99% of its 6.5 KB budget\"><span class=\"el el-size el-build\" style=\"--v: 0.994\" aria-hidden=\"true\"></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">diorama (diorama() alone)</span><b>6.46<small> KB</small></b></span><span class=\"sr\">, 99% of its 6.5 KB budget</span></li><li class=\"size-chip size-build\" data-size=\"@fzlt/core/terrain (terrainWindow alone)\" title=\"@fzlt/core/terrain (terrainWindow alone): 98% of its 2.6 KB budget\"><span class=\"el el-size el-build\" style=\"--v: 0.979\" aria-hidden=\"true\"></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">terrain (terrainWindow alone)</span><b>2.57<small> KB</small></b></span><span class=\"sr\">, 98% of its 2.6 KB budget</span></li><li class=\"size-chip size-build\" data-size=\"@fzlt/core/arcade (hud omitted)\" title=\"@fzlt/core/arcade (hud omitted): 100% of its 17.8 KB budget\"><span class=\"el el-size el-build\" style=\"--v: 1.000\" aria-hidden=\"true\"></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">arcade (hud omitted)</span><b>17.77<small> KB</small></b></span><span class=\"sr\">, 100% of its 17.8 KB budget</span></li><li class=\"size-chip size-build\" data-size=\"page build (kernel+slot+input+fx)\" title=\"page build (kernel+slot+input+fx): 100% of its 6.9 KB budget\"><span class=\"el el-size el-build\" style=\"--v: 0.999\" aria-hidden=\"true\"></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">page build (kernel+<wbr>slot+<wbr>input+<wbr>fx)</span><b>6.93<small> KB</small></b></span><span class=\"sr\">, 100% of its 6.9 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/ui (js)\" data-sym=\"ui\" title=\"@fzlt/core/ui (js): 95% of its 3.0 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-fire); --v: 0.946\" aria-hidden=\"true\"><b class=\"el-sym\">ui</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">ui (js)</span><b>2.84<small> KB</small></b></span><span class=\"sr\">, 95% of its 3.0 KB budget</span></li><li class=\"size-chip\" data-size=\"@fzlt/core/ui (css)\" data-sym=\"ui\" title=\"@fzlt/core/ui (css): 100% of its 5.0 KB budget\"><span class=\"el el-size\" style=\"--tone: var(--k-fire); --v: 0.998\" aria-hidden=\"true\"><b class=\"el-sym\">ui</b></span><span class=\"size-chip-text\"><span class=\"size-chip-name\">ui (css)</span><b>5.02<small> KB</small></b></span><span class=\"sr\">, 100% of its 5.0 KB budget</span></li></ul></div>\n    <p class=\"spec-note\">Sizes measured on this build of v0.27.0, minified and gzipped (1 KB = 1024 bytes), the same way <code>npm run size</code> checks them in CI. Each tile fills to the share of its module's budget (hover a chip for the number). The one-file script-tag bundle (kernel and every brick but debug) is 13.5 KB.</p>\n  </div>\n</section>"
+   "kind": "specs",
+   "sec": {
+    "id": "specs",
+    "cls": "section",
+    "labelledby": "specs-title",
+    "num": "06",
+    "rule": true
+   },
+   "head": {
+    "index": "06",
+    "eyebrow": "SPEC SHEET",
+    "line": "Hard limits,",
+    "accent": "in actual numbers.",
+    "lead": "Limits constrain work; they are not frame-rate promises. Real frame time still depends on the page, the fonts and the device.",
+    "body": [],
+    "keys": []
+   },
+   "cards": [
+    {
+     "value": "1",
+     "label": "rAF per page",
+     "note": "However many engines run, one requestAnimationFrame drives them."
+    },
+    {
+     "value": "60 Hz",
+     "label": "fixed step",
+     "note": "Same results on a 30 Hz phone and a 144 Hz monitor."
+    },
+    {
+     "value": "4",
+     "label": "catch-up steps",
+     "note": "Past that a frame drops time instead of spiralling."
+    },
+    {
+     "value": "64",
+     "label": "events a frame",
+     "note": "The default ring. Full means dropped and counted, never grown."
+    },
+    {
+     "value": "1M",
+     "label": "steps, 0 young GCs",
+     "note": "The kernel test runs a busy system for a million steps."
+    },
+    {
+     "value": "0",
+     "label": "mutations on rewrite",
+     "note": "Writing the same value twice touches nothing (browser test)."
+    },
+    {
+     "value": "420",
+     "label": "fx particles",
+     "note": "The default cap, struct of arrays. New ones are refused when full."
+    },
+    {
+     "value": "3.3 KB",
+     "label": "kernel gzip",
+     "note": "Of a 4.0 KB budget, checked on every push."
+    }
+   ],
+   "groups": [
+    {
+     "label": "<b>BRICKS</b> · <code>@fzlt/core/…</code> · gzip",
+     "aria": "Every brick, gzip",
+     "chips": [
+      {
+       "size": "@fzlt/core/debug",
+       "sym": "db",
+       "title": "@fzlt/core/debug: 74% of its 1.5 KB budget",
+       "build": false,
+       "tone": "aim",
+       "v": "0.738",
+       "name": "debug",
+       "value": "1.11",
+       "unit": " KB",
+       "sr": ", 74% of its 1.5 KB budget"
+      },
+      {
+       "size": "@fzlt/core/perf",
+       "sym": "pf",
+       "title": "@fzlt/core/perf: 100% of its 2.0 KB budget",
+       "build": false,
+       "tone": "sys",
+       "v": "0.999",
+       "name": "perf",
+       "value": "1.97",
+       "unit": " KB",
+       "sr": ", 100% of its 2.0 KB budget"
+      },
+      {
+       "size": "@fzlt/core/input",
+       "sym": "in",
+       "title": "@fzlt/core/input: 99% of its 1.9 KB budget",
+       "build": false,
+       "tone": "sys",
+       "v": "0.994",
+       "name": "input",
+       "value": "1.86",
+       "unit": " KB",
+       "sr": ", 99% of its 1.9 KB budget"
+      },
+      {
+       "size": "@fzlt/core/pad",
+       "sym": "pd",
+       "title": "@fzlt/core/pad: 98% of its 2.1 KB budget",
+       "build": false,
+       "tone": "advance",
+       "v": "0.975",
+       "name": "pad",
+       "value": "2.02",
+       "unit": " KB",
+       "sr": ", 98% of its 2.1 KB budget"
+      },
+      {
+       "size": "@fzlt/core/collide",
+       "sym": "cl",
+       "title": "@fzlt/core/collide: 82% of its 1.5 KB budget",
+       "build": false,
+       "tone": "cmd",
+       "v": "0.824",
+       "name": "collide",
+       "value": "1.24",
+       "unit": " KB",
+       "sr": ", 82% of its 1.5 KB budget"
+      },
+      {
+       "size": "@fzlt/core/grid",
+       "sym": "gr",
+       "title": "@fzlt/core/grid: 99% of its 1.6 KB budget",
+       "build": false,
+       "tone": "flag",
+       "v": "0.993",
+       "name": "grid",
+       "value": "1.61",
+       "unit": " KB",
+       "sr": ", 99% of its 1.6 KB budget"
+      },
+      {
+       "size": "@fzlt/core/fx",
+       "sym": "fx",
+       "title": "@fzlt/core/fx: 91% of its 3.0 KB budget",
+       "build": false,
+       "tone": "attack",
+       "v": "0.909",
+       "name": "fx",
+       "value": "2.73",
+       "unit": " KB",
+       "sr": ", 91% of its 3.0 KB budget"
+      },
+      {
+       "size": "@fzlt/core/camera",
+       "sym": "cm",
+       "title": "@fzlt/core/camera: 91% of its 1.5 KB budget",
+       "build": false,
+       "tone": "go",
+       "v": "0.911",
+       "name": "camera",
+       "value": "1.37",
+       "unit": " KB",
+       "sr": ", 91% of its 1.5 KB budget"
+      },
+      {
+       "size": "@fzlt/core/sprite",
+       "sym": "sp",
+       "title": "@fzlt/core/sprite: 94% of its 1.5 KB budget",
+       "build": false,
+       "tone": "fallin",
+       "v": "0.936",
+       "name": "sprite",
+       "value": "1.40",
+       "unit": " KB",
+       "sr": ", 94% of its 1.5 KB budget"
+      },
+      {
+       "size": "@fzlt/core/sound",
+       "sym": "sn",
+       "title": "@fzlt/core/sound: 69% of its 1.5 KB budget",
+       "build": false,
+       "tone": "advance",
+       "v": "0.691",
+       "name": "sound",
+       "value": "1.04",
+       "unit": " KB",
+       "sr": ", 69% of its 1.5 KB budget"
+      },
+      {
+       "size": "@fzlt/core/embed",
+       "sym": "em",
+       "title": "@fzlt/core/embed: 80% of its 2.5 KB budget",
+       "build": false,
+       "tone": "fallin",
+       "v": "0.797",
+       "name": "embed",
+       "value": "1.99",
+       "unit": " KB",
+       "sr": ", 80% of its 2.5 KB budget"
+      },
+      {
+       "size": "@fzlt/core/slot",
+       "sym": "sl",
+       "title": "@fzlt/core/slot: 90% of its 2.0 KB budget",
+       "build": false,
+       "tone": "sys",
+       "v": "0.903",
+       "name": "slot",
+       "value": "1.81",
+       "unit": " KB",
+       "sr": ", 90% of its 2.0 KB budget"
+      },
+      {
+       "size": "@fzlt/core/presence",
+       "sym": "pr",
+       "title": "@fzlt/core/presence: 98% of its 2.2 KB budget",
+       "build": false,
+       "tone": "cmd",
+       "v": "0.981",
+       "name": "presence",
+       "value": "2.15",
+       "unit": " KB",
+       "sr": ", 98% of its 2.2 KB budget"
+      },
+      {
+       "size": "@fzlt/core/presence/check",
+       "sym": "pc",
+       "title": "@fzlt/core/presence/check: 95% of its 5.0 KB budget",
+       "build": false,
+       "tone": "cmd",
+       "v": "0.951",
+       "name": "presence/check",
+       "value": "4.76",
+       "unit": " KB",
+       "sr": ", 95% of its 5.0 KB budget"
+      },
+      {
+       "size": "@fzlt/core/presence/rollback",
+       "sym": "pr",
+       "title": "@fzlt/core/presence/rollback: 94% of its 2.3 KB budget",
+       "build": false,
+       "tone": "cmd",
+       "v": "0.944",
+       "name": "presence/rollback",
+       "value": "2.13",
+       "unit": " KB",
+       "sr": ", 94% of its 2.3 KB budget"
+      },
+      {
+       "size": "@fzlt/core/hud",
+       "sym": "hd",
+       "title": "@fzlt/core/hud: 85% of its 1.5 KB budget",
+       "build": false,
+       "tone": "aim",
+       "v": "0.850",
+       "name": "hud",
+       "value": "1.28",
+       "unit": " KB",
+       "sr": ", 85% of its 1.5 KB budget"
+      },
+      {
+       "size": "@fzlt/core/match",
+       "sym": "mt",
+       "title": "@fzlt/core/match: 93% of its 2.8 KB budget",
+       "build": false,
+       "tone": "go",
+       "v": "0.929",
+       "name": "match",
+       "value": "2.56",
+       "unit": " KB",
+       "sr": ", 93% of its 2.8 KB budget"
+      },
+      {
+       "size": "@fzlt/core/rules",
+       "sym": "rl",
+       "title": "@fzlt/core/rules: 86% of its 1.5 KB budget",
+       "build": false,
+       "tone": "advance",
+       "v": "0.858",
+       "name": "rules",
+       "value": "1.29",
+       "unit": " KB",
+       "sr": ", 86% of its 1.5 KB budget"
+      },
+      {
+       "size": "@fzlt/core/steer",
+       "sym": "st",
+       "title": "@fzlt/core/steer: 98% of its 2.8 KB budget",
+       "build": false,
+       "tone": "advance",
+       "v": "0.980",
+       "name": "steer",
+       "value": "2.69",
+       "unit": " KB",
+       "sr": ", 98% of its 2.8 KB budget"
+      },
+      {
+       "size": "@fzlt/core/math",
+       "sym": "mh",
+       "title": "@fzlt/core/math: 97% of its 1.8 KB budget",
+       "build": false,
+       "tone": "advance",
+       "v": "0.974",
+       "name": "math",
+       "value": "1.71",
+       "unit": " KB",
+       "sr": ", 97% of its 1.8 KB budget"
+      },
+      {
+       "size": "@fzlt/core/coach",
+       "sym": "ch",
+       "title": "@fzlt/core/coach: 79% of its 1.5 KB budget",
+       "build": false,
+       "tone": "sys",
+       "v": "0.794",
+       "name": "coach",
+       "value": "1.19",
+       "unit": " KB",
+       "sr": ", 79% of its 1.5 KB budget"
+      },
+      {
+       "size": "@fzlt/core/timeline",
+       "sym": "tm",
+       "title": "@fzlt/core/timeline: 93% of its 2.3 KB budget",
+       "build": false,
+       "tone": "fire",
+       "v": "0.928",
+       "name": "timeline",
+       "value": "2.09",
+       "unit": " KB",
+       "sr": ", 93% of its 2.3 KB budget"
+      },
+      {
+       "size": "@fzlt/core/touch",
+       "sym": "tc",
+       "title": "@fzlt/core/touch: 61% of its 0.5 KB budget",
+       "build": false,
+       "tone": "sys",
+       "v": "0.605",
+       "name": "touch",
+       "value": "0.30",
+       "unit": " KB",
+       "sr": ", 61% of its 0.5 KB budget"
+      },
+      {
+       "size": "@fzlt/core/css-clock",
+       "sym": "cs",
+       "title": "@fzlt/core/css-clock: 96% of its 5.4 KB budget",
+       "build": false,
+       "tone": "fire",
+       "v": "0.964",
+       "name": "css-clock",
+       "value": "5.24",
+       "unit": " KB",
+       "sr": ", 96% of its 5.4 KB budget"
+      },
+      {
+       "size": "@fzlt/core/layout",
+       "sym": "ly",
+       "title": "@fzlt/core/layout: 85% of its 2.0 KB budget",
+       "build": false,
+       "tone": "advance",
+       "v": "0.852",
+       "name": "layout",
+       "value": "1.70",
+       "unit": " KB",
+       "sr": ", 85% of its 2.0 KB budget"
+      },
+      {
+       "size": "@fzlt/core/view-canvas",
+       "sym": "vw",
+       "title": "@fzlt/core/view-canvas: 76% of its 1.2 KB budget",
+       "build": false,
+       "tone": "aim",
+       "v": "0.762",
+       "name": "view-canvas",
+       "value": "0.91",
+       "unit": " KB",
+       "sr": ", 76% of its 1.2 KB budget"
+      },
+      {
+       "size": "@fzlt/core/diorama",
+       "sym": "dr",
+       "title": "@fzlt/core/diorama: 99% of its 7.1 KB budget",
+       "build": false,
+       "tone": "fire",
+       "v": "0.995",
+       "name": "diorama",
+       "value": "7.09",
+       "unit": " KB",
+       "sr": ", 99% of its 7.1 KB budget"
+      },
+      {
+       "size": "@fzlt/core/dice",
+       "sym": "dc",
+       "title": "@fzlt/core/dice: 98% of its 4.3 KB budget",
+       "build": false,
+       "tone": "fire",
+       "v": "0.979",
+       "name": "dice",
+       "value": "4.16",
+       "unit": " KB",
+       "sr": ", 98% of its 4.3 KB budget"
+      },
+      {
+       "size": "@fzlt/core/track",
+       "sym": "tr",
+       "title": "@fzlt/core/track: 97% of its 2.1 KB budget",
+       "build": false,
+       "tone": "advance",
+       "v": "0.973",
+       "name": "track",
+       "value": "2.01",
+       "unit": " KB",
+       "sr": ", 97% of its 2.1 KB budget"
+      },
+      {
+       "size": "@fzlt/core/water",
+       "sym": "wt",
+       "title": "@fzlt/core/water: 98% of its 5.3 KB budget",
+       "build": false,
+       "tone": "sys",
+       "v": "0.979",
+       "name": "water",
+       "value": "5.14",
+       "unit": " KB",
+       "sr": ", 98% of its 5.3 KB budget"
+      },
+      {
+       "size": "@fzlt/core/props",
+       "sym": "ps",
+       "title": "@fzlt/core/props: 97% of its 3.1 KB budget",
+       "build": false,
+       "tone": "attack",
+       "v": "0.973",
+       "name": "props",
+       "value": "3.04",
+       "unit": " KB",
+       "sr": ", 97% of its 3.1 KB budget"
+      },
+      {
+       "size": "@fzlt/core/beam",
+       "sym": "bm",
+       "title": "@fzlt/core/beam: 98% of its 4.4 KB budget",
+       "build": false,
+       "tone": "attack",
+       "v": "0.979",
+       "name": "beam",
+       "value": "4.29",
+       "unit": " KB",
+       "sr": ", 98% of its 4.4 KB budget"
+      },
+      {
+       "size": "@fzlt/core/cards",
+       "sym": "cr",
+       "title": "@fzlt/core/cards: 98% of its 3.4 KB budget",
+       "build": false,
+       "tone": "cmd",
+       "v": "0.979",
+       "name": "cards",
+       "value": "3.30",
+       "unit": " KB",
+       "sr": ", 98% of its 3.4 KB budget"
+      },
+      {
+       "size": "@fzlt/core/flick",
+       "sym": "fl",
+       "title": "@fzlt/core/flick: 98% of its 5.4 KB budget",
+       "build": false,
+       "tone": "advance",
+       "v": "0.983",
+       "name": "flick",
+       "value": "5.28",
+       "unit": " KB",
+       "sr": ", 98% of its 5.4 KB budget"
+      },
+      {
+       "size": "@fzlt/core/terrain",
+       "sym": "tn",
+       "title": "@fzlt/core/terrain: 100% of its 5.4 KB budget",
+       "build": false,
+       "tone": "fallin",
+       "v": "1.000",
+       "name": "terrain",
+       "value": "5.44",
+       "unit": " KB",
+       "sr": ", 100% of its 5.4 KB budget"
+      },
+      {
+       "size": "@fzlt/core/actor",
+       "sym": "ac",
+       "title": "@fzlt/core/actor: 74% of its 1.2 KB budget",
+       "build": false,
+       "tone": "cmd",
+       "v": "0.739",
+       "name": "actor",
+       "value": "0.89",
+       "unit": " KB",
+       "sr": ", 74% of its 1.2 KB budget"
+      },
+      {
+       "size": "@fzlt/core/aim",
+       "sym": "am",
+       "title": "@fzlt/core/aim: 67% of its 1.0 KB budget",
+       "build": false,
+       "tone": "aim",
+       "v": "0.675",
+       "name": "aim",
+       "value": "0.67",
+       "unit": " KB",
+       "sr": ", 67% of its 1.0 KB budget"
+      },
+      {
+       "size": "@fzlt/core/view-dom",
+       "sym": "vd",
+       "title": "@fzlt/core/view-dom: 57% of its 1.5 KB budget",
+       "build": false,
+       "tone": "fire",
+       "v": "0.574",
+       "name": "view-dom",
+       "value": "0.86",
+       "unit": " KB",
+       "sr": ", 57% of its 1.5 KB budget"
+      },
+      {
+       "size": "@fzlt/core/announce",
+       "sym": "an",
+       "title": "@fzlt/core/announce: 100% of its 0.6 KB budget",
+       "build": false,
+       "tone": "sys",
+       "v": "0.997",
+       "name": "announce",
+       "value": "0.60",
+       "unit": " KB",
+       "sr": ", 100% of its 0.6 KB budget"
+      },
+      {
+       "size": "@fzlt/core/drive",
+       "sym": "dv",
+       "title": "@fzlt/core/drive: 99% of its 5.2 KB budget",
+       "build": false,
+       "tone": "advance",
+       "v": "0.991",
+       "name": "drive",
+       "value": "5.14",
+       "unit": " KB",
+       "sr": ", 99% of its 5.2 KB budget"
+      },
+      {
+       "size": "@fzlt/core/scene",
+       "sym": "sc",
+       "title": "@fzlt/core/scene: 96% of its 8.5 KB budget",
+       "build": false,
+       "tone": "aim",
+       "v": "0.962",
+       "name": "scene",
+       "value": "8.17",
+       "unit": " KB",
+       "sr": ", 96% of its 8.5 KB budget"
+      },
+      {
+       "size": "@fzlt/core/arcade",
+       "sym": "ar",
+       "title": "@fzlt/core/arcade: 100% of its 23.6 KB budget",
+       "build": false,
+       "tone": "go",
+       "v": "1.000",
+       "name": "arcade",
+       "value": "23.58",
+       "unit": " KB",
+       "sr": ", 100% of its 23.6 KB budget"
+      },
+      {
+       "size": "@fzlt/core/board-page",
+       "sym": "br",
+       "title": "@fzlt/core/board-page: 99% of its 4.1 KB budget",
+       "build": false,
+       "tone": "attack",
+       "v": "0.987",
+       "name": "board-page",
+       "value": "4.01",
+       "unit": " KB",
+       "sr": ", 99% of its 4.1 KB budget"
+      }
+     ]
+    },
+    {
+     "label": "<b>KERNEL, SPLITS AND BUILDS</b> · gzip",
+     "aria": "The kernel, split sizes and builds, gzip",
+     "chips": [
+      {
+       "size": "@fzlt/core (kernel)",
+       "sym": "kr",
+       "title": "@fzlt/core (kernel): 82% of its 4.0 KB budget",
+       "build": false,
+       "tone": "go",
+       "v": "0.823",
+       "name": "kernel",
+       "value": "3.29",
+       "unit": " KB",
+       "sr": ", 82% of its 4.0 KB budget"
+      },
+      {
+       "size": "@fzlt/core/diorama (diorama() alone)",
+       "sym": "",
+       "title": "@fzlt/core/diorama (diorama() alone): 99% of its 6.5 KB budget",
+       "build": true,
+       "tone": "",
+       "v": "0.994",
+       "name": "diorama (diorama() alone)",
+       "value": "6.46",
+       "unit": " KB",
+       "sr": ", 99% of its 6.5 KB budget"
+      },
+      {
+       "size": "@fzlt/core/terrain (terrainWindow alone)",
+       "sym": "",
+       "title": "@fzlt/core/terrain (terrainWindow alone): 98% of its 2.6 KB budget",
+       "build": true,
+       "tone": "",
+       "v": "0.979",
+       "name": "terrain (terrainWindow alone)",
+       "value": "2.57",
+       "unit": " KB",
+       "sr": ", 98% of its 2.6 KB budget"
+      },
+      {
+       "size": "@fzlt/core/arcade (hud omitted)",
+       "sym": "",
+       "title": "@fzlt/core/arcade (hud omitted): 100% of its 17.8 KB budget",
+       "build": true,
+       "tone": "",
+       "v": "1.000",
+       "name": "arcade (hud omitted)",
+       "value": "17.77",
+       "unit": " KB",
+       "sr": ", 100% of its 17.8 KB budget"
+      },
+      {
+       "size": "page build (kernel+slot+input+fx)",
+       "sym": "",
+       "title": "page build (kernel+slot+input+fx): 100% of its 6.9 KB budget",
+       "build": true,
+       "tone": "",
+       "v": "0.999",
+       "name": "page build (kernel+<wbr>slot+<wbr>input+<wbr>fx)",
+       "value": "6.93",
+       "unit": " KB",
+       "sr": ", 100% of its 6.9 KB budget"
+      },
+      {
+       "size": "@fzlt/core/ui (js)",
+       "sym": "ui",
+       "title": "@fzlt/core/ui (js): 95% of its 3.0 KB budget",
+       "build": false,
+       "tone": "fire",
+       "v": "0.946",
+       "name": "ui (js)",
+       "value": "2.84",
+       "unit": " KB",
+       "sr": ", 95% of its 3.0 KB budget"
+      },
+      {
+       "size": "@fzlt/core/ui (css)",
+       "sym": "ui",
+       "title": "@fzlt/core/ui (css): 100% of its 5.0 KB budget",
+       "build": false,
+       "tone": "fire",
+       "v": "0.998",
+       "name": "ui (css)",
+       "value": "5.02",
+       "unit": " KB",
+       "sr": ", 100% of its 5.0 KB budget"
+      }
+     ]
+    }
+   ],
+   "note": "Sizes measured on this build of v0.27.0, minified and gzipped (1 KB = 1024 bytes), the same way <code>npm run size</code> checks them in CI. Each tile fills to the share of its module's budget (hover a chip for the number). The one-file script-tag bundle (kernel and every brick but debug) is 13.5 KB."
   },
   {
    "id": "ship",
@@ -1277,15 +1950,727 @@
   },
   {
    "id": "games",
-   "html": "<section id=\"games\" class=\"section\" data-reveal aria-labelledby=\"games-title\">\n  <span class=\"sec-rule\" aria-hidden=\"true\"></span>\n  <span class=\"sec-num\" aria-hidden=\"true\">08</span>\n  <div class=\"wrap\">\n    <div class=\"section-head\">\n      <p class=\"eyebrow\"><span class=\"index\">08</span> BUILT ON FIZLET</p>\n      <h2 id=\"games-title\">Games that<br><em>play on your page.</em></h2>\n    </div>\n    <div class=\"games\">\n      <article class=\"panel lit game blitz\">\n        <p class=\"eyebrow\"><span class=\"dot\"></span> FIRST GAME ON FIZLET · <b>FREE FOR ALL</b></p>\n        <h3>Battlefield Blitz</h3>\n        <p>Every tank for itself. Parachute in, grab power tiles, call airstrikes, dodge mines. Most kills in three minutes wins. It drops onto any website with one line: shells knock your headings around, and Escape gives the page back.</p>\n        <span class=\"bui-label\"><b>DROP-IN</b> · ONE LINE ON ANY PAGE</span>\n        <pre tabindex=\"0\" class=\"code wrap\"><code>&lt;script src=&quot;https://battlefieldblitz.domvirus.com/blitz.js&quot; defer&gt;&lt;/script&gt;</code></pre>\n        <ul class=\"game-facts\">\n          <li><b>1 line</b><span>on any page</span></li>\n          <li><b>3 min</b><span>free-for-all match</span></li>\n          <li><b>Esc</b><span>gives the page back</span></li>\n        </ul>\n        <p class=\"game-uses\">Built on <code>fizlet</code> · <code>input</code> · <code>collide</code> · <code>fx</code> · <code>sound</code> · <code>embed</code> · <code>rules</code> · <code>presence</code> · <code>ui</code></p>\n        <div class=\"game-keys\">\n          <a class=\"bui-key bui-arcade bui-attack\" href=\"https://battlefieldblitz.domvirus.com/play/\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"m6 4 10 6-10 6Z\"></path></svg>Play Blitz ↗</a>\n          <a class=\"bui-key bui-arcade bui-sys\" href=\"https://battlefieldblitz.domvirus.com/\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 3h9a3 3 0 0 1 3 3v11H7a3 3 0 0 1-3-3ZM4 14a3 3 0 0 1 3-3h9\"></path></svg>About Blitz ↗</a>\n        </div>\n      </article>\n      <article class=\"panel game\">\n        <p class=\"eyebrow\"><b>THE ARCADE</b> · ON FIZLET</p>\n        <h3>DOM VIRUS</h3>\n        <p>The arcade's approach is “the page is the board”: tiny games that play on the page you are reading. It is one use of Fizlet, and the arcade the bricks were proved out on. Now its games run on them: Null Invaders and Byte Runner at 1.0 and Sherman Bytes at 1.1 on <code>@fzlt/core/arcade</code>, Swarm Protocol 1.4 on the kernel.</p>\n        <div class=\"game-keys\"><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://domvirus.com/\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 2h9l3 3v13H4ZM7 2v5h6V2M7 13h6M7 16h6\"></path></svg>Visit DOM VIRUS ↗</a></div>\n      </article>\n      <article class=\"panel game\">\n        <p class=\"eyebrow\"><b>SQUAD TACTICS</b> · ON FIZLET SINCE 1.0</p>\n        <h3>DOM Battlefield</h3>\n        <p>Twelve tanks, one radio. The game whose board UI became this design system, on the Fizlet kernel since 1.0; two-network matches come in E12.</p>\n        <div class=\"game-keys\"><a class=\"bui-key bui-arcade bui-go\" href=\"https://battlefield.domvirus.com/\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M8 4H4v12h12v-4M11 3h6v6M17 3l-8 8\"></path></svg>DOM Battlefield ↗</a></div>\n      </article>\n    </div>\n  </div>\n</section>"
+   "kind": "games",
+   "sec": {
+    "id": "games",
+    "cls": "section",
+    "labelledby": "games-title",
+    "num": "08",
+    "rule": true
+   },
+   "head": {
+    "index": "08",
+    "eyebrow": "BUILT ON FIZLET",
+    "line": "Games that",
+    "accent": "play on your page.",
+    "lead": "",
+    "body": [],
+    "keys": []
+   },
+   "games": [
+    {
+     "cls": "panel lit game blitz",
+     "eyebrow": "<span class=\"dot\"></span> FIRST GAME ON FIZLET · <b>FREE FOR ALL</b>",
+     "title": "Battlefield Blitz",
+     "text": "Every tank for itself. Parachute in, grab power tiles, call airstrikes, dodge mines. Most kills in three minutes wins. It drops onto any website with one line: shells knock your headings around, and Escape gives the page back.",
+     "drop": {
+      "label": "<b>DROP-IN</b> · ONE LINE ON ANY PAGE",
+      "code": "<script src=\"https://battlefieldblitz.domvirus.com/blitz.js\" defer></script>"
+     },
+     "facts": [
+      {
+       "value": "1 line",
+       "label": "on any page"
+      },
+      {
+       "value": "3 min",
+       "label": "free-for-all match"
+      },
+      {
+       "value": "Esc",
+       "label": "gives the page back"
+      }
+     ],
+     "uses": "Built on <code>fizlet</code> · <code>input</code> · <code>collide</code> · <code>fx</code> · <code>sound</code> · <code>embed</code> · <code>rules</code> · <code>presence</code> · <code>ui</code>",
+     "keys": [
+      {
+       "href": "https://battlefieldblitz.domvirus.com/play/",
+       "label": "Play Blitz ↗",
+       "tone": "attack",
+       "arcade": true,
+       "icon": "play"
+      },
+      {
+       "href": "https://battlefieldblitz.domvirus.com/",
+       "label": "About Blitz ↗",
+       "tone": "sys",
+       "arcade": true,
+       "icon": "book"
+      }
+     ]
+    },
+    {
+     "cls": "panel game",
+     "eyebrow": "<b>THE ARCADE</b> · ON FIZLET",
+     "title": "DOM VIRUS",
+     "text": "The arcade's approach is “the page is the board”: tiny games that play on the page you are reading. It is one use of Fizlet, and the arcade the bricks were proved out on. Now its games run on them: Null Invaders and Byte Runner at 1.0 and Sherman Bytes at 1.1 on <code>@fzlt/core/arcade</code>, Swarm Protocol 1.4 on the kernel.",
+     "drop": null,
+     "facts": [],
+     "uses": "",
+     "keys": [
+      {
+       "href": "https://domvirus.com/",
+       "label": "Visit DOM VIRUS ↗",
+       "tone": "cmd",
+       "arcade": true,
+       "icon": "cart"
+      }
+     ]
+    },
+    {
+     "cls": "panel game",
+     "eyebrow": "<b>SQUAD TACTICS</b> · ON FIZLET SINCE 1.0",
+     "title": "DOM Battlefield",
+     "text": "Twelve tanks, one radio. The game whose board UI became this design system, on the Fizlet kernel since 1.0; two-network matches come in E12.",
+     "drop": null,
+     "facts": [],
+     "uses": "",
+     "keys": [
+      {
+       "href": "https://battlefield.domvirus.com/",
+       "label": "DOM Battlefield ↗",
+       "tone": "go",
+       "arcade": true,
+       "icon": "out"
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "roadmap",
-   "html": "<section id=\"roadmap\" class=\"section\" data-reveal aria-labelledby=\"roadmap-title\">\n  <span class=\"sec-rule\" aria-hidden=\"true\"></span>\n  <span class=\"sec-num\" aria-hidden=\"true\">09</span>\n  <div class=\"wrap\">\n    <div class=\"section-head\">\n      <p class=\"eyebrow\"><span class=\"index\">09</span> ROADMAP · E0 TO E17</p>\n      <h2 id=\"roadmap-title\">What's done.<br><em>What's left.</em></h2>\n      <p class=\"lead\">Fizlet 0.x is a public beta: every brick carries a status flag, and a 0.x minor release may change a BETA brick's API (the CHANGELOG says how). COMPLETE bricks keep theirs. E0 to E8 are the launch scope; a box is ticked only with a release, a merged change or a test behind it. E9 to E17 come after launch, with the bricks each adds (<a href=\"/bricks/#planned\">ROADMAP</a> on the bricks page). The first plan, E0 to E6, is <a href=\"https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md\">ENGINE.md ↗</a> in the DOM VIRUS repo.</p>\n    </div>\n    <ol class=\"roadmap\">\n      <li class=\"panel phase\" data-phase=\"now\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E0</span><span class=\"phase-pill\">NEARLY DONE</span></div>\n        <h3>Baseline and archives</h3>\n        <p>Freeze the pre-engine games as the before picture, so every port has numbers to beat.</p>\n        <ul class=\"checks\"><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Perf harness: every app under a 4× CPU throttle (Playwright)</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Baseline numbers and commits recorded for all six apps</span><span class=\"sr\">(done)</span></li><li><i aria-hidden=\"true\"></i><span>Tag engine-baseline in every repo</span><span class=\"sr\">(to do)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Battlefield archive selector (versioned paths)</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Hub TEST A RELEASE selector for every game version, the 1.0 engine cuts included</span><span class=\"sr\">(done)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"done\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E1</span><span class=\"phase-pill\">DONE · 0.1.0</span></div>\n        <h3>Kernel</h3>\n        <p>The scheduler, fixed step, auto-pause, pools, event ring, seeded random, the Recall ledger and stats.</p>\n        <ul class=\"checks\"><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>One rAF for N engines, fixed step with a catch-up cap</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Zero allocation over 1M steps, exact DOM restore</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Kernel under the 4 KB budget</span><span class=\"sr\">(done)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"done\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E2</span><span class=\"phase-pill\">DONE · 0.19.0</span></div>\n        <h3>The first box of bricks</h3>\n        <p>Small, separately importable bricks lifted from the games, each with tests, a CI size budget and a generated page. layout, view and actor bricks moved to E10 and E11.</p>\n        <ul class=\"checks\"><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>input · pad · collide · fx · sound · embed · ui</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>grid · sprite · hud · match · board-page</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>slot and the page profile: settle, fps cap, idle load</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>rules · steer · coach · camera · perf · arcade · timeline</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>A status flag on every brick, with its evidence</span><span class=\"sr\">(done)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"now\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E3</span><span class=\"phase-pill\">NEARLY DONE</span></div>\n        <h3>Port the games</h3>\n        <p>Every game on the engine, each as a 1.0 engine cut.</p>\n        <ul class=\"checks\"><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Null Invaders → Byte Runner → Sherman Bytes (1.0 each)</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>DOM Battlefield 1.0 · Battlefield Blitz 1.0 · Swarm Protocol 1.4</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>No copied shared/ code left in the games</span><span class=\"sr\">(done)</span></li><li><i aria-hidden=\"true\"></i><span>Frame time equal or better than the E0 baseline, measured per game</span><span class=\"sr\">(to do)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"done\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E4</span><span class=\"phase-pill\">DONE · 2 TO 4 PLAYERS</span></div>\n        <h3>Presence and multiplayer</h3>\n        <p>A few-KB presence client and a room server: two people play Battlefield Blitz on the live site. Multiplayer: in-house. DIY guide for your own server. Battlefield matches and AI players moved to E12.</p>\n        <ul class=\"checks\"><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>presence brick + determinism check</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Room server (in-house): invite gate and hard spend caps</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Battlefield Blitz two players against our room server</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>DIY guide: build your own room server, the wire protocol as the contract</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>presence: a lobby, a resume that keeps its play pass, a resume after a server restart</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Battlefield Blitz multiplayer: 1V1, FFA and 2V2, 2 to 4 players, computer backfill</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>DOM Crossfire 0.4.0: squad co-op for 2 to 4 people, lockstep on presence</span><span class=\"sr\">(done)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"done\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E5</span><span class=\"phase-pill\">DONE</span></div>\n        <h3>Docs for humans and AI</h3>\n        <p>Build a game or micro-interaction in an afternoon, from docs a person or an agent can follow.</p>\n        <ul class=\"checks\"><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>One page per brick, generated from the source, with its status</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Gallery and notes, every number measured on the build</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>llms.txt and a sitemap from the same build</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Docs and guides: the contract, the loop, Recall, budgets, determinism; release notes for every version</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>An API reference for every brick, generated at build time by the TypeScript compiler, and llms-full.txt</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Authoring guide and recipes by use case: an action on the page, a shooter, two players</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Live kernel stats on Under the Hood</span><span class=\"sr\">(done)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"done\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E6</span><span class=\"phase-pill\">DONE</span></div>\n        <h3>Performance wins</h3>\n        <p>Smaller and faster every week: the perf harness in CI, the top cost fixed, the win logged.</p>\n        <ul class=\"checks\"><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Perf harness and allocation test in CI on every push</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>A weekly run against the baseline</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>A public log of every win: PERF-LOG.md, generated from the measured wins</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>CI test suite split into shards: the check job takes about 41 of its 75 minutes</span><span class=\"sr\">(done)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"done\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E7</span><span class=\"phase-pill\">DONE</span></div>\n        <h3>Page interactions</h3>\n        <p>Heroes, diagrams and micro animations on ordinary pages: lazy, contained, settled when still.</p>\n        <ul class=\"checks\"><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>slot, the page profile, camera and timeline</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Gallery: one prompt, one animation, its size on show</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>fizlet.com and the DOM VIRUS home hero on Fizlet</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>The DOM Battlefield landing hero on Fizlet</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>The DOM VIRUS Under the Hood labs on Fizlet</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>The DOM VIRUS cartridge console, detail-page scenes and diagrams on Fizlet</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Page cost (CLS, tap delay, idle CPU) gated in CI</span><span class=\"sr\">(done)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"done\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E8</span><span class=\"phase-pill\">DONE</span></div>\n        <h3>The game kit</h3>\n        <p>The shell every page game repeats, so a game is its rules and its art: HUD and control presets, match flow, coach.</p>\n        <ul class=\"checks\"><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>arcade: the shell under Null Invaders, Byte Runner and Sherman Bytes</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>HUD presets (card, skirmish bar) and swappable touch pads</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>match, coach and steer bricks</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>touch: no page zoom or pan while a game plays, in every arcade game</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>A released game on the skirmish preset: Sherman Bytes 1.1.0</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Battlefield Blitz on steer and coach</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>A released game on @fzlt/core/match</span><span class=\"sr\">(done)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"done\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E9</span><span class=\"phase-pill\">DONE · 0.21.2</span></div>\n        <h3>On npm</h3>\n        <p>npm install @fzlt/core: one package, a subpath per brick, published from CI with provenance.</p>\n        <ul class=\"checks\"><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>@fzlt/core@0.x on npm from the release workflow, with provenance</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>An API snapshot test for every COMPLETE brick</span><span class=\"sr\">(done)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"now\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E10</span><span class=\"phase-pill\">IN PROGRESS</span></div>\n        <h3>Diagrams</h3>\n        <p>Interactive diagrams that settle: graphs laid out on the kernel clock.</p>\n        <ul class=\"checks\"><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>layout (force layout + Barnes-Hut) and view-canvas bricks, ALPHA in 0.21.0</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>An interactive diagram on a marketing page, settled at 0 frames</span><span class=\"sr\">(done)</span></li><li><i aria-hidden=\"true\"></i><span>Page cost green on the diagram page, in CI</span><span class=\"sr\">(to do)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"next\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E11</span><span class=\"phase-pill\">PLANNED</span></div>\n        <h3>Actors</h3>\n        <p>Units, bots and turrets as data: the parts every board game still writes itself.</p>\n        <ul class=\"checks\"><li><i aria-hidden=\"true\"></i><span>One board game moves its units onto them, and shrinks</span><span class=\"sr\">(to do)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"next\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E12</span><span class=\"phase-pill\">PLANNED</span></div>\n        <h3>Multiplayer everywhere</h3>\n        <p>Builds on presence (in-house): authoritative rooms, interpolation, and AI agents that join a room like any player.</p>\n        <ul class=\"checks\"><li><i aria-hidden=\"true\"></i><span>@fzlt/core/snapshot (target ≤ 1.5 KB gzip)</span><span class=\"sr\">(to do)</span></li><li><i aria-hidden=\"true\"></i><span>@fzlt/core/agent (target ≤ 1.0 KB gzip)</span><span class=\"sr\">(to do)</span></li><li><i aria-hidden=\"true\"></i><span>A DOM Battlefield match between two networks</span><span class=\"sr\">(to do)</span></li><li><i aria-hidden=\"true\"></i><span>An AI agent joins a room</span><span class=\"sr\">(to do)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"next\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E13</span><span class=\"phase-pill\">PLANNED</span></div>\n        <h3>Animation library</h3>\n        <p>A recipe used twice becomes data; a recipe used across games becomes a brick.</p>\n        <ul class=\"checks\"><li><i aria-hidden=\"true\"></i><span>@fzlt/core/scene: a recipe as data (stage, cast, cue, gag), EXPERIMENTAL; two meme micros ported, pixel for pixel</span><span class=\"sr\">(to do)</span></li><li><i aria-hidden=\"true\"></i><span>The animation factory (fe anim) emits scene data instead of code</span><span class=\"sr\">(to do)</span></li><li><i aria-hidden=\"true\"></i><span>Gallery entries shrink, measured, as the factory's recipes move to data</span><span class=\"sr\">(to do)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"next\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E14</span><span class=\"phase-pill\">PLANNED</span></div>\n        <h3>Accessible play</h3>\n        <p>Every game playable by keyboard and gamepad, and heard by screen readers.</p>\n        <ul class=\"checks\"><li><i aria-hidden=\"true\"></i><span>Gamepad in @fzlt/core/input</span><span class=\"sr\">(to do)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"next\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E15</span><span class=\"phase-pill\">PLANNED</span></div>\n        <h3>Music</h3>\n        <p>Background loops from the same tiny synth, on the kernel clock.</p>\n        <ul class=\"checks\"><li><i aria-hidden=\"true\"></i><span>@fzlt/core/music (target ≤ 1.2 KB gzip)</span><span class=\"sr\">(to do)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"next\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E16</span><span class=\"phase-pill\">PLANNED</span></div>\n        <h3>1.0</h3>\n        <p>Every shipped brick COMPLETE or DEPRECATED, the API frozen, the games on 1.0, and smaller and faster than 0.x by a measured margin.</p>\n        <ul class=\"checks\"><li><i aria-hidden=\"true\"></i><span>Every brick COMPLETE or DEPRECATED</span><span class=\"sr\">(to do)</span></li><li><i aria-hidden=\"true\"></i><span>@fzlt/core@1.0.0</span><span class=\"sr\">(to do)</span></li></ul>\n      </li>\n      <li class=\"panel phase\" data-phase=\"now\">\n        <div class=\"phase-top\"><span class=\"phase-id\">E17</span><span class=\"phase-pill\">IN PROGRESS · 0.22.0</span></div>\n        <h3>Tabletop</h3>\n        <p>A game tier beside Board: diorama 3D games on a plain 2D canvas, no WebGL and no libraries, built from a family of 3D bricks.</p>\n        <ul class=\"checks\"><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>diorama: the 3D renderer on a plain 2D canvas, ALPHA in 0.22.0</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>dice · track · water · props · beam · cards · flick · terrain · drive, ALPHA in 0.22.0; drive drift, spin-outs and car contact, terrain berm run-out in 0.23.0; drive long-travel suspension in 0.24.0; drive state, save and load (rollback) and diorama behind in 0.25.0</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Salvo Bay: the first diorama piece, on diorama</span><span class=\"sr\">(done)</span></li><li class=\"done\"><i aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg></i><span>Daily: a Hi-Fi lane for pieces over the micro cap, with its own weekly winner; 0.23.0 adds eleven, with new Mazes and Bar games themes</span><span class=\"sr\">(done)</span></li><li><i aria-hidden=\"true\"></i><span>Salvo Bay online for two, on presence</span><span class=\"sr\">(to do)</span></li><li><i aria-hidden=\"true\"></i><span>A live 3D demo on every 3D brick's page</span><span class=\"sr\">(to do)</span></li><li><i aria-hidden=\"true\"></i><span>A guide: Build a Tabletop game</span><span class=\"sr\">(to do)</span></li><li><i aria-hidden=\"true\"></i><span>Wave pool surfer</span><span class=\"sr\">(to do)</span></li><li><i aria-hidden=\"true\"></i><span>Bike and Jeep course</span><span class=\"sr\">(to do)</span></li><li><i aria-hidden=\"true\"></i><span>Cyberpunk Baja</span><span class=\"sr\">(to do)</span></li><li><i aria-hidden=\"true\"></i><span>Open-wheel circuit</span><span class=\"sr\">(to do)</span></li></ul>\n      </li>\n    </ol>\n  </div>\n</section>"
+   "kind": "roadmap",
+   "sec": {
+    "id": "roadmap",
+    "cls": "section",
+    "labelledby": "roadmap-title",
+    "num": "09",
+    "rule": true
+   },
+   "head": {
+    "index": "09",
+    "eyebrow": "ROADMAP · E0 TO E17",
+    "line": "What's done.",
+    "accent": "What's left.",
+    "lead": "Fizlet 0.x is a public beta: every brick carries a status flag, and a 0.x minor release may change a BETA brick's API (the CHANGELOG says how). COMPLETE bricks keep theirs. E0 to E8 are the launch scope; a box is ticked only with a release, a merged change or a test behind it. E9 to E17 come after launch, with the bricks each adds (<a href=\"/bricks/#planned\">ROADMAP</a> on the bricks page). The first plan, E0 to E6, is <a href=\"https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md\">ENGINE.md ↗</a> in the DOM VIRUS repo.",
+    "body": [],
+    "keys": []
+   },
+   "phases": [
+    {
+     "phase": "now",
+     "id": "E0",
+     "pill": "NEARLY DONE",
+     "title": "Baseline and archives",
+     "text": "Freeze the pre-engine games as the before picture, so every port has numbers to beat.",
+     "checks": [
+      {
+       "done": true,
+       "text": "Perf harness: every app under a 4× CPU throttle (Playwright)",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Baseline numbers and commits recorded for all six apps",
+       "sr": "(done)"
+      },
+      {
+       "done": false,
+       "text": "Tag engine-baseline in every repo",
+       "sr": "(to do)"
+      },
+      {
+       "done": true,
+       "text": "Battlefield archive selector (versioned paths)",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Hub TEST A RELEASE selector for every game version, the 1.0 engine cuts included",
+       "sr": "(done)"
+      }
+     ]
+    },
+    {
+     "phase": "done",
+     "id": "E1",
+     "pill": "DONE · 0.1.0",
+     "title": "Kernel",
+     "text": "The scheduler, fixed step, auto-pause, pools, event ring, seeded random, the Recall ledger and stats.",
+     "checks": [
+      {
+       "done": true,
+       "text": "One rAF for N engines, fixed step with a catch-up cap",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Zero allocation over 1M steps, exact DOM restore",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Kernel under the 4 KB budget",
+       "sr": "(done)"
+      }
+     ]
+    },
+    {
+     "phase": "done",
+     "id": "E2",
+     "pill": "DONE · 0.19.0",
+     "title": "The first box of bricks",
+     "text": "Small, separately importable bricks lifted from the games, each with tests, a CI size budget and a generated page. layout, view and actor bricks moved to E10 and E11.",
+     "checks": [
+      {
+       "done": true,
+       "text": "input · pad · collide · fx · sound · embed · ui",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "grid · sprite · hud · match · board-page",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "slot and the page profile: settle, fps cap, idle load",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "rules · steer · coach · camera · perf · arcade · timeline",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "A status flag on every brick, with its evidence",
+       "sr": "(done)"
+      }
+     ]
+    },
+    {
+     "phase": "now",
+     "id": "E3",
+     "pill": "NEARLY DONE",
+     "title": "Port the games",
+     "text": "Every game on the engine, each as a 1.0 engine cut.",
+     "checks": [
+      {
+       "done": true,
+       "text": "Null Invaders → Byte Runner → Sherman Bytes (1.0 each)",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "DOM Battlefield 1.0 · Battlefield Blitz 1.0 · Swarm Protocol 1.4",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "No copied shared/ code left in the games",
+       "sr": "(done)"
+      },
+      {
+       "done": false,
+       "text": "Frame time equal or better than the E0 baseline, measured per game",
+       "sr": "(to do)"
+      }
+     ]
+    },
+    {
+     "phase": "done",
+     "id": "E4",
+     "pill": "DONE · 2 TO 4 PLAYERS",
+     "title": "Presence and multiplayer",
+     "text": "A few-KB presence client and a room server: two people play Battlefield Blitz on the live site. Multiplayer: in-house. DIY guide for your own server. Battlefield matches and AI players moved to E12.",
+     "checks": [
+      {
+       "done": true,
+       "text": "presence brick + determinism check",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Room server (in-house): invite gate and hard spend caps",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Battlefield Blitz two players against our room server",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "DIY guide: build your own room server, the wire protocol as the contract",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "presence: a lobby, a resume that keeps its play pass, a resume after a server restart",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Battlefield Blitz multiplayer: 1V1, FFA and 2V2, 2 to 4 players, computer backfill",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "DOM Crossfire 0.4.0: squad co-op for 2 to 4 people, lockstep on presence",
+       "sr": "(done)"
+      }
+     ]
+    },
+    {
+     "phase": "done",
+     "id": "E5",
+     "pill": "DONE",
+     "title": "Docs for humans and AI",
+     "text": "Build a game or micro-interaction in an afternoon, from docs a person or an agent can follow.",
+     "checks": [
+      {
+       "done": true,
+       "text": "One page per brick, generated from the source, with its status",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Gallery and notes, every number measured on the build",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "llms.txt and a sitemap from the same build",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Docs and guides: the contract, the loop, Recall, budgets, determinism; release notes for every version",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "An API reference for every brick, generated at build time by the TypeScript compiler, and llms-full.txt",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Authoring guide and recipes by use case: an action on the page, a shooter, two players",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Live kernel stats on Under the Hood",
+       "sr": "(done)"
+      }
+     ]
+    },
+    {
+     "phase": "done",
+     "id": "E6",
+     "pill": "DONE",
+     "title": "Performance wins",
+     "text": "Smaller and faster every week: the perf harness in CI, the top cost fixed, the win logged.",
+     "checks": [
+      {
+       "done": true,
+       "text": "Perf harness and allocation test in CI on every push",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "A weekly run against the baseline",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "A public log of every win: PERF-LOG.md, generated from the measured wins",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "CI test suite split into shards: the check job takes about 41 of its 75 minutes",
+       "sr": "(done)"
+      }
+     ]
+    },
+    {
+     "phase": "done",
+     "id": "E7",
+     "pill": "DONE",
+     "title": "Page interactions",
+     "text": "Heroes, diagrams and micro animations on ordinary pages: lazy, contained, settled when still.",
+     "checks": [
+      {
+       "done": true,
+       "text": "slot, the page profile, camera and timeline",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Gallery: one prompt, one animation, its size on show",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "fizlet.com and the DOM VIRUS home hero on Fizlet",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "The DOM Battlefield landing hero on Fizlet",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "The DOM VIRUS Under the Hood labs on Fizlet",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "The DOM VIRUS cartridge console, detail-page scenes and diagrams on Fizlet",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Page cost (CLS, tap delay, idle CPU) gated in CI",
+       "sr": "(done)"
+      }
+     ]
+    },
+    {
+     "phase": "done",
+     "id": "E8",
+     "pill": "DONE",
+     "title": "The game kit",
+     "text": "The shell every page game repeats, so a game is its rules and its art: HUD and control presets, match flow, coach.",
+     "checks": [
+      {
+       "done": true,
+       "text": "arcade: the shell under Null Invaders, Byte Runner and Sherman Bytes",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "HUD presets (card, skirmish bar) and swappable touch pads",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "match, coach and steer bricks",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "touch: no page zoom or pan while a game plays, in every arcade game",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "A released game on the skirmish preset: Sherman Bytes 1.1.0",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Battlefield Blitz on steer and coach",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "A released game on @fzlt/core/match",
+       "sr": "(done)"
+      }
+     ]
+    },
+    {
+     "phase": "done",
+     "id": "E9",
+     "pill": "DONE · 0.21.2",
+     "title": "On npm",
+     "text": "npm install @fzlt/core: one package, a subpath per brick, published from CI with provenance.",
+     "checks": [
+      {
+       "done": true,
+       "text": "@fzlt/core@0.x on npm from the release workflow, with provenance",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "An API snapshot test for every COMPLETE brick",
+       "sr": "(done)"
+      }
+     ]
+    },
+    {
+     "phase": "now",
+     "id": "E10",
+     "pill": "IN PROGRESS",
+     "title": "Diagrams",
+     "text": "Interactive diagrams that settle: graphs laid out on the kernel clock.",
+     "checks": [
+      {
+       "done": true,
+       "text": "layout (force layout + Barnes-Hut) and view-canvas bricks, ALPHA in 0.21.0",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "An interactive diagram on a marketing page, settled at 0 frames",
+       "sr": "(done)"
+      },
+      {
+       "done": false,
+       "text": "Page cost green on the diagram page, in CI",
+       "sr": "(to do)"
+      }
+     ]
+    },
+    {
+     "phase": "next",
+     "id": "E11",
+     "pill": "PLANNED",
+     "title": "Actors",
+     "text": "Units, bots and turrets as data: the parts every board game still writes itself.",
+     "checks": [
+      {
+       "done": false,
+       "text": "One board game moves its units onto them, and shrinks",
+       "sr": "(to do)"
+      }
+     ]
+    },
+    {
+     "phase": "next",
+     "id": "E12",
+     "pill": "PLANNED",
+     "title": "Multiplayer everywhere",
+     "text": "Builds on presence (in-house): authoritative rooms, interpolation, and AI agents that join a room like any player.",
+     "checks": [
+      {
+       "done": false,
+       "text": "@fzlt/core/snapshot (target ≤ 1.5 KB gzip)",
+       "sr": "(to do)"
+      },
+      {
+       "done": false,
+       "text": "@fzlt/core/agent (target ≤ 1.0 KB gzip)",
+       "sr": "(to do)"
+      },
+      {
+       "done": false,
+       "text": "A DOM Battlefield match between two networks",
+       "sr": "(to do)"
+      },
+      {
+       "done": false,
+       "text": "An AI agent joins a room",
+       "sr": "(to do)"
+      }
+     ]
+    },
+    {
+     "phase": "next",
+     "id": "E13",
+     "pill": "PLANNED",
+     "title": "Animation library",
+     "text": "A recipe used twice becomes data; a recipe used across games becomes a brick.",
+     "checks": [
+      {
+       "done": false,
+       "text": "@fzlt/core/scene: a recipe as data (stage, cast, cue, gag), EXPERIMENTAL; two meme micros ported, pixel for pixel",
+       "sr": "(to do)"
+      },
+      {
+       "done": false,
+       "text": "The animation factory (fe anim) emits scene data instead of code",
+       "sr": "(to do)"
+      },
+      {
+       "done": false,
+       "text": "Gallery entries shrink, measured, as the factory's recipes move to data",
+       "sr": "(to do)"
+      }
+     ]
+    },
+    {
+     "phase": "next",
+     "id": "E14",
+     "pill": "PLANNED",
+     "title": "Accessible play",
+     "text": "Every game playable by keyboard and gamepad, and heard by screen readers.",
+     "checks": [
+      {
+       "done": false,
+       "text": "Gamepad in @fzlt/core/input",
+       "sr": "(to do)"
+      }
+     ]
+    },
+    {
+     "phase": "next",
+     "id": "E15",
+     "pill": "PLANNED",
+     "title": "Music",
+     "text": "Background loops from the same tiny synth, on the kernel clock.",
+     "checks": [
+      {
+       "done": false,
+       "text": "@fzlt/core/music (target ≤ 1.2 KB gzip)",
+       "sr": "(to do)"
+      }
+     ]
+    },
+    {
+     "phase": "next",
+     "id": "E16",
+     "pill": "PLANNED",
+     "title": "1.0",
+     "text": "Every shipped brick COMPLETE or DEPRECATED, the API frozen, the games on 1.0, and smaller and faster than 0.x by a measured margin.",
+     "checks": [
+      {
+       "done": false,
+       "text": "Every brick COMPLETE or DEPRECATED",
+       "sr": "(to do)"
+      },
+      {
+       "done": false,
+       "text": "@fzlt/core@1.0.0",
+       "sr": "(to do)"
+      }
+     ]
+    },
+    {
+     "phase": "now",
+     "id": "E17",
+     "pill": "IN PROGRESS · 0.22.0",
+     "title": "Tabletop",
+     "text": "A game tier beside Board: diorama 3D games on a plain 2D canvas, no WebGL and no libraries, built from a family of 3D bricks.",
+     "checks": [
+      {
+       "done": true,
+       "text": "diorama: the 3D renderer on a plain 2D canvas, ALPHA in 0.22.0",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "dice · track · water · props · beam · cards · flick · terrain · drive, ALPHA in 0.22.0; drive drift, spin-outs and car contact, terrain berm run-out in 0.23.0; drive long-travel suspension in 0.24.0; drive state, save and load (rollback) and diorama behind in 0.25.0",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Salvo Bay: the first diorama piece, on diorama",
+       "sr": "(done)"
+      },
+      {
+       "done": true,
+       "text": "Daily: a Hi-Fi lane for pieces over the micro cap, with its own weekly winner; 0.23.0 adds eleven, with new Mazes and Bar games themes",
+       "sr": "(done)"
+      },
+      {
+       "done": false,
+       "text": "Salvo Bay online for two, on presence",
+       "sr": "(to do)"
+      },
+      {
+       "done": false,
+       "text": "A live 3D demo on every 3D brick's page",
+       "sr": "(to do)"
+      },
+      {
+       "done": false,
+       "text": "A guide: Build a Tabletop game",
+       "sr": "(to do)"
+      },
+      {
+       "done": false,
+       "text": "Wave pool surfer",
+       "sr": "(to do)"
+      },
+      {
+       "done": false,
+       "text": "Bike and Jeep course",
+       "sr": "(to do)"
+      },
+      {
+       "done": false,
+       "text": "Cyberpunk Baja",
+       "sr": "(to do)"
+      },
+      {
+       "done": false,
+       "text": "Open-wheel circuit",
+       "sr": "(to do)"
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "start",
-   "html": "<section id=\"start\" class=\"section\" data-reveal aria-labelledby=\"start-title\">\n  <span class=\"sec-rule\" aria-hidden=\"true\"></span>\n  <span class=\"sec-num\" aria-hidden=\"true\">10</span>\n  <div class=\"wrap start\">\n    <div class=\"start-head\">\n      <p class=\"eyebrow\"><span class=\"index\">10</span> QUICK START</p>\n      <h2 id=\"start-title\">Ten lines<br><em>to a blast.</em></h2>\n      <p class=\"lead\">One script tag puts the kernel and every brick on <code>window.fizlet</code>. Click the canvas: that's the hero explosion, pooled, paused when you scroll away.</p>\n      <ol class=\"start-steps\">\n        <li><b>Script tag.</b> <code>fizlet.js</code> (13.5 KB gzip), one file, no build step.</li>\n        <li><b>Modules.</b> Import only the bricks you use from <code>https://fizlet.com/dist/</code>.</li>\n        <li><b>npm.</b> <code>npm install @fzlt/core</code>, with the subpath exports.</li>\n      </ol>\n      <div class=\"split-keys\">\n        <a class=\"bui-key bui-arcade bui-go\" href=\"/examples/quick-start.html\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"m6 4 10 6-10 6Z\"></path></svg>Run the example</a>\n        <a class=\"bui-key bui-arcade bui-sys\" href=\"https://github.com/coded-dot-design/fizlet#readme\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 3h9a3 3 0 0 1 3 3v11H7a3 3 0 0 1-3-3ZM4 14a3 3 0 0 1 3-3h9\"></path></svg>Read the API on GitHub ↗</a>\n      </div>\n    </div>\n    <div class=\"start-code\">\n      <div class=\"panel lit code-card\"><div class=\"code-head\"><span class=\"bui-label\"><b>SCRIPT TAG</b> · index.html</span><button class=\"bui-key copy\" type=\"button\" data-copy><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 7h10v10H7ZM3 13V3h10\"></path></svg>Copy</button></div><pre tabindex=\"0\" class=\"code\"><code>&lt;canvas id=&quot;board&quot; width=&quot;640&quot; height=&quot;320&quot;&gt;&lt;/canvas&gt;\n&lt;script src=&quot;https://fizlet.com/fizlet.js&quot;&gt;&lt;/script&gt;\n&lt;script&gt;\n  const { createEngine, effects } = fizlet;\n  const canvas = document.getElementById(&quot;board&quot;), ctx = canvas.getContext(&quot;2d&quot;);\n  const engine = createEngine({ root: canvas }), fx = effects();\n  canvas.onclick = (ev) =&gt; fx.blast(ev.offsetX * 640 / canvas.clientWidth, ev.offsetY * 320 / canvas.clientHeight);\n  engine.add({\n    step: (e, dt) =&gt; fx.step(dt),\n    render: () =&gt; (ctx.clearRect(0, 0, 640, 320), fx.drawGround(ctx), fx.draw(ctx)),\n  });\n  engine.start();\n&lt;/script&gt;</code></pre></div>\n      <div class=\"panel code-card\"><div class=\"code-head\"><span class=\"bui-label\"><b>MODULES</b> · only what you use</span><button class=\"bui-key copy\" type=\"button\" data-copy><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 7h10v10H7ZM3 13V3h10\"></path></svg>Copy</button></div><pre tabindex=\"0\" class=\"code\"><code>&lt;script type=&quot;module&quot;&gt;\n  import { createEngine } from &quot;https://fizlet.com/dist/index.js&quot;;\n  import { effects } from &quot;https://fizlet.com/dist/fx.js&quot;;\n  import { controls } from &quot;https://fizlet.com/dist/input.js&quot;;\n&lt;/script&gt;</code></pre></div>\n    </div>\n  </div>\n</section>"
+   "kind": "start",
+   "sec": {
+    "id": "start",
+    "cls": "section",
+    "labelledby": "start-title",
+    "num": "10",
+    "rule": true
+   },
+   "head": {
+    "index": "10",
+    "eyebrow": "QUICK START",
+    "line": "Ten lines",
+    "accent": "to a blast.",
+    "lead": "One script tag puts the kernel and every brick on <code>window.fizlet</code>. Click the canvas: that's the hero explosion, pooled, paused when you scroll away.",
+    "body": [],
+    "keys": [
+     {
+      "href": "/examples/quick-start.html",
+      "label": "Run the example",
+      "tone": "go",
+      "arcade": true,
+      "icon": "play"
+     },
+     {
+      "href": "https://github.com/coded-dot-design/fizlet#readme",
+      "label": "Read the API on GitHub ↗",
+      "tone": "sys",
+      "arcade": true,
+      "icon": "book"
+     }
+    ]
+   },
+   "steps": [
+    "<b>Script tag.</b> <code>fizlet.js</code> (13.5 KB gzip), one file, no build step.",
+    "<b>Modules.</b> Import only the bricks you use from <code>https://fizlet.com/dist/</code>.",
+    "<b>npm.</b> <code>npm install @fzlt/core</code>, with the subpath exports."
+   ],
+   "code": [
+    {
+     "label": "<b>SCRIPT TAG</b> · index.html",
+     "code": "<canvas id=\"board\" width=\"640\" height=\"320\"></canvas>\n<script src=\"https://fizlet.com/fizlet.js\"></script>\n<script>\n  const { createEngine, effects } = fizlet;\n  const canvas = document.getElementById(\"board\"), ctx = canvas.getContext(\"2d\");\n  const engine = createEngine({ root: canvas }), fx = effects();\n  canvas.onclick = (ev) => fx.blast(ev.offsetX * 640 / canvas.clientWidth, ev.offsetY * 320 / canvas.clientHeight);\n  engine.add({\n    step: (e, dt) => fx.step(dt),\n    render: () => (ctx.clearRect(0, 0, 640, 320), fx.drawGround(ctx), fx.draw(ctx)),\n  });\n  engine.start();\n</script>",
+     "wrap": false,
+     "copy": true,
+     "cls": "panel lit code-card"
+    },
+    {
+     "label": "<b>MODULES</b> · only what you use",
+     "code": "<script type=\"module\">\n  import { createEngine } from \"https://fizlet.com/dist/index.js\";\n  import { effects } from \"https://fizlet.com/dist/fx.js\";\n  import { controls } from \"https://fizlet.com/dist/input.js\";\n</script>",
+     "wrap": false,
+     "copy": true,
+     "cls": "panel code-card"
+    }
+   ]
   },
   {
    "id": "final",
