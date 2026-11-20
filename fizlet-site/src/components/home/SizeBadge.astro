@@ -1,0 +1,6 @@
+---
+// A live demo's measured size (gzip, at build); site.js swaps in the live number from `live`.
+interface Props { label: string; bytes: string; live: string; title: string; size: string; unit: string }
+const { label, bytes, live, title, size, unit } = Astro.props;
+---
+<span class="size-badge" role="img" aria-label={label} data-size-badge data-bytes={bytes} data-live={live} title={title}><b>{size}</b>{unit}</span>

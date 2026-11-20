@@ -1,10 +1,11 @@
 ---
 // A home section's shell: the section (revealed on scroll by site/home-motion), the drawn rule and
 // the ghost number of a numbered section (both aria-hidden), then the section's own content.
-interface Props { id?: string; cls?: string; labelledby: string; num?: string; rule?: boolean }
-const { id, cls = "section", labelledby, num, rule } = Astro.props;
+// `attrs` carries a section's own hooks for its script (the origin scene's data-origin, data-mode).
+interface Props { id?: string; cls?: string; labelledby: string; num?: string; rule?: boolean; attrs?: Record<string, string> }
+const { id, cls = "section", labelledby, num, rule, attrs = {} } = Astro.props;
 ---
-<section id={id || undefined} class={cls} data-reveal aria-labelledby={labelledby}>
+<section id={id || undefined} class={cls} data-reveal {...attrs} aria-labelledby={labelledby}>
   {rule && <span class="sec-rule" aria-hidden="true"></span>}
   {num && <span class="sec-num" aria-hidden="true">{num}</span>}
   <slot />

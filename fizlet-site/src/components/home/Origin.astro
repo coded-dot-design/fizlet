@@ -1,0 +1,47 @@
+---
+// 2015 · The origin: Code. Sleep. Drink. Repeat. The head (the Code/Design switch and sound key),
+// the live scene's stage (its poster in a slot is the engine's markup, kept as built, with the
+// poster's own CSS), 2015 against 2026, the measured numbers, two quotes and the links.
+import HomeSection from "./HomeSection.astro";
+import KeyRow from "./KeyRow.astro";
+import SoundKey from "./SoundKey.astro";
+import SizeBadge from "./SizeBadge.astro";
+import Html from "../Html.astro";
+const { sec, head, stage, cards, vs, nums, why, quote, keys, wayback } = Astro.props as any;
+const css = stage.css;
+---
+<HomeSection {...sec}>
+  <div class="wrap">
+    <div class="ogs-head">
+      <p class="eyebrow"><span class="index">{head.index}</span> {head.eyebrow}</p>
+      <h2 id={sec.labelledby} class={head.title.cls}><span class="ogs-word" data-origin-word>{head.title.word}</span>{head.title.rest}<br><em>{head.title.accent}</em><span class="ogs-loop" aria-hidden="true">{head.title.loop}</span></h2>
+      <div class="ogs-keys">
+        <button class="ogs-mode" type="button" role="switch" aria-checked="false" aria-label={head.mode.label} data-origin-mode><span class="ogs-opt">{head.mode.opts[0]}</span><i aria-hidden="true"></i><span class="ogs-opt">{head.mode.opts[1]}</span></button>
+        <SoundKey hook="data-origin-sound" class="ogs-sound" />
+        <span class="ogs-meta bui-label" set:html={head.meta} />
+      </div>
+      <p class="lead" set:html={head.lead} />
+    </div>
+    <div class="ogs-stage panel lit" data-demo-host>
+      <div class="ogs-chrome">{stage.chips.map((c: any) => <span class={c.cls} data-origin-chip={c.data ? "" : undefined} set:html={c.html} />)}</div>
+      <style is:inline set:html={css}></style>
+      <Html html={stage.posterHtml} />
+      <SizeBadge {...stage.badge} />
+      <p class="hero-cap bui-label" set:html={stage.caption} />
+    </div>
+    <div class="ogs-below">
+      {cards.map((c: any, i: number) => <Fragment>{i > 0 && <span class="ogs-vs" aria-hidden="true">{vs}</span>}<article class={c.cls} aria-labelledby={c.id}>
+        <span class={c.chip.cls}>{c.chip.text}</span>
+        <h3 id={c.id}>{c.title}</h3>
+        <ul class="ogs-list">{c.items.map((it: any) => <li><b set:html={it.term} /><span set:html={it.text} /></li>)}</ul>
+        <p class="ogs-stat"><b>{c.stat.value}</b><small>{c.stat.note}</small></p>
+      </article></Fragment>)}
+    </div>
+    <ul class="ogs-nums" aria-label={nums.label}>
+      {nums.items.map((n: any) => <li><b>{n.value}</b><small>{n.note}</small></li>)}
+    </ul>
+    <figure class="panel ogs-why"><span class="ogs-chip ghost">{why.chip}</span><blockquote>{why.quote}</blockquote><figcaption class="bui-label" set:html={why.cite} /></figure>
+    <figure class="ogs-quote"><blockquote>{quote.quote}</blockquote><figcaption class="bui-label" set:html={quote.cite} /></figure>
+    <KeyRow keys={keys} cls="split-keys ogs-links"><a class="ogs-wayback" href={wayback.href}>{wayback.label}</a></KeyRow>
+  </div>
+</HomeSection>

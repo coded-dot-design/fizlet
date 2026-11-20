@@ -6,6 +6,9 @@ import Icon from "../components/Icon.astro";
 import CodeBlock from "../components/CodeBlock.astro";
 import BrickCard from "../components/BrickCard.astro";
 import Html from "../components/Html.astro";
+import Origin from "../components/home/Origin.astro";
+import Play from "../components/home/Play.astro";
+import Story from "../components/home/Story.astro";
 import PageToc from "../components/home/PageToc.astro";
 import Profile from "../components/home/Profile.astro";
 import Contract from "../components/home/Contract.astro";
@@ -23,7 +26,7 @@ import type { Tone } from "../lib/site";
 const h = DATA as any;
 const hero = h.hero;
 // Each componentized section by its kind; a section without one is still the legacy markup (Html).
-const SECTIONS: Record<string, any> = { "page-toc": PageToc, profile: Profile, contract: Contract, board: Board, loop: Loop, recall: Recall, specs: Specs, ship: Ship, games: Games, roadmap: Roadmap, start: Start, final: Final };
+const SECTIONS: Record<string, any> = { origin: Origin, "page-toc": PageToc, play: Play, story: Story, profile: Profile, contract: Contract, board: Board, loop: Loop, recall: Recall, specs: Specs, ship: Ship, games: Games, roadmap: Roadmap, start: Start, final: Final };
 ---
 <BaseLayout meta={h.meta}>
 <section class="hero has-grid" aria-labelledby="hero-title">

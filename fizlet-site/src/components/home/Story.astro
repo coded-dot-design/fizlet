@@ -1,0 +1,19 @@
+---
+// FZ · The name: the copy, and the fizz scene's slot (its poster is the engine's markup, kept as
+// built; the scene loads over it), its measured size and caption.
+import HomeSection from "./HomeSection.astro";
+import SectionCopy from "./SectionCopy.astro";
+import SizeBadge from "./SizeBadge.astro";
+import Html from "../Html.astro";
+const { sec, head, slot } = Astro.props as any;
+---
+<HomeSection {...sec}>
+  <div class="wrap split">
+    <SectionCopy head={head} id={sec.labelledby} />
+    <div class="fizz-slot" data-demo-host>
+      <Html html={slot.posterHtml} />
+      <SizeBadge {...slot.badge} />
+      <p class="hero-cap bui-label" set:html={slot.caption} />
+    </div>
+  </div>
+</HomeSection>

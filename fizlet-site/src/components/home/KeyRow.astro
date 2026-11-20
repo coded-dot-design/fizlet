@@ -1,8 +1,9 @@
 ---
-// A row of Board UI keys under a section's copy (split-keys) or its closing call (final-keys).
+// A row of Board UI keys under a section's copy (split-keys) or its closing call (final-keys);
+// anything slotted follows the keys (a plain link).
 import Key from "../Key.astro";
 import type { Tone } from "../../lib/site";
 interface Props { keys: { href: string; label: string; tone: string; arcade: boolean; icon: string }[]; cls?: string }
 const { keys, cls = "split-keys" } = Astro.props;
 ---
-<div class={cls}>{keys.map((k) => <Key href={k.href} tone={k.tone as Tone} arcade={k.arcade} icon={k.icon || undefined} label={k.label} />)}</div>
+<div class={cls}>{keys.map((k) => <Key href={k.href} tone={k.tone as Tone} arcade={k.arcade} icon={k.icon || undefined} label={k.label} />)}<slot /></div>

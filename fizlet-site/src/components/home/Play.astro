@@ -1,0 +1,40 @@
+---
+// ▶ Blast it, recall it: the copy, and the live demo board. The little page inside is what the
+// demo's script blasts: every letter of the title and every word of the copy is its own element
+// (data-body), split here from the exported text. Recall puts it back.
+import HomeSection from "./HomeSection.astro";
+import SectionCopy from "./SectionCopy.astro";
+import SizeBadge from "./SizeBadge.astro";
+import SoundKey from "./SoundKey.astro";
+import Key from "../Key.astro";
+import type { Tone } from "../../lib/site";
+const { sec, head, demo } = Astro.props as any;
+const letters: string[] = [...demo.page.title];
+const words: string[] = demo.page.copy.split(" ");
+---
+<HomeSection {...sec}>
+  <div class="wrap split">
+    <SectionCopy head={head} id={sec.labelledby} />
+    <figure class="demo panel lit" data-demo data-demo-host aria-label={demo.label}>
+      <div class="demo-chrome"><i></i><i></i><i></i><span class="demo-url">{demo.url}</span><span class="demo-state" data-state>{demo.state}</span><SizeBadge {...demo.badge} /></div>
+      <div class="demo-board" data-board>
+        <div class="demo-page" data-page>
+      <h2 class="demo-title" aria-label={demo.page.title}>{letters.map((ch) => ch === " " ? " " : <span class="dl" data-body data-flip>{ch}</span>)}</h2>
+      <p class="demo-copy">{words.map((w, i) => <Fragment>{i > 0 && " "}<span class="dw" data-body>{w}</span></Fragment>)}</p>
+      <div class="demo-row">{demo.page.row.map((r: any) => <span class={r.cls} data-body>{r.text}</span>)}</div>
+    </div>
+        <canvas class="demo-fx" data-fx aria-hidden="true"></canvas>
+        <div class="demo-slam" data-slam hidden><div class="bui-sticker"><span>{demo.slam.label}</span><b>{demo.slam.value}</b></div></div>
+        <p class="demo-hint" data-hint aria-hidden="true"><span class="blink"></span>{demo.hint}</p>
+      </div>
+      <div class="demo-keys">
+        {demo.keys.map((k: any) => <Key tone={k.tone as Tone} icon={k.icon} iconSize={18} label={k.label} {...{ [k.attr]: "" }}><kbd>{k.kbd}</kbd></Key>)}
+        <SoundKey hook="data-sound" />
+      </div>
+      <dl class="demo-stats" aria-label={demo.stats.label}>
+        {demo.stats.items.map((s: any) => <div><dt>{s.label}</dt><dd data-stat={s.key}>{s.value}</dd></div>)}
+      </dl>
+      <figcaption class="bui-label" set:html={demo.caption} />
+    </figure>
+  </div>
+</HomeSection>

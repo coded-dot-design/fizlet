@@ -251,6 +251,7 @@ const bricksSection = (sec, path) => {
 const secOf = (sec) => ({
   id: sec.getAttribute("id") ?? "", cls: sec.getAttribute("class"), labelledby: sec.getAttribute("aria-labelledby"),
   num: text(sec.querySelector(":scope > .sec-num")), rule: !!sec.querySelector(":scope > .sec-rule"),
+  attrs: Object.fromEntries(Object.entries(sec.attributes).filter(([k]) => !["id", "class", "aria-labelledby", "data-reveal"].includes(k))),
 });
 /** A section's copy: eyebrow (and its index), the two-line title, lead, body paragraphs, keys. */
 const headOf = (el, path) => {
@@ -263,6 +264,8 @@ const headOf = (el, path) => {
     keys: (el.querySelector(":scope > .split-keys")?.querySelectorAll("a.bui-key") ?? []).map((a) => keyOf(a, path)),
   };
 };
+/** A demo's measured-size badge (site.js swaps in the live number once the scene loads). */
+const badgeOf = (el) => ({ label: el.getAttribute("aria-label"), bytes: el.getAttribute("data-bytes"), live: el.getAttribute("data-live"), title: el.getAttribute("title"), size: text(el.querySelector("b")), unit: el.querySelector("b").nextSibling.text });
 const toneOf = (el) => el?.getAttribute("style")?.match(/--tone:\s*var\(--k-([\w-]+)\)/)?.[1] ?? "";
 const rulesOf = (ul, path) => (ul?.querySelectorAll(":scope > li") ?? []).map((li) => inner(li, path));
 const HOME = {
@@ -363,6 +366,60 @@ const HOME = {
       sec: secOf(n), head: headOf(head, path),
       steps: head.querySelectorAll("ol.start-steps > li").map((li) => inner(li, path)),
       code: n.querySelectorAll(".start-code > .code-card").map(codeOf),
+    };
+  },
+  origin: (n, path) => {
+    const head = n.querySelector(".ogs-head"), h = head.querySelector("h2"), word = h.querySelector(".ogs-word"), mode = head.querySelector(".ogs-mode");
+    const stage = n.querySelector(".ogs-stage"), quote = (f) => ({ chip: text(f.querySelector(".ogs-chip")), quote: text(f.querySelector("blockquote")), cite: inner(f.querySelector("figcaption"), path) });
+    const index = text(head.querySelector(".eyebrow .index"));
+    return {
+      sec: secOf(n),
+      head: {
+        index, eyebrow: text(head.querySelector(".eyebrow")).slice(index.length).trim(),
+        title: { cls: h.getAttribute("class"), word: text(word), rest: word.nextSibling.text, accent: text(h.querySelector("em")), loop: text(h.querySelector(".ogs-loop")) },
+        mode: { label: mode.getAttribute("aria-label"), opts: mode.querySelectorAll(".ogs-opt").map(text) },
+        meta: inner(head.querySelector(".ogs-meta"), path), lead: inner(head.querySelector(".lead"), path),
+      },
+      stage: {
+        chips: stage.querySelectorAll(".ogs-chrome > .ogs-chip").map((c) => ({ cls: c.getAttribute("class"), data: c.hasAttribute("data-origin-chip"), html: inner(c, path) })),
+        css: stage.querySelector(":scope > style").text,
+        // The origin scene's poster in its slot: the engine's own markup (the scene replaces it).
+        posterHtml: outer(stage.querySelector(":scope > figure.ae-slot"), path),
+        badge: badgeOf(stage.querySelector(".size-badge")), caption: inner(stage.querySelector(".hero-cap"), path),
+      },
+      cards: n.querySelectorAll(".ogs-below > article").map((a) => ({
+        cls: a.getAttribute("class"), id: a.getAttribute("aria-labelledby"), chip: { cls: a.querySelector(".ogs-chip").getAttribute("class"), text: text(a.querySelector(".ogs-chip")) },
+        title: text(a.querySelector("h3")), items: a.querySelectorAll(".ogs-list > li").map((li) => ({ term: inner(li.querySelector("b"), path), text: inner(li.querySelector("span"), path) })),
+        stat: { value: text(a.querySelector(".ogs-stat b")), note: text(a.querySelector(".ogs-stat small")) },
+      })),
+      vs: text(n.querySelector(".ogs-vs")),
+      nums: { label: n.querySelector(".ogs-nums").getAttribute("aria-label"), items: n.querySelectorAll(".ogs-nums > li").map((li) => ({ value: text(li.querySelector("b")), note: text(li.querySelector("small")) })) },
+      why: quote(n.querySelector(".ogs-why")), quote: quote(n.querySelector(".ogs-quote")),
+      keys: n.querySelectorAll(".ogs-links a.bui-key").map((a) => keyOf(a, path)), wayback: link(n.querySelector(".ogs-links .ogs-wayback"), path),
+    };
+  },
+  play: (n, path) => {
+    const fig = n.querySelector("figure.demo"), page = fig.querySelector(".demo-page"), slam = fig.querySelector(".demo-slam .bui-sticker");
+    const key = (b) => ({ tone: ["attack", "cmd"].find((t) => b.classList.contains(`bui-${t}`)), icon: iconName(b.querySelector("svg path").getAttribute("d")), label: b.childNodes.find((c) => c.nodeType === 3 && c.text.trim()).text, kbd: text(b.querySelector("kbd")), attr: Object.keys(b.attributes).find((k) => k.startsWith("data-")) });
+    return {
+      sec: secOf(n), head: headOf(n.querySelector(".split > div:first-child"), path),
+      demo: {
+        label: fig.getAttribute("aria-label"), url: text(fig.querySelector(".demo-url")), state: text(fig.querySelector(".demo-state")), badge: badgeOf(fig.querySelector(".size-badge")),
+        // The little page the engine blasts: every letter and word its own element (data-body).
+        page: { title: page.querySelector(".demo-title").getAttribute("aria-label"), copy: text(page.querySelector(".demo-copy")), row: page.querySelectorAll(".demo-row > span").map((x) => ({ cls: x.getAttribute("class"), text: text(x) })) },
+        slam: { label: text(slam.querySelector("span")), value: text(slam.querySelector("b")) }, hint: text(fig.querySelector(".demo-hint")),
+        keys: fig.querySelectorAll(".demo-keys > .bui-arcade").map(key),
+        stats: { label: fig.querySelector(".demo-stats").getAttribute("aria-label"), items: fig.querySelectorAll(".demo-stats > div").map((d) => ({ label: text(d.querySelector("dt")), key: d.querySelector("dd").getAttribute("data-stat"), value: text(d.querySelector("dd")) })) },
+        caption: inner(fig.querySelector("figcaption"), path),
+      },
+    };
+  },
+  story: (n, path) => {
+    const slot = n.querySelector(".fizz-slot");
+    return {
+      sec: secOf(n), head: headOf(n.querySelector(".split > div:first-child"), path),
+      // The fizz scene's poster in its slot: the engine's own markup (the scene replaces it).
+      slot: { posterHtml: outer(slot.querySelector(":scope > figure.ae-slot"), path), badge: badgeOf(slot.querySelector(".size-badge")), caption: inner(slot.querySelector(".hero-cap"), path) },
     };
   },
   final: (n, path) => {

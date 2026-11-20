@@ -1,0 +1,10 @@
+---
+// The sound toggle on a demo: off until pressed (aria-pressed), its two icons swapped by CSS.
+// `hook` is the attribute the demo's script finds it by.
+import Key from "../Key.astro";
+import Icon from "../Icon.astro";
+interface Props { hook: string; class?: string }
+const { hook, class: cls = "" } = Astro.props;
+const attrs = { [hook]: "" };
+---
+<Key arcade={false} class={["bui-icon-key", cls].filter(Boolean).join(" ")} {...attrs} aria-pressed="false" aria-label="Sound"><span class="snd-off"><Icon name="mute" /></span><span class="snd-on"><Icon name="sound" /></span></Key>
