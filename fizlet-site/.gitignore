@@ -1,5 +1,8 @@
 node_modules/
-dist/
+/dist/
 .astro/
 .env
 .env.*
+# The hosted ESM build the docs link to (vendored from the legacy site, see MIGRATION.md): kept,
+# though a parent repo may ignore every dist/.
+!/public/dist/
