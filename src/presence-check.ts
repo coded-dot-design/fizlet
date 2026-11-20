@@ -17,12 +17,18 @@ export interface SyncGame {
 
 /** Options for `syncCheck()`: players, frames, seed, input delay and the simulated link. */
 export interface SyncOptions {
-  players?: number; // default 2
-  frames?: number; // default 600
-  seed?: number; // engine seed, the same for every client (default 1)
-  delay?: number; // input delay in frames (default 2)
-  latency?: number; // link latency in ticks (default 0)
-  jitter?: number; // extra random latency in ticks, reorders messages (default 0)
+  /** Clients, each a copy of your sim on its own engine (default 2). */
+  players?: number;
+  /** Sim frames each client runs and hashes (default 600). */
+  frames?: number;
+  /** Engine seed, the same for every client (default 1); also seeds the link's jitter. */
+  seed?: number;
+  /** Input delay in frames (default 2). */
+  delay?: number;
+  /** Link latency in ticks, one tick per engine step (default 0). */
+  latency?: number;
+  /** Extra random latency, 0..jitter ticks, which reorders messages (default 0). */
+  jitter?: number;
 }
 
 /** What `syncCheck()` found: whether every client agreed, how far they got and the first frame that
