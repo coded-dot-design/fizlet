@@ -1,0 +1,12 @@
+---
+// The Hi-Fi lane (/gallery/hifi/): every live Hi-Fi piece on one page, newest first; its theme
+// chips count and filter its own pieces, All is Daily.
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import GalleryView from "../../../components/GalleryView.astro";
+import { galleryMeta, type GalleryData } from "../../../lib/gallery-search";
+import DATA from "../../../data/legacy/pages/gallery/hifi.json";
+const g = DATA as unknown as GalleryData;
+---
+<BaseLayout meta={galleryMeta(g)} styles={g.styles}>
+<GalleryView g={g} />
+</BaseLayout>

@@ -1,0 +1,47 @@
+---
+// The gallery's theme chips: All (Daily), the Hi-Fi lane (a plain link to its page), then each theme
+// with its count. Each theme chip is its own #theme-<id> anchor and a link to the page holding that
+// theme's newest card, so without script it lands there; with script a chip whose theme is on this
+// page filters the flat list in place (only its cards show, same order, never grouped); a second
+// press, or All, shows every card again. A #theme-<id> address filters on arrival and on change.
+import Key from "./Key.astro";
+import type { Chip } from "../lib/gallery-search";
+interface Props { label: string; chips: Chip[] }
+const { label, chips } = Astro.props;
+---
+<nav class="gal-themes" aria-label={label}>{chips.map((c) => (
+  <Key href={c.href} arcade={false} class={c.lane ? "gal-chip gal-lane-chip" : "gal-chip"} id={c.id} data-theme-chip={c.theme} data-lane-chip={c.lane} aria-current={c.current ? "true" : undefined}>{`${c.label} `}<small>{c.count}</small></Key>
+))}</nav>
+<script>
+  const root = document.documentElement;
+  const chips = [...document.querySelectorAll<HTMLAnchorElement>("a[data-theme-chip]")];
+  const cards = [...document.querySelectorAll<HTMLElement>("[data-gal-flat] > li.gal-item")];
+  /** Show only theme `id`'s cards ("all": every card); false when none of its cards is on this page. */
+  function filter(id: string) {
+    if (id !== "all" && !cards.some((c) => c.dataset.theme === id)) return false;
+    for (const c of cards) c.hidden = id !== "all" && c.dataset.theme !== id;
+    for (const c of chips) c.dataset.themeChip === id ? c.setAttribute("aria-current", "true") : c.removeAttribute("aria-current");
+    root.dataset.galFilter = id;
+    return true;
+  }
+  for (const c of chips)
+    c.addEventListener("click", (ev) => {
+      const id = c.dataset.themeChip!;
+      const next = id !== "all" && root.dataset.galFilter === id ? "all" : id; // a second press shows all again
+      if (filter(next)) {
+        ev.preventDefault();
+        history.replaceState(null, "", next === "all" ? location.pathname + location.search : `#theme-${next}`);
+      }
+    });
+  // Any other address while filtered is All again (a search hit's card may be in another theme);
+  // a card hidden when the address changed is scrolled to once it shows.
+  const fromHash = (arrival: boolean) => {
+    const id = location.hash.match(/^#theme-([a-z0-9-]+)$/)?.[1];
+    if (id) {
+      if (!filter(id)) return;
+    } else if (arrival || (root.dataset.galFilter ?? "all") === "all" || !filter("all")) return;
+    if (location.hash && !id) document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
+  };
+  fromHash(true);
+  addEventListener("hashchange", () => fromHash(false));
+</script>

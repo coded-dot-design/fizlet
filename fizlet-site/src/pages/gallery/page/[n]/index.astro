@@ -1,0 +1,15 @@
+---
+// Daily, pages 2 and on (/gallery/page/<n>/): the same view as page 1, older pieces, newest first.
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import GalleryView from "../../../../components/GalleryView.astro";
+import { galleryMeta, type GalleryData } from "../../../../lib/gallery-search";
+const PAGES = import.meta.glob<{ default: unknown }>("../../../../data/legacy/pages/gallery/page-*.json", { eager: true });
+export function getStaticPaths() {
+  const pages = import.meta.glob<{ default: unknown }>("../../../../data/legacy/pages/gallery/page-*.json", { eager: true });
+  return Object.keys(pages).map((f) => ({ params: { n: f.match(/page-(\d+)\.json$/)![1] } }));
+}
+const g = PAGES[`../../../../data/legacy/pages/gallery/page-${Astro.params.n}.json`].default as GalleryData;
+---
+<BaseLayout meta={galleryMeta(g)} styles={g.styles}>
+<GalleryView g={g} />
+</BaseLayout>

@@ -181,9 +181,12 @@ for (const id of ["kernel"]) {
   });
 }
 
-// ---------- The gallery index ----------
-{
-  const path = "gallery/";
+// ---------- The gallery: Daily (gallery/, gallery/page/<n>/), the Hi-Fi lane, the archive ----------
+// Every gallery page is data: its head, the theme chips, the search box, the cards (flat, or the
+// archive's theme sections) and the page nav. Only each card's stage and meta tail stay as built.
+const GALLERY = routes.filter((r) => /^gallery-(index|lane|archive)$/.test(r.type)).map((r) => r.path);
+const galleryFile = (path) => path === "gallery/" ? "index" : path === "gallery/hifi/" ? "hifi" : path === "gallery/archive/" ? "archive" : `page-${path.match(/page\/(\d+)\//)[1]}`;
+for (const path of GALLERY) {
   const doc = parse(read(`${path}index.html`));
   const main = doc.querySelector("main");
   const section = main.querySelector("section");
@@ -200,13 +203,20 @@ for (const id of ["kernel"]) {
       index: text(line.querySelector(".index")),
       line: text(line).replace(/^\S+\s/, ""),
       title: text(meta.querySelector(".gal-title")),
+      level: meta.querySelector(".gal-title").tagName.toLowerCase(),
       // The rest of the card's meta (stickers, author, brief, measured cost, bricks, keys), in order.
       metaHtml: meta.childNodes.filter((n) => n.nodeType === 1 && !is(n, ".gal-line, .gal-title")).map((n) => outer(n, path)).join("\n"),
     };
   };
-  write("pages/gallery/index.json", {
+  const themes = section.querySelector("nav.gal-themes");
+  const search = section.querySelector("form.gal-search");
+  const pages = section.querySelector("nav.gal-pages");
+  const href = (a) => absolute(`href="${a.getAttribute("href")}"`, path).slice(6, -1);
+  write(`pages/gallery/${galleryFile(path)}.json`, {
     meta: metaOf(doc, path),
+    robots: doc.querySelector('meta[name="robots"]')?.getAttribute("content") ?? "",
     styles: main.querySelectorAll(":scope > style").map((s) => s.text),
+    crumbs: crumbsOf(section.querySelector("nav.bp-crumbs"), path),
     head: {
       index: text(head.querySelector(".eyebrow .index")),
       eyebrow: text(head.querySelector(".eyebrow")).replace(/^\S+\s/, ""),
@@ -214,10 +224,35 @@ for (const id of ["kernel"]) {
       lead: inner(head.querySelector(".lead"), path),
       contestHtml: outer(head.querySelector(".gal-contest"), path),
     },
-    themesHtml: outer(section.querySelector("nav.gal-themes"), path),
-    searchHtml: outer(section.querySelector("form.gal-search"), path),
-    items: section.querySelectorAll("ol.gal > li.gal-item").map(item),
-    pagesHtml: outer(section.querySelector("nav.gal-pages"), path),
+    // The theme chips: All, the Hi-Fi lane, then each theme (its own #theme-<id> anchor).
+    themes: themes ? {
+      label: themes.getAttribute("aria-label"),
+      chips: themes.querySelectorAll("a.gal-chip").map((a) => ({
+        href: href(a), label: text(a.childNodes[0]), count: text(a.querySelector("small")),
+        ...(a.getAttribute("data-theme-chip") ? { theme: a.getAttribute("data-theme-chip") } : {}),
+        ...(a.getAttribute("data-lane-chip") ? { lane: a.getAttribute("data-lane-chip") } : {}),
+        ...(a.getAttribute("id") ? { id: a.getAttribute("id") } : {}),
+        current: a.getAttribute("aria-current") === "true",
+      })),
+    } : null,
+    search: search ? {
+      label: text(search.querySelector("label")),
+      placeholder: search.querySelector("input").getAttribute("placeholder"),
+    } : null,
+    items: section.querySelectorAll("ol.gal[data-gal-flat] > li.gal-item").map(item),
+    // The archive: by theme, each its own section and head.
+    sections: section.querySelectorAll("section.gal-theme").map((s) => ({
+      id: s.getAttribute("id").replace(/^theme-/, ""),
+      title: text(s.querySelector(".gal-theme-head h2")),
+      blurb: text(s.querySelector(".gal-theme-head p")),
+      items: s.querySelectorAll("ol.gal > li.gal-item").map(item),
+    })),
+    pages: pages ? {
+      label: pages.getAttribute("aria-label"),
+      list: pages.childNodes.filter((n) => n.nodeType === 1).map((n) => n.tagName === "SPAN"
+        ? { n: text(n), current: true }
+        : { n: text(n), href: href(n), ...(n.getAttribute("rel") ? { rel: n.getAttribute("rel") } : {}) }),
+    } : null,
   });
 }
 
@@ -278,8 +313,11 @@ const bricksSection = (sec, path) => {
 // Scripts, stylesheets-free: every module script the four pages load, and every file those import.
 const assets = new Set(["icon.svg", "og.png", "robots.txt", "llms.txt", "llms-full.txt", "fizlet.js"]);
 const queue = [];
-for (const f of ["index.html", "docs/getting-started/index.html", "bricks/kernel.html", "gallery/index.html"]) {
+const PAGES = ["index.html", "docs/getting-started/index.html", "bricks/kernel.html", ...GALLERY.map((p) => `${p}index.html`)];
+for (const f of PAGES) {
   const h = read(f);
+  // A gallery card's live chunk (gallery/<id>.js, imported by gallery.js once it nears the screen).
+  for (const m of h.matchAll(/data-gallery="([\w-]+)"/g)) queue.push(`gallery/${m[1]}.js`);
   for (const m of h.matchAll(/(?:src|href|data-live|data-src|data-module)="([^"#?]+\.(?:js|json|svg|png|webp|css|txt))"/g)) {
     if (/^https?:/.test(m[1])) continue;
     const p = new URL(m[1], `https://fizlet.com/${f.replace(/index\.html$/, "")}`).pathname.slice(1);
@@ -292,9 +330,11 @@ while (queue.length) {
   assets.add(p);
   if (p.endsWith(".js")) for (const m of read(p).matchAll(/(?:from|import\(|import)\s*"(\.{1,2}\/[^"]+)"|"(\.\/[\w./-]+\.js)"/g)) queue.push(new URL(m[1] ?? m[2], `https://fizlet.com/${p}`).pathname.slice(1));
 }
+// The search index the gallery pages fetch on the first keystroke.
+if (GALLERY.length) assets.add("gallery/index.json");
 // The hosted ESM build (dist/) the quick start and docs link to.
 for (const f of walk(join(LEGACY, "dist"))) assets.add(relative(LEGACY, f).split("\\").join("/"));
 const LIST = [...assets].sort();
 for (const p of LIST) { mkdirSync(dirname(join(PUBLIC_LEGACY, p)), { recursive: true }); cpSync(join(LEGACY, p), join(PUBLIC_LEGACY, p)); }
 write("assets.json", LIST);
-console.log(`Exported ${routes.length} routes, 4 pages, ${LIST.length} runtime files (legacy v${version}).`);
+console.log(`Exported ${routes.length} routes, ${PAGES.length} pages, ${LIST.length} runtime files (legacy v${version}).`);

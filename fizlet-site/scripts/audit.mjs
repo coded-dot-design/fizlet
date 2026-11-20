@@ -11,8 +11,11 @@ const walk = (d) => readdirSync(d).flatMap((f) => { const p = join(d, f); return
 const fail = [];
 const NOINDEX = process.env.PUBLIC_ROBOTS === "noindex";
 
+// Pages the legacy build kept out of search on every build (the gallery archive): noindex always.
+const KEEP_OUT = new Set(JSON.parse(readFileSync("src/data/legacy/routes.json", "utf8")).filter((r) => r.noindex && !r.redirect).map((r) => r.path));
 for (const f of walk("dist").filter((f) => f.endsWith(".html"))) {
   const h = readFileSync(f, "utf8"), at = relative("dist", f);
+  const path = at.split("\\").join("/").replace(/index\.html$/, "");
   const need = (ok, what) => { if (!ok) fail.push(`${at}: ${what}`); };
   need(/<html lang="en"/.test(h), "no lang");
   need((h.match(/<title>/g) ?? []).length === 1, "not one <title>");
@@ -22,7 +25,8 @@ for (const f of walk("dist").filter((f) => f.endsWith(".html"))) {
   need(h.indexOf("dom-virus:theme") < h.indexOf("<body"), "theme script after first paint");
   need(/property="og:image"/.test(h), "no og:image");
   need(!/\son(click|load|error|mouseover)=/i.test(h), "inline event handler");
-  need(NOINDEX === /<meta name="robots" content="noindex/.test(h), NOINDEX ? "staging build without noindex" : "production build with noindex");
+  if (KEEP_OUT.has(path)) need(/<meta name="robots" content="noindex/.test(h), "kept out of search by the legacy build, but no noindex");
+  else need(NOINDEX === /<meta name="robots" content="noindex/.test(h), NOINDEX ? "staging build without noindex" : "production build with noindex");
   for (const m of h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) { try { JSON.parse(m[1]); } catch { fail.push(`${at}: JSON-LD does not parse`); } }
 }
 for (const p of JSON.parse(readFileSync("src/data/migration.json", "utf8")).done) {

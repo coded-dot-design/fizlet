@@ -1,0 +1,9 @@
+---
+// The gallery's page nav: every Daily page, the current one marked, its neighbours rel=prev/next.
+import Key from "./Key.astro";
+interface Props { label: string; list: { n: string; href?: string; rel?: string; current?: boolean }[] }
+const { label, list } = Astro.props;
+---
+<nav class="gal-pages" aria-label={label}>{list.map((p) => p.current
+  ? <span class="gal-page-now" aria-current="page">{p.n}</span>
+  : <Key href={p.href} arcade={false} rel={p.rel} aria-label={`Daily page ${p.n}`} label={p.n} />)}</nav>

@@ -1,0 +1,42 @@
+---
+// The gallery's search box: hidden until its script runs, then every word typed is matched against
+// the generated index (/gallery/index.json, fetched on the first keystroke): the newest matches
+// listed with their theme, author, lane and measured size, and a count read out politely.
+interface Props { label: string; placeholder: string }
+const { label, placeholder } = Astro.props;
+---
+<form class="gal-search" role="search" data-gal-search data-base="/" hidden>
+      <label class="bui-label" for="gal-q">{label}</label>
+      <input id="gal-q" type="search" name="q" autocomplete="off" placeholder={placeholder}>
+      <p class="gal-found" role="status" aria-live="polite" data-gal-found></p>
+      <ul class="gal-results" data-gal-results></ul>
+    </form>
+<script>
+  import { search, hitLine, foundLine, type IndexRow } from "../lib/gallery-search";
+  const MAX = 24;
+  const form = document.querySelector<HTMLFormElement>("form[data-gal-search]");
+  if (form) {
+    const input = form.querySelector<HTMLInputElement>("input[type=search]")!;
+    const found = form.querySelector<HTMLElement>("[data-gal-found]")!;
+    const out = form.querySelector<HTMLUListElement>("[data-gal-results]")!;
+    const base = new URL(form.dataset.base ?? "/", location.href);
+    let rows: Promise<IndexRow[]> | null = null;
+    form.hidden = false;
+    form.addEventListener("submit", (ev) => ev.preventDefault());
+    const run = async () => {
+      rows ??= fetch(new URL("gallery/index.json", base)).then((r) => r.json() as Promise<IndexRow[]>);
+      const q = input.value, hits = search(await rows, q);
+      if (input.value !== q) return; // a newer keystroke is on its way
+      out.replaceChildren(...hits.slice(0, MAX).map((r) => {
+        const li = document.createElement("li"), a = document.createElement("a"), small = document.createElement("small");
+        a.href = new URL(r.url, base).href;
+        a.textContent = r.title;
+        small.textContent = hitLine(r);
+        li.append(a, small);
+        return li;
+      }));
+      found.textContent = foundLine(q, hits.length, MAX);
+    };
+    input.addEventListener("input", () => void run());
+  }
+</script>

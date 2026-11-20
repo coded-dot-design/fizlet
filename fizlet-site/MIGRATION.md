@@ -60,10 +60,13 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 - **Runtime**: the ported pages still run the legacy engine bundles from `public/` (`site.js` wires
   the theme toggle, nav menus, Copy keys; the demos and gallery pieces load their chunks). Next:
   build these here from `@fzlt/core` (npm) and move the behaviour into the components' scripts.
+  Done for the gallery's browse script (W2-gallery): the theme filter is GalleryThemes' own script
+  and the search GallerySearch's (`src/lib/gallery-search.ts`, unit-tested); the legacy
+  `gallery/browse.js` is no longer loaded. `gallery/gallery.js` (mounting each piece) still is.
 - **Kept as built** (`Html.astro`): the home page's 14 sections below the stats (origin, page-toc,
   play, story, profile, contract, board, loop, recall, specs, ship, games, roadmap, start, final),
-  the home hero's layers figure, the brick page's head, demo, card, status and API, the gallery's
-  theme chips, search, page nav, and each piece's stage and meta tail.
+  the home hero's layers figure, the brick page's head, demo, card, status and API, and each
+  gallery piece's stage and meta tail (W2-gallery made the theme chips, search and page nav components).
 - **Analytics**: the legacy build adds GA4 + PostHog behind consent only when its public ids are
   set (they were not for this export). Port `site/analytics` before cutover if they are.
 - **Redirects**: the two moved pages (`/heroes/`, `/guides/multiplayer-rooms/`) need Cloudflare
@@ -79,7 +82,7 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 ## Route inventory
 
 <!-- INVENTORY:START -->
-148 legacy pages, 4 done, 144 to do (legacy build v0.27.0).
+148 legacy pages, 11 done, 137 to do (legacy build v0.27.0).
 
 | Type | Pages | Done | Template | Components | Next wave |
 |---|---:|---:|---|---|---|
@@ -93,9 +96,9 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 | demo | 7 | 0 | to build: the engine demos' own host pages (no site shell for some) | kept as built (Html) until the demos build from @fzlt/core here | W2-demos |
 | docs-index | 2 | 0 | to build: src/pages/docs/index.astro, src/pages/guides/index.astro | SectionHead, a doc list card (new) | W2-docs |
 | doc | 11 | 1 | src/pages/docs/[slug]/index.astro | Crumbs, SectionHead, CodeBlock, Key, DocSteps, DocsSidebar | W2-docs: add the slug to export-legacy.mjs (guides need a guides/[slug] route on the same template), then compare |
-| gallery-index | 6 | 1 | src/pages/gallery/index.astro (page 1); to build: gallery/page/[n]/ | SectionHead, Callout, GalleryCard | W2-gallery: one [n] route over the same template |
-| gallery-archive | 1 | 0 | to build: src/pages/gallery/archive/index.astro (noindex,nofollow) | GalleryCard | W2-gallery |
-| gallery-lane | 1 | 0 | to build: src/pages/gallery/hifi/index.astro | GalleryCard | W2-gallery |
+| gallery-index | 6 | 6 | src/pages/gallery/index.astro (page 1), src/pages/gallery/page/[n]/index.astro (2-6), both GalleryView | GalleryView: Crumbs, SectionHead, Callout, GalleryThemes (chips + filter script), GallerySearch (search script), GalleryCard, GalleryPages | W2-gallery done; next: each card's stage and meta tail (kept as built) as components |
+| gallery-archive | 1 | 1 | src/pages/gallery/archive/index.astro (GalleryView, theme sections; noindex,nofollow on every build) | GalleryView: Crumbs, SectionHead, GalleryCard | W2-gallery done |
+| gallery-lane | 1 | 1 | src/pages/gallery/hifi/index.astro (GalleryView) | GalleryView (as gallery-index) | W2-gallery done |
 | redirect | 2 | 0 | to build: a redirect (Cloudflare _redirects 301, plus the meta-refresh page) | none | W2-misc |
 | make | 1 | 0 | to build: src/pages/make/index.astro | CodeBlock, Key; make.js runtime | W2-daily |
 | news-index | 1 | 0 | to build: src/pages/news/index.astro | a release row (new) | W2-notes |
@@ -230,23 +233,23 @@ Every route (`/path` · type · status · in sitemap · title):
 <details><summary><b>gallery-index</b> (6)</summary>
 
 - [x] `/gallery/` · done · Daily: tiny examples, made every day · Fizlet
-- [ ] `/gallery/page/2/` · to do · Daily, page 2: tiny examples, made every day · Fizlet
-- [ ] `/gallery/page/3/` · to do · Daily, page 3: tiny examples, made every day · Fizlet
-- [ ] `/gallery/page/4/` · to do · Daily, page 4: tiny examples, made every day · Fizlet
-- [ ] `/gallery/page/5/` · to do · Daily, page 5: tiny examples, made every day · Fizlet
-- [ ] `/gallery/page/6/` · to do · Daily, page 6: tiny examples, made every day · Fizlet
+- [x] `/gallery/page/2/` · done · Daily, page 2: tiny examples, made every day · Fizlet
+- [x] `/gallery/page/3/` · done · Daily, page 3: tiny examples, made every day · Fizlet
+- [x] `/gallery/page/4/` · done · Daily, page 4: tiny examples, made every day · Fizlet
+- [x] `/gallery/page/5/` · done · Daily, page 5: tiny examples, made every day · Fizlet
+- [x] `/gallery/page/6/` · done · Daily, page 6: tiny examples, made every day · Fizlet
 
 </details>
 
 <details><summary><b>gallery-archive</b> (1)</summary>
 
-- [ ] `/gallery/archive/` · to do · not in sitemap · noindex · Gallery archive: earlier runs, kept to revisit · Fizlet
+- [x] `/gallery/archive/` · done · not in sitemap · noindex · Gallery archive: earlier runs, kept to revisit · Fizlet
 
 </details>
 
 <details><summary><b>gallery-lane</b> (1)</summary>
 
-- [ ] `/gallery/hifi/` · to do · Daily Hi-Fi: bigger pieces, their own lane · Fizlet
+- [x] `/gallery/hifi/` · done · Daily Hi-Fi: bigger pieces, their own lane · Fizlet
 
 </details>
 

@@ -47,6 +47,47 @@ for (const width of [1440, 390]) for (const theme of ["dark", "light"]) {
   }
   await ctx.close();
 }
+// The gallery's runtime: the theme chips filter the flat list in place (and a second press, or a
+// #theme- address, works as on the legacy site), and the search box finds pieces from the index.
+const GALLERY = pages.filter((p) => /^\/gallery\/((page\/\d+|hifi)\/)?$/.test(p));
+if (GALLERY.length) {
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
+  for (const p of GALLERY) {
+    const page = await ctx.newPage();
+    const check = (ok, what) => { if (!ok) problems.push(`${p} gallery: ${what}`); };
+    await page.goto(base + p, { waitUntil: "load" });
+    const shown = () => page.$$eval("[data-gal-flat] > li.gal-item", (li) => li.filter((x) => !x.hidden).map((x) => x.dataset.theme));
+    const all = await shown();
+    // A theme with cards on this page, and fewer than all of them.
+    const theme = [...new Set(all)].find((t) => all.filter((x) => x === t).length < all.length);
+    if (theme) {
+      await page.click(`a[data-theme-chip="${theme}"]`);
+      const only = await shown();
+      check(only.length > 0 && only.every((t) => t === theme), `chip ${theme} shows ${only.length} cards, not only its own`);
+      check(new URL(page.url()).hash === `#theme-${theme}`, `chip ${theme} did not set #theme-${theme}`);
+      check(await page.getAttribute(`a[data-theme-chip="${theme}"]`, "aria-current") === "true", `chip ${theme} not current`);
+      await page.click(`a[data-theme-chip="${theme}"]`);
+      check((await shown()).length === all.length, `a second press on ${theme} did not show all`);
+      await page.goto(`${base}${p}#theme-${theme}`, { waitUntil: "load" });
+      await page.reload({ waitUntil: "load" });
+      check((await shown()).every((t) => t === theme), `#theme-${theme} on arrival did not filter`);
+    } else check(false, "no theme to filter on");
+    // Search: visible once its script runs, hits from the index, a count, a link to each piece.
+    check(await page.isVisible("form[data-gal-search]"), "search box hidden");
+    const title = (await page.textContent("[data-gal-flat] > li.gal-item .gal-title")) ?? "";
+    await page.fill("#gal-q", title.toUpperCase());
+    await page.waitForFunction(() => document.querySelector("[data-gal-found]")?.textContent?.trim(), null, { timeout: 5000 }).catch(() => {});
+    const hits = await page.$$eval("[data-gal-results] a", (a) => a.map((x) => x.textContent));
+    check(hits.includes(title), `search for "${title}" did not find it (${hits.length} hits)`);
+    check(/^\d+ match(es)?/.test((await page.textContent("[data-gal-found]")) ?? ""), "no match count");
+    await page.fill("#gal-q", "");
+    await page.waitForTimeout(100);
+    check((await page.$$("[data-gal-results] li")).length === 0, "clearing the search left hits");
+    await page.close();
+  }
+  await ctx.close();
+  console.log(`Gallery runtime: theme chips and search checked on ${GALLERY.length} pages.`);
+}
 await browser.close(); server.close();
 console.log(`Browsed ${pages.length} pages x 4 (1440/390, dark/light). Links to legacy routes not yet ported: ${pending.size}.`);
 for (const p of problems) console.error("  " + p);

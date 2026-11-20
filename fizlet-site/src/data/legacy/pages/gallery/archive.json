@@ -1,0 +1,325 @@
+{
+ "meta": {
+  "path": "gallery/archive/",
+  "title": "Gallery archive: earlier runs, kept to revisit · Fizlet",
+  "description": "Earlier Fizlet factory animations taken off the gallery (16), kept to revisit, each with its size measured on this build.",
+  "ld": [],
+  "scripts": [
+   "/site.js",
+   "/gallery/gallery.js"
+  ]
+ },
+ "robots": "noindex,nofollow",
+ "styles": [
+  ".lz.lz--o .lz-l+.lz-l{border-color:var(--line);background:color-mix(in srgb,var(--surface) 42%,transparent)}.lz.lz--f .lz-l+.lz-l:not([data-layer=collision])>*{opacity:.4}.lz.lz--f .lz-l+.lz-l:not([data-layer=collision]){border-color:color-mix(in srgb,var(--line) 40%,transparent)}.lz [data-layer=collision]{opacity:0}.lz:is(.lz--o,.lz--b) [data-layer=collision]{opacity:1}.lz.lz--b .lz-l[data-layer=collision],.lz.lz--b .lz-l[data-layer=collision] .lz-tag{border-color:var(--k-fire)}.lz.lz--b .lz-l[data-layer=collision]{background:color-mix(in srgb,var(--k-fire) 28%,transparent)}.lz.lz--b .lz-l[data-layer=collision] .lz-tag u{color:var(--k-aim)}.lz.lz--k .lz-l[data-layer=collision],.lz.lz--k .lz-l[data-layer=collision] .lz-tag{border-color:var(--k-go)}.lz.lz--k .lz-l[data-layer=collision]{background:color-mix(in srgb,var(--k-go) var(--g),transparent)}.lz.lz--k .lz-l[data-layer=collision] .lz-tag u{color:var(--k-go)}.lz{position:absolute;inset:0;perspective:2200px;font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);user-select:none}.lz-s{position:absolute;left:50%;top:calc(50% - 26px);width:216px;height:312px;margin:-156px 0 0 -108px;transform-style:preserve-3d;will-change:transform}.lz-l{position:absolute;inset:0;transform-style:preserve-3d;border:2px solid transparent;border-radius:6px}.lz-l>*{position:absolute}.lz-g{background-color:var(--surface);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:24px 24px;outline:6px solid var(--rim);box-shadow:0 10px 0 var(--k-cmd-base)}.lz-w{width:24px;height:24px;background:var(--k-cmd-base);box-shadow:inset 0 -5px 0 var(--raised)}.lz-c{width:16px;height:16px;margin:4px;background:var(--hurt);box-shadow:inset 0 -4px color-mix(in srgb,var(--hurt) 45%,var(--rim))}.lz-t{width:27px;height:27px;left:0;top:0;image-rendering:pixelated}.lz-b{width:6px;height:6px;left:-3px;top:-3px;background:var(--hurt);border-radius:1px}.lz-o{left:0;top:0;border:2px dotted var(--k-sys);border-radius:4px}.lz-h{border:1px solid var(--k-sys);border-radius:50%;width:22px;height:22px;left:-11px;top:-11px}.lz-k{width:24px;height:24px;border:1px dashed var(--k-sys)}.lz-x{left:0;top:0;width:100%;height:0;overflow:hidden}.lz-scan{left:-6px;right:-6px;height:4px;top:0;background:var(--k-sys);box-shadow:0 2px 0 var(--rim)}.lz-p{width:24px;height:24px;border:2px solid var(--hurt)}.lz-a{width:30px;height:2px;left:0;top:-1px;background:var(--k-sys);transform-origin:0 50%}.lz-fire{--u:.7px;right:8px;bottom:8px;pointer-events:none}.lz-hud{left:6px;right:6px;top:6px;display:flex;justify-content:space-between;padding:5px 7px;background:var(--card);border:2px solid var(--line);border-radius:6px;box-shadow:0 3px 0 var(--k-cmd-base)}.lz-hud b{color:var(--team-a)}.lz-hud i{font-style:normal;color:var(--team-b)}.lz-m{width:20px;height:20px;left:-10px;top:-10px;border-radius:50%;border:3px solid var(--k-fire);background:radial-gradient(var(--k-aim) 20%,color-mix(in srgb,var(--k-fire) 60%,transparent) 45%,transparent 70%)}.lz-tag{font-size:calc(11px / var(--se));border-width:calc(2px / var(--se))!important;padding:calc(3px / var(--se)) calc(7px / var(--se));margin:calc(-2px / var(--se)) 0 0 calc(10px / var(--se));border-radius:calc(5px / var(--se));left:100%;top:100%;white-space:nowrap;transform-origin:0 0;background:var(--card);border:2px solid var(--line);opacity:0}.lz-tag u{text-decoration:none;color:var(--muted)}@container lyr (max-width:440px){.lz-tag,.lyr .lyr__t{font-size:calc(12px / var(--se))}}.lyr{--e:0;position:relative;margin:0;width:100%;aspect-ratio:4/5;max-height:640px;container-type:size;background:var(--rim);border:2px solid var(--line);border-radius:14px;overflow:clip;contain:layout paint;content-visibility:auto;container-name:lyr}.lyr [data-fizlet-slot]{overflow:clip!important}figure.lyr.ae-slot{touch-action:none;overscroll-behavior:none}.lyr__ui{position:absolute;left:10px;right:10px;bottom:8px;height:40px;display:flex;align-items:center;gap:10px;z-index:1}.lyr .lyr__play{width:44px;height:38px;padding:0;justify-content:center;flex:none}.lyr__play svg{fill:currentColor}.lyr__play[aria-label=Play] .p,.lyr__play[aria-label=Pause] .q{display:none}.lyr__cue{margin:0;font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--k-sys-ink);background:var(--card);border:2px solid var(--line);border-radius:6px;padding:7px 9px;transition:opacity .3s}.lyr__cue b{color:var(--muted)}.lyr__cue .t,.lyr[data-scrubbed] .lyr__cue{display:none}@media(pointer:coarse){.lyr__cue .m{display:none}.lyr__cue .t{display:inline}}.lyr:focus-visible{outline:3px solid var(--k-sys-ink);outline-offset:3px}.lyr__d{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.lyr__p{position:absolute;inset:0;perspective:2200px;font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink)}.lyr__s{position:absolute;left:50%;top:calc(50% - 26px);width:216px;height:312px;margin:-156px 0 0 -108px;transform-style:preserve-3d;--wp:.6;--hp:.6;--we:.2;--he:.2;--hg:.2;--sp:min(var(--wp),var(--hp));--se:min(var(--we),var(--he),var(--hg));transform:translate(calc(-111px * var(--e))) scale(calc(var(--sp) + (var(--se) - var(--sp)) * var(--e))) rotateX(calc(56deg * var(--e))) rotate(calc(-36deg * var(--e)))}@container (min-width:250px){.lyr__s{--wp:.974;--we:.05}}@container (min-height:250px){.lyr__s{--hp:.524;--he:.363;--hg:.05}}@container (min-width:300px){.lyr__s{--wp:1.19;--we:.14}}@container (min-height:300px){.lyr__s{--hp:.675;--he:.468;--hg:.132}}@container (min-width:350px){.lyr__s{--wp:1.405;--we:.279}}@container (min-height:350px){.lyr__s{--hp:.825;--he:.572;--hg:.368}}@container (min-width:400px){.lyr__s{--wp:1.621;--we:.419}}@container (min-height:400px){.lyr__s{--hp:.976;--he:.676;--hg:.603}}@container (min-width:450px){.lyr__s{--wp:1.836;--we:.558}}@container (min-height:450px){.lyr__s{--hp:1.127;--he:.781;--hg:.839}}@container (min-width:500px){.lyr__s{--wp:2.052;--we:.698}}@container (min-height:500px){.lyr__s{--hp:1.277;--he:.885;--hg:1.075}}@container (min-width:550px){.lyr__s{--wp:2.267;--we:.838}}@container (min-height:550px){.lyr__s{--hp:1.428;--he:.989;--hg:1.31}}@container (min-width:600px){.lyr__s{--wp:2.483;--we:.977}}@container (min-height:600px){.lyr__s{--hp:1.578;--he:1.094;--hg:1.546}}@container (min-width:650px){.lyr__s{--wp:2.698;--we:1.117}}@container (min-height:650px){.lyr__s{--hp:1.729;--he:1.198;--hg:1.782}}@container (min-width:700px){.lyr__s{--wp:2.914;--we:1.257}}@container (min-height:700px){.lyr__s{--hp:1.88;--he:1.302;--hg:2.018}}@container (min-width:750px){.lyr__s{--wp:3.129;--we:1.396}}@container (min-height:750px){.lyr__s{--hp:2.03;--he:1.407;--hg:2.253}}@container (min-width:800px){.lyr__s{--wp:3.345;--we:1.536}}@container (min-height:800px){.lyr__s{--hp:2.181;--he:1.511;--hg:2.489}}@container (min-width:850px){.lyr__s{--wp:3.56;--we:1.675}}@container (min-height:850px){.lyr__s{--hp:2.331;--he:1.616;--hg:2.725}}@container (min-width:900px){.lyr__s{--wp:3.776;--we:1.815}}@container (min-height:900px){.lyr__s{--hp:2.482;--he:1.72;--hg:2.96}}@container (min-width:950px){.lyr__s{--wp:3.991;--we:1.955}}@container (min-height:950px){.lyr__s{--hp:2.633;--he:1.824;--hg:3.196}}@container (min-width:1000px){.lyr__s{--wp:4.207;--we:2.094}}@container (min-height:1000px){.lyr__s{--hp:2.783;--he:1.929;--hg:3.432}}@container (min-width:1050px){.lyr__s{--wp:4.422;--we:2.234}}@container (min-height:1050px){.lyr__s{--hp:2.934;--he:2.033;--hg:3.667}}@container (min-width:1100px){.lyr__s{--wp:4.638;--we:2.373}}@container (min-height:1100px){.lyr__s{--hp:3.084;--he:2.137;--hg:3.903}}@container (min-width:1150px){.lyr__s{--wp:4.853;--we:2.513}}@container (min-height:1150px){.lyr__s{--hp:3.235;--he:2.242;--hg:4.139}}@container (min-width:1200px){.lyr__s{--wp:5.069;--we:2.653}}@container (min-height:1200px){.lyr__s{--hp:3.386;--he:2.346;--hg:4.374}}@container (min-width:1250px){.lyr__s{--wp:5.284;--we:2.792}}@container (min-height:1250px){.lyr__s{--hp:3.536;--he:2.45;--hg:4.61}}@container (min-width:1300px){.lyr__s{--wp:5.5;--we:2.932}}@container (min-height:1300px){.lyr__s{--hp:3.687;--he:2.555;--hg:4.846}}@container (min-width:1350px){.lyr__s{--wp:5.716;--we:3.071}}@container (min-height:1350px){.lyr__s{--hp:3.837;--he:2.659;--hg:5.082}}@container (min-width:1400px){.lyr__s{--wp:5.931;--we:3.211}}@container (min-height:1400px){.lyr__s{--hp:3.988;--he:2.764;--hg:5.317}}@container (min-width:1450px){.lyr__s{--wp:6.147;--we:3.351}}@container (min-height:1450px){.lyr__s{--hp:4.139;--he:2.868;--hg:5.553}}@container (min-width:1500px){.lyr__s{--wp:6.362;--we:3.49}}@container (min-height:1500px){.lyr__s{--hp:4.289;--he:2.972;--hg:5.789}}.lyr__l{position:absolute;inset:0;transform-style:preserve-3d;border-radius:6px}.lyr__l:nth-child(1){transform:translateZ(calc(-3.5 * max(46px,28px / (.829 * var(--se))) * var(--e)))}.lyr__l:nth-child(2){transform:translateZ(calc(-2.5 * max(46px,28px / (.829 * var(--se))) * var(--e)))}.lyr__l:nth-child(3){transform:translateZ(calc(-1.5 * max(46px,28px / (.829 * var(--se))) * var(--e)))}.lyr__l:nth-child(4){transform:translateZ(calc(-.5 * max(46px,28px / (.829 * var(--se))) * var(--e)))}.lyr__l:nth-child(5){transform:translateZ(calc(.5 * max(46px,28px / (.829 * var(--se))) * var(--e)))}.lyr__l:nth-child(6){transform:translateZ(calc(1.5 * max(46px,28px / (.829 * var(--se))) * var(--e)))}.lyr__l:nth-child(7){transform:translateZ(calc(2.5 * max(46px,28px / (.829 * var(--se))) * var(--e)))}.lyr__l:nth-child(8){transform:translateZ(calc(3.5 * max(46px,28px / (.829 * var(--se))) * var(--e)))}.lyr__l+.lyr__l{border:2px solid color-mix(in srgb,var(--line) calc(var(--e) * 100%),transparent);background:color-mix(in srgb,var(--surface) calc(var(--e) * 42%),transparent)}.lyr__l.lyr__f{border-color:color-mix(in srgb,var(--k-go) calc(var(--e) * 100%),transparent)}.lyr__l>i{position:absolute;width:24px;height:24px;background:var(--k-cmd-base)}.lyr__l>i.c{background:var(--hurt);width:16px;height:16px;margin:4px}.lyr__g{background-color:var(--surface);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:24px 24px;outline:6px solid var(--rim)}.lyr__t{position:absolute;left:100%;top:100%;white-space:nowrap;background:var(--card);border:2px solid var(--line);transform-origin:0 0;font-size:calc(11px / var(--se));border-width:calc(2px / var(--se));padding:calc(3px / var(--se)) calc(7px / var(--se));margin:calc(-2px / var(--se)) 0 0 calc(10px / var(--se));border-radius:calc(5px / var(--se));transform:rotate(calc(36deg * var(--e))) rotateX(calc(-56deg * var(--e)));opacity:clamp(0,(var(--e) - .99) * 100,1)}.lyr__t u{text-decoration:none;color:var(--muted)}@media(prefers-reduced-motion:reduce){.lyr{--e:1}figure.lyr.ae-slot{touch-action:pan-y}.lyr__ui{display:none}}"
+ ],
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/gallery/",
+    "label": "Daily"
+   }
+  ],
+  "current": "Archive"
+ },
+ "head": {
+  "index": "16",
+  "eyebrow": "ARCHIVED · NOT IN THE GALLERY",
+  "title": {
+   "line": "The archive.",
+   "accent": ""
+  },
+  "lead": "Earlier factory runs, taken off <a href=\"/gallery/\">Daily</a> to keep it to the good ones. Kept here to revisit: each still runs live and wears its size, measured on this build.",
+  "contestHtml": ""
+ },
+ "themes": null,
+ "search": null,
+ "items": [],
+ "sections": [
+  {
+   "id": "thanksgiving",
+   "title": "Thanksgiving",
+   "blurb": "Leaves, a full table and a parade down the street, in flat colours and played by hand.",
+   "items": [
+    {
+     "id": "orange-embers-rise-harvest-fire",
+     "attrs": {
+      "data-theme": "thanksgiving",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"orange-embers-rise-harvest-fire\" class=\"ae-slot gal-fig gal-tap\" data-slot-target=\"gallery#orange-embers-rise-harvest-fire\" role=\"img\" aria-label=\"Orange embers rise from the harvest fire: orange embers rise from the harvest fire\" style=\"aspect-ratio: 16 / 9\"><span class=\"ae-slot__placeholder gal-still\" aria-hidden=\"true\">“orange embers rise from the harvest fire”</span></figure>",
+     "index": "#A012",
+     "line": "2026-10-30 · THANKSGIVING · MADE BY FE ANIM · RECIPE RISE",
+     "title": "Orange embers rise from the harvest fire",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “orange embers rise from the harvest fire”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"6.6 KB gzipped: Orange embers rise from the harvest fire, its live chunk, 6,720 bytes, measured at build\" data-size-badge data-bytes=\"6720\" data-live=\"gallery/orange-embers-rise-harvest-fire.js\" title=\"6,720 B gzip, measured at build\"><b>6.6 KB</b> gz</span></li><li data-live-bytes=\"gallery:orange-embers-rise-harvest-fire\"><b>6,720 B</b> live</li><li data-total=\"gallery:orange-embers-rise-harvest-fire\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>8,959 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/fx.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">fx</b></span><span class=\"sym-name\">@fzlt/core/fx</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    },
+    {
+     "id": "orange-gold-leaves-settle-heading",
+     "attrs": {
+      "data-theme": "thanksgiving",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"orange-gold-leaves-settle-heading\" class=\"ae-slot gal-fig gal-tap gal-page\" data-slot-target=\"gallery#orange-gold-leaves-settle-heading\" role=\"img\" aria-label=\"Orange and gold leaves settle on every heading: orange and gold leaves settle on every heading\" style=\"aspect-ratio: 16 / 9\"><span class=\"gal-mini\" aria-hidden=\"true\"><b class=\"gal-mini-h1\" data-fizlet-heading>Hello, page.</b><span class=\"gal-mini-p\">Real elements under a Fizlet scene.</span><b class=\"gal-mini-h2\" data-fizlet-heading>Every heading is real</b><span class=\"gal-mini-row\"><span class=\"gal-mini-key\" data-fizlet-target>Hover me</span><span class=\"gal-mini-key\" data-fizlet-target>Or me</span></span><b class=\"gal-mini-h2\" data-fizlet-heading>Recall gives it back</b></span><span class=\"ae-slot__placeholder gal-cap\" aria-hidden=\"true\">“orange and gold leaves settle on every heading”</span></figure>",
+     "index": "#A011",
+     "line": "2026-10-30 · THANKSGIVING · MADE BY FE ANIM · RECIPE SETTLE",
+     "title": "Orange and gold leaves settle on every heading",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “orange and gold leaves settle on every heading”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"8.6 KB gzipped: Orange and gold leaves settle on every heading, its live chunk, 8,830 bytes, measured at build\" data-size-badge data-bytes=\"8830\" data-live=\"gallery/orange-gold-leaves-settle-heading.js\" title=\"8,830 B gzip, measured at build\"><b>8.6 KB</b> gz</span></li><li data-live-bytes=\"gallery:orange-gold-leaves-settle-heading\"><b>8,830 B</b> live</li><li data-total=\"gallery:orange-gold-leaves-settle-heading\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>11,069 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/board-page.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">br</b></span><span class=\"sym-name\">@fzlt/core/board-page</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    },
+    {
+     "id": "cornucopia-spills-red-orange-lime",
+     "attrs": {
+      "data-theme": "thanksgiving",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"cornucopia-spills-red-orange-lime\" class=\"ae-slot gal-fig gal-tap\" data-slot-target=\"gallery#cornucopia-spills-red-orange-lime\" role=\"img\" aria-label=\"A cornucopia spills red orange and lime fruit on tap: a cornucopia spills red orange and lime fruit on tap\" style=\"aspect-ratio: 16 / 9\"><span class=\"ae-slot__placeholder gal-still\" aria-hidden=\"true\">“a cornucopia spills red orange and lime fruit on tap”</span></figure>",
+     "index": "#A010",
+     "line": "2026-10-30 · THANKSGIVING · MADE BY FE ANIM · RECIPE BURST",
+     "title": "A cornucopia spills red orange and lime fruit on tap",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “a cornucopia spills red orange and lime fruit on tap”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"6.6 KB gzipped: A cornucopia spills red orange and lime fruit on tap, its live chunk, 6,717 bytes, measured at build\" data-size-badge data-bytes=\"6717\" data-live=\"gallery/cornucopia-spills-red-orange-lime.js\" title=\"6,717 B gzip, measured at build\"><b>6.6 KB</b> gz</span></li><li data-live-bytes=\"gallery:cornucopia-spills-red-orange-lime\"><b>6,717 B</b> live</li><li data-total=\"gallery:cornucopia-spills-red-orange-lime\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>8,956 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/fx.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">fx</b></span><span class=\"sym-name\">@fzlt/core/fx</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    },
+    {
+     "id": "white-steam-rises-gently-off",
+     "attrs": {
+      "data-theme": "thanksgiving",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"white-steam-rises-gently-off\" class=\"ae-slot gal-fig gal-tap\" data-slot-target=\"gallery#white-steam-rises-gently-off\" role=\"img\" aria-label=\"White steam rises gently off a warm pie: white steam rises gently off a warm pie\" style=\"aspect-ratio: 16 / 9\"><span class=\"ae-slot__placeholder gal-still\" aria-hidden=\"true\">“white steam rises gently off a warm pie”</span></figure>",
+     "index": "#A009",
+     "line": "2026-10-30 · THANKSGIVING · MADE BY FE ANIM · RECIPE RISE",
+     "title": "White steam rises gently off a warm pie",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “white steam rises gently off a warm pie”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"6.6 KB gzipped: White steam rises gently off a warm pie, its live chunk, 6,718 bytes, measured at build\" data-size-badge data-bytes=\"6718\" data-live=\"gallery/white-steam-rises-gently-off.js\" title=\"6,718 B gzip, measured at build\"><b>6.6 KB</b> gz</span></li><li data-live-bytes=\"gallery:white-steam-rises-gently-off\"><b>6,718 B</b> live</li><li data-total=\"gallery:white-steam-rises-gently-off\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>8,957 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/fx.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">fx</b></span><span class=\"sym-name\">@fzlt/core/fx</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    },
+    {
+     "id": "red-orange-gold-turkey-feathers",
+     "attrs": {
+      "data-theme": "thanksgiving",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"red-orange-gold-turkey-feathers\" class=\"ae-slot gal-fig gal-tap\" data-slot-target=\"gallery#red-orange-gold-turkey-feathers\" role=\"img\" aria-label=\"Red orange and gold turkey feathers fan out on hover: red orange and gold turkey feathers fan out on hover\" style=\"aspect-ratio: 16 / 9\"><span class=\"ae-slot__placeholder gal-still\" aria-hidden=\"true\">“red orange and gold turkey feathers fan out on hover”</span></figure>",
+     "index": "#A008",
+     "line": "2026-10-30 · THANKSGIVING · MADE BY FE ANIM · RECIPE BURST",
+     "title": "Red orange and gold turkey feathers fan out on hover",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “red orange and gold turkey feathers fan out on hover”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"6.6 KB gzipped: Red orange and gold turkey feathers fan out on hover, its live chunk, 6,722 bytes, measured at build\" data-size-badge data-bytes=\"6722\" data-live=\"gallery/red-orange-gold-turkey-feathers.js\" title=\"6,722 B gzip, measured at build\"><b>6.6 KB</b> gz</span></li><li data-live-bytes=\"gallery:red-orange-gold-turkey-feathers\"><b>6,722 B</b> live</li><li data-total=\"gallery:red-orange-gold-turkey-feathers\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>8,961 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/fx.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">fx</b></span><span class=\"sym-name\">@fzlt/core/fx</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    },
+    {
+     "id": "orange-red-gold-leaves-fall",
+     "attrs": {
+      "data-theme": "thanksgiving",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"orange-red-gold-leaves-fall\" class=\"ae-slot gal-fig gal-tap\" data-slot-target=\"gallery#orange-red-gold-leaves-fall\" role=\"img\" aria-label=\"Orange red and gold leaves fall gently: orange red and gold leaves fall gently\" style=\"aspect-ratio: 16 / 9\"><span class=\"ae-slot__placeholder gal-still\" aria-hidden=\"true\">“orange red and gold leaves fall gently”</span></figure>",
+     "index": "#A007",
+     "line": "2026-10-30 · THANKSGIVING · MADE BY FE ANIM · RECIPE FALL",
+     "title": "Orange red and gold leaves fall gently",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “orange red and gold leaves fall gently”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"6.6 KB gzipped: Orange red and gold leaves fall gently, its live chunk, 6,716 bytes, measured at build\" data-size-badge data-bytes=\"6716\" data-live=\"gallery/orange-red-gold-leaves-fall.js\" title=\"6,716 B gzip, measured at build\"><b>6.6 KB</b> gz</span></li><li data-live-bytes=\"gallery:orange-red-gold-leaves-fall\"><b>6,716 B</b> live</li><li data-total=\"gallery:orange-red-gold-leaves-fall\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>8,955 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/fx.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">fx</b></span><span class=\"sym-name\">@fzlt/core/fx</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    }
+   ]
+  },
+  {
+   "id": "christmas",
+   "title": "Christmas",
+   "blurb": "Snow, lights and presents that pop, then settle still.",
+   "items": [
+    {
+     "id": "candy-cane-red-white-sweeps",
+     "attrs": {
+      "data-theme": "christmas",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"candy-cane-red-white-sweeps\" class=\"ae-slot gal-fig gal-tap gal-page\" data-slot-target=\"gallery#candy-cane-red-white-sweeps\" role=\"img\" aria-label=\"Candy cane red and white sweeps every heading: candy cane red and white sweeps every heading\" style=\"aspect-ratio: 16 / 9\"><span class=\"gal-mini\" aria-hidden=\"true\"><b class=\"gal-mini-h1\" data-fizlet-heading>Hello, page.</b><span class=\"gal-mini-p\">Real elements under a Fizlet scene.</span><b class=\"gal-mini-h2\" data-fizlet-heading>Every heading is real</b><span class=\"gal-mini-row\"><span class=\"gal-mini-key\" data-fizlet-target>Hover me</span><span class=\"gal-mini-key\" data-fizlet-target>Or me</span></span><b class=\"gal-mini-h2\" data-fizlet-heading>Recall gives it back</b></span><span class=\"ae-slot__placeholder gal-cap\" aria-hidden=\"true\">“candy cane red and white sweeps every heading”</span></figure>",
+     "index": "#A019",
+     "line": "2026-10-30 · CHRISTMAS · MADE BY FE ANIM · RECIPE SWEEP",
+     "title": "Candy cane red and white sweeps every heading",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “candy cane red and white sweeps every heading”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"8.7 KB gzipped: Candy cane red and white sweeps every heading, its live chunk, 8,898 bytes, measured at build\" data-size-badge data-bytes=\"8898\" data-live=\"gallery/candy-cane-red-white-sweeps.js\" title=\"8,898 B gzip, measured at build\"><b>8.7 KB</b> gz</span></li><li data-live-bytes=\"gallery:candy-cane-red-white-sweeps\"><b>8,898 B</b> live</li><li data-total=\"gallery:candy-cane-red-white-sweeps\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>11,137 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/board-page.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">br</b></span><span class=\"sym-name\">@fzlt/core/board-page</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    },
+    {
+     "id": "gold-stars-pop-twinkle-tap",
+     "attrs": {
+      "data-theme": "christmas",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"gold-stars-pop-twinkle-tap\" class=\"ae-slot gal-fig gal-tap\" data-slot-target=\"gallery#gold-stars-pop-twinkle-tap\" role=\"img\" aria-label=\"Gold stars pop and twinkle where you tap: gold stars pop and twinkle where you tap\" style=\"aspect-ratio: 16 / 9\"><span class=\"ae-slot__placeholder gal-still\" aria-hidden=\"true\">“gold stars pop and twinkle where you tap”</span></figure>",
+     "index": "#A018",
+     "line": "2026-10-30 · CHRISTMAS · MADE BY FE ANIM · RECIPE BURST",
+     "title": "Gold stars pop and twinkle where you tap",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “gold stars pop and twinkle where you tap”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"6.6 KB gzipped: Gold stars pop and twinkle where you tap, its live chunk, 6,711 bytes, measured at build\" data-size-badge data-bytes=\"6711\" data-live=\"gallery/gold-stars-pop-twinkle-tap.js\" title=\"6,711 B gzip, measured at build\"><b>6.6 KB</b> gz</span></li><li data-live-bytes=\"gallery:gold-stars-pop-twinkle-tap\"><b>6,711 B</b> live</li><li data-total=\"gallery:gold-stars-pop-twinkle-tap\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>8,950 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/fx.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">fx</b></span><span class=\"sym-name\">@fzlt/core/fx</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    },
+    {
+     "id": "ornaments-jingle-hover-button",
+     "attrs": {
+      "data-theme": "christmas",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"ornaments-jingle-hover-button\" class=\"ae-slot gal-fig gal-tap gal-page\" data-slot-target=\"gallery#ornaments-jingle-hover-button\" role=\"img\" aria-label=\"Ornaments jingle when you hover a button: ornaments jingle when you hover a button\" style=\"aspect-ratio: 16 / 9\"><span class=\"gal-mini\" aria-hidden=\"true\"><b class=\"gal-mini-h1\" data-fizlet-heading>Hello, page.</b><span class=\"gal-mini-p\">Real elements under a Fizlet scene.</span><b class=\"gal-mini-h2\" data-fizlet-heading>Every heading is real</b><span class=\"gal-mini-row\"><span class=\"gal-mini-key\" data-fizlet-target>Hover me</span><span class=\"gal-mini-key\" data-fizlet-target>Or me</span></span><b class=\"gal-mini-h2\" data-fizlet-heading>Recall gives it back</b></span><span class=\"ae-slot__placeholder gal-cap\" aria-hidden=\"true\">“ornaments jingle when you hover a button”</span></figure>",
+     "index": "#A017",
+     "line": "2026-10-30 · CHRISTMAS · MADE BY FE ANIM · RECIPE JINGLE",
+     "title": "Ornaments jingle when you hover a button",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “ornaments jingle when you hover a button”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"8.4 KB gzipped: Ornaments jingle when you hover a button, its live chunk, 8,628 bytes, measured at build\" data-size-badge data-bytes=\"8628\" data-live=\"gallery/ornaments-jingle-hover-button.js\" title=\"8,628 B gzip, measured at build\"><b>8.4 KB</b> gz</span></li><li data-live-bytes=\"gallery:ornaments-jingle-hover-button\"><b>8,628 B</b> live</li><li data-total=\"gallery:ornaments-jingle-hover-button\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>10,867 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/board-page.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">br</b></span><span class=\"sym-name\">@fzlt/core/board-page</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    },
+    {
+     "id": "sleigh-streaks-top-gold-sparkles",
+     "attrs": {
+      "data-theme": "christmas",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"sleigh-streaks-top-gold-sparkles\" class=\"ae-slot gal-fig gal-tap\" data-slot-target=\"gallery#sleigh-streaks-top-gold-sparkles\" role=\"img\" aria-label=\"A sleigh streaks across the top with gold sparkles: a sleigh streaks across the top with gold sparkles\" style=\"aspect-ratio: 16 / 9\"><span class=\"ae-slot__placeholder gal-still\" aria-hidden=\"true\">“a sleigh streaks across the top with gold sparkles”</span></figure>",
+     "index": "#A016",
+     "line": "2026-10-30 · CHRISTMAS · MADE BY FE ANIM · RECIPE TRAIL",
+     "title": "A sleigh streaks across the top with gold sparkles",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “a sleigh streaks across the top with gold sparkles”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"6.6 KB gzipped: A sleigh streaks across the top with gold sparkles, its live chunk, 6,735 bytes, measured at build\" data-size-badge data-bytes=\"6735\" data-live=\"gallery/sleigh-streaks-top-gold-sparkles.js\" title=\"6,735 B gzip, measured at build\"><b>6.6 KB</b> gz</span></li><li data-live-bytes=\"gallery:sleigh-streaks-top-gold-sparkles\"><b>6,735 B</b> live</li><li data-total=\"gallery:sleigh-streaks-top-gold-sparkles\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>8,974 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/fx.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">fx</b></span><span class=\"sym-name\">@fzlt/core/fx</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    },
+    {
+     "id": "gift-box-pops-open-red",
+     "attrs": {
+      "data-theme": "christmas",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"gift-box-pops-open-red\" class=\"ae-slot gal-fig gal-tap\" data-slot-target=\"gallery#gift-box-pops-open-red\" role=\"img\" aria-label=\"A gift box pops open into red and green confetti: a gift box pops open into red and green confetti\" style=\"aspect-ratio: 16 / 9\"><span class=\"ae-slot__placeholder gal-still\" aria-hidden=\"true\">“a gift box pops open into red and green confetti”</span></figure>",
+     "index": "#A015",
+     "line": "2026-10-30 · CHRISTMAS · MADE BY FE ANIM · RECIPE BURST",
+     "title": "A gift box pops open into red and green confetti",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “a gift box pops open into red and green confetti”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"6.6 KB gzipped: A gift box pops open into red and green confetti, its live chunk, 6,714 bytes, measured at build\" data-size-badge data-bytes=\"6714\" data-live=\"gallery/gift-box-pops-open-red.js\" title=\"6,714 B gzip, measured at build\"><b>6.6 KB</b> gz</span></li><li data-live-bytes=\"gallery:gift-box-pops-open-red\"><b>6,714 B</b> live</li><li data-total=\"gallery:gift-box-pops-open-red\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>8,953 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/fx.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">fx</b></span><span class=\"sym-name\">@fzlt/core/fx</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    },
+    {
+     "id": "red-green-gold-string-lights",
+     "attrs": {
+      "data-theme": "christmas",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"red-green-gold-string-lights\" class=\"ae-slot gal-fig gal-tap gal-page\" data-slot-target=\"gallery#red-green-gold-string-lights\" role=\"img\" aria-label=\"Red green and gold string lights twinkle on the nav: red green and gold string lights twinkle on the nav\" style=\"aspect-ratio: 16 / 9\"><span class=\"gal-mini\" aria-hidden=\"true\"><b class=\"gal-mini-h1\" data-fizlet-heading>Hello, page.</b><span class=\"gal-mini-p\">Real elements under a Fizlet scene.</span><b class=\"gal-mini-h2\" data-fizlet-heading>Every heading is real</b><span class=\"gal-mini-row\"><span class=\"gal-mini-key\" data-fizlet-target>Hover me</span><span class=\"gal-mini-key\" data-fizlet-target>Or me</span></span><b class=\"gal-mini-h2\" data-fizlet-heading>Recall gives it back</b></span><span class=\"ae-slot__placeholder gal-cap\" aria-hidden=\"true\">“red green and gold string lights twinkle on the nav”</span></figure>",
+     "index": "#A014",
+     "line": "2026-10-30 · CHRISTMAS · MADE BY FE ANIM · RECIPE LIGHTS",
+     "title": "Red green and gold string lights twinkle on the nav",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “red green and gold string lights twinkle on the nav”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"8.4 KB gzipped: Red green and gold string lights twinkle on the nav, its live chunk, 8,597 bytes, measured at build\" data-size-badge data-bytes=\"8597\" data-live=\"gallery/red-green-gold-string-lights.js\" title=\"8,597 B gzip, measured at build\"><b>8.4 KB</b> gz</span></li><li data-live-bytes=\"gallery:red-green-gold-string-lights\"><b>8,597 B</b> live</li><li data-total=\"gallery:red-green-gold-string-lights\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>10,836 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/board-page.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">br</b></span><span class=\"sym-name\">@fzlt/core/board-page</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    },
+    {
+     "id": "snow-settles-heading",
+     "attrs": {
+      "data-theme": "christmas",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"snow-settles-heading\" class=\"ae-slot gal-fig gal-tap gal-page\" data-slot-target=\"gallery#snow-settles-heading\" role=\"img\" aria-label=\"Snow settles on every heading: snow settles on every heading\" style=\"aspect-ratio: 16 / 9\"><span class=\"gal-mini\" aria-hidden=\"true\"><b class=\"gal-mini-h1\" data-fizlet-heading>Hello, page.</b><span class=\"gal-mini-p\">Real elements under a Fizlet scene.</span><b class=\"gal-mini-h2\" data-fizlet-heading>Every heading is real</b><span class=\"gal-mini-row\"><span class=\"gal-mini-key\" data-fizlet-target>Hover me</span><span class=\"gal-mini-key\" data-fizlet-target>Or me</span></span><b class=\"gal-mini-h2\" data-fizlet-heading>Recall gives it back</b></span><span class=\"ae-slot__placeholder gal-cap\" aria-hidden=\"true\">“snow settles on every heading”</span></figure>",
+     "index": "#A013",
+     "line": "2026-10-30 · CHRISTMAS · MADE BY FE ANIM · RECIPE SETTLE",
+     "title": "Snow settles on every heading",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “snow settles on every heading”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"8.6 KB gzipped: Snow settles on every heading, its live chunk, 8,833 bytes, measured at build\" data-size-badge data-bytes=\"8833\" data-live=\"gallery/snow-settles-heading.js\" title=\"8,833 B gzip, measured at build\"><b>8.6 KB</b> gz</span></li><li data-live-bytes=\"gallery:snow-settles-heading\"><b>8,833 B</b> live</li><li data-total=\"gallery:snow-settles-heading\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>11,072 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/board-page.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">br</b></span><span class=\"sym-name\">@fzlt/core/board-page</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    }
+   ]
+  },
+  {
+   "id": "heroes-comics",
+   "title": "Heroes and comics",
+   "blurb": "Capes, speed lines and KAPOW panels: comic-book moves for the page.",
+   "items": [
+    {
+     "id": "comic-panel-wipes-heading",
+     "attrs": {
+      "data-theme": "heroes-comics",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"comic-panel-wipes-heading\" class=\"ae-slot gal-fig gal-tap gal-page\" data-slot-target=\"gallery#comic-panel-wipes-heading\" role=\"img\" aria-label=\"A comic panel wipes across every heading: a comic panel wipes across every heading\" style=\"aspect-ratio: 16 / 9\"><span class=\"gal-mini\" aria-hidden=\"true\"><b class=\"gal-mini-h1\" data-fizlet-heading>Hello, page.</b><span class=\"gal-mini-p\">Real elements under a Fizlet scene.</span><b class=\"gal-mini-h2\" data-fizlet-heading>Every heading is real</b><span class=\"gal-mini-row\"><span class=\"gal-mini-key\" data-fizlet-target>Hover me</span><span class=\"gal-mini-key\" data-fizlet-target>Or me</span></span><b class=\"gal-mini-h2\" data-fizlet-heading>Recall gives it back</b></span><span class=\"ae-slot__placeholder gal-cap\" aria-hidden=\"true\">“a comic panel wipes across every heading”</span></figure>",
+     "index": "#A025",
+     "line": "2026-10-30 · HEROES AND COMICS · MADE BY FE ANIM · RECIPE WIPE",
+     "title": "A comic panel wipes across every heading",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “a comic panel wipes across every heading”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"8.4 KB gzipped: A comic panel wipes across every heading, its live chunk, 8,597 bytes, measured at build\" data-size-badge data-bytes=\"8597\" data-live=\"gallery/comic-panel-wipes-heading.js\" title=\"8,597 B gzip, measured at build\"><b>8.4 KB</b> gz</span></li><li data-live-bytes=\"gallery:comic-panel-wipes-heading\"><b>8,597 B</b> live</li><li data-total=\"gallery:comic-panel-wipes-heading\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>10,836 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/board-page.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">br</b></span><span class=\"sym-name\">@fzlt/core/board-page</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    },
+    {
+     "id": "red-laser-eyes-scan-heading",
+     "attrs": {
+      "data-theme": "heroes-comics",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"red-laser-eyes-scan-heading\" class=\"ae-slot gal-fig gal-tap gal-page\" data-slot-target=\"gallery#red-laser-eyes-scan-heading\" role=\"img\" aria-label=\"Red laser eyes scan every heading: red laser eyes scan every heading\" style=\"aspect-ratio: 16 / 9\"><span class=\"gal-mini\" aria-hidden=\"true\"><b class=\"gal-mini-h1\" data-fizlet-heading>Hello, page.</b><span class=\"gal-mini-p\">Real elements under a Fizlet scene.</span><b class=\"gal-mini-h2\" data-fizlet-heading>Every heading is real</b><span class=\"gal-mini-row\"><span class=\"gal-mini-key\" data-fizlet-target>Hover me</span><span class=\"gal-mini-key\" data-fizlet-target>Or me</span></span><b class=\"gal-mini-h2\" data-fizlet-heading>Recall gives it back</b></span><span class=\"ae-slot__placeholder gal-cap\" aria-hidden=\"true\">“red laser eyes scan every heading”</span></figure>",
+     "index": "#A024",
+     "line": "2026-10-30 · HEROES AND COMICS · MADE BY FE ANIM · RECIPE SWEEP",
+     "title": "Red laser eyes scan every heading",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “red laser eyes scan every heading”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"8.7 KB gzipped: Red laser eyes scan every heading, its live chunk, 8,898 bytes, measured at build\" data-size-badge data-bytes=\"8898\" data-live=\"gallery/red-laser-eyes-scan-heading.js\" title=\"8,898 B gzip, measured at build\"><b>8.7 KB</b> gz</span></li><li data-live-bytes=\"gallery:red-laser-eyes-scan-heading\"><b>8,898 B</b> live</li><li data-total=\"gallery:red-laser-eyes-scan-heading\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>11,137 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/board-page.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">br</b></span><span class=\"sym-name\">@fzlt/core/board-page</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    }
+   ]
+  },
+  {
+   "id": "everyday",
+   "title": "Everyday",
+   "blurb": "Sparks, rain, sweeps and the story demos: the building blocks of the rest.",
+   "items": [
+    {
+     "id": "scanline-sweep-lights-up-heading",
+     "attrs": {
+      "data-theme": "everyday",
+      "data-demo-host": "",
+      "data-kind": "micro",
+      "data-lane": "micro"
+     },
+     "cls": "panel gal-item",
+     "stage": "<figure data-gallery=\"scanline-sweep-lights-up-heading\" class=\"ae-slot gal-fig gal-tap gal-page\" data-slot-target=\"gallery#scanline-sweep-lights-up-heading\" role=\"img\" aria-label=\"A scanline sweep that lights up every heading it passes: a scanline sweep that lights up every heading it passes\" style=\"aspect-ratio: 16 / 9\"><span class=\"gal-mini\" aria-hidden=\"true\"><b class=\"gal-mini-h1\" data-fizlet-heading>Hello, page.</b><span class=\"gal-mini-p\">Real elements under a Fizlet scene.</span><b class=\"gal-mini-h2\" data-fizlet-heading>Every heading is real</b><span class=\"gal-mini-row\"><span class=\"gal-mini-key\" data-fizlet-target>Hover me</span><span class=\"gal-mini-key\" data-fizlet-target>Or me</span></span><b class=\"gal-mini-h2\" data-fizlet-heading>Recall gives it back</b></span><span class=\"ae-slot__placeholder gal-cap\" aria-hidden=\"true\">“a scanline sweep that lights up every heading it passes”</span></figure>",
+     "index": "#A006",
+     "line": "2026-10-29 · EVERYDAY · MADE BY FE ANIM · RECIPE SWEEP",
+     "title": "A scanline sweep that lights up every heading it passes",
+     "level": "h3",
+     "metaHtml": "<p class=\"gal-by\">by <a href=\"/people/chris-cooley/\">Chris Cooley</a></p>\n<p class=\"gal-prompt\"><span class=\"bui-label\">PROMPT</span> “a scanline sweep that lights up every heading it passes”</p>\n<ul class=\"ppl-count gal-count\" aria-label=\"What it costs the page, measured on this build\"><li class=\"gal-badge\"><span class=\"size-badge\" role=\"img\" aria-label=\"8.7 KB gzipped: A scanline sweep that lights up every heading it passes, its live chunk, 8,898 bytes, measured at build\" data-size-badge data-bytes=\"8898\" data-live=\"gallery/scanline-sweep-lights-up-heading.js\" title=\"8,898 B gzip, measured at build\"><b>8.7 KB</b> gz</span></li><li data-live-bytes=\"gallery:scanline-sweep-lights-up-heading\"><b>8,898 B</b> live</li><li data-total=\"gallery:scanline-sweep-lights-up-heading\" title=\"The shared loader (2,239 B) comes first, before the piece nears the screen; the live chunk after\"><b>11,137 B</b> total with the 2,239 B loader</li><li><b>3</b> bricks</li></ul>\n<p class=\"gal-cost\"><b>0</b> frames a second once still · <b>0</b> off screen · Recall exact <small>(Chromium 153)</small></p>\n<ul class=\"ppl-count gal-bricks\" aria-label=\"Bricks used\"><li><a class=\"sym-chip\" href=\"/bricks/kernel.html\" style=\"--tone: var(--k-go)\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><span class=\"sym-name\">@fzlt/core (kernel)</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/board-page.html\" style=\"--tone: var(--k-attack)\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">br</b></span><span class=\"sym-name\">@fzlt/core/board-page</span></a></li><li><a class=\"sym-chip\" href=\"/bricks/slot.html\" style=\"--tone: var(--k-sys)\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><span class=\"sym-name\">@fzlt/core/slot</span></a></li></ul>"
+    }
+   ]
+  }
+ ],
+ "pages": null
+}

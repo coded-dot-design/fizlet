@@ -1,0 +1,39 @@
+---
+// A gallery page (Daily page 1-6, the Hi-Fi lane, the archive): crumbs on every page but Daily's
+// first, the head (with the contest callout on page 1), the theme chips and search, then the cards:
+// one flat list, newest first, or the archive's theme sections; the page nav last.
+import SectionHead from "./SectionHead.astro";
+import Callout from "./Callout.astro";
+import Crumbs from "./Crumbs.astro";
+import GalleryCard from "./GalleryCard.astro";
+import GalleryThemes from "./GalleryThemes.astro";
+import GallerySearch from "./GallerySearch.astro";
+import GalleryPages from "./GalleryPages.astro";
+import Html from "./Html.astro";
+import type { GalleryData } from "../lib/gallery-search";
+interface Props { g: GalleryData }
+const { g } = Astro.props;
+const contest = g.head.contestHtml.replace(/^<div[^>]*>/, "").replace(/<\/div>$/, "");
+---
+<section class="has-grid section" aria-labelledby="gal-title">
+  <div class="wrap">
+    {g.crumbs && <Crumbs {...g.crumbs} />}
+    <SectionHead index={g.head.index} eyebrow={g.head.eyebrow} line={g.head.title.line} accent={g.head.title.accent} lead={g.head.lead} id="gal-title">
+      {contest && <Callout class="gal-contest"><Html html={contest} /></Callout>}
+    </SectionHead>
+    {g.themes && <GalleryThemes {...g.themes} />}
+    {g.search && <GallerySearch {...g.search} />}
+  </div>
+  <div class="wrap gal-sections">
+  {g.items.length > 0 && <ol class="gal" data-gal-flat>
+    {g.items.map((it) => <GalleryCard {...it} />)}
+    </ol>}
+  {g.sections.map((s) => <section class="gal-theme" id={`theme-${s.id}`} aria-labelledby={`theme-${s.id}-h`}>
+    <div class="gal-theme-head"><h2 id={`theme-${s.id}-h`}>{s.title}</h2><p>{s.blurb}</p></div>
+    <ol class="gal">
+    {s.items.map((it) => <GalleryCard {...it} />)}
+    </ol>
+  </section>)}
+    {g.pages && <GalleryPages {...g.pages} />}
+  </div>
+</section>

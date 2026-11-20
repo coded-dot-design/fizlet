@@ -1,0 +1,12 @@
+---
+// The archive (/gallery/archive/): earlier runs taken off Daily, by theme, no chips or search.
+// Kept out of search on every build (noindex,nofollow, as the legacy page) and out of the sitemap.
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import GalleryView from "../../../components/GalleryView.astro";
+import { galleryMeta, type GalleryData } from "../../../lib/gallery-search";
+import DATA from "../../../data/legacy/pages/gallery/archive.json";
+const g = DATA as unknown as GalleryData;
+---
+<BaseLayout meta={galleryMeta(g)} styles={g.styles} robots={g.robots}>
+<GalleryView g={g} />
+</BaseLayout>
