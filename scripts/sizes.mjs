@@ -29,7 +29,9 @@ export const BUDGETS = [
   // `Math.hypot` boxes its arguments, 23 young GCs per 1M drags; now 0). Budget raised by that delta.
   // 2,068 B with its dead zones as literals (−6 B, size/treeshake, no behaviour change). Budget lowered by that delta.
   ["@fzlt/core/pad", "src/pad.ts", 2120],
-  ["@fzlt/core/collide", "src/collide.ts", 1536],
+  // 1,265 B gz on 0.27.0; 1,251 B when Grid's insert and query share one cell-range helper (−14 B, ~24 % faster,
+  // no behaviour change). Budget lowered from 1,536 to that + 29 B.
+  ["@fzlt/core/collide", "src/collide.ts", 1280],
   // 1,533 B gz in 0.19.0 (3 B under 1,536); 1,634 B once the constructor checks cols, rows and cell
   // (+101 B, brick audit P8: `cell: 0` made at() NaN, a fractional cols sized the arrays wrong). An
   // inline check, not the kernel's `need` (+181 B: grid runs without the kernel). Raised by that delta.
@@ -50,7 +52,8 @@ export const BUDGETS = [
   ["@fzlt/core/slot", "src/slot.ts", 2048],
   // 1,834 B gz before resume (0.21.2); 2,207 B with it: AWAY/RESUME and the resend, join's reconnect
   // with the seat's token, LOBBY and the host's START (+373 B; fizlet#210, pending owner review).
-  ["@fzlt/core/presence", "src/presence.ts", 2240],
+  // 2,186 B (−11 B) when send() writes the frame and value with one DataView (same little-endian bytes).
+  ["@fzlt/core/presence", "src/presence.ts", 2208],
   ["@fzlt/core/presence/check", "src/presence-check.ts", 5120],
   // Rollback on presence's wire (guessed inputs, a snapshot ring, resim, hashes on final frames, delay
   // and lead balancing), lifted from the copy three games carried: 2,176 B gz when added (goal 2,560;
@@ -192,7 +195,8 @@ export const BUDGETS = [
   // 24,280 B in 0.21.0; 24,031 B with size/treeshake (−249 B: numbers as literals in the kernel and the
   // bricks it composes, the kernel's short private names; no behaviour change). Budget lowered by that delta.
   // +6 B (24,147 → 24,153): input's stick takes a new primary touch when its old finger never ended (a fix).
-  ["@fzlt/core/arcade", "src/arcade.ts", 24156],
+  // 24,115 B (−30 B) with collide Grid's shared cell range and ui launch()'s reads first (no behaviour change). Lowered to that + 21 B.
+  ["@fzlt/core/arcade", "src/arcade.ts", 24136],
   // A card game (`hud` left out): the shell and the `arcade` preset, skirmish tree-shaken away.
   // 17,622 B gz with the `hud` option (+311 B: the preset contract, header and nav choice); 17,311
   // in 0.17.0, 17,206 in 0.14.0 (17,081 in 0.13.0, 16,960 in 0.12.1, 16,946 in 0.12.0, 16,731 in
@@ -216,7 +220,8 @@ export const BUDGETS = [
   // own synth cues (@fzlt/core/sound notes) add +22 B on main, so the budget is size/treeshake's 18,179
   // plus that need: 18,201.
   // +7 B (18,200 → 18,207): input's stick takes a new primary touch when its old finger never ended (a fix).
-  ["@fzlt/core/arcade (hud omitted)", "scripts/arcade-card.ts", 18208],
+  // 18,185 B (−14 B) with collide Grid's shared cell range (no behaviour change). Lowered to that + 15 B.
+  ["@fzlt/core/arcade (hud omitted)", "scripts/arcade-card.ts", 18200],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
   // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B). 4,162 B
@@ -224,7 +229,8 @@ export const BUDGETS = [
   // raised by that delta from 4,128. 4,136 B in train 0.21.0: collide Grid's one-letter private names
   // (−26 B, no behaviour change).
   // 4,103 B with its slots and the frame phases as literals (−33 B, size/treeshake, no behaviour change). Lowered by that delta.
-  ["@fzlt/core/board-page", "src/board-page.ts", 4160],
+  // 4,076 B (−28 B) with collide Grid's shared cell range (no behaviour change). Lowered to that + 52 B.
+  ["@fzlt/core/board-page", "src/board-page.ts", 4128],
   // A hero's live chunk is ≤ 10 KB gz (the factory's layer budgets); the bricks take ≤ 7 KB, the scene
   // ≥ 3 KB (tests/page.test.mjs holds the budget there, so it never rises). 7,129 B before release
   // train 0.20.0, 7,164 B after: +35 B #120 (input's intents resolved once), +0 B #122 (its fps-cap
@@ -241,7 +247,8 @@ export const BUDGETS = [
   // behaviour change (need's one Number.isFinite test, slot's one idle-callback test, fx's compound
   // counter writes).
   ["page build (kernel+slot+input+fx)", "scripts/page-build.ts", 7104],
-  ["@fzlt/core/ui (js)", "src/ui/board-ui.ts", 3072],
+  // 2,900 B gz (−7 B) when launch() does every read before its first write (no forced layout). Lowered from 3,072.
+  ["@fzlt/core/ui (js)", "src/ui/board-ui.ts", 2944],
   // 4,974 B on 0.20.0. 5,125 B with #136 (+151 B): every hard base, press, hover lift, focus ring,
   // call ring, sticker slam and hit area reads the domain shadow direction (--shadow-x/-y, through
   // --bui-sx/-sy) instead of a literal "straight below"; budget raised from 5,120 by that need.

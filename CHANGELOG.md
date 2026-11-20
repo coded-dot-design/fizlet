@@ -53,6 +53,22 @@
   - Tests: `tests/diorama-glide.test.mjs` (the step, the exact landing, partial goals, snap, 0 young GCs
     over 1M steps).
 
+- **`@fzlt/core/presence`: `send()` writes a message's frame and value through one DataView (−11 B gz).**
+  2,197 → 2,186 B gz (budget 2,240 → 2,208), presence/check 4,870 → 4,850 B. The same 12 little-endian bytes on
+  the wire; 4 peers in lockstep cost the same (1.02–1.08 µs a round before and after, Node 24, median of 7 ×
+  20,000 rounds, 3 runs each); still no allocation per message.
+
+- **`@fzlt/core/ui`: `launch()` reads every computed style before its first write (no forced layout).** The
+  burst layer went onto `<body>` before the key's look and the board's tones were read, so those reads forced a
+  style and layout pass; now every read comes first. One click on a 4,000-node page at 4× CPU: 6.7–7.8 → 4.6 ms
+  median (40 clicks, 2 runs each, Chromium), forced layouts in the call 1 → 0. Same burst, same colours; 2,907 →
+  2,900 B gz.
+
+- **`@fzlt/core/collide`: Grid's insert and query share one cell-range helper (−14 B gz, about 24 % faster).**
+  1,265 → 1,251 B gz (budget 1,536 → 1,280); 512 inserts + 512 queries a frame 42.5 → 32.0 µs (Node 24, median
+  of 7 × 2,000 frames, 3 runs each); board-page 4,104 → 4,076 B, arcade 24,145 → 24,115 B. Same cells, same
+  ids, same counters: no behaviour change. The API snapshot lists Grid's two new private members (`o`, `b`).
+
 - **Brick audit (`fe audit fizlet`): no fails, no gaps in exports, README or tests.** `@fzlt/core/presence/rollback`
   no longer reads wall time in its step: the correction meters `resimMs` and `resimTotal` read a clock the
   host passes (`clock: () => performance.now()`, a profiling opt-in) and stay 0 without one (2,181 B gz,
