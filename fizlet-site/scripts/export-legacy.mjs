@@ -160,8 +160,9 @@ for (const slug of ["getting-started"]) {
   });
 }
 
-// ---------- The brick page ----------
-for (const id of ["kernel"]) {
+// ---------- The brick pages (every bricks/<id>.html) ----------
+const BRICK_IDS = readdirSync(join(LEGACY, "bricks")).filter((f) => f.endsWith(".html") && f !== "index.html").map((f) => f.slice(0, -5)).sort();
+for (const id of BRICK_IDS) {
   const path = `bricks/${id}.html`;
   const html = read(path);
   const doc = parse(html);
@@ -278,7 +279,7 @@ const bricksSection = (sec, path) => {
 // Scripts, stylesheets-free: every module script the four pages load, and every file those import.
 const assets = new Set(["icon.svg", "og.png", "robots.txt", "llms.txt", "llms-full.txt", "fizlet.js"]);
 const queue = [];
-for (const f of ["index.html", "docs/getting-started/index.html", "bricks/kernel.html", "gallery/index.html"]) {
+for (const f of ["index.html", "docs/getting-started/index.html", "gallery/index.html", ...BRICK_IDS.map((id) => `bricks/${id}.html`)]) {
   const h = read(f);
   for (const m of h.matchAll(/(?:src|href|data-live|data-src|data-module)="([^"#?]+\.(?:js|json|svg|png|webp|css|txt))"/g)) {
     if (/^https?:/.test(m[1])) continue;

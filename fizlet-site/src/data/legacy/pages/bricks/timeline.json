@@ -1,0 +1,86 @@
+{
+ "meta": {
+  "path": "bricks/timeline.html",
+  "title": "@fzlt/core/timeline: API and measured size · Fizlet",
+  "description": "@fzlt/core/timeline: Scripted DOM choreography on the kernel clock. API and measured size (2137 B gzip).",
+  "ld": [
+   {
+    "@type": "SoftwareSourceCode",
+    "@id": "https://fizlet.com/bricks/timeline.html#code",
+    "name": "@fzlt/core/timeline",
+    "description": "Scripted DOM choreography on the kernel clock.",
+    "url": "https://fizlet.com/bricks/timeline.html",
+    "codeRepository": "https://github.com/coded-dot-design/fizlet",
+    "isPartOf": {
+     "@id": "https://fizlet.com/#code"
+    },
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    }
+   }
+  ],
+  "scripts": [
+   "/site.js",
+   "/brick-demo.js",
+   "/brick-cards.js"
+  ]
+ },
+ "styles": [],
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/bricks/",
+    "label": "Bricks"
+   }
+  ],
+  "current": "@fzlt/core/timeline"
+ },
+ "tone": "var(--k-fire)",
+ "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">TIMELINE</span> V0.27.0 <span class=\"brick-sticker brick-sticker-peel\" data-flag=\"beta\" style=\"--tilt:2.5deg;--dx:3px;--dy:1px\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/timeline</code></h1>\n        <p class=\"lead\">Scripted DOM choreography on the kernel clock. Keyframe tracks animate CSS properties (transform, translate, scale, rotate, opacity, clip-path, filter, custom properties: any value whose numbers change and whose words stay) or plain numbers, with easings, delays, staggers, sequencing and overlap, labels, repeats and yoyo. Time moves in the fixed step (no allocation, no DOM); writes happen in render through the ledger, change-only, so Recall restores every property touched. Done or paused, it asks for no frames: the engine settles. With reduced motion, play() lands on the end state in one step (or build a gentler variant on <code>tl.reduced</code>).</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/timeline.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
+ "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/timeline</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/timeline\">2,137 B</b><small>2.1 KB of a 2.3 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.928\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
+ "rest": [
+  {
+   "kind": "html",
+   "html": "<figure class=\"panel lit bp-demo\" data-brick-demo=\"timeline\" data-demo-host>\n      <span class=\"size-badge\" role=\"img\" aria-label=\"6.3 KB gzipped: this demo, with @fzlt/core/timeline, 6,475 bytes, measured at build\" data-size-badge data-bytes=\"6475\" data-live=\"chunks/timeline-ER5PMGIK.js\" title=\"6,475 B gzip, measured at build\"><b>6.3 KB</b> gz</span>\n      <div class=\"bp-stage\" data-stage></div>\n      <figcaption><span class=\"bui-label\"><b>LIVE</b> · <span data-status>LOADING</span></span><span>DOM choreography on the kernel clock: the cartridge seats, the screen opens, the lines stagger in. When it ends, the engine settles. Replay runs it again; with reduced motion it lands on the end at once.</span></figcaption>\n    </figure>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"bp-card\"><div class=\"bc\" data-demo-host style=\"--tone: var(--k-fire)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks/timeline#card-timeline\" data-brick-card=\"timeline\" data-tag=\"TIMELINE\" data-bytes=\"2137\" role=\"img\" aria-label=\"@fzlt/core/timeline, 2.1 KB gzip: six DOM bricks hop, then fly into a new arrangement on a scripted timeline. Tap to make the bricks dance into the next shape.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>TIMELINE</b> 2.1 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap to make the bricks dance into the next shape.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.9 KB gzipped: this card, with @fzlt/core/timeline, 8,068 bytes, measured at build\" data-size-badge data-bytes=\"8068\" data-live=\"chunks/timeline-XPBM7WRX.js\" title=\"8,068 B gzip, measured at build\"><b>7.9 KB</b> gz</span></p>\n</div></div>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"panel bp-status\" data-flag=\"beta\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></div>\n      <p>Tested and budgeted; not yet carried by a shipped game, or its API is still moving. Shipped now; COMPLETE also asks that its API has had no breaking change since it shipped, which is still to be confirmed.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.19.0</dd></div>\n        <div><dt>SHIPPED IN</dt><dd><ul><li>fizlet.com: the home page's reveals and parallax, the origin hero and Before AI: 2015, live</li><li>the DOM VIRUS site: the cartridge console, the detail-page scenes and the diagrams</li></ul></dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/timeline.test.mjs\"><code>timeline.test.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/timeline.mjs\"><code>timeline.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+  },
+  {
+   "kind": "use",
+   "blocks": [
+    {
+     "label": "<b>MODULES</b> · hosted on this site",
+     "code": "import { EASES, timeline } from \"https://fizlet.com/dist/timeline.js\";",
+     "wrap": false,
+     "copy": true,
+     "cls": "panel code-card"
+    },
+    {
+     "label": "<b>NPM</b> · @fzlt/core",
+     "code": "npm install @fzlt/core\nimport { EASES, timeline } from \"@fzlt/core/timeline\";",
+     "wrap": false,
+     "copy": false,
+     "cls": "panel code-card bp-npm"
+    }
+   ]
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>IN SHORT</b></span></div><pre tabindex=\"0\" class=\"code\"><code>timeline(e)\n  .to(cart, { translate: [&quot;0px -150px&quot;, &quot;0px 0px&quot;] }, { dur: 0.7, ease: &quot;back&quot; })\n  .label(&quot;seated&quot;)\n  .to(screen, { &quot;clip-path&quot;: [&quot;inset(50%)&quot;, &quot;inset(0%)&quot;] }, { at: &quot;seated&quot; })\n  .to(lines, { opacity: [0, 1] }, { stagger: 0.15 })\n  .play(); // e.destroy() gives every property back</code></pre></div>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-timeline-Ease\"><code>Ease</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-timeline-EASES\"><code>EASES</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-timeline-Value\"><code>Value</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-timeline-TrackOptions\"><code>TrackOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-timeline-TimelineOptions\"><code>TimelineOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-timeline-timeline\"><code>timeline</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-timeline-Timeline\"><code>Timeline</code></a><small>type</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-timeline-Ease\">\n        <h3><code>Ease</code> <small>type</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>An easing: progress 0..1 in, eased progress out (it may overshoot).</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Ease = (p: number) =&gt; number;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-timeline-EASES\">\n        <h3><code>EASES</code> <small>const</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>The named easings: cubic in, out and in-out; back overshoots a little and settles. Also by name: &quot;steps(n)&quot; (n equal jumps: a ticking counter, a typed-out line).</p>\n        <dl class=\"bp-params\"><div><dt>Type</dt><dd><code>Record&lt;string, <a href=\"#api-fzlt-core-timeline-Ease\">Ease</a>&gt;</code></dd></div></dl>\n        <pre tabindex=\"0\" class=\"code\"><code>export declare const EASES: Record&lt;string, Ease&gt;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-timeline-Value\">\n        <h3><code>Value</code> <small>type</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>A number, a CSS value (&quot;translate(0px,8px)&quot;, &quot;inset(0 50% 0 0)&quot;) or keyframes, evenly spaced. Keyframes share one shape: the same words, only the numbers change. A single value starts where the property's last track ended (or is set at once if it has none).</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Value = number | string | readonly (number | string)[];</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-timeline-TrackOptions\">\n        <h3><code>TrackOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>Options for one track: where it starts (<code>at</code>), its duration, delay, easing and stagger.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface TrackOptions {\n    /** Seconds (default 0.4). */\n    dur?: number;\n    /** Seconds after `at`; negative overlaps the track before (default 0). */\n    delay?: number;\n    /** A name in EASES, &quot;steps(n)&quot; or a function (default &quot;out&quot;). */\n    ease?: string | Ease;\n    /** Seconds between one target's start and the next. */\n    stagger?: number;\n    /** Where it starts: seconds, &quot;&lt;&quot; (with the track before) or a label (default: the end so far). */\n    at?: number | string;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-timeline-TimelineOptions\">\n        <h3><code>TimelineOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>Options for <code>timeline()</code>: repeats, yoyo, speed and reduced-motion handling.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface TimelineOptions {\n    /** Extra plays after the first (default 0; Infinity loops). */\n    repeat?: number;\n    /** Every other play runs backwards. */\n    yoyo?: boolean;\n    /** Speed (default 1). */\n    rate?: number;\n    /** Animate (default: yes, unless the visitor prefers reduced motion; then play() jumps). */\n    motion?: boolean;\n    /** `a` on this timeline's events (default 0). */\n    id?: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-timeline-timeline\">\n        <h3><code>timeline</code> <small>function</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>A timeline on <code>engine</code> (paused until <code>play()</code>). Events on the ring, <code>a</code> = id: &quot;timeline:start&quot;, &quot;timeline:end&quot;, and each label's own name (b = its index) as the playhead passes it.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>timeline(engine: Engine, o?: TimelineOptions): Timeline</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>engine</code></dt><dd><code>Engine</code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-timeline-TimelineOptions\">TimelineOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-timeline-Timeline\">Timeline</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function timeline(engine: Engine, o?: TimelineOptions): {\n    /** Add tracks: each property of `values` on each target (an element, a list of them, or any\n     *  object or typed array for plain numbers: `tl.to(arr, { 0: [0, 1] })`). Chainable. */\n    to(targets: object | ArrayLike&lt;object&gt;, values: Record&lt;string, Value&gt;, t?: TrackOptions): /*elided*/ any;\n    /** Name a moment (default: the end so far) for `at`; its name goes on the ring as it passes. */\n    label(name: string, t?: number | string): /*elided*/ any;\n    /** Play forward (from the start if it is at the end). */\n    play: () =&gt; /*elided*/ any;\n    /** Play backward (from the end if it is at the start). */\n    reverse: () =&gt; /*elided*/ any;\n    /** Stop where it is. The engine calls this as its System pause hook (off screen, hidden tab,\n     *  stop()): then it only suspends, and plays on when the engine resumes unless you paused it. */\n    pause(by?: unknown): /*elided*/ any;\n    /** Move the playhead to `t` seconds; it keeps playing or stays paused. */\n    seek(t: number): /*elided*/ any;\n    /** Land on the end in the next step (&quot;timeline:end&quot; fires). */\n    finish: () =&gt; /*elided*/ any;\n    /** Pause and give every property back as it was before the timeline wrote it: styles through\n     *  the ledger (a newer host edit wins), plain numbers to their value when the track was added. */\n    revert(): /*elided*/ any;\n    /** Resolves the next time the timeline ends, or when its engine is destroyed (at once if it was). */\n    done: () =&gt; Promise&lt;void&gt;;\n    /** The playhead in seconds (over every play). */\n    readonly time: number;\n    /** Every play together, in seconds (Infinity when it loops forever). */\n    readonly duration: number;\n    readonly playing: boolean;\n    /** The visitor prefers reduced motion (or `motion: false`): build the gentler variant on it. */\n    readonly reduced: boolean;\n    step(e: Engine, dt: number): void;\n    render(): void;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-timeline-Timeline\">\n        <h3><code>Timeline</code> <small>type</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>The timeline <code>timeline()</code> returns: add tracks with <code>to()</code>, then play it.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Timeline = ReturnType&lt;typeof timeline&gt;;</code></pre>\n      </article>\n    </div>"
+  },
+  {
+   "kind": "html",
+   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/coach.html\"><small>← PREVIOUS</small><code>@fzlt/core/coach</code></a><a class=\"bp-step next\" href=\"/bricks/touch.html\"><small>NEXT →</small><code>@fzlt/core/touch</code></a></nav>"
+  }
+ ]
+}

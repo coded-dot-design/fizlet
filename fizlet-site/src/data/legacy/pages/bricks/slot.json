@@ -1,0 +1,81 @@
+{
+ "meta": {
+  "path": "bricks/slot.html",
+  "title": "@fzlt/core/slot: API and measured size · Fizlet",
+  "description": "@fzlt/core/slot: Mount a Fizlet scene into an Astro page engine slot. API and measured size (1849 B gzip).",
+  "ld": [
+   {
+    "@type": "SoftwareSourceCode",
+    "@id": "https://fizlet.com/bricks/slot.html#code",
+    "name": "@fzlt/core/slot",
+    "description": "Mount a Fizlet scene into an Astro page engine slot: the element carrying class=\"ae-slot\" data-slot-target=\"<page>#<slot>\" role=\"img\" aria-label=\"…\".",
+    "url": "https://fizlet.com/bricks/slot.html",
+    "codeRepository": "https://github.com/coded-dot-design/fizlet",
+    "isPartOf": {
+     "@id": "https://fizlet.com/#code"
+    },
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    }
+   }
+  ],
+  "scripts": [
+   "/site.js",
+   "/brick-cards.js"
+  ]
+ },
+ "styles": [],
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/bricks/",
+    "label": "Bricks"
+   }
+  ],
+  "current": "@fzlt/core/slot"
+ },
+ "tone": "var(--k-sys)",
+ "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">SLOT</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"complete\" style=\"--tilt:4deg;--dx:2px;--dy:-2px\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/slot</code></h1>\n        <p class=\"lead\">Mount a Fizlet scene into an Astro page engine slot: the element carrying class=&quot;ae-slot&quot; data-slot-target=&quot;&lt;page&gt;#&lt;slot&gt;&quot; role=&quot;img&quot; aria-label=&quot;…&quot;. Both shapes the engine has rendered are found: the figure itself (<code>&lt;figure class=&quot;ae-slot&quot;&gt;</code>), or a box inside one (<code>&lt;figure class=&quot;ae-slot-figure&quot;&gt;&lt;div class=&quot;ae-slot&quot;&gt;…&lt;/div&gt;&lt;figcaption class=&quot;ae-slot__fallback&quot;&gt;</code>, where the caption sits outside the role=&quot;img&quot; box and stays: it is not over the scene). - Lazy: nothing loads or runs until the slot comes near the viewport, and then only once the main thread is idle (or <code>idle</code> ms have passed), so the page's own work goes first. - Safe first tap: a tap on the slot before the scene is up loads it at once and is handed to the scene as plain numbers (<code>first</code>), never as a stale PointerEvent whose pointer is gone. - Reduced motion: the slot keeps its placeholder and fallback; the scene never loads. If the setting turns on while a scene runs, the scene goes and the fallback comes back. - Accessible: role=&quot;img&quot; + aria-label stay unless the scene says it renders real accessible content (<code>accessible: true</code>): then role=&quot;img&quot; becomes role=&quot;figure&quot; (a &lt;figure&gt;'s own role, so the label stays on a role that takes one) in place, and Recall puts &quot;img&quot; back in the same spot, byte for byte. Until then the stage is aria-hidden. - Contained: the scene gets its own stage inside the slot (contain: strict). Every change the slot makes goes through a Ledger, so destroy() gives the page back exactly. - Off screen, off the page's frame: the stage is content-visibility: auto, so a scene scrolled away is skipped for style, layout, paint and layers. Without it a 3D scene's composited layers stayed in every repaint elsewhere on the page (Chromium layerizes the whole document).</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/slot.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
+ "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/slot</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/slot\">1,849 B</b><small>1.8 KB of a 2.0 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.903\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
+ "rest": [
+  {
+   "kind": "html",
+   "html": "<div class=\"bp-card\"><div class=\"bc\" data-demo-host style=\"--tone: var(--k-sys)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks/slot#card-slot\" data-brick-card=\"slot\" data-tag=\"SLOT\" data-bytes=\"1849\" role=\"img\" aria-label=\"@fzlt/core/slot, 1.8 KB gzip: six real slot figures behind a window: each loads only when it comes into view, and at the end of the strip every one is given back exactly. Tap to slide the strip on; tap a live scene to drop its brick again.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>SLOT</b> 1.8 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap to slide the strip on; tap a live scene to drop its brick again.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.8 KB gzipped: this card, with @fzlt/core/slot, 8,024 bytes, measured at build\" data-size-badge data-bytes=\"8024\" data-live=\"chunks/slot-4UGRNAT7.js\" title=\"8,024 B gzip, measured at build\"><b>7.8 KB</b> gz</span></p>\n</div></div>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"panel bp-status\" data-flag=\"complete\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></div>\n      <p>Done, and always getting smaller and faster.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.3.0</dd></div>\n        <div><dt>SHIPPED IN</dt><dd><ul><li>fizlet.com: the home hero, the fizz and the gallery</li><li>the hero battle on the DOM Battlefield 1.0.3 site</li></ul></dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/slot.test.mjs\"><code>slot.test.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/browser.mjs\"><code>browser.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/fizz.mjs\"><code>fizz.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/layers.mjs\"><code>layers.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/page.test.mjs\"><code>page.test.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+  },
+  {
+   "kind": "use",
+   "blocks": [
+    {
+     "label": "<b>MODULES</b> · hosted on this site",
+     "code": "import { findSlot, slot } from \"https://fizlet.com/dist/slot.js\";",
+     "wrap": false,
+     "copy": true,
+     "cls": "panel code-card"
+    },
+    {
+     "label": "<b>NPM</b> · @fzlt/core",
+     "code": "npm install @fzlt/core\nimport { findSlot, slot } from \"@fzlt/core/slot\";",
+     "wrap": false,
+     "copy": false,
+     "cls": "panel code-card bp-npm"
+    }
+   ]
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>EXAMPLE</b> · typechecked against v0.27.0</span><button class=\"bui-key copy\" type=\"button\" data-copy><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 7h10v10H7ZM3 13V3h10\"></path></svg>Copy</button></div><pre tabindex=\"0\" class=\"code\"><code>slot(&quot;home#hero&quot;, () =&gt; import(&quot;./hero.js&quot;).then((m) =&gt; m.mount));\n\n// hero.ts: build inside the stage, return destroy\nexport const mount: SlotMount = (stage, _figure, first) =&gt; {\n  const e = createEngine({ root: stage, settle: 0.5, fps: 30 });\n  if (first) { /* the tap that loaded the scene: first.x, first.y */ }\n  e.start();\n  return { destroy: () =&gt; e.destroy() };\n};</code></pre></div>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-slot-SlotScene\"><code>SlotScene</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-slot-SlotTap\"><code>SlotTap</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-slot-SlotMount\"><code>SlotMount</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-slot-SlotOptions\"><code>SlotOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-slot-findSlot\"><code>findSlot</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-slot-slot\"><code>slot</code></a><small>function</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-slot-SlotScene\">\n        <h3><code>SlotScene</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>What a slot's mount function returns: the scene, with <code>destroy()</code> to remove it.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface SlotScene {\n    /** Remove the scene (its engine's destroy() restores what it changed). */\n    destroy(): void;\n    /** True when the scene renders real accessible content: the slot's role=&quot;img&quot; becomes &quot;figure&quot;. */\n    accessible?: boolean;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-slot-SlotTap\">\n        <h3><code>SlotTap</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>A tap on the slot before the scene was up: where (px from the slot's top left) and when.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface SlotTap {\n    x: number;\n    y: number;\n    /** `performance.now()` when the finger went down. */\n    at: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-slot-SlotMount\">\n        <h3><code>SlotMount</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Build the scene inside <code>stage</code> (sized to the slot). <code>slot</code> is the figure, read-only. <code>first</code> is the tap that started the load, if one did: act on it as an intent (aim, fire), not as an event.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type SlotMount = (stage: HTMLElement, slot: HTMLElement, first: SlotTap | null) =&gt; SlotScene;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-slot-SlotOptions\">\n        <h3><code>SlotOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Options for <code>slot()</code>: how near the viewport the slot must come before loading, and the idle wait.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface SlotOptions {\n    /** How close to the viewport the slot must come before the scene loads (default &quot;200px&quot;). */\n    margin?: string;\n    /** Longest wait (ms) for an idle main thread once the slot is near (default 1000; 0: no wait). */\n    idle?: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-slot-findSlot\">\n        <h3><code>findSlot</code> <small>const</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>The slot for &quot;&lt;page&gt;#&lt;slot&gt;&quot; (or null): any <code>.ae-slot</code> carrying the target, figure or box.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>findSlot(target: string, doc?: Document): HTMLElement | null</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>target</code></dt><dd><code>string</code></dd></div><div><dt><code>doc?</code></dt><dd><code>Document</code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code>HTMLElement | null</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare const findSlot: (target: string, doc?: Document) =&gt; HTMLElement | null;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-slot-slot\">\n        <h3><code>slot</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Mount a scene into an Astro page engine slot (<code>target</code>: its <code>data-slot-target</code> or the element). <code>load</code> runs once the slot nears the viewport and the main thread is idle (or on the first tap); with reduced motion it never loads. Returns <code>el</code>, <code>mounted</code> and <code>destroy()</code>.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>slot(target: string | HTMLElement, load: () =&gt; Promise&lt;SlotMount&gt; | SlotMount, opts?: SlotOptions): { … }</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>target</code></dt><dd><code>string | HTMLElement</code></dd></div><div><dt><code>load</code></dt><dd><code>() =&gt; Promise&lt;<a href=\"#api-fzlt-core-slot-SlotMount\">SlotMount</a>&gt; | <a href=\"#api-fzlt-core-slot-SlotMount\">SlotMount</a></code></dd></div><div><dt><code>opts?</code></dt><dd><code><a href=\"#api-fzlt-core-slot-SlotOptions\">SlotOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code>{ … }</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function slot(target: string | HTMLElement, load: () =&gt; Promise&lt;SlotMount&gt; | SlotMount, opts?: SlotOptions): {\n    /** The slot figure, or null when no slot matches the target. */\n    el: HTMLElement | null;\n    readonly mounted: boolean;\n    /** Remove the scene, the stage and every listener; the slot is back as the engine drew it. */\n    destroy(): void;\n};</code></pre></details>\n      </article>\n    </div>"
+  },
+  {
+   "kind": "html",
+   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/embed.html\"><small>← PREVIOUS</small><code>@fzlt/core/embed</code></a><a class=\"bp-step next\" href=\"/bricks/hud.html\"><small>NEXT →</small><code>@fzlt/core/hud</code></a></nav>"
+  }
+ ]
+}

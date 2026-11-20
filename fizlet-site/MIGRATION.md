@@ -41,6 +41,17 @@ to the export loop in `scripts/export-legacy.mjs`, re-export, add the path to `d
 
 Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same heights on both sites.
 
+## W2-bricks results (measured 2026-11-20, legacy build v0.27.0)
+
+`npm run compare -- http://127.0.0.1:4801/ http://127.0.0.1:4802/ <out> --full <paths>`, full-page shots
+(legacy `site-dist/` served on 4801, this `dist/` on 4802):
+
+- **All 43 brick pages** (`/bricks/<id>.html`, every id the legacy build writes; the export reads
+  them from `site-dist/bricks/`): 172 shots, 0.000% on 41 pages; the other two are the only ones
+  above zero, `/bricks/sound.html` (0.000 / 0.003 / 0.008 / 0.008% at 1440 light, 1440 dark, 390
+  light, 390 dark) and `/bricks/timeline.html` (0.001% at 1440 light, 0.000% on the other three).
+  Same heights on both sites for every shot.
+
 ## Design system
 
 - **Tokens**: `src/design/tokens.json` is the one source (groups: color, type, space, radius,
@@ -79,7 +90,7 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 ## Route inventory
 
 <!-- INVENTORY:START -->
-148 legacy pages, 4 done, 144 to do (legacy build v0.27.0).
+148 legacy pages, 46 done, 102 to do (legacy build v0.27.0).
 
 | Type | Pages | Done | Template | Components | Next wave |
 |---|---:|---:|---|---|---|
@@ -87,7 +98,7 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 | not-found | 1 | 0 | to build: src/pages/404.astro | SectionHead, Key | W2-misc |
 | brand | 1 | 0 | to build: src/pages/brand/index.astro | Lockup, Mark, Key, token swatches (new, from tokens.json) | W2-misc |
 | bricks-index | 1 | 0 | to build: src/pages/bricks/index.astro | BrickCard, SymChip, periodic table + stickers + factory (Html until componentized) | W2-bricks |
-| brick | 43 | 1 | src/pages/bricks/[id].astro | Crumbs, CodeBlock; the head, demo, card and API kept as built (Html) | W2-bricks: add the ids to export-legacy.mjs, then compare; later an ApiDecl component for the API |
+| brick | 43 | 43 | src/pages/bricks/[id].astro | Crumbs, CodeBlock; the head, demo, card and API kept as built (Html) | W2-bricks: all 43 ported (0.000-0.008%); next an ApiDecl component for the API, the head and the demo wrapper |
 | contest | 1 | 0 | to build: src/pages/contest/index.astro | SectionHead, Callout, a week card (new) | W2-daily |
 | legal | 2 | 0 | to build: src/pages/privacy/, src/pages/cookies/ | SectionHead, a table (new) | W2-misc |
 | demo | 7 | 0 | to build: the engine demos' own host pages (no site shell for some) | kept as built (Html) until the demos build from @fzlt/core here | W2-demos |
@@ -133,49 +144,49 @@ Every route (`/path` · type · status · in sitemap · title):
 
 <details><summary><b>brick</b> (43)</summary>
 
-- [ ] `/bricks/actor.html` · to do · @fzlt/core/actor: API and measured size · Fizlet
-- [ ] `/bricks/aim.html` · to do · @fzlt/core/aim: API and measured size · Fizlet
-- [ ] `/bricks/announce.html` · to do · @fzlt/core/announce: API and measured size · Fizlet
-- [ ] `/bricks/arcade.html` · to do · @fzlt/core/arcade: API and measured size · Fizlet
-- [ ] `/bricks/beam.html` · to do · @fzlt/core/beam: API and measured size · Fizlet
-- [ ] `/bricks/board-page.html` · to do · @fzlt/core/board-page: API and measured size · Fizlet
-- [ ] `/bricks/camera.html` · to do · @fzlt/core/camera: API and measured size · Fizlet
-- [ ] `/bricks/cards.html` · to do · @fzlt/core/cards: API and measured size · Fizlet
-- [ ] `/bricks/coach.html` · to do · @fzlt/core/coach: API and measured size · Fizlet
-- [ ] `/bricks/collide.html` · to do · @fzlt/core/collide: API and measured size · Fizlet
-- [ ] `/bricks/css-clock.html` · to do · @fzlt/core/css-clock: API and measured size · Fizlet
-- [ ] `/bricks/debug.html` · to do · @fzlt/core/debug: API and measured size · Fizlet
-- [ ] `/bricks/dice.html` · to do · @fzlt/core/dice: API and measured size · Fizlet
-- [ ] `/bricks/diorama.html` · to do · @fzlt/core/diorama: API and measured size · Fizlet
-- [ ] `/bricks/drive.html` · to do · @fzlt/core/drive: API and measured size · Fizlet
-- [ ] `/bricks/embed.html` · to do · @fzlt/core/embed: API and measured size · Fizlet
-- [ ] `/bricks/flick.html` · to do · @fzlt/core/flick: API and measured size · Fizlet
-- [ ] `/bricks/fx.html` · to do · @fzlt/core/fx: API and measured size · Fizlet
-- [ ] `/bricks/grid.html` · to do · @fzlt/core/grid: API and measured size · Fizlet
-- [ ] `/bricks/hud.html` · to do · @fzlt/core/hud: API and measured size · Fizlet
-- [ ] `/bricks/input.html` · to do · @fzlt/core/input: API and measured size · Fizlet
+- [x] `/bricks/actor.html` · done · @fzlt/core/actor: API and measured size · Fizlet
+- [x] `/bricks/aim.html` · done · @fzlt/core/aim: API and measured size · Fizlet
+- [x] `/bricks/announce.html` · done · @fzlt/core/announce: API and measured size · Fizlet
+- [x] `/bricks/arcade.html` · done · @fzlt/core/arcade: API and measured size · Fizlet
+- [x] `/bricks/beam.html` · done · @fzlt/core/beam: API and measured size · Fizlet
+- [x] `/bricks/board-page.html` · done · @fzlt/core/board-page: API and measured size · Fizlet
+- [x] `/bricks/camera.html` · done · @fzlt/core/camera: API and measured size · Fizlet
+- [x] `/bricks/cards.html` · done · @fzlt/core/cards: API and measured size · Fizlet
+- [x] `/bricks/coach.html` · done · @fzlt/core/coach: API and measured size · Fizlet
+- [x] `/bricks/collide.html` · done · @fzlt/core/collide: API and measured size · Fizlet
+- [x] `/bricks/css-clock.html` · done · @fzlt/core/css-clock: API and measured size · Fizlet
+- [x] `/bricks/debug.html` · done · @fzlt/core/debug: API and measured size · Fizlet
+- [x] `/bricks/dice.html` · done · @fzlt/core/dice: API and measured size · Fizlet
+- [x] `/bricks/diorama.html` · done · @fzlt/core/diorama: API and measured size · Fizlet
+- [x] `/bricks/drive.html` · done · @fzlt/core/drive: API and measured size · Fizlet
+- [x] `/bricks/embed.html` · done · @fzlt/core/embed: API and measured size · Fizlet
+- [x] `/bricks/flick.html` · done · @fzlt/core/flick: API and measured size · Fizlet
+- [x] `/bricks/fx.html` · done · @fzlt/core/fx: API and measured size · Fizlet
+- [x] `/bricks/grid.html` · done · @fzlt/core/grid: API and measured size · Fizlet
+- [x] `/bricks/hud.html` · done · @fzlt/core/hud: API and measured size · Fizlet
+- [x] `/bricks/input.html` · done · @fzlt/core/input: API and measured size · Fizlet
 - [x] `/bricks/kernel.html` · done · @fzlt/core: API and measured size · Fizlet
-- [ ] `/bricks/layout.html` · to do · @fzlt/core/layout: API and measured size · Fizlet
-- [ ] `/bricks/match.html` · to do · @fzlt/core/match: API and measured size · Fizlet
-- [ ] `/bricks/math.html` · to do · @fzlt/core/math: API and measured size · Fizlet
-- [ ] `/bricks/pad.html` · to do · @fzlt/core/pad: API and measured size · Fizlet
-- [ ] `/bricks/perf.html` · to do · @fzlt/core/perf: API and measured size · Fizlet
-- [ ] `/bricks/presence.html` · to do · @fzlt/core/presence: API and measured size · Fizlet
-- [ ] `/bricks/props.html` · to do · @fzlt/core/props: API and measured size · Fizlet
-- [ ] `/bricks/rules.html` · to do · @fzlt/core/rules: API and measured size · Fizlet
-- [ ] `/bricks/scene.html` · to do · @fzlt/core/scene: API and measured size · Fizlet
-- [ ] `/bricks/slot.html` · to do · @fzlt/core/slot: API and measured size · Fizlet
-- [ ] `/bricks/sound.html` · to do · @fzlt/core/sound: API and measured size · Fizlet
-- [ ] `/bricks/sprite.html` · to do · @fzlt/core/sprite: API and measured size · Fizlet
-- [ ] `/bricks/steer.html` · to do · @fzlt/core/steer: API and measured size · Fizlet
-- [ ] `/bricks/terrain.html` · to do · @fzlt/core/terrain: API and measured size · Fizlet
-- [ ] `/bricks/timeline.html` · to do · @fzlt/core/timeline: API and measured size · Fizlet
-- [ ] `/bricks/touch.html` · to do · @fzlt/core/touch: API and measured size · Fizlet
-- [ ] `/bricks/track.html` · to do · @fzlt/core/track: API and measured size · Fizlet
-- [ ] `/bricks/ui.html` · to do · @fzlt/core/ui: API and measured size · Fizlet
-- [ ] `/bricks/view-canvas.html` · to do · @fzlt/core/view-canvas: API and measured size · Fizlet
-- [ ] `/bricks/view-dom.html` · to do · @fzlt/core/view-dom: API and measured size · Fizlet
-- [ ] `/bricks/water.html` · to do · @fzlt/core/water: API and measured size · Fizlet
+- [x] `/bricks/layout.html` · done · @fzlt/core/layout: API and measured size · Fizlet
+- [x] `/bricks/match.html` · done · @fzlt/core/match: API and measured size · Fizlet
+- [x] `/bricks/math.html` · done · @fzlt/core/math: API and measured size · Fizlet
+- [x] `/bricks/pad.html` · done · @fzlt/core/pad: API and measured size · Fizlet
+- [x] `/bricks/perf.html` · done · @fzlt/core/perf: API and measured size · Fizlet
+- [x] `/bricks/presence.html` · done · @fzlt/core/presence: API and measured size · Fizlet
+- [x] `/bricks/props.html` · done · @fzlt/core/props: API and measured size · Fizlet
+- [x] `/bricks/rules.html` · done · @fzlt/core/rules: API and measured size · Fizlet
+- [x] `/bricks/scene.html` · done · @fzlt/core/scene: API and measured size · Fizlet
+- [x] `/bricks/slot.html` · done · @fzlt/core/slot: API and measured size · Fizlet
+- [x] `/bricks/sound.html` · done · @fzlt/core/sound: API and measured size · Fizlet
+- [x] `/bricks/sprite.html` · done · @fzlt/core/sprite: API and measured size · Fizlet
+- [x] `/bricks/steer.html` · done · @fzlt/core/steer: API and measured size · Fizlet
+- [x] `/bricks/terrain.html` · done · @fzlt/core/terrain: API and measured size · Fizlet
+- [x] `/bricks/timeline.html` · done · @fzlt/core/timeline: API and measured size · Fizlet
+- [x] `/bricks/touch.html` · done · @fzlt/core/touch: API and measured size · Fizlet
+- [x] `/bricks/track.html` · done · @fzlt/core/track: API and measured size · Fizlet
+- [x] `/bricks/ui.html` · done · @fzlt/core/ui: API and measured size · Fizlet
+- [x] `/bricks/view-canvas.html` · done · @fzlt/core/view-canvas: API and measured size · Fizlet
+- [x] `/bricks/view-dom.html` · done · @fzlt/core/view-dom: API and measured size · Fizlet
+- [x] `/bricks/water.html` · done · @fzlt/core/water: API and measured size · Fizlet
 
 </details>
 

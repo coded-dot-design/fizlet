@@ -1,0 +1,80 @@
+{
+ "meta": {
+  "path": "bricks/actor.html",
+  "title": "@fzlt/core/actor: API and measured size · Fizlet",
+  "description": "@fzlt/core/actor: Units, bots, turrets and shots as data. API and measured size (908 B gzip).",
+  "ld": [
+   {
+    "@type": "SoftwareSourceCode",
+    "@id": "https://fizlet.com/bricks/actor.html#code",
+    "name": "@fzlt/core/actor",
+    "description": "Units, bots, turrets and shots as data.",
+    "url": "https://fizlet.com/bricks/actor.html",
+    "codeRepository": "https://github.com/coded-dot-design/fizlet",
+    "isPartOf": {
+     "@id": "https://fizlet.com/#code"
+    },
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    }
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "styles": [],
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/bricks/",
+    "label": "Bricks"
+   }
+  ],
+  "current": "@fzlt/core/actor"
+ },
+ "tone": "var(--k-cmd)",
+ "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">ACTOR</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"experimental\" style=\"--tilt:5deg;--dx:5px;--dy:0px\" title=\"In the package to try; no promise yet.\">ALPHA</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/actor</code></h1>\n        <p class=\"lead\">Units, bots, turrets and shots as data. One fixed-capacity table of typed arrays, one row per actor: alive, side, kind, tag bits, health (<code>hp</code> of <code>max</code>) and a body (<code>x</code>, <code>y</code>, heading <code>a</code>, velocity <code>vx</code>, <code>vy</code>, radius <code>r</code>). Nothing allocates after <code>actors()</code>: spawn takes a free row, kill marks it dead, and <code>sweep()</code> (once per step, after your loops) gives dead rows back. A game's own fields are its own typed arrays of length <code>cap</code>, indexed by row (cooldowns, orders, timers). Iterate the dense list, which keeps spawn order, so a seeded run replays: for (let k = 0; k &lt; A.n; k++) { const i = A.list[k]!; if (!A.alive[i]) continue; ... } A row is reused once swept, so hold on to an actor across steps by its handle (<code>ref(i)</code>), not its row: <code>get(handle)</code> is -1 once that actor is gone, even if its row lives again. Share the body with @fzlt/core/steer by passing its arrays (<code>actors({ cap, x: m.x, y: m.y, a: m.a })</code>). With <code>events</code> (engine.events) it rings <code>actor:spawn</code>, <code>actor:hurt</code> and <code>actor:kill</code> (a: row, b: side, x, y: where, in whole pixels, v: damage, or health on spawn) for sound, effects and the HUD. Whole pixels because small integers never box: a double passed to the ring can cost a heap number.</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/actor.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
+ "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/actor</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/actor\">908 B</b><small>0.9 KB of a 1.2 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.739\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
+ "rest": [
+  {
+   "kind": "html",
+   "html": "<div class=\"bp-card\"></div>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"panel bp-status\" data-flag=\"experimental\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></div>\n      <p>In the package to try; no promise yet. New (E11): no game moves its units on it yet; DOM Battlefield is first in line (src/ACTORS.md).</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.28.0</dd></div>\n        <div><dt>SHIPPED IN</dt><dd>no released game or page yet</dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/actor.test.mjs\"><code>actor.test.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+  },
+  {
+   "kind": "use",
+   "blocks": [
+    {
+     "label": "<b>MODULES</b> · hosted on this site",
+     "code": "import { actors } from \"https://fizlet.com/dist/actor.js\";",
+     "wrap": false,
+     "copy": true,
+     "cls": "panel code-card"
+    },
+    {
+     "label": "<b>NPM</b> · @fzlt/core",
+     "code": "npm install @fzlt/core\nimport { actors } from \"@fzlt/core/actor\";",
+     "wrap": false,
+     "copy": false,
+     "cls": "panel code-card bp-npm"
+    }
+   ]
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>IN SHORT</b></span></div><pre tabindex=\"0\" class=\"code\"><code>const A = actors({ cap: 64, sides: 2, events: e.events });\nconst i = A.spawn(0, 5); A.x[i] = 120; A.y[i] = 80; // side 0, 5 hp\nconst foe = A.nearest(i, 300, 1 &lt;&lt; 1);  // closest side-1 actor in range\nif (foe &gt;= 0 &amp;&amp; A.hurt(foe, 1)) score++; // true: that killed it\nA.sweep(); // once per step: dead rows come back</code></pre></div>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-actor-ActorOptions\"><code>ActorOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-actor-actors\"><code>actors</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-actor-Actors\"><code>Actors</code></a><small>type</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-actor-ActorOptions\">\n        <h3><code>ActorOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Options for <code>actors()</code>: capacity, sides, optional shared body arrays and the event ring.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface ActorOptions {\n    /** Rows (fixed: the arrays never grow; spawn returns -1 when full). */\n    cap: number;\n    /** Sides counted by `count(side)` (default 8, at most 32: `nearest` takes them as bits). */\n    sides?: number;\n    /** Bring your own body arrays (length ≥ cap), e.g. a steer's, so both move the same numbers. */\n    x?: Float64Array;\n    y?: Float64Array;\n    a?: Float64Array;\n    /** engine.events: actor:spawn, actor:hurt, actor:kill. */\n    events?: EventRing;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-actor-actors\">\n        <h3><code>actors</code> <small>function</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A fixed-capacity actor table: typed-array rows with spawn, kill, hurt, heal, sweep, handles, side counts, tags and nearest.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>actors(o: ActorOptions): Actors</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>o</code></dt><dd><code><a href=\"#api-fzlt-core-actor-ActorOptions\">ActorOptions</a></code></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-actor-Actors\">Actors</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function actors(o: ActorOptions): {\n    cap: number;\n    x: Float64Array&lt;ArrayBufferLike&gt;;\n    y: Float64Array&lt;ArrayBufferLike&gt;;\n    a: Float64Array&lt;ArrayBufferLike&gt;;\n    vx: Float64Array&lt;ArrayBuffer&gt;;\n    vy: Float64Array&lt;ArrayBuffer&gt;;\n    r: Float64Array&lt;ArrayBuffer&gt;;\n    hp: Float64Array&lt;ArrayBuffer&gt;;\n    max: Float64Array&lt;ArrayBuffer&gt;;\n    alive: Uint8Array&lt;ArrayBuffer&gt;;\n    side: Uint8Array&lt;ArrayBuffer&gt;;\n    kind: Uint8Array&lt;ArrayBuffer&gt;;\n    tags: Uint32Array&lt;ArrayBuffer&gt;;\n    gen: Uint32Array&lt;ArrayBuffer&gt;;\n    /** The dense list: rows list[0..n), in spawn order (dead ones stay until `sweep()`). */\n    list: Int32Array&lt;ArrayBuffer&gt;;\n    readonly n: number;\n    /** Actors alive right now. */\n    readonly live: number;\n    /** A new actor on `side` with `health` (its max too); its body is zeroed. -1 when full. */\n    spawn(s: number, health: number, k?: number, t?: number): number;\n    /** Dead now (alive = 0, out of `count`); its row comes back at `sweep()`. False if already dead. */\n    kill: (i: number) =&gt; boolean;\n    /** Take `damage`; true when that killed it. */\n    hurt(i: number, damage: number): boolean;\n    /** Back up by `amount`, never over max. */\n    heal(i: number, amount: number): void;\n    /** Give dead rows back (keeps the list's order). Once per step, after the loops that kill. */\n    sweep(): void;\n    /** Live actors on side s. */\n    count(s: number): number;\n    /** A handle that outlives the row: `get(ref(i))` is i while that actor lives, -1 after. */\n    ref(i: number): number;\n    get(h: number): number;\n    /** Every bit of `bits` set? / set or clear them. */\n    has(i: number, bits: number): boolean;\n    tag(i: number, bits: number, on?: boolean): void;\n    /** The nearest live actor to i (not i) within `range`, on a side in the `sides` bits (1 &lt;&lt; side)\n     *  and carrying every `need` tag bit; -1 if none. Ties go to the earlier spawn. */\n    nearest(i: number, range?: number, sides?: number, need?: number): number;\n    /** Everything dead and every row free (a new match). Handles from before stay stale. */\n    clear: () =&gt; void;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-actor-Actors\">\n        <h3><code>Actors</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>The table <code>actors()</code> returns.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Actors = ReturnType&lt;typeof actors&gt;;</code></pre>\n      </article>\n    </div>"
+  },
+  {
+   "kind": "html",
+   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/flick.html\"><small>← PREVIOUS</small><code>@fzlt/core/flick</code></a><a class=\"bp-step next\" href=\"/bricks/aim.html\"><small>NEXT →</small><code>@fzlt/core/aim</code></a></nav>"
+  }
+ ]
+}

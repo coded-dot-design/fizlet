@@ -1,0 +1,86 @@
+{
+ "meta": {
+  "path": "bricks/grid.html",
+  "title": "@fzlt/core/grid: API and measured size · Fizlet",
+  "description": "@fzlt/core/grid: The game board. A cols × rows tile grid in typed arrays. API and measured size (1652 B gzip).",
+  "ld": [
+   {
+    "@type": "SoftwareSourceCode",
+    "@id": "https://fizlet.com/bricks/grid.html#code",
+    "name": "@fzlt/core/grid",
+    "description": "The game board.",
+    "url": "https://fizlet.com/bricks/grid.html",
+    "codeRepository": "https://github.com/coded-dot-design/fizlet",
+    "isPartOf": {
+     "@id": "https://fizlet.com/#code"
+    },
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    }
+   }
+  ],
+  "scripts": [
+   "/site.js",
+   "/brick-demo.js",
+   "/brick-cards.js"
+  ]
+ },
+ "styles": [],
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/bricks/",
+    "label": "Bricks"
+   }
+  ],
+  "current": "@fzlt/core/grid"
+ },
+ "tone": "var(--k-flag)",
+ "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">GRID</span> V0.27.0 <span class=\"brick-sticker brick-sticker-peel\" data-flag=\"beta\" style=\"--tilt:2.5deg;--dx:6px;--dy:-1px\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/grid</code></h1>\n        <p class=\"lead\">The game board. A cols × rows tile grid in typed arrays (terrain id, move cost, flags), A* paths, line of sight, movement range and seeded terrain. Every search reuses buffers made once by <code>board()</code>, so no call allocates. Cell ids are <code>row * cols + col</code>. Not collision: @fzlt/core/collide's <code>Grid</code> re-buckets moving bodies every step; a <code>Board</code> holds the ground they move over. Use the same cell size for both and a body's collide bucket is its cell. The size is checked at setup: <code>cols</code> and <code>rows</code> are positive integers, <code>cell</code> a finite number &gt; 0 (a RangeError names all three). A search (<code>path</code>, <code>flood</code>, <code>los</code>, <code>hit</code>) checks its cell ids: an id that is not an integer on the board throws <code>fizlet/grid: cell … is not on the board</code>.</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/grid.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
+ "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/grid</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/grid\">1,652 B</b><small>1.6 KB of a 1.6 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.993\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
+ "rest": [
+  {
+   "kind": "html",
+   "html": "<figure class=\"panel lit bp-demo\" data-brick-demo=\"grid\" data-demo-host>\n      <span class=\"size-badge\" role=\"img\" aria-label=\"5.9 KB gzipped: this demo, with @fzlt/core/grid, 6,024 bytes, measured at build\" data-size-badge data-bytes=\"6024\" data-live=\"chunks/grid-2RUWUUZB.js\" title=\"6,024 B gzip, measured at build\"><b>5.9 KB</b> gz</span>\n      <div class=\"bp-stage\" data-stage></div>\n      <figcaption><span class=\"bui-label\"><b>LIVE</b> · <span data-status>NO LOOP</span></span><span>A seeded board (the same seed lays the same rocks). Click a cell for the A* path from the green corner.</span></figcaption>\n    </figure>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"bp-card\"><div class=\"bc\" data-demo-host style=\"--tone: var(--k-flag)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks/grid#card-grid\" data-brick-card=\"grid\" data-tag=\"GRID\" data-bytes=\"1652\" role=\"img\" aria-label=\"@fzlt/core/grid, 1.6 KB gzip: A* finds the way across a seeded board of rocks and the brick walks it. Tap a cell to walk there; tap a rock to break it.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>GRID</b> 1.6 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap a cell to walk there; tap a rock to break it.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.5 KB gzipped: this card, with @fzlt/core/grid, 7,705 bytes, measured at build\" data-size-badge data-bytes=\"7705\" data-live=\"chunks/grid-6GGY5476.js\" title=\"7,705 B gzip, measured at build\"><b>7.5 KB</b> gz</span></p>\n</div></div>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"panel bp-status\" data-flag=\"beta\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></div>\n      <p>Tested and budgeted; not yet carried by a shipped game, or its API is still moving. No released game runs on it yet: only its own demo.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.3.1</dd></div>\n        <div><dt>SHIPPED IN</dt><dd>no released game or page yet</dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/grid.test.mjs\"><code>grid.test.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+  },
+  {
+   "kind": "use",
+   "blocks": [
+    {
+     "label": "<b>MODULES</b> · hosted on this site",
+     "code": "import { BLOCKED, COVER, OCCUPIED, Board, … } from \"https://fizlet.com/dist/grid.js\";",
+     "wrap": false,
+     "copy": true,
+     "cls": "panel code-card"
+    },
+    {
+     "label": "<b>NPM</b> · @fzlt/core",
+     "code": "npm install @fzlt/core\nimport { BLOCKED, COVER, OCCUPIED, Board, … } from \"@fzlt/core/grid\";",
+     "wrap": false,
+     "copy": false,
+     "cls": "panel code-card bp-npm"
+    }
+   ]
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>IN SHORT</b></span></div><pre tabindex=\"0\" class=\"code\"><code>const b = board(48, 30, { cell: 40 });\nb.scatter(seeded(1234), 0.12, ROCK, 1, BLOCKED);\nconst n = b.path(from, to, out, 400); // -1 = no path</code></pre></div>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-grid-BLOCKED\"><code>BLOCKED, COVER, OCCUPIED</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-grid-BoardOptions\"><code>BoardOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-grid-Board\"><code>Board</code></a><small>class</small></li><li><a href=\"#api-fzlt-core-grid-board\"><code>board</code></a><small>const</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-grid-BLOCKED\">\n        <h3><code>BLOCKED, COVER, OCCUPIED</code> <small>const</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>Flags: BLOCKED stops movement and sight, COVER stops sight (pass it in a mask), OCCUPIED marks a unit standing there (paths avoid it unless it is the goal). Bits 8–128 are yours.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export declare const BLOCKED = 1, COVER = 2, OCCUPIED = 4;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-grid-BoardOptions\">\n        <h3><code>BoardOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>Options for <code>board()</code>: the cell size in world units and whether moves go 8-way.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface BoardOptions {\n    /** World units per cell (default 1: world = grid units). */\n    cell?: number;\n    /** 8-way moves (never cutting a blocked corner). Default false: 4-way. */\n    diagonal?: boolean;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-grid-Board\">\n        <h3><code>Board</code> <small>class</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>The board <code>board()</code> makes: typed-array terrain, cost and flags per cell, plus the searches (A* paths, line of sight, movement range) on buffers made once. Make one with <code>board()</code>.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>new Board(cols: number, rows: number, opts?: BoardOptions): Board</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>cols</code></dt><dd><code>number</code></dd></div><div><dt><code>rows</code></dt><dd><code>number</code></dd></div><div><dt><code>opts?</code></dt><dd><code><a href=\"#api-fzlt-core-grid-BoardOptions\">BoardOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-grid-Board\">Board</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare class Board {\n    readonly cols: number;\n    readonly rows: number;\n    readonly cell: number;\n    diagonal: boolean;\n    /** Per cell: your terrain id (0 = open ground), move cost to enter (1–255, default 1), flags.\n     *  Plain typed arrays: write them directly (`flags[i] |= OCCUPIED`, `flags.fill(0)` to reset). */\n    readonly terrain: Uint8Array;\n    readonly cost: Uint8Array;\n    readonly flags: Uint8Array;\n    /** Cells the last search expanded; `partial` is true when the last path ran out of budget. */\n    expanded: number;\n    partial: boolean;\n    constructor(cols: number, rows: number, opts?: BoardOptions);\n    /** The cell under a world point, clamped to the board (so always a valid id). */\n    at(x: number, y: number): number;\n    /** Hot-path form: the cell under body i, reading typed arrays (nothing boxes). */\n    cellOf(x: Float64Array | Float32Array, y: Float64Array | Float32Array, i: number): number;\n    /** World centre of cell i into out[k], out[k + 1]. */\n    center(i: number, out: Float64Array | Float32Array, k?: number): void;\n    set(i: number, terrain: number, cost?: number, flags?: number): void;\n    /**\n     * Seeded terrain: inside the rect (c0, r0)–(c1, r1) (default the whole board), each open cell\n     * (terrain 0, no flags) becomes `terrain` with chance `density`. One draw per cell in the rect,\n     * whatever is there, so the same seed always lays the same board. Returns cells placed.\n     */\n    scatter(rand: () =&gt; number, density: number, terrain: number, cost?: number, flags?: number, c0?: number, r0?: number, c1?: number, r1?: number): number;\n    /** A random cell with none of `mask`, or -1 after `tries` misses (spawns, pickups, crates). */\n    pick(rand: () =&gt; number, mask?: number, tries?: number): number;\n    /**\n     * A* from `from` to `to` into `out`: the cells to step through, start excluded, goal last.\n     * Returns the step count (0 when from === to, -1 for no path); if it is over out.length only the\n     * first out.length steps are written. `budget` caps the cells expanded (0 = no cap) so a frame\n     * never stalls: on a cap it writes the path to the closest cell found and sets `partial`.\n     * Cells with any `avoid` flag are walls, except that the goal may be OCCUPIED.\n     */\n    path(from: number, to: number, out: Int32Array, budget?: number, avoid?: number): number;\n    /**\n     * Movement range: every cell reachable from `from` for at most `max` cost (an orthogonal step\n     * into a cost-1 cell costs 1, a diagonal 1.4), nearest first, start included. Returns the count\n     * (capped at out.length). `dist(i)` then reads each cell's cost.\n     */\n    flood(from: number, max: number, out: Int32Array, avoid?: number): number;\n    /** Cost from the last search's start to cell i (exact after flood), or -1 if it was not reached. */\n    dist(i: number): number;\n    /** Line of sight between two cells: no cell strictly between them has a `mask` flag.\n     *  Symmetric (a sees b exactly when b sees a). Pass BLOCKED | COVER to let cover block it. */\n    los(a: number, b: number, mask?: number): boolean;\n    /** The first cell strictly between a and b (walking from a) with a `mask` flag, or -1 if clear.\n     *  Bresenham over cells: what a shot hits on its way. */\n    hit(a: number, b: number, mask?: number): number;\n}</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-grid-board\">\n        <h3><code>board</code> <small>const</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>A cols × rows board; every buffer a search needs is made here, once.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>board(cols: number, rows: number, opts?: BoardOptions): Board</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>cols</code></dt><dd><code>number</code></dd></div><div><dt><code>rows</code></dt><dd><code>number</code></dd></div><div><dt><code>opts?</code></dt><dd><code><a href=\"#api-fzlt-core-grid-BoardOptions\">BoardOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-grid-Board\">Board</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare const board: (cols: number, rows: number, opts?: BoardOptions) =&gt; Board;</code></pre></details>\n      </article>\n    </div>"
+  },
+  {
+   "kind": "html",
+   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/collide.html\"><small>← PREVIOUS</small><code>@fzlt/core/collide</code></a><a class=\"bp-step next\" href=\"/bricks/fx.html\"><small>NEXT →</small><code>@fzlt/core/fx</code></a></nav>"
+  }
+ ]
+}

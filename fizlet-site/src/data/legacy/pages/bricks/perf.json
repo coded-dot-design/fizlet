@@ -1,0 +1,81 @@
+{
+ "meta": {
+  "path": "bricks/perf.html",
+  "title": "@fzlt/core/perf: API and measured size · Fizlet",
+  "description": "@fzlt/core/perf: A live performance overlay for players, off until they switch it on. API and measured size (2019 B gzip).",
+  "ld": [
+   {
+    "@type": "SoftwareSourceCode",
+    "@id": "https://fizlet.com/bricks/perf.html#code",
+    "name": "@fzlt/core/perf",
+    "description": "A live performance overlay for players, off until they switch it on.",
+    "url": "https://fizlet.com/bricks/perf.html",
+    "codeRepository": "https://github.com/coded-dot-design/fizlet",
+    "isPartOf": {
+     "@id": "https://fizlet.com/#code"
+    },
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    }
+   }
+  ],
+  "scripts": [
+   "/site.js",
+   "/brick-cards.js"
+  ]
+ },
+ "styles": [],
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/bricks/",
+    "label": "Bricks"
+   }
+  ],
+  "current": "@fzlt/core/perf"
+ },
+ "tone": "var(--k-sys)",
+ "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">PERF</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"complete\" style=\"--tilt:-4.5deg;--dx:1px;--dy:-1px\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/perf</code></h1>\n        <p class=\"lead\">A live performance overlay for players, off until they switch it on. Frames per second, a rolling frame-time bar chart (one bar per frame, coloured against the budget), dropped frames, the engine's work per frame (read, steps, render), live pooled entities and, where the browser exposes it, the JS heap. It reads the engine's own frames on the shared clock (<code>engine.timing</code>, <code>engine.live</code>): no clock or requestAnimationFrame of its own, and it never calls <code>engine.busy()</code>, so a settling engine still settles and the chart rests with it. Its own cost stays out of what it measures: frame times go into a typed-array ring (nothing is allocated per frame), the numbers are written twice a second through the ledger (change-only, strings cached), the chart is one canvas, and the root is <code>contain: layout paint style</code> and <code>pointer-events: none</code>. Hidden, it only records (a few typed-array writes a frame). Not the dev-only <code>@fzlt/core/debug</code>, which patches Element prototypes: this one ships to players.</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/perf.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
+ "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/perf</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/perf\">2,019 B</b><small>2.0 KB of a 2.0 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.999\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
+ "rest": [
+  {
+   "kind": "html",
+   "html": "<div class=\"bp-card\"><div class=\"bc\" data-demo-host style=\"--tone: var(--k-sys)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks/perf#card-perf\" data-brick-card=\"perf\" data-tag=\"PERF\" data-bytes=\"2019\" role=\"img\" aria-label=\"@fzlt/core/perf, 2.0 KB gzip: a brick that lands does real work in that step; the perf overlay draws the late frame over its budget line and counts the drops. Tap high or low to drop a long task.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>PERF</b> 2.0 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap high or low to drop a long task.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.6 KB gzipped: this card, with @fzlt/core/perf, 7,764 bytes, measured at build\" data-size-badge data-bytes=\"7764\" data-live=\"chunks/perf-YAFEF4IH.js\" title=\"7,764 B gzip, measured at build\"><b>7.6 KB</b> gz</span></p>\n</div></div>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"panel bp-status\" data-flag=\"complete\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></div>\n      <p>Done, and always getting smaller and faster.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.7.0</dd></div>\n        <div><dt>SHIPPED IN</dt><dd><ul><li>DOM Battlefield 1.0.3 and the DOM VIRUS site (the performance switch)</li></ul></dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/perf.test.mjs\"><code>perf.test.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/browser.mjs\"><code>browser.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+  },
+  {
+   "kind": "use",
+   "blocks": [
+    {
+     "label": "<b>MODULES</b> · hosted on this site",
+     "code": "import { BARS, WINDOW, FrameRing, fps, … } from \"https://fizlet.com/dist/perf.js\";",
+     "wrap": false,
+     "copy": true,
+     "cls": "panel code-card"
+    },
+    {
+     "label": "<b>NPM</b> · @fzlt/core",
+     "code": "npm install @fzlt/core\nimport { BARS, WINDOW, FrameRing, fps, … } from \"@fzlt/core/perf\";",
+     "wrap": false,
+     "copy": false,
+     "cls": "panel code-card bp-npm"
+    }
+   ]
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>EXAMPLE</b> · typechecked against v0.27.0</span><button class=\"bui-key copy\" type=\"button\" data-copy><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 7h10v10H7ZM3 13V3h10\"></path></svg>Copy</button></div><pre tabindex=\"0\" class=\"code\"><code>const overlay = perf(e, { corner: &quot;tr&quot; }); // F9 toggles it\noverlay.show(true); // fps, frame-time bars, dropped, work, live, heap\n// it reads the engine's frames: no rAF and no allocation of its own</code></pre></div>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-perf-Corner\"><code>Corner</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-perf-PerfOptions\"><code>PerfOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-perf-BARS\"><code>BARS</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-perf-WINDOW\"><code>WINDOW</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-perf-FrameRing\"><code>FrameRing</code></a><small>class</small></li><li><a href=\"#api-fzlt-core-perf-fps\"><code>fps</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-perf-missed\"><code>missed</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-perf-perf\"><code>perf</code></a><small>function</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-perf-Corner\">\n        <h3><code>Corner</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>A corner of the host: top left, top right, bottom left or bottom right.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Corner = &quot;tl&quot; | &quot;tr&quot; | &quot;bl&quot; | &quot;br&quot;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-perf-PerfOptions\">\n        <h3><code>PerfOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Options for <code>perf()</code>: where the overlay goes, the toggle key and the frame budget.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface PerfOptions {\n    /** Where the overlay goes (default the engine root, else `document.body`, where it is fixed). */\n    host?: HTMLElement | null;\n    /** Corner of the host (default &quot;tr&quot;). */\n    corner?: Corner;\n    /** `KeyboardEvent.code` that toggles it (default &quot;F9&quot;); null for none. */\n    key?: string | null;\n    /** Shown from the start (default false: players switch it on in Settings). */\n    on?: boolean;\n    /** The frame budget in ms (default 1000 / 60): a frame over 1.5 budgets counts as dropped. */\n    budget?: number;\n    /** Called when it is shown or hidden (the key or `show()`): keep a Settings switch in step. */\n    change?: (on: boolean) =&gt; void;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-perf-BARS\">\n        <h3><code>BARS</code> <small>const</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Bars in the chart: one per frame, 2 s at 60 fps.</p>\n        <dl class=\"bp-params\"><div><dt>Type</dt><dd><code>120</code></dd></div></dl>\n        <pre tabindex=\"0\" class=\"code\"><code>export declare const BARS = 120;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-perf-WINDOW\">\n        <h3><code>WINDOW</code> <small>const</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>How often the numbers update (ms of frame time).</p>\n        <dl class=\"bp-params\"><div><dt>Type</dt><dd><code>500</code></dd></div></dl>\n        <pre tabindex=\"0\" class=\"code\"><code>export declare const WINDOW = 500;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-perf-FrameRing\">\n        <h3><code>FrameRing</code> <small>class</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>The last <code>cap</code> frame times (ms) in a typed array: <code>push</code> never allocates.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>new FrameRing(cap: number): FrameRing</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>cap</code></dt><dd><code>number</code></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-perf-FrameRing\">FrameRing</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare class FrameRing {\n    readonly cap: number;\n    readonly ms: Float32Array;\n    /** The next slot written. */\n    head: number;\n    size: number;\n    constructor(cap: number);\n    push(ms: number): void;\n    /** Slot of the k-th oldest frame held. */\n    slot(k: number): number;\n}</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-perf-fps\">\n        <h3><code>fps</code> <small>const</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Frames per second from a frame count and the ms they took (the readout inlines the same sum).</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>fps(frames: number, ms: number): number</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>frames</code></dt><dd><code>number</code></dd></div><div><dt><code>ms</code></dt><dd><code>number</code></dd></div><div><dt>Returns</dt><dd><code>number</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare const fps: (frames: number, ms: number) =&gt; number;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-perf-missed\">\n        <h3><code>missed</code> <small>const</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Frames a long frame swallowed: 0 under 1.5 budgets, else the extra budgets it took (rounded).</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>missed(ms: number, budget: number): number</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>ms</code></dt><dd><code>number</code></dd></div><div><dt><code>budget</code></dt><dd><code>number</code></dd></div><div><dt>Returns</dt><dd><code>number</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare const missed: (ms: number, budget: number) =&gt; number;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-perf-perf\">\n        <h3><code>perf</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>A performance overlay for <code>engine</code>, off until shown (F9 by default): fps, a frame-time chart against the budget, dropped frames, the engine's work per frame, pooled entities and the JS heap. <code>show()</code> toggles it; <code>destroy()</code> removes it.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>perf(engine: Engine, o?: PerfOptions): { … }</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>engine</code></dt><dd><code>Engine</code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-perf-PerfOptions\">PerfOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code>{ … }</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function perf(engine: Engine, o?: PerfOptions): {\n    el: HTMLElement;\n    ring: FrameRing;\n    /** Show (true), hide (false) or flip (no argument). */\n    show: (next?: boolean) =&gt; void;\n    readonly on: boolean;\n    /** Frames recorded (0-length frames after a pause are not frames). */\n    readonly frames: number;\n    /** Dropped frames so far. */\n    readonly dropped: number;\n    /** Remove the overlay, its key and its system; the engine keeps running. */\n    destroy: () =&gt; void;\n};</code></pre></details>\n      </article>\n    </div>"
+  },
+  {
+   "kind": "html",
+   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/ui.html\"><small>← PREVIOUS</small><code>@fzlt/core/ui</code></a><a class=\"bp-step next\" href=\"/bricks/rules.html\"><small>NEXT →</small><code>@fzlt/core/rules</code></a></nav>"
+  }
+ ]
+}

@@ -1,0 +1,86 @@
+{
+ "meta": {
+  "path": "bricks/sprite.html",
+  "title": "@fzlt/core/sprite: API and measured size · Fizlet",
+  "description": "@fzlt/core/sprite: The character layer's drawing primitive. API and measured size (1437 B gzip).",
+  "ld": [
+   {
+    "@type": "SoftwareSourceCode",
+    "@id": "https://fizlet.com/bricks/sprite.html#code",
+    "name": "@fzlt/core/sprite",
+    "description": "The character layer's drawing primitive.",
+    "url": "https://fizlet.com/bricks/sprite.html",
+    "codeRepository": "https://github.com/coded-dot-design/fizlet",
+    "isPartOf": {
+     "@id": "https://fizlet.com/#code"
+    },
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    }
+   }
+  ],
+  "scripts": [
+   "/site.js",
+   "/brick-demo.js",
+   "/brick-cards.js"
+  ]
+ },
+ "styles": [],
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/bricks/",
+    "label": "Bricks"
+   }
+  ],
+  "current": "@fzlt/core/sprite"
+ },
+ "tone": "var(--k-fallin)",
+ "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">SPRITE</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"complete\" style=\"--tilt:3.5deg;--dx:4px;--dy:-2px\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/sprite</code></h1>\n        <p class=\"lead\">The character layer's drawing primitive. Pixel-art sprites written as data (rows of characters + a colour map whose values can be palette roles), baked once per (sprite, frame, scale, palette) into a bounded cache, then blitted with one drawImage. <code>spriteSVG()</code> / <code>spriteURL()</code> give the same pixels as an SVG for characters that live in the page instead of on a canvas; they stand alone, so a page that only places SVG characters never ships the canvas half.</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/sprite.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
+ "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/sprite</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/sprite\">1,437 B</b><small>1.4 KB of a 1.5 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.936\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
+ "rest": [
+  {
+   "kind": "html",
+   "html": "<figure class=\"panel lit bp-demo\" data-brick-demo=\"sprite\" data-demo-host>\n      <span class=\"size-badge\" role=\"img\" aria-label=\"2.3 KB gzipped: this demo, with @fzlt/core/sprite, 2,394 bytes, measured at build\" data-size-badge data-bytes=\"2394\" data-live=\"chunks/sprite-RCRTG4WC.js\" title=\"2,394 B gzip, measured at build\"><b>2.3 KB</b> gz</span>\n      <div class=\"bp-stage\" data-stage></div>\n      <figcaption><span class=\"bui-label\"><b>LIVE</b> · <span data-status>NO LOOP</span></span><span>One sprite written as rows of characters, drawn at three scales in three palettes (side A, side B, hit flash), then the same pixels as an SVG image.</span></figcaption>\n    </figure>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"bp-card\"><div class=\"bc\" data-demo-host style=\"--tone: var(--k-fallin)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks/sprite#card-sprite\" data-brick-card=\"sprite\" data-tag=\"SPRITE\" data-bytes=\"1437\" role=\"img\" aria-label=\"@fzlt/core/sprite, 1.4 KB gzip: a pixel bug that flashes, gets angry and bursts into its own pixels. Tap the bug. Four times.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>SPRITE</b> 1.4 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap the bug. Four times.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.2 KB gzipped: this card, with @fzlt/core/sprite, 7,408 bytes, measured at build\" data-size-badge data-bytes=\"7408\" data-live=\"chunks/sprite-PUYN2KQ5.js\" title=\"7,408 B gzip, measured at build\"><b>7.2 KB</b> gz</span></p>\n</div></div>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"panel bp-status\" data-flag=\"complete\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></div>\n      <p>Done, and always getting smaller and faster.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.3.2</dd></div>\n        <div><dt>SHIPPED IN</dt><dd><ul><li>the hero battle on the DOM Battlefield 1.0.3 site</li><li>fizlet.com: the gallery's scenes</li></ul></dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/bricks.test.mjs\"><code>bricks.test.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/browser.mjs\"><code>browser.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+  },
+  {
+   "kind": "use",
+   "blocks": [
+    {
+     "label": "<b>MODULES</b> · hosted on this site",
+     "code": "import { spriteSVG, spriteURL, sprites } from \"https://fizlet.com/dist/sprite.js\";",
+     "wrap": false,
+     "copy": true,
+     "cls": "panel code-card"
+    },
+    {
+     "label": "<b>NPM</b> · @fzlt/core",
+     "code": "npm install @fzlt/core\nimport { spriteSVG, spriteURL, sprites } from \"@fzlt/core/sprite\";",
+     "wrap": false,
+     "copy": false,
+     "cls": "panel code-card bp-npm"
+    }
+   ]
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>IN SHORT</b></span></div><pre tabindex=\"0\" class=\"code\"><code>const art = sprites({ bug: { colors: { b: &quot;team&quot; }, frames: [rows] } },\n  { palettes: [{ team: &quot;#39ffb0&quot; }, { team: &quot;#ff5c8f&quot; }] });\nart.draw(ctx, &quot;bug&quot;, frame, x, y, angle, 3, side);\nimg.src = spriteURL(def, 0, palettes); // the same pixels as SVG</code></pre></div>"
+  },
+  {
+   "kind": "html",
+   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-sprite-Paint\"><code>Paint</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-sprite-SpriteDef\"><code>SpriteDef</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-sprite-SpriteOptions\"><code>SpriteOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-sprite-spriteSVG\"><code>spriteSVG</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-sprite-spriteURL\"><code>spriteURL</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-sprite-sprites\"><code>sprites</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-sprite-Sprites\"><code>Sprites</code></a><small>type</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-sprite-Paint\">\n        <h3><code>Paint</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>A colour for a character: a hex, or a role name (<code>team</code>, <code>enemy</code>, <code>hazard</code>…) a palette fills.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Paint = string;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-sprite-SpriteDef\">\n        <h3><code>SpriteDef</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>One sprite as data: its frames as rows of characters, the colour or role of each character, its pivot and an optional outline.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface SpriteDef {\n    /** Rows of characters, one per pixel (one frame), or a list of those (an animation). */\n    frames?: string[] | string[][];\n    /** Character → colour or role. Any character not listed is empty (use `.` by convention). */\n    colors?: Record&lt;string, Paint&gt;;\n    /** Pivot in sprite pixels (default: the centre). Draw places it at (x, y) and rotates about it. */\n    ax?: number;\n    ay?: number;\n    /** A 1px rim around the silhouette (colour or role): readable on light and dark pages. */\n    outline?: Paint;\n    /** Vector sprite instead of pixels: its size, frame count and a painter, baked like the rest. */\n    w?: number;\n    h?: number;\n    n?: number;\n    paint?: (c: CanvasRenderingContext2D, frame: number, color: (p: Paint) =&gt; string) =&gt; void;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-sprite-SpriteOptions\">\n        <h3><code>SpriteOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Options for <code>sprites()</code>: the palettes and the size of the baked-tile cache.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface SpriteOptions {\n    /**\n     * Palettes: role → hex. Index 0 is the default and fills roles the others leave out. The key `*`\n     * paints every pixel one colour (a hit flash). Push more at runtime (max 32); `clear()` after\n     * changing one in place.\n     */\n    palettes?: Record&lt;string, string&gt;[];\n    /** Max baked tiles kept (default 256). The oldest is dropped when a new one is baked. */\n    cap?: number;\n    /** Tile factory (default: OffscreenCanvas, else a detached canvas). */\n    canvas?: (w: number, h: number) =&gt; OffscreenCanvas | HTMLCanvasElement;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-sprite-spriteSVG\">\n        <h3><code>spriteSVG</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>One sprite as an SVG string (crisp at any size), for characters placed in the page. Frames wrap.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>spriteSVG(d: SpriteDef, frame?: number, palettes?: Palettes, palette?: number): string</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>d</code></dt><dd><code><a href=\"#api-fzlt-core-sprite-SpriteDef\">SpriteDef</a></code></dd></div><div><dt><code>frame?</code></dt><dd><code>number</code> <small>optional</small></dd></div><div><dt><code>palettes?</code></dt><dd><code>Palettes</code> <small>optional</small></dd></div><div><dt><code>palette?</code></dt><dd><code>number</code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code>string</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function spriteSVG(d: SpriteDef, frame?: number, palettes?: Palettes, palette?: number): string;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-sprite-spriteURL\">\n        <h3><code>spriteURL</code> <small>const</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p><code>spriteSVG()</code> as a data URL, for an <code>&lt;img src&gt;</code> or a CSS background.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>spriteURL(d: SpriteDef, frame?: number, palettes?: Palettes, palette?: number): string</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>d</code></dt><dd><code><a href=\"#api-fzlt-core-sprite-SpriteDef\">SpriteDef</a></code></dd></div><div><dt><code>frame?</code></dt><dd><code>number</code> <small>optional</small></dd></div><div><dt><code>palettes?</code></dt><dd><code>Palettes</code> <small>optional</small></dd></div><div><dt><code>palette?</code></dt><dd><code>number</code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code>string</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare const spriteURL: (d: SpriteDef, frame?: number, palettes?: Palettes, palette?: number) =&gt; string;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-sprite-sprites\">\n        <h3><code>sprites</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Frames ≤ 64, palettes ≤ 32 and baked scales 1–8 per sprite: the cache key is one small integer.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>sprites&lt;K extends string&gt;(defs: Record&lt;K, SpriteDef&gt;, o?: SpriteOptions): Sprites</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>defs</code></dt><dd><code>Record&lt;K, <a href=\"#api-fzlt-core-sprite-SpriteDef\">SpriteDef</a>&gt;</code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-sprite-SpriteOptions\">SpriteOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-sprite-Sprites\">Sprites</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function sprites&lt;K extends string&gt;(defs: Record&lt;K, SpriteDef&gt;, o?: SpriteOptions): {\n    ids: Record&lt;K, number&gt;;\n    /** Width and height of each sprite in sprite pixels (outline not included), by id. */\n    w: Float64Array&lt;ArrayBuffer&gt;;\n    h: Float64Array&lt;ArrayBuffer&gt;;\n    palettes: Record&lt;string, string&gt;[];\n    tile: (id: number | K, frame?: number, scale?: number, palette?: number) =&gt; Tile;\n    /**\n     * Draw sprite `id` (number from `ids`, or its name) with its pivot at (x, y), turned by `angle`\n     * radians, `scale` pixels per sprite pixel. Bakes on the first call; after that, no allocation.\n     * An id that names no sprite throws a RangeError (as `tile` does).\n     */\n    draw(ctx: CanvasRenderingContext2D, id: number | K, frame: number, x: number, y: number, angle?: number, scale?: number, palette?: number): void;\n    /** Baked tiles kept now. */\n    readonly size: number;\n    /** Tiles baked so far (cache misses). Flat in a steady scene. */\n    readonly baked: number;\n    /** Drop every baked tile (after changing a palette in place). */\n    clear(): void;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-sprite-Sprites\">\n        <h3><code>Sprites</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>The sprite set <code>sprites()</code> returns: <code>draw()</code> blits a baked frame.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Sprites = ReturnType&lt;typeof sprites&gt;;</code></pre>\n      </article>\n    </div>"
+  },
+  {
+   "kind": "html",
+   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/camera.html\"><small>← PREVIOUS</small><code>@fzlt/core/camera</code></a><a class=\"bp-step next\" href=\"/bricks/sound.html\"><small>NEXT →</small><code>@fzlt/core/sound</code></a></nav>"
+  }
+ ]
+}
