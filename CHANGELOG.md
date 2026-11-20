@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- **`@fzlt/core/ribbon`** (new brick, ALPHA; 2,683 B gz, budget 2,752): roads, tracks and edge strips
+  drawn along their true curve at their true width on a heightfield, lifted from Holeshot's road-edge
+  ribbons (its road graph and materials stay in the game). `ribbon(d, ground, options)` adds one decal to
+  the ground's cluster; `band(line, from, to, color, closed)` paints the strip between two offsets
+  across a line, mitred at the joints, every corner on the ground's own height; near-clipped, culled,
+  slope-shaded, far to near in depth buckets, one fill per colour and shade, seamless; `hide` skips
+  pieces behind a crest. Zero allocation per frame.
+  - Tests: `tests/ribbon.test.mjs` (corners where the diorama projects them, draped on the terrain's own
+    sample, mitred joints, near clip, cull, hide, cap, 0 young GCs over 2,000 frames with a terrain and
+    three bands) and `tests/ribbon.mjs` (Chromium: a dune track with two edge strips, the track's colour
+    under its projected centre line, orbiting, settles to 0 frames).
+
 - **`@fzlt/core/rig`** (new brick, ALPHA; 1,321 B gz, budget 1,344): jointed limbs for diorama figures,
   lifted from Holeshot's rider (its art stays in the game). `limb(d, id, { on, l1, l2, normal, bend })`
   adds two groups (`:a` the upper bone, `:b` the lower; parts hang along +x) and `reach(ax, ay, az, bx,
