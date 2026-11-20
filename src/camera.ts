@@ -16,6 +16,7 @@ export interface CameraOptions {
   ease?: number;
   /** Zoom limits (default 1 and 4). */
   min?: number;
+  /** Most zoom (default 4). */
   max?: number;
   /** Keep the stage covering its own box and clip its parent (default true). */
   contain?: boolean;
@@ -100,6 +101,7 @@ export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOp
     get width() {
       return s[8 /* W */]!;
     },
+    /** Stage height in px (untransformed), as last measured. */
     get height() {
       return s[9 /* H */]!;
     },
@@ -125,6 +127,7 @@ export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOp
       out[1] = s[1 /* FY */]! + (y - s[7 /* PY */]!) / s[2 /* Z */]!;
       return out;
     },
+    /** Current zoom (1: the page as laid out), easing toward the target. */
     get zoom() {
       return s[2 /* Z */]!;
     },
@@ -132,10 +135,14 @@ export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOp
     get moving() {
       return s[13 /* MOVE */]! > 0;
     },
+    /** Engine read phase: measures the stage once it resized (the only layout read) and latches reduced
+     *  motion while moving. */
     read() {
       if (s[14 /* MEASURE */]) measure();
       if (s[13 /* MOVE */]) s[16 /* JUMP */] = +still();
     },
+    /** Engine step: eases zoom and focus toward the target over dt seconds (jumps under reduced motion)
+     *  and keeps the engine busy until it settles (within 0.02 px). No allocation. */
     step(e: Engine, dt: number) {
       if (!s[13 /* MOVE */]) return;
       const a = s[16 /* JUMP */] ? 1 : 1 - Math.exp(-rate * dt);
@@ -147,6 +154,9 @@ export function camera(engine: Engine, el: HTMLElement | SVGElement, o: CameraOp
         (s[0 /* FX */] = s[3 /* GX */]!), (s[1 /* FY */] = s[4 /* GY */]!), (s[2 /* Z */] = s[5 /* GZ */]!), (s[13 /* MOVE */] = 0);
       e.busy();
     },
+    /** Engine render: writes `transform` (with `transform-origin`, `will-change`, and the parent's clip
+     *  under `contain`) through the ledger when it changed; back home it clears them, and Recall
+     *  restores the original styles. */
     render() {
       const z = s[2 /* Z */]!, x = s[6 /* PX */]! - s[0 /* FX */]! * z, y = s[7 /* PY */]! - s[1 /* FY */]! * z;
       if (x === s[10 /* RX */] && y === s[11 /* RY */] && z === s[12 /* RZ */]) return;
