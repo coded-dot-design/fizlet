@@ -18,10 +18,12 @@ import { toast } from "./ui/board-ui";
 
 /** One readout on the skirmish bar: its label, how the value shows and its tone. */
 export interface SkirmishReadout {
+  /** The readout's label, shown over its value. */
   label: string;
   /** How the value shows: `num` (default) 12 · `clock` 3:05 from seconds · `rank` #2 · `pct` 75%
    *  from 0..1 · `bar` a meter from 0..1 (armor, health). */
   kind?: "num" | "clock" | "rank" | "pct" | "bar";
+  /** Tints the value: `team` (the team ink) or `enemy` (team B's colour); untinted by default. */
   tone?: "team" | "enemy";
   /** A bar: class `low` at or under this (0..1). */
   low?: number;
