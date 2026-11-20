@@ -29,18 +29,71 @@ import type { SlotMount, SlotScene } from "./slot";
  */
 export type Val = number | string | readonly [number | string, number | string, number, number, string?] | Blink;
 /** A blink: `blink[0]` outside its window, `blink[1]` on odd ticks of `hz` inside it, `then` after it (see Val). */
-export interface Blink { blink: readonly [number | string, number | string]; hz: number; on?: readonly [number, number?]; then?: number | string }
+export interface Blink {
+  /** `[a, b]`: `a` before the window and on even ticks, `b` on odd ticks inside it. */
+  blink: readonly [number | string, number | string];
+  /** Ticks per second inside the window. */
+  hz: number;
+  /** The window `[from, to?]` in scene seconds (default `[0]`: from 0, never ending). */
+  on?: readonly [number, number?];
+  /** The value from `to` on (default `a`). */
+  then?: number | string
+}
 
 /** Shown while `from <= t < to` (`to` left out: from then on). */
 type On = { on?: readonly [number, number?] };
 /** A sprite from `art`: centre at (x, y), turned by `rot` radians, `scale` px per art pixel, a palette index. */
-export type SpriteItem = On & { sprite: string; x: Val; y: Val; rot?: Val; scale?: Val; pal?: Val };
+export type SpriteItem = On & {
+  /** The sprite's name in `art`. */
+  sprite: string;
+  /** Where its pivot goes, x in scene px (the pivot is the sprite's centre). */
+  x: Val;
+  /** Where its pivot goes, y in scene px. */
+  y: Val;
+  /** Turn in radians (default 0). */
+  rot?: Val;
+  /** Scene px per art pixel (default 1). */
+  scale?: Val;
+  /** Index into `palettes` (default 0). */
+  pal?: Val
+};
 /** A filled rectangle `[x, y, w, h]`. */
-export type RectItem = On & { rect: readonly [Val, Val, Val, Val]; fill: Val };
+export type RectItem = On & {
+  /** `[x, y, w, h]` in scene px. */
+  rect: readonly [Val, Val, Val, Val];
+  /** Fill colour. */
+  fill: Val
+};
 /** One line of text; with `stroke` it gets an outline `lw` wide first. */
-export type TextItem = On & { text: string; x: Val; y: Val; font: string; fill: Val; align?: CanvasTextAlign; stroke?: Val; lw?: Val };
+export type TextItem = On & {
+  /** The words. */
+  text: string;
+  /** Anchor x, scene px (where `align` measures from). */
+  x: Val;
+  /** Baseline y, scene px. */
+  y: Val;
+  /** A canvas font, sized in scene px (e.g. "bold 12px monospace"). */
+  font: string;
+  /** Fill colour. */
+  fill: Val;
+  /** Canvas text alignment (default "start"). */
+  align?: CanvasTextAlign;
+  /** Outline colour, stroked before the fill (default: no outline). */
+  stroke?: Val;
+  /** Outline width, scene px (default 1). */
+  lw?: Val
+};
 /** A line `[x0, y0, x1, y1]`. */
-export type LineItem = On & { line: readonly [Val, Val, Val, Val]; stroke: Val; lw: Val; cap?: CanvasLineCap };
+export type LineItem = On & {
+  /** `[x0, y0, x1, y1]` in scene px. */
+  line: readonly [Val, Val, Val, Val];
+  /** Stroke colour. */
+  stroke: Val;
+  /** Line width, scene px. */
+  lw: Val;
+  /** Canvas line cap (default "butt"). */
+  cap?: CanvasLineCap
+};
 /** One thing in the cast: a sprite, a rect, a line of text or a line, drawn in order. */
 export type Item = SpriteItem | RectItem | TextItem | LineItem;
 
@@ -51,12 +104,34 @@ export type Item = SpriteItem | RectItem | TextItem | LineItem;
  */
 export type Cue = readonly [number, "word" | "kick" | "emit", ...(number | string)[]];
 /** A gag: every step while `from < t < to`, emit `n` of `kind` at (x + dx, y + dy); x and y may be tracks. */
-export interface Gag { emit: string; on: readonly [number, number]; x: Val; y: Val; dx?: number; dy?: number; n: number; c?: number; cn?: number; scale?: number }
+export interface Gag {
+  /** The particle kind's name in `fx.kinds`. */
+  emit: string;
+  /** The window `[from, to]`, scene seconds (both ends excluded). */
+  on: readonly [number, number];
+  /** Where it emits, x in scene px: a number or a track (not a blink). */
+  x: Val;
+  /** Where it emits, y in scene px: a number or a track (not a blink). */
+  y: Val;
+  /** Offset added to x (default 0). */
+  dx?: number;
+  /** Offset added to y (default 0). */
+  dy?: number;
+  /** Particles per step. */
+  n: number;
+  /** First colour, an index into `fx.colors` (default 0). */
+  c?: number;
+  /** Colours to pick from, `c`..`c + cn - 1` (default 1). */
+  cn?: number;
+  /** Speed and size multiplier (default 1). */
+  scale?: number
+}
 
 /** A scene as JSON: the stage, the art, the cast, the cues and the gags (format version 1). */
 export interface SceneData {
   /** Format version: 1. */
   v: 1;
+  /** The stage: grid size, frame rate, background, timing, stars and shake. */
   stage: {
     /** The grid in scene pixels, fitted to the box and centred. */
     w: number;
@@ -82,13 +157,17 @@ export interface SceneData {
   fx?: { cap?: number; gravity?: number; scorch?: number; colors?: string[]; words?: string[]; kinds?: Record<string, Kind | keyof typeof KINDS> };
   /** Pixel art by name: rows of characters (@fzlt/core/sprite), coloured by `ink` and `palettes`. */
   art?: Record<string, string[]>;
+  /** Character → colour or role, shared by every sprite in `art`. */
   ink?: Record<string, string>;
+  /** Palettes, role → colour (@fzlt/core/sprite's; index 0 is the default); a sprite picks one by `pal`. */
   palettes?: Record<string, string>[];
   /** Drawn in order, under the effects; shaken with them. */
   cast?: Item[];
   /** Drawn last, above the effects, never shaken (captions). */
   over?: Item[];
+  /** One-shot moments, in time order (see Cue). */
   cue?: Cue[];
+  /** Running bits, checked every step (see Gag). */
   gag?: Gag[];
 }
 
@@ -99,7 +178,13 @@ export interface SceneOptions {
 }
 /** The mounted scene: its engine, `play()` from the start, `destroy()` (Recall), and the system
  *  the engine runs (read, step, render). */
-export type Scene = SlotScene & System & { engine: Engine; play(): void };
+export type Scene = SlotScene & System & {
+  /** The scene's own engine (rooted on the stage, at `stage.fps`, default 30); `destroy()` destroys it. */
+  engine: Engine;
+  /** Back to the start (the intro delay too; reduced motion: the poster) and wake the engine. With
+   *  motion, a tap on the stage does the same. */
+  play(): void
+};
 
 /** Mount scene `d` on `stage` (any positioned box). Returns its engine, `play()` and `destroy()`. */
 export function mountScene(stage: HTMLElement, d: SceneData, o: SceneOptions = {}): Scene {

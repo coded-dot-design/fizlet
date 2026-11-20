@@ -25,7 +25,9 @@ export interface ActorOptions {
   sides?: number;
   /** Bring your own body arrays (length ≥ cap), e.g. a steer's, so both move the same numbers. */
   x?: Float64Array;
+  /** Your own y positions (length ≥ cap); default a new array. */
   y?: Float64Array;
+  /** Your own headings in radians (length ≥ cap); default a new array. */
   a?: Float64Array;
   /** engine.events: actor:spawn, actor:hurt, actor:kill. */
   events?: EventRing;
@@ -60,9 +62,37 @@ export function actors(o: ActorOptions) {
     return true;
   };
   return {
-    cap, x, y, a, vx, vy, r, hp, max, alive, side, kind, tags, gen,
+    /** Rows in the table (o.cap, at least 1): every array is this long. */
+    cap,
+    /** Position x per row (px; `o.x` when given). Zeroed on spawn. */
+    x,
+    /** Position y per row (px; `o.y` when given). Zeroed on spawn. */
+    y,
+    /** Heading per row in radians (`o.a` when given). Zeroed on spawn. */
+    a,
+    /** Velocity x per row (px/s by convention; the table never moves anything). Zeroed on spawn. */
+    vx,
+    /** Velocity y per row (px/s by convention). Zeroed on spawn. */
+    vy,
+    /** Body radius per row (px). Zeroed on spawn. */
+    r,
+    /** Health per row: set to `health` on spawn, lowered by `hurt`, raised by `heal`. */
+    hp,
+    /** Most health per row (the spawn `health`); `heal` never goes over it. */
+    max,
+    /** 1 while the row's actor lives, 0 once killed (or never spawned). */
+    alive,
+    /** Side per row, 0..sides-1 (the spawn `s`). */
+    side,
+    /** Your kind id per row (the spawn `k`, default 0), 0..255. */
+    kind,
+    /** Tag bits per row (the spawn `t`, default 0); read with `has`, write with `tag`. */
+    tags,
+    /** Generation per row, bumped on each spawn: what makes a `ref` handle go stale. */
+    gen,
     /** The dense list: rows list[0..n), in spawn order (dead ones stay until `sweep()`). */
     list,
+    /** Rows on `list`: live ones plus the dead not yet swept. */
     get n() {
       return c[N]!;
     },
@@ -120,6 +150,7 @@ export function actors(o: ActorOptions) {
     ref(i: number) {
       return gen[i]! * cap + i;
     },
+    /** The row of handle `h` while that actor lives, else -1 (dead, or its row reused). */
     get(h: number) {
       const i = h % cap;
       return h >= 0 && alive[i] && gen[i]! * cap + i === h ? i : -1;
@@ -128,6 +159,7 @@ export function actors(o: ActorOptions) {
     has(i: number, bits: number) {
       return (tags[i]! & bits) === bits;
     },
+    /** Set `bits` on row i (`on`, default true) or clear them (false). */
     tag(i: number, bits: number, on = true) {
       tags[i] = on ? tags[i]! | bits : tags[i]! & ~bits;
     },

@@ -71,8 +71,9 @@ function solve(out: { [i: number]: number }, q: Float64Array) {
 export interface LimbOptions {
   /** The id of the object it hangs from (both groups are its children: the solve is in its frame). */
   on: string;
-  /** The bones' lengths: upper (thigh, upper arm) and lower (shin, forearm). */
+  /** The upper bone's length (thigh, upper arm). */
   l1: number;
+  /** The lower bone's length (shin, forearm). */
   l2: number;
   /** The limb plane's normal, in the parent's frame (default [0, 0, 1]: a side view's plane). */
   normal?: ArrayLike<number>;
@@ -90,7 +91,12 @@ export function limb(d: Diorama, id: string, o: LimbOptions) {
   const at = new Float64Array(12), q = new Float64Array(12), n = o.normal || [0, 0, 1];
   q[6] = o.l1; q[7] = o.l2; q[8] = +n[0]!; q[9] = +n[1]!; q[10] = +n[2]!; q[11] = o.bend ?? 1;
   return {
-    a, b, at,
+    /** The upper bone's group (`${id}:a`), at the root joint: hang its parts along +x. */
+    a,
+    /** The lower bone's group (`${id}:b`), at the middle joint: hang its parts along +x. */
+    b,
+    /** The last solve, as `ik3`'s 12 numbers (the middle joint, the end, both bones' rotations). */
+    at,
     /** Pose the limb from joint A toward B (the parent's frame). */
     reach(ax: number, ay: number, az: number, bx: number, by: number, bz: number) {
       q[0] = ax; q[1] = ay; q[2] = az; q[3] = bx; q[4] = by; q[5] = bz;

@@ -21,6 +21,7 @@ import { hash32, INPUT, HASH, LEAVE, RESUME, AWAY, type Transport } from "./pres
 
 /** Options for `rollback()`: the link, the seat, the sim (its input, step and bytes) and the window. */
 export interface RollbackOptions {
+  /** The link to the room (`join`'s, `websocket`, or a presence `memory` end). Closed on destroy. */
   transport: Transport;
   /** This screen's seat, 0..players-1 (the room says which). */
   slot: number;

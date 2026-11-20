@@ -28,17 +28,24 @@ export interface BoardOptions {
 /** The board `board()` makes: typed-array terrain, cost and flags per cell, plus the searches (A*
  *  paths, line of sight, movement range) on buffers made once. Make one with `board()`. */
 export class Board {
+  /** Cells across (a positive integer). */
   declare readonly cols: number;
+  /** Cells down (a positive integer). */
   declare readonly rows: number;
+  /** World units per cell (`opts.cell`, default 1). */
   declare readonly cell: number;
+  /** 8-way moves for `path` and `flood` (`opts.diagonal`, default false); may be changed between searches. */
   declare diagonal: boolean;
   /** Per cell: your terrain id (0 = open ground), move cost to enter (1–255, default 1), flags.
    *  Plain typed arrays: write them directly (`flags[i] |= OCCUPIED`, `flags.fill(0)` to reset). */
   declare readonly terrain: Uint8Array;
+  /** Per cell: the cost to step in (1–255, default 1; a diagonal step costs 1.4 ×). */
   declare readonly cost: Uint8Array;
+  /** Per cell: BLOCKED, COVER, OCCUPIED and your own bits 8–128 (default 0). */
   declare readonly flags: Uint8Array;
   /** Cells the last search expanded; `partial` is true when the last path ran out of budget. */
   expanded = 0;
+  /** The last `path` ran out of `budget` and wrote the way to the closest cell instead. */
   partial = false;
   // Search buffers: cost so far (tenths: an orthogonal step into a cost-1 cell is 10, a diagonal 14),
   // priority, parent, a binary heap with positions (decrease-key, so it never holds more than n),
@@ -89,6 +96,7 @@ export class Board {
     out[k] = (c + 0.5) * this.cell;
     out[k + 1] = ((i - c) / this.cols + 0.5) * this.cell;
   }
+  /** Cell i's terrain id, move cost (default 1) and flags (default 0), all at once. */
   set(i: number, terrain: number, cost = 1, flags = 0) {
     this.terrain[i] = terrain;
     this.cost[i] = cost;

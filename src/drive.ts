@@ -44,11 +44,15 @@ import { hypot } from "./steer";
 
 /** What drive needs from the ground: height and normal under (x, z); the return is a surface kind. */
 export interface DriveGround {
+  /** The ground under (x, z): out = [height, nx, ny, nz] (the surface normal); returns the surface kind. */
   sample(x: number, z: number, out: { [i: number]: number }): number;
 }
 
 /** Something that takes events: an engine's ring (`engine.events`). */
 export interface DriveEvents {
+  /** Take event `type` (`drive:air`, `drive:land`, `drive:crash`, `drive:drift`): a is the vehicle's
+   *  `id`, b 1 for a broken drift chain (else 0), then the place (x, z) and a value v (see
+   *  `DriveOptions.events`). */
   emit(type: string, a?: number, b?: number, x?: number, y?: number, v?: number): unknown;
 }
 

@@ -42,11 +42,15 @@ export interface BoardPageOptions {
 
 /** One target on the board (a button or link): its element and its viewport rect, measured in read. */
 export interface BoardTarget {
+  /** The target element (a button or link). */
   readonly el: Element;
   /** Viewport rect, measured in read; w = h = 0 while hidden or off screen. */
   x: number;
+  /** Viewport y of the top edge, px. */
   y: number;
+  /** Width, px. */
   w: number;
+  /** Height, px. */
   h: number;
   /** The game's to use: starts at 100 and survives a rescan. */
   hp: number;
@@ -296,6 +300,8 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
   e.add(system);
 
   return {
+    /** The glyphs, index 0 to `count` − 1: viewport rects in px (x, y, w, h; w = h = 0 while off screen
+     *  or once consumed) and the `spent` flags, typed arrays measured in read. */
     glyphs: {
       /** Glyphs indexed, spent ones included (w = 0 while not on screen). */
       get count() {
@@ -335,6 +341,7 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
       p[i + 4] = n[2 /* T */]!;
       return g;
     },
+    /** How far along the last `hit` / `hitAt` segment its glyph is (0..1); 2 when it hit nothing. */
     get t() {
       return n[2 /* T */]!;
     },
@@ -370,6 +377,8 @@ export function boardPage(e: Engine, o: BoardPageOptions = {}) {
       if (e.phase === 2 /* STEP */) n[0 /* SCANNED */] = n[1 /* MEASURED */] = -9;
       else refresh(true);
     },
+    /** The board's system, already added to `e`: it measures in read and writes the consumes a step
+     *  queued in render. */
     system,
   };
 }

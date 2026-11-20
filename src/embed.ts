@@ -13,10 +13,19 @@ type Scope = "desktop" | "mobile" | "all";
 /** What wakes a dormant embed: a key sequence (`"konami"` or your own keys), a gesture or a click on
  *  a selector, each limited to desktop, mobile or all; `toggle` adds the on-page toggle key. */
 export interface EasterEgg {
+  /** Keys (`KeyboardEvent.key`, any case) typed in order, with under 1.5 s between keys (default
+   *  "konami": up up down down left right left right b a enter); false for none. */
   sequence?: "konami" | string[] | false;
+  /** A gesture on elements matching `on` (default: "hold-tap" on [data-<name>-trigger]): hold 0.9 s
+   *  then tap within 5 s, two taps within 0.35 s, or a 0.7 s long press; moving over 12 px cancels.
+   *  False for none. */
   gesture?: { on: string; type: "hold-tap" | "double-tap" | "long-press" } | false;
+  /** A click on an element matching this selector (off by default). */
   click?: string | false;
+  /** Where each trigger works: "desktop" (no coarse pointer), "mobile" (coarse pointer) or "all".
+   *  Defaults: sequence "desktop", gesture "mobile", click "all". */
   scope?: { sequence?: Scope; gesture?: Scope; click?: Scope };
+  /** Show the floating toggle key once unlocked (default true). */
   toggle?: boolean;
 }
 /** The one config an embed takes: its name, the toggle label, the Board UI palette and the easter egg. */
@@ -25,13 +34,17 @@ export interface EmbedConfig {
   name: string;
   /** Label on the toggle key (default: name). */
   label?: string;
+  /** Hex colours for the Board UI roles, applied to the game's host (anything else is ignored). */
   palette?: Palette;
+  /** false or absent: no trigger (see `open`). true (the defaults) or an EasterEgg: dormant until a
+   *  trigger fires. */
   easterEgg?: boolean | EasterEgg;
   /** With no easter egg: open right away (default) or wait closed behind the toggle key. */
   open?: boolean;
 }
 /** A mounted game: `destroy()` removes it and gives the page back. */
 export interface Mounted {
+  /** Remove the game and give the page back. */
   destroy(): void;
 }
 /** Your game's mount function: draws the game into `host` and returns it as `Mounted`. */
@@ -157,12 +170,18 @@ export function embed(load: () => Promise<Mount> | Mount, cfg: EmbedConfig) {
   else void open();
 
   return {
+    /** Load (awaited) and mount the game; resolves once it is up. A no-op while open or loading, and
+     *  inert after destroy(). */
     open,
+    /** Remove the game and its host (Escape does this too); a load still in flight never mounts. */
     close,
+    /** What a trigger does: mark it unlocked (the toggle key appears) and open the game. */
     unlock,
+    /** The game is mounted right now. */
     get opened() {
       return !!game;
     },
+    /** A trigger fired or `unlock()` ran (true from the start without an easter egg). */
     get unlocked() {
       return unlocked;
     },

@@ -19,12 +19,15 @@ import { hypot } from "./steer";
 
 /** Options for `aim()`: the body arrays, an optional board and sight mask, and who counts as a foe. */
 export interface AimOptions {
+  /** Positions x per row, in px (world units of `board`). */
   x: Float64Array;
+  /** Positions y per row, in px. */
   y: Float64Array;
   /** Headings in radians (for `cone`); without them every cone is a circle. */
   a?: Float64Array;
   /** Velocities in px/s (for `lead`); without them targets stand still. */
   vx?: Float64Array;
+  /** Velocities y in px/s (for `lead`, with `vx`). */
   vy?: Float64Array;
   /** Line of sight on this board (world px; its `cell` size); without one everything is in sight. */
   board?: Board;
@@ -52,6 +55,8 @@ export function aim(o: AimOptions) {
     out[3] = hypot(dx, dy);
   };
   return {
+    /** The last call's result in out[0..3], [x, y, t, d] (see each call; out[4] is pick's scratch).
+     *  Made once, overwritten by `lead`, `cone` and `pick`. */
     out,
     /** out = [aim x, aim y, seconds to impact, distance to the aim point]. False when the shot can
      *  never catch j (out is then j where it stands, t = -1). */
@@ -83,6 +88,8 @@ export function aim(o: AimOptions) {
       look(i, j);
       return out[3]! <= range && Math.abs(out[2]!) <= half;
     },
+    /** i has line of sight to j: `clear(i, j)` if given, else no `mask` cell strictly between their
+     *  cells on `board` (symmetric); always true without either. Leaves `out` alone. */
     sees,
     /** The nearest foe of i among rows list[0..n) inside its cone and range and in sight; -1 if none.
      *  Skip dead rows with `foe` (e.g. `A.alive[j] && …`). Sight is checked last, and only for a row

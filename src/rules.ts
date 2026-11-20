@@ -27,6 +27,7 @@ export interface WaveOptions {
   cap?: number;
   /** Seconds before wave 1 (default 4) and between waves (default 8). */
   prepare?: number;
+  /** Seconds of rebuild between two waves (default 8). */
   rebuild?: number;
   /** Enemies in wave n (default min(40, 5 + 5n)). */
   size?(wave: number): number;
@@ -68,8 +69,11 @@ export function waves(e: Engine, o: WaveOptions) {
   };
   e.add(system);
   return {
+    /** The wave clock's system, already added to `e`. Steps without allocating. */
     system,
+    /** The current wave, from 1; it counts up when a rebuild ends. */
     get wave() { return s[0]!; },
+    /** Where the clock is: prepare, assault or rebuild. */
     get phase() { return PHASES[s[1]!]!; },
     /** Enemies this wave still has to spawn. */
     get left() { return s[2]!; },
@@ -84,12 +88,14 @@ export function waves(e: Engine, o: WaveOptions) {
       if (s[2]! > 0) s[2]!--;
       s[4] = gap(s[0]!);
     },
+    /** Back to wave 1 in prepare, with the full `prepare` countdown (no event). */
     reset,
   };
 }
 
 /** Options for `drops()`: the pickup kinds, the cap, the timer for timed drops, their life and fall. */
 export interface DropOptions<K extends string> {
+  /** The pickup kinds: a drop's kind (`kind[i]`, `spawn()`'s `k`, `pick()`) is an index into it. */
   kinds: readonly K[];
   /** Most on the board at once (default 6). */
   cap?: number;
@@ -101,7 +107,9 @@ export interface DropOptions<K extends string> {
   pick?(n: number): number;
   /** Seconds a drop lasts (default 14), how far it falls (default 60 px) and how fast (default 90 px/s). */
   life?: number;
+  /** How far a drop falls before it lands, in px (default 60). */
   fall?: number;
+  /** How fast a drop falls, in px/s (default 90). */
   speed?: number;
 }
 
@@ -146,6 +154,7 @@ export function drops<K extends string>(e: Engine, o: DropOptions<K>) {
   };
   e.add(system);
   return {
+    /** The drops' system, already added to `e`: timed drops, the fall, landing and expiry. Steps without allocating. */
     system,
     /** Positions and kinds of the drops on the board, for drawing: index 0 to `count` − 1. */
     x, y, kind,
@@ -155,9 +164,12 @@ export function drops<K extends string>(e: Engine, o: DropOptions<K>) {
     landY: to,
     /** Seconds a drop lasts, as configured. */
     life,
+    /** Drops on the board now (at most `cap`). */
     get count() { return s[0]!; },
     /** Has drop i landed (only landed drops can be collected)? */
     landed: (i: number) => y[i]! >= to[i]!,
+    /** Drop kind `k` (an index into `kinds`, default 0) to land at (px, py): it starts `fall` px above.
+     *  False when the board is full or `k` is out of range. Event `drop:spawn`. */
     spawn,
     /** The kind of the first landed drop within r of (px, py), removed; or null. */
     collect(px: number, py: number, r: number): K | null {
@@ -176,6 +188,7 @@ export function drops<K extends string>(e: Engine, o: DropOptions<K>) {
     scroll(dx: number, dy: number) {
       for (let i = 0; i < s[0]!; i++) { x[i]! -= dx; y[i]! -= dy; to[i]! -= dy; }
     },
+    /** Empty the board and restart the drop timer and the timed-drop count (no events). */
     reset() { s.set([0, every, 0]); },
   };
 }
@@ -207,10 +220,15 @@ export function score(e: Engine, o: ScoreOptions = {}) {
   };
   e.add(system);
   return {
+    /** The score's system, already added to `e`: it ends a streak when its window runs out (`combo:end`). */
     system,
+    /** Points so far, multipliers included. */
     get points() { return s[0]!; },
+    /** Hits in the current streak (always 0 with `combo: false`). */
     get streak() { return s[1]!; },
+    /** XP so far. */
     get xp() { return s[3]!; },
+    /** The level reached, 0 to `levels.length`. */
     get level() { return s[4]!; },
     /** The multiplier the next hit gets. */
     get combo() { return combo(); },
@@ -231,6 +249,7 @@ export function score(e: Engine, o: ScoreOptions = {}) {
       if (s[1]! > 0) e.events.emit("combo:end", s[1]);
       s[1] = 0;
     },
+    /** Points, streak, XP and level back to 0 (no events). */
     reset() { s.fill(0); },
   };
 }

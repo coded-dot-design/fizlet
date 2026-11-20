@@ -40,12 +40,15 @@ export function viewCanvas(engine: Engine, root: HTMLElement, o: ViewCanvasOptio
   root.append(c);
 
   const view = {
+    /** The overlay canvas (added through the ledger: Recall removes it). */
     canvas: c,
+    /** Its 2D context; `draw` gets the same one, already cleared, clipped and scaled to CSS px. */
     ctx,
     /** The canvas size in CSS px, as last measured. */
     get width() {
       return s[W]!;
     },
+    /** The canvas height in CSS px, as last measured. */
     get height() {
       return s[H]!;
     },
@@ -62,6 +65,8 @@ export function viewCanvas(engine: Engine, root: HTMLElement, o: ViewCanvasOptio
       s[Y1] = Math.max(s[Y1]!, b ? b[1]! + b[3]! : 1e9);
       if (!engine.running) engine.wake(); // only a settled engine starts; a stopped one stays stopped
     },
+    /** The engine's read phase: measures the root only after a resize or zoom, and resizes the backing
+     *  store (then redraws all) only when the size or density changed. */
     read() {
       if (!s[MEASURE]) return;
       s[MEASURE] = 0;
@@ -74,6 +79,8 @@ export function viewCanvas(engine: Engine, root: HTMLElement, o: ViewCanvasOptio
       c.height = Math.round(h * d);
       view.dirty();
     },
+    /** The engine's render phase: clears and clips the dirty box (snapped to device pixels), calls
+     *  `draw`, then empties the box. Nothing dirty, nothing done. */
     render() {
       if (s[X0]! > s[X1]! || s[Y0]! > s[Y1]!) return;
       // Snap out to whole device pixels (no half-cleared seams), inside the canvas.
