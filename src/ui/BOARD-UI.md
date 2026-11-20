@@ -266,11 +266,16 @@ calm: `animation: none` on locked footer keys.
   Only its controls take pointers; the rest of the strip lets the field through.
 - **Stick** (`.bui-stick` + `.bui-knob`): Battlefield's cockpit stick, 128u, sys ring and arrows;
   the knob springs back (160ms), and follows the finger with no transition while `.down`.
+- **Pill stick** (`.bui-stick[data-axis="x"]`, `"y"` turned upright): a one-axis stick, 200u × 76u
+  (it gives way to the keys on a narrow phone), a centre mark and arrows at the ends; a 60u knob
+  slides along it only. The finger's landing point is centre.
 - **D-pad** (`.bui-dpad`): four 44u sys arcade keys in a cross; one finger, eight ways; the arrows
   under the finger take `.down`. **Move keys**: the same arrows as round 62u keys in a row.
 - **Action keys**: round `.bui-arcade` + role, 62u (Blitz's pad); the first is `.bui-primary`,
   96u. Caption 8u/900; `kbd` chip on the top-left rim, hidden on coarse pointers. Toggles use
   `aria-pressed` (locked state); hold and tap keys use `.down` while the finger is on them.
+- **Cluster** (`data-layout="cluster"`): a 185u box in the corner; the primary key in the corner,
+  keys 2 to 4 on a 106u arc round its centre (left, diagonal, up), mirrored for the left hand.
 
 ---
 

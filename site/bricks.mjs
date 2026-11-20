@@ -109,7 +109,7 @@ e.start(); // e.destroy() gives the page back` },
     snippet: `const pad = controls(e, { keys: { fire: ["Space"] } });
 if (pad.hit("fire")) fire(); // true for one frame
 if (pad.pointer.hit) aim(pad.pointer.x, pad.pointer.y);` },
-  { id: "pad", no: 12, sym: "pd", family: "input", status: "complete", since: "0.3.3", tests: ["bricks.test.mjs", "browser.mjs"], used: [`${ARCADE} (through @fzlt/core/arcade)`],
+  { id: "pad", no: 12, sym: "pd", family: "input", status: "complete", since: "0.3.3", tests: ["bricks.test.mjs", "browser.mjs", "pad-axis.mjs"], used: [`${ARCADE} (through @fzlt/core/arcade)`],
     tag: "PAD", role: "advance", modules: [mod("@fzlt/core/pad", "pad")] },
   { id: "collide", no: 5, sym: "cl", family: "motion", status: "complete", since: "0.2.0", tests: ["bricks.test.mjs"], used: [`${GAME.blitz} (inRect)`, `${GAME.invaders}, ${GAME.runner}, ${GAME.sherman} and ${GAME.swarm} (the page-text Grid inside @fzlt/core/board-page)`],
     tag: "COLLIDE", role: "cmd", modules: [mod("@fzlt/core/collide", "collide")],

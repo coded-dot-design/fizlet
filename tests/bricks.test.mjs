@@ -15,7 +15,7 @@ function fakeCanvas(w, h) {
     fillRect(x, y, ww, hh) { const k = this.k; for (let j = y * k; j < (y + hh) * k; j++) for (let i = x * k; i < (x + ww) * k; i++) if (px[j] && i >= 0 && i < w) px[j][i] = this.fillStyle; } };
   return { width: w, height: h, px, getContext: () => ctx };
 }
-const { stickAt, dpadAt } = await import("../src/pad.ts");
+const { stickAt, dpadAt, axisAt } = await import("../src/pad.ts");
 
 test("collide: shape tests", () => {
   const X = new Float64Array([0, 9, 30]), Y = new Float64Array(3), R = new Float64Array([5, 5, 5]);
@@ -95,6 +95,35 @@ test("pad: stickAt and dpadAt allocate nothing (exact hypot, no Math.hypot call)
   run(100000); // warm up
   const minor = await minorGCs(() => run(1000000));
   console.log(`ℹ pad stickAt + dpadAt over 1M fractional drags: ${minor} young GCs`);
+  assert.equal(minor, 0);
+});
+
+test("pad: the one-axis stick has a dead zone, a curve, a sign and clamps (axisAt)", () => {
+  assert.equal(axisAt(0.1), 0, "inside the dead zone");
+  assert.equal(axisAt(-0.14), 0);
+  const near = (a, b, m) => assert.ok(Math.abs(a - b) < 1e-12, `${m}: ${a} vs ${b}`);
+  near(axisAt(0.575), 0.5, "rescaled past the dead zone: halfway through the rest of the throw is 0.5");
+  near(axisAt(-0.575), -0.5, "signed");
+  assert.equal(axisAt(3), 1, "past the end is full");
+  assert.equal(axisAt(-3), -1);
+  near(axisAt(0.55, 0.1, 2), 0.25, "custom dead zone and curve: (0.45 / 0.9)^2");
+  assert.ok(axisAt(0.4, 0.15, 1.5) < axisAt(0.4), "a curve over 1 is finer near the centre");
+  // The default stick is the same vector bit for bit with the options spelled out.
+  const a = new Float64Array(2), b = new Float64Array(2);
+  for (const [dx, dy] of [[0.31, -0.42], [3, 4], [-0.2, 0.05], [0.6, 0.6]]) stickAt(dx, dy, a), stickAt(dx, dy, b, 0.15, 1), assert.deepEqual([...a], [...b]);
+  stickAt(0.5, 0, a, 0.2, 2);
+  assert.ok(Math.abs(a[0] - (0.3 / 0.8) ** 2) < 1e-12 && a[1] === 0, "stickAt takes dead zone and curve too");
+});
+
+test("pad: axisAt allocates nothing", async (t) => {
+  if (typeof gc !== "function") return t.skip("needs node --expose-gc");
+  const sum = new Float64Array(2);
+  const run = (n) => {
+    for (let i = 0; i < n; i++) sum[0] += axisAt(Math.sin(++sum[1] * 0.001) * 1.3, 0.12, 1.4);
+  };
+  run(100000);
+  const minor = await minorGCs(() => run(1000000));
+  console.log(`ℹ pad axisAt over 1M fractional drags: ${minor} young GCs`);
   assert.equal(minor, 0);
 });
 

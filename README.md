@@ -106,7 +106,7 @@ in included, 1 KB = 1024 bytes.
 | `@fzlt/core/debug` | COMPLETE | `guardLayout(engine)`: counts layout reads during a step (dev only) | 0.5 KB |
 | `@fzlt/core/perf` | COMPLETE | `perf(engine, { host, corner })`: the players' performance overlay (off by default): fps, a frame-time bar chart, dropped frames, engine work, live entities, JS heap | 2.0 KB |
 | `@fzlt/core/input` | COMPLETE | `controls(engine, { keys, stick })`: intents (`down`, `hit`, `axis`), pointer, touch stick, on-screen `press` / `steer`, `dispose` | 1.3 KB |
-| `@fzlt/core/pad` | COMPLETE | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away | 2.0 KB |
+| `@fzlt/core/pad` | COMPLETE | `pad(engine, controls, { scheme, actions })`: swappable touch controls (stick, d-pad or move keys + arcade action keys), one `setScheme()` away; a one-axis stick on a pill track (`axis: "x"`, a steering slider) with dead zone and curve; keys in a row or a corner cluster | 2.0 KB |
 | `@fzlt/core/collide` | COMPLETE | `Grid` spatial hash (`add` / `near`), `overlap`, `circles`, `circleRect`, `segCircle` (swept, no tunnelling) | 1.2 KB |
 | `@fzlt/core/grid` | BETA | `board()`: the game board. Typed-array terrain, cost and flags; A* `path` with a per-call budget, `los`, `flood` (movement range), seeded `scatter` | 1.6 KB |
 | `@fzlt/core/fx` | COMPLETE | `effects()`: pooled particles, `blast()` (the hero explosion), pop words, scorch, shake, `gravity`; `emitter(fx, KINDS)`: named particle kinds as data (bubble, spark, drip, debris, or your own), tree-shaken when unused | 2.7 KB (`emitter` and `KINDS` tree-shake away when unused) |
@@ -326,9 +326,21 @@ const touch = pad(e, input, {
   side: "right", // action keys under the right thumb (default); the move control takes the other
 });
 touch.setScheme("dpad"); // fingers on the old control let go; no listener is added
+
+// A steering slider: a one-axis stick on a pill track, and the keys in a corner cluster.
+const drive = pad(e, input, { axis: "x", dead: 0.08, curve: 1.3, layout: "cluster", move: ["", "", "left", "right"], actions });
+input.axis("left", "right", 0); // -1..1, proportional to the drag; 0 again on release
+drive.setScheme("stick", "xy"); // the round stick (or "buttons"); the axes stay until changed
 ```
 
-- `pad(engine, controls, { scheme?, actions?, side?, host?, move? })` → `{ el, scheme, setScheme(s), destroy() }`.
+- `pad(engine, controls, { scheme?, actions?, side?, host?, move?, axis?, dead?, curve?, layout? })` →
+  `{ el, scheme, axis, setScheme(s, axis?), destroy() }`.
+  `axis` ("xy" default, the round stick; "x" or "y"): a one-axis stick on a pill track, centred on the
+  finger's landing point (a thumb lands anywhere on it and drags), the other axis held at 0, springs back
+  to 0 on release. `dead` (default 0.15) and `curve` (exponent, default 1) shape either stick past the
+  dead zone; `axisAt(d, dead?, curve?)` and `stickAt(dx, dy, out, dead?, curve?)` are the maths
+  (allocation-free). `layout: "cluster"` puts the primary key in the corner and up to three more on an
+  arc around it (mirrored for `side: "left"`); the default "row" is unchanged.
   `move` names the intents `[up, down, left, right]` for the d-pad and move keys (`""` leaves one out:
   `["", "", "left", "right"]` for a runner). Action keys tap (one `hit`), `hold`, or `toggle`.
 - Looks: the Board UI kit (`.bui-pad`, `.bui-stick`, `.bui-dpad`, round `.bui-arcade` keys with roles;

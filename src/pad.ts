@@ -4,6 +4,8 @@
  * driving `controls` intents through `press()` / `steer()`: game code reads `down`, `hit` and
  * `axis` and never knows which scheme is on screen. Swap with `setScheme()` at any time.
  *
+ * The stick drives both axes, or one on a pill track (`axis: "x"`: a steering slider), with a dead
+ * zone and a response curve. Action keys sit in a row, or in a corner cluster (`layout: "cluster"`).
  * Visuals are the Board UI kit's (`.bui-pad`, `.bui-stick`, `.bui-dpad`, `.bui-arcade` + roles):
  * mount the pad inside a `.bui` root. Listeners are delegated on the pad's one element (bound to
  * the engine's signal), so a scheme swap adds none; the element goes through the ledger.
@@ -14,6 +16,9 @@ import { hypot } from "./steer";
 
 /** The move control on screen: an analog stick, a one-finger d-pad, or a key per move intent. */
 export type Scheme = "stick" | "dpad" | "buttons";
+/** Which axes the stick drives: both ("xy", the round stick), or one, on a pill track ("x" steers
+ *  left/right, "y" up/down); the other axis stays 0. */
+export type Axis = "x" | "y" | "xy";
 /** A Board UI kit key role: it sets an action key's colour. */
 export type PadRole = "fire" | "aim" | "attack" | "advance" | "fallin" | "sys" | "cmd" | "go" | "flag";
 
@@ -49,6 +54,17 @@ export interface PadOptions {
   host?: HTMLElement;
   /** Move intents [up, down, left, right] for the d-pad and move keys; "" leaves one out. */
   move?: string[];
+  /** The stick's axes (default "xy", the round stick). "x" or "y" is a one-axis stick on a pill
+   *  track: the finger's landing point is centre, so a thumb lands anywhere on it and drags; the
+   *  value follows the drag (analog, `dead` and `curve` below) and springs back to 0 on release. */
+  axis?: Axis;
+  /** Stick dead zone, a fraction of the throw (default 0.15). Past it the value is rescaled from 0. */
+  dead?: number;
+  /** Stick response exponent past the dead zone (default 1, linear; 1.5 is finer near centre). */
+  curve?: number;
+  /** Action key layout: "row" (default) or "cluster", the primary key in the corner and up to three
+   *  more on an arc around it (a console's face buttons), every key in a thumb's reach. */
+  layout?: "row" | "cluster";
 }
 
 // Dead zones, literals named in a comment (src/kernel/engine.ts says why): stick 0.15 DEAD, d-pad 0.25 DPAD_DEAD.
@@ -58,10 +74,17 @@ const DIRS = ["Up", "Down", "Left", "Right"];
 /** Stick vector from a drag offset in radii: clamped to the unit circle, dead zone rescaled so a
  *  light push still creeps (Battlefield's feel). Writes out[0], out[1]; never allocates
  *  (the exact `hypot` from @fzlt/core/steer: `Math.hypot` boxes its arguments, K5). */
-export function stickAt(dx: number, dy: number, out: Float64Array) {
-  const d = hypot(dx, dy), k = d < 0.15 /* DEAD */ ? 0 : (Math.min(1, d) - 0.15 /* DEAD */) / (1 - 0.15 /* DEAD */) / d;
+export function stickAt(dx: number, dy: number, out: Float64Array, dead = 0.15 /* DEAD */, curve = 1) {
+  const d = hypot(dx, dy), k = d < dead ? 0 : ((Math.min(1, d) - dead) / (1 - dead)) ** curve / d;
   out[0] = dx * k;
   out[1] = dy * k;
+}
+
+/** One-axis stick value from a drag offset in throws: 0 inside the dead zone, then rescaled from 0
+ *  and shaped by `curve`, clamped to -1..1 (the pill stick, `axis: "x"` or `"y"`). Never allocates. */
+export function axisAt(d: number, dead = 0.15 /* DEAD */, curve = 1) {
+  const m = Math.abs(d);
+  return m < dead ? 0 : Math.sign(d) * ((Math.min(1, m) - dead) / (1 - dead)) ** curve;
 }
 
 /** D-pad direction mask (up 1, down 2, left 4, right 8; diagonals combine) from a drag offset in radii. */
@@ -71,7 +94,8 @@ export function dpadAt(dx: number, dy: number) {
   return d < 0.25 /* DPAD_DEAD */ ? 0 : (dy < -t ? 1 : dy > t ? 2 : 0) | (dx < -t ? 4 : dx > t ? 8 : 0);
 }
 
-const STICK = '<div class="bui-stick" role="application" aria-label="Move: drag in any direction"><i class="bui-knob"></i></div>';
+const stick = (a: Axis) =>
+  `<div class="bui-stick" data-axis="${a}" role="application" aria-label="Move: drag ${a === "x" ? "left or right" : a === "y" ? "up or down" : "in any direction"}"><i class="bui-knob"></i></div>`;
 const arrows = (move: string[]) =>
   move.map((m, d) => (m ? `<button type="button" class="bui-arcade bui-sys" data-d="${d}" aria-label="${DIRS[d]}">${ARROW}</button>` : "")).join("");
 
@@ -88,6 +112,7 @@ export function pad(e: Engine, c: Controls, o: PadOptions = {}) {
   const el = e.ledger.add(document.createElement("div"));
   el.className = "bui-pad";
   el.dataset.hand = o.side ?? "right";
+  el.dataset.layout = o.layout ?? "row";
   el.setAttribute("data-fizlet-ignore", ""); // the field stick and pointer never see pad touches
   // Labels, names and icons are game code (trusted), like any markup the game writes.
   el.innerHTML = `<div class="bui-pad-move"></div><div class="bui-pad-keys">${acts
@@ -96,7 +121,8 @@ export function pad(e: Engine, c: Controls, o: PadOptions = {}) {
   const moveEl = el.firstChild as HTMLElement, kb = (el.lastChild as HTMLElement).children as HTMLCollectionOf<HTMLElement>;
   // Move keys (d-pad arrows or move keys) by direction; the knob when the stick is on.
   const lit = new Uint8Array(acts.length);
-  let dk: HTMLElement[] = [], knob: HTMLElement | null = null, mask = 0, scheme: Scheme | "" = "";
+  let dk: HTMLElement[] = [], knob: HTMLElement | null = null, mask = 0, scheme: Scheme | "" = "", axis: Axis = o.axis ?? "xy";
+  const dead = o.dead ?? 0.15 /* DEAD */, curve = o.curve ?? 1;
   // Move control: centre x, y, radius (read once per touch start), knob offset wanted (3, 4) and
   // drawn (5, 6), and the pointer id holding it (7). The stick vector goes through v.
   const g = new Float64Array(9), v = new Float64Array(2);
@@ -122,7 +148,15 @@ export function pad(e: Engine, c: Controls, o: PadOptions = {}) {
   const drag = (ev: PointerEvent) => {
     const dx = (ev.clientX - g[0]!) / g[2]!, dy = (ev.clientY - g[1]!) / g[2]!;
     if (!knob) return dir(dpadAt(dx, dy));
-    stickAt(dx, dy, v);
+    if (axis !== "xy") {
+      // One axis: the other is ignored; the knob slides along the track, clamped to its throw.
+      const x = axis === "x", a = x ? dx : dy, s = axisAt(a, dead, curve), m = Math.max(-1, Math.min(1, a)) * g[2]!;
+      c.steer(x ? s : 0, x ? 0 : s);
+      g[3] = x ? m : 0;
+      g[4] = x ? 0 : m;
+      return;
+    }
+    stickAt(dx, dy, v, dead, curve);
     c.steer(v[0]!, v[1]!);
     const k = g[2]! / Math.max(1, hypot(dx, dy));
     g[3] = dx * k;
@@ -164,9 +198,11 @@ export function pad(e: Engine, c: Controls, o: PadOptions = {}) {
       // A new finger on the move control takes it (a release the browser dropped never blocks it).
       g[7] = p.pointerId;
       const r = t.getBoundingClientRect(); // one layout read per touch start, never in a step
-      g[0] = r.left + r.width / 2;
-      g[1] = r.top + r.height / 2;
-      g[2] = Math.max(1, r.width * (knob ? 0.36 : 0.5));
+      const one = knob && axis !== "xy";
+      // A pill centres on the finger's landing point; its throw is the knob's travel along the track.
+      g[0] = one ? p.clientX : r.left + r.width / 2;
+      g[1] = one ? p.clientY : r.top + r.height / 2;
+      g[2] = Math.max(1, one ? Math.abs(r.width - r.height) / 2 : r.width * (knob ? 0.36 : 0.5));
       drag(p);
     } else if (p.type === "pointermove") {
       if (mv && p.pointerId === g[7]) drag(p);
@@ -186,13 +222,15 @@ export function pad(e: Engine, c: Controls, o: PadOptions = {}) {
     },
   });
 
-  /** Swap the move control. Fingers on the old one let go first; listeners stay as they are. */
-  const setScheme = (s: Scheme) => {
-    if (s === scheme) return;
+  /** Swap the move control (and, for the stick, its axes; left out, they stay). Fingers on the old
+   *  one let go first; listeners stay as they are. */
+  const setScheme = (s: Scheme, a: Axis = axis) => {
+    if (s === scheme && a === axis) return;
     release();
     scheme = el.dataset.scheme = s;
+    axis = a;
     g[3] = g[4] = g[5] = g[6] = 0;
-    moveEl.innerHTML = s === "stick" ? STICK : s === "dpad" ? `<div class="bui-dpad" role="group" aria-label="Move">${arrows(move)}</div>` : arrows(move);
+    moveEl.innerHTML = s === "stick" ? stick(a) : s === "dpad" ? `<div class="bui-dpad" role="group" aria-label="Move">${arrows(move)}</div>` : arrows(move);
     knob = moveEl.querySelector("i");
     dk = [];
     moveEl.querySelectorAll<HTMLElement>("[data-d]").forEach((b) => (dk[+b.dataset.d!] = b));
@@ -205,6 +243,10 @@ export function pad(e: Engine, c: Controls, o: PadOptions = {}) {
     el,
     get scheme() {
       return scheme as Scheme;
+    },
+    /** The stick's axes ("xy", "x" or "y"). */
+    get axis() {
+      return axis;
     },
     setScheme,
     /** Let go of every finger, remove the listeners and the pad (engine.destroy() does this too). */

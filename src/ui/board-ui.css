@@ -898,6 +898,71 @@
   transition: none;
   box-shadow: calc(1 * var(--u) * var(--bui-sx)) calc(1 * var(--u) * var(--bui-sy)) 0 color-mix(in srgb, var(--k-sys) 45%, var(--bui-shadow)), 0 0 calc(22 * var(--u)) color-mix(in srgb, var(--k-sys) 65%, transparent);
 }
+/* One-axis stick (pad `axis: "x"` / `"y"`): a wide pill track with a centre mark; the knob slides
+   along it (the finger's landing point is centre, so a thumb lands anywhere on the track). */
+.bui .bui-stick[data-axis="x"] {
+  width: calc(200 * var(--u));
+  height: calc(76 * var(--u));
+  border-radius: calc(38 * var(--u));
+  background: linear-gradient(90deg, transparent calc(50% - 1.5 * var(--u)), color-mix(in srgb, var(--k-sys) 55%, transparent) 0 calc(50% + 1.5 * var(--u)), transparent 0) center / 100% 46% no-repeat, color-mix(in srgb, var(--k-sys) 8%, var(--bg));
+}
+.bui .bui-pad-move:has(> [data-axis="x"]) {
+  flex: 0 1 auto;
+  min-width: 0; /* the pill gives way to the keys on a narrow phone */
+}
+.bui .bui-pad-move > [data-axis="x"] {
+  max-width: 100%;
+}
+.bui .bui-stick[data-axis="y"] {
+  width: calc(76 * var(--u));
+  height: calc(200 * var(--u));
+  border-radius: calc(38 * var(--u));
+  background: linear-gradient(transparent calc(50% - 1.5 * var(--u)), color-mix(in srgb, var(--k-sys) 55%, transparent) 0 calc(50% + 1.5 * var(--u)), transparent 0) center / 46% 100% no-repeat, color-mix(in srgb, var(--k-sys) 8%, var(--bg));
+}
+.bui .bui-stick[data-axis="x"]::before {
+  left: 7%;
+  top: 50%;
+  border-bottom-color: transparent;
+  border-right-color: color-mix(in srgb, var(--k-sys) 55%, transparent);
+  translate: 0 -50%;
+}
+.bui .bui-stick[data-axis="x"]::after {
+  left: auto;
+  right: 7%;
+  top: 50%;
+  bottom: auto;
+  border-top-color: transparent;
+  border-left-color: color-mix(in srgb, var(--k-sys) 55%, transparent);
+  translate: 0 -50%;
+}
+.bui .bui-stick:is([data-axis="x"], [data-axis="y"]) .bui-knob {
+  inset: auto;
+  left: calc(50% - 30 * var(--u));
+  top: calc(50% - 30 * var(--u));
+  width: calc(60 * var(--u));
+  height: calc(60 * var(--u));
+}
+/* Cluster (pad `layout: "cluster"`): the primary key in the corner, the next three on an arc around
+   it (left, diagonal, up; mirrored for data-hand="left"), each a short thumb roll from the primary. */
+.bui .bui-pad[data-layout="cluster"] .bui-pad-keys {
+  position: relative;
+  display: block;
+  flex: none;
+  width: calc(185 * var(--u)); /* 48 (primary half) + 106 (arc radius) + 31 (key half) */
+  height: calc(185 * var(--u));
+  max-width: none;
+}
+.bui .bui-pad[data-layout="cluster"] .bui-pad-keys > * {
+  position: absolute;
+  --r: calc(106 * var(--u));
+  --o: calc(48 * var(--u) - 31 * var(--u));
+}
+.bui .bui-pad[data-layout="cluster"] .bui-primary { right: 0; bottom: 0; }
+.bui .bui-pad[data-layout="cluster"] .bui-pad-keys > :nth-child(2) { right: calc(var(--o) + var(--r)); bottom: var(--o); }
+.bui .bui-pad[data-layout="cluster"] .bui-pad-keys > :nth-child(3) { right: calc(var(--o) + var(--r) * 0.7071); bottom: calc(var(--o) + var(--r) * 0.7071); }
+.bui .bui-pad[data-layout="cluster"] .bui-pad-keys > :nth-child(4) { right: var(--o); bottom: calc(var(--o) + var(--r)); }
+/* The left hand mirrors the box and turns each key back (the net transform is none). */
+.bui .bui-pad[data-layout="cluster"][data-hand="left"] :is(.bui-pad-keys, .bui-pad-keys > *) { scale: -1 1; }
 .bui .bui-dpad {
   display: grid;
   grid-template: repeat(3, calc(44 * var(--u))) / repeat(3, calc(44 * var(--u)));

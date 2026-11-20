@@ -22,7 +22,10 @@ export const BUDGETS = [
   // 1,995 B gz in 0.19.0; 2,073 B once stickAt/dpadAt/the drag use steer's exact `hypot` (+78 B, #118, K5:
   // `Math.hypot` boxes its arguments, 23 young GCs per 1M drags; now 0). Budget raised by that delta.
   // 2,068 B with its dead zones as literals (−6 B, size/treeshake, no behaviour change). Budget lowered by that delta.
-  ["@fzlt/core/pad", "src/pad.ts", 2120],
+  // 2,321 B (+253 B) with the one-axis stick (`axis: "x" | "y"`: a pill track centred on the finger's
+  // landing point, `axisAt`), the stick's `dead` and `curve` options, `setScheme(s, axis)` and the
+  // `layout: "cluster"` key arc. Budget raised from 2,120 by that need.
+  ["@fzlt/core/pad", "src/pad.ts", 2336],
   ["@fzlt/core/collide", "src/collide.ts", 1536],
   // 1,533 B gz in 0.19.0 (3 B under 1,536); 1,634 B once the constructor checks cols, rows and cell
   // (+101 B, brick audit P8: `cell: 0` made at() NaN, a fractional cols sized the arrays wrong). An
@@ -120,7 +123,8 @@ export const BUDGETS = [
   // +3 B #122: the fps cap counts its slot from the frame's start (kernel).
   // 24,280 B in 0.21.0; 24,031 B with size/treeshake (−249 B: numbers as literals in the kernel and the
   // bricks it composes, the kernel's short private names; no behaviour change). Budget lowered by that delta.
-  ["@fzlt/core/arcade", "src/arcade.ts", 24150],
+  // 24,401 B (+254 B): pad's one-axis stick, dead zone, curve and cluster options (pad composes in).
+  ["@fzlt/core/arcade", "src/arcade.ts", 24416],
   // A card game (`hud` left out): the shell and the `arcade` preset, skirmish tree-shaken away.
   // 17,622 B gz with the `hud` option (+311 B: the preset contract, header and nav choice); 17,311
   // in 0.17.0, 17,206 in 0.14.0 (17,081 in 0.13.0, 16,960 in 0.12.1, 16,946 in 0.12.0, 16,731 in
@@ -143,7 +147,8 @@ export const BUDGETS = [
   // Train 0.21.3 (size/treeshake + S8 on main with #218): 18,192 B measured (main 18,334 B). #218's
   // own synth cues (@fzlt/core/sound notes) add +22 B on main, so the budget is size/treeshake's 18,179
   // plus that need: 18,201.
-  ["@fzlt/core/arcade (hud omitted)", "scripts/arcade-card.ts", 18201],
+  // 18,466 B (+266 B): pad's one-axis stick, dead zone, curve and cluster options.
+  ["@fzlt/core/arcade (hud omitted)", "scripts/arcade-card.ts", 18480],
   // 3,401 B gz on 0.4.0's collide; 3,780 B with 0.4.1's hardened Grid (capacities, overflow counts: +379 B).
   // 4,095 B on 0.16 main. It bundles only the kernel's phase constants, but esbuild's renamer counts
   // the whole engine module, so a kernel edit moves it ±2 B (the fps-cap timer: 4,097 B). 4,162 B
@@ -174,7 +179,9 @@ export const BUDGETS = [
   // --bui-sx/-sy) instead of a literal "straight below"; budget raised from 5,120 by that need.
   // 5,139 B with #148 (+14 B): a hidden @fzlt/core/coach card is not drawn (`[hidden]` beats its
   // inline grid); budget raised from 5,136 by that need.
-  ["@fzlt/core/ui (css)", "src/ui/board-ui.css", 5152],
+  // 5,513 B (+374 B): the pad's pill track (one-axis stick, x and y, centre mark; it gives way on a narrow phone) and the key cluster
+  // (primary in the corner, three keys on an arc, mirrored for the left hand). Raised from 5,152.
+  ["@fzlt/core/ui (css)", "src/ui/board-ui.css", 5528],
 ];
 
 /** esbuild options for a JS entry: what a consumer's minifier makes of it (also scripts/size-bakeoff.mjs). */
