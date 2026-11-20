@@ -58,8 +58,9 @@ if (GALLERY.length) {
     await page.goto(base + p, { waitUntil: "load" });
     const shown = () => page.$$eval("[data-gal-flat] > li.gal-item", (li) => li.filter((x) => !x.hidden).map((x) => x.dataset.theme));
     const all = await shown();
-    // A theme with cards on this page, and fewer than all of them.
-    const theme = [...new Set(all)].find((t) => all.filter((x) => x === t).length < all.length);
+    // A theme with cards on this page: one with fewer than all of them where there is one.
+    const themes = [...new Set(all)];
+    const theme = themes.find((t) => all.filter((x) => x === t).length < all.length) ?? themes[0];
     if (theme) {
       await page.click(`a[data-theme-chip="${theme}"]`);
       const only = await shown();

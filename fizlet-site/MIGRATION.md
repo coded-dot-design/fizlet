@@ -41,6 +41,25 @@ to the export loop in `scripts/export-legacy.mjs`, re-export, add the path to `d
 
 Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same heights on both sites.
 
+## W2-gallery results (measured 2026-11-20, legacy build v0.27.0)
+
+`npm run compare -- http://localhost:4801/ http://localhost:4802/ <out> --full gallery/ gallery/page/2/ … gallery/archive/`,
+full-page shots, after the theme chips, search and page nav became components (page 1 re-measured):
+
+| Page | 1440 light | 1440 dark | 390 light | 390 dark | Page height (1440 / 390) |
+|---|---:|---:|---:|---:|---|
+| `/gallery/` | 0.000% | 0.000% | 0.000% | 0.000% | 14,789 / 25,047 px |
+| `/gallery/page/2/` | 0.000% | 0.000% | 0.000% | 0.000% | 15,914 / 31,234 px |
+| `/gallery/page/3/` | 0.000% | 0.000% | 0.000% | 0.000% | 14,195 / 23,435 px |
+| `/gallery/page/4/` | 0.000% | 0.000% | 0.000% | 0.000% | 13,723 / 21,368 px |
+| `/gallery/page/5/` | 0.000% | 0.000% | 0.000% | 0.000% | 14,931 / 22,748 px |
+| `/gallery/page/6/` | 0.000% | 0.000% | 0.000% | 0.000% | 3,323 / 4,354 px |
+| `/gallery/hifi/` | 0.000% | 0.000% | 0.000% | 0.000% | 25,431 / 47,278 px |
+| `/gallery/archive/` | 0.000% | 0.000% | 0.000% | 0.000% | 9,467 / 13,583 px |
+
+Same heights on both sites. The runtime (chip filter, second press, `#theme-` on arrival, search
+hits and count) is checked in Chromium by `npm run browse` on every Daily page and the Hi-Fi lane.
+
 ## Design system
 
 - **Tokens**: `src/design/tokens.json` is the one source (groups: color, type, space, radius,
