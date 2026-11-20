@@ -115,7 +115,11 @@ export const ROADMAP = [
     [0, "A DOM Battlefield match between two networks", "E12.two-networks"],
     [0, "An AI agent joins a room", "E12.agent"],
   ] },
-  { id: "E13", name: "Animation library", status: "planned", goal: "A recipe used twice becomes data; a recipe used across games becomes a brick.", items: [] },
+  { id: "E13", name: "Animation library", status: "planned", goal: "A recipe used twice becomes data; a recipe used across games becomes a brick.", items: [
+    [0, "@fzlt/core/scene: a recipe as data (stage, cast, cue, gag), EXPERIMENTAL; two meme micros ported, pixel for pixel", "E13.scene"],
+    [0, "The animation factory (fe anim) emits scene data instead of code", "E13.fe-anim"],
+    [0, "Gallery entries shrink, measured, as the factory's recipes move to data", "E13.shrink"],
+  ] },
   { id: "E14", name: "Accessible play", status: "planned", goal: "Every game playable by keyboard and gamepad, and heard by screen readers.", items: [
     [0, "Gamepad in @fzlt/core/input", "E14.gamepad"],
   ] },

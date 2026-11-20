@@ -45,11 +45,16 @@ try {
     const box = await fig.locator("canvas").boundingBox();
     const hub = await p.evaluate(() => {
       const c = document.querySelector("[data-brick-graph] canvas"), d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
-      // the widest run of opaque pixels on a row is the kernel's disc
+      // The kernel's disc is the biggest blob that is as tall as it is wide: a row's opaque run
+      // scored by the shorter of its width and the opaque column through its middle (a near-flat
+      // link line is wide but one pixel tall, so it never wins).
+      const on = (x, y) => d[(y * c.width + x) * 4 + 3] > 250;
+      const tall = (x, y) => { let a = y, b = y; while (a > 0 && on(x, a - 1)) a--; while (b < c.height - 1 && on(x, b + 1)) b++; return b - a + 1; };
       let best = [0, 0, 0];
-      for (let y = 0; y < c.height; y += 2) for (let x = 0, run = 0; x < c.width; x++) {
-        run = d[(y * c.width + x) * 4 + 3] > 250 ? run + 1 : 0;
-        if (run > best[0]) best = [run, x - run / 2, y];
+      for (let y = 0; y < c.height; y += 2) for (let x = 0, run = 0; x <= c.width; x++) {
+        if (x < c.width && on(x, y)) { run++; continue; }
+        if (run > best[0]) { const mx = Math.round(x - 1 - run / 2), score = Math.min(run, tall(mx, y)); if (score > best[0]) best = [score, mx, y]; }
+        run = 0;
       }
       return [best[1] / c.width, best[2] / c.height];
     });

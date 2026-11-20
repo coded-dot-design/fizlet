@@ -25,7 +25,7 @@ import { launchOptions } from "./chromium.mjs";
 
 const ROOT = "site-dist", ORIGIN = "http://fizlet.test";
 if (!existsSync(`${ROOT}/gallery/index.json`)) throw new Error("site-dist/ is missing: run `npm run site` first");
-const { entries, isLive, archive, themes, contributors } = await import("../scripts/gallery.mjs");
+const { entries, entrySource, isLive, archive, themes, contributors } = await import("../scripts/gallery.mjs");
 const themeList = themes(), people = contributors();
 const all = entries({ themeIds: themeList.map((t) => t.id), people });
 const live = all.filter(isLive), archived = archive({ themeList, people, live: all }).entries;
@@ -60,7 +60,7 @@ const probe = {
   },
 };
 const chunk = async (e) => (await build({
-  stdin: { contents: `export { ${e.export} as mount } from ${JSON.stringify("./" + e.module)};`, resolveDir: "site/gallery", loader: "ts" },
+  stdin: { contents: entrySource(e), resolveDir: "site/gallery", loader: "ts" },
   bundle: true, format: "esm", target: "es2022", write: false, logLevel: "warning", plugins: [probe],
 })).outputFiles[0].text;
 const STUB = "export const mount = () => ({ destroy() {} });";
