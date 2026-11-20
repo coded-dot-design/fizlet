@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Brick audit (`fe audit fizlet`): no fails, no gaps in exports, README or tests.** `@fzlt/core/presence/rollback`
+  no longer reads wall time in its step: the correction meters `resimMs` and `resimTotal` read a clock the
+  host passes (`clock: () => performance.now()`, a profiling opt-in) and stay 0 without one (2,181 B gz,
+  +5 B). `@fzlt/core/touch` has a Node suite (`tests/touch.test.mjs`: listeners, one finger never cancelled,
+  `null` and custom selectors, release, zero allocation over 2M events). The README names every runtime
+  export (a "Named constants and small helpers" list under Engine API).
+
 - **Site: the roadmap ticks E8.blitz-kit (Battlefield Blitz on steer and coach, dom-battlefield-blitz#22); every E8 box is ticked, so E8 The game kit is done.** The engine's ROADMAP.md agrees (`fe roadmap check`).
 
 - **`@fzlt/core/steer` and `@fzlt/core/coach` are COMPLETE.** Battlefield Blitz moves every tank on steer
