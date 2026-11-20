@@ -180,6 +180,34 @@ timeline, arcade, the page as the board) and its full API, generated from the so
 **https://docs.fzlt.dev**. Every export in `dist/*.d.ts` carries its doc comment, so your editor
 shows the same text.
 
+### Named constants and small helpers
+
+Every runtime export has a name in the docs; these small ones are named here too.
+
+- `@fzlt/core` and `@fzlt/core/kernel`: the frame phases `IDLE`, `READ`, `STEP`, `RENDER` (0..3; read
+  geometry only in `READ`, write the page only in `RENDER`).
+- `@fzlt/core/perf`: `BARS` (frames in the chart, 120: 2 s at 60 fps), `WINDOW` (ms between number
+  updates, 500) and `FrameRing` (the last `cap` frame times in a typed array; `push` never allocates).
+- `@fzlt/core/pad`: `stickAt(dx, dy, out)` (a drag offset in radii to the stick's values, dead zone
+  and curve applied, into `out[0]`, `out[1]`) and `dpadAt(dx, dy)` (the d-pad mask: up 1, down 2,
+  left 4, right 8).
+- `@fzlt/core/collide`: `inRect(px, py, x, y, w, h)` (a point inside a rect).
+- `@fzlt/core/fx`: `SHAPES` (what a kind draws as) and the built-in kinds `BUBBLE`, `SPARK`, `DRIP`,
+  `DEBRIS_KIND`.
+- `@fzlt/core/touch`: `SURFACES`, the selector `lockTouch` locks by default (slot stages, game hosts,
+  the pad, draggable panels, `[data-touch-lock]`).
+- `@fzlt/core/presence`: the wire kinds `INPUT`, `HASH`, `WELCOME`, `LEAVE`, `RESUME`, `AWAY`,
+  `START`, `LOBBY` (the protocol a room server speaks: the "Build your own room server" guide in the docs).
+- `@fzlt/core/timeline`: `EASES`, the easing table by name.
+- `@fzlt/core/track`: `HOP`, the hop kinds and flags (`hops.kind`, `hops.flag`).
+- `@fzlt/core/beam`: the part kinds `MIRROR`, `SPLITTER`, `BLOCKER`, `TARGET`, `EMITTER`.
+- `@fzlt/core/flick`: `STATE`, a piece's state (`rest`, `slide`, `air`, `tip`).
+- `@fzlt/core/arcade`: the control slots `MODE`, `PX`, `PY`, `PON`, `KX`, `KY`, `FIRE`, `VW`, `VH`,
+  `CALM` (reduced motion) and `TARGET_HP` (written by the game: a target's full health).
+- `@fzlt/core/ui`: `pressCue(root, signal)` (keyboard and iOS press faces on page keys), `slam(sticker)`
+  (restart an overlay sticker's slam) and `toast(el, text, ms)` (the comms toast; a new line replaces
+  the old).
+
 ## Develop
 
 ```sh
