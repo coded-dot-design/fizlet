@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **`@fzlt/core/backdrop`** (new brick, ALPHA; 1,117 B gz, budget 1,152): a painted backdrop drawn in
+  code at an art size, lifted from Holeshot's garage backdrops (its scenes stay in the game). `fit` covers
+  the frame and keeps a safe box whole (Holeshot's fit, number for number); `fill` and `band` run on past
+  the art's edges; `pack` / `unpack` store traced polygons; `backdrop(art, layers, { pan })` caches each
+  layer once per size and blits it panned by its depth. Zero allocation per frame.
+  - Tests: `tests/backdrop.test.mjs` and `tests/backdrop.mjs` (Chromium at 1200×840, 1440×600 and
+    390×844: the art's colours where the fit puts them, the floor to the corners, parallax, settles).
+
 - **`@fzlt/core/ribbon`** (new brick, ALPHA; 2,683 B gz, budget 2,752): roads, tracks and edge strips
   drawn along their true curve at their true width on a heightfield, lifted from Holeshot's road-edge
   ribbons (its road graph and materials stay in the game). `ribbon(d, ground, options)` adds one decal to

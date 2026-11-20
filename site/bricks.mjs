@@ -344,6 +344,14 @@ const r = ribbon(d, t, { step: 0.5, hide: true }); // one decal; nothing to call
 r.band(loop, -1.4, 1.4, "#6d4c3a", true); // the track: closed, 2.8 wide, mitred, draped
 r.band(loop, -1.7, -1.4, "#f4f1e6", true); // a white edge strip on its left
 r.band(loop, 1.4, 1.7, "#e8483c", true); // a red one on its right` },
+  { id: "backdrop", no: 46, sym: "bc", family: "render", status: "experimental", since: "0.28.0", tests: ["backdrop.test.mjs", "backdrop.mjs"], used: [], why: "New: lifted from Holeshot's garage backdrops (the game still carries its own copy until its port); its API may still change before a game ships on it.",
+    tag: "BACKDROP", role: "attack", modules: [mod("@fzlt/core/backdrop", "backdrop")],
+    snippet: `const ART = { w: 1200, h: 840, safe: [100, 120, 1100, 780] }; // what must always show
+const bd = backdrop(ART, [
+  { paint: (c) => band(c, ART, "#2d1a4f", -4000, 4200) }, // the sky, fixed
+  { depth: 0.3, paint: (c) => fill(c, ART, "#382260", hills) }, // far hills, parallax
+], { pan: 60 });
+e.add({ render() { bd.draw(ctx, w, h, dpr, camX); } }); // one drawImage a layer` },
   { id: "math", no: 38, sym: "mh", family: "motion", status: "beta", since: "0.27.0", tests: ["math.test.mjs", "math-engines.mjs"], used: [], why: "New: no released game runs its sim on it yet.",
     tag: "MATH", role: "advance", modules: [mod("@fzlt/core/math", "math")],
     snippet: `const a = atan2(ty - y, tx - x); // in a step: the same bits on an iPhone and a desktop
@@ -370,7 +378,7 @@ export const brickPath = (b) => `bricks/${b.id}.html`;
  * builds on. Each phase is a planned phase of site/roadmap.mjs (E9–E16), which lists these under it.
  */
 export const PLANNED = [
-  { name: "@fzlt/core/snapshot", no: 46, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
-  { name: "@fzlt/core/agent", no: 47, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
-  { name: "@fzlt/core/music", no: 48, sym: "ms", family: "render", phase: "E15", purpose: "A tiny step sequencer on the kernel clock: patterns and tempo on the sound brick's synth.", target: 1229, needs: ["@fzlt/core/sound"] },
+  { name: "@fzlt/core/snapshot", no: 47, sym: "sh", family: "network", phase: "E12", purpose: "Fixed-capacity state to bytes and deltas, for authoritative rooms and replays.", target: 1536, needs: ["@fzlt/core/presence", "@fzlt/core/actor"] },
+  { name: "@fzlt/core/agent", no: 48, sym: "ag", family: "network", phase: "E12", purpose: "An AI player that joins a room on the same command channel as a person.", target: 1024, needs: ["@fzlt/core/presence", "@fzlt/core/rules"] },
+  { name: "@fzlt/core/music", no: 49, sym: "ms", family: "render", phase: "E15", purpose: "A tiny step sequencer on the kernel clock: patterns and tempo on the sound brick's synth.", target: 1229, needs: ["@fzlt/core/sound"] },
 ];

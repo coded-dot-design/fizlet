@@ -160,6 +160,9 @@ export const BUDGETS = [
   // Roads, tracks and edge strips at their true width on a heightfield (diorama is a type-only import;
   // the exact hypot from @fzlt/core/math; lifted from Holeshot's ribbons): 2,683 B gz when added.
   ["@fzlt/core/ribbon", "src/ribbon.ts", 2752],
+  // A painted backdrop: fit with a safe box, edge-bleeding shapes, packed traced polygons, cached
+  // parallax layers (no kernel code; lifted from Holeshot's garage backdrops): 1,117 B gz when added.
+  ["@fzlt/core/backdrop", "src/backdrop.ts", 1152],
   // An animation recipe as data: 8,467 B gz with the kernel, fx (effects + emitter), sprite and
   // timeline's easings it composes when added; its own code is 1,928 B (planned at ≤ 2,048; on a
   // page the bricks are shared). tests/scene.test.mjs holds the own-code target.
