@@ -34,6 +34,16 @@
     gives the element back, 0 young GCs over 300k steps) and `tests/turntable.mjs` (Chromium: a diorama
     model turned by a real mouse drag and keys, reduced motion, settles to 0 frames).
 
+- **`@fzlt/core/ground`** (new brick, ALPHA; 603 B gz, budget 640): paint on a diorama's ground
+  through its own projection, lifted from the decal painters Holeshot, CitySmash, Dune Hop and Salvo Bay
+  each wrote by hand. `seg` (a world line, dropped at the eye), `spot` (a level disc as an ellipse sized by
+  depth), `ring` (a closed ring on a plane or on a ground's slope), `shadow` (a blob that fades and narrows
+  with lift) and `horizon` (its screen y); `at` is the last point projected. Calls add to the current
+  path. Zero allocation per call.
+  - Tests: `tests/ground.test.mjs` (each against the diorama's own `project`, the eye and `near`, a real
+    terrain's slope, the horizon against far ground, 0 young GCs over 20k frames) and `tests/ground.mjs`
+    (Chromium: the pixels where the diorama projects them, a shadow that fades as its ball lifts).
+
 - **Brick audit (`fe audit fizlet`): no fails, no gaps in exports, README or tests.** `@fzlt/core/presence/rollback`
   no longer reads wall time in its step: the correction meters `resimMs` and `resimTotal` read a clock the
   host passes (`clock: () => performance.now()`, a profiling opt-in) and stay 0 without one (2,181 B gz,

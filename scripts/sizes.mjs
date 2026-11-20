@@ -164,6 +164,10 @@ export const BUDGETS = [
   // lifted from the turntables two games built by hand: 1,395 B gz when added (~110 B of it the
   // kernel's `need`, shared on a page; the engine and ledger are type-only imports).
   ["@fzlt/core/turntable", "src/turntable.ts", 1408],
+  // Painting on a diorama's ground through its projection (lines, discs, rings on a slope, a lifting
+  // blob shadow, the horizon), lifted from the decal painters four games wrote by hand: 603 B gz when
+  // added (diorama is a type-only import; no kernel).
+  ["@fzlt/core/ground", "src/ground.ts", 640],
   // An animation recipe as data: 8,467 B gz with the kernel, fx (effects + emitter), sprite and
   // timeline's easings it composes when added; its own code is 1,928 B (planned at ≤ 2,048; on a
   // page the bricks are shared). tests/scene.test.mjs holds the own-code target.
