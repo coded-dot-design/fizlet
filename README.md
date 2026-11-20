@@ -177,8 +177,8 @@ roadmap on fizlet.com.
 
 Each brick's guide, its semantics (input, sound, embed, overload policy, multiplayer, match flow,
 timeline, arcade, the page as the board) and its full API, generated from the source:
-**https://docs.fzlt.dev**. The package ships code and types only: the build strips every comment
-(`npm run publish-clean` checks it), so the doc text lives in the docs, generated from the source.
+**https://docs.fzlt.dev**. Every export in `dist/*.d.ts` keeps its doc comment, so your editor
+shows the same text. The build strips every other comment (`npm run publish-clean` checks it).
 
 ### Named constants and small helpers
 

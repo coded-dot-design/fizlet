@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { checkPack, packedFiles } from "../scripts/publish-clean.mjs";
-import { scanComments, stripJsComments } from "../scripts/comments.mjs";
+import { scanComments, stripDtsComments, stripJsComments } from "../scripts/comments.mjs";
 
 const clean = [
   { path: "package.json", text: '{"name":"x"}' },
@@ -23,9 +23,28 @@ test("clean input passes", () => assert.deepEqual(checkPack(clean), { problems: 
 
 test("a comment in a dist .js fails (// and /* */), in a .d.ts and in bin too", () => {
   bad([{ path: "dist/x.js", text: "let a = 1; // note\n" }], /dist\/x\.js:1: comment/);
-  bad([{ path: "dist/y.js", text: "let a = 1;\n/* @__PURE__ */ f();\n" }], /dist\/y\.js:2: comment/);
-  bad([{ path: "dist/z.d.ts", text: "/** doc */\nexport declare const z: 1;\n" }], /dist\/z\.d\.ts:1: comment/);
+  bad([{ path: "dist/y.js", text: "let a = 1;\n/* note */ f();\n" }], /dist\/y\.js:2: comment/);
+  bad([{ path: "dist/z.d.ts", text: "// internal\nexport declare const z: 1;\n" }], /dist\/z\.d\.ts:1: comment/);
+  bad([{ path: "dist/w.d.ts", text: "/* internal */\nexport declare const w: 1;\n" }], /dist\/w\.d\.ts:1: comment/);
   bad([{ path: "bin/other.mjs", text: "#!/usr/bin/env node\n// hi\n" }], /bin\/other\.mjs:2: comment/);
+  bad([{ path: "bin/doc.mjs", text: "/** doc */\nconsole.log(1);\n" }], /bin\/doc\.mjs:1: comment/);
+});
+
+test("the public documentation stays: TSDoc blocks in .d.ts, bundler annotations in .js", () => {
+  const docs = [
+    { path: "dist/z.d.ts", text: "/** The board: cols × rows. */\nexport declare const z: 1;\n" },
+    { path: "dist/p.js", text: "const a = /* @__PURE__ */ f();\nconst b = /* #__NO_SIDE_EFFECTS__ */ () => 1;\n" },
+  ];
+  assert.deepEqual(checkPack([...clean, ...docs]).problems, []);
+  // A doc block in .js is not documentation anyone reads: it fails there.
+  bad([{ path: "dist/q.js", text: "/** doc */\nexport const q = 1;\n" }], /dist\/q\.js:1: comment/);
+});
+
+test("a private repository name fails anywhere in the package, kept doc comments included", () => {
+  const name = ["fizlet", "factory"].join("-");
+  bad([{ path: "dist/n.d.ts", text: `/** Made in ${name}. */\nexport declare const n: 1;\n` }], /dist\/n\.d\.ts:1: names a private repository/);
+  const { problems } = checkPack([...clean.filter((f) => f.path !== "CHANGELOG.md"), { path: "CHANGELOG.md", text: `## 1.0.0\n- from ${name}\n` }]);
+  assert.ok(problems.some((p) => /CHANGELOG\.md:2: names a private repository/.test(p)), problems.join(" | "));
 });
 
 test("a stray file fails", () => {
@@ -55,6 +74,9 @@ test("the comment scanner: strings, templates and regexes hide `//`; a shebang i
   assert.deepEqual(scanComments('#!/usr/bin/env node\nconst a = "//", b = \'/*\', c = `${1}//${`/*${2}*/`}`, d = /[/]\\//g, e = 4 / 2 / 1;\n'), []);
   assert.deepEqual(scanComments("a = b / c; // x\n/* y */").map((c) => c.text), ["// x", "/* y */"]);
   assert.equal(stripJsComments("// a\nlet x = 1; // b\n/* c */\nf(/* d */ 2);\n"), "let x = 1;\nf( 2);\n");
+  // What stays: annotations in JS, TSDoc blocks in declarations.
+  assert.equal(stripJsComments("// a\nconst x = /* @__PURE__ */ f(); // b\n"), "const x = /* @__PURE__ */ f();\n");
+  assert.equal(stripDtsComments("// a\n/** Doc. */\nexport declare const x: 1; // b\n/* c */\n"), "/** Doc. */\nexport declare const x: 1;\n");
 });
 
 test("the real package: npm pack lists only the allowed files and passes the gate", () => {

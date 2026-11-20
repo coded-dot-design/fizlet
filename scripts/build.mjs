@@ -4,7 +4,7 @@ import { build } from "esbuild";
 import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { stripJsComments } from "./comments.mjs";
+import { stripDtsComments, stripJsComments } from "./comments.mjs";
 import { checkTokens, readTokenSources } from "./tokens.mjs";
 import { measure, sizesJson } from "./sizes.mjs";
 
@@ -13,23 +13,22 @@ export const ENTRIES = ["src/index.ts", "src/kernel/index.ts", "src/debug.ts", "
 const drift = checkTokens(readTokenSources());
 if (drift.length) throw new Error(`Board UI tokens disagree with src/ui/tokens.json:\n  ${drift.join("\n  ")}`);
 rmSync("dist", { recursive: true, force: true });
-rmSync("dist-docs", { recursive: true, force: true });
 await build({ entryPoints: ENTRIES, outdir: "dist", outbase: "src", bundle: true, splitting: true, chunkNames: "chunks/[name]-[hash]", format: "esm", target: "es2022", platform: "browser", legalComments: "none", logLevel: "warning" });
 execFileSync("npx", ["tsc", "-p", "tsconfig.json"], { stdio: "inherit" });
-// Nothing shipped carries a comment: esbuild keeps path markers, inline notes and /* @__PURE__ */, so strip
-// them from every emitted .js here. dist-docs/ is the same declarations WITH their doc comments, for
-// scripts/api.mjs and the doc-comment gate; it is not in "files" and never packed.
+// What ships keeps its public documentation and nothing else: the TSDoc blocks on the declarations
+// (editors show them) and the bundler annotations in the JS (/* @__PURE__ */, /* @__NO_SIDE_EFFECTS__ */:
+// consumers' tree-shaking reads them). Every other comment (esbuild's path markers, line comments,
+// notes inside function bodies) is stripped here; scripts/publish-clean.mjs checks it.
 for (const f of readdirSync("dist", { recursive: true })) {
-  if (!f.endsWith(".js")) continue;
-  const file = join("dist", f);
-  writeFileSync(file, stripJsComments(readFileSync(file, "utf8")));
+  const file = join("dist", String(f));
+  if (file.endsWith(".d.ts")) writeFileSync(file, stripDtsComments(readFileSync(file, "utf8")));
+  else if (file.endsWith(".js")) writeFileSync(file, stripJsComments(readFileSync(file, "utf8")));
 }
-execFileSync("npx", ["tsc", "-p", "tsconfig.json", "--removeComments", "false", "--outDir", "dist-docs"], { stdio: "inherit" });
 // Declarations: give relative imports their file extension, so consumers on any module resolution
 // (Bundler, Node16, NodeNext) can follow them: "./kernel/index" -> "./kernel/index.js".
-for (const f of ["dist", "dist-docs"].flatMap((d) => readdirSync(d, { recursive: true }).map((f) => join(d, f)))) {
+for (const f of readdirSync("dist", { recursive: true })) {
   if (!f.endsWith(".d.ts")) continue;
-  const file = f, dir = dirname(file);
+  const file = join("dist", f), dir = dirname(file);
   const text = readFileSync(file, "utf8").replace(/(from |import\()(["'])(\.{1,2}\/[^"']+?)\2/g, (m, pre, q, spec) => {
     if (/\.(js|mjs|cjs|css)$/.test(spec)) return m;
     if (existsSync(join(dir, spec + ".d.ts"))) return `${pre}${q}${spec}.js${q}`;

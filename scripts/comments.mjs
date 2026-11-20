@@ -84,8 +84,19 @@ export function scanComments(text) {
   return found;
 }
 
-export function stripJsComments(text) {
-  const found = scanComments(text);
+/** A bundler annotation consumers' tree-shaking reads: `/* @__PURE__ *\/`, `/* #__NO_SIDE_EFFECTS__ *\/`. */
+export const isAnnotation = (c) => /^\/\*\s*[#@]__(PURE|NO_SIDE_EFFECTS)__\s*\*\/$/.test(c);
+/** A TSDoc block (`/** ... *\/`): the public documentation editors show. */
+export const isDocBlock = (c) => c.startsWith("/**") && c !== "/**/";
+
+/** Strip the comments of shipped JS, keeping bundler annotations. */
+export const stripJsComments = (text) => stripComments(text, isAnnotation);
+/** Strip the comments of shipped declarations, keeping the TSDoc blocks. */
+export const stripDtsComments = (text) => stripComments(text, isDocBlock);
+
+/** Every comment `keep(text)` refuses, removed (a line left empty goes too). */
+export function stripComments(text, keep = () => false) {
+  const found = scanComments(text).filter((c) => !keep(c.text));
   if (!found.length) return text;
   let out = "", at = 0;
   for (const c of found) {

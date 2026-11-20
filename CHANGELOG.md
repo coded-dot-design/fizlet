@@ -10,9 +10,10 @@
   bin prints it). The brick catalog moves to `scripts/bricks.mjs`; `npm run perf` measures the home
   demo on a page of its own (`tests/perf/fixture`); the release workflow publishes from `fizlet/fzlt`
   only. `docs/bricks-inventory.md`: every brick's measured gzip size, who ships it and its docs.
-  The package ships no comments (the build strips them; `dist-docs/`, not packed, keeps the doc
-  comments for the docs) and `npm run publish-clean` gates every PR and publish: only `dist/`, `bin/`
-  and the four docs, no comments in shipped code, no agent words. Credits: created by Chris Cooley,
+  The package keeps its public documentation and nothing else: the TSDoc blocks in `dist/*.d.ts`
+  and the `/* @__PURE__ */` annotations in `dist/*.js` stay, every other comment is stripped (packed
+  364,459 B, was 377,562 B; consumers' bundles unchanged). `npm run publish-clean` gates every PR and
+  publish: only `dist/`, `bin/` and the four docs, no other comments, no agent words, no private names. Credits: created by Chris Cooley,
   built with fzlt, sponsored by coded.design (`tests/credits.test.mjs`). `docs/SPLIT.md`: what this
   repository is now, where the site lives, how a release reaches it, and the transfer steps.
 
