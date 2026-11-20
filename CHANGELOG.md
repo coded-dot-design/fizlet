@@ -24,6 +24,16 @@
     degenerate inputs, 0 young GCs posing four limbs for 100k frames) and `tests/rig.mjs` (Chromium: a
     pedalling figure, every hand and foot within 0.5 px of its target, moving, settles to 0 frames).
 
+- **`@fzlt/core/turntable`** (new brick, ALPHA; 1,395 B gz, budget 1,408): a model viewer's angle, lifted
+  from the garage turntables Holeshot and CitySmash each built by hand (the art and the drawing stay in
+  the game). `turntable(engine, el, { yaw, rate, key, friction, snap, ease, spin, motion, label, onTurn })`:
+  a sideways drag turns it at once, ← → and Home with focus, `spin(secs)` after a change, an opt-in throw
+  (`friction`) and step (`snap`), a slider's ARIA with `label`; reduced motion jumps and never spins.
+  `onTurn(yaw)` runs in render only when the angle changed; the engine sleeps at rest.
+  - Tests: `tests/turntable.test.mjs` (drag, keys, Home, spin, throw and snap, motion off, the ledger
+    gives the element back, 0 young GCs over 300k steps) and `tests/turntable.mjs` (Chromium: a diorama
+    model turned by a real mouse drag and keys, reduced motion, settles to 0 frames).
+
 - **Brick audit (`fe audit fizlet`): no fails, no gaps in exports, README or tests.** `@fzlt/core/presence/rollback`
   no longer reads wall time in its step: the correction meters `resimMs` and `resimTotal` read a clock the
   host passes (`clock: () => performance.now()`, a profiling opt-in) and stay 0 without one (2,181 B gz,
