@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
+    "axe-core": "4.11.0",
     "node-html-parser": "7.0.2",
     "pixelmatch": "7.1.0",
     "playwright": "1.58.2",
