@@ -153,6 +153,10 @@ export const BUDGETS = [
   // three wheels (or teetering on two) instead of creeping on.
   // 5,260 B (+142 B) with `state`, `save` and `load`: the whole state in one buffer (rollback netcode).
   ["@fzlt/core/drive", "src/drive.ts", 5312],
+  // Painting on a diorama's ground through its projection (lines, discs, rings on a slope, a lifting
+  // blob shadow, the horizon), lifted from the decal painters four games wrote by hand: 603 B gz when
+  // added (diorama is a type-only import; no kernel).
+  ["@fzlt/core/ground", "src/ground.ts", 640],
   // An animation recipe as data: 8,467 B gz with the kernel, fx (effects + emitter), sprite and
   // timeline's easings it composes when added; its own code is 1,928 B (planned at ≤ 2,048; on a
   // page the bricks are shared). tests/scene.test.mjs holds the own-code target.
