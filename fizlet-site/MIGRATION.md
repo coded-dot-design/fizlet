@@ -41,6 +41,32 @@ to the export loop in `scripts/export-legacy.mjs`, re-export, add the path to `d
 
 Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same heights on both sites.
 
+## Wave 2 results: W2-docs (measured 2026-11-20, legacy build v0.27.0)
+
+The docs and guides indexes (`DocIndex`: SectionHead, `DocCard`, DocsSidebar) and every doc and
+guide on one template (`DocArticle`, used by `docs/[slug]` and the new `guides/[slug]`).
+`npm run compare -- http://127.0.0.1:4801/ http://127.0.0.1:4802/ <out> --full <paths>`, full-page shots:
+
+| Page | 1440 light | 1440 dark | 390 light | 390 dark | Page height (1440 / 390) |
+|---|---:|---:|---:|---:|---|
+| `/docs/` | 0.000% | 0.000% | 0.000% | 0.000% | 3,560 / 3,998 px |
+| `/guides/` | 0.000% | 0.000% | 0.000% | 0.000% | 2,765 / 3,132 px |
+| `/docs/getting-started/` | 0.000% | 0.000% | 0.000% | 0.000% | 3,625 / 4,523 px |
+| `/docs/authoring/` | 0.006% | 0.006% | 0.000% | 0.000% | 10,892 / 11,977 px |
+| `/docs/budgets/` | 0.000% | 0.000% | 0.000% | 0.000% | 5,185 / 5,943 px |
+| `/docs/contract/` | 0.000% | 0.000% | 0.000% | 0.000% | 3,839 / 6,104 px |
+| `/docs/determinism/` | 0.000% | 0.000% | 0.000% | 0.000% | 3,302 / 4,063 px |
+| `/docs/loop/` | 0.000% | 0.000% | 0.000% | 0.000% | 4,501 / 5,805 px |
+| `/docs/recall/` | 0.000% | 0.000% | 0.000% | 0.000% | 3,887 / 4,736 px |
+| `/guides/astro-slot/` | 0.000% | 0.000% | 0.000% | 0.000% | 3,891 / 4,726 px |
+| `/guides/build-your-own-room-server/` | 0.000% | 0.000% | 0.000% | 0.000% | 11,000 / 15,174 px |
+| `/guides/micro-game/` | 0.000% | 0.000% | 0.000% | 0.000% | 5,372 / 6,261 px |
+| `/guides/port-a-game/` | 0.000% | 0.000% | 0.000% | 0.000% | 3,867 / 4,724 px |
+
+Same heights on both sites. The 0.006% on `/docs/authoring/` is its three live recipes (the
+`recipes/*.js` runtime, now in `public/`). Still kept as built (`Html`): each doc's prose blocks
+(`note-block` sections, the contract's rule cards, the budgets table).
+
 ## Design system
 
 - **Tokens**: `src/design/tokens.json` is the one source (groups: color, type, space, radius,
@@ -79,7 +105,7 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 ## Route inventory
 
 <!-- INVENTORY:START -->
-148 legacy pages, 4 done, 144 to do (legacy build v0.27.0).
+148 legacy pages, 16 done, 132 to do (legacy build v0.27.0).
 
 | Type | Pages | Done | Template | Components | Next wave |
 |---|---:|---:|---|---|---|
@@ -91,8 +117,8 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 | contest | 1 | 0 | to build: src/pages/contest/index.astro | SectionHead, Callout, a week card (new) | W2-daily |
 | legal | 2 | 0 | to build: src/pages/privacy/, src/pages/cookies/ | SectionHead, a table (new) | W2-misc |
 | demo | 7 | 0 | to build: the engine demos' own host pages (no site shell for some) | kept as built (Html) until the demos build from @fzlt/core here | W2-demos |
-| docs-index | 2 | 0 | to build: src/pages/docs/index.astro, src/pages/guides/index.astro | SectionHead, a doc list card (new) | W2-docs |
-| doc | 11 | 1 | src/pages/docs/[slug]/index.astro | Crumbs, SectionHead, CodeBlock, Key, DocSteps, DocsSidebar | W2-docs: add the slug to export-legacy.mjs (guides need a guides/[slug] route on the same template), then compare |
+| docs-index | 2 | 2 | src/pages/docs/index.astro, src/pages/guides/index.astro (both DocIndex) | DocIndex: SectionHead, DocCard, DocsSidebar | W2-docs: done |
+| doc | 11 | 11 | src/pages/docs/[slug]/index.astro, src/pages/guides/[slug]/index.astro (both DocArticle) | DocArticle: Crumbs, SectionHead, CodeBlock, Key, DocSteps, DocsSidebar; prose sections kept as built (Html) | W2-docs: done; later, componentize the prose blocks (note-block, rules, tables) |
 | gallery-index | 6 | 1 | src/pages/gallery/index.astro (page 1); to build: gallery/page/[n]/ | SectionHead, Callout, GalleryCard | W2-gallery: one [n] route over the same template |
 | gallery-archive | 1 | 0 | to build: src/pages/gallery/archive/index.astro (noindex,nofollow) | GalleryCard | W2-gallery |
 | gallery-lane | 1 | 0 | to build: src/pages/gallery/hifi/index.astro | GalleryCard | W2-gallery |
@@ -206,24 +232,24 @@ Every route (`/path` · type · status · in sitemap · title):
 
 <details><summary><b>docs-index</b> (2)</summary>
 
-- [ ] `/docs/` · to do · Docs: the contract, the loop, Recall, budgets · Fizlet
-- [ ] `/guides/` · to do · Guides: build with Fizlet, step by step · Fizlet
+- [x] `/docs/` · done · Docs: the contract, the loop, Recall, budgets · Fizlet
+- [x] `/guides/` · done · Guides: build with Fizlet, step by step · Fizlet
 
 </details>
 
 <details><summary><b>doc</b> (11)</summary>
 
-- [ ] `/docs/authoring/` · to do · Authoring with Fizlet: the shape and three recipes
-- [ ] `/docs/budgets/` · to do · Fizlet size budgets: every module, measured
-- [ ] `/docs/contract/` · to do · The Fizlet contract: nine tested rules
-- [ ] `/docs/determinism/` · to do · Deterministic games in Fizlet: seeds and lockstep
+- [x] `/docs/authoring/` · done · Authoring with Fizlet: the shape and three recipes
+- [x] `/docs/budgets/` · done · Fizlet size budgets: every module, measured
+- [x] `/docs/contract/` · done · The Fizlet contract: nine tested rules
+- [x] `/docs/determinism/` · done · Deterministic games in Fizlet: seeds and lockstep
 - [x] `/docs/getting-started/` · done · Getting started with Fizlet: a DOM game engine
-- [ ] `/docs/loop/` · to do · The Fizlet loop: fixed step, one shared rAF
-- [ ] `/docs/recall/` · to do · Recall: how Fizlet gives the page back
-- [ ] `/guides/astro-slot/` · to do · Fill an Astro animation slot with a Fizlet scene
-- [ ] `/guides/build-your-own-room-server/` · to do · Build your own room server for Fizlet multiplayer
-- [ ] `/guides/micro-game/` · to do · Build a micro game with Fizlet in one file
-- [ ] `/guides/port-a-game/` · to do · Port an existing game onto the Fizlet kernel
+- [x] `/docs/loop/` · done · The Fizlet loop: fixed step, one shared rAF
+- [x] `/docs/recall/` · done · Recall: how Fizlet gives the page back
+- [x] `/guides/astro-slot/` · done · Fill an Astro animation slot with a Fizlet scene
+- [x] `/guides/build-your-own-room-server/` · done · Build your own room server for Fizlet multiplayer
+- [x] `/guides/micro-game/` · done · Build a micro game with Fizlet in one file
+- [x] `/guides/port-a-game/` · done · Port an existing game onto the Fizlet kernel
 
 </details>
 

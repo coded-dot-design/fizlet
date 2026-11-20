@@ -1,0 +1,199 @@
+{
+ "meta": {
+  "path": "docs/determinism/",
+  "title": "Deterministic games in Fizlet: seeds and lockstep",
+  "description": "Make a Fizlet sim replay from a seed: fixed step, seeded random, typed arrays and input bits. syncCheck finds the first frame where two peers differ.",
+  "ld": [
+   {
+    "@type": "TechArticle",
+    "@id": "https://fizlet.com/docs/determinism/#article",
+    "headline": "Same seed,",
+    "description": "Make a Fizlet sim replay from a seed: fixed step, seeded random, typed arrays and input bits. syncCheck finds the first frame where two peers differ.",
+    "url": "https://fizlet.com/docs/determinism/",
+    "mainEntityOfPage": "https://fizlet.com/docs/determinism/",
+    "inLanguage": "en",
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    },
+    "publisher": {
+     "@id": "https://fizlet.com/#org"
+    },
+    "isPartOf": {
+     "@id": "https://fizlet.com/#website"
+    },
+    "about": {
+     "@id": "https://fizlet.com/#code"
+    }
+   },
+   {
+    "@type": "BreadcrumbList",
+    "@id": "https://fizlet.com/docs/determinism/#crumbs",
+    "itemListElement": [
+     {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Fizlet",
+      "item": "https://fizlet.com/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Docs",
+      "item": "https://fizlet.com/docs/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Determinism",
+      "item": "https://fizlet.com/docs/determinism/"
+     }
+    ]
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/docs/",
+    "label": "Docs"
+   }
+  ],
+  "current": "Determinism"
+ },
+ "index": "07",
+ "eyebrow": "DOCS · DETERMINISM",
+ "title": {
+  "line": "Same seed,",
+  "accent": "same game."
+ },
+ "lead": "A Fizlet sim that steps on a fixed <code>dt</code>, draws every random number from <code>engine.random</code> and keeps its state in typed arrays replays exactly from a seed. That is what makes a replay test possible, and what lets two players run the same game in lockstep with only their inputs crossing the wire.",
+ "body": [
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>The rules for a deterministic step</h2><ul class=\"ledger-rules note-list\"><li><b>Seeded random only.</b> <code>engine.random()</code> is seeded by <code>createEngine({ seed })</code> and allocation-free; <code>engine.random.state</code> snapshots and restores it. No <code>Math.random</code> in the step.</li><li><b>No clock in the step.</b> Use <code>dt</code> and <code>engine.steps</code> (an integer count of fixed steps), never <code>performance.now()</code> or <code>Date</code>.</li><li><b>No layout reads.</b> A sim that reads the page depends on the screen. In net play, fix the arena size and scale the drawing.</li><li><b>Inputs as bits.</b> Pack what a player does into one 32-bit word per frame; the step reads only the words.</li><li><b>Nothing else moves on engine steps.</b> Anything that advances with the step (a drop timer, a random draw in an effect) must advance on the same frames on every peer.</li></ul></section>"
+  },
+  {
+   "kind": "code",
+   "label": "<b>SYNC CHECK</b> · sync.test.ts",
+   "code": "// The sim: typed arrays, e.random, inputs as bits. No Math.random, no clock, no DOM.\nfunction sim(e: Engine, players: number) {\n  const pos = new Float64Array(players * 2);\n  for (let i = 0; i < pos.length; i++) pos[i] = e.random() * 100;\n  return {\n    state: new Uint8Array(pos.buffer), // a byte view, made once\n    step(e: Engine, inputs: Uint32Array) {\n      for (let p = 0; p < players; p++) {\n        const bits = inputs[p] ?? 0;\n        pos[p * 2] = (pos[p * 2] ?? 0) + ((bits & 2 ? 1 : 0) - (bits & 1 ? 1 : 0)) * 2;\n        if (bits & 4) pos[p * 2 + 1] = (pos[p * 2 + 1] ?? 0) + e.random() * 8;\n      }\n    },\n  };\n}\n\n// In any test (Node or a browser): two peers, 600 frames, a late and jittery link.\nconst r = syncCheck((e, slot, players) => {\n  const s = sim(e, players);\n  return { ...s, input: () => (e.steps * 7 + slot) & 7 }; // scripted presses\n}, { players: 2, frames: 600, latency: 3, jitter: 2 });\nif (!r.ok) throw new Error(`peers diverged at frame ${r.diverged}`); // -1 when none did",
+   "wrap": false,
+   "copy": true,
+   "cls": "panel code-card doc-code"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2><code>syncCheck</code>: find the first frame that differs</h2><p class=\"body\"><code>syncCheck(setup, { players, frames, latency, jitter })</code> from <code>@fzlt/core/presence/check</code> runs your sim as lockstep clients over an in-memory link with the latency and jitter you ask for, hashes each client's state every frame and returns <code>{ ok, frames, diverged, stalls }</code>. <code>diverged</code> is the first frame whose state differed, or -1. It is test-only code (4,870 B gzip) and never ships to players.</p><p class=\"body\">The presence brick's own tests run two clients byte-identical for 3,000 frames with no latency, stay identical with delayed, jittered and reordered inputs at unequal frame rates, run four players at latency 3, and catch a forced desync at the next hash check.</p></section>"
+  },
+  {
+   "kind": "keys",
+   "keys": [
+    {
+     "href": "/guides/build-your-own-room-server/",
+     "label": "Build your own room server",
+     "tone": "sys",
+     "arcade": true,
+     "icon": "book"
+    },
+    {
+     "href": "/bricks/presence.html",
+     "label": "@fzlt/core/presence",
+     "tone": "cmd",
+     "arcade": true,
+     "icon": "book"
+    }
+   ]
+  }
+ ],
+ "steps": [
+  {
+   "href": "/docs/budgets/",
+   "label": "Size budgets",
+   "dir": "prev"
+  }
+ ],
+ "map": [
+  [
+   {
+    "head": {
+     "href": "/docs/",
+     "label": "Docs"
+    },
+    "items": [
+     {
+      "href": "/docs/getting-started/",
+      "label": "Getting started"
+     },
+     {
+      "href": "/docs/authoring/",
+      "label": "Authoring and recipes"
+     },
+     {
+      "href": "/docs/contract/",
+      "label": "The contract"
+     },
+     {
+      "href": "/docs/loop/",
+      "label": "The loop"
+     },
+     {
+      "href": "/docs/recall/",
+      "label": "Recall and the ledger"
+     },
+     {
+      "href": "/docs/budgets/",
+      "label": "Size budgets"
+     },
+     {
+      "href": "/docs/determinism/",
+      "label": "Determinism"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/guides/",
+     "label": "Guides"
+    },
+    "items": [
+     {
+      "href": "/guides/micro-game/",
+      "label": "Build a micro game"
+     },
+     {
+      "href": "/guides/astro-slot/",
+      "label": "Fill an Astro slot"
+     },
+     {
+      "href": "/guides/port-a-game/",
+      "label": "Port a game"
+     },
+     {
+      "href": "/guides/build-your-own-room-server/",
+      "label": "Your own room server"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/bricks/",
+     "label": "Bricks"
+    },
+    "note": "Every module, its API and its size."
+   },
+   {
+    "head": {
+     "href": "/news/",
+     "label": "News"
+    },
+    "note": "Release notes for every version."
+   }
+  ]
+ ]
+}

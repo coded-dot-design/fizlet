@@ -1,0 +1,201 @@
+{
+ "meta": {
+  "path": "docs/loop/",
+  "title": "The Fizlet loop: fixed step, one shared rAF",
+  "description": "How Fizlet runs a frame: read, step and render phases, a fixed 60 Hz step with a catch-up cap, auto-pause, settle and an fps cap for page heroes.",
+  "ld": [
+   {
+    "@type": "TechArticle",
+    "@id": "https://fizlet.com/docs/loop/#article",
+    "headline": "Read. Step. Render.",
+    "description": "How Fizlet runs a frame: read, step and render phases, a fixed 60 Hz step with a catch-up cap, auto-pause, settle and an fps cap for page heroes.",
+    "url": "https://fizlet.com/docs/loop/",
+    "mainEntityOfPage": "https://fizlet.com/docs/loop/",
+    "inLanguage": "en",
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    },
+    "publisher": {
+     "@id": "https://fizlet.com/#org"
+    },
+    "isPartOf": {
+     "@id": "https://fizlet.com/#website"
+    },
+    "about": {
+     "@id": "https://fizlet.com/#code"
+    }
+   },
+   {
+    "@type": "BreadcrumbList",
+    "@id": "https://fizlet.com/docs/loop/#crumbs",
+    "itemListElement": [
+     {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Fizlet",
+      "item": "https://fizlet.com/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Docs",
+      "item": "https://fizlet.com/docs/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "The loop",
+      "item": "https://fizlet.com/docs/loop/"
+     }
+    ]
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/docs/",
+    "label": "Docs"
+   }
+  ],
+  "current": "The loop"
+ },
+ "index": "04",
+ "eyebrow": "DOCS · THE LOOP",
+ "title": {
+  "line": "Read. Step. Render.",
+  "accent": "One clock for the page."
+ },
+ "lead": "Every engine on a page shares one <code>requestAnimationFrame</code>. Each frame runs three phases, in order, for every system: <code>read</code> measures the page, <code>step</code> simulates at a fixed rate with no DOM at all, and <code>render</code> writes only what changed. That split is why a game can share a page with someone else's layout and never force a reflow in its hot loop.",
+ "body": [
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>One frame</h2><ul class=\"note-rows\"><li class=\"panel\"><h3>read · once a frame</h3><p>The only phase that may measure the page: cached geometry, input edges latched. <code>@fzlt/core/input</code> measures its target here, at most once a frame, and only when the pointer moved.</p></li><li class=\"panel\"><h3>step · 0 to 4 times, dt = 1/60 s</h3><p>The simulation on plain numbers and typed arrays. No DOM reads, no DOM writes, no allocation. Things that happened go on the event ring (<code>engine.events.emit</code>).</p></li><li class=\"panel\"><h3>render · once a frame, with alpha</h3><p>Change-only writes through <code>engine.ledger</code>. Sound, effects and the HUD read the event ring here. <code>alpha</code> is how far the clock is between two steps, for smooth drawing.</p></li></ul></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>A fixed step<br><em>that never spirals</em></h2><p class=\"body\">The step is fixed (default <code>1/60</code> s, the <code>step</code> option), so a game runs the same on a 30 Hz phone and a 144 Hz monitor. An accumulator collects real time and runs as many steps as fit. A slow frame runs at most <code>maxSteps</code> steps (default 4) and drops the rest of the time: it shows in <code>engine.stats().dropped</code>, and the next frame starts fresh instead of trying to catch up forever.</p><p class=\"body\"><code>engine.advance(seconds)</code> runs time by hand, with no clock at all: that is how the tests, a headless run or a server step an engine.</p></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>Pause by default</h2><p class=\"body\">An engine pauses on its own when the tab is hidden, the page is leaving, its root is scrolled off screen or the visitor is typing in one of the host page's fields. Reduced motion is opt-in (<code>pause: { reducedMotion: true }</code>), since most games calm their effects instead. Paused, it asks for no frames: zero CPU. <code>engine.paused</code> lists why.</p></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>Settle and the fps cap<br><em>for heroes and diagrams</em></h2><p class=\"body\">A page hero should cost nothing while it is still. With <code>settle: 0.5</code>, systems call <code>engine.busy()</code> in any frame where something moves; half a second after the last one, the engine sleeps: no <code>requestAnimationFrame</code> at all until <code>wake()</code>, its input or <code>start()</code>. Settling is not a pause: <code>pause</code> hooks don't run and held input stays.</p><p class=\"body\"><code>fps: 30</code> caps an ambient loop. Since 0.19.0 it caps <code>requestAnimationFrame</code> itself, not just the work: between frames the engine leaves the shared clock and one timer brings it back. Measured in 0.19.0: a capped scene asks for 30 frames a second (the fizz and layers heroes), and an uncapped engine on the same page no longer drags a capped one along.</p></section>"
+  },
+  {
+   "kind": "code",
+   "label": "<b>SETTLE</b> · hero.ts",
+   "code": "const e = createEngine({\n  root: stage,\n  settle: 0.5, // sleep half a second after the last busy() call\n  fps: 30,     // an ambient hero needs no more\n  pause: { reducedMotion: true },\n});\ne.add({\n  step(e) { if (moving()) e.busy(); }, // something moved this frame\n});\ne.start();\ne.wake(); // a settled engine wakes on input, start() or wake()",
+   "wrap": false,
+   "copy": true,
+   "cls": "panel code-card doc-code"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>The limits</h2><ul class=\"rules note-stats\"><li class=\"panel rule\"><b>1</b><p><code>requestAnimationFrame</code> per page, however many engines run</p></li><li class=\"panel rule\"><b>60 Hz</b><p>the default fixed step (<code>step: 1/60</code>)</p></li><li class=\"panel rule\"><b>4</b><p>catch-up steps a frame (<code>maxSteps</code>), then time drops</p></li><li class=\"panel rule\"><b>64</b><p>events a frame on the ring (<code>events</code>); full means dropped and counted</p></li></ul></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>Questions</h2><div class=\"note-rows\"><div class=\"panel\"><h3>What happens when a hook throws?</h3><p>Only its own engine stops (<code>paused: [&quot;stopped&quot;]</code>; <code>start()</code> resumes) and the error goes to <code>onError(error, engine)</code>, by default <code>console.error</code>. The shared clock and every other engine keep running.</p></div><div class=\"panel\"><h3>Can engines start or stop each other mid-frame?</h3><p>Yes. Engines may start, stop or destroy each other from inside a hook; every engine still runs once per frame on one <code>requestAnimationFrame</code>, and <code>engine.remove(system)</code> inside a hook never skips the next system.</p></div></div></section>"
+  }
+ ],
+ "steps": [
+  {
+   "href": "/docs/contract/",
+   "label": "The contract",
+   "dir": "prev"
+  },
+  {
+   "href": "/docs/recall/",
+   "label": "Recall and the ledger",
+   "dir": "next"
+  }
+ ],
+ "map": [
+  [
+   {
+    "head": {
+     "href": "/docs/",
+     "label": "Docs"
+    },
+    "items": [
+     {
+      "href": "/docs/getting-started/",
+      "label": "Getting started"
+     },
+     {
+      "href": "/docs/authoring/",
+      "label": "Authoring and recipes"
+     },
+     {
+      "href": "/docs/contract/",
+      "label": "The contract"
+     },
+     {
+      "href": "/docs/loop/",
+      "label": "The loop"
+     },
+     {
+      "href": "/docs/recall/",
+      "label": "Recall and the ledger"
+     },
+     {
+      "href": "/docs/budgets/",
+      "label": "Size budgets"
+     },
+     {
+      "href": "/docs/determinism/",
+      "label": "Determinism"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/guides/",
+     "label": "Guides"
+    },
+    "items": [
+     {
+      "href": "/guides/micro-game/",
+      "label": "Build a micro game"
+     },
+     {
+      "href": "/guides/astro-slot/",
+      "label": "Fill an Astro slot"
+     },
+     {
+      "href": "/guides/port-a-game/",
+      "label": "Port a game"
+     },
+     {
+      "href": "/guides/build-your-own-room-server/",
+      "label": "Your own room server"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/bricks/",
+     "label": "Bricks"
+    },
+    "note": "Every module, its API and its size."
+   },
+   {
+    "head": {
+     "href": "/news/",
+     "label": "News"
+    },
+    "note": "Release notes for every version."
+   }
+  ]
+ ]
+}

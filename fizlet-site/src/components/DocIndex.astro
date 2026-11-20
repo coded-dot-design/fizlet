@@ -1,0 +1,17 @@
+---
+// The docs and guides indexes: the section head, a DocCard per page in reading order, the docs map.
+import SectionHead from "./SectionHead.astro";
+import DocCard from "./DocCard.astro";
+import DocsSidebar from "./DocsSidebar.astro";
+interface Props { data: any }
+const { data } = Astro.props;
+---
+<section class="has-grid section" aria-labelledby="sec-title">
+  <div class="wrap">
+    <SectionHead index={data.head.index} eyebrow={data.head.eyebrow} line={data.head.title.line} accent={data.head.title.accent} lead={data.head.lead} id="sec-title" />
+    <ol class="gal note-cards">
+    {data.cards.map((c: any) => <DocCard {...c} />)}
+    </ol>
+    <DocsSidebar path={"/" + data.meta.path} columns={data.map} />
+  </div>
+</section>

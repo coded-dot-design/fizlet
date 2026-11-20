@@ -1,0 +1,185 @@
+{
+ "meta": {
+  "path": "docs/budgets/",
+  "title": "Fizlet size budgets: every module, measured",
+  "description": "Every Fizlet module's gzip size and budget, measured on this build the way CI checks it: a kernel under 4 KB, a page build under 7 KB, heroes under 10.",
+  "ld": [
+   {
+    "@type": "TechArticle",
+    "@id": "https://fizlet.com/docs/budgets/#article",
+    "headline": "Every kilobyte",
+    "description": "Every Fizlet module's gzip size and budget, measured on this build the way CI checks it: a kernel under 4 KB, a page build under 7 KB, heroes under 10.",
+    "url": "https://fizlet.com/docs/budgets/",
+    "mainEntityOfPage": "https://fizlet.com/docs/budgets/",
+    "inLanguage": "en",
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    },
+    "publisher": {
+     "@id": "https://fizlet.com/#org"
+    },
+    "isPartOf": {
+     "@id": "https://fizlet.com/#website"
+    },
+    "about": {
+     "@id": "https://fizlet.com/#code"
+    }
+   },
+   {
+    "@type": "BreadcrumbList",
+    "@id": "https://fizlet.com/docs/budgets/#crumbs",
+    "itemListElement": [
+     {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Fizlet",
+      "item": "https://fizlet.com/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Docs",
+      "item": "https://fizlet.com/docs/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Size budgets",
+      "item": "https://fizlet.com/docs/budgets/"
+     }
+    ]
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/docs/",
+    "label": "Docs"
+   }
+  ],
+  "current": "Size budgets"
+ },
+ "index": "06",
+ "eyebrow": "DOCS · BUDGETS",
+ "title": {
+  "line": "Every kilobyte",
+  "accent": "is a choice."
+ },
+ "lead": "Each module has a size budget, and CI fails when one is over. The kernel is 3,372 B gzip against a budget of 4,096 B. The table below is not typed: this page is built by the same code that checks the budgets, so the numbers are the ones measured on v0.27.0.",
+ "body": [
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block doc-wide\"><h2>Measured on this build</h2><div class=\"panel lit ledger doc-table\"><div class=\"table-scroll\"><table><thead><tr><th>Entry</th><th>Gzip</th><th>Budget</th><th>Used</th></tr></thead><tbody><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><a href=\"/bricks/kernel.html\"><code>@fzlt/core (kernel)</code></a></td><td data-size=\"@fzlt/core (kernel)\">3,372 B</td><td>4,096 B</td><td>82%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-aim)\" aria-hidden=\"true\"><b class=\"el-sym\">db</b></span><a href=\"/bricks/debug.html\"><code>@fzlt/core/debug</code></a></td><td data-size=\"@fzlt/core/debug\">1,133 B</td><td>1,536 B</td><td>74%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">pf</b></span><a href=\"/bricks/perf.html\"><code>@fzlt/core/perf</code></a></td><td data-size=\"@fzlt/core/perf\">2,019 B</td><td>2,022 B</td><td>100%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">in</b></span><a href=\"/bricks/input.html\"><code>@fzlt/core/input</code></a></td><td data-size=\"@fzlt/core/input\">1,909 B</td><td>1,920 B</td><td>99%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-advance)\" aria-hidden=\"true\"><b class=\"el-sym\">pd</b></span><a href=\"/bricks/pad.html\"><code>@fzlt/core/pad</code></a></td><td data-size=\"@fzlt/core/pad\">2,068 B</td><td>2,120 B</td><td>98%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-cmd)\" aria-hidden=\"true\"><b class=\"el-sym\">cl</b></span><a href=\"/bricks/collide.html\"><code>@fzlt/core/collide</code></a></td><td data-size=\"@fzlt/core/collide\">1,265 B</td><td>1,536 B</td><td>82%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-flag)\" aria-hidden=\"true\"><b class=\"el-sym\">gr</b></span><a href=\"/bricks/grid.html\"><code>@fzlt/core/grid</code></a></td><td data-size=\"@fzlt/core/grid\">1,652 B</td><td>1,664 B</td><td>99%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">fx</b></span><a href=\"/bricks/fx.html\"><code>@fzlt/core/fx</code></a></td><td data-size=\"@fzlt/core/fx\">2,792 B</td><td>3,072 B</td><td>91%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">cm</b></span><a href=\"/bricks/camera.html\"><code>@fzlt/core/camera</code></a></td><td data-size=\"@fzlt/core/camera\">1,400 B</td><td>1,536 B</td><td>91%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-fallin)\" aria-hidden=\"true\"><b class=\"el-sym\">sp</b></span><a href=\"/bricks/sprite.html\"><code>@fzlt/core/sprite</code></a></td><td data-size=\"@fzlt/core/sprite\">1,437 B</td><td>1,536 B</td><td>94%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-advance)\" aria-hidden=\"true\"><b class=\"el-sym\">sn</b></span><a href=\"/bricks/sound.html\"><code>@fzlt/core/sound</code></a></td><td data-size=\"@fzlt/core/sound\">1,062 B</td><td>1,536 B</td><td>69%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-fallin)\" aria-hidden=\"true\"><b class=\"el-sym\">em</b></span><a href=\"/bricks/embed.html\"><code>@fzlt/core/embed</code></a></td><td data-size=\"@fzlt/core/embed\">2,040 B</td><td>2,560 B</td><td>80%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">sl</b></span><a href=\"/bricks/slot.html\"><code>@fzlt/core/slot</code></a></td><td data-size=\"@fzlt/core/slot\">1,849 B</td><td>2,048 B</td><td>90%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-cmd)\" aria-hidden=\"true\"><b class=\"el-sym\">pr</b></span><a href=\"/bricks/presence.html\"><code>@fzlt/core/presence</code></a></td><td data-size=\"@fzlt/core/presence\">2,197 B</td><td>2,240 B</td><td>98%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-cmd)\" aria-hidden=\"true\"><b class=\"el-sym\">pc</b></span><a href=\"/bricks/presence.html\"><code>@fzlt/core/presence/check</code></a></td><td data-size=\"@fzlt/core/presence/check\">4,870 B</td><td>5,120 B</td><td>95%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-cmd)\" aria-hidden=\"true\"><b class=\"el-sym\">pr</b></span><a href=\"/bricks/presence.html\"><code>@fzlt/core/presence/rollback</code></a></td><td data-size=\"@fzlt/core/presence/rollback\">2,176 B</td><td>2,304 B</td><td>94%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-aim)\" aria-hidden=\"true\"><b class=\"el-sym\">hd</b></span><a href=\"/bricks/hud.html\"><code>@fzlt/core/hud</code></a></td><td data-size=\"@fzlt/core/hud\">1,306 B</td><td>1,536 B</td><td>85%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">mt</b></span><a href=\"/bricks/match.html\"><code>@fzlt/core/match</code></a></td><td data-size=\"@fzlt/core/match\">2,617 B</td><td>2,816 B</td><td>93%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-advance)\" aria-hidden=\"true\"><b class=\"el-sym\">rl</b></span><a href=\"/bricks/rules.html\"><code>@fzlt/core/rules</code></a></td><td data-size=\"@fzlt/core/rules\">1,318 B</td><td>1,536 B</td><td>86%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-advance)\" aria-hidden=\"true\"><b class=\"el-sym\">st</b></span><a href=\"/bricks/steer.html\"><code>@fzlt/core/steer</code></a></td><td data-size=\"@fzlt/core/steer\">2,759 B</td><td>2,816 B</td><td>98%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-advance)\" aria-hidden=\"true\"><b class=\"el-sym\">mh</b></span><a href=\"/bricks/math.html\"><code>@fzlt/core/math</code></a></td><td data-size=\"@fzlt/core/math\">1,746 B</td><td>1,792 B</td><td>97%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">ch</b></span><a href=\"/bricks/coach.html\"><code>@fzlt/core/coach</code></a></td><td data-size=\"@fzlt/core/coach\">1,220 B</td><td>1,536 B</td><td>79%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-fire)\" aria-hidden=\"true\"><b class=\"el-sym\">tm</b></span><a href=\"/bricks/timeline.html\"><code>@fzlt/core/timeline</code></a></td><td data-size=\"@fzlt/core/timeline\">2,137 B</td><td>2,304 B</td><td>93%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">tc</b></span><a href=\"/bricks/touch.html\"><code>@fzlt/core/touch</code></a></td><td data-size=\"@fzlt/core/touch\">310 B</td><td>512 B</td><td>61%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-fire)\" aria-hidden=\"true\"><b class=\"el-sym\">cs</b></span><a href=\"/bricks/css-clock.html\"><code>@fzlt/core/css-clock</code></a></td><td data-size=\"@fzlt/core/css-clock\">5,368 B</td><td>5,566 B</td><td>96%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-advance)\" aria-hidden=\"true\"><b class=\"el-sym\">ly</b></span><a href=\"/bricks/layout.html\"><code>@fzlt/core/layout</code></a></td><td data-size=\"@fzlt/core/layout\">1,745 B</td><td>2,048 B</td><td>85%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-aim)\" aria-hidden=\"true\"><b class=\"el-sym\">vw</b></span><a href=\"/bricks/view-canvas.html\"><code>@fzlt/core/view-canvas</code></a></td><td data-size=\"@fzlt/core/view-canvas\">936 B</td><td>1,229 B</td><td>76%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-fire)\" aria-hidden=\"true\"><b class=\"el-sym\">dr</b></span><a href=\"/bricks/diorama.html\"><code>@fzlt/core/diorama</code></a></td><td data-size=\"@fzlt/core/diorama\">7,258 B</td><td>7,296 B</td><td>99%</td></tr><tr><td><code>@fzlt/core/diorama (diorama() alone)</code></td><td data-size=\"@fzlt/core/diorama (diorama() alone)\">6,614 B</td><td>6,656 B</td><td>99%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-fire)\" aria-hidden=\"true\"><b class=\"el-sym\">dc</b></span><a href=\"/bricks/dice.html\"><code>@fzlt/core/dice</code></a></td><td data-size=\"@fzlt/core/dice\">4,262 B</td><td>4,352 B</td><td>98%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-advance)\" aria-hidden=\"true\"><b class=\"el-sym\">tr</b></span><a href=\"/bricks/track.html\"><code>@fzlt/core/track</code></a></td><td data-size=\"@fzlt/core/track\">2,055 B</td><td>2,112 B</td><td>97%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">wt</b></span><a href=\"/bricks/water.html\"><code>@fzlt/core/water</code></a></td><td data-size=\"@fzlt/core/water\">5,264 B</td><td>5,376 B</td><td>98%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">ps</b></span><a href=\"/bricks/props.html\"><code>@fzlt/core/props</code></a></td><td data-size=\"@fzlt/core/props\">3,115 B</td><td>3,200 B</td><td>97%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">bm</b></span><a href=\"/bricks/beam.html\"><code>@fzlt/core/beam</code></a></td><td data-size=\"@fzlt/core/beam\">4,388 B</td><td>4,480 B</td><td>98%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-cmd)\" aria-hidden=\"true\"><b class=\"el-sym\">cr</b></span><a href=\"/bricks/cards.html\"><code>@fzlt/core/cards</code></a></td><td data-size=\"@fzlt/core/cards\">3,383 B</td><td>3,456 B</td><td>98%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-advance)\" aria-hidden=\"true\"><b class=\"el-sym\">fl</b></span><a href=\"/bricks/flick.html\"><code>@fzlt/core/flick</code></a></td><td data-size=\"@fzlt/core/flick\">5,410 B</td><td>5,504 B</td><td>98%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-fallin)\" aria-hidden=\"true\"><b class=\"el-sym\">tn</b></span><a href=\"/bricks/terrain.html\"><code>@fzlt/core/terrain</code></a></td><td data-size=\"@fzlt/core/terrain\">5,566 B</td><td>5,568 B</td><td>100%</td></tr><tr><td><code>@fzlt/core/terrain (terrainWindow alone)</code></td><td data-size=\"@fzlt/core/terrain (terrainWindow alone)\">2,632 B</td><td>2,688 B</td><td>98%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-cmd)\" aria-hidden=\"true\"><b class=\"el-sym\">ac</b></span><a href=\"/bricks/actor.html\"><code>@fzlt/core/actor</code></a></td><td data-size=\"@fzlt/core/actor\">908 B</td><td>1,229 B</td><td>74%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-aim)\" aria-hidden=\"true\"><b class=\"el-sym\">am</b></span><a href=\"/bricks/aim.html\"><code>@fzlt/core/aim</code></a></td><td data-size=\"@fzlt/core/aim\">691 B</td><td>1,024 B</td><td>67%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-fire)\" aria-hidden=\"true\"><b class=\"el-sym\">vd</b></span><a href=\"/bricks/view-dom.html\"><code>@fzlt/core/view-dom</code></a></td><td data-size=\"@fzlt/core/view-dom\">882 B</td><td>1,536 B</td><td>57%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">an</b></span><a href=\"/bricks/announce.html\"><code>@fzlt/core/announce</code></a></td><td data-size=\"@fzlt/core/announce\">612 B</td><td>614 B</td><td>100%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-advance)\" aria-hidden=\"true\"><b class=\"el-sym\">dv</b></span><a href=\"/bricks/drive.html\"><code>@fzlt/core/drive</code></a></td><td data-size=\"@fzlt/core/drive\">5,262 B</td><td>5,312 B</td><td>99%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-aim)\" aria-hidden=\"true\"><b class=\"el-sym\">sc</b></span><a href=\"/bricks/scene.html\"><code>@fzlt/core/scene</code></a></td><td data-size=\"@fzlt/core/scene\">8,369 B</td><td>8,704 B</td><td>96%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">ar</b></span><a href=\"/bricks/arcade.html\"><code>@fzlt/core/arcade</code></a></td><td data-size=\"@fzlt/core/arcade\">24,145 B</td><td>24,156 B</td><td>100%</td></tr><tr><td><code>@fzlt/core/arcade (hud omitted)</code></td><td data-size=\"@fzlt/core/arcade (hud omitted)\">18,199 B</td><td>18,208 B</td><td>100%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">br</b></span><a href=\"/bricks/board-page.html\"><code>@fzlt/core/board-page</code></a></td><td data-size=\"@fzlt/core/board-page\">4,104 B</td><td>4,160 B</td><td>99%</td></tr><tr><td><code>page build (kernel+slot+input+fx)</code></td><td data-size=\"page build (kernel+slot+input+fx)\">7,098 B</td><td>7,104 B</td><td>100%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-fire)\" aria-hidden=\"true\"><b class=\"el-sym\">ui</b></span><a href=\"/bricks/ui.html\"><code>@fzlt/core/ui (js)</code></a></td><td data-size=\"@fzlt/core/ui (js)\">2,907 B</td><td>3,072 B</td><td>95%</td></tr><tr><td><span class=\"el el-chip\" style=\"--tone: var(--k-fire)\" aria-hidden=\"true\"><b class=\"el-sym\">ui</b></span><a href=\"/bricks/ui.html\"><code>@fzlt/core/ui (css)</code></a></td><td data-size=\"@fzlt/core/ui (css)\">5,141 B</td><td>5,152 B</td><td>100%</td></tr></tbody></table></div></div><p class=\"body bp-note\">Minified and gzipped with everything each entry pulls in (1 KB = 1024 bytes), the way <code>npm run size</code> checks it in CI. Over a budget, the build fails.</p></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>How we measure</h2><ol class=\"ledger-rules note-list\"><li><b>One measurement.</b> <code>scripts/sizes.mjs</code> bundles each entry with esbuild (ESM, ES2022, minified), gzips the output and compares it with the budget. <code>npm run size</code> (CI) and the website both call it, so a page can't show a number CI didn't check.</li><li><b>Everything it imports.</b> A brick's size includes the kernel parts it pulls in. That is what a page pays for it alone.</li><li><b>Live bytes for demos.</b> Every live demo on this site wears a size badge: the gzip of the chunk it loads plus its static imports, measured at build. The site test measures it again and fails if they disagree.</li><li><b>Budgets move only with a reason.</b> When one goes up, the changelog says how much and why, and the <a href=\"/news/\">release notes</a> keep it.</li></ol></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>The hero budget</h2><p class=\"body\">A page hero's live chunk (kernel, bricks and the scene's own code) has a budget of 10 KB gzip. The page build (kernel, <code>@fzlt/core/slot</code>, <code>@fzlt/core/input</code> and <code>@fzlt/core/fx</code>) is 7,098 B against 7,104 B, which leaves about 3 KB for the scene. A test fails if sound, debug, the pad, the HUD, match or the Board UI get into it.</p><p class=\"body\">The two story heroes on the home page are inside it. Measured in 0.19.0: the layers scene's live chunk is 9,727 B and the fizz scene's 8,752 B, each loaded only once its slot nears the viewport. <a href=\"/notes/how-small-is-small/\">How small is small</a> walks through the numbers.</p></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>Questions</h2><div class=\"note-rows\"><div class=\"panel\"><h3>Why gzip and not minified bytes?</h3><p>Because gzip is what crosses the wire for a script on almost every host. The changelog gives minified bytes too where a change is about them.</p></div><div class=\"panel\"><h3>Why is @fzlt/core/arcade so much bigger?</h3><p>It is a shell, not a brick: it composes the kernel, board-page, input, the pad, sound, the HUD and the Board UI keys, so a page game is only its rules and art. Its budget counts all of them.</p></div></div></section>"
+  }
+ ],
+ "steps": [
+  {
+   "href": "/docs/recall/",
+   "label": "Recall and the ledger",
+   "dir": "prev"
+  },
+  {
+   "href": "/docs/determinism/",
+   "label": "Determinism",
+   "dir": "next"
+  }
+ ],
+ "map": [
+  [
+   {
+    "head": {
+     "href": "/docs/",
+     "label": "Docs"
+    },
+    "items": [
+     {
+      "href": "/docs/getting-started/",
+      "label": "Getting started"
+     },
+     {
+      "href": "/docs/authoring/",
+      "label": "Authoring and recipes"
+     },
+     {
+      "href": "/docs/contract/",
+      "label": "The contract"
+     },
+     {
+      "href": "/docs/loop/",
+      "label": "The loop"
+     },
+     {
+      "href": "/docs/recall/",
+      "label": "Recall and the ledger"
+     },
+     {
+      "href": "/docs/budgets/",
+      "label": "Size budgets"
+     },
+     {
+      "href": "/docs/determinism/",
+      "label": "Determinism"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/guides/",
+     "label": "Guides"
+    },
+    "items": [
+     {
+      "href": "/guides/micro-game/",
+      "label": "Build a micro game"
+     },
+     {
+      "href": "/guides/astro-slot/",
+      "label": "Fill an Astro slot"
+     },
+     {
+      "href": "/guides/port-a-game/",
+      "label": "Port a game"
+     },
+     {
+      "href": "/guides/build-your-own-room-server/",
+      "label": "Your own room server"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/bricks/",
+     "label": "Bricks"
+    },
+    "note": "Every module, its API and its size."
+   },
+   {
+    "head": {
+     "href": "/news/",
+     "label": "News"
+    },
+    "note": "Release notes for every version."
+   }
+  ]
+ ]
+}

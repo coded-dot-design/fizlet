@@ -1,0 +1,188 @@
+{
+ "meta": {
+  "path": "guides/micro-game/",
+  "title": "Build a micro game with Fizlet in one file",
+  "description": "A step-by-step Fizlet guide: a canvas click game with typed-array state, a fixed 60 Hz step, pooled effects, a change-only HUD and Recall on Escape.",
+  "ld": [
+   {
+    "@type": "TechArticle",
+    "@id": "https://fizlet.com/guides/micro-game/#article",
+    "headline": "A micro game",
+    "description": "A step-by-step Fizlet guide: a canvas click game with typed-array state, a fixed 60 Hz step, pooled effects, a change-only HUD and Recall on Escape.",
+    "url": "https://fizlet.com/guides/micro-game/",
+    "mainEntityOfPage": "https://fizlet.com/guides/micro-game/",
+    "inLanguage": "en",
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    },
+    "publisher": {
+     "@id": "https://fizlet.com/#org"
+    },
+    "isPartOf": {
+     "@id": "https://fizlet.com/#website"
+    },
+    "about": {
+     "@id": "https://fizlet.com/#code"
+    }
+   },
+   {
+    "@type": "BreadcrumbList",
+    "@id": "https://fizlet.com/guides/micro-game/#crumbs",
+    "itemListElement": [
+     {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Fizlet",
+      "item": "https://fizlet.com/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Guides",
+      "item": "https://fizlet.com/guides/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Build a micro game",
+      "item": "https://fizlet.com/guides/micro-game/"
+     }
+    ]
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/guides/",
+    "label": "Guides"
+   }
+  ],
+  "current": "Build a micro game"
+ },
+ "index": "01",
+ "eyebrow": "GUIDE · A MICRO GAME",
+ "title": {
+  "line": "A micro game",
+  "accent": "in one file."
+ },
+ "lead": "This guide builds a whole game in about 80 lines: squares drift around a canvas, a click pops the ones under the pointer, and a score and a 30-second clock count on the page. It uses the kernel and four bricks, keeps every rule of the <a href=\"/docs/contract/\">contract</a>, and gives the page back on Escape.",
+ "body": [
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>1. The markup</h2><p class=\"body\">A root element holds the canvas and the readouts. The engine pauses when this root scrolls off screen, and the HUD looks up its readouts inside it.</p><p class=\"body\"><code>&lt;div id=&quot;game&quot;&gt;&lt;canvas width=&quot;640&quot; height=&quot;360&quot; style=&quot;width:100%&quot;&gt;&lt;/canvas&gt;&lt;p&gt;Score &lt;b data-score&gt;0&lt;/b&gt; · &lt;b data-clock&gt;0:30&lt;/b&gt;&lt;/p&gt;&lt;/div&gt;</code></p></section>"
+  },
+  {
+   "kind": "code",
+   "label": "<b>THE GAME</b> · game.ts",
+   "code": "import { createEngine } from \"@fzlt/core\";\nimport { controls } from \"@fzlt/core/input\";\nimport { effects } from \"@fzlt/core/fx\";\nimport { hud } from \"@fzlt/core/hud\";\nimport { circles } from \"@fzlt/core/collide\";\n\nconst W = 640, H = 360, N = 12, R = 14;\nconst board = document.querySelector<HTMLElement>(\"#game\")!;\nconst canvas = board.querySelector(\"canvas\")!; // <canvas width=\"640\" height=\"360\">\nconst ctx = canvas.getContext(\"2d\")!;\n\nconst e = createEngine({ root: board, seed: 7 });\nconst input = controls(e, { target: canvas });\nconst fx = effects({ cap: 240 });\n\n// State in typed arrays, made once: nothing is allocated while it plays.\nconst x = new Float64Array(N), y = new Float64Array(N);\nconst vx = new Float64Array(N), vy = new Float64Array(N);\nconst stat = new Float64Array(2); // [score, seconds left]\nfunction place(i: number) {\n  x[i] = R + e.random() * (W - 2 * R);\n  y[i] = R + e.random() * (H - 2 * R);\n  const a = e.random() * Math.PI * 2;\n  vx[i] = Math.cos(a) * 60;\n  vy[i] = Math.sin(a) * 60;\n}\nfor (let i = 0; i < N; i++) place(i);\nstat[1] = 30;\n\nlet scale = 1; // canvas px per CSS px\ne.add({\n  read() { scale = W / canvas.clientWidth; }, // the only phase that measures\n  step(e, dt) {                                // fixed 60 Hz: no DOM at all\n    fx.step(dt);\n    if (stat[1] <= 0) return;\n    stat[1] = Math.max(0, stat[1] - dt);\n    for (let i = 0; i < N; i++) {\n      x[i] += vx[i] * dt;\n      y[i] += vy[i] * dt;\n      if (x[i] < R || x[i] > W - R) vx[i] = -vx[i];\n      if (y[i] < R || y[i] > H - R) vy[i] = -vy[i];\n    }\n    if (!input.pointer.hit) return;            // true in one step per click\n    const px = input.pointer.x * scale, py = input.pointer.y * scale;\n    for (let i = 0; i < N; i++) {\n      if (!circles(px, py, 6, x[i], y[i], R)) continue;\n      e.events.emit(\"pop\", i, 0, x[i], y[i]);  // the ring, read in render\n      stat[0] += 1;\n      place(i);\n    }\n  },\n  render() {\n    for (let k = 0; k < e.events.size; k++) {\n      const ev = e.events.at(k);\n      if (ev && ev.type === \"pop\") fx.blast(ev.x, ev.y, 0.5);\n    }\n    ctx.clearRect(0, 0, W, H);\n    fx.drawGround(ctx);\n    ctx.fillStyle = \"#39ffb0\";\n    for (let i = 0; i < N; i++) ctx.fillRect(x[i] - R / 2, y[i] - R / 2, R, R);\n    fx.draw(ctx);\n  },\n});\nhud(e, board).num(\"[data-score]\", [stat, 0]).num(\"[data-clock]\", [stat, 1], \"clock\");\ne.start();\n\n// Escape: Recall. The listener goes with the engine's signal.\naddEventListener(\"keydown\", (ev) => { if (ev.key === \"Escape\") e.destroy(); }, { signal: e.signal });",
+   "wrap": false,
+   "copy": true,
+   "cls": "panel code-card doc-code"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>2. What each part does</h2><ul class=\"note-rows\"><li class=\"panel\"><h3>State in typed arrays</h3><p>Positions, velocities, the score and the clock live in <code>Float64Array</code>s made once. The step reads and writes numbers only, so nothing is allocated while it plays (contract rule 3).</p></li><li class=\"panel\"><h3><code>read</code> measures, <code>step</code> simulates</h3><p>The canvas's CSS width is read in <code>read</code>, once a frame. The step moves the squares at a fixed 60 Hz and checks the click with <code>circles</code> from <code>@fzlt/core/collide</code>: no layout reads (rule 4).</p></li><li class=\"panel\"><h3>One click, one step</h3><p><code>input.pointer.hit</code> is true in exactly one fixed step after a click, even if that step comes frames later, so a click never pops twice or gets lost.</p></li><li class=\"panel\"><h3>Events, not callbacks</h3><p>A pop goes on the event ring in the step; <code>render</code> reads the ring and plays <code>fx.blast</code>. The effects are pooled (<code>cap: 240</code>): a full pool refuses particles and counts them, it never grows.</p></li><li class=\"panel\"><h3>A HUD that writes only changes</h3><p><code>hud(e, board).num(…)</code> compares each readout after rounding to what it shows and writes the page only when that changed, through the ledger. The clock is a slot in a typed array, so it never boxes a number.</p></li><li class=\"panel\"><h3>Escape is Recall</h3><p><code>e.destroy()</code> removes every listener (the keydown listener goes with <code>e.signal</code>) and undoes every page change the engine made.</p></li></ul></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>3. What it costs</h2><p class=\"body\">Each import is its own module with its own budget. Measured on this build, gzip, each with everything it imports: the kernel 3,372 B, <code>@fzlt/core/input</code> 1,909 B, <code>@fzlt/core/fx</code> 2,792 B, <code>@fzlt/core/hud</code> 1,306 B, <code>@fzlt/core/collide</code> 1,265 B. The kernel is shared, so a bundle of all five is smaller than their sum; bundle and gzip your build to see your exact number.</p></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>4. Where to take it</h2><ul class=\"note-rows\"><li class=\"panel\"><h3>Sound</h3><p><code>sound(e, { cues: { pop: &quot;boom&quot; } })</code> plays a synth cue for every <code>pop</code> on the ring: no audio files, at most 8 voices. <a href=\"/bricks/sound.html\">@fzlt/core/sound</a>.</p></li><li class=\"panel\"><h3>A start screen and a clock</h3><p><code>match(e, root, { count: 3, seconds: 30 })</code> adds PRESS START, a 3-2-1, pause on Escape or P, and a result with REMATCH. <a href=\"/bricks/match.html\">@fzlt/core/match</a>.</p></li><li class=\"panel\"><h3>Touch controls</h3><p><code>pad(e, input, { scheme: &quot;stick&quot; })</code> adds an on-screen stick and arcade keys that drive the same intents. <a href=\"/bricks/pad.html\">@fzlt/core/pad</a>.</p></li><li class=\"panel\"><h3>The page as the board</h3><p><code>boardPage(e)</code> turns the page's own letters into terrain and its buttons into targets, and Recall gives every one back. <a href=\"/bricks/board-page.html\">@fzlt/core/board-page</a>.</p></li></ul></section>"
+  }
+ ],
+ "steps": [
+  {
+   "href": "/guides/astro-slot/",
+   "label": "Fill an Astro slot",
+   "dir": "next"
+  }
+ ],
+ "map": [
+  [
+   {
+    "head": {
+     "href": "/docs/",
+     "label": "Docs"
+    },
+    "items": [
+     {
+      "href": "/docs/getting-started/",
+      "label": "Getting started"
+     },
+     {
+      "href": "/docs/authoring/",
+      "label": "Authoring and recipes"
+     },
+     {
+      "href": "/docs/contract/",
+      "label": "The contract"
+     },
+     {
+      "href": "/docs/loop/",
+      "label": "The loop"
+     },
+     {
+      "href": "/docs/recall/",
+      "label": "Recall and the ledger"
+     },
+     {
+      "href": "/docs/budgets/",
+      "label": "Size budgets"
+     },
+     {
+      "href": "/docs/determinism/",
+      "label": "Determinism"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/guides/",
+     "label": "Guides"
+    },
+    "items": [
+     {
+      "href": "/guides/micro-game/",
+      "label": "Build a micro game"
+     },
+     {
+      "href": "/guides/astro-slot/",
+      "label": "Fill an Astro slot"
+     },
+     {
+      "href": "/guides/port-a-game/",
+      "label": "Port a game"
+     },
+     {
+      "href": "/guides/build-your-own-room-server/",
+      "label": "Your own room server"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/bricks/",
+     "label": "Bricks"
+    },
+    "note": "Every module, its API and its size."
+   },
+   {
+    "head": {
+     "href": "/news/",
+     "label": "News"
+    },
+    "note": "Release notes for every version."
+   }
+  ]
+ ]
+}

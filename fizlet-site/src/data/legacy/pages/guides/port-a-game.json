@@ -1,0 +1,208 @@
+{
+ "meta": {
+  "path": "guides/port-a-game/",
+  "title": "Port an existing game onto the Fizlet kernel",
+  "description": "Move a DOM or canvas game onto Fizlet step by step: one shared loop, writes through the ledger, a seeded step and typed arrays, measured before and after.",
+  "ld": [
+   {
+    "@type": "TechArticle",
+    "@id": "https://fizlet.com/guides/port-a-game/#article",
+    "headline": "Move a game",
+    "description": "Move a DOM or canvas game onto Fizlet step by step: one shared loop, writes through the ledger, a seeded step and typed arrays, measured before and after.",
+    "url": "https://fizlet.com/guides/port-a-game/",
+    "mainEntityOfPage": "https://fizlet.com/guides/port-a-game/",
+    "inLanguage": "en",
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    },
+    "publisher": {
+     "@id": "https://fizlet.com/#org"
+    },
+    "isPartOf": {
+     "@id": "https://fizlet.com/#website"
+    },
+    "about": {
+     "@id": "https://fizlet.com/#code"
+    }
+   },
+   {
+    "@type": "BreadcrumbList",
+    "@id": "https://fizlet.com/guides/port-a-game/#crumbs",
+    "itemListElement": [
+     {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Fizlet",
+      "item": "https://fizlet.com/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Guides",
+      "item": "https://fizlet.com/guides/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Port a game",
+      "item": "https://fizlet.com/guides/port-a-game/"
+     }
+    ]
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/guides/",
+    "label": "Guides"
+   }
+  ],
+  "current": "Port a game"
+ },
+ "index": "03",
+ "eyebrow": "GUIDE · PORTING",
+ "title": {
+  "line": "Move a game",
+  "accent": "onto the kernel."
+ },
+ "lead": "Five games have moved onto Fizlet's kernel so far. A port keeps gameplay: same numbers, same controls, and the page comes back byte for byte. What changes is underneath. This guide is the order that worked, smallest change first, each step tested before the next.",
+ "body": [
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>The order</h2><ul class=\"note-rows\"><li class=\"panel\"><h3>Measure first</h3><p>Bundle the game as it ships today, minified and gzipped, and write the number down. Every port so far got bigger in bytes; you want to know by how much, and what each byte bought.</p></li><li class=\"panel\"><h3>Hand the loop to the kernel</h3><p>Replace the game's own <code>requestAnimationFrame</code> with one engine. Its update becomes <code>step</code> (fixed <code>dt</code>), its drawing <code>render</code>, and every layout read moves to <code>read</code>.</p></li><li class=\"panel\"><h3>Write through the ledger</h3><p>Every style, class, attribute, text node or element the game puts on the page goes through <code>engine.ledger</code>. Then <code>destroy()</code> gives the page back, and a browser test can compare the DOM with a snapshot.</p></li><li class=\"panel\"><h3>Seed it</h3><p>Swap <code>Math.random</code> in the step for <code>engine.random</code>. Now a run replays from its seed, and a replay test can pin the gameplay before you touch the rules.</p></li><li class=\"panel\"><h3>State into typed arrays</h3><p>Move positions, health and timers into typed arrays made once. An allocation test (young-generation GCs over many busy steps) tells you when the step stops allocating.</p></li><li class=\"panel\"><h3>Swap in bricks</h3><p>Only where one does the same job: <code>@fzlt/core/collide</code> for a spatial hash, <code>@fzlt/core/steer</code> for movers, <code>@fzlt/core/rules</code> for waves, drops and score, <code>@fzlt/core/board-page</code> for the page as terrain, <code>@fzlt/core/arcade</code> for the whole shell of a page arcade game.</p></li><li class=\"panel\"><h3>Measure again</h3><p>Bundle and gzip the port. Say the delta, and say what it bought.</p></li></ul></section>"
+  },
+  {
+   "kind": "code",
+   "label": "<b>STEP 2</b> · game.ts",
+   "code": "// Before: game.loop() called requestAnimationFrame, Math.random and el.style itself.\nconst e = createEngine({ root: host, seed });\ne.add({\n  read: () => game.measure(),                        // layout reads move here\n  step: (e, dt) => game.update(dt, e.random),         // fixed dt, the seeded random\n  render: (e) => game.draw((el, prop, v) => e.ledger.style(el, prop, v)), // writes through the ledger\n});\ne.start(); // one shared rAF; e.destroy() gives the page back",
+   "wrap": false,
+   "copy": true,
+   "cls": "panel code-card doc-code"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>What the ports cost</h2><p class=\"body\">Every game got bigger in gzip bytes. Most of the growth is the shared Board UI kit the arcade games now bake in; the rest buys steps that never allocate, runs that replay from a seed and one shell for three games. <a href=\"/notes/moving-the-games-onto-a-4-kb-kernel/\">Moving the games onto a 4 KB kernel</a> has every number.</p></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>Questions</h2><div class=\"note-rows\"><div class=\"panel\"><h3>Do I have to port everything at once?</h3><p>No. Each step above ships on its own and keeps the game playable. The kernel runs fine with one system that calls the old update and draw.</p></div><div class=\"panel\"><h3>Will the port change how the game plays?</h3><p>It shouldn't. Write a replay test from a seed before you start (inputs in, final state out) and keep it green through every step.</p></div></div></section>"
+  },
+  {
+   "kind": "keys",
+   "keys": [
+    {
+     "href": "/notes/moving-the-games-onto-a-4-kb-kernel/",
+     "label": "Read the field notes",
+     "tone": "sys",
+     "arcade": true,
+     "icon": "book"
+    },
+    {
+     "href": "/docs/determinism/",
+     "label": "Determinism",
+     "tone": "cmd",
+     "arcade": true,
+     "icon": "book"
+    }
+   ]
+  }
+ ],
+ "steps": [
+  {
+   "href": "/guides/astro-slot/",
+   "label": "Fill an Astro slot",
+   "dir": "prev"
+  },
+  {
+   "href": "/guides/build-your-own-room-server/",
+   "label": "Your own room server",
+   "dir": "next"
+  }
+ ],
+ "map": [
+  [
+   {
+    "head": {
+     "href": "/docs/",
+     "label": "Docs"
+    },
+    "items": [
+     {
+      "href": "/docs/getting-started/",
+      "label": "Getting started"
+     },
+     {
+      "href": "/docs/authoring/",
+      "label": "Authoring and recipes"
+     },
+     {
+      "href": "/docs/contract/",
+      "label": "The contract"
+     },
+     {
+      "href": "/docs/loop/",
+      "label": "The loop"
+     },
+     {
+      "href": "/docs/recall/",
+      "label": "Recall and the ledger"
+     },
+     {
+      "href": "/docs/budgets/",
+      "label": "Size budgets"
+     },
+     {
+      "href": "/docs/determinism/",
+      "label": "Determinism"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/guides/",
+     "label": "Guides"
+    },
+    "items": [
+     {
+      "href": "/guides/micro-game/",
+      "label": "Build a micro game"
+     },
+     {
+      "href": "/guides/astro-slot/",
+      "label": "Fill an Astro slot"
+     },
+     {
+      "href": "/guides/port-a-game/",
+      "label": "Port a game"
+     },
+     {
+      "href": "/guides/build-your-own-room-server/",
+      "label": "Your own room server"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/bricks/",
+     "label": "Bricks"
+    },
+    "note": "Every module, its API and its size."
+   },
+   {
+    "head": {
+     "href": "/news/",
+     "label": "News"
+    },
+    "note": "Release notes for every version."
+   }
+  ]
+ ]
+}

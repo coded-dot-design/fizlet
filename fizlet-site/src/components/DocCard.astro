@@ -1,0 +1,11 @@
+---
+// A doc list card (the docs and guides indexes): the brick animation slot, the eyebrow, the linked title, the summary.
+interface Props { anim?: string; index: string; eyebrow: string; href: string; label: string; body: string }
+const { anim, index, eyebrow, href, label, body } = Astro.props;
+---
+<li class="panel note-card">
+      {anim && <div class="card-anim" data-anim-slot={anim} aria-hidden="true"></div>}
+      <p class="eyebrow"><span class="index">{index}</span> {eyebrow}</p>
+      <h2><a href={href}>{label}</a></h2>
+      <p class="body" set:html={body} />
+    </li>

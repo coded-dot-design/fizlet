@@ -1,0 +1,208 @@
+{
+ "meta": {
+  "path": "docs/recall/",
+  "title": "Recall: how Fizlet gives the page back",
+  "description": "Fizlet's ledger records every DOM change: change-only writes, an exact restore on destroy(), and a newer edit by the host page always wins.",
+  "ld": [
+   {
+    "@type": "TechArticle",
+    "@id": "https://fizlet.com/docs/recall/#article",
+    "headline": "Recall gives",
+    "description": "Fizlet's ledger records every DOM change: change-only writes, an exact restore on destroy(), and a newer edit by the host page always wins.",
+    "url": "https://fizlet.com/docs/recall/",
+    "mainEntityOfPage": "https://fizlet.com/docs/recall/",
+    "inLanguage": "en",
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    },
+    "publisher": {
+     "@id": "https://fizlet.com/#org"
+    },
+    "isPartOf": {
+     "@id": "https://fizlet.com/#website"
+    },
+    "about": {
+     "@id": "https://fizlet.com/#code"
+    }
+   },
+   {
+    "@type": "BreadcrumbList",
+    "@id": "https://fizlet.com/docs/recall/#crumbs",
+    "itemListElement": [
+     {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Fizlet",
+      "item": "https://fizlet.com/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Docs",
+      "item": "https://fizlet.com/docs/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Recall and the ledger",
+      "item": "https://fizlet.com/docs/recall/"
+     }
+    ]
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/docs/",
+    "label": "Docs"
+   }
+  ],
+  "current": "Recall and the ledger"
+ },
+ "index": "05",
+ "eyebrow": "DOCS · RECALL",
+ "title": {
+  "line": "Recall gives",
+  "accent": "the page back."
+ },
+ "lead": "Every change Fizlet makes to the page goes through one ledger. It records the original and what the engine wrote. <code>destroy()</code> puts back everything the engine still owns, newest first, and the DOM matches the snapshot taken before. That is Recall: the reason a game can knock a page's headings around and leave nothing behind.",
+ "body": [
+  {
+   "kind": "code",
+   "label": "<b>THE LEDGER</b> · scene.ts",
+   "code": "const e = createEngine({ root: document.body });\ne.add({\n  render(e) {\n    e.ledger.style(heading, \"transform\", \"rotate(-4deg)\"); // one inline property\n    e.ledger.cls(heading, \"smashed\", true);                // one class\n    e.ledger.attr(heading, \"data-hp\", \"2\");                // an attribute (null removes)\n    e.ledger.text(word, \"0101\");                           // a text node's value\n  },\n});\nconst canvas = e.ledger.add(document.createElement(\"canvas\")); // a node you add\ndocument.body.append(canvas);\ne.start();\n\n// Recall: the page comes back exactly; a newer edit by the page wins.\ne.destroy(); // or e.ledger.restore() to keep the engine",
+   "wrap": false,
+   "copy": true,
+   "cls": "panel code-card doc-code"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>What it owns</h2><ul class=\"note-rows\"><li class=\"panel\"><h3><code>ledger.text(node, value)</code></h3><p>A text node's value: the 0s and 1s a shot leaves in a word. <code>@fzlt/core/board-page</code> writes into the page's own Text nodes this way, with no wrappers or clones.</p></li><li class=\"panel\"><h3><code>ledger.style(el, prop, value)</code> and <code>unstyle</code></h3><p>One inline style property: a transform, a custom property. A style attribute comes back byte for byte. <code>unstyle</code> puts one property back now and forgets it.</p></li><li class=\"panel\"><h3><code>ledger.attr(el, name, value)</code></h3><p>An attribute, set or removed (<code>null</code>): <code>aria-busy</code>, <code>data-hp</code>.</p></li><li class=\"panel\"><h3><code>ledger.cls(el, name, on)</code></h3><p>One class, added or removed: <code>smashed</code>, <code>burning</code>.</p></li><li class=\"panel\"><h3><code>ledger.add(node)</code></h3><p>A node the engine put on the page (a canvas, an overlay, debris). Recall removes it.</p></li></ul></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>Three rules</h2><ul class=\"ledger-rules note-list\"><li><b>Change-only.</b> Writing the value that is already there makes no mutation. A browser test writes the same value twice and counts zero.</li><li><b>Host wins.</b> If the host page changed something after the engine did, the ledger stops writing it and never restores over it. A write returns <code>false</code> when the host got there first.</li><li><b>Exact.</b> After <code>destroy()</code> the DOM matches a snapshot taken before the engine started, attribute for attribute and style text byte for byte. One <code>AbortSignal</code> also removes every listener and observer.</li></ul><p class=\"body\"><code>engine.ledger.restore()</code> is Recall without destroying the engine; the <b>Recall</b> key on the <a href=\"/\">home page demo</a> runs exactly that. Bricks that own an element (the touch pad, the perf overlay, the match overlay) add it through the ledger, so <code>engine.destroy()</code> takes them too.</p></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>Questions</h2><div class=\"note-rows\"><div class=\"panel\"><h3>Why not just reload the page?</h3><p>Because the page is someone else's. A reload loses their state, their scroll and their form fields. Recall undoes only what the engine did, and leaves everything else as the visitor left it.</p></div><div class=\"panel\"><h3>What if my code writes the DOM directly?</h3><p>Then Recall can't give it back. Write through <code>engine.ledger</code> (or a brick that does) in <code>render</code>, and the page comes back exactly.</p></div></div></section>"
+  },
+  {
+   "kind": "keys",
+   "keys": [
+    {
+     "href": "/#play",
+     "label": "Try Recall live",
+     "tone": "sys",
+     "arcade": true,
+     "icon": "book"
+    },
+    {
+     "href": "/docs/loop/",
+     "label": "The loop",
+     "tone": "cmd",
+     "arcade": true,
+     "icon": "book"
+    }
+   ]
+  }
+ ],
+ "steps": [
+  {
+   "href": "/docs/loop/",
+   "label": "The loop",
+   "dir": "prev"
+  },
+  {
+   "href": "/docs/budgets/",
+   "label": "Size budgets",
+   "dir": "next"
+  }
+ ],
+ "map": [
+  [
+   {
+    "head": {
+     "href": "/docs/",
+     "label": "Docs"
+    },
+    "items": [
+     {
+      "href": "/docs/getting-started/",
+      "label": "Getting started"
+     },
+     {
+      "href": "/docs/authoring/",
+      "label": "Authoring and recipes"
+     },
+     {
+      "href": "/docs/contract/",
+      "label": "The contract"
+     },
+     {
+      "href": "/docs/loop/",
+      "label": "The loop"
+     },
+     {
+      "href": "/docs/recall/",
+      "label": "Recall and the ledger"
+     },
+     {
+      "href": "/docs/budgets/",
+      "label": "Size budgets"
+     },
+     {
+      "href": "/docs/determinism/",
+      "label": "Determinism"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/guides/",
+     "label": "Guides"
+    },
+    "items": [
+     {
+      "href": "/guides/micro-game/",
+      "label": "Build a micro game"
+     },
+     {
+      "href": "/guides/astro-slot/",
+      "label": "Fill an Astro slot"
+     },
+     {
+      "href": "/guides/port-a-game/",
+      "label": "Port a game"
+     },
+     {
+      "href": "/guides/build-your-own-room-server/",
+      "label": "Your own room server"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/bricks/",
+     "label": "Bricks"
+    },
+    "note": "Every module, its API and its size."
+   },
+   {
+    "head": {
+     "href": "/news/",
+     "label": "News"
+    },
+    "note": "Release notes for every version."
+   }
+  ]
+ ]
+}

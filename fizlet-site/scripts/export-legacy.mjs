@@ -133,15 +133,22 @@ const codeOf = (card) => ({
   cls: card.getAttribute("class"),
 });
 
-// ---------- The docs page ----------
-for (const slug of ["getting-started"]) {
-  const path = `docs/${slug}/`;
+// ---------- The docs and guides pages (one template: docs/[slug], guides/[slug]) ----------
+const DOC_PAGES = ["docs/getting-started", "docs/authoring", "docs/budgets", "docs/contract", "docs/determinism", "docs/loop", "docs/recall",
+  "guides/astro-slot", "guides/build-your-own-room-server", "guides/micro-game", "guides/port-a-game"];
+const docMapOf = (nav, path) => nav.querySelectorAll(":scope > div").map((col) => col.querySelectorAll("h2").map((h2) => {
+  const list = h2.nextElementSibling;
+  return { head: link(h2.querySelector("a"), path), ...(list?.tagName === "OL" ? { items: list.querySelectorAll("a").map((a) => link(a, path)) } : { note: text(list) }) };
+}));
+for (const page of DOC_PAGES) {
+  const [group, slug] = page.split("/");
+  const path = `${page}/`;
   const doc = parse(read(`${path}index.html`));
   const wrap = doc.querySelector("main article.doc > .wrap");
   const head = wrap.querySelector("header.note-head");
   const h1 = head.querySelector("h1");
   const body = wrap.childNodes.filter((n) => n.nodeType === 1 && !is(n, "nav.bp-crumbs, header.note-head, nav.bp-steps, nav.doc-map"));
-  write(`pages/docs/${slug}.json`, {
+  write(`pages/${group}/${slug}.json`, {
     meta: metaOf(doc, path),
     crumbs: crumbsOf(wrap.querySelector("nav.bp-crumbs"), path),
     index: text(head.querySelector(".eyebrow .index")),
@@ -153,10 +160,33 @@ for (const slug of ["getting-started"]) {
       : n.classList.contains("split-keys") ? { kind: "keys", keys: n.querySelectorAll("a").map((a) => keyOf(a, path)) }
       : { kind: "html", html: outer(n, path) }),
     steps: wrap.querySelectorAll("nav.bp-steps a.bp-step").map((a) => ({ ...link(a, path), dir: a.classList.contains("next") ? "next" : "prev", label: text(a.querySelector(":scope > span")) })),
-    map: wrap.querySelectorAll("nav.doc-map > div").map((col) => col.querySelectorAll("h2").map((h2) => {
-      const list = h2.nextElementSibling;
-      return { head: link(h2.querySelector("a"), path), ...(list?.tagName === "OL" ? { items: list.querySelectorAll("a").map((a) => link(a, path)) } : { note: text(list) }) };
+    map: docMapOf(wrap.querySelector("nav.doc-map"), path),
+  });
+}
+
+// ---------- The docs and guides indexes: the head, a doc card per page, the docs map ----------
+for (const group of ["docs", "guides"]) {
+  const path = `${group}/`;
+  const doc = parse(read(`${path}index.html`));
+  const wrap = doc.querySelector("main section > .wrap");
+  const head = wrap.querySelector(".section-head");
+  const h1 = head.querySelector("h1");
+  write(`pages/${group}/index.json`, {
+    meta: metaOf(doc, path),
+    head: {
+      index: text(head.querySelector(".eyebrow .index")),
+      eyebrow: text(head.querySelector(".eyebrow")).replace(/^\S+\s/, ""),
+      title: { line: h1.childNodes[0].text, accent: text(h1.querySelector("em")) },
+      lead: inner(head.querySelector(".lead"), path),
+    },
+    cards: wrap.querySelectorAll("ol.note-cards > li.note-card").map((li) => ({
+      anim: li.querySelector(".card-anim")?.getAttribute("data-anim-slot") ?? "",
+      index: text(li.querySelector(".eyebrow .index")),
+      eyebrow: text(li.querySelector(".eyebrow")).replace(/^\S+\s/, ""),
+      ...link(li.querySelector("h2 a"), path),
+      body: inner(li.querySelector("p.body"), path),
     })),
+    map: docMapOf(wrap.querySelector("nav.doc-map"), path),
   });
 }
 
@@ -278,7 +308,7 @@ const bricksSection = (sec, path) => {
 // Scripts, stylesheets-free: every module script the four pages load, and every file those import.
 const assets = new Set(["icon.svg", "og.png", "robots.txt", "llms.txt", "llms-full.txt", "fizlet.js"]);
 const queue = [];
-for (const f of ["index.html", "docs/getting-started/index.html", "bricks/kernel.html", "gallery/index.html"]) {
+for (const f of ["index.html", "bricks/kernel.html", "gallery/index.html", "docs/index.html", "guides/index.html", ...DOC_PAGES.map((p) => `${p}/index.html`)]) {
   const h = read(f);
   for (const m of h.matchAll(/(?:src|href|data-live|data-src|data-module)="([^"#?]+\.(?:js|json|svg|png|webp|css|txt))"/g)) {
     if (/^https?:/.test(m[1])) continue;
@@ -297,4 +327,4 @@ for (const f of walk(join(LEGACY, "dist"))) assets.add(relative(LEGACY, f).split
 const LIST = [...assets].sort();
 for (const p of LIST) { mkdirSync(dirname(join(PUBLIC_LEGACY, p)), { recursive: true }); cpSync(join(LEGACY, p), join(PUBLIC_LEGACY, p)); }
 write("assets.json", LIST);
-console.log(`Exported ${routes.length} routes, 4 pages, ${LIST.length} runtime files (legacy v${version}).`);
+console.log(`Exported ${routes.length} routes, ${LIST.length} runtime files (legacy v${version}).`);

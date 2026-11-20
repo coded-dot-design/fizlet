@@ -1,0 +1,16 @@
+---
+// A guide page on the shared doc template (DocArticle).
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import DocArticle from "../../../components/DocArticle.astro";
+
+const PAGES = import.meta.glob<{ default: any }>("../../../data/legacy/pages/guides/*.json", { eager: true });
+export function getStaticPaths() {
+  const all = import.meta.glob<{ default: any }>("../../../data/legacy/pages/guides/*.json", { eager: true });
+  return Object.keys(all).map((f) => f.match(/([\w-]+)\.json$/)![1]).filter((slug) => slug !== "index").map((slug) => ({ params: { slug } }));
+}
+const { slug } = Astro.params;
+const doc = Object.entries(PAGES).find(([f]) => f.endsWith(`/${slug}.json`))![1].default;
+---
+<BaseLayout meta={doc.meta}>
+<DocArticle doc={doc} />
+</BaseLayout>

@@ -1,0 +1,25 @@
+---
+// A doc or guide: crumbs, head, the doc's blocks (prose sections, code cards, keys), the steps and the docs map.
+// One template for docs/[slug] and guides/[slug].
+import Crumbs from "./Crumbs.astro";
+import SectionHead from "./SectionHead.astro";
+import CodeBlock from "./CodeBlock.astro";
+import Key from "./Key.astro";
+import Html from "./Html.astro";
+import DocSteps from "./DocSteps.astro";
+import DocsSidebar from "./DocsSidebar.astro";
+import type { Tone } from "../lib/site";
+interface Props { doc: any }
+const { doc } = Astro.props;
+---
+<article class="has-grid section note doc" aria-labelledby="doc-title">
+  <div class="wrap">
+    <Crumbs trail={doc.crumbs.trail} current={doc.crumbs.current} />
+    <SectionHead tag="header" class="section-head note-head" index={doc.index} eyebrow={doc.eyebrow} line={doc.title.line} accent={doc.title.accent} lead={doc.lead} id="doc-title" />
+    {doc.body.map((b: any) => b.kind === "code" ? <CodeBlock label={b.label} code={b.code} wrap={b.wrap} copy={b.copy} class={b.cls} />
+      : b.kind === "keys" ? <div class="split-keys">{b.keys.map((k: any) => <Key href={k.href} tone={k.tone as Tone} arcade={k.arcade} icon={k.icon} label={k.label} />)}</div>
+      : <Html html={b.html} />)}
+    <DocSteps steps={doc.steps} />
+    <DocsSidebar path={"/" + doc.meta.path} columns={doc.map} />
+  </div>
+</article>

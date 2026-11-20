@@ -1,0 +1,223 @@
+{
+ "meta": {
+  "path": "guides/astro-slot/",
+  "title": "Fill an Astro animation slot with a Fizlet scene",
+  "description": "Fill an Astro page engine slot with @fzlt/core/slot: loads near the viewport, skips reduced motion, settles to zero frames, keeps the text alternative.",
+  "ld": [
+   {
+    "@type": "TechArticle",
+    "@id": "https://fizlet.com/guides/astro-slot/#article",
+    "headline": "A hero that costs",
+    "description": "Fill an Astro page engine slot with @fzlt/core/slot: loads near the viewport, skips reduced motion, settles to zero frames, keeps the text alternative.",
+    "url": "https://fizlet.com/guides/astro-slot/",
+    "mainEntityOfPage": "https://fizlet.com/guides/astro-slot/",
+    "inLanguage": "en",
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    },
+    "publisher": {
+     "@id": "https://fizlet.com/#org"
+    },
+    "isPartOf": {
+     "@id": "https://fizlet.com/#website"
+    },
+    "about": {
+     "@id": "https://fizlet.com/#code"
+    }
+   },
+   {
+    "@type": "BreadcrumbList",
+    "@id": "https://fizlet.com/guides/astro-slot/#crumbs",
+    "itemListElement": [
+     {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Fizlet",
+      "item": "https://fizlet.com/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Guides",
+      "item": "https://fizlet.com/guides/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Fill an Astro slot",
+      "item": "https://fizlet.com/guides/astro-slot/"
+     }
+    ]
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/guides/",
+    "label": "Guides"
+   }
+  ],
+  "current": "Fill an Astro slot"
+ },
+ "index": "02",
+ "eyebrow": "GUIDE · A PAGE HERO",
+ "title": {
+  "line": "A hero that costs",
+  "accent": "nothing while it's still."
+ },
+ "lead": "An Astro page engine renders each animation slot on a page as a sized, described placeholder. <code>@fzlt/core/slot</code> fills it with a scene that loads only near the viewport, never under reduced motion, and settles to zero frames once nothing moves. The heroes on this site's <a href=\"/\">home page</a> are built this way.",
+ "body": [
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>1. The slot</h2><p class=\"body\">The page already has the figure, from the engine's <code>[slot animation]</code> block: <code>&lt;figure class=&quot;ae-slot&quot; data-slot-target=&quot;home#hero&quot; role=&quot;img&quot; aria-label=&quot;…&quot;&gt;</code>. Its size, its placeholder and its text alternative are the page's. The scene only adds motion.</p></section>"
+  },
+  {
+   "kind": "code",
+   "label": "<b>PAGE SCRIPT</b> · page.ts",
+   "code": "import { slot } from \"@fzlt/core/slot\";\n\n// Loads only near the viewport, once the main thread is idle; never under reduced motion.\nslot(\"home#hero\", () => import(\"./hero-scene.js\").then((m) => m.mount));",
+   "wrap": false,
+   "copy": true,
+   "cls": "panel code-card doc-code"
+  },
+  {
+   "kind": "code",
+   "label": "<b>THE SCENE</b> · hero-scene.ts",
+   "code": "// hero-scene.ts: build inside the stage; return destroy.\nimport { createEngine } from \"@fzlt/core\";\nimport { effects } from \"@fzlt/core/fx\";\nimport type { SlotTap } from \"@fzlt/core/slot\";\n\nexport function mount(stage: HTMLElement, figure: HTMLElement, first: SlotTap | null) {\n  // settle: no frames once nothing moves; fps: an ambient hero needs no more than 30.\n  const engine = createEngine({ root: stage, pause: { reducedMotion: true }, settle: 0.5, fps: 30 });\n  const canvas = engine.ledger.add(document.createElement(\"canvas\"));\n  canvas.width = stage.clientWidth;\n  canvas.height = stage.clientHeight;\n  stage.append(canvas);\n  const ctx = canvas.getContext(\"2d\")!, fx = effects();\n  engine.add({\n    step: (e, dt) => { fx.step(dt); if (fx.live) e.busy(); },\n    render: () => { ctx.clearRect(0, 0, canvas.width, canvas.height); fx.draw(ctx); },\n  });\n  stage.addEventListener(\"pointerdown\", (ev) => { fx.blast(ev.offsetX, ev.offsetY); engine.wake(); }, { signal: engine.signal });\n  if (first) fx.blast(first.x, first.y); // the tap that loaded the scene\n  engine.start();\n  return { destroy: () => engine.destroy() };\n}",
+   "wrap": false,
+   "copy": true,
+   "cls": "panel code-card doc-code"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>2. What the slot does for you</h2><ul class=\"note-rows\"><li class=\"panel\"><h3>Lazy</h3><p>Nothing loads until the slot comes within <code>margin</code> (default <code>&quot;200px&quot;</code>) of the viewport, and then not before the main thread is idle (<code>requestIdleCallback</code>, at most <code>idle</code> ms, default 1000).</p></li><li class=\"panel\"><h3>The first tap counts</h3><p>A tap on the slot before the scene is up loads it at once and reaches <code>mount</code> as <code>first = { x, y, at }</code>: an intent, not the original pointer event, whose pointer is gone by then.</p></li><li class=\"panel\"><h3>Reduced motion</h3><p>With <code>prefers-reduced-motion: reduce</code> the scene never loads and the placeholder stays. If the setting turns on mid-scene, the scene goes and the placeholder comes back.</p></li><li class=\"panel\"><h3>Accessible and contained</h3><p><code>role=&quot;img&quot;</code> and <code>aria-label</code> stay. The scene gets its own stage (<code>contain: strict</code>), hidden from assistive tech until the scene returns <code>accessible: true</code>. Every change goes through a ledger, so <code>destroy()</code> puts the slot back exactly.</p></li></ul></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>3. Stay in budget</h2><p class=\"body\">A hero's live chunk has a budget of 10 KB gzip. The page build (kernel, <code>@fzlt/core/slot</code>, <code>@fzlt/core/input</code>, <code>@fzlt/core/fx</code>) is 7,098 B, so the scene's own code gets about 3 KB. Sound, debug, the pad, the HUD, match and the Board UI never get pulled into it (a test checks).</p><p class=\"body\"><code>settle: 0.5</code> and <code>fps: 30</code> are the two lines that make it cheap: half a second after the last <code>busy()</code> the engine asks for no frames at all, and while it plays it asks for 30 a second, not one per vsync.</p></section>"
+  },
+  {
+   "kind": "keys",
+   "keys": [
+    {
+     "href": "/bricks/slot.html",
+     "label": "@fzlt/core/slot API",
+     "tone": "sys",
+     "arcade": true,
+     "icon": "book"
+    },
+    {
+     "href": "/docs/loop/",
+     "label": "The loop: settle",
+     "tone": "cmd",
+     "arcade": true,
+     "icon": "book"
+    },
+    {
+     "href": "/gallery/",
+     "label": "See them on Daily",
+     "tone": "go",
+     "arcade": true,
+     "icon": "book"
+    }
+   ]
+  }
+ ],
+ "steps": [
+  {
+   "href": "/guides/micro-game/",
+   "label": "Build a micro game",
+   "dir": "prev"
+  },
+  {
+   "href": "/guides/port-a-game/",
+   "label": "Port a game",
+   "dir": "next"
+  }
+ ],
+ "map": [
+  [
+   {
+    "head": {
+     "href": "/docs/",
+     "label": "Docs"
+    },
+    "items": [
+     {
+      "href": "/docs/getting-started/",
+      "label": "Getting started"
+     },
+     {
+      "href": "/docs/authoring/",
+      "label": "Authoring and recipes"
+     },
+     {
+      "href": "/docs/contract/",
+      "label": "The contract"
+     },
+     {
+      "href": "/docs/loop/",
+      "label": "The loop"
+     },
+     {
+      "href": "/docs/recall/",
+      "label": "Recall and the ledger"
+     },
+     {
+      "href": "/docs/budgets/",
+      "label": "Size budgets"
+     },
+     {
+      "href": "/docs/determinism/",
+      "label": "Determinism"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/guides/",
+     "label": "Guides"
+    },
+    "items": [
+     {
+      "href": "/guides/micro-game/",
+      "label": "Build a micro game"
+     },
+     {
+      "href": "/guides/astro-slot/",
+      "label": "Fill an Astro slot"
+     },
+     {
+      "href": "/guides/port-a-game/",
+      "label": "Port a game"
+     },
+     {
+      "href": "/guides/build-your-own-room-server/",
+      "label": "Your own room server"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/bricks/",
+     "label": "Bricks"
+    },
+    "note": "Every module, its API and its size."
+   },
+   {
+    "head": {
+     "href": "/news/",
+     "label": "News"
+    },
+    "note": "Release notes for every version."
+   }
+  ]
+ ]
+}

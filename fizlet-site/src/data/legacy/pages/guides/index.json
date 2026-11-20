@@ -1,0 +1,149 @@
+{
+ "meta": {
+  "path": "guides/",
+  "title": "Guides: build with Fizlet, step by step · Fizlet",
+  "description": "Step-by-step Fizlet guides: build a micro game, fill an Astro slot with a scene, port a game onto the kernel and build your own lockstep room server.",
+  "ld": [
+   {
+    "@type": "CollectionPage",
+    "@id": "https://fizlet.com/guides/#page",
+    "url": "https://fizlet.com/guides/",
+    "name": "Fizlet guides",
+    "isPartOf": {
+     "@id": "https://fizlet.com/#website"
+    },
+    "about": {
+     "@id": "https://fizlet.com/#code"
+    }
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "head": {
+  "index": "4",
+  "eyebrow": "GUIDES · ONE JOB EACH",
+  "title": {
+   "line": "Build something.",
+   "accent": "Ship it small."
+  },
+  "lead": "Each guide does one job end to end with real code: the APIs on the <a href=\"/bricks/\">brick pages</a>, the ideas in the <a href=\"/docs/\">docs</a>."
+ },
+ "cards": [
+  {
+   "anim": "fx",
+   "index": "01",
+   "eyebrow": "GUIDE · A MICRO GAME",
+   "href": "/guides/micro-game/",
+   "label": "Build a micro game",
+   "body": "A 30-second click game on a canvas: typed-array state, a fixed step, pooled effects, a change-only HUD and Recall on Escape."
+  },
+  {
+   "anim": "slot",
+   "index": "02",
+   "eyebrow": "GUIDE · A PAGE HERO",
+   "href": "/guides/astro-slot/",
+   "label": "Fill an Astro slot",
+   "body": "Fill an Astro page engine animation slot with a Fizlet scene: lazy, settles to zero frames, keeps the slot's text alternative."
+  },
+  {
+   "anim": "arcade",
+   "index": "03",
+   "eyebrow": "GUIDE · PORTING",
+   "href": "/guides/port-a-game/",
+   "label": "Port a game",
+   "body": "Hand an existing game loop to the kernel, one step at a time, with the size measured before and after."
+  },
+  {
+   "anim": "presence",
+   "index": "04",
+   "eyebrow": "GUIDE · MULTIPLAYER",
+   "href": "/guides/build-your-own-room-server/",
+   "label": "Your own room server",
+   "body": "The contract @fzlt/core/presence speaks: lockstep inputs, the 12-byte wire protocol, seats, the lobby, resume and the access check, plus the one-room-one-object pattern and a threat checklist."
+  }
+ ],
+ "map": [
+  [
+   {
+    "head": {
+     "href": "/docs/",
+     "label": "Docs"
+    },
+    "items": [
+     {
+      "href": "/docs/getting-started/",
+      "label": "Getting started"
+     },
+     {
+      "href": "/docs/authoring/",
+      "label": "Authoring and recipes"
+     },
+     {
+      "href": "/docs/contract/",
+      "label": "The contract"
+     },
+     {
+      "href": "/docs/loop/",
+      "label": "The loop"
+     },
+     {
+      "href": "/docs/recall/",
+      "label": "Recall and the ledger"
+     },
+     {
+      "href": "/docs/budgets/",
+      "label": "Size budgets"
+     },
+     {
+      "href": "/docs/determinism/",
+      "label": "Determinism"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/guides/",
+     "label": "Guides"
+    },
+    "items": [
+     {
+      "href": "/guides/micro-game/",
+      "label": "Build a micro game"
+     },
+     {
+      "href": "/guides/astro-slot/",
+      "label": "Fill an Astro slot"
+     },
+     {
+      "href": "/guides/port-a-game/",
+      "label": "Port a game"
+     },
+     {
+      "href": "/guides/build-your-own-room-server/",
+      "label": "Your own room server"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/bricks/",
+     "label": "Bricks"
+    },
+    "note": "Every module, its API and its size."
+   },
+   {
+    "head": {
+     "href": "/news/",
+     "label": "News"
+    },
+    "note": "Release notes for every version."
+   }
+  ]
+ ]
+}

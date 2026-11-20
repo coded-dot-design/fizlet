@@ -1,0 +1,10 @@
+---
+// The docs index: every doc in reading order as a DocCard, then the docs map.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import DocIndex from "../../components/DocIndex.astro";
+import DATA from "../../data/legacy/pages/docs/index.json";
+const data = DATA as any;
+---
+<BaseLayout meta={data.meta}>
+<DocIndex data={data} />
+</BaseLayout>

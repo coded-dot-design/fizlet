@@ -1,0 +1,222 @@
+{
+ "meta": {
+  "path": "docs/authoring/",
+  "title": "Authoring with Fizlet: the shape and three recipes",
+  "description": "How to write any Fizlet piece, which bricks to pick by use, and three recipes that run as is: an action on the page, a shooter and two players, measured.",
+  "ld": [
+   {
+    "@type": "TechArticle",
+    "@id": "https://fizlet.com/docs/authoring/#article",
+    "headline": "One shape,",
+    "description": "How to write any Fizlet piece, which bricks to pick by use, and three recipes that run as is: an action on the page, a shooter and two players, measured.",
+    "url": "https://fizlet.com/docs/authoring/",
+    "mainEntityOfPage": "https://fizlet.com/docs/authoring/",
+    "inLanguage": "en",
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    },
+    "publisher": {
+     "@id": "https://fizlet.com/#org"
+    },
+    "isPartOf": {
+     "@id": "https://fizlet.com/#website"
+    },
+    "about": {
+     "@id": "https://fizlet.com/#code"
+    }
+   },
+   {
+    "@type": "BreadcrumbList",
+    "@id": "https://fizlet.com/docs/authoring/#crumbs",
+    "itemListElement": [
+     {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Fizlet",
+      "item": "https://fizlet.com/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Docs",
+      "item": "https://fizlet.com/docs/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Authoring and recipes",
+      "item": "https://fizlet.com/docs/authoring/"
+     }
+    ]
+   }
+  ],
+  "scripts": [
+   "/site.js",
+   "/recipes/action.js",
+   "/recipes/shooter.js",
+   "/recipes/duel.js"
+  ]
+ },
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/docs/",
+    "label": "Docs"
+   }
+  ],
+  "current": "Authoring and recipes"
+ },
+ "index": "02",
+ "eyebrow": "DOCS · AUTHORING",
+ "title": {
+  "line": "One shape,",
+  "accent": "three recipes."
+ },
+ "lead": "Everything built on Fizlet has the same shape: one root, one engine, state in typed arrays, and systems that measure in <code>read</code>, simulate in <code>step</code> and write in <code>render</code>. Learn the shape once and every brick fits it. The three recipes below are complete: each one runs on this page as written, and each shows the size it ships, measured on this build.",
+ "body": [
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>The shape<br><em>of every Fizlet piece</em></h2><ul class=\"note-rows\"><li class=\"panel\"><h3>A root</h3><p>One element the piece lives in. The engine pauses when it scrolls away, the HUD finds its readouts inside it, and nothing is drawn outside it.</p></li><li class=\"panel\"><h3>An engine</h3><p><code>createEngine({ root, seed })</code>. Add <code>settle: 0.5</code> for anything that should cost nothing while it's still, <code>fps: 30</code> for an ambient loop.</p></li><li class=\"panel\"><h3>State in typed arrays</h3><p>Positions, timers and scores in <code>Float64Array</code>s made once. The step reads and writes numbers only, so nothing is allocated while it runs.</p></li><li class=\"panel\"><h3>read, step, render</h3><p>Measure the page in <code>read</code>. Simulate in <code>step</code> at a fixed 60 Hz, with no DOM at all. Draw and write the page in <code>render</code>, through <code>engine.ledger</code>.</p></li><li class=\"panel\"><h3>Events for effects</h3><p>The step emits what happened (<code>e.events.emit(&quot;hit&quot;, …)</code>); render, sound and the HUD react to the ring. The sim never knows about pixels or audio.</p></li><li class=\"panel\"><h3>A way out</h3><p>Bind your own listeners to <code>e.signal</code>. <code>e.destroy()</code> then removes them all and gives back every page change: <a href=\"/docs/recall/\">Recall</a>.</p></li></ul></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>Pick bricks by use</h2><p class=\"body\">Start from the kernel and add only what the job needs; each brick is its own import and its own budget.</p><ul class=\"note-rows\"><li class=\"panel\"><h3>A reaction on the page</h3><p>A click, a hover, a scroll that should feel alive: <code>@fzlt/core/fx</code> for particles, <code>@fzlt/core/timeline</code> for choreographed DOM moves, <code>@fzlt/core/hud</code> for counts. Settle on.</p><p><a href=\"#recipe-action\">Recipe 1</a></p></li><li class=\"panel\"><h3>An arcade game</h3><p><code>@fzlt/core/input</code> (and <code>@fzlt/core/pad</code> on touch), <code>@fzlt/core/collide</code>, <code>@fzlt/core/fx</code>, <code>@fzlt/core/hud</code>; <code>@fzlt/core/rules</code> for waves, drops and score; <code>@fzlt/core/match</code> for start, pause and results; <code>@fzlt/core/arcade</code> when the page itself is the board.</p><p><a href=\"#recipe-shooter\">Recipe 2</a></p></li><li class=\"panel\"><h3>Two or more players</h3><p>A deterministic step and <code>@fzlt/core/presence</code>: inputs in lockstep, a state hash every 30 frames. <code>syncCheck</code> proves it in a test; a room server you run joins two devices.</p><p><a href=\"#recipe-duel\">Recipe 3</a></p></li><li class=\"panel\"><h3>A hero in an Astro slot</h3><p><code>@fzlt/core/slot</code> loads the scene near the viewport and keeps the slot's text alternative; <code>@fzlt/core/camera</code> pans and zooms a DOM stage.</p><p><a href=\"/guides/astro-slot/\">The slot guide</a></p></li></ul></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block doc-wide recipe\" id=\"recipe-action\">\n      <h2>Recipe 1: an action<br><em>on the page</em></h2>\n      <p class=\"body\">A real button on the page, a burst of sparks out of it on every click, and a count. The canvas is added through the ledger, the class through <code>ledger.cls</code>, the count through <code>@fzlt/core/hud</code>, so <code>destroy()</code> leaves the button as it was. Half a second after the last spark, the engine settles: no frames at all until the next click. With reduced motion it counts without the burst.</p>\n      <figure class=\"panel lit recipe-live\" data-demo-host data-recipe=\"action\">\n        <div class=\"recipe-head\"><span class=\"bui-label recipe-bricks\"><b>LIVE</b> · <a class=\"brick-mini brick-kernel\" data-flag=\"complete\" style=\"--tone: var(--k-go)\" href=\"/bricks/kernel.html\" title=\"@fzlt/core: COMPLETE\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><code class=\"sym-name\">@fzlt/core</code><b>3.3 KB</b><i class=\"brick-flag\" data-flag=\"complete\"><span class=\"sr\">COMPLETE</span></i></a> <a class=\"brick-mini\" data-flag=\"complete\" style=\"--tone: var(--k-attack)\" href=\"/bricks/fx.html\" title=\"@fzlt/core/fx: COMPLETE\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">fx</b></span><code class=\"sym-name\">@fzlt/core/fx</code><b>2.7 KB</b><i class=\"brick-flag\" data-flag=\"complete\"><span class=\"sr\">COMPLETE</span></i></a> <a class=\"brick-mini\" data-flag=\"beta\" style=\"--tone: var(--k-aim)\" href=\"/bricks/hud.html\" title=\"@fzlt/core/hud: BETA\"><span class=\"el el-chip\" style=\"--tone: var(--k-aim)\" aria-hidden=\"true\"><b class=\"el-sym\">hd</b></span><code class=\"sym-name\">@fzlt/core/hud</code><b>1.3 KB</b><i class=\"brick-flag\" data-flag=\"beta\"><span class=\"sr\">BETA</span></i></a></span><span class=\"size-badge\" role=\"img\" aria-label=\"6.6 KB gzipped: this recipe, bundled and minified with @fzlt/core, @fzlt/core/fx, @fzlt/core/hud, 6,772 bytes, measured at build\" data-size-badge data-bytes=\"6772\" data-live=\"recipes/action.js\" title=\"6,772 B gzip, measured at build\"><b>6.6 KB</b> gz</span></div>\n        <div id=\"action\" style=\"position: relative; display: grid; place-items: center; min-height: 220px\">\n  <button type=\"button\" class=\"bui-key bui-arcade bui-attack\">Like <b data-likes>0</b></button>\n</div>\n        <figcaption class=\"bp-note\">Click <b>Like</b>. The sparks are pooled (cap 160); a full pool refuses new ones instead of growing.</figcaption>\n      </figure>\n      <div class=\"panel code-card doc-code\"><div class=\"code-head\"><span class=\"bui-label\"><b>THE WHOLE THING</b> · paste into a page</span><button class=\"bui-key copy\" type=\"button\" data-copy><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 7h10v10H7ZM3 13V3h10\"></path></svg>Copy</button></div><pre tabindex=\"0\" class=\"code\"><code>&lt;div id=&quot;action&quot; style=&quot;position: relative; display: grid; place-items: center; min-height: 220px&quot;&gt;\n  &lt;button type=&quot;button&quot; class=&quot;bui-key bui-arcade bui-attack&quot;&gt;Like &lt;b data-likes&gt;0&lt;/b&gt;&lt;/button&gt;\n&lt;/div&gt;\n&lt;script type=&quot;module&quot;&gt;\n// Recipe: an action on the page. A click on a real button bursts sparks out of it and counts; the\n// engine sleeps half a second after the last spark. Kernel, fx and hud. Runs as is with action.html.\nimport { createEngine } from &quot;https://fizlet.com/dist/index.js&quot;;\nimport { effects } from &quot;https://fizlet.com/dist/fx.js&quot;;\nimport { hud } from &quot;https://fizlet.com/dist/hud.js&quot;;\n\nconst root = document.getElementById(&quot;action&quot;);\nconst button = root.querySelector(&quot;button&quot;);\nconst calm = matchMedia(&quot;(prefers-reduced-motion: reduce)&quot;).matches;\n\nconst e = createEngine({ root, settle: 0.5 });\nconst fx = effects({ cap: 160, colors: [&quot;#ff5c8f&quot;, &quot;#ffd166&quot;, &quot;#39ffb0&quot;, &quot;#19f0ff&quot;] });\nconst canvas = e.ledger.add(document.createElement(&quot;canvas&quot;)); // Recall removes it\ncanvas.style.cssText = &quot;position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none&quot;;\nroot.append(canvas);\nconst ctx = canvas.getContext(&quot;2d&quot;);\n\n// [likes, width, height, button x, button y, bursts waiting]: numbers in a typed array.\nconst s = new Float64Array(6);\nbutton.addEventListener(&quot;click&quot;, () =&gt; { s[0] += 1; s[5] += 1; e.wake(); }, { signal: e.signal });\n\ne.add({\n  read() { // measure here, once a frame\n    s[1] = root.clientWidth;\n    s[2] = root.clientHeight;\n    s[3] = button.offsetLeft + button.offsetWidth / 2;\n    s[4] = button.offsetTop + button.offsetHeight / 2;\n  },\n  step(e, dt) { // no DOM here\n    for (; s[5] &gt; 0; s[5]--) if (!calm) fx.blast(s[3], s[4], 0.45);\n    fx.step(dt);\n    if (fx.live) e.busy(); // keep awake while sparks fly\n  },\n  render() {\n    if (canvas.width !== s[1] || canvas.height !== s[2]) { canvas.width = s[1]; canvas.height = s[2]; }\n    ctx.clearRect(0, 0, s[1], s[2]);\n    fx.draw(ctx);\n    e.ledger.cls(button, &quot;liked&quot;, s[0] &gt; 0); // change-only, given back on destroy()\n  },\n});\nhud(e, root).num(&quot;[data-likes]&quot;, [s, 0]);\ne.start();\n&lt;/script&gt;</code></pre></div>\n    </section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block doc-wide recipe\" id=\"recipe-shooter\">\n      <h2>Recipe 2: a shooter</h2>\n      <p class=\"body\">Bugs fall; you move and fire. Every bug and shot is a slot in a typed array, spawns come from the seeded <code>e.random</code> (the same seed plays the same wave), hits are <code>circles</code> tests in the step, and the blast and the shake happen in render from the event ring. The engine runs only between <b>Start</b> and the last life, so the page's own keys stay the page's.</p>\n      <figure class=\"panel lit recipe-live\" data-demo-host data-recipe=\"shooter\">\n        <div class=\"recipe-head\"><span class=\"bui-label recipe-bricks\"><b>LIVE</b> · <a class=\"brick-mini brick-kernel\" data-flag=\"complete\" style=\"--tone: var(--k-go)\" href=\"/bricks/kernel.html\" title=\"@fzlt/core: COMPLETE\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><code class=\"sym-name\">@fzlt/core</code><b>3.3 KB</b><i class=\"brick-flag\" data-flag=\"complete\"><span class=\"sr\">COMPLETE</span></i></a> <a class=\"brick-mini\" data-flag=\"complete\" style=\"--tone: var(--k-sys)\" href=\"/bricks/input.html\" title=\"@fzlt/core/input: COMPLETE\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">in</b></span><code class=\"sym-name\">@fzlt/core/input</code><b>1.9 KB</b><i class=\"brick-flag\" data-flag=\"complete\"><span class=\"sr\">COMPLETE</span></i></a> <a class=\"brick-mini\" data-flag=\"complete\" style=\"--tone: var(--k-cmd)\" href=\"/bricks/collide.html\" title=\"@fzlt/core/collide: COMPLETE\"><span class=\"el el-chip\" style=\"--tone: var(--k-cmd)\" aria-hidden=\"true\"><b class=\"el-sym\">cl</b></span><code class=\"sym-name\">@fzlt/core/collide</code><b>1.2 KB</b><i class=\"brick-flag\" data-flag=\"complete\"><span class=\"sr\">COMPLETE</span></i></a> <a class=\"brick-mini\" data-flag=\"complete\" style=\"--tone: var(--k-attack)\" href=\"/bricks/fx.html\" title=\"@fzlt/core/fx: COMPLETE\"><span class=\"el el-chip\" style=\"--tone: var(--k-attack)\" aria-hidden=\"true\"><b class=\"el-sym\">fx</b></span><code class=\"sym-name\">@fzlt/core/fx</code><b>2.7 KB</b><i class=\"brick-flag\" data-flag=\"complete\"><span class=\"sr\">COMPLETE</span></i></a> <a class=\"brick-mini\" data-flag=\"beta\" style=\"--tone: var(--k-aim)\" href=\"/bricks/hud.html\" title=\"@fzlt/core/hud: BETA\"><span class=\"el el-chip\" style=\"--tone: var(--k-aim)\" aria-hidden=\"true\"><b class=\"el-sym\">hd</b></span><code class=\"sym-name\">@fzlt/core/hud</code><b>1.3 KB</b><i class=\"brick-flag\" data-flag=\"beta\"><span class=\"sr\">BETA</span></i></a></span><span class=\"size-badge\" role=\"img\" aria-label=\"8.2 KB gzipped: this recipe, bundled and minified with @fzlt/core, @fzlt/core/input, @fzlt/core/collide, @fzlt/core/fx, @fzlt/core/hud, 8,403 bytes, measured at build\" data-size-badge data-bytes=\"8403\" data-live=\"recipes/shooter.js\" title=\"8,403 B gzip, measured at build\"><b>8.2 KB</b> gz</span></div>\n        <div id=\"shooter\" style=\"display: grid; gap: 10px\">\n  <canvas width=\"480\" height=\"320\" aria-label=\"The shooter: bugs fall, your ship fires up\" style=\"width: 100%; max-width: 560px; touch-action: none; background: #07060f; border-radius: 10px\"></canvas>\n  <p style=\"display: flex; gap: 14px; align-items: center; margin: 0\">\n    <button type=\"button\" class=\"bui-key bui-arcade bui-go\">Start</button>\n    <span>Score <b data-score>0</b></span><span>Lives <b data-lives>3</b></span>\n    <small>A/D or ←/→ move · Space fires · or drag and tap</small>\n  </p>\n</div>\n        <figcaption class=\"bp-note\"><b>Start</b>, then A/D or ←/→ and Space. On a phone, drag to move and tap to fire.</figcaption>\n      </figure>\n      <div class=\"panel code-card doc-code\"><div class=\"code-head\"><span class=\"bui-label\"><b>THE WHOLE THING</b> · paste into a page</span><button class=\"bui-key copy\" type=\"button\" data-copy><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 7h10v10H7ZM3 13V3h10\"></path></svg>Copy</button></div><pre tabindex=\"0\" class=\"code\"><code>&lt;div id=&quot;shooter&quot; style=&quot;display: grid; gap: 10px&quot;&gt;\n  &lt;canvas width=&quot;480&quot; height=&quot;320&quot; aria-label=&quot;The shooter: bugs fall, your ship fires up&quot; style=&quot;width: 100%; max-width: 560px; touch-action: none; background: #07060f; border-radius: 10px&quot;&gt;&lt;/canvas&gt;\n  &lt;p style=&quot;display: flex; gap: 14px; align-items: center; margin: 0&quot;&gt;\n    &lt;button type=&quot;button&quot; class=&quot;bui-key bui-arcade bui-go&quot;&gt;Start&lt;/button&gt;\n    &lt;span&gt;Score &lt;b data-score&gt;0&lt;/b&gt;&lt;/span&gt;&lt;span&gt;Lives &lt;b data-lives&gt;3&lt;/b&gt;&lt;/span&gt;\n    &lt;small&gt;A/D or ←/→ move · Space fires · or drag and tap&lt;/small&gt;\n  &lt;/p&gt;\n&lt;/div&gt;\n&lt;script type=&quot;module&quot;&gt;\n// Recipe: a shooter. Bugs fall, you fire up at them. Typed-array state, a fixed step, collision,\n// pooled blasts and a change-only HUD. Kernel, input, collide, fx and hud. Runs as is with\n// shooter.html. Keys count only while a run is live: Start begins one, losing the last life ends it.\nimport { createEngine } from &quot;https://fizlet.com/dist/index.js&quot;;\nimport { controls } from &quot;https://fizlet.com/dist/input.js&quot;;\nimport { circles } from &quot;https://fizlet.com/dist/collide.js&quot;;\nimport { effects } from &quot;https://fizlet.com/dist/fx.js&quot;;\nimport { hud } from &quot;https://fizlet.com/dist/hud.js&quot;;\n\nconst W = 480, H = 320, BUGS = 12, SHOTS = 16;\nconst root = document.getElementById(&quot;shooter&quot;);\nconst canvas = root.querySelector(&quot;canvas&quot;);\nconst start = root.querySelector(&quot;button&quot;);\nconst ctx = canvas.getContext(&quot;2d&quot;);\n\nconst e = createEngine({ root, seed: 7 });\nconst pad = controls(e, { target: canvas, keys: { left: [&quot;KeyA&quot;, &quot;ArrowLeft&quot;], right: [&quot;KeyD&quot;, &quot;ArrowRight&quot;], fire: [&quot;Space&quot;] } });\nconst fx = effects({ cap: 240 });\n\n// Everything that moves lives in typed arrays made once.\nconst bx = new Float64Array(BUGS), by = new Float64Array(BUGS), bv = new Float64Array(BUGS), alive = new Uint8Array(BUGS);\nconst sx = new Float64Array(SHOTS), sy = new Float64Array(SHOTS), live = new Uint8Array(SHOTS);\nconst g = new Float64Array(5); // [ship x, score, lives, next spawn, cooldown]\nlet scale = 1;\n\nfunction reset() {\n  alive.fill(0); live.fill(0); fx.clear();\n  g.set([W / 2, 0, 3, 0.4, 0]);\n}\n\ne.add({\n  read() { scale = W / canvas.clientWidth; },\n  step(e, dt) {\n    // Move: keys, or follow a finger or a held mouse.\n    g[0] += pad.axis(&quot;left&quot;, &quot;right&quot;) * 260 * dt;\n    if (pad.pointer.down) g[0] += (pad.pointer.x * scale - g[0]) * Math.min(1, 12 * dt);\n    g[0] = Math.max(16, Math.min(W - 16, g[0]));\n    // Fire: Space, or a tap.\n    g[4] -= dt;\n    if ((pad.down(&quot;fire&quot;) || pad.pointer.hit) &amp;&amp; g[4] &lt;= 0) {\n      const i = live.indexOf(0);\n      if (i &gt;= 0) { live[i] = 1; sx[i] = g[0]; sy[i] = H - 34; g[4] = 0.18; e.events.emit(&quot;fire&quot;); }\n    }\n    // Spawn from the seeded random: the same seed, the same wave.\n    if ((g[3] -= dt) &lt;= 0) {\n      const i = alive.indexOf(0);\n      if (i &gt;= 0) { alive[i] = 1; bx[i] = 20 + e.random() * (W - 40); by[i] = -12; bv[i] = 40 + e.random() * 30 + g[1] * 2; }\n      g[3] = Math.max(0.35, 1.1 - g[1] * 0.03);\n    }\n    for (let j = 0; j &lt; SHOTS; j++) if (live[j] &amp;&amp; (sy[j] -= 420 * dt) &lt; -8) live[j] = 0;\n    for (let i = 0; i &lt; BUGS; i++) {\n      if (!alive[i]) continue;\n      by[i] += bv[i] * dt;\n      if (by[i] &gt; H + 12) { alive[i] = 0; g[2] -= 1; e.events.emit(&quot;lost&quot;); continue; }\n      for (let j = 0; j &lt; SHOTS; j++) {\n        if (!live[j] || !circles(sx[j], sy[j], 3, bx[i], by[i], 12)) continue;\n        alive[i] = 0; live[j] = 0; g[1] += 1;\n        e.events.emit(&quot;hit&quot;, i, 0, bx[i], by[i]);\n        break;\n      }\n    }\n    fx.step(dt);\n  },\n  render() {\n    for (let k = 0; k &lt; e.events.size; k++) {\n      const ev = e.events.at(k);\n      if (ev.type === &quot;hit&quot;) fx.blast(ev.x, ev.y, 0.5);\n      if (ev.type === &quot;lost&quot;) fx.kick(6);\n    }\n    ctx.save();\n    ctx.clearRect(0, 0, W, H);\n    ctx.translate(fx.shake * (Math.random() - 0.5), 0); // decoration only, never the sim\n    fx.drawGround(ctx);\n    ctx.fillStyle = &quot;#ff5c8f&quot;;\n    for (let i = 0; i &lt; BUGS; i++) if (alive[i]) ctx.fillRect(bx[i] - 10, by[i] - 8, 20, 16);\n    ctx.fillStyle = &quot;#ffd166&quot;;\n    for (let j = 0; j &lt; SHOTS; j++) if (live[j]) ctx.fillRect(sx[j] - 1.5, sy[j] - 6, 3, 12);\n    ctx.fillStyle = &quot;#39ffb0&quot;;\n    ctx.beginPath(); ctx.moveTo(g[0], H - 30); ctx.lineTo(g[0] - 14, H - 10); ctx.lineTo(g[0] + 14, H - 10); ctx.fill();\n    fx.draw(ctx);\n    ctx.restore();\n    if (g[2] &lt;= 0) { // game over: stop the engine, so the page's keys are the page's again\n      e.stop();\n      e.ledger.attr(start, &quot;disabled&quot;, null); // Start again\n    }\n  },\n});\nhud(e, root).num(&quot;[data-score]&quot;, [g, 1]).num(&quot;[data-lives]&quot;, () =&gt; Math.max(0, g[2]));\nstart.addEventListener(&quot;click&quot;, () =&gt; {\n  reset();\n  e.ledger.attr(start, &quot;disabled&quot;, &quot;&quot;);\n  e.start();\n}, { signal: e.signal });\nreset();\n&lt;/script&gt;</code></pre></div>\n    </section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block doc-wide recipe\" id=\"recipe-duel\">\n      <h2>Recipe 3: two players</h2>\n      <p class=\"body\">Two peers on one page, each with its own engine, controls and screen, joined by <code>memory()</code>: an in-memory link with three ticks of latency and jitter. Only inputs cross it, 12 bytes a message. Each sim runs a frame only when both inputs for it are in, so both screens show the same game, and the hash check every 30 frames says so. Swap <code>memory()</code> for <code>join(url)</code> and the same code plays across two devices through a room server: ours is in-house, so <a href=\"/guides/build-your-own-room-server/\">build your own</a>.</p>\n      <figure class=\"panel lit recipe-live\" data-demo-host data-recipe=\"duel\">\n        <div class=\"recipe-head\"><span class=\"bui-label recipe-bricks\"><b>LIVE</b> · <a class=\"brick-mini brick-kernel\" data-flag=\"complete\" style=\"--tone: var(--k-go)\" href=\"/bricks/kernel.html\" title=\"@fzlt/core: COMPLETE\"><span class=\"el el-chip\" style=\"--tone: var(--k-go)\" aria-hidden=\"true\"><b class=\"el-sym\">kr</b></span><code class=\"sym-name\">@fzlt/core</code><b>3.3 KB</b><i class=\"brick-flag\" data-flag=\"complete\"><span class=\"sr\">COMPLETE</span></i></a> <a class=\"brick-mini\" data-flag=\"complete\" style=\"--tone: var(--k-sys)\" href=\"/bricks/input.html\" title=\"@fzlt/core/input: COMPLETE\"><span class=\"el el-chip\" style=\"--tone: var(--k-sys)\" aria-hidden=\"true\"><b class=\"el-sym\">in</b></span><code class=\"sym-name\">@fzlt/core/input</code><b>1.9 KB</b><i class=\"brick-flag\" data-flag=\"complete\"><span class=\"sr\">COMPLETE</span></i></a> <a class=\"brick-mini\" data-flag=\"beta\" style=\"--tone: var(--k-cmd)\" href=\"/bricks/presence.html\" title=\"@fzlt/core/presence: BETA\"><span class=\"el el-chip\" style=\"--tone: var(--k-cmd)\" aria-hidden=\"true\"><b class=\"el-sym\">pr</b></span><code class=\"sym-name\">@fzlt/core/presence</code><b>2.1 KB</b><i class=\"brick-flag\" data-flag=\"beta\"><span class=\"sr\">BETA</span></i></a> <a class=\"brick-mini\" data-flag=\"beta\" style=\"--tone: var(--k-aim)\" href=\"/bricks/hud.html\" title=\"@fzlt/core/hud: BETA\"><span class=\"el el-chip\" style=\"--tone: var(--k-aim)\" aria-hidden=\"true\"><b class=\"el-sym\">hd</b></span><code class=\"sym-name\">@fzlt/core/hud</code><b>1.3 KB</b><i class=\"brick-flag\" data-flag=\"beta\"><span class=\"sr\">BETA</span></i></a></span><span class=\"size-badge\" role=\"img\" aria-label=\"7.2 KB gzipped: this recipe, bundled and minified with @fzlt/core, @fzlt/core/input, @fzlt/core/presence, @fzlt/core/hud, 7,394 bytes, measured at build\" data-size-badge data-bytes=\"7394\" data-live=\"recipes/duel.js\" title=\"7,394 B gzip, measured at build\"><b>7.2 KB</b> gz</span></div>\n        <div id=\"duel\" style=\"display: grid; gap: 10px\">\n  <div style=\"display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px\">\n    <canvas width=\"320\" height=\"120\" style=\"width: 100%; touch-action: none; background: #07060f; border-radius: 10px\" aria-label=\"Player 1's screen\"></canvas>\n    <canvas width=\"320\" height=\"120\" style=\"width: 100%; touch-action: none; background: #07060f; border-radius: 10px\" aria-label=\"Player 2's screen\"></canvas>\n  </div>\n  <p style=\"margin: 0\">Frame <b data-frame>0</b> · <b data-sync>in sync</b> · P1: A/D or hold the left screen's sides · P2: J/L or the right screen's</p>\n</div>\n        <figcaption class=\"bp-note\">Player 1: A/D. Player 2: J/L. On touch, hold the left or right half of a screen. The frame count only moves when both inputs are in.</figcaption>\n      </figure>\n      <div class=\"panel code-card doc-code\"><div class=\"code-head\"><span class=\"bui-label\"><b>THE WHOLE THING</b> · paste into a page</span><button class=\"bui-key copy\" type=\"button\" data-copy><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 7h10v10H7ZM3 13V3h10\"></path></svg>Copy</button></div><pre tabindex=\"0\" class=\"code\"><code>&lt;div id=&quot;duel&quot; style=&quot;display: grid; gap: 10px&quot;&gt;\n  &lt;div style=&quot;display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px&quot;&gt;\n    &lt;canvas width=&quot;320&quot; height=&quot;120&quot; style=&quot;width: 100%; touch-action: none; background: #07060f; border-radius: 10px&quot; aria-label=&quot;Player 1's screen&quot;&gt;&lt;/canvas&gt;\n    &lt;canvas width=&quot;320&quot; height=&quot;120&quot; style=&quot;width: 100%; touch-action: none; background: #07060f; border-radius: 10px&quot; aria-label=&quot;Player 2's screen&quot;&gt;&lt;/canvas&gt;\n  &lt;/div&gt;\n  &lt;p style=&quot;margin: 0&quot;&gt;Frame &lt;b data-frame&gt;0&lt;/b&gt; · &lt;b data-sync&gt;in sync&lt;/b&gt; · P1: A/D or hold the left screen's sides · P2: J/L or the right screen's&lt;/p&gt;\n&lt;/div&gt;\n&lt;script type=&quot;module&quot;&gt;\n// Recipe: two players. Two lockstep peers on one page, each with its own engine, its own controls\n// and its own screen, joined by an in-memory link with latency and jitter. Only inputs cross it,\n// 12 bytes a message; both screens show the same game because both sims run the same frames.\n// For two devices, swap memory() for join(&quot;wss://&lt;your room server&gt;/room/0?players=2&quot;).\n// Kernel, input and presence. Runs as is with duel.html.\nimport { createEngine } from &quot;https://fizlet.com/dist/index.js&quot;;\nimport { controls } from &quot;https://fizlet.com/dist/input.js&quot;;\nimport { presence, memory, hash32 } from &quot;https://fizlet.com/dist/presence.js&quot;;\nimport { hud } from &quot;https://fizlet.com/dist/hud.js&quot;;\n\nconst W = 320, H = 120;\nconst root = document.getElementById(&quot;duel&quot;);\nconst screens = root.querySelectorAll(&quot;canvas&quot;);\nconst link = memory({ peers: 2, latency: 3, jitter: 2 }); // ticks of delay, ± jitter\nconst KEYS = [{ left: [&quot;KeyA&quot;], right: [&quot;KeyD&quot;] }, { left: [&quot;KeyJ&quot;], right: [&quot;KeyL&quot;] }];\nconst peers = [];\n\nfor (let slot = 0; slot &lt; 2; slot++) {\n  const canvas = screens[slot], ctx = canvas.getContext(&quot;2d&quot;);\n  const e = createEngine({ root, seed: 42 }); // same seed on every peer\n  const pad = controls(e, { target: canvas, keys: KEYS[slot] });\n  // The whole game state: [x0, x1, score0, score1, coin x]. Same frames in, same bytes out.\n  const s = new Float64Array([W * 0.25, W * 0.75, 0, 0, W / 2]), bytes = new Uint8Array(s.buffer);\n  let side = 0; // which half of this screen a finger holds: -1, 0 or 1 (read in read, used in input)\n  e.add({ read() { side = pad.pointer.down ? (pad.pointer.x &lt; canvas.clientWidth / 2 ? -1 : 1) : 0; } });\n  const net = presence(e, {\n    transport: link.ends[slot], slot, players: 2, delay: 2,\n    input: () =&gt; (pad.down(&quot;left&quot;) || side &lt; 0 ? 1 : 0) | (pad.down(&quot;right&quot;) || side &gt; 0 ? 2 : 0),\n    step(e, inputs) { // the sim: inputs and e.random only\n      for (let p = 0; p &lt; 2; p++) {\n        const bits = inputs[p];\n        s[p] = Math.max(8, Math.min(W - 8, s[p] + ((bits &amp; 2 ? 1 : 0) - (bits &amp; 1 ? 1 : 0)) * 3));\n        if (Math.abs(s[p] - s[4]) &lt; 10) { s[2 + p] += 1; s[4] = 10 + e.random() * (W - 20); }\n      }\n    },\n    hash: () =&gt; hash32(bytes), // compared every 30 frames: net.desync\n  });\n  e.add({\n    render() {\n      ctx.clearRect(0, 0, W, H);\n      ctx.fillStyle = &quot;#ffd166&quot;;\n      ctx.fillRect(s[4] - 5, 55, 10, 10);\n      for (let p = 0; p &lt; 2; p++) {\n        ctx.fillStyle = p === 0 ? &quot;#39ffb0&quot; : &quot;#ff5c8f&quot;;\n        ctx.fillRect(s[p] - 8, p === slot ? 80 : 30, 16, 16); // you are the lower one\n        ctx.font = &quot;bold 14px monospace&quot;;\n        ctx.fillText(`P${p + 1} ${s[2 + p]}`, p === 0 ? 8 : W - 52, 18);\n      }\n    },\n  });\n  peers.push({ e, net });\n}\n// The link moves once a frame; the readouts come from peer 1.\npeers[0].e.add({ read: () =&gt; link.tick() });\nconst [one] = peers;\nhud(one.e, root)\n  .num(&quot;[data-frame]&quot;, () =&gt; one.net.frame)\n  .num(&quot;[data-sync]&quot;, () =&gt; one.net.desync, (f) =&gt; (f &lt; 0 ? &quot;in sync&quot; : `desync at frame ${f}`));\nfor (const p of peers) p.e.start();\n&lt;/script&gt;</code></pre></div>\n    </section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>Before you ship</h2><ul class=\"ledger-rules note-list\"><li><b>Measure it.</b> Bundle, minify and gzip your piece; that is what a visitor downloads. The badges above are measured that way on every build.</li><li><b>Check the step.</b> No <code>Math.random</code>, no clock, no layout reads, nothing allocated. <a href=\"/docs/determinism/\">Determinism</a> and the <a href=\"/docs/contract/\">contract</a> list the rules; <code>@fzlt/core/debug</code> counts layout reads in a step.</li><li><b>Check Recall.</b> Snapshot the page, run the piece, <code>destroy()</code> it, and compare: the DOM should match.</li><li><b>Check stillness.</b> With <code>settle</code>, a piece that is not moving should ask for no frames. The <a href=\"/bricks/perf.html\">perf overlay</a> shows it.</li></ul></section>"
+  },
+  {
+   "kind": "keys",
+   "keys": [
+    {
+     "href": "/guides/micro-game/",
+     "label": "Build a micro game",
+     "tone": "sys",
+     "arcade": true,
+     "icon": "book"
+    },
+    {
+     "href": "/bricks/",
+     "label": "Every brick",
+     "tone": "cmd",
+     "arcade": true,
+     "icon": "book"
+    },
+    {
+     "href": "/docs/budgets/",
+     "label": "Size budgets",
+     "tone": "go",
+     "arcade": true,
+     "icon": "book"
+    }
+   ]
+  }
+ ],
+ "steps": [
+  {
+   "href": "/docs/getting-started/",
+   "label": "Getting started",
+   "dir": "prev"
+  },
+  {
+   "href": "/docs/contract/",
+   "label": "The contract",
+   "dir": "next"
+  }
+ ],
+ "map": [
+  [
+   {
+    "head": {
+     "href": "/docs/",
+     "label": "Docs"
+    },
+    "items": [
+     {
+      "href": "/docs/getting-started/",
+      "label": "Getting started"
+     },
+     {
+      "href": "/docs/authoring/",
+      "label": "Authoring and recipes"
+     },
+     {
+      "href": "/docs/contract/",
+      "label": "The contract"
+     },
+     {
+      "href": "/docs/loop/",
+      "label": "The loop"
+     },
+     {
+      "href": "/docs/recall/",
+      "label": "Recall and the ledger"
+     },
+     {
+      "href": "/docs/budgets/",
+      "label": "Size budgets"
+     },
+     {
+      "href": "/docs/determinism/",
+      "label": "Determinism"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/guides/",
+     "label": "Guides"
+    },
+    "items": [
+     {
+      "href": "/guides/micro-game/",
+      "label": "Build a micro game"
+     },
+     {
+      "href": "/guides/astro-slot/",
+      "label": "Fill an Astro slot"
+     },
+     {
+      "href": "/guides/port-a-game/",
+      "label": "Port a game"
+     },
+     {
+      "href": "/guides/build-your-own-room-server/",
+      "label": "Your own room server"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/bricks/",
+     "label": "Bricks"
+    },
+    "note": "Every module, its API and its size."
+   },
+   {
+    "head": {
+     "href": "/news/",
+     "label": "News"
+    },
+    "note": "Release notes for every version."
+   }
+  ]
+ ]
+}

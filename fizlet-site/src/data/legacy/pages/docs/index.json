@@ -1,0 +1,173 @@
+{
+ "meta": {
+  "path": "docs/",
+  "title": "Docs: the contract, the loop, Recall, budgets · Fizlet",
+  "description": "How Fizlet's kernel and bricks work: getting started, the nine-rule contract, the loop, Recall, size budgets and determinism, with numbers from v0.27.0.",
+  "ld": [
+   {
+    "@type": "CollectionPage",
+    "@id": "https://fizlet.com/docs/#page",
+    "url": "https://fizlet.com/docs/",
+    "name": "Fizlet docs",
+    "isPartOf": {
+     "@id": "https://fizlet.com/#website"
+    },
+    "about": {
+     "@id": "https://fizlet.com/#code"
+    }
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "head": {
+  "index": "7",
+  "eyebrow": "DOCS · READ IN ORDER",
+  "title": {
+   "line": "How it works.",
+   "accent": "Each claim tested."
+  },
+  "lead": "Fizlet is the building blocks for animation and games on the DOM: a small kernel and bricks, so a piece boils down to logic and style. Start with the five-minute setup, then the ideas everything else rests on: the contract, the loop, Recall, the budgets and determinism. Every brick's API is in <a href=\"/bricks/\">Bricks</a>."
+ },
+ "cards": [
+  {
+   "anim": "kernel",
+   "index": "01",
+   "eyebrow": "DOCS · GETTING STARTED",
+   "href": "/docs/getting-started/",
+   "label": "Getting started",
+   "body": "Load Fizlet with one script tag or only the modules you need, start an engine, and give the page back with <code>destroy()</code>."
+  },
+  {
+   "anim": "kernel",
+   "index": "02",
+   "eyebrow": "DOCS · AUTHORING",
+   "href": "/docs/authoring/",
+   "label": "Authoring and recipes",
+   "body": "How every Fizlet piece is written, the bricks to pick for each use, and three recipes that run on the page: an action, a shooter and two players."
+  },
+  {
+   "anim": "debug",
+   "index": "03",
+   "eyebrow": "DOCS · THE CONTRACT",
+   "href": "/docs/contract/",
+   "label": "The contract",
+   "body": "The nine rules every brick and every game on Fizlet keeps, and the test that proves each one."
+  },
+  {
+   "anim": "kernel",
+   "index": "04",
+   "eyebrow": "DOCS · THE LOOP",
+   "href": "/docs/loop/",
+   "label": "The loop",
+   "body": "One shared requestAnimationFrame, a fixed 60 Hz step with a catch-up cap, three phases, auto-pause, settle and the fps cap."
+  },
+  {
+   "anim": "kernel",
+   "index": "05",
+   "eyebrow": "DOCS · RECALL",
+   "href": "/docs/recall/",
+   "label": "Recall and the ledger",
+   "body": "Every page change goes through one ledger: change-only writes, exact restore, and a newer host edit always wins."
+  },
+  {
+   "anim": "perf",
+   "index": "06",
+   "eyebrow": "DOCS · BUDGETS",
+   "href": "/docs/budgets/",
+   "label": "Size budgets",
+   "body": "Every module has a gzip budget checked in CI. The table is measured on the build you are reading."
+  },
+  {
+   "anim": "presence",
+   "index": "07",
+   "eyebrow": "DOCS · DETERMINISM",
+   "href": "/docs/determinism/",
+   "label": "Determinism",
+   "body": "A fixed step, a seeded random and state in typed arrays: runs replay, peers stay in lockstep, and syncCheck proves it."
+  }
+ ],
+ "map": [
+  [
+   {
+    "head": {
+     "href": "/docs/",
+     "label": "Docs"
+    },
+    "items": [
+     {
+      "href": "/docs/getting-started/",
+      "label": "Getting started"
+     },
+     {
+      "href": "/docs/authoring/",
+      "label": "Authoring and recipes"
+     },
+     {
+      "href": "/docs/contract/",
+      "label": "The contract"
+     },
+     {
+      "href": "/docs/loop/",
+      "label": "The loop"
+     },
+     {
+      "href": "/docs/recall/",
+      "label": "Recall and the ledger"
+     },
+     {
+      "href": "/docs/budgets/",
+      "label": "Size budgets"
+     },
+     {
+      "href": "/docs/determinism/",
+      "label": "Determinism"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/guides/",
+     "label": "Guides"
+    },
+    "items": [
+     {
+      "href": "/guides/micro-game/",
+      "label": "Build a micro game"
+     },
+     {
+      "href": "/guides/astro-slot/",
+      "label": "Fill an Astro slot"
+     },
+     {
+      "href": "/guides/port-a-game/",
+      "label": "Port a game"
+     },
+     {
+      "href": "/guides/build-your-own-room-server/",
+      "label": "Your own room server"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/bricks/",
+     "label": "Bricks"
+    },
+    "note": "Every module, its API and its size."
+   },
+   {
+    "head": {
+     "href": "/news/",
+     "label": "News"
+    },
+    "note": "Release notes for every version."
+   }
+  ]
+ ]
+}

@@ -23,7 +23,7 @@ const plan = json("src/data/migration.json");
 const DATA = { "": "pages/home.json", "gallery/": "pages/gallery/index.json" };
 for (const p of plan.done) {
   if (!paths.has(p)) fail.push(`migration.json: done route /${p} is not a legacy route`);
-  const file = DATA[p] ?? (p.startsWith("docs/") ? `pages/docs/${p.split("/")[1]}.json` : p.startsWith("bricks/") ? `pages/bricks/${p.slice(7, -5)}.json` : null);
+  const file = DATA[p] ?? (/^(docs|guides)\//.test(p) ? `pages/${p.split("/")[0]}/${p.split("/")[1] || "index"}.json` : p.startsWith("bricks/") ? `pages/bricks/${p.slice(7, -5)}.json` : null);
   if (!file || !existsSync(`src/data/legacy/${file}`)) { fail.push(`/${p}: done, but no page data (${file})`); continue; }
   const { meta } = json(`src/data/legacy/${file}`);
   if (meta.path !== p) fail.push(`${file}: meta.path ${meta.path} is not ${p}`);

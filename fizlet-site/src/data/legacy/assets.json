@@ -178,6 +178,9 @@
  "llms.txt",
  "og.png",
  "origin/main.js",
+ "recipes/action.js",
+ "recipes/duel.js",
+ "recipes/shooter.js",
  "robots.txt",
  "site.js"
 ]

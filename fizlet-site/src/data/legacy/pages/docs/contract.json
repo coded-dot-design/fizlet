@@ -1,0 +1,181 @@
+{
+ "meta": {
+  "path": "docs/contract/",
+  "title": "The Fizlet contract: nine tested rules",
+  "description": "One clock, bounded pools, zero steady-state allocation, change-only writes, pause by default, Recall: the nine rules every Fizlet brick keeps, each tested.",
+  "ld": [
+   {
+    "@type": "TechArticle",
+    "@id": "https://fizlet.com/docs/contract/#article",
+    "headline": "Nine promises",
+    "description": "One clock, bounded pools, zero steady-state allocation, change-only writes, pause by default, Recall: the nine rules every Fizlet brick keeps, each tested.",
+    "url": "https://fizlet.com/docs/contract/",
+    "mainEntityOfPage": "https://fizlet.com/docs/contract/",
+    "inLanguage": "en",
+    "author": {
+     "@id": "https://fizlet.com/#author"
+    },
+    "publisher": {
+     "@id": "https://fizlet.com/#org"
+    },
+    "isPartOf": {
+     "@id": "https://fizlet.com/#website"
+    },
+    "about": {
+     "@id": "https://fizlet.com/#code"
+    }
+   },
+   {
+    "@type": "BreadcrumbList",
+    "@id": "https://fizlet.com/docs/contract/#crumbs",
+    "itemListElement": [
+     {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Fizlet",
+      "item": "https://fizlet.com/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Docs",
+      "item": "https://fizlet.com/docs/"
+     },
+     {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "The contract",
+      "item": "https://fizlet.com/docs/contract/"
+     }
+    ]
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/docs/",
+    "label": "Docs"
+   }
+  ],
+  "current": "The contract"
+ },
+ "index": "03",
+ "eyebrow": "DOCS · THE CONTRACT",
+ "title": {
+  "line": "Nine promises",
+  "accent": "Each one tested."
+ },
+ "lead": "Most engines assume they own the page. Fizlet is a guest: it runs inside someone else's site, on a phone, next to their code, and it leaves no trace. These nine rules are the whole design. Every brick and every game built on Fizlet keeps them, and each one has a test that fails when it breaks.",
+ "body": [
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block doc-wide\"><h2>The nine rules</h2><ol class=\"rules\"><li class=\"panel rule\"><b>01</b><h3>One clock per page</h3><p>Every engine on the page shares one requestAnimationFrame. A fixed 60 Hz step with a catch-up cap: a long frame drops time, it never spirals.</p></li><li class=\"panel rule\"><b>02</b><h3>Bounded everything</h3><p>Pools and the event ring have a fixed capacity and refuse work when full. Nothing grows during a session.</p></li><li class=\"panel rule\"><b>03</b><h3>Zero steady-state allocation</h3><p>One million kernel steps of a busy system cause no young-generation GC. Each brick alone allocates nothing.</p></li><li class=\"panel rule\"><b>04</b><h3>No layout reads in the step</h3><p>Read in read, simulate in step, write in render. @fzlt/core/debug counts any layout read made during a step.</p></li><li class=\"panel rule\"><b>05</b><h3>Change-only writes</h3><p>The ledger skips writes that change nothing. Writing the same value twice makes zero DOM mutations.</p></li><li class=\"panel rule\"><b>06</b><h3>Pause by default</h3><p>Hidden tab, page leaving, root off screen, typing in the host's own fields. Zero CPU while paused.</p></li><li class=\"panel rule\"><b>07</b><h3>Own nothing you can't give back</h3><p>Every page change goes through the ledger. destroy() restores it exactly, and a newer host edit always wins.</p></li><li class=\"panel rule\"><b>08</b><h3>Embed-safe</h3><p>No globals, no global styles, many engines per page. Every root Fizlet owns is CSS-contained. One AbortSignal removes every listener and observer.</p></li><li class=\"panel rule\"><b>09</b><h3>Budgets in CI</h3><p>Kernel at most 4 KB gzip; every brick and the page build have their own budget. Over budget, the build fails.</p></li></ol></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>How each rule is checked</h2><ul class=\"ledger-rules note-list\"><li><b>One clock.</b> A kernel test runs several engines and counts one <code>requestAnimationFrame</code> between them; another checks the fixed step drops time after <code>maxSteps</code> (default 4) instead of spiralling. Details in <a href=\"/docs/loop/\">the loop</a>.</li><li><b>Bounded.</b> Pools and the event ring (64 events a frame by default) refuse work at their cap, and the test checks they never grew. <code>@fzlt/core/fx</code> refuses particles past its cap (420 by default) and counts them in <code>fx.dropped</code>.</li><li><b>Zero allocation.</b> One million kernel steps of a busy system cause 0 young-generation GCs on Node 24 (best of three windows; the test fails above 1). Bricks with a hot path have their own allocation tests.</li><li><b>No layout reads in the step.</b> <code>@fzlt/core/debug</code>'s <code>guardLayout(engine)</code> counts layout reads made during a step. The live demo on the <a href=\"/\">home page</a> shows the count: it stays at 0.</li><li><b>Change-only writes and Recall.</b> Browser tests in Chromium write the same value twice and count zero mutations, then <code>destroy()</code> and compare the DOM with a snapshot taken before. See <a href=\"/docs/recall/\">Recall</a>.</li><li><b>Pause by default.</b> A browser test hides the tab, types in a host field and scrolls the root away, and checks the engine pauses for each reason (<code>engine.paused</code>) and runs again after.</li><li><b>Embed-safe.</b> A browser test compares every box inside the pad, the match overlay and the launch burst with CSS containment on and off: nothing moves or clips.</li><li><b>Budgets.</b> <code>npm run size</code> builds every entry, minifies and gzips it, and fails CI over its budget. The numbers are in <a href=\"/docs/budgets/\">budgets</a>.</li></ul></section>"
+  },
+  {
+   "kind": "html",
+   "html": "<section class=\"note-block\"><h2>Questions</h2><div class=\"note-rows\"><div class=\"panel\"><h3>Does a game have to keep the contract too?</h3><p>Yes. The bricks keep it by construction, and the games on Fizlet are tested against it: they step on typed arrays, write through the ledger and give the page back on Escape.</p></div><div class=\"panel\"><h3>Is any rule a frame-rate promise?</h3><p>No. The rules bound the work an engine does; real frame time still depends on the page, the fonts and the device. What we measure is in the perf harness, under a 4× CPU throttle.</p></div><div class=\"panel\"><h3>Can I break a rule on purpose?</h3><p>A change that breaks one needs a test that proves the new rule. That is how the fps cap changed in 0.19.0: it now caps requestAnimationFrame, with a test that counts the calls a second at 60 and 120 Hz.</p></div></div></section>"
+  }
+ ],
+ "steps": [
+  {
+   "href": "/docs/authoring/",
+   "label": "Authoring and recipes",
+   "dir": "prev"
+  },
+  {
+   "href": "/docs/loop/",
+   "label": "The loop",
+   "dir": "next"
+  }
+ ],
+ "map": [
+  [
+   {
+    "head": {
+     "href": "/docs/",
+     "label": "Docs"
+    },
+    "items": [
+     {
+      "href": "/docs/getting-started/",
+      "label": "Getting started"
+     },
+     {
+      "href": "/docs/authoring/",
+      "label": "Authoring and recipes"
+     },
+     {
+      "href": "/docs/contract/",
+      "label": "The contract"
+     },
+     {
+      "href": "/docs/loop/",
+      "label": "The loop"
+     },
+     {
+      "href": "/docs/recall/",
+      "label": "Recall and the ledger"
+     },
+     {
+      "href": "/docs/budgets/",
+      "label": "Size budgets"
+     },
+     {
+      "href": "/docs/determinism/",
+      "label": "Determinism"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/guides/",
+     "label": "Guides"
+    },
+    "items": [
+     {
+      "href": "/guides/micro-game/",
+      "label": "Build a micro game"
+     },
+     {
+      "href": "/guides/astro-slot/",
+      "label": "Fill an Astro slot"
+     },
+     {
+      "href": "/guides/port-a-game/",
+      "label": "Port a game"
+     },
+     {
+      "href": "/guides/build-your-own-room-server/",
+      "label": "Your own room server"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "head": {
+     "href": "/bricks/",
+     "label": "Bricks"
+    },
+    "note": "Every module, its API and its size."
+   },
+   {
+    "head": {
+     "href": "/news/",
+     "label": "News"
+    },
+    "note": "Release notes for every version."
+   }
+  ]
+ ]
+}
