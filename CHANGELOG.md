@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **`@fzlt/core/ui`: `launch()` reads every computed style before its first write (no forced layout).** The
+  burst layer went onto `<body>` before the key's look and the board's tones were read, so those reads forced a
+  style and layout pass; now every read comes first. One click on a 4,000-node page at 4× CPU: 6.7–7.8 → 4.6 ms
+  median (40 clicks, 2 runs each, Chromium), forced layouts in the call 1 → 0. Same burst, same colours; 2,907 →
+  2,900 B gz.
+
 - **`@fzlt/core/collide`: Grid's insert and query share one cell-range helper (−14 B gz, about 24 % faster).**
   1,265 → 1,251 B gz (budget 1,536 → 1,280); 512 inserts + 512 queries a frame 42.5 → 32.0 µs (Node 24, median
   of 7 × 2,000 frames, 3 runs each); board-page 4,104 → 4,076 B, arcade 24,145 → 24,115 B. Same cells, same
