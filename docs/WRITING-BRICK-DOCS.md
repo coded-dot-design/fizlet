@@ -33,6 +33,10 @@ Add these only when they apply, and only when the code shows them:
 - **Settling and Recall**: say whether it keeps the engine awake (`e.busy()`) or lets it settle.
   Say what `engine.destroy()` undoes: listeners, page changes, pools.
 
+Doc comments ship in the package's types (`dist/*.d.ts`), so write them for every user of the
+package: never name a private repository, a private project or a person (the publish gate scans
+them, as `tests/private-names.test.mjs` scans the repo).
+
 Keep it short. One line is the norm, and more lines only pay when a reader would otherwise guess
 wrong. Write the house style: plain sentences, code in backticks, and no `@param` lists where a
 sentence does the job. Never document what you haven't read in the implementation.
