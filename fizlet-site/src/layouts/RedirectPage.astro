@@ -1,0 +1,12 @@
+---
+// A moved page: Cloudflare answers it with a 301 (public/_redirects); this page is the fallback for
+// any other host, a meta refresh to the new URL, canonical on it, noindex, and a line saying where.
+import BaseLayout from "./BaseLayout.astro";
+import Crumbs from "../components/Crumbs.astro";
+import REDIRECTS from "../data/legacy/pages/redirects.json";
+interface Props { path: string }
+const r: any = REDIRECTS.find((x) => x.meta.path === Astro.props.path)!;
+---
+<BaseLayout meta={r.meta} canonical={r.to} refresh={r.to} noindex>
+<section class="has-grid section"><div class="wrap">{r.crumbs && <Crumbs trail={r.crumbs.trail} current={r.crumbs.current} />}<div class="section-head"><h1 set:html={r.title} /><p class="lead" set:html={r.lead} /></div></div></section>
+</BaseLayout>

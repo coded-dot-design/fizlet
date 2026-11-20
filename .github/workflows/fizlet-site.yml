@@ -31,4 +31,5 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm run audit
+      - run: npm run links
       - run: npm run browse

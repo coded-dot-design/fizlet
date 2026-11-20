@@ -18,9 +18,10 @@
     "browse": "node scripts/browse.mjs dist",
     "export:legacy": "node scripts/export-legacy.mjs",
     "compare": "node scripts/compare.mjs",
-    "gates": "npm run validate:content && npm test && npm run typecheck && npm run build && npm run audit && npm run browse",
+    "gates": "npm run validate:content && npm test && npm run typecheck && npm run build && npm run audit && npm run links && npm run browse",
     "tokens": "node scripts/tokens.mjs",
-    "migration": "node scripts/migration.mjs"
+    "migration": "node scripts/migration.mjs",
+    "links": "node scripts/links.mjs dist"
   },
   "dependencies": {
     "astro": "7.4.13"

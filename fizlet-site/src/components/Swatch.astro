@@ -1,0 +1,10 @@
+---
+// A colour swatch: the live token (it follows the theme switch), its role, its variable and its hex
+// per theme, read from tokens.json (dark always; light when the light theme sets its own).
+import { tokenHex, hasLight } from "../lib/tokens";
+interface Props { name: string; token: string; job?: string }
+const { name, token, job } = Astro.props;
+const hex = [{ theme: "dark", hex: tokenHex(token, "dark") }, ...(hasLight(token) ? [{ theme: "light", hex: tokenHex(token, "light") }] : [])];
+---
+<li class="panel brand-sw"><i style={`background:var(${token})`} aria-hidden="true"></i><div><b>{name}</b> <code>{token}</code>
+        <span class="brand-hex">{hex.map((h) => <span>{h.theme} <code>{h.hex}</code></span>)}</span>{job && <small>{job}</small>}</div></li>

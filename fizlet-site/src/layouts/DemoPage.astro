@@ -1,0 +1,13 @@
+---
+// An engine demo's host page, kept as built until the demos build from @fzlt/core here: with the
+// site shell, BaseLayout around its <main> (its styles, stage and loader); without one (layers, the
+// fizz example), the whole legacy document, with noindex added on staging builds.
+import BaseLayout from "./BaseLayout.astro";
+import Html from "../components/Html.astro";
+import DEMOS from "../data/legacy/pages/demos.json";
+import { NOINDEX_BUILD } from "../lib/site";
+interface Props { path: string }
+const d: any = DEMOS.find((x) => x.path === Astro.props.path)!;
+const whole = d.html && NOINDEX_BUILD ? d.html.replace(/(<link rel="canonical")/, '<meta name="robots" content="noindex">\n$1') : d.html;
+---
+{whole ? <Html html={whole} /> : <BaseLayout meta={d.meta}><Html html={d.main} /></BaseLayout>}

@@ -1,0 +1,39 @@
+[
+ {
+  "meta": {
+   "path": "guides/multiplayer-rooms/",
+   "title": "Multiplayer rooms moved: build your own room server · Fizlet",
+   "description": "The Fizlet multiplayer rooms guide has moved: Build your own room server specs the wire protocol @fzlt/core/presence speaks, so you can run one like ours.",
+   "ld": [],
+   "scripts": [
+    "/site.js"
+   ]
+  },
+  "to": "guides/build-your-own-room-server/",
+  "crumbs": {
+   "trail": [
+    {
+     "href": "/guides/",
+     "label": "Guides"
+    }
+   ],
+   "current": "Multiplayer rooms (moved)"
+  },
+  "title": "This guide moved to <em>Build your own room server</em>.",
+  "lead": "Our room server is in-house now. <a href=\"/guides/build-your-own-room-server/\">Build your own room server</a> has the wire protocol presence speaks. Taking you there now."
+ },
+ {
+  "meta": {
+   "path": "heroes/",
+   "title": "Heroes moved to Daily · Fizlet",
+   "description": "The Fizlet heroes page has moved: every hero animation is an entry on Daily, the gallery, with its size measured on this build.",
+   "ld": [],
+   "scripts": [
+    "/site.js"
+   ]
+  },
+  "to": "gallery/",
+  "title": "Heroes moved to <em>Daily</em>.",
+  "lead": "Every hero is an entry on <a href=\"/gallery/\">Daily, the gallery</a>. Taking you there now."
+ }
+]

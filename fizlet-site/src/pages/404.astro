@@ -1,0 +1,19 @@
+---
+// The 404: off the board. A sticker, the line, and keys home and to the quick start (noindex).
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Key from "../components/Key.astro";
+import Sticker from "../components/Sticker.astro";
+import DATA from "../data/legacy/pages/not-found.json";
+import type { Tone } from "../lib/site";
+const d = DATA;
+---
+<BaseLayout meta={d.meta} noindex>
+<section class="has-grid section lost" aria-labelledby="lost-title">
+  <div class="wrap lost-inner">
+    <div class="lost-board" aria-hidden="true"><Sticker kicker={d.sticker.kicker} word={d.sticker.word} /></div>
+    <h1 id="lost-title">{d.title}</h1>
+    <p class="lead" set:html={d.lead} />
+    <div class="final-keys">{d.keys.map((k) => <Key href={k.href} tone={k.tone as Tone} arcade={k.arcade} icon={k.icon} label={k.label} />)}</div>
+  </div>
+</section>
+</BaseLayout>

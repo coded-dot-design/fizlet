@@ -10,6 +10,8 @@ import { join, relative } from "node:path";
 const walk = (d) => readdirSync(d).flatMap((f) => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
 const fail = [];
 const NOINDEX = process.env.PUBLIC_ROBOTS === "noindex";
+// Pages the legacy site kept out of search (the 404, the moved pages) stay noindex in production.
+const LEGACY_NOINDEX = new Set(JSON.parse(readFileSync("src/data/legacy/routes.json", "utf8")).filter((r) => r.noindex).map((r) => r.path));
 
 for (const f of walk("dist").filter((f) => f.endsWith(".html"))) {
   const h = readFileSync(f, "utf8"), at = relative("dist", f);
@@ -19,10 +21,13 @@ for (const f of walk("dist").filter((f) => f.endsWith(".html"))) {
   need(/<meta name="description" content="[^"]{70,160}">/.test(h), "description missing or not 70-160 chars");
   need(/<link rel="canonical" href="https:\/\/fizlet\.com\//.test(h), "no fizlet.com canonical");
   need((h.match(/<h1[\s>]/g) ?? []).length === 1, `${(h.match(/<h1[\s>]/g) ?? []).length} <h1>`);
-  need(h.indexOf("dom-virus:theme") < h.indexOf("<body"), "theme script after first paint");
+  // A page with the site shell reads the stored theme before first paint; a demo kept whole with a
+  // fixed theme (no shell, no toggle) reads none.
+  if (h.includes('class="site-head"')) need(h.includes("dom-virus:theme") && h.indexOf("dom-virus:theme") < h.indexOf("<body"), "theme script missing or after first paint");
   need(/property="og:image"/.test(h), "no og:image");
   need(!/\son(click|load|error|mouseover)=/i.test(h), "inline event handler");
-  need(NOINDEX === /<meta name="robots" content="noindex/.test(h), NOINDEX ? "staging build without noindex" : "production build with noindex");
+  const page = at.split("\\").join("/").replace(/(^|\/)index\.html$/, "$1");
+  need((NOINDEX || LEGACY_NOINDEX.has(page)) === /<meta name="robots" content="noindex/.test(h), NOINDEX ? "staging build without noindex" : LEGACY_NOINDEX.has(page) ? "legacy noindex page without noindex" : "production build with noindex");
   for (const m of h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) { try { JSON.parse(m[1]); } catch { fail.push(`${at}: JSON-LD does not parse`); } }
 }
 for (const p of JSON.parse(readFileSync("src/data/migration.json", "utf8")).done) {

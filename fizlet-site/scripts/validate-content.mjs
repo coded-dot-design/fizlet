@@ -20,12 +20,19 @@ const routes = json("src/data/legacy/routes.json");
 const paths = new Set(routes.map((r) => r.path));
 if (paths.size !== routes.length) fail.push("routes.json: duplicate paths");
 const plan = json("src/data/migration.json");
-const DATA = { "": "pages/home.json", "gallery/": "pages/gallery/index.json" };
+const DATA = { "": "pages/home.json", "gallery/": "pages/gallery/index.json", "404.html": "pages/not-found.json", "brand/": "pages/brand.json", "privacy/": "pages/legal/privacy.json", "cookies/": "pages/legal/cookies.json" };
+// Pages exported together (the redirects, the demo hosts): one file, an entry per path.
+const LISTS = { redirect: "pages/redirects.json", demo: "pages/demos.json" };
+const typeOf = Object.fromEntries(routes.map((r) => [r.path, r.type]));
 for (const p of plan.done) {
   if (!paths.has(p)) fail.push(`migration.json: done route /${p} is not a legacy route`);
-  const file = DATA[p] ?? (p.startsWith("docs/") ? `pages/docs/${p.split("/")[1]}.json` : p.startsWith("bricks/") ? `pages/bricks/${p.slice(7, -5)}.json` : null);
+  const file = DATA[p] ?? LISTS[typeOf[p]] ?? (p.startsWith("docs/") ? `pages/docs/${p.split("/")[1]}.json` : p.startsWith("bricks/") ? `pages/bricks/${p.slice(7, -5)}.json` : null);
   if (!file || !existsSync(`src/data/legacy/${file}`)) { fail.push(`/${p}: done, but no page data (${file})`); continue; }
-  const { meta } = json(`src/data/legacy/${file}`);
+  const data = json(`src/data/legacy/${file}`);
+  const entry = Array.isArray(data) ? data.find((d) => (d.path ?? d.meta?.path) === p) : data;
+  if (!entry) { fail.push(`/${p}: done, but not in ${file}`); continue; }
+  // A demo kept whole (no site shell) carries its own head: read the facts from its document.
+  const meta = entry.meta ?? { path: p, title: entry.html.match(/<title>([^<]*)/)?.[1], description: entry.html.match(/<meta name="description" content="([^"]*)"/)?.[1] };
   if (meta.path !== p) fail.push(`${file}: meta.path ${meta.path} is not ${p}`);
   if (!meta.title) fail.push(`${file}: no title`);
   if (!(meta.description?.length >= 70 && meta.description.length <= 160)) fail.push(`${file}: description is ${meta.description?.length} chars (70-160)`);

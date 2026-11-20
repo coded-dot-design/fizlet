@@ -1,0 +1,486 @@
+{
+ "meta": {
+  "path": "brand/",
+  "title": "Brand: Fizlet™ marks, lockups and colour · Fizlet",
+  "description": "The Fizlet™ and fzlt™ marks, lockups, ™ and casing rules, clear space, colour tokens and the Board UI kit, live, with every mark as an SVG download.",
+  "ld": [],
+  "scripts": [
+   "/site.js",
+   "/brand.js"
+  ]
+ },
+ "hero": {
+  "index": "",
+  "eyebrow": "BRAND · MARKS · COLOUR · THE BOARD",
+  "eyebrowHtml": "<b>BRAND</b> · MARKS · COLOUR · THE BOARD",
+  "title": {
+   "line": "Fizlet™ marks.",
+   "accent": "Used one way."
+  },
+  "lead": "Fizlet™ is the micro animation and game engine for the DOM, by <a href=\"https://coded.design\">Chris Cooley ↗</a>. Its short mark is fzlt™, also its npm scope. Every mark on this page is drawn live from the site's own tokens, and every one downloads as an SVG made from the same source.",
+  "tm": "Fizlet and fzlt are trademarks of Chris Cooley."
+ },
+ "sections": [
+  {
+   "id": "marks",
+   "head": {
+    "index": "01",
+    "eyebrow": "THE MARKS",
+    "eyebrowHtml": "<span class=\"index\">01</span> THE MARKS",
+    "title": {
+     "line": "One name.",
+     "accent": "Two marks."
+    },
+    "lead": "Six letters and four, owned equally, each with the mark. <b>FIZLET</b> is the large logo: heavy caps, the mark's frame closed by the F. <b>fzlt</b> is the small logo: the mark's pixels and fzlt, always lowercase; the developer and npm mark, never a name in prose. Both in <code>--ink</code>, the pop in <code>--k-attack</code> on either ground."
+   },
+   "body": "<ul class=\"brand-cards\">\n      <li class=\"panel brand-card\">\n        <h3>FIZLET logo</h3>\n        <p class=\"brand-cap\">The mark in its square frame; the frame's right side is the F's stem. Six heavy caps, drawn as outlines so they hold in any font. Titles, the hero, covers.</p>\n        <div class=\"brand-pair\">\n          <figure class=\"brand-fig brand-on-dark\">\n            <div class=\"brand-art\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 322 88\" width=\"322\" height=\"88\" role=\"img\" aria-label=\"FIZLET logo, on dark\"><rect width=\"322\" height=\"88\" fill=\"#07060f\"></rect><g transform=\"translate(20 20) scale(0.75)\"><path fill=\"#f6f3ff\" d=\"M0 0h64v2h-64ZM0 62h64v2h-64ZM0 2h2v60h-2ZM62 2h2v60h-2ZM8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8ZM62 0h43v11H76.5v15.5H102v11H76.5V64H62ZM114.25 0h14v64h-14ZM138 0h49.4v7.2L154.6 53h32.8v11H138v-8l32.2-45H138ZM198 0h14v53h26.5v11H198ZM247.6 0h43.9v11h-29.9v15.5h27.8v11h-27.8V53h30.1v11h-44.1ZM299 0h53v11h-19.5v53h-14V11H299ZM358.6 0h5.76v1.2h-2.28v6.8h-1.2v-6.8h-2.28ZM365.96 0h1.56L370.16 3.6L372.8 0h1.56v8h-1.2V2.4L370.64 5.28h-0.96L367.16 2.4V8h-1.2Z\"></path><path fill=\"#ff2e88\" d=\"M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z\"></path></g></svg></div>\n            <div class=\"bui brand-at-min\" data-theme=\"dark\"><span class=\"bui-label\"><b>AT MINIMUM</b> · 24PX CAP HEIGHT</span><span class=\"brand-min-logo\"><svg viewBox=\"0 0 375 64\" width=\"140.6\" height=\"24\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M0 0h64v2h-64ZM0 62h64v2h-64ZM0 2h2v60h-2ZM62 2h2v60h-2ZM8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8ZM62 0h43v11H76.5v15.5H102v11H76.5V64H62ZM114.25 0h14v64h-14ZM138 0h49.4v7.2L154.6 53h32.8v11H138v-8l32.2-45H138ZM198 0h14v53h26.5v11H198ZM247.6 0h43.9v11h-29.9v15.5h27.8v11h-27.8V53h30.1v11h-44.1ZM299 0h53v11h-19.5v53h-14V11H299ZM358.6 0h5.76v1.2h-2.28v6.8h-1.2v-6.8h-2.28ZM365.96 0h1.56L370.16 3.6L372.8 0h1.56v8h-1.2V2.4L370.64 5.28h-0.96L367.16 2.4V8h-1.2Z\"></path><path style=\"fill:var(--k-attack)\" d=\"M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z\"></path></svg></span></div>\n            <figcaption><span class=\"bui-label\"><b>ON DARK</b> · 322 × 88</span>\n              <a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-wordmark-dark.svg\" download=\"fizlet-wordmark-dark.svg\" data-mark=\"fizlet-wordmark-dark.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Dark SVG<span class=\"sr\"> of the FIZLET logo</span></a></figcaption>\n          </figure>\n          <figure class=\"brand-fig brand-on-light\">\n            <div class=\"brand-art\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 322 88\" width=\"322\" height=\"88\" role=\"img\" aria-label=\"FIZLET logo, on light\"><rect width=\"322\" height=\"88\" fill=\"#eef0fb\"></rect><g transform=\"translate(20 20) scale(0.75)\"><path fill=\"#1b1636\" d=\"M0 0h64v2h-64ZM0 62h64v2h-64ZM0 2h2v60h-2ZM62 2h2v60h-2ZM8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8ZM62 0h43v11H76.5v15.5H102v11H76.5V64H62ZM114.25 0h14v64h-14ZM138 0h49.4v7.2L154.6 53h32.8v11H138v-8l32.2-45H138ZM198 0h14v53h26.5v11H198ZM247.6 0h43.9v11h-29.9v15.5h27.8v11h-27.8V53h30.1v11h-44.1ZM299 0h53v11h-19.5v53h-14V11H299ZM358.6 0h5.76v1.2h-2.28v6.8h-1.2v-6.8h-2.28ZM365.96 0h1.56L370.16 3.6L372.8 0h1.56v8h-1.2V2.4L370.64 5.28h-0.96L367.16 2.4V8h-1.2Z\"></path><path fill=\"#ff2e88\" d=\"M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z\"></path></g></svg></div>\n            <div class=\"bui brand-at-min\" data-theme=\"light\"><span class=\"bui-label\"><b>AT MINIMUM</b> · 24PX CAP HEIGHT</span><span class=\"brand-min-logo\"><svg viewBox=\"0 0 375 64\" width=\"140.6\" height=\"24\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M0 0h64v2h-64ZM0 62h64v2h-64ZM0 2h2v60h-2ZM62 2h2v60h-2ZM8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8ZM62 0h43v11H76.5v15.5H102v11H76.5V64H62ZM114.25 0h14v64h-14ZM138 0h49.4v7.2L154.6 53h32.8v11H138v-8l32.2-45H138ZM198 0h14v53h26.5v11H198ZM247.6 0h43.9v11h-29.9v15.5h27.8v11h-27.8V53h30.1v11h-44.1ZM299 0h53v11h-19.5v53h-14V11H299ZM358.6 0h5.76v1.2h-2.28v6.8h-1.2v-6.8h-2.28ZM365.96 0h1.56L370.16 3.6L372.8 0h1.56v8h-1.2V2.4L370.64 5.28h-0.96L367.16 2.4V8h-1.2Z\"></path><path style=\"fill:var(--k-attack)\" d=\"M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z\"></path></svg></span></div>\n            <figcaption><span class=\"bui-label\"><b>ON LIGHT</b> · 322 × 88</span>\n              <a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-wordmark-light.svg\" download=\"fizlet-wordmark-light.svg\" data-mark=\"fizlet-wordmark-light.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Light SVG<span class=\"sr\"> of the FIZLET logo</span></a></figcaption>\n          </figure>\n        </div>\n      </li>\n      <li class=\"panel brand-card\">\n        <h3>fzlt logo</h3>\n        <p class=\"brand-cap\">The mark's pixels without the frame, the pop above, then fzlt in bold lowercase. npm, code, badges, stickers and tight spaces.</p>\n        <div class=\"brand-pair\">\n          <figure class=\"brand-fig brand-on-dark\">\n            <div class=\"brand-art\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 176 96\" width=\"176\" height=\"96\" role=\"img\" aria-label=\"fzlt logo, on dark\"><rect width=\"176\" height=\"96\" fill=\"#07060f\"></rect><g transform=\"translate(14 15.5) scale(0.75)\"><path fill=\"#f6f3ff\" d=\"M8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8ZM62.6 78.5V35A10.4 10.4 0 0 1 73 24.6h8.4Q83 24.6 82.8 26.2L81.9 32.5Q81.7 34.1 80.1 34.1H73.3v44.4ZM57.2 40H81v8.5H57.2ZM88 40h31.2v6.9L101 70h18.7v8.5H87.3v-6.7L106.5 48.5H88ZM128 26.9h10.7v51.6H128ZM149.8 30.6h10.7V40h7.4v8.5h-7.4V70h6.4l1.3 7.6Q168.4 79.1 166.8 79.1H158A8.2 8.2 0 0 1 149.8 70.9V48.5h-5.2V40h5.2ZM176.5 30.4h4.32v1.1h-1.61v4.9h-1.1v-4.9h-1.61ZM182.02 30.4h1.43L185.17 32.82L186.89 30.4h1.43v6h-1.1V32.2L185.61 34.36h-0.88L183.12 32.2V36.4h-1.1Z\"></path><path fill=\"#ff2e88\" d=\"M53.5 6h6v6h-6ZM47.5 6h3v3h-3ZM59.5 14h3v3h-3Z\"></path></g></svg></div>\n            <div class=\"bui brand-at-min\" data-theme=\"dark\"><span class=\"bui-label\"><b>AT MINIMUM</b> · 24PX TALL</span><span class=\"brand-min-logo\"><svg viewBox=\"8 6 181 74\" width=\"58.7\" height=\"24\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8ZM62.6 78.5V35A10.4 10.4 0 0 1 73 24.6h8.4Q83 24.6 82.8 26.2L81.9 32.5Q81.7 34.1 80.1 34.1H73.3v44.4ZM57.2 40H81v8.5H57.2ZM88 40h31.2v6.9L101 70h18.7v8.5H87.3v-6.7L106.5 48.5H88ZM128 26.9h10.7v51.6H128ZM149.8 30.6h10.7V40h7.4v8.5h-7.4V70h6.4l1.3 7.6Q168.4 79.1 166.8 79.1H158A8.2 8.2 0 0 1 149.8 70.9V48.5h-5.2V40h5.2ZM176.5 30.4h4.32v1.1h-1.61v4.9h-1.1v-4.9h-1.61ZM182.02 30.4h1.43L185.17 32.82L186.89 30.4h1.43v6h-1.1V32.2L185.61 34.36h-0.88L183.12 32.2V36.4h-1.1Z\"></path><path style=\"fill:var(--k-attack)\" d=\"M53.5 6h6v6h-6ZM47.5 6h3v3h-3ZM59.5 14h3v3h-3Z\"></path></svg></span></div>\n            <figcaption><span class=\"bui-label\"><b>ON DARK</b> · 176 × 96</span>\n              <a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-short-mark-dark.svg\" download=\"fizlet-short-mark-dark.svg\" data-mark=\"fizlet-short-mark-dark.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Dark SVG<span class=\"sr\"> of the fzlt logo</span></a></figcaption>\n          </figure>\n          <figure class=\"brand-fig brand-on-light\">\n            <div class=\"brand-art\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 176 96\" width=\"176\" height=\"96\" role=\"img\" aria-label=\"fzlt logo, on light\"><rect width=\"176\" height=\"96\" fill=\"#eef0fb\"></rect><g transform=\"translate(14 15.5) scale(0.75)\"><path fill=\"#1b1636\" d=\"M8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8ZM62.6 78.5V35A10.4 10.4 0 0 1 73 24.6h8.4Q83 24.6 82.8 26.2L81.9 32.5Q81.7 34.1 80.1 34.1H73.3v44.4ZM57.2 40H81v8.5H57.2ZM88 40h31.2v6.9L101 70h18.7v8.5H87.3v-6.7L106.5 48.5H88ZM128 26.9h10.7v51.6H128ZM149.8 30.6h10.7V40h7.4v8.5h-7.4V70h6.4l1.3 7.6Q168.4 79.1 166.8 79.1H158A8.2 8.2 0 0 1 149.8 70.9V48.5h-5.2V40h5.2ZM176.5 30.4h4.32v1.1h-1.61v4.9h-1.1v-4.9h-1.61ZM182.02 30.4h1.43L185.17 32.82L186.89 30.4h1.43v6h-1.1V32.2L185.61 34.36h-0.88L183.12 32.2V36.4h-1.1Z\"></path><path fill=\"#ff2e88\" d=\"M53.5 6h6v6h-6ZM47.5 6h3v3h-3ZM59.5 14h3v3h-3Z\"></path></g></svg></div>\n            <div class=\"bui brand-at-min\" data-theme=\"light\"><span class=\"bui-label\"><b>AT MINIMUM</b> · 24PX TALL</span><span class=\"brand-min-logo\"><svg viewBox=\"8 6 181 74\" width=\"58.7\" height=\"24\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8ZM62.6 78.5V35A10.4 10.4 0 0 1 73 24.6h8.4Q83 24.6 82.8 26.2L81.9 32.5Q81.7 34.1 80.1 34.1H73.3v44.4ZM57.2 40H81v8.5H57.2ZM88 40h31.2v6.9L101 70h18.7v8.5H87.3v-6.7L106.5 48.5H88ZM128 26.9h10.7v51.6H128ZM149.8 30.6h10.7V40h7.4v8.5h-7.4V70h6.4l1.3 7.6Q168.4 79.1 166.8 79.1H158A8.2 8.2 0 0 1 149.8 70.9V48.5h-5.2V40h5.2ZM176.5 30.4h4.32v1.1h-1.61v4.9h-1.1v-4.9h-1.61ZM182.02 30.4h1.43L185.17 32.82L186.89 30.4h1.43v6h-1.1V32.2L185.61 34.36h-0.88L183.12 32.2V36.4h-1.1Z\"></path><path style=\"fill:var(--k-attack)\" d=\"M53.5 6h6v6h-6ZM47.5 6h3v3h-3ZM59.5 14h3v3h-3Z\"></path></svg></span></div>\n            <figcaption><span class=\"bui-label\"><b>ON LIGHT</b> · 176 × 96</span>\n              <a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-short-mark-light.svg\" download=\"fizlet-short-mark-light.svg\" data-mark=\"fizlet-short-mark-light.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Light SVG<span class=\"sr\"> of the fzlt logo</span></a></figcaption>\n          </figure>\n        </div>\n      </li>\n    </ul>\n    <div class=\"panel brand-card brand-header-lockup\">\n      <h3>The mark and the header lockup</h3>\n      <p class=\"brand-cap\">The mark: pixel squares fizzing up a square frame, one popping. Frame and squares in <code>--ink</code>, the pop in <code>--k-attack</code>, on no tile: the logos' mark, 40px in the header, 34px at 380px and under. The version is a sticker, the site's sticker recipe in <code>--k-sys</code>. The header, the footer and fzlt.dev draw this one lockup. The favicon is the same mark: <a href=\"/icon.svg\" download=\"fizlet-icon.svg\">icon.svg</a>.</p>\n      <div class=\"brand-pair\">\n        <div class=\"bui brand-hl\" data-theme=\"dark\"><span class=\"brand\"><span class=\"brand-mark\"><svg viewBox=\"0 0 64 64\" width=\"40\" height=\"40\" aria-hidden=\"true\" shape-rendering=\"crispEdges\"><path fill=\"currentColor\" d=\"M0 0h64v2h-64ZM0 62h64v2h-64ZM0 2h2v60h-2ZM62 2h2v60h-2ZM8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8Z\"></path><path fill=\"#ff2e88\" d=\"M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z\"></path></svg></span><span class=\"brand-text\"><small>DOM ENGINE<i class=\"brand-ver\">V0.27.0</i></small><b>FIZLET</b></span></span></div>\n        <div class=\"bui brand-hl\" data-theme=\"light\"><span class=\"brand\"><span class=\"brand-mark\"><svg viewBox=\"0 0 64 64\" width=\"40\" height=\"40\" aria-hidden=\"true\" shape-rendering=\"crispEdges\"><path fill=\"currentColor\" d=\"M0 0h64v2h-64ZM0 62h64v2h-64ZM0 2h2v60h-2ZM62 2h2v60h-2ZM8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8Z\"></path><path fill=\"#ff2e88\" d=\"M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z\"></path></svg></span><span class=\"brand-text\"><small>DOM ENGINE<i class=\"brand-ver\">V0.27.0</i></small><b>FIZLET</b></span></span></div>\n      </div>\n    </div>"
+  },
+  {
+   "id": "why",
+   "head": {
+    "index": "02",
+    "eyebrow": "WHY FZLT",
+    "eyebrowHtml": "<span class=\"index\">02</span> WHY FZLT",
+    "title": {
+     "line": "Four letters.",
+     "accent": "No vowels."
+    },
+    "lead": ""
+   },
+   "body": "<div class=\"panel brand-why\">\n      <p><b>Why fzlt.</b> We picked fzlt on purpose, as Fizlet's developer and npm mark, so nobody mixes it up with anything else. It reads well as <code>npm i fzlt</code>. It has no vowels, so it is not a real word and not a misspelling of one. It has a “z”, one of the least-used letters in English. It won't autocorrect into anything, and nobody types it by accident. It is unique by design and it matches the brand: the <code>@fzlt</code> npm scope, <a href=\"https://github.com/fizlet\">github.com/fizlet ↗</a>, Fizlet™ / fzlt™, and fzlt.dev and fzlt.app (planned redirects to fizlet.com). Today the install line is <code>npm i @fzlt/core</code>; plain <code>fzlt</code> is requested from npm, not ours yet, and the alias <code>npm i fzlt@npm:@fzlt/core</code> works now.</p>\n    </div>"
+  },
+  {
+   "id": "voices",
+   "head": {
+    "index": "03",
+    "eyebrow": "TWO VOICES",
+    "eyebrowHtml": "<span class=\"index\">03</span> TWO VOICES",
+    "title": {
+     "line": "Fizlet tells it.",
+     "accent": "fzlt runs it."
+    },
+    "lead": ""
+   },
+   "body": "<div class=\"brand-split\">\n      <div class=\"panel brand-voice\">\n        <h3>Fizlet</h3>\n        <p class=\"brand-cap\">The brand: the name people remember. Confident, plain, arcade swagger. Headlines, pages, posts, the README title. It says the why, the mechanism, the proof.</p>\n        <ul class=\"brand-ex\">\n          <li><span class=\"bui-label\"><b>README TITLE</b></span><p class=\"brand-say\">Fizlet™</p></li>\n          <li><span class=\"bui-label\"><b>HEADLINE</b></span><p class=\"brand-say\">Tiny physics for your page.</p></li>\n          <li><span class=\"bui-label\"><b>HEADLINE</b></span><p class=\"brand-say\">Recall gives <em>the page back.</em></p></li>\n          <li><span class=\"bui-label\"><b>STICKER</b></span><div class=\"brand-still\"><div class=\"bui-sticker\"><span>RECALL</span><b>RESTORED</b></div></div></li>\n        </ul>\n      </div>\n      <div class=\"panel brand-voice\">\n        <h3><code>fzlt</code></h3>\n        <p class=\"brand-cap\">The developer and npm mark. Short, dev-first, lowercase, code-shaped. npm, badges, CLI output, code comments, stickers. It says the what: the command, the brick, the number.</p>\n        <ul class=\"brand-ex\">\n          <li><span class=\"bui-label\"><b>NPM DESCRIPTION</b></span><pre tabindex=\"0\" class=\"brand-code\"><code>fzlt™: Fizlet's micro animation and game engine for the DOM, by Chris Cooley. One loop, bounded everything, the page always comes back.</code></pre></li>\n          <li><span class=\"bui-label\"><b>README BADGE LINE</b></span><pre tabindex=\"0\" class=\"brand-code\"><code>npm i @fzlt/core · kernel 3,372 B gzip · 0 runtime deps · MIT</code></pre></li>\n          <li><span class=\"bui-label\"><b>SNIPPET COMMENT</b></span><pre tabindex=\"0\" class=\"brand-code\"><code>// fzlt/fx: sparks from the event ring. destroy() gives the page back.</code></pre></li>\n          <li><span class=\"bui-label\"><b>STICKERS</b></span><div class=\"brand-still\"><div class=\"bui-sticker\"><span>fzlt</span><b>RESTORED</b></div><div class=\"bui-sticker\"><span>@fzlt/core</span><b>READY</b></div></div></li>\n        </ul>\n        <p class=\"brand-cap\">fzlt stays lowercase, even on a sticker; keep it out of kit labels that force capitals. The kernel size is measured on this build.</p>\n      </div>\n    </div>"
+  },
+  {
+   "id": "stickers",
+   "head": {
+    "index": "04",
+    "eyebrow": "STICKER SET",
+    "eyebrowHtml": "<span class=\"index\">04</span> STICKER SET",
+    "title": {
+     "line": "Stick it on.",
+     "accent": "Both marks."
+    },
+    "lead": "Fizlet™ and fzlt™ in the kit's two sticker styles: the overlay sticker and the sticker key. Each is live below and downloads as an SVG made from the same list."
+   },
+   "body": "<ul class=\"brand-stickers\">\n      <li class=\"panel brand-sticker\">\n        <div class=\"brand-still\"><div class=\"bui-sticker\"><span>BY CHRIS COOLEY</span><b>FIZLET™</b></div></div>\n        <div class=\"brand-sticker-dl\"><a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-sticker-fizlet.svg\" download=\"fizlet-sticker-fizlet.svg\" data-mark=\"fizlet-sticker-fizlet.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>SVG<span class=\"sr\"> of the sticker BY CHRIS COOLEY / FIZLET</span></a></div>\n      </li><li class=\"panel brand-sticker\">\n        <div class=\"brand-still\"><div class=\"bui-sticker\"><span>@fzlt/core</span><b>fzlt™</b></div></div>\n        <div class=\"brand-sticker-dl\"><a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-sticker-fzlt.svg\" download=\"fizlet-sticker-fzlt.svg\" data-mark=\"fizlet-sticker-fzlt.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>SVG<span class=\"sr\"> of the sticker @fzlt/core / fzlt</span></a></div>\n      </li><li class=\"panel brand-sticker\">\n        <div class=\"brand-still\"><div class=\"bui-sticker brand-sticker-small\"><span>INSTALL</span><b>npm i @fzlt/core</b></div></div>\n        <div class=\"brand-sticker-dl\"><a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-sticker-npm.svg\" download=\"fizlet-sticker-npm.svg\" data-mark=\"fizlet-sticker-npm.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>SVG<span class=\"sr\"> of the sticker INSTALL / npm i @fzlt/core</span></a></div>\n      </li><li class=\"panel brand-sticker\">\n        <div class=\"brand-keys\"><button class=\"bui-key bui-sticker-key\" type=\"button\" aria-label=\"Sticker key: FIZLET\"><svg viewBox=\"0 0 64 64\" width=\"42\" height=\"42\" aria-hidden=\"true\" shape-rendering=\"crispEdges\"><path fill=\"currentColor\" d=\"M0 0h64v2h-64ZM0 62h64v2h-64ZM0 2h2v60h-2ZM62 2h2v60h-2ZM8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8Z\"></path><path fill=\"#ff2e88\" d=\"M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z\"></path></svg><b>FIZLET</b></button></div>\n        <div class=\"brand-sticker-dl\"><a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-sticker-key-fizlet-dark.svg\" download=\"fizlet-sticker-key-fizlet-dark.svg\" data-mark=\"fizlet-sticker-key-fizlet-dark.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Dark SVG<span class=\"sr\"> of the sticker FIZLET</span></a><a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-sticker-key-fizlet-light.svg\" download=\"fizlet-sticker-key-fizlet-light.svg\" data-mark=\"fizlet-sticker-key-fizlet-light.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Light SVG<span class=\"sr\"> of the sticker FIZLET</span></a></div>\n      </li><li class=\"panel brand-sticker\">\n        <div class=\"brand-keys\"><button class=\"bui-key bui-sticker-key\" type=\"button\" aria-label=\"Sticker key: fzlt\"><svg viewBox=\"0 0 64 64\" width=\"42\" height=\"42\" aria-hidden=\"true\" shape-rendering=\"crispEdges\"><path fill=\"currentColor\" d=\"M0 0h64v2h-64ZM0 62h64v2h-64ZM0 2h2v60h-2ZM62 2h2v60h-2ZM8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8Z\"></path><path fill=\"#ff2e88\" d=\"M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z\"></path></svg><b>fzlt</b></button></div>\n        <div class=\"brand-sticker-dl\"><a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-sticker-key-fzlt-dark.svg\" download=\"fizlet-sticker-key-fzlt-dark.svg\" data-mark=\"fizlet-sticker-key-fzlt-dark.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Dark SVG<span class=\"sr\"> of the sticker fzlt</span></a><a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-sticker-key-fzlt-light.svg\" download=\"fizlet-sticker-key-fzlt-light.svg\" data-mark=\"fizlet-sticker-key-fzlt-light.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Light SVG<span class=\"sr\"> of the sticker fzlt</span></a></div>\n      </li>\n    </ul>"
+  },
+  {
+   "id": "lockups",
+   "head": {
+    "index": "05",
+    "eyebrow": "LOCKUPS",
+    "eyebrowHtml": "<span class=\"index\">05</span> LOCKUPS",
+    "title": {
+     "line": "Side by side.",
+     "accent": "Never squeezed."
+    },
+    "lead": "The header lockup above, and three more. Only these; ™ never goes on code or a domain."
+   },
+   "body": "<ul class=\"brand-cards\">\n      <li class=\"panel brand-card\">\n        <h3>Fizlet + fzlt</h3>\n        <p class=\"brand-cap\">Fizlet™ · fzlt™: the name, a middle dot, the short mark in mono and <code>--muted</code>.</p>\n        <div class=\"brand-pair\">\n          <figure class=\"brand-fig brand-on-dark\">\n            <div class=\"brand-art\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 404 102\" width=\"404\" height=\"102\" role=\"img\" aria-label=\"Fizlet and fzlt lockup, on dark\"><rect width=\"404\" height=\"102\" fill=\"#07060f\"></rect><text x=\"34\" y=\"68\" font-family=\"Inter, 'SF Pro Display', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif\" font-size=\"48\" font-weight=\"800\" letter-spacing=\"-1.7\" fill=\"#f6f3ff\" textLength=\"115\" lengthAdjust=\"spacing\">Fizlet</text><text x=\"153\" y=\"48\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"16\" font-weight=\"400\" letter-spacing=\"0\" fill=\"#f6f3ff\" textLength=\"16\" lengthAdjust=\"spacing\">™</text><text x=\"186\" y=\"68\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"48\" font-weight=\"700\" letter-spacing=\"0\" fill=\"#aea4d6\" textLength=\"29\" lengthAdjust=\"spacing\">·</text><text x=\"232\" y=\"68\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"48\" font-weight=\"700\" letter-spacing=\"1\" fill=\"#aea4d6\" textLength=\"118\" lengthAdjust=\"spacing\">fzlt</text><text x=\"354\" y=\"48\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"16\" font-weight=\"400\" letter-spacing=\"0\" fill=\"#aea4d6\" textLength=\"16\" lengthAdjust=\"spacing\">™</text></svg></div>\n            <figcaption><span class=\"bui-label\"><b>ON DARK</b> · 404 × 102</span>\n              <a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-lockup-dark.svg\" download=\"fizlet-lockup-dark.svg\" data-mark=\"fizlet-lockup-dark.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Dark SVG<span class=\"sr\"> of the Fizlet + fzlt</span></a></figcaption>\n          </figure>\n          <figure class=\"brand-fig brand-on-light\">\n            <div class=\"brand-art\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 404 102\" width=\"404\" height=\"102\" role=\"img\" aria-label=\"Fizlet and fzlt lockup, on light\"><rect width=\"404\" height=\"102\" fill=\"#eef0fb\"></rect><text x=\"34\" y=\"68\" font-family=\"Inter, 'SF Pro Display', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif\" font-size=\"48\" font-weight=\"800\" letter-spacing=\"-1.7\" fill=\"#1b1636\" textLength=\"115\" lengthAdjust=\"spacing\">Fizlet</text><text x=\"153\" y=\"48\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"16\" font-weight=\"400\" letter-spacing=\"0\" fill=\"#1b1636\" textLength=\"16\" lengthAdjust=\"spacing\">™</text><text x=\"186\" y=\"68\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"48\" font-weight=\"700\" letter-spacing=\"0\" fill=\"#5d5684\" textLength=\"29\" lengthAdjust=\"spacing\">·</text><text x=\"232\" y=\"68\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"48\" font-weight=\"700\" letter-spacing=\"1\" fill=\"#5d5684\" textLength=\"118\" lengthAdjust=\"spacing\">fzlt</text><text x=\"354\" y=\"48\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"16\" font-weight=\"400\" letter-spacing=\"0\" fill=\"#5d5684\" textLength=\"16\" lengthAdjust=\"spacing\">™</text></svg></div>\n            <figcaption><span class=\"bui-label\"><b>ON LIGHT</b> · 404 × 102</span>\n              <a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-lockup-light.svg\" download=\"fizlet-lockup-light.svg\" data-mark=\"fizlet-lockup-light.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Light SVG<span class=\"sr\"> of the Fizlet + fzlt</span></a></figcaption>\n          </figure>\n        </div>\n      </li>\n      <li class=\"panel brand-card\">\n        <h3>@fzlt/core</h3>\n        <p class=\"brand-cap\">The package, in code style only, never with ™. Fizlet on npm is <code>@fzlt/core</code>: <code>npm i @fzlt/core</code>, bricks at <code>@fzlt/core/&lt;brick&gt;</code>.</p>\n        <div class=\"brand-pair\">\n          <figure class=\"brand-fig brand-on-dark\">\n            <div class=\"brand-art\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 411 102\" width=\"411\" height=\"102\" role=\"img\" aria-label=\"npm i @fzlt/core, on dark\"><rect width=\"411\" height=\"102\" fill=\"#07060f\"></rect><rect x=\"34\" y=\"21\" width=\"343\" height=\"61\" rx=\"10\" fill=\"#0b0918\" stroke=\"#3b3170\" stroke-width=\"2\"></rect><text x=\"52\" y=\"63\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"32\" font-weight=\"400\" letter-spacing=\"0\" fill=\"#aea4d6\" textLength=\"96\" lengthAdjust=\"spacing\">npm i</text><text x=\"167\" y=\"63\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"32\" font-weight=\"700\" letter-spacing=\"0\" fill=\"#19f0ff\" textLength=\"192\" lengthAdjust=\"spacing\">@fzlt/core</text></svg></div>\n            <figcaption><span class=\"bui-label\"><b>ON DARK</b> · 411 × 102</span>\n              <a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-npm-dark.svg\" download=\"fizlet-npm-dark.svg\" data-mark=\"fizlet-npm-dark.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Dark SVG<span class=\"sr\"> of the @fzlt/core</span></a></figcaption>\n          </figure>\n          <figure class=\"brand-fig brand-on-light\">\n            <div class=\"brand-art\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 411 102\" width=\"411\" height=\"102\" role=\"img\" aria-label=\"npm i @fzlt/core, on light\"><rect width=\"411\" height=\"102\" fill=\"#eef0fb\"></rect><rect x=\"34\" y=\"21\" width=\"343\" height=\"61\" rx=\"10\" fill=\"#f6f5fd\" stroke=\"#b9b2e3\" stroke-width=\"2\"></rect><text x=\"52\" y=\"63\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"32\" font-weight=\"400\" letter-spacing=\"0\" fill=\"#5d5684\" textLength=\"96\" lengthAdjust=\"spacing\">npm i</text><text x=\"167\" y=\"63\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"32\" font-weight=\"700\" letter-spacing=\"0\" fill=\"#006e91\" textLength=\"192\" lengthAdjust=\"spacing\">@fzlt/core</text></svg></div>\n            <figcaption><span class=\"bui-label\"><b>ON LIGHT</b> · 411 × 102</span>\n              <a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-npm-light.svg\" download=\"fizlet-npm-light.svg\" data-mark=\"fizlet-npm-light.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Light SVG<span class=\"sr\"> of the @fzlt/core</span></a></figcaption>\n          </figure>\n        </div>\n      </li>\n      <li class=\"panel brand-card\">\n        <h3>fzlt.dev</h3>\n        <p class=\"brand-cap\">fizlet.com is the home. fzlt.dev (and fizlet.dev, fzlt.app) are planned redirects to it: lowercase, no ™, no link until live.</p>\n        <div class=\"brand-pair\">\n          <figure class=\"brand-fig brand-on-dark\">\n            <div class=\"brand-art\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 305 102\" width=\"305\" height=\"102\" role=\"img\" aria-label=\"fzlt.dev, on dark\"><rect width=\"305\" height=\"102\" fill=\"#07060f\"></rect><text x=\"34\" y=\"68\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"48\" font-weight=\"700\" letter-spacing=\"1\" fill=\"#f6f3ff\" textLength=\"237\" lengthAdjust=\"spacing\">fzlt.dev</text></svg></div>\n            <figcaption><span class=\"bui-label\"><b>ON DARK</b> · 305 × 102</span>\n              <a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-dev-dark.svg\" download=\"fizlet-dev-dark.svg\" data-mark=\"fizlet-dev-dark.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Dark SVG<span class=\"sr\"> of the fzlt.dev</span></a></figcaption>\n          </figure>\n          <figure class=\"brand-fig brand-on-light\">\n            <div class=\"brand-art\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 305 102\" width=\"305\" height=\"102\" role=\"img\" aria-label=\"fzlt.dev, on light\"><rect width=\"305\" height=\"102\" fill=\"#eef0fb\"></rect><text x=\"34\" y=\"68\" font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\" font-size=\"48\" font-weight=\"700\" letter-spacing=\"1\" fill=\"#1b1636\" textLength=\"237\" lengthAdjust=\"spacing\">fzlt.dev</text></svg></div>\n            <figcaption><span class=\"bui-label\"><b>ON LIGHT</b> · 305 × 102</span>\n              <a class=\"bui-key bui-arcade bui-sys brand-dl\" href=\"/brand/fizlet-dev-light.svg\" download=\"fizlet-dev-light.svg\" data-mark=\"fizlet-dev-light.svg\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>Light SVG<span class=\"sr\"> of the fzlt.dev</span></a></figcaption>\n          </figure>\n        </div>\n      </li>\n    </ul>"
+  },
+  {
+   "id": "name",
+   "head": {
+    "index": "06",
+    "eyebrow": "™ AND CASING",
+    "eyebrowHtml": "<span class=\"index\">06</span> ™ AND CASING",
+    "title": {
+     "line": "Say it right.",
+     "accent": "Spell it right."
+    },
+    "lead": ""
+   },
+   "body": "<div class=\"brand-split\">\n      <ul class=\"brand-rules\" aria-label=\"Trademark\">\n        <li><b>Fizlet™</b> and <b>fzlt™</b> carry ™ on the first prominent use on a surface: the hero, the footer, the README title, the npm description. Plain after that.</li>\n        <li><b>No ®.</b> Nothing is registered.</li>\n        <li><b>The note:</b> “Fizlet and fzlt are trademarks of Chris Cooley.”</li>\n      </ul>\n      <ul class=\"brand-rules brand-case\" aria-label=\"Casing\">\n        <li><b>Fizlet</b> in prose and titles.</li>\n        <li><b>FIZLET</b> as the wordmark only.</li>\n        <li><code>fizlet</code> in URLs and code: fizlet.com.</li>\n        <li><code>fzlt</code> always lowercase: the short mark and <code>@fzlt/core</code>.</li>\n        <li><b>Never</b> FizLet.</li>\n      </ul>\n    </div>"
+  },
+  {
+   "id": "space",
+   "head": {
+    "index": "07",
+    "eyebrow": "CLEAR SPACE · MINIMUM SIZE",
+    "eyebrowHtml": "<span class=\"index\">07</span> CLEAR SPACE · MINIMUM SIZE",
+    "title": {
+     "line": "Give it room.",
+     "accent": "Keep it legible."
+    },
+    "lead": ""
+   },
+   "body": "<div class=\"brand-split\">\n      <figure class=\"panel brand-cs\">\n        <svg viewBox=\"0 0 378 144\" role=\"img\" aria-label=\"Clear space: X, the width of the mark's outlined square, on every side of the FIZLET logo\"><svg x=\"28\" y=\"28\" width=\"322\" height=\"88\" viewBox=\"0 0 322 88\" aria-hidden=\"true\"><rect width=\"322\" height=\"88\" fill=\"#07060f\"></rect><g transform=\"translate(20 20) scale(0.75)\"><path fill=\"#f6f3ff\" d=\"M0 0h64v2h-64ZM0 62h64v2h-64ZM0 2h2v60h-2ZM62 2h2v60h-2ZM8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8ZM62 0h43v11H76.5v15.5H102v11H76.5V64H62ZM114.25 0h14v64h-14ZM138 0h49.4v7.2L154.6 53h32.8v11H138v-8l32.2-45H138ZM198 0h14v53h26.5v11H198ZM247.6 0h43.9v11h-29.9v15.5h27.8v11h-27.8V53h30.1v11h-44.1ZM299 0h53v11h-19.5v53h-14V11H299ZM358.6 0h5.76v1.2h-2.28v6.8h-1.2v-6.8h-2.28ZM365.96 0h1.56L370.16 3.6L372.8 0h1.56v8h-1.2V2.4L370.64 5.28h-0.96L367.16 2.4V8h-1.2Z\"></path><path fill=\"#ff2e88\" d=\"M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z\"></path></g></svg>\n          <rect class=\"cs-out\" x=\"28\" y=\"28\" width=\"322\" height=\"88\"></rect>\n          <rect class=\"cs-in\" x=\"48\" y=\"48\" width=\"282\" height=\"48\"></rect>\n          <text x=\"38\" y=\"77\" class=\"cs-x\" text-anchor=\"middle\">X</text><text x=\"340\" y=\"77\" class=\"cs-x\" text-anchor=\"middle\">X</text><text x=\"189\" y=\"43\" class=\"cs-x\" text-anchor=\"middle\">X</text><text x=\"189\" y=\"111\" class=\"cs-x\" text-anchor=\"middle\">X</text>\n        </svg>\n        <figcaption class=\"brand-cap\"><b>X</b> is the width of the mark's outlined square: 26 of the mark's 64 units, about 0.4 × the logo's cap height. The same X goes round the fzlt logo. Nothing enters it: no text, key edge or grid line. The downloads carry it.</figcaption>\n      </figure>\n      <ul class=\"panel brand-min\" aria-label=\"Minimum sizes\">\n        <li><span class=\"brand-min-logo\"><svg viewBox=\"0 0 375 64\" width=\"140.6\" height=\"24\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M0 0h64v2h-64ZM0 62h64v2h-64ZM0 2h2v60h-2ZM62 2h2v60h-2ZM8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8ZM62 0h43v11H76.5v15.5H102v11H76.5V64H62ZM114.25 0h14v64h-14ZM138 0h49.4v7.2L154.6 53h32.8v11H138v-8l32.2-45H138ZM198 0h14v53h26.5v11H198ZM247.6 0h43.9v11h-29.9v15.5h27.8v11h-27.8V53h30.1v11h-44.1ZM299 0h53v11h-19.5v53h-14V11H299ZM358.6 0h5.76v1.2h-2.28v6.8h-1.2v-6.8h-2.28ZM365.96 0h1.56L370.16 3.6L372.8 0h1.56v8h-1.2V2.4L370.64 5.28h-0.96L367.16 2.4V8h-1.2Z\"></path><path style=\"fill:var(--k-attack)\" d=\"M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z\"></path></svg></span><p><b>Logos:</b> FIZLET at a 24px cap height, fzlt at 24px tall: the pop's smallest pixel stays about 1px.</p></li>\n        <li><span class=\"brand-text brand-min-16\"><b>FIZLET</b></span><p><b>Header wordmark:</b> 16px, the smallest it ships (the header at 380px wide and under).</p></li>\n        <li><span class=\"brand-mark brand-min-38\"><svg viewBox=\"0 0 64 64\" width=\"34\" height=\"34\" aria-hidden=\"true\" shape-rendering=\"crispEdges\"><path fill=\"currentColor\" d=\"M0 0h64v2h-64ZM0 62h64v2h-64ZM0 2h2v60h-2ZM62 2h2v60h-2ZM8 30h26v7h-26ZM8 49h26v7h-26ZM8 37h7v12h-7ZM27 37h7v12h-7ZM36 18h14v14h-14ZM40 40h8v8h-8Z\"></path><path fill=\"#ff2e88\" d=\"M52 6h6v6h-6ZM46 6h3v3h-3ZM58 14h3v3h-3Z\"></path></svg></span><p><b>Mark:</b> 34px in page chrome; the favicon at the browser's size.</p></li>\n        <li><code class=\"brand-min-12\">fzlt</code><p><b>fzlt:</b> 12px, the arcade key label size.</p></li>\n      </ul>\n    </div>"
+  },
+  {
+   "id": "donts",
+   "head": {
+    "index": "08",
+    "eyebrow": "DON'TS",
+    "eyebrowHtml": "<span class=\"index\">08</span> DON'TS",
+    "title": {
+     "line": "Not like this.",
+     "accent": "Not ever."
+    },
+    "lead": ""
+   },
+   "body": "<ul class=\"brand-donts\">\n      <li class=\"panel brand-dont\">\n        <div class=\"brand-dont-art\" aria-hidden=\"true\"><span class=\"brand-dont-word brand-dont-stretch\">FIZLET</span></div>\n        <p><span class=\"brand-no\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M5 5l10 10M15 5 5 15\"></path></svg>DON'T</span> <b>Stretched</b></p>\n        <p class=\"brand-cap\">Never stretch, squash, slant or rotate a mark.</p>\n      </li><li class=\"panel brand-dont\">\n        <div class=\"brand-dont-art\" aria-hidden=\"true\"><span class=\"brand-dont-word brand-dont-hue\">FIZLET</span></div>\n        <p><span class=\"brand-no\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M5 5l10 10M15 5 5 15\"></path></svg>DON'T</span> <b>Off-palette</b></p>\n        <p class=\"brand-cap\">The tokens only: --ink, --muted, the tile's own colours.</p>\n      </li><li class=\"panel brand-dont\">\n        <div class=\"brand-dont-art\" aria-hidden=\"true\"><span class=\"brand-dont-word \">FizLet</span></div>\n        <p><span class=\"brand-no\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M5 5l10 10M15 5 5 15\"></path></svg>DON'T</span> <b>FizLet</b></p>\n        <p class=\"brand-cap\">Fizlet in prose, FIZLET as the mark. Never FizLet or FIZlet.</p>\n      </li><li class=\"panel brand-dont\">\n        <div class=\"brand-dont-art\" aria-hidden=\"true\"><span class=\"brand-dont-word \">Fizlet®</span></div>\n        <p><span class=\"brand-no\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M5 5l10 10M15 5 5 15\"></path></svg>DON'T</span> <b>®</b></p>\n        <p class=\"brand-cap\">Nothing is registered. ™ only, never “registered”.</p>\n      </li><li class=\"panel brand-dont\">\n        <div class=\"brand-dont-art\" aria-hidden=\"true\"><span class=\"brand-dont-word \">FZLT</span></div>\n        <p><span class=\"brand-no\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M5 5l10 10M15 5 5 15\"></path></svg>DON'T</span> <b>FZLT</b></p>\n        <p class=\"brand-cap\">fzlt is always lowercase.</p>\n      </li><li class=\"panel brand-dont\">\n        <div class=\"brand-dont-art\" aria-hidden=\"true\"><span class=\"brand-dont-word \">@fzlt™/core</span></div>\n        <p><span class=\"brand-no\"><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M5 5l10 10M15 5 5 15\"></path></svg>DON'T</span> <b>™ in code</b></p>\n        <p class=\"brand-cap\">No ™ in package names, imports or URLs.</p>\n      </li>\n    </ul>"
+  },
+  {
+   "id": "colour",
+   "head": {
+    "index": "09",
+    "eyebrow": "COLOUR · FROM src/ui/tokens.json",
+    "eyebrowHtml": "<span class=\"index\">09</span> COLOUR · FROM src/ui/tokens.json",
+    "title": {
+     "line": "Colour is a job.",
+     "accent": "Not decoration."
+    },
+    "lead": "Flat faces, solid hex, no gradients. Every swatch here is the kit's own variable, so it follows the theme switch in the header. The source is <a href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/ui/tokens.json\">tokens.json ↗</a>; the build fails if <code>board-ui.css</code> drifts from it."
+   },
+   "groups": [
+    {
+     "title": "Roles: one colour per job",
+     "swatches": [
+      {
+       "name": "sys",
+       "var": "--k-sys",
+       "job": "navigation: menu, camera, pager, pickers, tips, focus ring, comms edge",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#19f0ff"
+        }
+       ]
+      },
+      {
+       "name": "cmd",
+       "var": "--k-cmd",
+       "job": "command and planning, cards, every LOCKED order",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#9a63ff"
+        }
+       ]
+      },
+      {
+       "name": "fire",
+       "var": "--k-fire",
+       "job": "the main action (the gun)",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#ff2b4e"
+        }
+       ]
+      },
+      {
+       "name": "aim",
+       "var": "--k-aim",
+       "job": "aim modes; fire's lighter twin; dim when off",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#ff7389"
+        }
+       ]
+      },
+      {
+       "name": "attack",
+       "var": "--k-attack",
+       "job": "offensive order; door pink",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#ff2e88"
+        }
+       ]
+      },
+      {
+       "name": "advance",
+       "var": "--k-advance",
+       "job": "push to objective",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#ff8a1f"
+        }
+       ]
+      },
+      {
+       "name": "fallin",
+       "var": "--k-fallin",
+       "job": "form up on the player",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#a8ff3e"
+        }
+       ]
+      },
+      {
+       "name": "flag",
+       "var": "--k-flag",
+       "job": "white flag: pause / surrender; overlay sticker face",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#f6f3ff"
+        }
+       ]
+      },
+      {
+       "name": "go",
+       "var": "--k-go",
+       "job": "start and confirm; comms LED",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#39ffb0"
+        }
+       ]
+      },
+      {
+       "name": "teamA",
+       "var": "--team-a",
+       "job": "side A: retreat key, badges, platoon keys",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#39ffb0"
+        }
+       ]
+      },
+      {
+       "name": "teamB",
+       "var": "--team-b",
+       "job": "side B",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#ff5c8f"
+        }
+       ]
+      },
+      {
+       "name": "hurt",
+       "var": "--hurt",
+       "job": "health 30-60%",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#ffc21a"
+        }
+       ]
+      },
+      {
+       "name": "critical",
+       "var": "--critical",
+       "job": "health under 30%; alert",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#f0506e"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "title": "Surfaces and ink",
+     "swatches": [
+      {
+       "name": "bg",
+       "var": "--bg",
+       "job": "",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#07060f"
+        },
+        {
+         "theme": "light",
+         "hex": "#eef0fb"
+        }
+       ]
+      },
+      {
+       "name": "surface",
+       "var": "--surface",
+       "job": "",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#110d22"
+        },
+        {
+         "theme": "light",
+         "hex": "#ffffff"
+        }
+       ]
+      },
+      {
+       "name": "raised",
+       "var": "--raised",
+       "job": "",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#1d1738"
+        },
+        {
+         "theme": "light",
+         "hex": "#e6e4f8"
+        }
+       ]
+      },
+      {
+       "name": "card",
+       "var": "--card",
+       "job": "",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#120f26"
+        },
+        {
+         "theme": "light",
+         "hex": "#ffffff"
+        }
+       ]
+      },
+      {
+       "name": "ink",
+       "var": "--ink",
+       "job": "",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#f6f3ff"
+        },
+        {
+         "theme": "light",
+         "hex": "#1b1636"
+        }
+       ]
+      },
+      {
+       "name": "muted",
+       "var": "--muted",
+       "job": "",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#aea4d6"
+        },
+        {
+         "theme": "light",
+         "hex": "#5d5684"
+        }
+       ]
+      },
+      {
+       "name": "line",
+       "var": "--line",
+       "job": "",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#3b3170"
+        },
+        {
+         "theme": "light",
+         "hex": "#b9b2e3"
+        }
+       ]
+      },
+      {
+       "name": "rim",
+       "var": "--rim",
+       "job": "same in both themes: every key, sticker and card sits on an ink rim",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#07060f"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "title": "Ink twins: thin text on light",
+     "swatches": [
+      {
+       "name": "sysInk",
+       "var": "--k-sys-ink",
+       "job": "",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#19f0ff"
+        },
+        {
+         "theme": "light",
+         "hex": "#006e91"
+        }
+       ]
+      },
+      {
+       "name": "cmdInk",
+       "var": "--k-cmd-ink",
+       "job": "",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#b48cff"
+        },
+        {
+         "theme": "light",
+         "hex": "#6a3ae6"
+        }
+       ]
+      },
+      {
+       "name": "fireInk",
+       "var": "--k-fire-ink",
+       "job": "",
+       "legacy": [
+        {
+         "theme": "dark",
+         "hex": "#ff2b4e"
+        },
+        {
+         "theme": "light",
+         "hex": "#c01033"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "board",
+   "head": {
+    "index": "10",
+    "eyebrow": "THE BOARD · BOARD UI KIT",
+    "eyebrowHtml": "<span class=\"index\">10</span> THE BOARD · BOARD UI KIT",
+    "title": {
+     "line": "Fizlet wears",
+     "accent": "the board."
+    },
+    "lead": "Neon faces on an ink rim, hard bases straight below, a gridded field, mono caps labels. Everything below is the live kit (<code>@fzlt/core/ui</code>), lifted from DOM Battlefield. The <a href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/ui/BOARD-UI.md\">Board UI spec ↗</a> has every rule."
+   },
+   "body": "<div class=\"brand-board\">\n      <div class=\"panel brand-block\">\n        <h3>The arcade key</h3>\n        <p class=\"brand-cap\">One key family, one role each. Press one: the face drops onto its base. These only press.</p>\n        <div class=\"brand-keys\" role=\"group\" aria-label=\"Arcade keys, one per role\"><button class=\"bui-key bui-arcade bui-go\" type=\"button\"><svg viewBox=\"0 0 20 20\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"m6 4 10 6-10 6Z\"></path></svg>Go</button><button class=\"bui-key bui-arcade bui-sys\" type=\"button\"><svg viewBox=\"0 0 20 20\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 3h9a3 3 0 0 1 3 3v11H7a3 3 0 0 1-3-3ZM4 14a3 3 0 0 1 3-3h9\"></path></svg>Sys</button><button class=\"bui-key bui-arcade bui-cmd\" type=\"button\"><svg viewBox=\"0 0 20 20\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10a6 6 0 1 0 2-4.5M4 3v3h3\"></path></svg>Cmd</button><button class=\"bui-key bui-arcade bui-attack\" type=\"button\"><svg viewBox=\"0 0 20 20\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 1v5M10 14v5M1 10h5M14 10h5\"></path></svg>Attack</button><button class=\"bui-key bui-arcade bui-advance\" type=\"button\"><svg viewBox=\"0 0 20 20\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M3 10h13M11 5l5 5-5 5\"></path></svg>Advance</button><button class=\"bui-key bui-arcade bui-fallin\" type=\"button\"><svg viewBox=\"0 0 20 20\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10.5 8 14.5 16 5.5\"></path></svg>Fall in</button><button class=\"bui-key bui-arcade bui-fire\" type=\"button\"><svg viewBox=\"0 0 20 20\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M11 2 4 11h5l-1 7 7-9h-5Z\"></path></svg>Fire</button><button class=\"bui-key bui-arcade bui-flag\" type=\"button\"><svg viewBox=\"0 0 20 20\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M5 5l10 10M15 5 5 15\"></path></svg>Flag</button></div>\n        <div class=\"brand-keys\" role=\"group\" aria-label=\"Icon keys\"><button class=\"bui-key bui-icon-key\" type=\"button\" aria-label=\"Sound\"><svg viewBox=\"0 0 20 20\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M3 8h3l4-3v10l-4-3H3ZM13 7.5a3.5 3.5 0 0 1 0 5M15 5a7 7 0 0 1 0 10\"></path></svg></button><button class=\"bui-key bui-icon-key\" type=\"button\" aria-label=\"Menu\"><svg viewBox=\"0 0 20 20\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M3 5h14M3 10h14M3 15h14\"></path></svg></button><button class=\"bui-key bui-icon-key\" type=\"button\" aria-label=\"Grid\"><svg viewBox=\"0 0 20 20\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M3 3h14v14H3ZM3 8h14M3 13h14M8 3v14M13 3v14\"></path></svg></button></div>\n      </div>\n      <div class=\"panel brand-block\">\n        <h3>Sticker keys</h3>\n        <p class=\"brand-cap\">The big launch keys: a dark face, a white rim and base, a pixel icon tile.</p>\n        <div class=\"brand-keys\" role=\"group\" aria-label=\"Sticker keys\">\n          <button class=\"bui-key bui-sticker-key\" type=\"button\"><svg viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M5 3h3v14H5ZM8 6h3v8H8ZM11 8h3v4h-3Z\"></path></svg><b>START</b></button>\n          <button class=\"bui-key bui-sticker-key bui-plan\" type=\"button\"><svg viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M3 3h6v6H3ZM11 3h6v6h-6ZM3 11h6v6H3ZM11 11h6v6h-6Z\"></path></svg><b>PLAN</b></button>\n          <button class=\"bui-key bui-sticker-key bui-second\" type=\"button\"><svg viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M4 3h3v14H4ZM7 3h9v7H7Z\"></path></svg><b>FLAG</b></button>\n        </div>\n      </div>\n      <div class=\"panel brand-block\">\n        <h3>Stickers</h3>\n        <p class=\"brand-cap\">A kicker and one or two words, tilted −4°, on the rim: RECALL / RESTORED on the home demo, ERROR 404 / NO PAGE on the 404. Slam one: the kit's own drop, hit and press, then it settles.</p>\n        <div class=\"brand-stage\">\n          <div class=\"brand-slam\" data-slam hidden><div class=\"bui-sticker\"><span>RECALL</span><b>RESTORED</b></div></div>\n          <div class=\"brand-still\"><div class=\"bui-sticker\"><span>ERROR 404</span><b>NO PAGE</b></div></div>\n        </div>\n        <p class=\"brand-row\"><span class=\"eyebrow\"><span class=\"index\">10</span> SECTION STICKER</span> <span class=\"soon-tag\">COMING SOON</span></p>\n        <div class=\"brand-keys\"><button class=\"bui-key bui-arcade bui-attack\" type=\"button\" data-slam-key><svg viewBox=\"0 0 20 20\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 1v5M10 14v5M1 10h5M14 10h5\"></path></svg>Slam</button></div>\n      </div>\n      <div class=\"panel brand-block\">\n        <h3>The grid</h3>\n        <p class=\"brand-cap\">1px lines, the board under every hero. Four sizes only.</p>\n        <ul class=\"brand-grids\"><li><span class=\"brand-grid\" style=\"background-size:44px 44px\" aria-hidden=\"true\"></span><span class=\"bui-label\"><b>44PX</b> · HERO</span></li><li><span class=\"brand-grid\" style=\"background-size:30px 30px\" aria-hidden=\"true\"></span><span class=\"bui-label\"><b>30PX</b></span></li><li><span class=\"brand-grid\" style=\"background-size:22px 22px\" aria-hidden=\"true\"></span><span class=\"bui-label\"><b>22PX</b></span></li><li><span class=\"brand-grid\" style=\"background-size:20px 20px\" aria-hidden=\"true\"></span><span class=\"bui-label\"><b>20PX</b></span></li></ul>\n      </div>\n      <div class=\"panel brand-block brand-arcade\">\n        <h3>The arcade brick</h3>\n        <p class=\"brand-cap\"><code>@fzlt/core/arcade</code>: the shell every page arcade game reuses, the overlay, scoreboard, keys and icons in this kit. It takes over the page, so it plays on its own pages, not this one.</p>\n        <div class=\"brand-keys\"><a class=\"bui-key bui-arcade bui-go\" href=\"/demos/before-ai-2015/\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"m6 4 10 6-10 6Z\"></path></svg>Play it live</a><a class=\"bui-key bui-arcade bui-sys\" href=\"/bricks/arcade.html\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 3h9a3 3 0 0 1 3 3v11H7a3 3 0 0 1-3-3ZM4 14a3 3 0 0 1 3-3h9\"></path></svg>The arcade brick</a></div>\n      </div>\n      <div class=\"panel brand-block brand-props\">\n        <h3>Game props</h3>\n        <p class=\"brand-cap\">From DOM Battlefield's board: platoon keys with size pips, a round step key with its badge, the pager, a readout, a label and the comms toast.</p>\n        <div class=\"brand-prop-row\" inert>\n          <button class=\"bui-key bui-arcade bui-unit\" type=\"button\"><b>1</b><span class=\"bui-pips\"><s></s><s></s><s></s></span></button>\n          <button class=\"bui-key bui-arcade bui-unit\" type=\"button\" data-hp=\"hurt\"><b>2</b><span class=\"bui-pips\"><s></s><s></s></span></button>\n          <button class=\"bui-key bui-arcade bui-unit\" type=\"button\" data-hp=\"critical\"><b>3</b><span class=\"bui-pips\"><s></s></span></button>\n          <button class=\"bui-key bui-orb\" type=\"button\"><svg viewBox=\"0 0 20 20\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M3 3h14v14H3ZM3 8h14M3 13h14M8 3v14M13 3v14\"></path></svg><span class=\"bui-badge\">1</span></button>\n          <span class=\"bui-pager\"><button class=\"bui-key bui-arcade bui-sys\" type=\"button\" aria-label=\"Previous unit\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M17 10H4M9 5l-5 5 5 5\"></path></svg></button><button class=\"bui-key bui-arcade bui-sys\" type=\"button\" aria-label=\"Your unit\">★</button><button class=\"bui-key bui-arcade bui-sys\" type=\"button\" aria-label=\"Next unit\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M3 10h13M11 5l5 5-5 5\"></path></svg></button></span>\n        </div>\n        <div class=\"brand-prop-row\">\n          <div class=\"bui-readouts\"><div class=\"bui-readout\">ELAPSED<b>00:00</b></div><div class=\"bui-readout\" data-tone=\"team\">SIDE<b>A</b></div><div class=\"bui-readout\" data-tone=\"enemy\">SIDE<b>B</b></div></div>\n          <span class=\"bui-label\"><b>RADIO</b> · GROUP LABEL</span>\n        </div>\n        <div class=\"bui-toast\">ROGER · GRID 0412</div>\n      </div>\n    </div>"
+  }
+ ],
+ "tail": "<section class=\"section final\" aria-labelledby=\"final-title\">\n  <span class=\"sec-rule\" aria-hidden=\"true\"></span>\n  <div class=\"wrap final-inner\">\n    <p class=\"eyebrow\">FIZLET · V0.27.0 · MIT</p>\n    <h2 id=\"final-title\">By Chris Cooley.</h2>\n    <p class=\"lead\">Fizlet is its own brand, made by <a href=\"https://coded.design\">Chris Cooley ↗</a>. Fizlet and fzlt are trademarks of Chris Cooley; the code is MIT.</p>\n    <div class=\"final-keys\">\n      <a class=\"bui-key bui-arcade bui-go\" href=\"#marks\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M10 3v13M5 11l5 5 5-5\"></path></svg>The marks</a>\n      <a class=\"bui-key bui-arcade bui-sys\" href=\"https://github.com/coded-dot-design/fizlet\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source on GitHub ↗</a>\n    </div>\n  </div>\n</section>"
+}

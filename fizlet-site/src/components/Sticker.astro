@@ -1,0 +1,6 @@
+---
+// A Board UI sticker: a kicker and one or two words, tilted on the rim (ERROR 404 / NO PAGE).
+interface Props { kicker: string; word: string }
+const { kicker, word } = Astro.props;
+---
+<div class="bui-sticker"><span>{kicker}</span><b>{word}</b></div>

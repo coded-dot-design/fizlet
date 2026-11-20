@@ -1,0 +1,50 @@
+{
+ "meta": {
+  "path": "privacy/",
+  "title": "Privacy policy: analytics only with consent · Fizlet",
+  "description": "What fizlet.com collects, why and for how long: no analytics, hosting logs, and how to opt out. No ads, no selling data.",
+  "ld": [],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "crumbs": {
+  "trail": [],
+  "current": "Privacy policy"
+ },
+ "index": "2026-10-31",
+ "eyebrow": "LEGAL · PRIVACY",
+ "eyebrowHtml": "<span class=\"index\">2026-10-31</span> LEGAL · PRIVACY",
+ "title": {
+  "line": "Privacy policy",
+  "accent": "Analytics only if you say yes."
+ },
+ "lead": "Fizlet has no accounts, sells nothing, runs no analytics and shows no ads. This page says what is collected and who processes it.",
+ "by": "By <a href=\"https://coded.design/\">Chris Cooley ↗</a> · Last updated <time datetime=\"2026-10-31\">2026-10-31</time>",
+ "blocks": [
+  {
+   "title": "Who we are",
+   "body": "Fizlet is an open-source (MIT) micro game and animation engine for the DOM, made by Chris Cooley under the <a href=\"https://coded.design/\">coded.design ↗</a> name. \"We\" means the people behind that project. This policy covers fizlet.com. The games have their own site, <a href=\"https://domvirus.com/legal/privacy/\">DOM VIRUS ↗</a>, with its own policy."
+  },
+  {
+   "title": "What we collect",
+   "body": "Nothing that identifies you by name. There is no sign-up, no login and no form. The demos run in your browser and send nothing of their own."
+  },
+  {
+   "title": "Analytics",
+   "body": "None. The site loads no analytics script, makes no analytics request and sets no analytics cookie."
+  },
+  {
+   "title": "Hosting and request logs",
+   "body": "The site is hosted on GitHub Pages. Like any web host, GitHub receives the details every browser sends with a request, such as your IP address, and may log them under <a href=\"https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement\">its own privacy statement ↗</a>."
+  },
+  {
+   "title": "Children",
+   "body": "The site is for a general audience and asks nobody for personal information, children included."
+  },
+  {
+   "title": "Changes to this policy",
+   "body": "If what we collect changes, we update this page and its date first. Every change is public in the site's <a href=\"https://github.com/coded-dot-design/fizlet\">GitHub history ↗</a>."
+  }
+ ]
+}

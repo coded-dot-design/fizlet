@@ -1,0 +1,8 @@
+---
+import DemoPage from "../../../layouts/DemoPage.astro";
+import DEMOS from "../../../data/legacy/pages/demos.json";
+export function getStaticPaths() {
+  return DEMOS.filter((d) => d.path.startsWith("demos/")).map((d) => ({ params: { slug: d.path.split("/")[1] } }));
+}
+---
+<DemoPage path={`demos/${Astro.params.slug}/`} />

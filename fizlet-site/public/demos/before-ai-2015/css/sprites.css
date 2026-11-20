@@ -1,0 +1,60 @@
+.switch{display:inline-block;font-weight:700;max-width:100%}
+@font-face{font-family:chriscooley;src:url(../app-assets/fonts/23fe1f2c.chriscooley.eot?h9xmbs);src:url(../app-assets/fonts/23fe1f2c.chriscooley.eot?#iefixh9xmbs) format("embedded-opentype"),url(../app-assets/fonts/77bdc9dc.chriscooley.woff?h9xmbs) format("woff"),url(../app-assets/fonts/642b175b.chriscooley.ttf?h9xmbs) format("truetype"),url(../app-assets/fonts/ee2b8e09.chriscooley.svg?h9xmbs#chriscooley) format("svg");font-weight:400;font-style:normal}
+.beats .switch{font-family:chriscooley;speak:none;font-style:normal;font-weight:400;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.coffee{background-image:url(../app-assets/images/animations/2deb5381.coffee.png);background-repeat:no-repeat;height:84px;width:84px}
+.coffee .switch{cursor:pointer;width:58%;height:58%;top:18px;position:relative;border-radius:50%}
+.coffee{-webkit-animation:coffeeFill .6s steps(11) forwards .2s;animation:coffeeFill .6s steps(11) forwards .2s}
+.coffee.drinkMe{-webkit-animation:coffeeDrink .6s steps(11) backwards .2s;animation:coffeeDrink .6s steps(11) backwards .2s}
+@-webkit-keyframes coffeeDrink{from{background-position:-924px 0}to{background-position:0 0}}
+@keyframes coffeeDrink{from{background-position:-924px 0}to{background-position:0 0}}
+@-webkit-keyframes coffeeFill{0%{background-position:0 0}100%{background-position:-924px 0}}
+@keyframes coffeeFill{0%{background-position:0 0}100%{background-position:-924px 0}}
+.comp{height:210px;width:210px;float:right;margin:-110px auto 0 auto;position:relative;background-image:url(../app-assets/images/animations/136aceff.computer.svg);background-repeat:no-repeat;-webkit-animation:comp 1.2s steps(13) .2s,compType .8s steps(8) 1.4s,compScroll 1.2s steps(10) infinite 2.2s;animation:comp 1.2s steps(13) .2s,compType .8s steps(8) 1.4s,compScroll 1.2s steps(10) infinite 2.2s}
+.comp.paused{-webkit-animation-play-state:paused;animation-play-state:paused}
+.comp.close{-webkit-animation:compOut .8s steps(15) backwards .1s;animation:compOut .8s steps(15) backwards .1s}
+.comp.close:hover{-webkit-animation-play-state:running;animation-play-state:running}
+.comp .switch{position:absolute;width:172px;height:114px;bottom:0;left:18px;cursor:pointer}
+.desk{width:300px;margin:0 auto}
+@-webkit-keyframes comp{0%{background-position:0 0}100%{background-position:-2730px 0}}
+@keyframes comp{0%{background-position:0 0}100%{background-position:-2730px 0}}
+@-webkit-keyframes compType{0%{background-position:-2520px 0}100%{background-position:-4200px 0}}
+@keyframes compType{0%{background-position:-2520px 0}100%{background-position:-4200px 0}}
+@-webkit-keyframes compScroll{0%{background-position:-4200px 0}100%{background-position:-6300px 0}}
+@keyframes compScroll{0%{background-position:-4200px 0}100%{background-position:-6300px 0}}
+@-webkit-keyframes compOut{0%{background-position:-3150px 0}100%{background-position:0 0}}
+@keyframes compOut{0%{background-position:-3150px 0}100%{background-position:0 0}}
+@-webkit-keyframes opacityOn{0%{opacity:0}100%{opacity:1}}
+@keyframes opacityOn{0%{opacity:0}100%{opacity:1}}
+.beats{background-image:url(../app-assets/images/animations/88597e86.beats.png);background-repeat:no-repeat}
+.css-animations h2{padding-top:1rem;font-weight:100;padding-bottom:1rem}
+.beats{width:300px;height:300px;margin:0 auto;left:-2%;position:relative}
+.beats .switch{width:46px;height:68px;bottom:67px;left:239px;position:absolute;cursor:pointer}
+.beats .switch:before{content:""}
+.beats .switch:after,.beats .switch:before{display:block;position:absolute;width:70%;padding-top:6%;padding-bottom:64%;height:0;top:26%;left:15%;background-color:#ba341f;border-radius:50%;font-size:1.5rem;color:#F4F2DB;text-align:center}
+.beats .switch:after{background-color:#E15E49;top:20%;content:"\e615";transition:top ease}
+@media screen and (min-device-width:41.7rem){.beats .switch:hover:after{top:26%}}
+.beats.paused .switch:after{content:"\e616"}
+.beats{-webkit-animation:beatsPlug 1.4s steps(13),beatsOn 1s steps(14) infinite 1.4s;animation:beatsPlug 1.4s steps(13),beatsOn 1s steps(14) infinite 1.4s}
+.beats.paused{-webkit-animation-play-state:paused;animation-play-state:paused}
+.switch{border:0 none;background-color:transparent;outline:0}
+@-webkit-keyframes beatsPlug{0%{background-position:0}100%{background-position:-3900px}}
+@keyframes beatsPlug{0%{background-position:0}100%{background-position:-3900px}}
+@-webkit-keyframes beatsOn{0%,100%{background-position:-4200px}33%{background-position:-8400px}}
+@keyframes beatsOn{0%,100%{background-position:-4200px}33%{background-position:-8400px}}
+.labelOrg{background-image:url(../app-assets/images/animations/f5af5a3d.animate.svg);background-repeat:no-repeat;position:absolute;left:-245px;top:25px;width:286px;height:92px;z-index:1}
+.labelOrg h2{color:#fff;font-weight:400;padding:1.5rem 7rem 1rem 1.5rem;text-align:left;opacity:0;font-size:1.5rem}
+.pulse{display:block;height:20px;width:20px;border:6px solid rgba(62,188,170,.6);position:absolute;left:30px;top:83px;z-index:0;opacity:0;border-radius:50%}
+.pulse:after,.pulse:before{content:"";display:block;height:80px;width:80px;border:16px solid #3ebcaa;background:0 0;border-radius:50%;position:absolute;top:-52px;left:-52px;z-index:0;opacity:0}
+.pulse:before{border:16px solid #fff}
+.map{position:relative;right:-12%;width:425px;height:254px;margin:2rem auto;background-image:url(../app-assets/images/animations/f5af5a3d.animate.svg);background-repeat:no-repeat;-webkit-animation:mapShow 1.4s steps(16) forwards .6s;animation:mapShow 1.4s steps(16) forwards .6s}
+.map .labelOrg{-webkit-animation:labelOpen 1.2s steps(10) forwards 2s;animation:labelOpen 1.2s steps(10) forwards 2s}
+.map .labelOrg h2{-webkit-animation:opacityOn .6s ease-out forwards 2.8s;animation:opacityOn .6s ease-out forwards 2.8s}
+.map .pulse{-webkit-animation:opacityOn .1s steps(2) forwards 2s;animation:opacityOn .1s steps(2) forwards 2s}
+.map .pulse:after{-webkit-animation:pulse 4.4s ease-out infinite;animation:pulse 4.4s ease-out infinite}
+.map .pulse:before{-webkit-animation:pulse 4.4s ease-out infinite 2.2s;animation:pulse 4.4s ease-out infinite 2.2s}
+@-webkit-keyframes mapShow{0%{background-position:0 -94px}100%{background-position:-6800px -94px}}
+@keyframes mapShow{0%{background-position:0 -94px}100%{background-position:-6800px -94px}}
+@-webkit-keyframes labelOpen{0%{background-position:0 0}100%{background-position:-2862px 0}}
+@keyframes labelOpen{0%{background-position:0 0}100%{background-position:-2862px 0}}
+@-webkit-keyframes pulse{0%{-webkit-transform:scale(0);transform:scale(0);opacity:0}25%{-webkit-transform:scale(0);transform:scale(0);opacity:.1}50%{-webkit-transform:scale(0.1);transform:scale(0.1);opacity:.3}75%{-webkit-transform:scale(0.5);transform:scale(0.5);opacity:.5}100%{-webkit-transform:scale(1);transform:scale(1);opacity:0}}
+@keyframes pulse{0%{-webkit-transform:scale(0);transform:scale(0);opacity:0}25%{-webkit-transform:scale(0);transform:scale(0);opacity:.1}50%{-webkit-transform:scale(0.1);transform:scale(0.1);opacity:.3}75%{-webkit-transform:scale(0.5);transform:scale(0.5);opacity:.5}100%{-webkit-transform:scale(1);transform:scale(1);opacity:0}}

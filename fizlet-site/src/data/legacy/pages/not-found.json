@@ -1,0 +1,33 @@
+{
+ "meta": {
+  "path": "404.html",
+  "title": "Not found: this square is off the board · Fizlet",
+  "description": "This square is off the board: the page you asked for is not on the Fizlet site.",
+  "ld": [],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "sticker": {
+  "kicker": "ERROR 404",
+  "word": "NO PAGE"
+ },
+ "title": "This square is off the board.",
+ "lead": "Nothing lives at this address. The engine, the bricks and the quick start are all on the home page.",
+ "keys": [
+  {
+   "href": "/",
+   "label": "Fizlet home",
+   "tone": "go",
+   "arcade": true,
+   "icon": "play"
+  },
+  {
+   "href": "/#start",
+   "label": "Quick start",
+   "tone": "sys",
+   "arcade": true,
+   "icon": "down"
+  }
+ ]
+}

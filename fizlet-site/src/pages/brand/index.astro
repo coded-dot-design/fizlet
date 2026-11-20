@@ -1,0 +1,34 @@
+---
+// /brand/: the marks, lockups and colour. The head and every section head are SectionHeads; the
+// colour section's swatches are generated from tokens.json; the rest of each section (the marks'
+// art and downloads, the stickers, the live Board UI kit) is kept as built until componentized.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import Swatch from "../../components/Swatch.astro";
+import Html from "../../components/Html.astro";
+import DATA from "../../data/legacy/pages/brand.json";
+const b: any = DATA;
+---
+<BaseLayout meta={b.meta}>
+<section class="has-grid section brand-hero" aria-labelledby="brand-title">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow" set:html={b.hero.eyebrowHtml} />
+      <h1 id="brand-title">{b.hero.title.line}<br><em>{b.hero.title.accent}</em></h1>
+      <p class="lead" set:html={b.hero.lead} />
+      <p class="brand-tm">{b.hero.tm}</p>
+    </div>
+  </div>
+</section>
+{b.sections.map((s: any) => (
+<section id={s.id} class="section brand-sec" aria-labelledby={`${s.id}-title`}>
+  <span class="sec-rule" aria-hidden="true"></span>
+  <div class="wrap">
+    <SectionHead level="h2" index={s.head.index} eyebrow={s.head.eyebrow} line={s.head.title.line} accent={s.head.title.accent} lead={s.head.lead || undefined} id={`${s.id}-title`} />
+    {s.groups ? s.groups.map((g: any) => <Fragment><h3 class="brand-sub">{g.title}</h3>
+    <ul class="brand-swatches">{g.swatches.map((w: any) => <Swatch name={w.name} token={w.var} job={w.job || undefined} />)}</ul></Fragment>)
+    : <Html html={s.body} />}
+  </div>
+</section>))}
+<Html html={b.tail} />
+</BaseLayout>

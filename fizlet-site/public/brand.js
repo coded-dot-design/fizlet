@@ -1,0 +1,1 @@
+function n(e){e&&(e.style.animation="none",e.offsetWidth,e.style.animation="")}var r=document.querySelector("[data-slam-key]"),t=document.querySelector("[data-slam]"),a=0;r?.addEventListener("click",()=>{t&&(t.hidden=!1,n(t.firstElementChild),clearTimeout(a),a=window.setTimeout(()=>t.hidden=!0,1500))});

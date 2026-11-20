@@ -493,7 +493,8 @@
   border: calc(2.5 * var(--u)) solid var(--rim);
   border-radius: calc(10 * var(--u));
   box-shadow: calc(5 * var(--u) * var(--bui-sx)) calc(5 * var(--u) * var(--bui-sy)) 0 var(--bui-shadow);
-  rotate: -4deg;
+  /* Through var(): the CSS minifier folds a literal rotate into transform, which reverses their order. */
+  rotate: var(--bui-sticker-tilt, -4deg);
   animation: bui-slam 1100ms linear both;
 }
 .bui .bui-sticker span {

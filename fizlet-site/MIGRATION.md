@@ -41,6 +41,47 @@ to the export loop in `scripts/export-legacy.mjs`, re-export, add the path to `d
 
 Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same heights on both sites.
 
+## W2-misc results (measured 2026-11-20, legacy build v0.27.0)
+
+The 404, the legal pages, `/brand/`, the two moved pages and the seven engine demo hosts.
+`npm run compare -- http://127.0.0.1:4801/ http://127.0.0.1:4802/ <out> --full <paths>`, full-page shots:
+
+| Page | 1440 light | 1440 dark | 390 light | 390 dark | Page height (1440 / 390) |
+|---|---:|---:|---:|---:|---|
+| `/404.html` | 0.000% | 0.000% | 0.000% | 0.000% | 1,618 / 1,294 px |
+| `/privacy/` | 0.000% | 0.000% | 0.000% | 0.000% | 2,435 / 2,709 px |
+| `/cookies/` | 0.000% | 0.000% | 0.000% | 0.000% | 2,001 / 2,244 px |
+| `/brand/` | 0.000% | 0.000% | 0.000% | 0.000% | 13,948 / 20,124 px |
+| `/demos/before-ai-2015/` | 0.000% | 0.000% | 0.000% | 0.000% | 6,854 / 11,295 px |
+| `/demos/fizz/` | 0.000% | 0.000% | 0.000% | 0.000% | 2,251 / 3,396 px |
+| `/demos/layers/` | 0.000% | 0.000% | 0.000% | 0.000% | 1,566 / 1,485 px |
+| `/demos/name-shift/` | 0.000% | 0.000% | 0.000% | 0.000% | 2,480 / 2,252 px |
+| `/demos/origin/` | 0.000% | 0.000% | 0.000% | 0.000% | 3,440 / 4,643 px |
+| `/examples/fizz/` | 0.000% | 0.000% | 0.000% | 0.000% | 900 / 900 px |
+| `/examples/quick-start.html` | 0.000% | 0.000% | 0.000% | 0.000% | 2,082 / 2,097 px |
+
+The two moved pages (`/heroes/`, `/guides/multiplayer-rooms/`) leave at once (meta refresh), so they
+are not screenshot: their head and `<main>` match the legacy markup (URLs root-absolute), and
+`npm run links` checks the 301s and their targets. Wave 1's four pages re-measured 0.000% after the
+one shared-sheet fix below.
+
+- **The sticker tilt**: the build's CSS minifier (lightningcss) folds a literal `rotate:` into
+  `transform:`, which reverses their order, so every `.bui-sticker` sat a few pixels off (0.2-0.9% on
+  the 404). `board-ui.css` now writes the tilt through `var(--bui-sticker-tilt, -4deg)`, which it
+  leaves alone. Watch for the same fold in any new rule that sets both `rotate` and `transform`.
+- **Redirects**: `public/_redirects` (Cloudflare Pages, a 301 for each moved page with and without
+  its slash) is written by `export-legacy.mjs`; the meta-refresh pages (`RedirectPage.astro`,
+  canonical on the target, noindex) stay for any other host.
+- **Kept as built**: the brand page's sections other than the colour swatches (marks, stickers,
+  lockups, name, space, don'ts, board, closing keys) and every demo host's `<main>`; `/demos/layers/`
+  and `/examples/fizz/` have no site shell and are whole documents (staging adds noindex to them).
+- **Gates added**: `npm run links` (`scripts/links.mjs`, in CI after audit): every same-site link and
+  asset on every built page resolves (a built file or a 301), every `#fragment` exists, every done
+  route is served, `_redirects` matches the moved pages, `sitemap.xml` is exactly the legacy
+  sitemap's built pages in the legacy order and format, `robots.txt` is the legacy policy (staging:
+  an empty sitemap and `Disallow: /`). `--strict` (the cutover) also fails on every legacy route not
+  served. Audit: the legacy noindex pages (404, moved pages, the archive) stay noindex in production.
+
 ## Design system
 
 - **Tokens**: `src/design/tokens.json` is the one source (groups: color, type, space, radius,
@@ -66,11 +107,10 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
   theme chips, search, page nav, and each piece's stage and meta tail.
 - **Analytics**: the legacy build adds GA4 + PostHog behind consent only when its public ids are
   set (they were not for this export). Port `site/analytics` before cutover if they are.
-- **Redirects**: the two moved pages (`/heroes/`, `/guides/multiplayer-rooms/`) need Cloudflare
-  `_redirects` entries plus their meta-refresh pages.
-- **Not pages**: `sitemap.xml` (generated here from the done routes), `robots.txt`, `llms.txt`,
-  `llms-full.txt`, `og.png`, `icon.svg`, `fizlet.js`, `dist/` (copied from the legacy build; at
-  cutover `llms*.txt`, `og.png` and `fizlet.js` must be built, not copied).
+- **Not pages**: `sitemap.xml` and `robots.txt` are generated here (`src/pages/*.ts`, the legacy
+  rules; `npm run links` checks both). `llms.txt`, `llms-full.txt`, `og.png`, `icon.svg`,
+  `fizlet.js`, `dist/` are copied from the legacy build; at cutover `llms*.txt`, `og.png` and
+  `fizlet.js` must be built, not copied.
 - **The Astro page engine**: this wave could not reach the Fizlet factory's Astro engine, so it was
   built without its scaffold (`abe new`), `abe migrate compare` or `abe browse`. The gates here are
   standalone equivalents (`scripts/compare.mjs`, `scripts/browse.mjs`); move onto the engine's
@@ -79,24 +119,24 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 ## Route inventory
 
 <!-- INVENTORY:START -->
-148 legacy pages, 4 done, 144 to do (legacy build v0.27.0).
+148 legacy pages, 17 done, 131 to do (legacy build v0.27.0).
 
 | Type | Pages | Done | Template | Components | Next wave |
 |---|---:|---:|---|---|---|
 | home | 1 | 1 | src/pages/index.astro | Hero (in page), stats row, BrickCard, CodeBlock, Key; 14 sections kept as built (Html) | W2-home: componentize origin, play, story, profile, contract, board, loop, recall, specs, ship, games, roadmap, start, final |
-| not-found | 1 | 0 | to build: src/pages/404.astro | SectionHead, Key | W2-misc |
-| brand | 1 | 0 | to build: src/pages/brand/index.astro | Lockup, Mark, Key, token swatches (new, from tokens.json) | W2-misc |
+| not-found | 1 | 1 | src/pages/404.astro (noindex) | Sticker, Key | W2-misc: done |
+| brand | 1 | 1 | src/pages/brand/index.astro | SectionHead, Swatch (generated from tokens.json); the marks, stickers, lockups, name, space, don'ts and board sections and the closing keys kept as built (Html) | W2-misc: done; next, the marks and lockups as Lockup/Mark, the board section as Key and Sticker |
 | bricks-index | 1 | 0 | to build: src/pages/bricks/index.astro | BrickCard, SymChip, periodic table + stickers + factory (Html until componentized) | W2-bricks |
 | brick | 43 | 1 | src/pages/bricks/[id].astro | Crumbs, CodeBlock; the head, demo, card and API kept as built (Html) | W2-bricks: add the ids to export-legacy.mjs, then compare; later an ApiDecl component for the API |
 | contest | 1 | 0 | to build: src/pages/contest/index.astro | SectionHead, Callout, a week card (new) | W2-daily |
-| legal | 2 | 0 | to build: src/pages/privacy/, src/pages/cookies/ | SectionHead, a table (new) | W2-misc |
-| demo | 7 | 0 | to build: the engine demos' own host pages (no site shell for some) | kept as built (Html) until the demos build from @fzlt/core here | W2-demos |
+| legal | 2 | 2 | src/layouts/LegalPage.astro (src/pages/privacy/, src/pages/cookies/) | Crumbs, SectionHead, NoteBlock, LedgerTable | W2-misc: done |
+| demo | 7 | 7 | src/layouts/DemoPage.astro (src/pages/demos/[slug]/, examples/fizz/, examples/quick-start.astro) | BaseLayout around <main> kept as built (Html); layers and the fizz example, no site shell, are whole documents kept as built | W2-misc: done as built; W2-demos: build the demos from @fzlt/core here |
 | docs-index | 2 | 0 | to build: src/pages/docs/index.astro, src/pages/guides/index.astro | SectionHead, a doc list card (new) | W2-docs |
 | doc | 11 | 1 | src/pages/docs/[slug]/index.astro | Crumbs, SectionHead, CodeBlock, Key, DocSteps, DocsSidebar | W2-docs: add the slug to export-legacy.mjs (guides need a guides/[slug] route on the same template), then compare |
 | gallery-index | 6 | 1 | src/pages/gallery/index.astro (page 1); to build: gallery/page/[n]/ | SectionHead, Callout, GalleryCard | W2-gallery: one [n] route over the same template |
 | gallery-archive | 1 | 0 | to build: src/pages/gallery/archive/index.astro (noindex,nofollow) | GalleryCard | W2-gallery |
 | gallery-lane | 1 | 0 | to build: src/pages/gallery/hifi/index.astro | GalleryCard | W2-gallery |
-| redirect | 2 | 0 | to build: a redirect (Cloudflare _redirects 301, plus the meta-refresh page) | none | W2-misc |
+| redirect | 2 | 2 | src/layouts/RedirectPage.astro (meta refresh, canonical on the target, noindex) + public/_redirects (Cloudflare 301) | none | W2-misc: done |
 | make | 1 | 0 | to build: src/pages/make/index.astro | CodeBlock, Key; make.js runtime | W2-daily |
 | news-index | 1 | 0 | to build: src/pages/news/index.astro | a release row (new) | W2-notes |
 | release | 51 | 0 | to build: src/pages/news/[version]/index.astro | Crumbs, SectionHead | W2-notes |
@@ -115,13 +155,13 @@ Every route (`/path` · type · status · in sitemap · title):
 
 <details><summary><b>not-found</b> (1)</summary>
 
-- [ ] `/404.html` · to do · not in sitemap · noindex · Not found: this square is off the board · Fizlet
+- [x] `/404.html` · done · not in sitemap · noindex · Not found: this square is off the board · Fizlet
 
 </details>
 
 <details><summary><b>brand</b> (1)</summary>
 
-- [ ] `/brand/` · to do · Brand: Fizlet™ marks, lockups and colour · Fizlet
+- [x] `/brand/` · done · Brand: Fizlet™ marks, lockups and colour · Fizlet
 
 </details>
 
@@ -187,20 +227,20 @@ Every route (`/path` · type · status · in sitemap · title):
 
 <details><summary><b>legal</b> (2)</summary>
 
-- [ ] `/cookies/` · to do · Cookies and storage: none until you say yes · Fizlet
-- [ ] `/privacy/` · to do · Privacy policy: analytics only with consent · Fizlet
+- [x] `/cookies/` · done · Cookies and storage: none until you say yes · Fizlet
+- [x] `/privacy/` · done · Privacy policy: analytics only with consent · Fizlet
 
 </details>
 
 <details><summary><b>demo</b> (7)</summary>
 
-- [ ] `/demos/before-ai-2015/` · to do · Before AI: 2015, three sprites live · Fizlet
-- [ ] `/demos/fizz/` · to do · Fizz: crack the can, hear the fizz · Fizlet
-- [ ] `/demos/layers/` · to do · Layers: a game is a stack, each layer one brick · Fizlet
-- [ ] `/demos/name-shift/` · to do · Fizlet → fzlt: the name shift · Fizlet
-- [ ] `/demos/origin/` · to do · Origin: Code. Sleep. Drink. Repeat. · Fizlet
-- [ ] `/examples/fizz/` · to do · Crack the can: the fizz as a Fizlet hero
-- [ ] `/examples/quick-start.html` · to do · Quick start: ten lines to a blast · Fizlet
+- [x] `/demos/before-ai-2015/` · done · Before AI: 2015, three sprites live · Fizlet
+- [x] `/demos/fizz/` · done · Fizz: crack the can, hear the fizz · Fizlet
+- [x] `/demos/layers/` · done · Layers: a game is a stack, each layer one brick · Fizlet
+- [x] `/demos/name-shift/` · done · Fizlet → fzlt: the name shift · Fizlet
+- [x] `/demos/origin/` · done · Origin: Code. Sleep. Drink. Repeat. · Fizlet
+- [x] `/examples/fizz/` · done · Crack the can: the fizz as a Fizlet hero
+- [x] `/examples/quick-start.html` · done · Quick start: ten lines to a blast · Fizlet
 
 </details>
 
@@ -252,8 +292,8 @@ Every route (`/path` · type · status · in sitemap · title):
 
 <details><summary><b>redirect</b> (2)</summary>
 
-- [ ] `/guides/multiplayer-rooms/` · to do · not in sitemap · redirects to /../../guides/build-your-own-room-server/ · noindex · Multiplayer rooms moved: build your own room server · Fizlet
-- [ ] `/heroes/` · to do · not in sitemap · redirects to /../gallery/ · noindex · Heroes moved to Daily · Fizlet
+- [x] `/guides/multiplayer-rooms/` · done · not in sitemap · redirects to /../../guides/build-your-own-room-server/ · noindex · Multiplayer rooms moved: build your own room server · Fizlet
+- [x] `/heroes/` · done · not in sitemap · redirects to /../gallery/ · noindex · Heroes moved to Daily · Fizlet
 
 </details>
 

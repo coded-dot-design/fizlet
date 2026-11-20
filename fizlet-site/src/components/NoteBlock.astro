@@ -1,0 +1,6 @@
+---
+// A titled block of a note or a legal page: an h2, then a body paragraph (HTML) or the slot.
+interface Props { title: string; body?: string }
+const { title, body } = Astro.props;
+---
+<section class="note-block"><h2>{title}</h2>{body !== undefined && <p class="body" set:html={body} />}<slot /></section>

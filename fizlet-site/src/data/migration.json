@@ -1,6 +1,6 @@
 {
   "$description": "The migration plan, one source: each legacy page type's Astro template and components, and which routes are ported (done = built here and pixel-compared at <= 3%). scripts/migration.mjs writes MIGRATION.md's inventory from this and src/data/legacy/routes.json.",
-  "done": ["", "docs/getting-started/", "bricks/kernel.html", "gallery/"],
+  "done": ["", "docs/getting-started/", "bricks/kernel.html", "gallery/", "404.html", "privacy/", "cookies/", "heroes/", "guides/multiplayer-rooms/", "brand/", "demos/before-ai-2015/", "demos/fizz/", "demos/layers/", "demos/name-shift/", "demos/origin/", "examples/fizz/", "examples/quick-start.html"],
   "types": {
     "home": { "template": "src/pages/index.astro", "components": "Hero (in page), stats row, BrickCard, CodeBlock, Key; 14 sections kept as built (Html)", "wave": "W2-home: componentize origin, play, story, profile, contract, board, loop, recall, specs, ship, games, roadmap, start, final" },
     "doc": { "template": "src/pages/docs/[slug]/index.astro", "components": "Crumbs, SectionHead, CodeBlock, Key, DocSteps, DocsSidebar", "wave": "W2-docs: add the slug to export-legacy.mjs (guides need a guides/[slug] route on the same template), then compare" },
@@ -18,10 +18,10 @@
     "note": { "template": "to build: src/pages/notes/[slug]/index.astro", "components": "Crumbs, SectionHead, CodeBlock, Callout", "wave": "W2-notes" },
     "news-index": { "template": "to build: src/pages/news/index.astro", "components": "a release row (new)", "wave": "W2-notes" },
     "release": { "template": "to build: src/pages/news/[version]/index.astro", "components": "Crumbs, SectionHead", "wave": "W2-notes" },
-    "legal": { "template": "to build: src/pages/privacy/, src/pages/cookies/", "components": "SectionHead, a table (new)", "wave": "W2-misc" },
-    "brand": { "template": "to build: src/pages/brand/index.astro", "components": "Lockup, Mark, Key, token swatches (new, from tokens.json)", "wave": "W2-misc" },
-    "redirect": { "template": "to build: a redirect (Cloudflare _redirects 301, plus the meta-refresh page)", "components": "none", "wave": "W2-misc" },
-    "not-found": { "template": "to build: src/pages/404.astro", "components": "SectionHead, Key", "wave": "W2-misc" },
-    "demo": { "template": "to build: the engine demos' own host pages (no site shell for some)", "components": "kept as built (Html) until the demos build from @fzlt/core here", "wave": "W2-demos" }
+    "legal": { "template": "src/layouts/LegalPage.astro (src/pages/privacy/, src/pages/cookies/)", "components": "Crumbs, SectionHead, NoteBlock, LedgerTable", "wave": "W2-misc: done" },
+    "brand": { "template": "src/pages/brand/index.astro", "components": "SectionHead, Swatch (generated from tokens.json); the marks, stickers, lockups, name, space, don'ts and board sections and the closing keys kept as built (Html)", "wave": "W2-misc: done; next, the marks and lockups as Lockup/Mark, the board section as Key and Sticker" },
+    "redirect": { "template": "src/layouts/RedirectPage.astro (meta refresh, canonical on the target, noindex) + public/_redirects (Cloudflare 301)", "components": "none", "wave": "W2-misc: done" },
+    "not-found": { "template": "src/pages/404.astro (noindex)", "components": "Sticker, Key", "wave": "W2-misc: done" },
+    "demo": { "template": "src/layouts/DemoPage.astro (src/pages/demos/[slug]/, examples/fizz/, examples/quick-start.astro)", "components": "BaseLayout around <main> kept as built (Html); layers and the fizz example, no site shell, are whole documents kept as built", "wave": "W2-misc: done as built; W2-demos: build the demos from @fzlt/core here" }
   }
 }

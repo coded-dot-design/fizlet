@@ -1,0 +1,23 @@
+---
+// A legal page (privacy, cookies): crumbs, the head with its byline and date, then titled blocks.
+import BaseLayout from "./BaseLayout.astro";
+import Crumbs from "../components/Crumbs.astro";
+import SectionHead from "../components/SectionHead.astro";
+import NoteBlock from "../components/NoteBlock.astro";
+import LedgerTable from "../components/LedgerTable.astro";
+interface Props { page: any; slug: string }
+const { page: p, slug } = Astro.props;
+---
+<BaseLayout meta={p.meta}>
+<article class="has-grid section note legal" aria-labelledby={`${slug}-title`}>
+  <div class="wrap">
+    <Crumbs trail={p.crumbs.trail} current={p.crumbs.current} />
+    <SectionHead tag="header" class="section-head note-head" index={p.index} eyebrow={p.eyebrow} line={p.title.line} accent={p.title.accent} lead={p.lead} id={`${slug}-title`}>
+      <p class="note-by" set:html={p.by} />
+    </SectionHead>
+    {p.blocks.map((b: any) => b.table
+      ? <NoteBlock title={b.title}><LedgerTable head={b.table.head} rows={b.table.rows} class={b.table.cls} /></NoteBlock>
+      : <NoteBlock title={b.title} body={b.body} />)}
+  </div>
+</article>
+</BaseLayout>

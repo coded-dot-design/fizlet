@@ -1,0 +1,6 @@
+---
+// A ledger table in a lit panel, scrolling sideways on a phone (the cookies list). Cells are HTML.
+interface Props { head: string[]; rows: string[][]; class?: string }
+const { head, rows, class: cls = "panel lit ledger" } = Astro.props;
+---
+<div class={cls}><div class="table-scroll"><table><thead><tr>{head.map((h) => <th>{h}</th>)}</tr></thead><tbody>{rows.map((r) => <tr>{r.map((c) => <td set:html={c} />)}</tr>)}</tbody></table></div></div>

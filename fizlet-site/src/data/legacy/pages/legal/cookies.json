@@ -1,0 +1,54 @@
+{
+ "meta": {
+  "path": "cookies/",
+  "title": "Cookies and storage: none until you say yes · Fizlet",
+  "description": "Every cookie and storage key fizlet.com may use, what each holds, how long it lasts, and how to change your choice or clear them.",
+  "ld": [],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "crumbs": {
+  "trail": [],
+  "current": "Cookies and storage"
+ },
+ "index": "2026-10-31",
+ "eyebrow": "LEGAL · COOKIES",
+ "eyebrowHtml": "<span class=\"index\">2026-10-31</span> LEGAL · COOKIES",
+ "title": {
+  "line": "Cookies and storage",
+  "accent": "No cookies until you say yes."
+ },
+ "lead": "Fizlet sets no cookies. This page lists every storage key the site may use, what each holds and how to clear it.",
+ "by": "By <a href=\"https://coded.design/\">Chris Cooley ↗</a> · Last updated <time datetime=\"2026-10-31\">2026-10-31</time>",
+ "blocks": [
+  {
+   "title": "Local storage: on your device only",
+   "table": {
+    "cls": "panel lit ledger",
+    "head": [
+     "Name",
+     "Set by",
+     "What it does",
+     "How long"
+    ],
+    "rows": [
+     [
+      "<code>dom-virus:theme</code>",
+      "fizlet.com",
+      "Your light or dark theme, shared with the DOM VIRUS sites.",
+      "Until you clear it"
+     ]
+    ]
+   }
+  },
+  {
+   "title": "How to clear them",
+   "body": "Clear this site's data in your browser settings to remove every key at once."
+  },
+  {
+   "title": "What we never use",
+   "body": "No advertising, remarketing or social media cookies, and no ad pixels."
+  }
+ ]
+}
