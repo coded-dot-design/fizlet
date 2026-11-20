@@ -44,7 +44,7 @@ Measured, no longer provisional: the medians of 3 runs of the CI `perf` job (Git
 ubuntu-latest, AMD EPYC 7763 × 4, Chromium 145, load ≤ 1.15) for the demo, and of 3 local runs
 (load 17–26, noted) for Blitz, which CI does not build. Each run's numbers and the rule from median
 to ceiling are in the file. Every result line is also a GitHub annotation, so a run reads as:
-`gh api repos/coded-dot-design/fizlet/check-runs/<perf job id>/annotations`.
+`gh api repos/fizlet/fzlt/check-runs/<perf job id>/annotations`.
 
 | target | p50 | p95 | p99 | dropped | layerize | FCP | heap | minor GC |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |

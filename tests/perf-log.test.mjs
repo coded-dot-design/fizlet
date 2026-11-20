@@ -16,10 +16,10 @@ test("perf log: one row per win, with before → after and a link to its PR", ()
   const rows = render(wins).split("\n").filter((l) => /^\| (?!Version|---)/.test(l));
   assert.equal(rows.length, wins.length);
   const row = (re) => rows.find((r) => re.test(r)) ?? assert.fail(`no row matches ${re}`);
-  assert.match(row(/119\.6 → 28\.5 rAF\/s/), /\[#67\]\(https:\/\/github\.com\/coded-dot-design\/fizlet\/pull\/67\)/);
+  assert.match(row(/119\.6 → 28\.5 rAF\/s/), /\[#67\]\(https:\/\/github\.com\/fizlet\/fzlt\/pull\/67\)/);
   row(/60\.4 → 0 rAF\/s/);
   // A win on a game's site links that repo's PR and says whose version it is.
-  assert.match(row(/91\.7 → 49\.4 % busy/), /^\| dom-battlefield 1\.0\.1 \|.*\[dom-battlefield#21\]\(https:\/\/github\.com\/coded-dot-design\/dom-battlefield\/pull\/21\)/);
+  assert.match(row(/91\.7 → 49\.4 % busy/), /^\| battlefield 1\.0\.1 \|.*\[battlefield#21\]\(https:\/\/github\.com\/fizlet\/battlefield\/pull\/21\)/);
   assert.match(row(/0\.002 → 0 CLS/), /^\| Unreleased \|/);
 });
 

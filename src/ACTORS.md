@@ -2,7 +2,7 @@
 
 A migration note for E11 (`@fzlt/core/actor`, `@fzlt/core/aim`, `@fzlt/core/view-dom`). The port comes later,
 in the game's own repo. This note says what moves, in what order, and what has to stay the same.
-Line numbers are from `coded-dot-design/dom-battlefield` at `d28afe5`, the 1.0 engine cut on Fizlet
+Line numbers are from `fizlet/battlefield` at `d28afe5`, the 1.0 engine cut on Fizlet
 0.20.0 (vendored at `vendor/fizlet`).
 
 ## Why this game first

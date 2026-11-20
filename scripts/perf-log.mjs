@@ -4,7 +4,7 @@
 //   node scripts/perf-log.mjs --check   exit 1 when PERF-LOG.md is stale or an entry is incomplete
 import { readFileSync, writeFileSync } from "node:fs";
 
-const REPO = "coded-dot-design/fizlet";
+const REPO = "fizlet/fzlt";
 const NEED = ["version", "pr", "win", "metric", "before", "after", "unit", "how", "test"];
 
 /** Load and check the wins. Every win is measured: a number before and after, and how. */

@@ -2,7 +2,7 @@
 
 [![npm @fzlt/core](https://img.shields.io/npm/v/@fzlt/core?label=npm%20%40fzlt%2Fcore)](https://www.npmjs.com/package/@fzlt/core)
 
-By [Chris Cooley](https://coded.design/). **Fizlet is the building blocks for animation and games
+By Chris Cooley, sponsored by [coded.design](https://coded.design/). **Fizlet is the building blocks for animation and games
 on the DOM.** Each brick is a task we wrote hundreds of times over two decades,
 now kept by AI and human developers who chase performance at all costs. You bring the logic and
 style, even from a prompt. One shared loop, bounded everything, zero allocation in the steady state,
@@ -211,6 +211,10 @@ snapshot no longer matches the build (run `npm run api:write`), and when one cha
 CHANGELOG's `## Unreleased` does not name the brick (`@fzlt/core/fx`, or "Kernel" / "Board UI").
 COMPLETE bricks keep their API, so that line says what changed; a breaking change moves the brick
 back to BETA.
+
+## Credits
+
+Created by Chris Cooley · Built with fzlt · Sponsored by [coded.design](https://coded.design/).
 
 ## Licence
 

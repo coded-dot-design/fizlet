@@ -31,5 +31,5 @@ test("no tracked text file names a private repo (old or new names)", () => {
 
 test("the pattern catches each name and leaves the public org alone", () => {
   for (const n of NAMES) assert.match(`see ${n.toUpperCase()}/docs`, PRIVATE);
-  for (const ok of ["coded-dot-design/fizlet", "https://coded.design/", "the Fizlet factory", "an Astro page engine slot"]) assert.doesNotMatch(ok, PRIVATE);
+  for (const ok of ["fizlet/fzlt", "https://coded.design/", "the Fizlet factory", "an Astro page engine slot"]) assert.doesNotMatch(ok, PRIVATE);
 });
