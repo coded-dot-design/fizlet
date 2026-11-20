@@ -54,7 +54,8 @@ export const BUDGETS = [
   ["@fzlt/core/presence/check", "src/presence-check.ts", 5120],
   // Rollback on presence's wire (guessed inputs, a snapshot ring, resim, hashes on final frames, delay
   // and lead balancing), lifted from the copy three games carried: 2,176 B gz when added (goal 2,560;
-  // hash32 and the wire kinds come from presence, the rest of presence tree-shakes away).
+  // hash32 and the wire kinds come from presence, the rest of presence tree-shakes away). 2,181 B with the
+  // correction meters on a host clock (`clock`, +5 B: the step reads no wall time; brick audit).
   ["@fzlt/core/presence/rollback", "src/rollback.ts", 2304],
   ["@fzlt/core/hud", "src/hud.ts", 1536],
 

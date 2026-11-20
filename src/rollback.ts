@@ -45,6 +45,9 @@ export interface RollbackOptions {
   window?: number;
   /** Frames between hash checks (default 30). */
   hashEvery?: number;
+  /** A wall clock in ms (e.g. `() => performance.now()`) for the correction meters `resimMs` and
+   *  `resimTotal`, a profiling opt-in; omitted, they stay 0 and the step never reads wall time. */
+  clock?: () => number;
   /** A fixed input delay, 1..3 frames; omitted, it adapts 1..3 to the measured latency. */
   delay?: number;
 }
@@ -203,7 +206,7 @@ export function rollback(e: Engine, o: RollbackOptions) {
       // A correction: back to the earliest frame that ran on a wrong guess, and forward again.
       const rb = n[11]!;
       if (rb < n[0]!) {
-        const to = n[0]!, t0 = performance.now();
+        const to = n[0]!, ck = o.clock, t0 = ck ? ck() : 0;
         o.rewind?.(true);
         load(rb);
         n[0] = rb;
@@ -212,8 +215,11 @@ export function rollback(e: Engine, o: RollbackOptions) {
         n[4] = n[4]! + n[0]! - rb;
         if (n[0]! - rb > n[5]!) n[5] = n[0]! - rb;
         o.rewind?.(false);
-        T[0] = Math.max(T[0]!, performance.now() - t0);
-        T[1] = T[1]! + performance.now() - t0;
+        if (ck) {
+          const ms = ck() - t0;
+          if (ms > T[0]!) T[0] = ms;
+          T[1] = T[1]! + ms;
+        }
       }
       n[11] = 0x7fffffff;
       settle();
@@ -277,11 +283,11 @@ export function rollback(e: Engine, o: RollbackOptions) {
     get corrections() {
       return n[15]!;
     },
-    /** The slowest correction so far (ms, the frames run again). */
+    /** The slowest correction so far (ms, the frames run again; 0 without `clock`). */
     get resimMs() {
       return T[0]!;
     },
-    /** All the time spent running frames again (ms). */
+    /** All the time spent running frames again (ms; 0 without `clock`). */
     get resimTotal() {
       return T[1]!;
     },

@@ -133,6 +133,28 @@ test("rollback: local input runs at once on guesses; every final frame is confir
   for (const r of net.runs) r.e.destroy();
 });
 
+test("rollback: the correction meters read only the clock the host gives (none: 0, no wall time)", () => {
+  for (const withClock of [false, true]) {
+    const e = createEngine({ seed: 1, pause: OFF }), w = world(2);
+    let listener, ticks = 0;
+    const t = { send() {}, listen: (fn) => (listener = fn), close() {} };
+    const clock = () => (ticks += 3);
+    const rb = rollback(e, { transport: t, slot: 0, players: 2, bytes: w.bytes, delay: 1, input: (f) => script(f, 0), step: (i, f) => w.step(i, f), ...(withClock ? { clock } : {}) });
+    const msg = new Uint8Array(12);
+    for (let i = 0; i < 10; i++) e.advance(1 / 60);
+    for (let f = 0; f < 10; f++) {
+      msg.fill(0), (msg[0] = INPUT), (msg[1] = 1), (msg[2] = 1);
+      new DataView(msg.buffer).setUint32(4, f, true), new DataView(msg.buffer).setUint32(8, script(f, 1) | FIRE, true);
+      listener(msg);
+    }
+    e.advance(1 / 60);
+    assert.equal(rb.corrections, 1);
+    if (withClock) assert.ok(ticks === 6 && rb.resimMs === 3 && rb.resimTotal === 3, `one read each side of the correction: ${ticks}, ${rb.resimMs}`);
+    else assert.ok(rb.resimMs === 0 && rb.resimTotal === 0, "no clock: the meters stay 0");
+    e.destroy();
+  }
+});
+
 test("rollback: a late input (after its frame ran on a guess) rewinds to that frame and runs forward again", () => {
   // Seat 1 is a hand-driven peer: its inputs reach seat 0 only when the test sends them.
   const e = createEngine({ seed: 1, pause: OFF }), w = world(2), rewinds = [];
