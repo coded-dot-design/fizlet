@@ -177,8 +177,8 @@ roadmap on fizlet.com.
 
 Each brick's guide, its semantics (input, sound, embed, overload policy, multiplayer, match flow,
 timeline, arcade, the page as the board) and its full API, generated from the source:
-**https://docs.fzlt.dev**. Every export in `dist/*.d.ts` carries its doc comment, so your editor
-shows the same text.
+**https://docs.fzlt.dev**. The package ships code and types only: the build strips every comment
+(`npm run publish-clean` checks it), so the doc text lives in the docs, generated from the source.
 
 ### Named constants and small helpers
 
@@ -224,7 +224,7 @@ npm run perf          # frame times, dropped frames, heap and GCs under a 4x CPU
 ```
 
 The website (fizlet.com) and the docs site live in their own repositories; this one is the
-`@fzlt/core` package only. `npm pack --dry-run` lists what ships: `bin/`, `dist/`, the CHANGELOG,
+`@fzlt/core` package only (docs/SPLIT.md says where the rest lives). `npm pack --dry-run` lists what ships: `bin/`, `dist/`, the CHANGELOG,
 the LICENSE and this README.
 
 Releases: bump `version` in `package.json` (and the lockfile) and add a CHANGELOG entry; CI tags

@@ -10,7 +10,6 @@ try {
 
 const args = process.argv.slice(2);
 const INSTALL = "npm i @fzlt/core";
-// The docs (package.json homepage), so the bin and the package never disagree.
 const HOME = pkg.homepage;
 
 if (args.includes("--help") || args.includes("-h")) {

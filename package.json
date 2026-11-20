@@ -231,7 +231,8 @@
     "prepack": "npm run build",
     "perf": "node tests/perf/run.mjs",
     "test:alloc": "node tests/perf/alloc.mjs",
-    "test:stress": "node tests/stress/run.mjs"
+    "test:stress": "node tests/stress/run.mjs",
+    "publish-clean": "node scripts/publish-clean.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

@@ -3,3 +3,4 @@ dist
 artifacts
 perf-results.json
 perf-dist
+dist-docs

@@ -10,6 +10,11 @@
   bin prints it). The brick catalog moves to `scripts/bricks.mjs`; `npm run perf` measures the home
   demo on a page of its own (`tests/perf/fixture`); the release workflow publishes from `fizlet/fzlt`
   only. `docs/bricks-inventory.md`: every brick's measured gzip size, who ships it and its docs.
+  The package ships no comments (the build strips them; `dist-docs/`, not packed, keeps the doc
+  comments for the docs) and `npm run publish-clean` gates every PR and publish: only `dist/`, `bin/`
+  and the four docs, no comments in shipped code, no agent words. Credits: created by Chris Cooley,
+  built with fzlt, sponsored by coded.design (`tests/credits.test.mjs`). `docs/SPLIT.md`: what this
+  repository is now, where the site lives, how a release reaches it, and the transfer steps.
 
 - **Brick audit (`fe audit fizlet`): no fails, no gaps in exports, README or tests.** `@fzlt/core/presence/rollback`
   no longer reads wall time in its step: the correction meters `resimMs` and `resimTotal` read a clock the

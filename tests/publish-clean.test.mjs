@@ -34,13 +34,15 @@ test("a stray file fails", () => {
 });
 
 test("an agent word fails in dist, bin, package.json and README, in any case, whole words only", () => {
-  for (const w of ["agent", "Claude", "PIP", "keeper", "Handoff"]) bad([{ path: "dist/w.js", text: `export const s = "the ${w} did it";\n` }], /dist\/w\.js:1.*banned word/);
+  for (const w of ["agent", "Claude", "Pip", "keeper", "Handoff", "AGENT"]) bad([{ path: "dist/w.js", text: `export const s = "the ${w} did it";\n` }], /dist\/w\.js:1.*banned word/);
   bad([{ path: "bin/w.mjs", text: 'console.log("Pip");\n' }], /bin\/w\.mjs:1.*banned word/);
   const pkg = { path: "package.json", text: '{"description":"for your agent"}' };
   assert.ok(checkPack([pkg, ...clean.slice(1)]).problems.some((p) => /package\.json/.test(p)));
   const readme = { path: "README.md", text: "ask Claude\n" };
   assert.ok(checkPack([clean[0], readme, ...clean.slice(2)]).problems.some((p) => /README\.md/.test(p)));
   assert.deepEqual(checkPack([...clean, { path: "dist/ok.js", text: 'export const a = "userAgent pipe keepers agents";\n' }]).problems, []);
+  // A die's pips are not the name Pip, and a brick's import path is a name, not a word.
+  assert.deepEqual(checkPack([...clean, { path: "dist/dice.js", text: 'const pip = "#fff";\n' }, { path: "README.md", text: "Planned: `@fzlt/core/agent` (AI players).\n" }].filter((f, i, a) => a.findLastIndex((g) => g.path === f.path) === i)).problems, []);
 });
 
 test("CHANGELOG.md and LICENSE are not failed on agent words (history); the changelog warns", () => {
