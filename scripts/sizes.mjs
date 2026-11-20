@@ -157,6 +157,9 @@ export const BUDGETS = [
   // 1,321 B gz when added (the exact `hypot` from @fzlt/core/math included, K5); limb alone 919 B, ik3
   // alone 754 B, ik2 alone 342 B, outset alone 360 B (they tree-shake).
   ["@fzlt/core/rig", "src/rig.ts", 1344],
+  // Roads, tracks and edge strips at their true width on a heightfield (diorama is a type-only import;
+  // the exact hypot from @fzlt/core/math; lifted from Holeshot's ribbons): 2,683 B gz when added.
+  ["@fzlt/core/ribbon", "src/ribbon.ts", 2752],
   // An animation recipe as data: 8,467 B gz with the kernel, fx (effects + emitter), sprite and
   // timeline's easings it composes when added; its own code is 1,928 B (planned at ≤ 2,048; on a
   // page the bricks are shared). tests/scene.test.mjs holds the own-code target.
