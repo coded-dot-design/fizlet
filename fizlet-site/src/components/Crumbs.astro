@@ -1,0 +1,6 @@
+---
+// A breadcrumb trail for a deep page: Fizlet / its section / the page.
+interface Props { trail: { href: string; label: string }[]; current: string }
+const { trail, current } = Astro.props;
+---
+<nav class="bp-crumbs" aria-label="Breadcrumb"><a href="/">Fizlet</a> / {trail.map((c) => <Fragment><a href={c.href}>{c.label}</a> / </Fragment>)}<span aria-current="page">{current}</span></nav>

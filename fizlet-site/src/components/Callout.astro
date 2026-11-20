@@ -1,0 +1,6 @@
+---
+// A callout: a panel that sets a note apart from the prose (the contest rules, a warning).
+interface Props { class?: string; tone?: string }
+const { class: cls = "", tone } = Astro.props;
+---
+<div class={["panel", cls].filter(Boolean).join(" ")} style={tone ? `--tone: ${tone}` : undefined}><slot /></div>

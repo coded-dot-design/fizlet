@@ -1,0 +1,28 @@
+---
+// Daily, page 1: the head and contest callout, the theme chips, search, and the newest pieces.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import Callout from "../../components/Callout.astro";
+import GalleryCard from "../../components/GalleryCard.astro";
+import Html from "../../components/Html.astro";
+import DATA from "../../data/legacy/pages/gallery/index.json";
+const g = DATA as any;
+const contest = g.head.contestHtml.replace(/^<div[^>]*>/, "").replace(/<\/div>$/, "");
+---
+<BaseLayout meta={g.meta} styles={g.styles}>
+<section class="has-grid section" aria-labelledby="gal-title">
+  <div class="wrap">
+    <SectionHead index={g.head.index} eyebrow={g.head.eyebrow} line={g.head.title.line} accent={g.head.title.accent} lead={g.head.lead} id="gal-title">
+      <Callout class="gal-contest"><Html html={contest} /></Callout>
+    </SectionHead>
+    <Html html={g.themesHtml} />
+    <Html html={g.searchHtml} />
+  </div>
+  <div class="wrap gal-sections">
+  <ol class="gal" data-gal-flat>
+    {g.items.map((it: any) => <GalleryCard {...it} />)}
+    </ol>
+    <Html html={g.pagesHtml} />
+  </div>
+</section>
+</BaseLayout>

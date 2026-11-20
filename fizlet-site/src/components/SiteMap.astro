@@ -1,0 +1,19 @@
+---
+// The footer's site map: every indexable page, by section. Each column is a disclosure, always
+// open above phone width (site.css), closed at phone width except the column holding this page.
+import FOOTER from "../data/legacy/footer.json";
+import SymChip from "./SymChip.astro";
+import { current } from "../lib/site";
+interface Props { path: string }
+const { path } = Astro.props;
+type Item = { href: string; label: string; chip?: { sym: string; tone: string } };
+type Section = { head?: { href: string; label: string }; label?: string; chips?: boolean; fold?: string; external: boolean; items: Item[] };
+const MAP = FOOTER as { name: string; sections: Section[] }[];
+const has = (items: Item[]) => items.some((i) => current(i.href, path));
+const cols = MAP.map((c) => ({ ...c, open: c.sections.some((s) => (s.head && current(s.head.href, path)) || has(s.items)) }));
+---
+<nav class="foot-map" aria-label="Site map">{cols.map((col) => <details class="map-col" open={col.open}><summary><h2>{col.name}</h2></summary><ul>{col.sections.map((s) => s.external
+  ? <li class="map-sec"><span class="map-label">{s.label}</span><ul>{s.items.map((i) => <li><a href={i.href}>{i.label}</a></li>)}</ul></li>
+  : <li class="map-sec">{s.head ? <a class="map-head" href={s.head.href} aria-current={current(s.head.href, path)}>{s.head.label}</a> : <span class="map-label">{s.label}</span>}{s.items.length > 0 && (s.fold
+    ? <details class="map-fold" open={s.items.some((i: Item) => current(i.href, path) === "page")}><summary>All {s.items.length} {s.fold}</summary><ul class={s.chips ? "map-chips" : undefined}>{s.items.map((i: Item) => <li>{i.chip ? <SymChip href={i.href} sym={i.chip.sym} tone={i.chip.tone} label={i.label} current={current(i.href, path)} /> : <a href={i.href} aria-current={current(i.href, path)}>{i.label}</a>}</li>)}</ul></details>
+    : <ul class={s.chips ? "map-chips" : undefined}>{s.items.map((i: Item) => <li>{i.chip ? <SymChip href={i.href} sym={i.chip.sym} tone={i.chip.tone} label={i.label} current={current(i.href, path)} /> : <a href={i.href} aria-current={current(i.href, path)}>{i.label}</a>}</li>)}</ul>)}</li>)}</ul></details>)}</nav>

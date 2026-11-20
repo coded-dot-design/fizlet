@@ -1,0 +1,881 @@
+[
+ {
+  "name": "Learn",
+  "sections": [
+   {
+    "head": {
+     "href": "/docs/",
+     "label": "Docs"
+    },
+    "external": false,
+    "items": [
+     {
+      "href": "/docs/getting-started/",
+      "label": "Getting started"
+     },
+     {
+      "href": "/docs/authoring/",
+      "label": "Authoring and recipes"
+     },
+     {
+      "href": "/docs/contract/",
+      "label": "The contract"
+     },
+     {
+      "href": "/docs/loop/",
+      "label": "The loop"
+     },
+     {
+      "href": "/docs/recall/",
+      "label": "Recall and the ledger"
+     },
+     {
+      "href": "/docs/budgets/",
+      "label": "Size budgets"
+     },
+     {
+      "href": "/docs/determinism/",
+      "label": "Determinism"
+     }
+    ]
+   },
+   {
+    "head": {
+     "href": "/guides/",
+     "label": "Guides"
+    },
+    "external": false,
+    "items": [
+     {
+      "href": "/guides/micro-game/",
+      "label": "Build a micro game"
+     },
+     {
+      "href": "/guides/astro-slot/",
+      "label": "Fill an Astro slot"
+     },
+     {
+      "href": "/guides/port-a-game/",
+      "label": "Port a game"
+     },
+     {
+      "href": "/guides/build-your-own-room-server/",
+      "label": "Your own room server"
+     }
+    ]
+   },
+   {
+    "head": {
+     "href": "/examples/quick-start.html",
+     "label": "Quick start"
+    },
+    "external": false,
+    "items": []
+   }
+  ]
+ },
+ {
+  "name": "Engine",
+  "sections": [
+   {
+    "head": {
+     "href": "/bricks/",
+     "label": "Kernel and bricks"
+    },
+    "chips": true,
+    "external": false,
+    "items": [
+     {
+      "href": "/bricks/kernel.html",
+      "label": "kernel",
+      "chip": {
+       "sym": "kr",
+       "tone": "var(--k-go)"
+      }
+     },
+     {
+      "href": "/bricks/input.html",
+      "label": "input",
+      "chip": {
+       "sym": "in",
+       "tone": "var(--k-sys)"
+      }
+     },
+     {
+      "href": "/bricks/pad.html",
+      "label": "pad",
+      "chip": {
+       "sym": "pd",
+       "tone": "var(--k-advance)"
+      }
+     },
+     {
+      "href": "/bricks/collide.html",
+      "label": "collide",
+      "chip": {
+       "sym": "cl",
+       "tone": "var(--k-cmd)"
+      }
+     },
+     {
+      "href": "/bricks/grid.html",
+      "label": "grid",
+      "chip": {
+       "sym": "gr",
+       "tone": "var(--k-flag)"
+      }
+     },
+     {
+      "href": "/bricks/fx.html",
+      "label": "fx",
+      "chip": {
+       "sym": "fx",
+       "tone": "var(--k-attack)"
+      }
+     },
+     {
+      "href": "/bricks/camera.html",
+      "label": "camera",
+      "chip": {
+       "sym": "cm",
+       "tone": "var(--k-go)"
+      }
+     },
+     {
+      "href": "/bricks/sprite.html",
+      "label": "sprite",
+      "chip": {
+       "sym": "sp",
+       "tone": "var(--k-fallin)"
+      }
+     },
+     {
+      "href": "/bricks/sound.html",
+      "label": "sound",
+      "chip": {
+       "sym": "sn",
+       "tone": "var(--k-advance)"
+      }
+     },
+     {
+      "href": "/bricks/embed.html",
+      "label": "embed",
+      "chip": {
+       "sym": "em",
+       "tone": "var(--k-fallin)"
+      }
+     },
+     {
+      "href": "/bricks/slot.html",
+      "label": "slot",
+      "chip": {
+       "sym": "sl",
+       "tone": "var(--k-sys)"
+      }
+     },
+     {
+      "href": "/bricks/hud.html",
+      "label": "hud",
+      "chip": {
+       "sym": "hd",
+       "tone": "var(--k-aim)"
+      }
+     },
+     {
+      "href": "/bricks/match.html",
+      "label": "match",
+      "chip": {
+       "sym": "mt",
+       "tone": "var(--k-go)"
+      }
+     },
+     {
+      "href": "/bricks/board-page.html",
+      "label": "board-page",
+      "chip": {
+       "sym": "br",
+       "tone": "var(--k-attack)"
+      }
+     },
+     {
+      "href": "/bricks/presence.html",
+      "label": "presence",
+      "chip": {
+       "sym": "pr",
+       "tone": "var(--k-cmd)"
+      }
+     },
+     {
+      "href": "/bricks/ui.html",
+      "label": "ui",
+      "chip": {
+       "sym": "ui",
+       "tone": "var(--k-fire)"
+      }
+     },
+     {
+      "href": "/bricks/perf.html",
+      "label": "perf",
+      "chip": {
+       "sym": "pf",
+       "tone": "var(--k-sys)"
+      }
+     },
+     {
+      "href": "/bricks/rules.html",
+      "label": "rules",
+      "chip": {
+       "sym": "rl",
+       "tone": "var(--k-advance)"
+      }
+     },
+     {
+      "href": "/bricks/steer.html",
+      "label": "steer",
+      "chip": {
+       "sym": "st",
+       "tone": "var(--k-advance)"
+      }
+     },
+     {
+      "href": "/bricks/coach.html",
+      "label": "coach",
+      "chip": {
+       "sym": "ch",
+       "tone": "var(--k-sys)"
+      }
+     },
+     {
+      "href": "/bricks/timeline.html",
+      "label": "timeline",
+      "chip": {
+       "sym": "tm",
+       "tone": "var(--k-fire)"
+      }
+     },
+     {
+      "href": "/bricks/touch.html",
+      "label": "touch",
+      "chip": {
+       "sym": "tc",
+       "tone": "var(--k-sys)"
+      }
+     },
+     {
+      "href": "/bricks/css-clock.html",
+      "label": "css-clock",
+      "chip": {
+       "sym": "cs",
+       "tone": "var(--k-fire)"
+      }
+     },
+     {
+      "href": "/bricks/layout.html",
+      "label": "layout",
+      "chip": {
+       "sym": "ly",
+       "tone": "var(--k-advance)"
+      }
+     },
+     {
+      "href": "/bricks/view-canvas.html",
+      "label": "view-canvas",
+      "chip": {
+       "sym": "vw",
+       "tone": "var(--k-aim)"
+      }
+     },
+     {
+      "href": "/bricks/diorama.html",
+      "label": "diorama",
+      "chip": {
+       "sym": "dr",
+       "tone": "var(--k-fire)"
+      }
+     },
+     {
+      "href": "/bricks/dice.html",
+      "label": "dice",
+      "chip": {
+       "sym": "dc",
+       "tone": "var(--k-fire)"
+      }
+     },
+     {
+      "href": "/bricks/track.html",
+      "label": "track",
+      "chip": {
+       "sym": "tr",
+       "tone": "var(--k-advance)"
+      }
+     },
+     {
+      "href": "/bricks/water.html",
+      "label": "water",
+      "chip": {
+       "sym": "wt",
+       "tone": "var(--k-sys)"
+      }
+     },
+     {
+      "href": "/bricks/props.html",
+      "label": "props",
+      "chip": {
+       "sym": "ps",
+       "tone": "var(--k-attack)"
+      }
+     },
+     {
+      "href": "/bricks/beam.html",
+      "label": "beam",
+      "chip": {
+       "sym": "bm",
+       "tone": "var(--k-attack)"
+      }
+     },
+     {
+      "href": "/bricks/cards.html",
+      "label": "cards",
+      "chip": {
+       "sym": "cr",
+       "tone": "var(--k-cmd)"
+      }
+     },
+     {
+      "href": "/bricks/flick.html",
+      "label": "flick",
+      "chip": {
+       "sym": "fl",
+       "tone": "var(--k-advance)"
+      }
+     },
+     {
+      "href": "/bricks/actor.html",
+      "label": "actor",
+      "chip": {
+       "sym": "ac",
+       "tone": "var(--k-cmd)"
+      }
+     },
+     {
+      "href": "/bricks/aim.html",
+      "label": "aim",
+      "chip": {
+       "sym": "am",
+       "tone": "var(--k-aim)"
+      }
+     },
+     {
+      "href": "/bricks/view-dom.html",
+      "label": "view-dom",
+      "chip": {
+       "sym": "vd",
+       "tone": "var(--k-fire)"
+      }
+     },
+     {
+      "href": "/bricks/announce.html",
+      "label": "announce",
+      "chip": {
+       "sym": "an",
+       "tone": "var(--k-sys)"
+      }
+     },
+     {
+      "href": "/bricks/scene.html",
+      "label": "scene",
+      "chip": {
+       "sym": "sc",
+       "tone": "var(--k-aim)"
+      }
+     },
+     {
+      "href": "/bricks/terrain.html",
+      "label": "terrain",
+      "chip": {
+       "sym": "tn",
+       "tone": "var(--k-fallin)"
+      }
+     },
+     {
+      "href": "/bricks/drive.html",
+      "label": "drive",
+      "chip": {
+       "sym": "dv",
+       "tone": "var(--k-advance)"
+      }
+     },
+     {
+      "href": "/bricks/math.html",
+      "label": "math",
+      "chip": {
+       "sym": "mh",
+       "tone": "var(--k-advance)"
+      }
+     },
+     {
+      "href": "/bricks/arcade.html",
+      "label": "arcade",
+      "chip": {
+       "sym": "ar",
+       "tone": "var(--k-go)"
+      }
+     },
+     {
+      "href": "/bricks/debug.html",
+      "label": "debug",
+      "chip": {
+       "sym": "db",
+       "tone": "var(--k-aim)"
+      }
+     }
+    ]
+   },
+   {
+    "label": "Demos",
+    "external": false,
+    "items": [
+     {
+      "href": "/demos/before-ai-2015/",
+      "label": "Before AI: 2015, live"
+     },
+     {
+      "href": "/demos/fizz/",
+      "label": "The fizz proof piece"
+     },
+     {
+      "href": "/demos/layers/",
+      "label": "The layers story"
+     },
+     {
+      "href": "/demos/name-shift/",
+      "label": "The name shift"
+     },
+     {
+      "href": "/demos/origin/",
+      "label": "The origin hero"
+     },
+     {
+      "href": "/examples/fizz/",
+      "label": "The fizz hero example"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "Daily",
+  "sections": [
+   {
+    "head": {
+     "href": "/gallery/",
+     "label": "Daily"
+    },
+    "external": false,
+    "items": [
+     {
+      "href": "/gallery/page/2/",
+      "label": "Page 2"
+     },
+     {
+      "href": "/gallery/page/3/",
+      "label": "Page 3"
+     },
+     {
+      "href": "/gallery/page/4/",
+      "label": "Page 4"
+     },
+     {
+      "href": "/gallery/page/5/",
+      "label": "Page 5"
+     },
+     {
+      "href": "/gallery/page/6/",
+      "label": "Page 6"
+     },
+     {
+      "href": "/gallery/hifi/",
+      "label": "Daily Hi-Fi"
+     }
+    ]
+   },
+   {
+    "head": {
+     "href": "/contest/",
+     "label": "Daily contest"
+    },
+    "external": false,
+    "items": []
+   },
+   {
+    "head": {
+     "href": "/make/",
+     "label": "Make one"
+    },
+    "external": false,
+    "items": []
+   },
+   {
+    "head": {
+     "href": "/people/",
+     "label": "People"
+    },
+    "external": false,
+    "items": [
+     {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     },
+     {
+      "href": "/people/david-cooley/",
+      "label": "David Cooley"
+     },
+     {
+      "href": "/people/pip/",
+      "label": "Pip"
+     },
+     {
+      "href": "/people/quill/",
+      "label": "Quill"
+     },
+     {
+      "href": "/people/dj-mempool/",
+      "label": "DJ Mempool"
+     },
+     {
+      "href": "/people/frame-zero/",
+      "label": "Frame Zero"
+     },
+     {
+      "href": "/people/hex-hazel/",
+      "label": "Hex Hazel"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "Notes",
+  "sections": [
+   {
+    "head": {
+     "href": "/notes/",
+     "label": "Notes"
+    },
+    "external": false,
+    "items": [
+     {
+      "href": "/notes/before-ai-2015/",
+      "label": "Before AI: 2015"
+     },
+     {
+      "href": "/notes/how-small-is-small/",
+      "label": "How small is small"
+     },
+     {
+      "href": "/notes/lockstep-multiplayer-in-a-few-kb/",
+      "label": "Lockstep multiplayer in a few KB"
+     },
+     {
+      "href": "/notes/recall-the-page-always-comes-back/",
+      "label": "Recall: the page always comes back"
+     },
+     {
+      "href": "/notes/why-fzlt/",
+      "label": "Why fzlt"
+     },
+     {
+      "href": "/notes/moving-the-games-onto-a-4-kb-kernel/",
+      "label": "Moving the games onto a 4 KB kernel"
+     }
+    ]
+   },
+   {
+    "head": {
+     "href": "/news/",
+     "label": "News"
+    },
+    "chips": true,
+    "fold": "releases",
+    "external": false,
+    "items": [
+     {
+      "href": "/news/0.27.0/",
+      "label": "0.27.0"
+     },
+     {
+      "href": "/news/0.26.0/",
+      "label": "0.26.0"
+     },
+     {
+      "href": "/news/0.25.0/",
+      "label": "0.25.0"
+     },
+     {
+      "href": "/news/0.24.0/",
+      "label": "0.24.0"
+     },
+     {
+      "href": "/news/0.23.0/",
+      "label": "0.23.0"
+     },
+     {
+      "href": "/news/0.22.0/",
+      "label": "0.22.0"
+     },
+     {
+      "href": "/news/0.21.3/",
+      "label": "0.21.3"
+     },
+     {
+      "href": "/news/0.21.2/",
+      "label": "0.21.2"
+     },
+     {
+      "href": "/news/0.21.1/",
+      "label": "0.21.1"
+     },
+     {
+      "href": "/news/0.21.0/",
+      "label": "0.21.0"
+     },
+     {
+      "href": "/news/0.20.0/",
+      "label": "0.20.0"
+     },
+     {
+      "href": "/news/0.19.0/",
+      "label": "0.19.0"
+     },
+     {
+      "href": "/news/0.18.0/",
+      "label": "0.18.0"
+     },
+     {
+      "href": "/news/0.17.0/",
+      "label": "0.17.0"
+     },
+     {
+      "href": "/news/0.16.0/",
+      "label": "0.16.0"
+     },
+     {
+      "href": "/news/0.15.0/",
+      "label": "0.15.0"
+     },
+     {
+      "href": "/news/0.14.1/",
+      "label": "0.14.1"
+     },
+     {
+      "href": "/news/0.14.0/",
+      "label": "0.14.0"
+     },
+     {
+      "href": "/news/0.13.0/",
+      "label": "0.13.0"
+     },
+     {
+      "href": "/news/0.12.1/",
+      "label": "0.12.1"
+     },
+     {
+      "href": "/news/0.12.0/",
+      "label": "0.12.0"
+     },
+     {
+      "href": "/news/0.11.0/",
+      "label": "0.11.0"
+     },
+     {
+      "href": "/news/0.10.1/",
+      "label": "0.10.1"
+     },
+     {
+      "href": "/news/0.10.0/",
+      "label": "0.10.0"
+     },
+     {
+      "href": "/news/0.9.0/",
+      "label": "0.9.0"
+     },
+     {
+      "href": "/news/0.8.2/",
+      "label": "0.8.2"
+     },
+     {
+      "href": "/news/0.8.1/",
+      "label": "0.8.1"
+     },
+     {
+      "href": "/news/0.8.0/",
+      "label": "0.8.0"
+     },
+     {
+      "href": "/news/0.7.0/",
+      "label": "0.7.0"
+     },
+     {
+      "href": "/news/0.6.1/",
+      "label": "0.6.1"
+     },
+     {
+      "href": "/news/0.6.0/",
+      "label": "0.6.0"
+     },
+     {
+      "href": "/news/0.5.1/",
+      "label": "0.5.1"
+     },
+     {
+      "href": "/news/0.5.0/",
+      "label": "0.5.0"
+     },
+     {
+      "href": "/news/0.4.4/",
+      "label": "0.4.4"
+     },
+     {
+      "href": "/news/0.4.3/",
+      "label": "0.4.3"
+     },
+     {
+      "href": "/news/0.4.2/",
+      "label": "0.4.2"
+     },
+     {
+      "href": "/news/0.4.1/",
+      "label": "0.4.1"
+     },
+     {
+      "href": "/news/0.4.0/",
+      "label": "0.4.0"
+     },
+     {
+      "href": "/news/0.3.6/",
+      "label": "0.3.6"
+     },
+     {
+      "href": "/news/0.3.5/",
+      "label": "0.3.5"
+     },
+     {
+      "href": "/news/0.3.4/",
+      "label": "0.3.4"
+     },
+     {
+      "href": "/news/0.3.3/",
+      "label": "0.3.3"
+     },
+     {
+      "href": "/news/0.3.2/",
+      "label": "0.3.2"
+     },
+     {
+      "href": "/news/0.3.1/",
+      "label": "0.3.1"
+     },
+     {
+      "href": "/news/0.3.0/",
+      "label": "0.3.0"
+     },
+     {
+      "href": "/news/0.2.4/",
+      "label": "0.2.4"
+     },
+     {
+      "href": "/news/0.2.3/",
+      "label": "0.2.3"
+     },
+     {
+      "href": "/news/0.2.2/",
+      "label": "0.2.2"
+     },
+     {
+      "href": "/news/0.2.1/",
+      "label": "0.2.1"
+     },
+     {
+      "href": "/news/0.2.0/",
+      "label": "0.2.0"
+     },
+     {
+      "href": "/news/0.1.0/",
+      "label": "0.1.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "Project",
+  "sections": [
+   {
+    "label": "More",
+    "external": false,
+    "items": [
+     {
+      "href": "/privacy/",
+      "label": "Privacy"
+     },
+     {
+      "href": "/cookies/",
+      "label": "Cookies"
+     },
+     {
+      "href": "/brand/",
+      "label": "Brand"
+     }
+    ]
+   },
+   {
+    "label": "Source",
+    "external": true,
+    "items": [
+     {
+      "href": "https://github.com/coded-dot-design/fizlet",
+      "label": "Source on GitHub ↗"
+     },
+     {
+      "href": "https://github.com/coded-dot-design/fizlet/blob/main/CHANGELOG.md",
+      "label": "Changelog ↗"
+     },
+     {
+      "href": "https://github.com/coded-dot-design/fizlet/blob/main/LICENSE",
+      "label": "MIT licence ↗"
+     },
+     {
+      "href": "https://github.com/coded-dot-design/fizlet/blob/main/src/ui/BOARD-UI.md",
+      "label": "Board UI spec ↗"
+     },
+     {
+      "href": "https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md",
+      "label": "Engine plan ↗"
+     }
+    ]
+   },
+   {
+    "label": "DOM VIRUS family",
+    "external": true,
+    "items": [
+     {
+      "href": "https://domvirus.com/",
+      "label": "DOM VIRUS ↗"
+     },
+     {
+      "href": "https://battlefield.domvirus.com/",
+      "label": "DOM Battlefield ↗"
+     },
+     {
+      "href": "https://battlefieldblitz.domvirus.com/",
+      "label": "Battlefield Blitz ↗"
+     },
+     {
+      "href": "https://fizlet.com/",
+      "label": "Built with Fizlet"
+     }
+    ]
+   }
+  ]
+ }
+]

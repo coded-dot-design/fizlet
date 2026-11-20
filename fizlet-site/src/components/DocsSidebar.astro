@@ -1,0 +1,8 @@
+---
+// The docs map: every doc and guide in reading order, this page marked; Bricks and News as notes.
+import { current } from "../lib/site";
+type Link = { href: string; label: string };
+interface Props { path: string; columns: { head: Link; items?: Link[]; note?: string }[][] }
+const { path, columns } = Astro.props;
+---
+<nav class="panel doc-map" aria-label="Docs and guides">{columns.map((col) => <div>{col.map((g) => <Fragment><h2><a href={g.head.href}>{g.head.label}</a></h2>{g.items ? <ol>{g.items.map((i) => <li><a href={i.href} aria-current={current(i.href, path) === "page" ? "page" : undefined}>{i.label}</a></li>)}</ol> : <p>{g.note}</p>}</Fragment>)}</div>)}</nav>

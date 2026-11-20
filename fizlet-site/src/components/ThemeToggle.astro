@@ -1,0 +1,6 @@
+---
+// Light or dark: the key shows the current theme's icon. The choice is shared with DOM VIRUS and
+// Battlefield (localStorage "dom-virus:theme"); BaseLayout applies it before first paint.
+import Icon from "./Icon.astro";
+---
+<button class="bui-key bui-icon-key" type="button" data-theme-toggle aria-label="Switch light or dark"><span class="theme-dark"><Icon name="moon" /></span><span class="theme-light"><Icon name="sun" /></span></button>

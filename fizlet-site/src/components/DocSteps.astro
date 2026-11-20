@@ -1,0 +1,7 @@
+---
+// Previous / next in reading order.
+interface Props { steps: { href: string; label: string; dir: string }[] }
+const prev = Astro.props.steps.find((s) => s.dir === "prev");
+const next = Astro.props.steps.find((s) => s.dir === "next");
+---
+<nav class="bp-steps" aria-label="More docs">{prev ? <a class="bp-step prev" href={prev.href}><small>← PREVIOUS</small><span>{prev.label}</span></a> : <span></span>}{next ? <a class="bp-step next" href={next.href}><small>NEXT →</small><span>{next.label}</span></a> : <span></span>}</nav>

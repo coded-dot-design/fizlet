@@ -1,0 +1,128 @@
+name: Deploy
+# Cloudflare Pages, project "fizlet-site" (its production branch set to `production`):
+#   pull request  → a preview deploy of the staging build (noindex), URL in the run summary
+#   push to main  → staging: the `main` branch deploy, served at staging.fizlet.com (noindex)
+#   promote       → (workflow_dispatch) fast-forwards `production` to a main SHA whose checks all
+#                   passed, builds production and deploys it to fizlet.com
+# Nothing deploys straight to production. Every job skips cleanly (a notice, not a failure) while
+# the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets are not set.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "The main commit to promote (empty: main's tip)"
+        required: false
+        default: ""
+permissions:
+  contents: read
+concurrency:
+  group: deploy-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+env:
+  PROJECT: fizlet-site
+  WRANGLER: wrangler@4.165.0
+jobs:
+  staging:
+    # Previews (PRs from this repo; a fork's PR gets no secrets) and main → staging.
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Cloudflare secrets set?
+        id: cf
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$ACCOUNT" ]; then echo "ok=true" >> "$GITHUB_OUTPUT"
+          else echo "ok=false" >> "$GITHUB_OUTPUT"; echo "::notice::Deploy skipped: CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID are not set."; echo "Deploy skipped: Cloudflare secrets not set." >> "$GITHUB_STEP_SUMMARY"; fi
+      - if: steps.cf.outputs.ok == 'true'
+        uses: actions/checkout@v4
+      - if: steps.cf.outputs.ok == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - if: steps.cf.outputs.ok == 'true'
+        run: npm ci --no-audit --no-fund
+      # The staging build: noindex on every page, an empty sitemap, and X-Robots-Tag on every file.
+      - if: steps.cf.outputs.ok == 'true'
+        run: npm run build && npm run audit && printf '/*\n  X-Robots-Tag: noindex\n' > dist/_headers
+        env:
+          PUBLIC_ROBOTS: noindex
+          SITE_URL: https://staging.fizlet.com
+      - if: steps.cf.outputs.ok == 'true'
+        id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BRANCH: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || 'main' }}
+        run: |
+          npx --yes "$WRANGLER" pages deploy dist --project-name="$PROJECT" --branch="$BRANCH" --commit-hash="${{ github.event.pull_request.head.sha || github.sha }}" | tee /tmp/deploy.log
+          url=$(grep -Eo 'https://[a-z0-9.-]+\.pages\.dev' /tmp/deploy.log | tail -1)
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Deployed $BRANCH: $url${{ github.event_name == 'push' && ' (staging.fizlet.com)' || '' }}" >> "$GITHUB_STEP_SUMMARY"
+
+  promote:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      checks: read
+      deployments: write
+    steps:
+      - name: Cloudflare secrets set?
+        id: cf
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$ACCOUNT" ]; then echo "ok=true" >> "$GITHUB_OUTPUT"
+          else echo "ok=false" >> "$GITHUB_OUTPUT"; echo "::notice::Promote skipped: CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID are not set."; echo "Promote skipped: Cloudflare secrets not set." >> "$GITHUB_STEP_SUMMARY"; fi
+      - if: steps.cf.outputs.ok == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      # Only a commit on main whose every check run finished green is promoted.
+      - if: steps.cf.outputs.ok == 'true'
+        name: Pick a green main SHA
+        id: pick
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT: ${{ inputs.sha }}
+        run: |
+          sha=$(git rev-parse "${INPUT:-origin/main}")
+          git merge-base --is-ancestor "$sha" origin/main || { echo "::error::$sha is not on main"; exit 1; }
+          runs=$(gh api "repos/${{ github.repository }}/commits/$sha/check-runs?per_page=100" --jq '[.check_runs[] | select(.name != "promote")]')
+          total=$(jq length <<<"$runs")
+          bad=$(jq '[.[] | select(.status != "completed" or (.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral"))] | length' <<<"$runs")
+          [ "$total" -gt 0 ] && [ "$bad" -eq 0 ] || { echo "::error::$sha is not green ($bad of $total check runs not passed)"; exit 1; }
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+      # A fast-forward only: git refuses a push that would rewrite production.
+      - if: steps.cf.outputs.ok == 'true'
+        name: Fast-forward production
+        run: |
+          git checkout --detach "${{ steps.pick.outputs.sha }}"
+          git push origin "${{ steps.pick.outputs.sha }}:refs/heads/production"
+      - if: steps.cf.outputs.ok == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - if: steps.cf.outputs.ok == 'true'
+        run: npm ci --no-audit --no-fund && npm run build && npm run audit
+      - if: steps.cf.outputs.ok == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx --yes "$WRANGLER" pages deploy dist --project-name="$PROJECT" --branch=production --commit-hash="${{ steps.pick.outputs.sha }}"
+          echo "Promoted ${{ steps.pick.outputs.sha }} to production (fizlet.com)." >> "$GITHUB_STEP_SUMMARY"

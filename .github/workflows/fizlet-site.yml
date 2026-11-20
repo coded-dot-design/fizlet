@@ -1,0 +1,34 @@
+name: fizlet-site gates
+# The Astro rebuild of fizlet.com (fizlet-site/, its own package until it moves to fizlet/fizlet-site):
+# its gates on every change under fizlet-site/. It never deploys from here; fizlet-site/.github holds
+# the Cloudflare Pages workflows for when it is its own repo.
+on:
+  push:
+    branches: [main]
+    paths: ["fizlet-site/**", ".github/workflows/fizlet-site.yml"]
+  pull_request:
+    paths: ["fizlet-site/**", ".github/workflows/fizlet-site.yml"]
+permissions:
+  contents: read
+jobs:
+  fizlet-site:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: fizlet-site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: fizlet-site/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npm run validate:content
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run audit
+      - run: npm run browse

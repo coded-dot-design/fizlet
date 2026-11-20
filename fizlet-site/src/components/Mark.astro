@@ -1,0 +1,7 @@
+---
+// The Fizlet mark in the text colour, the pop in pink.
+import { MARK, rectPath } from "../lib/mark";
+interface Props { size?: number }
+const { size = 40 } = Astro.props;
+---
+<svg viewBox="0 0 64 64" width={size} height={size} aria-hidden="true" shape-rendering="crispEdges"><path fill="currentColor" d={rectPath([...MARK.frame, ...MARK.ink])}/><path style="fill: var(--k-attack)" d={rectPath(MARK.pop)}/></svg>

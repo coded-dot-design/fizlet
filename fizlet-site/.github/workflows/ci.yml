@@ -1,0 +1,27 @@
+name: Site gates
+# Every PR and every push to main: validate:content, test, typecheck, build, audit, browse.
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  gates:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npm run validate:content
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run audit
+      - run: npm run browse
+      - run: npm audit --omit=dev --audit-level=high
