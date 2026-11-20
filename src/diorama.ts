@@ -903,8 +903,12 @@ export function occlude(d: Diorama, o: OccludeOptions) {
   const R = new Float64Array(9), Bd = new Float64Array(6); // R: local origin, direction, extent; Bd: the rays' bounds
   const ghost = o.ghost ?? 0.16, near = o.near ?? 0, t = o.t ?? 0.15;
   const oc = {
+    /** Reduced motion: alphas snap to their goal instead of fading (live: set it any time). */
     reduced: !!o.reduced,
+    /** Boxes ray-tested in the last `step` (the rest were off the rays' bounds). */
     tested: 0,
+    /** Fade, over dt seconds, the objects between `d.eye()` and the first `n` points of `pts`
+     *  ([x, y, z, …], world); true while any alpha still eases. No allocation. */
     step(dt: number, pts: ArrayLike<number>, n = (pts.length / 3) | 0) {
       d.eye(E);
       let busy = false;

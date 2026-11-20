@@ -550,9 +550,13 @@ export function water(d: Diorama, o: WaterOptions) {
     get live() {
       return S[3]!;
     },
+    /** Move the water dt seconds (the surface rolls only within `idle` of the last effect or `stir`,
+     *  and not when `still`); returns `busy`. No allocation. */
     step,
     /** Keep the surface rolling `sec` more seconds (default `idle`). */
     stir,
+    /** The surface's height over `level` at (x, z) at time t (seconds, default now): the wave plus the
+     *  swell. */
     height,
     /** The surface's slope at (x, z): out = [dh/dx, dh/dz]. */
     slope<T extends { [i: number]: number }>(x: number, z: number, out: T, t = S[0]!): T {

@@ -20,6 +20,8 @@ const TAU = 6.283185307179586;
 
 /** Something that takes events: an engine's ring (`engine.events`). */
 export interface TrackEvents {
+  /** Take event `type` (`track:pass`, `track:jump`, `track:land`, `track:finish`, `track:stay`): a is
+   *  the token, b the space. */
   emit(type: string, a?: number, b?: number): unknown;
 }
 
@@ -185,6 +187,7 @@ export function track(o: TrackOptions) {
   const api = {
     /** Spaces. */
     n,
+    /** A loop (the `closed` option). */
     closed,
     /** Space centres. */
     x, z,
@@ -254,7 +257,11 @@ export function track(o: TrackOptions) {
       emit("track:land", k, p);
       return hops.n;
     },
+    /** Token k's place on space s (default its own) if it stood there now: out = [x, y, z], beside or
+     *  over the tokens already there. */
     slot,
+    /** The r-th of m tokens on space s: out = [x, y, z], `cap` side by side, then up one `level` at a
+     *  time. */
     spot,
     /** Where the moving token is at t seconds into the last move: out = [x, y, z] (y over the board's
      *  top). False once the move is over (out is then its landing place). */
