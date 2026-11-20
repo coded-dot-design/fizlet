@@ -153,6 +153,10 @@ export const BUDGETS = [
   // three wheels (or teetering on two) instead of creeping on.
   // 5,260 B (+142 B) with `state`, `save` and `load`: the whole state in one buffer (rollback netcode).
   ["@fzlt/core/drive", "src/drive.ts", 5312],
+  // Jointed limbs for diorama figures (diorama is a type-only import; lifted from Holeshot's rider):
+  // 1,321 B gz when added (the exact `hypot` from @fzlt/core/math included, K5); limb alone 919 B, ik3
+  // alone 754 B, ik2 alone 342 B, outset alone 360 B (they tree-shake).
+  ["@fzlt/core/rig", "src/rig.ts", 1344],
   // An animation recipe as data: 8,467 B gz with the kernel, fx (effects + emitter), sprite and
   // timeline's easings it composes when added; its own code is 1,928 B (planned at ≤ 2,048; on a
   // page the bricks are shared). tests/scene.test.mjs holds the own-code target.

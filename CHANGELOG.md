@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **`@fzlt/core/rig`** (new brick, ALPHA; 1,321 B gz, budget 1,344): jointed limbs for diorama figures,
+  lifted from Holeshot's rider (its art stays in the game). `limb(d, id, { on, l1, l2, normal, bend })`
+  adds two groups (`:a` the upper bone, `:b` the lower; parts hang along +x) and `reach(ax, ay, az, bx,
+  by, bz)` poses both so the lower bone's tip lands on the target (pulled in along the line out of
+  reach). `ik2` (a plane) and `ik3` (3D, in the plane nearest a normal, with each bone's diorama
+  rotation) stand alone; `outset` grows an outline for an ink edge. Zero allocation per pose.
+  - Tests: `tests/rig.test.mjs` (lengths, tips, bend sides, frames through the diorama's own matrices,
+    degenerate inputs, 0 young GCs posing four limbs for 100k frames) and `tests/rig.mjs` (Chromium: a
+    pedalling figure, every hand and foot within 0.5 px of its target, moving, settles to 0 frames).
+
 - **Brick audit (`fe audit fizlet`): no fails, no gaps in exports, README or tests.** `@fzlt/core/presence/rollback`
   no longer reads wall time in its step: the correction meters `resimMs` and `resimTotal` read a clock the
   host passes (`clock: () => performance.now()`, a profiling opt-in) and stay 0 without one (2,181 B gz,
