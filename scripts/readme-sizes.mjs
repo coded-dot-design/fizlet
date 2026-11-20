@@ -5,7 +5,7 @@
 // tests/status.test.mjs proves the generator on a fixture.
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { BRICKS } from "../site/bricks.mjs";
+import { BRICKS } from "./bricks.mjs";
 import { measure } from "./sizes.mjs";
 
 const kb = (bytes) => `${(bytes / 1024).toFixed(1)} KB`;

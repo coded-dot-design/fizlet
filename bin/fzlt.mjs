@@ -13,7 +13,8 @@ try {
 
 const args = process.argv.slice(2);
 const INSTALL = "npm i @fzlt/core";
-const HOME = "https://fizlet.com";
+// The docs (package.json homepage), so the bin and the package never disagree.
+const HOME = pkg.homepage;
 
 if (args.includes("--help") || args.includes("-h")) {
   console.log(`fzlt [--json] [--version]\n  prints the version and the measured brick sizes of ${pkg.name}`);

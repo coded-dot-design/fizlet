@@ -1,0 +1,337 @@
+/* The demo figure's styles, copied from fizlet.com's site.css (its :root, base and the .demo block), so the perf fixture lays out as the home page's demo did. */
+:root {
+  --sans: Inter, "SF Pro Display", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* fizlet.com's shadow direction (BOARD-UI.md 4.1): straight below. Every hard base on the site,
+     and any component vendored in (keys, cards, the console and cartridges), takes it from here. */
+  --shadow-x: 0;
+  --shadow-y: 1;
+  /* The main container: 1200px, growing with the screen from 1277px wide (94vw) to 1520px (reached at
+     1617px), so big screens fill out. Prose keeps its own measure (max-width in ch or px). */
+  --page: clamp(1200px, 94vw, 1520px);
+  --gutter: 30px;
+  /* The space between cards in a grid or a stack (the contract rules, stat rows, people and
+     contest cards). */
+  --block-gap: 22px;
+  /* The least block space a section gets, and what sits on each side of a section rule (the
+     space the closing band's rule had above it). */
+  --section-gap: clamp(70px, 10vw, 120px);
+  /* The head (eyebrow → title → lead): the home section heads' spacing and title size, on every head
+     on the site (see "The head" under Type). */
+  --head-gap: 16px;
+  --head-lead-gap: 18px;
+  --head-size: clamp(32px, 4.4vw, 54px);
+  /* A panel's base: the card colour pushed into the rim, in the site's shadow direction. */
+  --base: color-mix(in srgb, var(--k-cmd) 38%, var(--rim));
+  --grid: color-mix(in srgb, var(--k-sys) 9%, transparent);
+  --code-bg: #0b0918;
+  --hl: var(--k-go);
+  /* A frame that keeps the page's scroll, while its note shows (scroll-hint.ts): the kit's red
+     (themed: #ff2b4e dark, #c01033 light). */
+  --frame-warn: var(--k-fire-ink);
+  /* Every 3D sticker's die-cut edge and hard shadow (status stickers, the kernel slab, section
+     numbers, gallery numbers and stickers, phase and people stickers, badges): light on the dark
+     theme, so the edge and the shadow read on the dark page; the ink rim on the light theme. A
+     sticker's text stays the dark ink on its bright face. */
+  --sticker-edge: var(--ink);
+  --sticker-shadow: var(--muted);
+}
+html.bui[data-theme="light"] {
+  --sticker-edge: var(--rim);
+  --sticker-shadow: var(--rim);
+  --base: color-mix(in srgb, var(--k-cmd) 30%, var(--line));
+  --grid: color-mix(in srgb, var(--k-cmd) 9%, transparent);
+  --code-bg: #f6f5fd;
+  --hl: #0b7a54;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 90px;
+  -webkit-text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  font: 16px/1.6 var(--sans);
+  color: var(--ink);
+  background: var(--bg);
+  overflow-x: hidden;
+}
+a {
+  color: inherit;
+}
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+code,
+kbd,
+pre {
+  font-family: var(--mono);
+}
+code {
+  font-size: 0.88em;
+  color: var(--k-sys-ink);
+  overflow-wrap: anywhere;
+}
+:focus-visible {
+  outline: 3px solid var(--k-sys-ink);
+  outline-offset: 3px;
+}
+.panel {
+  position: relative;
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  box-shadow: calc(6px * var(--bui-sx)) calc(6px * var(--bui-sy)) 0 var(--base);
+}
+.panel.lit {
+  border-color: var(--k-cmd);
+  box-shadow: calc(6px * var(--bui-sx)) calc(6px * var(--bui-sy)) 0 color-mix(in srgb, var(--k-cmd) 55%, var(--bui-shadow)), 0 0 28px color-mix(in srgb, var(--k-cmd) 22%, transparent);
+}
+html.bui[data-theme="light"] .panel.lit {
+  box-shadow: calc(6px * var(--bui-sx)) calc(6px * var(--bui-sy)) 0 color-mix(in srgb, var(--k-cmd) 55%, var(--line));
+}
+
+.demo {
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  padding: 14px;
+  min-width: 0;
+}
+.demo-chrome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 700 10px var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.demo-chrome i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--k-fire);
+}
+.demo-chrome i:nth-child(2) {
+  background: var(--hurt);
+}
+.demo-chrome i:nth-child(3) {
+  background: var(--k-go);
+}
+.demo-url {
+  margin-left: 6px;
+  padding: 3px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+}
+.demo-state {
+  margin-left: auto;
+  padding: 3px 8px;
+  color: var(--rim);
+  background: var(--k-go);
+  border: 1.5px solid var(--rim);
+  border-radius: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.demo[data-running="0"] .demo-state {
+  background: var(--k-flag);
+}
+.demo-board {
+  position: relative;
+  height: clamp(250px, 30vw, 330px);
+  overflow: hidden;
+  border: 2px solid var(--rim);
+  border-radius: 10px;
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 22px 22px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 22px 22px,
+    var(--bg);
+  cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+  overscroll-behavior: none;
+}
+.demo-page {
+  position: absolute;
+  inset: 0;
+  padding: clamp(18px, 3vw, 30px);
+}
+.demo-title {
+  margin: 0 0 14px;
+  font: 900 clamp(38px, 5.4vw, 66px) / 1 var(--sans);
+  letter-spacing: -0.04em;
+}
+.dl,
+.dw,
+.demo-btn,
+.demo-chip {
+  display: inline-block;
+  transform-origin: 50% 60%;
+}
+.dl.hot {
+  color: var(--k-attack);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--k-attack) 55%, transparent);
+}
+html.bui[data-theme="light"] .dl.hot {
+  text-shadow: none;
+}
+.demo-copy {
+  margin: 0 0 18px;
+  max-width: 440px;
+  font-size: clamp(14px, 1.4vw, 16px);
+  line-height: 1.55;
+  color: var(--muted);
+}
+.demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.demo-btn {
+  padding: 9px 16px;
+  font: 800 12px var(--mono);
+  letter-spacing: 0.12em;
+  color: var(--rim);
+  background: var(--k-sys);
+  border: 2px solid var(--rim);
+  border-radius: 8px;
+  box-shadow: calc(4px * var(--bui-sx)) calc(4px * var(--bui-sy)) 0 color-mix(in srgb, var(--k-sys) 45%, var(--bui-shadow));
+}
+.demo-chip {
+  padding: 4px 9px;
+  font: 800 10px var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--rim);
+  background: var(--k-fallin);
+  border: 2px solid var(--rim);
+  border-radius: 5px;
+}
+.demo-chip.alt {
+  background: var(--k-cmd-deep);
+  color: #f6f3ff;
+}
+.demo-fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.demo-hint {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font: 800 10px var(--mono);
+  letter-spacing: 0.14em;
+  color: var(--k-attack);
+  pointer-events: none;
+}
+.demo-hint.gone {
+  display: none;
+}
+.blink {
+  width: 9px;
+  height: 9px;
+  border: 2px solid currentColor;
+  /* On the kernel clock (@fzlt/core/css-clock in demo.ts): paused here, its time is --fz-t. */
+  animation: blink 1.1s steps(2) infinite paused;
+  animation-delay: var(--fz-t, 0s);
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+.demo-slam {
+  position: absolute;
+  inset: auto 0 0;
+  height: 110px;
+  pointer-events: none;
+}
+.demo-slam[hidden] {
+  display: none;
+}
+.demo-slam .bui-sticker b {
+  font-size: 26px;
+}
+.demo-keys {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.demo-keys [data-sound] {
+  margin-left: auto;
+}
+.demo-keys [data-sound][aria-pressed="false"] .snd-on,
+.demo-keys [data-sound][aria-pressed="true"] .snd-off {
+  display: none;
+}
+.demo-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  overflow: hidden;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--line);
+}
+.demo-stats div {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--surface);
+  min-width: 0;
+}
+.demo-stats dt {
+  font: 700 9px var(--mono);
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.demo-stats dd {
+  margin: 0;
+  font: 800 16px var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.demo-stats [data-stat="layout"] {
+  color: var(--hl);
+}
+.demo .bui-label {
+  white-space: normal;
+}
+.wrap {
+  width: 100%;
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}

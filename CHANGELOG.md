@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Repository: the package alone, ready to become `fizlet/fzlt` (public, MIT).** The website
+  (`site/`, `examples/`, its build scripts, its tests, the Pages deploy and the site, settle and
+  page-cost CI jobs) moves to its own repository; fizlet.com is rebuilt there. No change to the
+  package's code or API: the tarball is the same `bin/`, `dist/`, CHANGELOG, LICENSE and README.
+  `package.json`: repository and bugs at `fizlet/fzlt`, homepage https://docs.fzlt.dev (the `fzlt`
+  bin prints it). The brick catalog moves to `scripts/bricks.mjs`; `npm run perf` measures the home
+  demo on a page of its own (`tests/perf/fixture`); the release workflow publishes from `fizlet/fzlt`
+  only. `docs/bricks-inventory.md`: every brick's measured gzip size, who ships it and its docs.
+
 - **Site: the roadmap ticks E8.blitz-kit (Battlefield Blitz on steer and coach, dom-battlefield-blitz#22); every E8 box is ticked, so E8 The game kit is done.** The engine's ROADMAP.md agrees (`fe roadmap check`).
 
 - **`@fzlt/core/steer` and `@fzlt/core/coach` are COMPLETE.** Battlefield Blitz moves every tank on steer

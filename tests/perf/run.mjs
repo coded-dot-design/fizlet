@@ -1,10 +1,11 @@
-// Perf run, one command (`npm run perf`, which builds the site first): each target under a CPU
+// Perf run, one command (`npm run perf`, which builds the perf fixture, tests/perf/fixture): each target under a CPU
 // throttle against tests/perf/budgets.json, then the allocation test. Writes a JSON report and
 // exits 1 when anything is over budget. CI and the brain's perf auditor both call this.
 //   PERF_SECONDS (default 10)   PERF_THROTTLE (default 4)   PERF_OUT (default perf-results.json)
 //   BLITZ_DIR=<built Blitz dir> also measures Battlefield Blitz (BLITZ_PATH: page inside it, default play/)
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { cpus, loadavg } from "node:os";
+import { buildFixture } from "./fixture/build.mjs";
 import { clicker, fmt, launch, measure, serve } from "./harness.mjs";
 import { allocCheck, demoTarget } from "./alloc.mjs";
 
@@ -15,7 +16,6 @@ const seconds = Number(arg("seconds") ?? process.env.PERF_SECONDS ?? 10), thrott
 const runs = Math.max(1, Number(arg("runs") ?? 1));
 const mid = (xs) => { const s = xs.filter((x) => x != null).sort((a, b) => a - b); return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2; };
 const budgets = JSON.parse(readFileSync(new URL("./budgets.json", import.meta.url), "utf8"));
-if (!existsSync("site-dist/index.html")) throw new Error("site-dist/ is missing: run `npm run site` first");
 
 // The machine's load at the start and end of the run is part of every result (numbers on a busy
 // machine are not numbers on an idle one). On GitHub Actions each line is also an annotation, so a
@@ -24,7 +24,7 @@ const load = () => loadavg().map((n) => n.toFixed(2)).join(" ");
 const note = (line) => process.env.GITHUB_ACTIONS && console.log(`::notice title=perf::${line}`);
 const loadStart = load();
 const servers = [], targets = [];
-const site = await serve("site-dist", "/fizlet/");
+const site = await serve(await buildFixture(), "/fizlet/");
 servers.push(site);
 targets.push({
   name: "demo",
