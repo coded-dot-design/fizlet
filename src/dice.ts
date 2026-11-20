@@ -280,7 +280,7 @@ export interface DioramaDiceOptions {
   cluster?: string;
   /** Body colour (default `#f6f1e7`). */
   color?: string;
-  /** Pip colour (default `#1d1b22`). */
+  /** The pips' colour (default `#1d1b22`). */
   pip?: string;
   /** Blob shadow strength (default 0.3). */
   shadow?: number;

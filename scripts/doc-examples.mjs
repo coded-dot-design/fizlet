@@ -15,7 +15,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
 /** The files whose examples are tested. */
-export const DOCS = ["README.md", "src/ui/BOARD-UI.md", "src/ACTORS.md", "examples/fizz/README.md", "examples/layers/README.md"];
+export const DOCS = ["README.md", "src/ui/BOARD-UI.md", "src/ACTORS.md"];
 
 /**
  * Names an example may use without defining, with the type the typecheck gives them (the browser

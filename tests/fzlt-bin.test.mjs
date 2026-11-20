@@ -49,7 +49,7 @@ test("the bin prints the version and every measured entry; --json parses", async
     assert.match(first, /^Fizlet™ \(fzlt™\)/);
     assert.ok(text.includes(`version  ${pkg.version}`));
     assert.ok(text.includes("npm i @fzlt/core"));
-    assert.ok(text.includes("https://fizlet.com"));
+    assert.ok(text.includes("https://docs.fzlt.dev"));
     for (const e of sizes.entries) {
       const row = text.split("\n").find((l) => l.startsWith(e.name + " "));
       assert.ok(row, `no row for ${e.name}`);

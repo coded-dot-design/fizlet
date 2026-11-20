@@ -36,8 +36,9 @@ for (const f of [...readdirSync("src"), ...readdirSync("src/kernel").map((f) => 
 
 const all = examples();
 
-/** The site's listings: brick pages' examples and the docs pages' code (typechecked by npm run typecheck). */
-const LISTINGS = ["site/brick-examples", "site/docs/code"].flatMap((d) => readdirSync(d).filter((f) => f.endsWith(".ts")).sort().map((f) => `${d}/${f}`));
+/** The site's listings: brick pages' examples and the docs pages' code. They live in the site's own
+ * repository since the split, so in the package alone this list is empty; the README and brick docs stay. */
+const LISTINGS = ["site/brick-examples", "site/docs/code"].filter((d) => existsSync(d)).flatMap((d) => readdirSync(d).filter((f) => f.endsWith(".ts")).sort().map((f) => `${d}/${f}`));
 
 /** A runtime value for a listing's `declare const name: type` (the stand-in for anything else). */
 function valueFor(name, type) {
@@ -86,7 +87,10 @@ const where = (i, line) => `${all[i].file}:${all[i].line + line - 1}`;
 test.after(() => rmSync(dir, { recursive: true, force: true }));
 
 test("the docs have examples, and every one is steered by at most one doc-test tag", () => {
-  assert.ok(all.length >= 20, `only ${all.length} examples found`);
+  // The package README keeps its install and kernel examples; each brick's long-form examples moved
+  // with the guides to the docs site at the split (4 here then, 19 in the old README). A drop below
+  // that means the extractor broke, not that the docs shrank.
+  assert.ok(all.length >= 4, `only ${all.length} examples found`);
   for (const ex of all) assert.ok(["run", "typecheck", "skip"].includes(ex.mode), `${ex.file}:${ex.line}: unknown doc-test tag ${ex.mode}`);
 });
 

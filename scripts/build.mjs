@@ -4,6 +4,7 @@ import { build } from "esbuild";
 import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { stripDtsComments, stripJsComments } from "./comments.mjs";
 import { checkTokens, readTokenSources } from "./tokens.mjs";
 import { measure, sizesJson } from "./sizes.mjs";
 
@@ -14,6 +15,15 @@ if (drift.length) throw new Error(`Board UI tokens disagree with src/ui/tokens.j
 rmSync("dist", { recursive: true, force: true });
 await build({ entryPoints: ENTRIES, outdir: "dist", outbase: "src", bundle: true, splitting: true, chunkNames: "chunks/[name]-[hash]", format: "esm", target: "es2022", platform: "browser", legalComments: "none", logLevel: "warning" });
 execFileSync("npx", ["tsc", "-p", "tsconfig.json"], { stdio: "inherit" });
+// What ships keeps its public documentation and nothing else: the TSDoc blocks on the declarations
+// (editors show them) and the bundler annotations in the JS (/* @__PURE__ */, /* @__NO_SIDE_EFFECTS__ */:
+// consumers' tree-shaking reads them). Every other comment (esbuild's path markers, line comments,
+// notes inside function bodies) is stripped here; scripts/publish-clean.mjs checks it.
+for (const f of readdirSync("dist", { recursive: true })) {
+  const file = join("dist", String(f));
+  if (file.endsWith(".d.ts")) writeFileSync(file, stripDtsComments(readFileSync(file, "utf8")));
+  else if (file.endsWith(".js")) writeFileSync(file, stripJsComments(readFileSync(file, "utf8")));
+}
 // Declarations: give relative imports their file extension, so consumers on any module resolution
 // (Bundler, Node16, NodeNext) can follow them: "./kernel/index" -> "./kernel/index.js".
 for (const f of readdirSync("dist", { recursive: true })) {

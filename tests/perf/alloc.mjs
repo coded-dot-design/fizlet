@@ -6,10 +6,11 @@
 // Template: copy this file into a game's repo, point TARGET at the game's built page, give it a
 // scripted run (seeded clicks or keys), measure an idle and a scripted run, then set MAX_MINOR_GC
 // from what you measured. `npm run perf` runs it too (and puts it in the JSON report); on its own:
-// `npm run test:alloc` after `npm run site`. Options: ALLOC_FRAMES (default 600).
+// `npm run test:alloc` (it builds tests/perf/fixture). Options: ALLOC_FRAMES (default 600).
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { buildFixture } from "./fixture/build.mjs";
 import { clicker, gcStats, launch, serve } from "./harness.mjs";
 
 const FRAMES = Number(process.env.ALLOC_FRAMES ?? 600);
@@ -87,8 +88,7 @@ function allocators(head, frames) {
 
 // Standalone: `node tests/perf/alloc.mjs`.
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  if (!existsSync("site-dist/index.html")) throw new Error("site-dist/ is missing: run `npm run site` first");
-  const site = await serve("site-dist", "/fizlet/");
+    const site = await serve(await buildFixture(), "/fizlet/");
   const browser = await launch();
   try {
     const { over } = await allocCheck(browser, demoTarget(site.origin));

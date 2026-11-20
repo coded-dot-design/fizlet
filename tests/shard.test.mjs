@@ -1,4 +1,4 @@
-// scripts/shard.mjs: CI's split of the chained browser and site suites. Every file of a script lands in
+// scripts/shard.mjs: CI's split of the chained browser suite. Every file of a script lands in
 // exactly one shard for any n, and shards are deterministic and balanced (a test added to package.json
 // without a time in tests/shard-times.json still runs, at the median cost; no table edit needed).
 import test from "node:test";
@@ -8,7 +8,7 @@ import { files, shards } from "../scripts/shard.mjs";
 
 const scripts = JSON.parse(readFileSync("package.json", "utf8")).scripts;
 const times = JSON.parse(readFileSync("tests/shard-times.json", "utf8"));
-const SHARDED = ["test:browser", "test:site"];
+const SHARDED = ["test:browser"];
 
 test("files: reads a chained node script in order, refuses anything else", () => {
   assert.deepEqual(files("node tests/a.mjs && node tests/b.mjs"), ["tests/a.mjs", "tests/b.mjs"]);

@@ -3,20 +3,20 @@
 Measured numbers, not claims. Playwright + Chromium over CDP; it loads built pages and only observes.
 
 ```sh
-npm run perf                 # one command: builds the site, 4x CPU throttle, 10 s per target, then the
+npm run perf                 # one command: builds the fixture, 4x CPU throttle, 10 s per target, then the
                              # allocation test; writes perf-results.json, exits 1 over budget
-npm run test:alloc           # the allocation test alone (after `npm run site`)
-npm run perf:page            # the page-cost gate (after `npm run site`): page-cost-results.json, exits 1 over budget
+npm run test:alloc           # the allocation test alone (builds the fixture too)
 # cloud sessions: CHROMIUM_PATH=/opt/pw-browsers/chromium npm run perf
 # options: PERF_SECONDS, PERF_THROTTLE, PERF_OUT=<file.json>, ALLOC_FRAMES
 # Battlefield Blitz: BLITZ_DIR=<its built dir> [BLITZ_PATH=play/] npm run perf
 ```
 
-Stress runs (S6, not in CI; `npm run test:stress` lists them): `npm run test:stress -- frame --throttle 4,6
---runs 5` (medians against the proposed `tests/stress/frame-budgets.json`, with a main-thread breakdown
-from the trace; `--site <dir>` bisects an older build) and `npm run test:stress -- many` (1/8/32/64
-gallery pieces on one page: idle and off-screen rAF, frame time, heap; `--gallery`, `--sweep`). Each
-takes `--self-test`. `npm run perf -- --throttle 6 --runs 5` checks the CI budgets on a median.
+The target is `fixture/`: fizlet.com's home demo ("Blast it. Recall it.", its markup, `demo.ts` on
+`src/` and the demo's styles) on a page of its own, built by `fixture/build.mjs` into `perf-dist/`
+(gitignored) and served at `/fizlet/`. The budgets were set on the home page; the fixture runs the
+same demo code without the rest of the page. Stress runs (not in CI; `npm run test:stress` lists
+them): the engine-only ones stay here; the site-wide ones (`frame`, `many`, `visibility`) moved with
+the website. `npm run perf -- --throttle 6 --runs 5` checks the CI budgets on a median.
 
 | File | What |
 | --- | --- |
@@ -24,7 +24,7 @@ takes `--self-test`. `npm run perf -- --throttle 6 --runs 5` checks the CI budge
 | `recorder.js` | rAF frame recorder injected before page scripts; writes into a preallocated `Float64Array` |
 | `run.mjs` | the perf run against `budgets.json` (CI job `perf`) |
 | `alloc.mjs` | allocation test; the template a game copies |
-| `page-cost.mjs` / `page-cost-run.mjs` | the page-cost gate against `page-budgets.json` (below) |
+| `fixture/` | the measured page: the home demo, built by `fixture/build.mjs` |
 
 ## What each number means
 
@@ -44,7 +44,7 @@ Measured, no longer provisional: the medians of 3 runs of the CI `perf` job (Git
 ubuntu-latest, AMD EPYC 7763 × 4, Chromium 145, load ≤ 1.15) for the demo, and of 3 local runs
 (load 17–26, noted) for Blitz, which CI does not build. Each run's numbers and the rule from median
 to ceiling are in the file. Every result line is also a GitHub annotation, so a run reads as:
-`gh api repos/coded-dot-design/fizlet/check-runs/<perf job id>/annotations`.
+`gh api repos/fizlet/fzlt/check-runs/<perf job id>/annotations`.
 
 | target | p50 | p95 | p99 | dropped | layerize | FCP | heap | minor GC |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -81,30 +81,4 @@ That is why `alloc.mjs` also prints the sampled top allocators.
 Battlefield Blitz: not measured yet. Its source is not in this repo and the hosted build was not
 reachable from the session that wrote this; set `BLITZ_DIR` to measure it.
 
-## Page cost (`npm run perf:page`)
-
-What a page's interactions cost the page they sit on. Each page in `page-budgets.json` is loaded
-as built ("live") and with only its posters ("poster": every `<script type="module">` removed
-except the ones in `keep`, the site chrome), at desktop (1440×900) and mobile (390×844, 4× CPU).
-The gate is live minus poster, against the page budgets: CLS +0 (at 0.000), a tap on page text
-outside every interaction +8 ms desktop / +24 ms mobile, idle main-thread CPU while visible +3 /
-+10 points.
-
-- **Frames, not wall time.** Every wait counts animation frames: 120 to settle after load, a
-  180-frame idle window, 20 frames between taps.
-- **Best of N.** Each measure is the median over its taps (5) or its window inside a run, then the
-  best of `PAGE_RUNS` runs (default 3), live and poster interleaved. Noise only adds cost, so the
-  best run is the closest to the page's real cost.
-- **Tap latency** is read in the page: the input event's own `timeStamp` to the start of the next
-  frame after its handlers, at sub-ms resolution. Event Timing reports nothing under 16 ms and
-  rounds to 8 ms, too coarse for a +8 ms budget.
-- **Idle CPU** is CDP `TaskDuration` over the idle window, divided by its length.
-
-**Exceptions.** `exceptions` in `page-budgets.json` names a page, profile and measure that may stay
-over its budget while its own tracking task fixes it. It is reported on every run (a warning
-annotation and `excepted` in the JSON), fails past its `ceiling` (the level measured when it was
-written), and never moves the budget. Each one names a roadmap task, links its tracking issue,
-says why and records the measured runs; CLS has none. Today: home desktop idle, G20 (#139).
-
-Options: `PAGE_RUNS`, `PAGE_OUT=<file.json>`, `PAGE_ONLY=<page name>`. Unit tests for the pure
-parts (poster page, best of N, verdict): `tests/page-cost.test.mjs`.
+The page-cost gate (`npm run perf:page`) measured fizlet.com's own pages; it moved with the website.

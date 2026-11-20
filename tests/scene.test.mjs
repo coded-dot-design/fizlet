@@ -194,8 +194,8 @@ export function checkScene(d) {
   return bad;
 }
 
-test("scene: every scene file in the gallery is in the format", () => {
-  for (const dir of ["site/gallery/anims"]) for (const f of readdirSync(dir).filter((n) => n.endsWith(".scene.json"))) {
+test("scene: the sample scene files (two gallery micros, copied from fizlet.com) are in the format", () => {
+  for (const dir of ["tests/fixtures/scenes"]) for (const f of readdirSync(dir).filter((n) => n.endsWith(".scene.json"))) {
     assert.deepEqual(checkScene(JSON.parse(readFileSync(`${dir}/${f}`, "utf8"))), [], f);
   }
   assert.ok(checkScene({ v: 1, stage: { w: 1, h: 1, end: 1, bg: "#000" }, cue: [[1, "kick", 1], [0, "word", 9, 0, 0, 0, 8]] }).length >= 2, "the check catches out-of-order and unknown words");

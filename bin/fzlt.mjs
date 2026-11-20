@@ -1,7 +1,4 @@
 #!/usr/bin/env node
-// `npx @fzlt/core` (or `fzlt` once installed): the version and the measured brick sizes.
-// Zero dependencies, node: built-ins only. Every number comes from dist/sizes.json, written by the
-// build from scripts/sizes.mjs (the same measurement as `npm run size`); nothing is measured here.
 import { readFileSync } from "node:fs";
 
 const read = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url), "utf8"));
@@ -13,7 +10,7 @@ try {
 
 const args = process.argv.slice(2);
 const INSTALL = "npm i @fzlt/core";
-const HOME = "https://fizlet.com";
+const HOME = pkg.homepage;
 
 if (args.includes("--help") || args.includes("-h")) {
   console.log(`fzlt [--json] [--version]\n  prints the version and the measured brick sizes of ${pkg.name}`);

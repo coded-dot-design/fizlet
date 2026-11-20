@@ -1,11 +1,11 @@
-// Status flags (site/bricks.mjs STATUS): every brick has one, the evidence behind it is real, and the
+// Status flags (scripts/bricks.mjs STATUS): every brick has one, the evidence behind it is real, and the
 // README's table says the same thing as the catalog.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { BUDGETS } from "../scripts/sizes.mjs";
 import { readmeSizes } from "../scripts/readme-sizes.mjs";
-import { BRICKS, PLANNED, STATUS, BETA_LINE } from "../site/bricks.mjs";
+import { BRICKS, PLANNED, STATUS, BETA_LINE } from "../scripts/bricks.mjs";
 
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
 const readme = readFileSync("README.md", "utf8");
@@ -57,7 +57,7 @@ test("the README table shows each brick's flag, and the beta line", () => {
     for (const m of b.modules) {
       const row = rows.find((r) => r.split(" | ")[0].split(/[`]/).includes(m.name));
       assert.ok(row, `README: no row for ${m.name}`);
-      assert.equal(row.split(" | ")[1], STATUS[b.status].label, `README: ${m.name} is ${STATUS[b.status].label} in site/bricks.mjs`);
+      assert.equal(row.split(" | ")[1], STATUS[b.status].label, `README: ${m.name} is ${STATUS[b.status].label} in scripts/bricks.mjs`);
     }
   assert.ok(readme.replace(/\n> /g, " ").includes(BETA_LINE), "README: the beta line, word for word");
 });

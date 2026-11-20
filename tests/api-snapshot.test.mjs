@@ -7,7 +7,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { compare, mentions, normalize, readDir, readRef, snapshots, stripComments, surfaceFiles, unreleased } from "../scripts/api-snapshot.mjs";
-import { BRICKS } from "../site/bricks.mjs";
+import { BRICKS } from "../scripts/bricks.mjs";
 
 /** A throwaway directory with the given files ({ "path": "text" }). */
 function fixture(files) {

@@ -2,7 +2,7 @@
 
 **Status:** v1.1 (2026-10-28). Lives in Fizlet (`src/ui/`, published as `@fzlt/core/ui`); DOM
 Battlefield keeps a copy in `board-ui/` until it imports the package. Live guide:
-https://coded-dot-design.github.io/dom-battlefield/style-guide/ (built from the kit only). Kit:
+https://battlefield.fzlt.games/style-guide/ (built from the kit only). Kit:
 `src/ui/board-ui.css` + `src/ui/board-ui.ts`. Tokens: `src/ui/tokens.json`.
 
 This is the spec for **every DOM VIRUS game board**. A new board reuses this UI exactly: the keys,

@@ -6,7 +6,9 @@
 #   - someone runs it by hand (Actions > Release to npm > Run workflow) for an existing tag.
 # Needs the NPM_TOKEN repository secret (an npm automation token), added by the owner in
 # Settings > Secrets and variables > Actions. Without it the job checks everything, then skips
-# the publish with a warning.
+# the publish with a warning. Publishes only from fizlet/fzlt (the public, MIT home of the package,
+# where npm provenance links to): anywhere else (a fork, or this repository before its move) the
+# job checks and packs, then skips the publish with a warning.
 # Never publishes an untested commit: when the tag's commit already has a green `check` from ci.yml
 # (always so when ci.yml calls this after tagging), the browser suite is not run a second time;
 # otherwise (a tag pushed by hand before or without that run) the whole suite runs here first.
@@ -38,9 +40,9 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-24.04
-    # 45: when the commit has no green check, test:browser runs here in full (about 23 min since the
-    # 0.22.0 train, 59 scripts; at 20 the job was cancelled before Publish). With one, ~3 min.
-    timeout-minutes: 45
+    # When the commit has no green check, test:browser runs here in full (24 engine scripts, about
+    # 3 min of tests since the site moved out; it was 59 scripts and ~23 min with the site's). With one, ~3 min.
+    timeout-minutes: 30
     env:
       TAG: ${{ inputs.tag || github.ref_name }}
     steps:
@@ -69,7 +71,7 @@ jobs:
       - run: npm run readme:sizes -- --check
       - name: No runtime dependencies
         run: node -e "const p=require('./package.json'); if (Object.keys(p.dependencies||{}).length || Object.keys(p.peerDependencies||{}).length) { console.error('Fizlet ships no runtime dependencies'); process.exit(1) }"
-      # ci.yml's `check` (every job: unit, 4 browser shards, site, settle) passed on exactly this
+      # ci.yml's `check` (every job: unit, the browser shards, webkit) passed on exactly this
       # commit: a check run named check, by GitHub Actions, success, from a ci.yml run on a push (a
       # pull_request run files its checks under the PR head but tests the merge with the base, so it
       # does not count: the tested tree must be this tree).
@@ -97,12 +99,18 @@ jobs:
         run: npm run test:browser
       # Pack, install the tarball, import and typecheck every subpath.
       - run: npm run test:pack
+      # Only dist/, bin/ and three docs are packed; no comments, no agent words.
+      - run: npm run publish-clean
       - name: Publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           if npm view "@fzlt/core@$VERSION" version >/dev/null 2>&1; then
             echo "@fzlt/core@$VERSION is already on npm; nothing to do." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if [ "$GITHUB_REPOSITORY" != "fizlet/fzlt" ]; then
+            echo "::warning::@fzlt/core publishes from fizlet/fzlt only (this is $GITHUB_REPOSITORY): checked and packed, not published."
             exit 0
           fi
           if [ -z "$NODE_AUTH_TOKEN" ]; then
