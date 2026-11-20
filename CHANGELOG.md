@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Site: the roadmap ticks E8.blitz-kit (Battlefield Blitz on steer and coach, dom-battlefield-blitz#22); every E8 box is ticked, so E8 The game kit is done.** The engine's ROADMAP.md agrees (`fe roadmap check`).
+
+- **`@fzlt/core/steer` and `@fzlt/core/coach` are COMPLETE.** Battlefield Blitz moves every tank on steer
+  (`drive`, `seek`, `arriveGoal`, `wander`, the exact `hypot`) and counts its practice coach's steps and
+  tricks on `tour` (its own card stays; dom-battlefield-blitz#22, merged; Blitz's next release ships it). Its
+  replay plays the pinned matches value for value, lockstep shows 0 desyncs, and its zero-GC test is green.
+  No API change. The README table and `site/bricks.mjs` say COMPLETE; API snapshots in `api/`.
+
 - **`@fzlt/core/scene`** (new brick, EXPERIMENTAL, E13; 1,928 B gz of its own, planned at ≤ 2,048;
   8,369 B with the kernel, fx, sprite and timeline's easings it composes, budget 8,704): an
   animation recipe as data. A scene is JSON: a **stage** (a pixel grid fitted to the box,
