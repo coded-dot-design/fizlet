@@ -288,21 +288,21 @@ they cross. Use one cell size for both.
 pickups, written as data a prompt can compose.
 
 ```ts
-import { sprites } from "@fzlt/core/sprite";
+import { sprites, spriteSVG, spriteURL } from "@fzlt/core/sprite";
 
-const art = sprites({
-  bug: {
-    colors: { o: "rim", b: "team", e: "#fff6d6" },   // hex, or a role a palette fills
-    frames: [                                         // one frame = rows; "." (any unlisted char) is empty
-      [".o.o.", "obbbo", "obebo", ".o.o."],
-      ["o...o", "obbbo", "obebo", "o...o"],
-    ],
-    ax: 2.5, ay: 2,                                   // pivot (default: the centre)
-  },
-}, { palettes: [{ team: "#39ffb0", rim: "#07060f" }, { team: "#ff5c8f" }, { "*": "#fff" }], cap: 256 });
+const bug = {
+  colors: { o: "rim", b: "team", e: "#fff6d6" },     // hex, or a role a palette fills
+  frames: [                                           // one frame = rows; "." (any unlisted char) is empty
+    [".o.o.", "obbbo", "obebo", ".o.o."],
+    ["o...o", "obbbo", "obebo", "o...o"],
+  ],
+  ax: 2.5, ay: 2,                                     // pivot (default: the centre)
+};
+const palettes: Record<string, string>[] = [{ team: "#39ffb0", rim: "#07060f" }, { team: "#ff5c8f" }, { "*": "#fff" }];
+const art = sprites({ bug }, { palettes, cap: 256 });
 
 art.draw(ctx, "bug", frame, x, y, angle, 3, side);   // palette 0 = side A, 1 = side B, 2 = hit flash
-host.innerHTML = art.svg("bug");                      // or <img src={art.url("bug")}> on the page
+host.innerHTML = spriteSVG(bug, 0, palettes);         // or <img src={spriteURL(bug, 0, palettes)}> on the page
 ```
 
 - **Format**: `frames` is rows of characters (one frame) or a list of those; `colors` maps a
@@ -471,6 +471,7 @@ Every peer runs the same fixed-step sim from the same seed; only inputs cross th
 each). Your input is sent `delay` frames ahead, and a frame runs only once every player's input
 for it is here, so peers can't drift. Keep the sim on `engine.random` and typed arrays.
 
+<!-- doc-test: typecheck -->
 ```js
 import { createEngine } from "@fzlt/core";
 import { presence, join, hash32 } from "@fzlt/core/presence";
@@ -503,6 +504,7 @@ when a real input differs it loads the snapshot of that frame and runs the frame
 its state in typed arrays (its random state too) and gives their byte views as `bytes`; the step may
 change nothing else, and render-only work never feeds it.
 
+<!-- doc-test: typecheck -->
 ```js
 import { rollback } from "@fzlt/core/presence/rollback";
 
@@ -700,6 +702,7 @@ slot of a typed array (a number your step reads). Easings: `linear`, `in`, `out`
 `back`, `steps(n)` or your own function (sampled once into a table, so the step never calls it).
 
 ```ts
+import { createEngine } from "@fzlt/core";
 import { timeline } from "@fzlt/core/timeline";
 
 const e = createEngine({ settle: 0.5 });
