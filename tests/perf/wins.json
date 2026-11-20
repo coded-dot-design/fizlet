@@ -3,6 +3,61 @@
   "wins": [
     {
       "version": "Unreleased",
+      "pr": 402,
+      "win": "collide: Grid's insert and query share one cell-range helper",
+      "metric": "gzip bytes of @fzlt/core/collide",
+      "before": 1265,
+      "after": 1251,
+      "unit": "B gzip",
+      "how": "esbuild bundle, minified, zlib gzip (npm run size), before and after on the same commit base; 512 inserts + 512 queries a frame 42.5 → 32.0 µs (Node 24, median of 7 × 2,000 frames, 3 runs each)",
+      "test": "npm run size (scripts/sizes.mjs: collide ≤ 1,280 B), tests/grid.test.mjs"
+    },
+    {
+      "version": "Unreleased",
+      "pr": 402,
+      "win": "ui: launch() reads the key's look and the board's tones before it adds the burst layer",
+      "metric": "gzip bytes of @fzlt/core/ui (js)",
+      "before": 2907,
+      "after": 2900,
+      "unit": "B gzip",
+      "how": "esbuild bundle, minified, zlib gzip (npm run size), before and after on the same commit base; one click on a 4,000-node page at 4× CPU 6.7–7.8 → 4.6 ms median (40 clicks, 2 runs each, Chromium), forced layouts in the call 1 → 0",
+      "test": "npm run size (scripts/sizes.mjs: ui js ≤ 2,944 B)"
+    },
+    {
+      "version": "Unreleased",
+      "pr": 402,
+      "win": "presence: send() writes a message's frame and value through one DataView",
+      "metric": "gzip bytes of @fzlt/core/presence",
+      "before": 2197,
+      "after": 2186,
+      "unit": "B gzip",
+      "how": "esbuild bundle, minified, zlib gzip (npm run size), before and after on the same commit base; the same 12 little-endian bytes on the wire",
+      "test": "npm run size (scripts/sizes.mjs: presence ≤ 2,208 B), tests/presence.test.mjs"
+    },
+    {
+      "version": "Unreleased",
+      "pr": 402,
+      "win": "board-page is smaller with collide's shared cell-range helper",
+      "metric": "gzip bytes of @fzlt/core/board-page",
+      "before": 4104,
+      "after": 4076,
+      "unit": "B gzip",
+      "how": "esbuild bundle, minified, zlib gzip (npm run size), before and after on the same commit base",
+      "test": "npm run size (scripts/sizes.mjs: board-page ≤ 4,128 B)"
+    },
+    {
+      "version": "Unreleased",
+      "pr": 402,
+      "win": "arcade is smaller with the collide, ui and presence changes",
+      "metric": "gzip bytes of @fzlt/core/arcade",
+      "before": 24145,
+      "after": 24115,
+      "unit": "B gzip",
+      "how": "esbuild bundle, minified, zlib gzip (npm run size), before and after on the same commit base",
+      "test": "npm run size (scripts/sizes.mjs: arcade ≤ 24,136 B)"
+    },
+    {
+      "version": "Unreleased",
       "pr": 129,
       "win": "The home page's layers story no longer shifts the layout as it opens (#123)",
       "metric": "CLS of the home page over a full layers cycle (index#layers), Chromium",
