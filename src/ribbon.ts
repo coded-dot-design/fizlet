@@ -18,11 +18,17 @@ import { hypot } from "./math.js";
 
 /** What ribbons lie on: a heightfield grid ((cols + 1) × (rows + 1) heights in `h`, row by row). */
 export interface RibbonGround {
+  /** The vertex heights, (cols + 1) × (rows + 1) of them, row by row. Read, never changed. */
   h: Float64Array;
+  /** The x of the grid's first column of vertices, in world units. */
   x0: number;
+  /** The z of the grid's first row of vertices, in world units. */
   z0: number;
+  /** Cells along x. */
   cols: number;
+  /** Cells along z. */
   rows: number;
+  /** One cell's side, in world units. */
   cell: number;
   /** "adaptive": each cell splits along its smaller height difference (the terrain's rule). */
   split?: string;
@@ -30,8 +36,9 @@ export interface RibbonGround {
 
 /** The painter's options. */
 export interface RibbonOptions {
-  /** The decal's cluster (default "terrain": terrainView's) and layer (default 0.5: over the ground). */
+  /** The decal's cluster (default "terrain": terrainView's). */
   cluster?: string;
+  /** The decal's layer in its cluster (default 0.5: over the ground). */
   layer?: number;
   /** The longest piece along the line (default the ground's cell). */
   step?: number;
@@ -39,8 +46,9 @@ export interface RibbonOptions {
   cap?: number;
   /** Depth buckets, far to near (default 8; 1: colour order only). */
   buckets?: number;
-  /** Towards the light (default diorama's [0.5, 1, 0.4]) and the ambient light (default 0.56). */
+  /** Towards the light (default diorama's [0.5, 1, 0.4]). */
   light?: ArrayLike<number>;
+  /** The ambient light (default 0.56). */
   ambient?: number;
   /** Lift above the ground (default 0.004 units). */
   lift?: number;

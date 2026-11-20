@@ -140,9 +140,11 @@ export function turntable(engine: Engine, el: HTMLElement | SVGElement, o: Turnt
       if (friction > 0 && !s[6 /* JUMP */] && ms - s[8 /* T */]! < 100 && Math.abs(s[1 /* VEL */]!) > 0.3) s[3 /* MODE */] = 2;
       else settle();
     },
+    /** The engine's read phase: latches reduced motion while the angle is held or moving (it may read the DOM; a step may not). */
     read() {
       if (s[3 /* MODE */]) s[6 /* JUMP */] = +still();
     },
+    /** The engine's fixed step: moves the angle (a throw, a spin, an eased turn) and keeps the engine awake until it rests. No DOM, no allocation. */
     step(e: Engine, dt: number) {
       const m = s[3 /* MODE */]!;
       if (m < 2) return;
@@ -162,6 +164,7 @@ export function turntable(engine: Engine, el: HTMLElement | SVGElement, o: Turnt
       }
       e.busy();
     },
+    /** The engine's render phase: only when the angle changed, writes the ARIA value (with `label`) and calls `onTurn(yaw)`. */
     render() {
       const y = s[0 /* YAW */]!;
       if (y === s[5 /* DRAWN */]) return;

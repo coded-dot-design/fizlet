@@ -17,17 +17,25 @@ import type { Diorama } from "./diorama.js";
 
 /** What these painters call on a 2D context (a `CanvasRenderingContext2D` is one). */
 export interface GroundContext {
+  /** The context's alpha, 0..1: `shadow` scales it for its fill and puts it back. */
   globalAlpha: number;
+  /** Starts a new path: `shadow` calls it before its blob. */
   beginPath(): void;
+  /** Starts a subpath at (x, y), in the context's px. */
   moveTo(x: number, y: number): void;
+  /** Adds a line to (x, y), in the context's px. */
   lineTo(x: number, y: number): void;
+  /** Closes the current subpath: `ring` calls it after its last vertex. */
   closePath(): void;
+  /** Adds an ellipse at (x, y) with radii `rx` and `ry` (px), turned `rot` radians, from angle `a0` to `a1`. */
   ellipse(x: number, y: number, rx: number, ry: number, rot: number, a0: number, a1: number): void;
+  /** Fills the current path: only `shadow` calls it. */
   fill(): void;
 }
 /** A ground that writes its height at (x, z) into `out[0]`: `@fzlt/core/terrain` is one (the ground
  *  `@fzlt/core/drive` takes; the height comes back in an array, so no number is boxed per point). */
 export interface GroundHeights {
+  /** Writes the ground's height at (x, z), in world units, into `out[0]`; what it returns is ignored. */
   sample(x: number, z: number, out: { [i: number]: number }): unknown;
 }
 
