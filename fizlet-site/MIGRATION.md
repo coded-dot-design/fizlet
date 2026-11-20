@@ -14,9 +14,10 @@ to do, so the next wave can split the remaining pages without overlap.
 1. **Export** (`npm run export:legacy -- <legacy site-dist>`): `scripts/export-legacy.mjs` reads the
    legacy build and writes what this site renders to `src/data/legacy/` (committed, so this repo
    builds alone): `routes.json` (every page), `footer.json` (the site map), `site.json` (the
-   version), one JSON per ported page, and `assets.json`, the legacy runtime files the ported pages
-   load, copied into `public/` (the engine bundles: `site.js`, the demos, the gallery chunks,
-   `dist/`, `fizlet.js`). Every number in the data was measured by the legacy build.
+   version), one JSON per ported page, and `assets.json`, the static files the ported pages load
+   that this site does not build (images, `robots.txt`, `llms*.txt`, and any legacy script whose
+   runtime is not ported yet), copied into `public/`. Every number in the data was measured by the
+   legacy build. The runtime this site builds itself is listed in the next section.
 2. **Render**: pages in `src/pages/` take that data through shared components. Markup the engine
    owns (a demo's poster and loader, the API reference) stays as built, through `Html.astro`;
    each such use is a to-do below.
@@ -41,6 +42,47 @@ to the export loop in `scripts/export-legacy.mjs`, re-export, add the path to `d
 
 Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same heights on both sites.
 
+## Runtime (W2-runtime, 2026-11-20)
+
+The site's JavaScript is built here, by Astro/Vite, from `src/scripts/` on the pinned npm
+dependency `@fzlt/core` (`0.27.0`, exact). No engine bundle is copied into `public/` any more.
+
+- **Shell** (every page): `scripts/shell.ts` (BaseLayout: the kit's press cue, `@fzlt/core/touch`'s
+  pinch lock, the scroll hint, the people avatars' frames), `scripts/theme.ts` (ThemeToggle; the
+  saved theme is applied before first paint by BaseLayout's inline head script, so no flash),
+  `scripts/nav.ts` (SiteHeader: the menus and the phone menu), `scripts/copy.ts` (CodeBlock: the
+  Copy keys, also the kept-as-built code cards on the same page). DocsSidebar has no script.
+- **Page scripts** (one `<script>` per template): home (`home-motion`, `demo`, `demos/fizz/main`,
+  `origin/main`, `home-layers` for the hero's layers figure, whose inline legacy loader
+  `index.astro` strips), brick (`brick-demo`, `brick-cards`), gallery (`gallery/gallery`,
+  `gallery/browse`). The sources are the legacy `site/*.ts` with `../src/x` imports rewritten to
+  `@fzlt/core/x`. BaseLayout skips these legacy `meta.scripts` paths (`BUILT`), and
+  `export-legacy.mjs` no longer copies them (`BUILT_JS`); a page type whose script is not built here
+  yet still gets its legacy file in `public/`. A new page type adds its entry to both lists.
+- **Hosted builds**: `/dist/` (the ESM build) and `/fizlet.js` (the script-tag build, same 38
+  exports on `window.fizlet` as legacy) are written into the output at build time from
+  `node_modules/@fzlt/core` (`astro.config.mjs`, `astro:build:done`).
+- **Not yet**: the gallery entries' live chunks (`/gallery/<id>.js`, 140 legacy bundles from
+  `site/gallery/pieces`) are not built here and were not copied in wave 1 either, so on `/gallery/`
+  the posters stay up and the live pieces 404 (same as wave 1); W2-gallery ports them as Vite
+  entries. `/gallery/index.json` (the search index) is missing too. `/dist/` carries what npm
+  0.27.0 publishes: the bricks added on main since (actor, aim, announce, scene, …) appear when the
+  pin moves to the release that has them.
+
+JS shipped per page type (Chromium, 390 wide, motion allowed; gzip -9 of each file; "scrolled" adds
+the chunks the demos load when their slots near; inline is the page's inline scripts, uncached):
+
+| Page type | Wave 1 initial | Now initial | Wave 1 scrolled | Now scrolled | Inline (w1 / now) |
+|---|---:|---:|---:|---:|---:|
+| home `/` | 6 files, 33,322 B | 15 files, 25,587 B | 8 files, 77,541 B | 17 files, 53,146 B | 420 / 876 B |
+| doc | 1 file, 2,637 B | 3 files, 2,818 B | same | same | 126 / 876 B |
+| brick | 10 files, 14,922 B | 12 files, 13,119 B | same | same | 126 / 876 B |
+| gallery index | 3 files, 6,017 B | 5 files, 6,153 B | same | same | 126 / 741 B |
+
+Lighthouse 12.8.2 mobile (performance, local static server, median of 3): `/` 84 → 84 (LCP 3,527 →
+3,526 ms, TBT 0, CLS 0); `/bricks/kernel.html` 97 → 97 (LCP 2,252 → 2,101 ms, TBT 0, CLS 0).
+Compare after the runtime change: 0.000% on all 16 full-page shots (4 pages × 1440/390 × light/dark).
+
 ## Design system
 
 - **Tokens**: `src/design/tokens.json` is the one source (groups: color, type, space, radius,
@@ -57,9 +99,8 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 
 ## Known gaps (to do)
 
-- **Runtime**: the ported pages still run the legacy engine bundles from `public/` (`site.js` wires
-  the theme toggle, nav menus, Copy keys; the demos and gallery pieces load their chunks). Next:
-  build these here from `@fzlt/core` (npm) and move the behaviour into the components' scripts.
+- **Runtime**: done for the shell, home, brick and gallery-index scripts (see Runtime above); the
+  gallery entries' live chunks and the search index are still to do (W2-gallery).
 - **Kept as built** (`Html.astro`): the home page's 14 sections below the stats (origin, page-toc,
   play, story, profile, contract, board, loop, recall, specs, ship, games, roadmap, start, final),
   the home hero's layers figure, the brick page's head, demo, card, status and API, the gallery's
@@ -69,8 +110,8 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 - **Redirects**: the two moved pages (`/heroes/`, `/guides/multiplayer-rooms/`) need Cloudflare
   `_redirects` entries plus their meta-refresh pages.
 - **Not pages**: `sitemap.xml` (generated here from the done routes), `robots.txt`, `llms.txt`,
-  `llms-full.txt`, `og.png`, `icon.svg`, `fizlet.js`, `dist/` (copied from the legacy build; at
-  cutover `llms*.txt`, `og.png` and `fizlet.js` must be built, not copied).
+  `llms-full.txt`, `og.png`, `icon.svg` (copied from the legacy build; at cutover `llms*.txt` and
+  `og.png` must be built, not copied). `fizlet.js` and `dist/` are built from `@fzlt/core`.
 - **The Astro page engine**: this wave could not reach the Fizlet factory's Astro engine, so it was
   built without its scaffold (`abe new`), `abe migrate compare` or `abe browse`. The gates here are
   standalone equivalents (`scripts/compare.mjs`, `scripts/browse.mjs`); move onto the engine's

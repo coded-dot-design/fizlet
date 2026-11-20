@@ -275,15 +275,19 @@ const bricksSection = (sec, path) => {
 }
 
 // ---------- Runtime assets the ported pages load (the legacy engine bundles) ----------
-// Scripts, stylesheets-free: every module script the four pages load, and every file those import.
-const assets = new Set(["icon.svg", "og.png", "robots.txt", "llms.txt", "llms-full.txt", "fizlet.js"]);
+// Scripts, stylesheets-free: every module script the ported pages load, and every file those import,
+// except the runtime this site builds itself (W2-runtime): the scripts below are src/scripts on
+// @fzlt/core through Vite (BaseLayout skips them too), and /dist/ and /fizlet.js are written from
+// the @fzlt/core package at build time (astro.config.mjs). What is left is copied into public/.
+const BUILT_JS = new Set(["site.js", "home-motion.js", "demo.js", "demos/fizz/main.js", "origin/main.js", "brick-demo.js", "brick-cards.js", "gallery/gallery.js", "gallery/browse.js", "demos/layers/layers.js"]);
+const assets = new Set(["icon.svg", "og.png", "robots.txt", "llms.txt", "llms-full.txt"]);
 const queue = [];
 for (const f of ["index.html", "docs/getting-started/index.html", "bricks/kernel.html", "gallery/index.html"]) {
   const h = read(f);
   for (const m of h.matchAll(/(?:src|href|data-live|data-src|data-module)="([^"#?]+\.(?:js|json|svg|png|webp|css|txt))"/g)) {
     if (/^https?:/.test(m[1])) continue;
     const p = new URL(m[1], `https://fizlet.com/${f.replace(/index\.html$/, "")}`).pathname.slice(1);
-    if (p !== "board-ui.css" && p !== "site.css") queue.push(p);
+    if (p !== "board-ui.css" && p !== "site.css" && !BUILT_JS.has(p)) queue.push(p);
   }
 }
 while (queue.length) {
@@ -292,8 +296,6 @@ while (queue.length) {
   assets.add(p);
   if (p.endsWith(".js")) for (const m of read(p).matchAll(/(?:from|import\(|import)\s*"(\.{1,2}\/[^"]+)"|"(\.\/[\w./-]+\.js)"/g)) queue.push(new URL(m[1] ?? m[2], `https://fizlet.com/${p}`).pathname.slice(1));
 }
-// The hosted ESM build (dist/) the quick start and docs link to.
-for (const f of walk(join(LEGACY, "dist"))) assets.add(relative(LEGACY, f).split("\\").join("/"));
 const LIST = [...assets].sort();
 for (const p of LIST) { mkdirSync(dirname(join(PUBLIC_LEGACY, p)), { recursive: true }); cpSync(join(LEGACY, p), join(PUBLIC_LEGACY, p)); }
 write("assets.json", LIST);

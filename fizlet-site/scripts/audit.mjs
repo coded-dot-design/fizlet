@@ -29,7 +29,9 @@ for (const p of JSON.parse(readFileSync("src/data/migration.json", "utf8")).done
   const f = join("dist", p === "" || p.endsWith("/") ? `${p}index.html` : p);
   if (!existsSync(f)) fail.push(`/${p}: done, but not built at its legacy URL (${f})`);
 }
-for (const f of walk("src").filter((f) => /\.(astro|ts)$/.test(f))) {
+// src/scripts is the engine's runtime (demo scenes paint their own art, as the legacy bundles did),
+// not page styling, so the rule reads components, layouts, pages and lib.
+for (const f of walk("src").filter((f) => /\.(astro|ts)$/.test(f) && !f.startsWith(join("src", "scripts")))) {
   const s = readFileSync(f, "utf8");
   if (/<style[\s>]/.test(s) && !/<style is:inline set:html=\{css\}/.test(s)) fail.push(`${f}: a <style> block (tokens and the shared sheets only)`);
   if (/#[0-9a-f]{3,8}\b(?![\w-])/i.test(s.replace(/href="#[^"]*"|"#[\w-]+"|'#[\w-]+'|`#[\w-]+`/g, "")) && !f.endsWith("BaseLayout.astro")) fail.push(`${f}: a colour literal (use a token)`);

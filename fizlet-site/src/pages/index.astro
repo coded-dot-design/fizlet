@@ -10,6 +10,9 @@ import DATA from "../data/legacy/pages/home.json";
 import type { Tone } from "../lib/site";
 const h = DATA as any;
 const hero = h.hero;
+// The layers figure's inline loader (it imported the legacy /demos/layers/layers.js) is
+// scripts/home-layers.ts now, built from @fzlt/core with the page's other scripts.
+const LAYERS_LOADER = /<script type="module">\{const f=document\.querySelector\("figure\.lyr"\)[\s\S]*?<\/script>/;
 ---
 <BaseLayout meta={h.meta}>
 <section class="hero has-grid" aria-labelledby="hero-title">
@@ -28,7 +31,7 @@ const hero = h.hero;
       <CodeBlock label={hero.install.label} code={hero.install.code} wrap={hero.install.wrap} copy={hero.install.copy} class={hero.install.cls} />
     </div>
 
-    <Html html={hero.figureHtml} />
+    <Html html={hero.figureHtml.replace(LAYERS_LOADER, "")} />
   </div>
 </section>
 <section class="stats" aria-label="Fizlet in numbers">
@@ -44,4 +47,5 @@ const hero = h.hero;
   </div>
 </section>
   : <Html html={s.html} />)}
+<script>import "../scripts/home-motion"; import "../scripts/demo"; import "../scripts/demos/fizz/main"; import "../scripts/origin/main"; import "../scripts/home-layers";</script>
 </BaseLayout>

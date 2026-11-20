@@ -23,6 +23,7 @@
     "migration": "node scripts/migration.mjs"
   },
   "dependencies": {
+    "@fzlt/core": "0.27.0",
     "astro": "7.4.13"
   },
   "devDependencies": {
