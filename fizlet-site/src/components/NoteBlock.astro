@@ -1,0 +1,15 @@
+---
+// One block of a note: text (paragraphs, sub-heads, lists), stats, features, questions or keys.
+import Key from "./Key.astro";
+import { inline, type NoteBlock } from "../lib/notes";
+import type { Tone } from "../lib/site";
+interface Props { block: NoteBlock }
+const b = Astro.props.block;
+const KEYS: Tone[] = ["sys", "cmd", "go"];
+const head = "heading" in b && b.heading ? inline(b.heading) + (b.headingAccent ? `<br><em>${inline(b.headingAccent)}</em>` : "") : "";
+---
+{b.type === "text" ? <section class="note-block">{head && <h2 set:html={head} />}{b.body.map((x) => x.type === "p" ? <p class="body" set:html={inline(x.text)} /> : x.type === "h" ? <h3 set:html={inline(x.text)} /> : x.type === "ul" ? <ul class="ledger-rules note-list">{x.items.map((i) => <li set:html={inline(i)} />)}</ul> : <ol class="ledger-rules note-list">{x.items.map((i) => <li set:html={inline(i)} />)}</ol>)}</section>
+  : b.type === "stats" ? <section class="note-block">{head && <h2 set:html={head} />}<ul class="rules note-stats">{b.items.map((i) => <li class="panel rule"><b>{i.value}</b><p set:html={inline(i.label)} /></li>)}</ul></section>
+  : b.type === "features" ? <section class="note-block">{head && <h2 set:html={head} />}{b.subhead && <p class="body" set:html={inline(b.subhead)} />}<ul class="note-rows">{b.items.map((i) => <li class="panel"><h3 set:html={inline(i.title)} /><p set:html={inline(i.body)} />{i.link && <p><a href={i.link.href}>{i.link.label}</a></p>}</li>)}</ul></section>
+  : b.type === "faq" ? <section class="note-block"><h2>Questions</h2><div class="note-rows">{b.items.map((i) => <div class="panel"><h3 set:html={inline(i.q)} /><p set:html={inline(i.a)} /></div>)}</div></section>
+  : <div class="split-keys">{b.links.map((l, i) => { const out = /^https:/.test(l.href); return <Key href={l.href} tone={KEYS[i % KEYS.length]} icon={out ? "out" : "book"} label={l.label + (out ? " ↗" : "")} />; })}</div>}

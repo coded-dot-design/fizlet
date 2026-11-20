@@ -1,0 +1,7 @@
+---
+// Previous / next between posts of one kind (releases: newer / older), each with its code label.
+interface Step { href: string; label: string }
+interface Props { prev?: Step; next?: Step; prevLabel: string; nextLabel: string; label: string }
+const { prev, next, prevLabel, nextLabel, label } = Astro.props;
+---
+<nav class="bp-steps" aria-label={label}>{prev ? <a class="bp-step prev" href={prev.href}><small>{prevLabel}</small><code>{prev.label}</code></a> : <span></span>}{next ? <a class="bp-step next" href={next.href}><small>{nextLabel}</small><code>{next.label}</code></a> : <span></span>}</nav>

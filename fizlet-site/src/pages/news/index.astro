@@ -1,0 +1,28 @@
+---
+// /news/: every release, newest first (announcements, notes of type "news", lead when there are any).
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import NoteCard from "../../components/NoteCard.astro";
+import ReleaseRow from "../../components/ReleaseRow.astro";
+import { allNotes, allReleases } from "../../lib/content";
+import { inline } from "../../lib/notes";
+import { newsIndexMeta, REPO } from "../../lib/releases";
+
+const releases = await allReleases();
+const announcements = (await allNotes()).filter((n) => n.type === "news");
+const lead = `What changed in each version of Fizlet, straight from the <a href="${REPO}/blob/main/CHANGELOG.md">changelog ↗</a>: new bricks, fixes and the sizes measured when each one shipped. Essays and field notes live in <a href="/notes/">Notes</a>.`;
+---
+<BaseLayout meta={{ ...newsIndexMeta(releases), scripts: ["/site.js"] }}>
+<section class="has-grid section" aria-labelledby="news-title">
+  <div class="wrap">
+    <SectionHead index={String(releases.length)} eyebrow="RELEASES · NEWEST FIRST" line="Every release." accent="Every number." lead={lead} id="news-title" />
+    {announcements.length > 0 && <Fragment><h2 class="news-h">Announcements</h2><ol class="gal note-cards">
+      {announcements.map((n) => <NoteCard level="h3" href={`/notes/${n.slug}/`} anim={"note:" + n.slug} index={n.date} kind={(n.eyebrow ?? "news").toUpperCase()} title={n.title}><p class="body" set:html={inline(n.lead[0] ?? "")} /></NoteCard>)}
+    </ol></Fragment>}
+    <h2 class="news-h">Release notes</h2>
+    <ol class="gal note-cards">
+      {releases.map((r) => <ReleaseRow release={r} />)}
+    </ol>
+  </div>
+</section>
+</BaseLayout>

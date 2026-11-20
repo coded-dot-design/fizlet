@@ -1,0 +1,34 @@
+---
+// One release's notes (/news/<version>/): its changelog section as written, newer / older, back.
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Crumbs from "../../../components/Crumbs.astro";
+import SectionHead from "../../../components/SectionHead.astro";
+import ByLine from "../../../components/ByLine.astro";
+import ChangelogBlocks from "../../../components/ChangelogBlocks.astro";
+import StepNav from "../../../components/StepNav.astro";
+import BackLink from "../../../components/BackLink.astro";
+import { allReleases } from "../../../lib/content";
+import { releaseMeta, releasePath, REPO, type Release } from "../../../lib/releases";
+import { VERSION } from "../../../lib/site";
+
+export async function getStaticPaths() {
+  const all = await allReleases();
+  return all.map((release, i) => ({ params: { version: release.version }, props: { release, prev: all[i - 1], next: all[i + 1] } }));
+}
+interface Props { release: Release; prev?: Release; next?: Release }
+const { release: r, prev, next } = Astro.props;
+const step = (x?: Release) => x && { href: "/" + releasePath(x), label: x.version };
+---
+<BaseLayout meta={{ ...releaseMeta(r), scripts: ["/site.js"] }}>
+<article class="has-grid section note release" aria-labelledby="rel-title">
+  <div class="wrap">
+    <Crumbs trail={[{ href: "/news/", label: "News" }]} current={r.version} />
+    <SectionHead tag="header" class="section-head note-head" index={r.version} eyebrow={`RELEASE NOTES${r.version === VERSION ? " · LATEST" : ""}`} line={`Fizlet ${r.version}`} id="rel-title">
+      <ByLine date={r.date}><a href={`${REPO}/blob/main/CHANGELOG.md`}>CHANGELOG.md ↗</a></ByLine>
+    </SectionHead>
+    <ChangelogBlocks source={r.md} />
+    <StepNav label="Other releases" prev={step(prev)} next={step(next)} prevLabel="← NEWER" nextLabel="OLDER →" />
+    <BackLink href="/news/" label="Every release" />
+  </div>
+</article>
+</BaseLayout>

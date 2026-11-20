@@ -274,6 +274,31 @@ const bricksSection = (sec, path) => {
   });
 }
 
+// ---------- Notes and news: the data the legacy build reads, for the notes and releases collections ----------
+// The notes are site/notes/<slug>.json (the content model's export) and the releases CHANGELOG.md
+// with site/releases.json's dates, both in the legacy source next to its build (`npm run
+// export:legacy -- <site-dist> [<legacy repo>]`, default: the build's parent folder). Copied as
+// they are; src/lib/notes.ts and src/lib/releases.ts render them as the legacy pages did.
+{
+  const SRC = process.argv[3] ?? join(LEGACY, "..");
+  const notesDir = join(SRC, "site/notes");
+  rmSync(join(OUT, "notes"), { recursive: true, force: true });
+  for (const f of readdirSync(notesDir).filter((f) => f.endsWith(".json"))) {
+    const n = JSON.parse(readFileSync(join(notesDir, f), "utf8"));
+    if (n.status !== "published" && n.status !== "scheduled") continue;
+    write(`notes/${f}`, n);
+  }
+  const dates = JSON.parse(readFileSync(join(SRC, "site/releases.json"), "utf8"));
+  const releases = readFileSync(join(SRC, "CHANGELOG.md"), "utf8").split(/^## /m).slice(1).map((part) => {
+    const [head, ...rest] = part.split("\n");
+    return { version: head.trim(), md: rest.join("\n").trim() };
+  }).filter((r) => r.version !== "Unreleased").map((r, order) => ({ id: r.version, version: r.version, date: dates[r.version] ?? null, md: r.md, order }));
+  write("releases.json", releases);
+  // The kernel's gzip size, as the legacy build measured it (the notes' size badge).
+  const badge = parse(read(`notes/${readdirSync(join(OUT, "notes"))[0].replace(/\.json$/, "")}/index.html`)).querySelector(".note-by [data-size-badge]");
+  write("notes-build.json", { kernelGzip: +badge.getAttribute("data-bytes"), live: badge.getAttribute("data-live") });
+}
+
 // ---------- Runtime assets the ported pages load (the legacy engine bundles) ----------
 // Scripts, stylesheets-free: every module script the four pages load, and every file those import.
 const assets = new Set(["icon.svg", "og.png", "robots.txt", "llms.txt", "llms-full.txt", "fizlet.js"]);

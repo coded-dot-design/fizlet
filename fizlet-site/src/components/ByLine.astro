@@ -1,0 +1,8 @@
+---
+// A post's byline: the author, the date, then the slot (a size badge, a source link).
+import { AUTHOR } from "../lib/site";
+import { longDate } from "../lib/notes";
+interface Props { date?: string | null }
+const { date } = Astro.props;
+---
+<p class="note-by">By <a href={AUTHOR + "/"}>Chris Cooley ↗</a>{date && <Fragment> · <time datetime={date}>{longDate(date)}</time></Fragment>} · <slot /></p>

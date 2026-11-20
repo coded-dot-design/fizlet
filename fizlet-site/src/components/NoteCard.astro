@@ -1,0 +1,13 @@
+---
+// A card in a list of posts (the notes index, the news index): its animation slot, the eyebrow
+// (date or version sticker and kind), the linked title, then the card's own lines in the slot.
+interface Props { href: string; anim: string; index: string; kind: string; title: string; level?: "h2" | "h3"; class?: string }
+const { href, anim, index, kind, title, level = "h2", class: cls = "panel note-card" } = Astro.props;
+const H = level;
+---
+<li class={cls}>
+      <div class="card-anim" data-anim-slot={anim} aria-hidden="true"></div>
+      <p class="eyebrow"><span class="index">{index}</span> {kind}</p>
+      <H><a href={href}>{title}</a></H>
+      <slot />
+    </li>

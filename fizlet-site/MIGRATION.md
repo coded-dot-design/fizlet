@@ -41,6 +41,35 @@ to the export loop in `scripts/export-legacy.mjs`, re-export, add the path to `d
 
 Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same heights on both sites.
 
+## W2-notes results (measured 2026-11-20, legacy build v0.27.0)
+
+`/notes/`, its 6 notes, `/news/` and its 51 releases: 59 pages from four templates, all done.
+
+- **Content collections** (`src/content.config.ts`): `notes` (glob over `src/data/legacy/notes/*.json`,
+  the legacy `site/notes/<slug>.json` copied as is) and `releases` (`src/data/legacy/releases.json`,
+  CHANGELOG.md split by version with `site/releases.json`'s dates). `export-legacy.mjs` copies both
+  from the legacy source (its second argument, default the build's parent folder), plus the kernel's
+  measured gzip size for the notes' size badge (`notes-build.json`).
+- **Rendering**: `src/lib/notes.ts` and `src/lib/releases.ts` are the legacy `site/pages/notes.mjs`,
+  `site/pages/news.mjs` and `scripts/releases.mjs`, ported (inline Markdown, the changelog parser,
+  highlights, descriptions, JSON-LD). `validate:content` and `tests/notes.test.mjs` check that every
+  note and release gets the legacy page's own title and description.
+- **Components (new)**: NoteCard (a post card), ReleaseRow (a release on /news/, on NoteCard),
+  NoteBlock (text, stats, features, questions, keys), ChangelogBlocks, ByLine, SizeBadge, StepNav
+  (newer / older), BackLink. SectionHead's accent line is optional now.
+- **HTML**: each page's `<main>`, title, description and JSON-LD are the legacy build's, byte for byte
+  after whitespace, except one class: the legacy layout skips the page's `has-grid` background when the
+  body's text mentions `has-grid`, which 0.21.0's changelog does; here it always has it (the 0.001%).
+
+`npm run compare -- <legacy> <new> <out> --full` over all 59 pages, full-page shots (236):
+
+| Pages | 1440 light | 1440 dark | 390 light | 390 dark | Page height (1440 / 390) |
+|---|---:|---:|---:|---:|---|
+| `/notes/` | 0.000% | 0.000% | 0.000% | 0.000% | 3,694 / 4,469 px |
+| 6 notes (`/notes/<slug>/`) | 0.000% | 0.000% | 0.000% | 0.000% | 2,461–5,733 px at 1440, same on both |
+| `/news/` | 0.000% | 0.000% | 0.000% | 0.000% | 14,374 / 16,416 px |
+| 51 releases (`/news/<version>/`) | 0.000% | ≤ 0.001% | 0.000% | 0.000% | same on both sites; the 0.001% is /news/0.21.0/ |
+
 ## Design system
 
 - **Tokens**: `src/design/tokens.json` is the one source (groups: color, type, space, radius,
@@ -79,7 +108,7 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 ## Route inventory
 
 <!-- INVENTORY:START -->
-148 legacy pages, 4 done, 144 to do (legacy build v0.27.0).
+148 legacy pages, 63 done, 85 to do (legacy build v0.27.0).
 
 | Type | Pages | Done | Template | Components | Next wave |
 |---|---:|---:|---|---|---|
@@ -98,10 +127,10 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 | gallery-lane | 1 | 0 | to build: src/pages/gallery/hifi/index.astro | GalleryCard | W2-gallery |
 | redirect | 2 | 0 | to build: a redirect (Cloudflare _redirects 301, plus the meta-refresh page) | none | W2-misc |
 | make | 1 | 0 | to build: src/pages/make/index.astro | CodeBlock, Key; make.js runtime | W2-daily |
-| news-index | 1 | 0 | to build: src/pages/news/index.astro | a release row (new) | W2-notes |
-| release | 51 | 0 | to build: src/pages/news/[version]/index.astro | Crumbs, SectionHead | W2-notes |
-| notes-index | 1 | 0 | to build: src/pages/notes/index.astro | a note card (new) | W2-notes |
-| note | 6 | 0 | to build: src/pages/notes/[slug]/index.astro | Crumbs, SectionHead, CodeBlock, Callout | W2-notes |
+| news-index | 1 | 1 | src/pages/news/index.astro (releases collection) | SectionHead, ReleaseRow (NoteCard), NoteCard for announcements | W2-notes: done |
+| release | 51 | 51 | src/pages/news/[version]/index.astro (releases collection, CHANGELOG.md) | Crumbs, SectionHead, ByLine, ChangelogBlocks, StepNav, BackLink | W2-notes: done |
+| notes-index | 1 | 1 | src/pages/notes/index.astro (notes collection) | SectionHead, NoteCard | W2-notes: done |
+| note | 6 | 6 | src/pages/notes/[slug]/index.astro (notes collection, site/notes/*.json) | Crumbs, SectionHead, ByLine, SizeBadge, NoteBlock (Key), BackLink | W2-notes: done |
 | people-index | 1 | 0 | to build: src/pages/people/index.astro | a person card (new) | W2-daily |
 | person | 7 | 0 | to build: src/pages/people/[id]/index.astro | a person card (new), GalleryCard | W2-daily |
 
@@ -265,80 +294,80 @@ Every route (`/path` · type · status · in sitemap · title):
 
 <details><summary><b>news-index</b> (1)</summary>
 
-- [ ] `/news/` · to do · News: every Fizlet release, newest first · Fizlet
+- [x] `/news/` · done · News: every Fizlet release, newest first · Fizlet
 
 </details>
 
 <details><summary><b>release</b> (51)</summary>
 
-- [ ] `/news/0.1.0/` · to do · Fizlet 0.1.0 release notes · Fizlet
-- [ ] `/news/0.10.0/` · to do · Fizlet 0.10.0 release notes · Fizlet
-- [ ] `/news/0.10.1/` · to do · Fizlet 0.10.1 release notes · Fizlet
-- [ ] `/news/0.11.0/` · to do · Fizlet 0.11.0 release notes · Fizlet
-- [ ] `/news/0.12.0/` · to do · Fizlet 0.12.0 release notes · Fizlet
-- [ ] `/news/0.12.1/` · to do · Fizlet 0.12.1 release notes · Fizlet
-- [ ] `/news/0.13.0/` · to do · Fizlet 0.13.0 release notes · Fizlet
-- [ ] `/news/0.14.0/` · to do · Fizlet 0.14.0 release notes · Fizlet
-- [ ] `/news/0.14.1/` · to do · Fizlet 0.14.1 release notes · Fizlet
-- [ ] `/news/0.15.0/` · to do · Fizlet 0.15.0 release notes · Fizlet
-- [ ] `/news/0.16.0/` · to do · Fizlet 0.16.0 release notes · Fizlet
-- [ ] `/news/0.17.0/` · to do · Fizlet 0.17.0 release notes · Fizlet
-- [ ] `/news/0.18.0/` · to do · Fizlet 0.18.0 release notes · Fizlet
-- [ ] `/news/0.19.0/` · to do · Fizlet 0.19.0 release notes · Fizlet
-- [ ] `/news/0.2.0/` · to do · Fizlet 0.2.0 release notes · Fizlet
-- [ ] `/news/0.2.1/` · to do · Fizlet 0.2.1 release notes · Fizlet
-- [ ] `/news/0.2.2/` · to do · Fizlet 0.2.2 release notes · Fizlet
-- [ ] `/news/0.2.3/` · to do · Fizlet 0.2.3 release notes · Fizlet
-- [ ] `/news/0.2.4/` · to do · Fizlet 0.2.4 release notes · Fizlet
-- [ ] `/news/0.20.0/` · to do · Fizlet 0.20.0 release notes · Fizlet
-- [ ] `/news/0.21.0/` · to do · Fizlet 0.21.0 release notes · Fizlet
-- [ ] `/news/0.21.1/` · to do · Fizlet 0.21.1 release notes · Fizlet
-- [ ] `/news/0.21.2/` · to do · Fizlet 0.21.2 release notes · Fizlet
-- [ ] `/news/0.21.3/` · to do · Fizlet 0.21.3 release notes · Fizlet
-- [ ] `/news/0.22.0/` · to do · Fizlet 0.22.0 release notes · Fizlet
-- [ ] `/news/0.23.0/` · to do · Fizlet 0.23.0 release notes · Fizlet
-- [ ] `/news/0.24.0/` · to do · Fizlet 0.24.0 release notes · Fizlet
-- [ ] `/news/0.25.0/` · to do · Fizlet 0.25.0 release notes · Fizlet
-- [ ] `/news/0.26.0/` · to do · Fizlet 0.26.0 release notes · Fizlet
-- [ ] `/news/0.27.0/` · to do · Fizlet 0.27.0 release notes · Fizlet
-- [ ] `/news/0.3.0/` · to do · Fizlet 0.3.0 release notes · Fizlet
-- [ ] `/news/0.3.1/` · to do · Fizlet 0.3.1 release notes · Fizlet
-- [ ] `/news/0.3.2/` · to do · Fizlet 0.3.2 release notes · Fizlet
-- [ ] `/news/0.3.3/` · to do · Fizlet 0.3.3 release notes · Fizlet
-- [ ] `/news/0.3.4/` · to do · Fizlet 0.3.4 release notes · Fizlet
-- [ ] `/news/0.3.5/` · to do · Fizlet 0.3.5 release notes · Fizlet
-- [ ] `/news/0.3.6/` · to do · Fizlet 0.3.6 release notes · Fizlet
-- [ ] `/news/0.4.0/` · to do · Fizlet 0.4.0 release notes · Fizlet
-- [ ] `/news/0.4.1/` · to do · Fizlet 0.4.1 release notes · Fizlet
-- [ ] `/news/0.4.2/` · to do · Fizlet 0.4.2 release notes · Fizlet
-- [ ] `/news/0.4.3/` · to do · Fizlet 0.4.3 release notes · Fizlet
-- [ ] `/news/0.4.4/` · to do · Fizlet 0.4.4 release notes · Fizlet
-- [ ] `/news/0.5.0/` · to do · Fizlet 0.5.0 release notes · Fizlet
-- [ ] `/news/0.5.1/` · to do · Fizlet 0.5.1 release notes · Fizlet
-- [ ] `/news/0.6.0/` · to do · Fizlet 0.6.0 release notes · Fizlet
-- [ ] `/news/0.6.1/` · to do · Fizlet 0.6.1 release notes · Fizlet
-- [ ] `/news/0.7.0/` · to do · Fizlet 0.7.0 release notes · Fizlet
-- [ ] `/news/0.8.0/` · to do · Fizlet 0.8.0 release notes · Fizlet
-- [ ] `/news/0.8.1/` · to do · Fizlet 0.8.1 release notes · Fizlet
-- [ ] `/news/0.8.2/` · to do · Fizlet 0.8.2 release notes · Fizlet
-- [ ] `/news/0.9.0/` · to do · Fizlet 0.9.0 release notes · Fizlet
+- [x] `/news/0.1.0/` · done · Fizlet 0.1.0 release notes · Fizlet
+- [x] `/news/0.10.0/` · done · Fizlet 0.10.0 release notes · Fizlet
+- [x] `/news/0.10.1/` · done · Fizlet 0.10.1 release notes · Fizlet
+- [x] `/news/0.11.0/` · done · Fizlet 0.11.0 release notes · Fizlet
+- [x] `/news/0.12.0/` · done · Fizlet 0.12.0 release notes · Fizlet
+- [x] `/news/0.12.1/` · done · Fizlet 0.12.1 release notes · Fizlet
+- [x] `/news/0.13.0/` · done · Fizlet 0.13.0 release notes · Fizlet
+- [x] `/news/0.14.0/` · done · Fizlet 0.14.0 release notes · Fizlet
+- [x] `/news/0.14.1/` · done · Fizlet 0.14.1 release notes · Fizlet
+- [x] `/news/0.15.0/` · done · Fizlet 0.15.0 release notes · Fizlet
+- [x] `/news/0.16.0/` · done · Fizlet 0.16.0 release notes · Fizlet
+- [x] `/news/0.17.0/` · done · Fizlet 0.17.0 release notes · Fizlet
+- [x] `/news/0.18.0/` · done · Fizlet 0.18.0 release notes · Fizlet
+- [x] `/news/0.19.0/` · done · Fizlet 0.19.0 release notes · Fizlet
+- [x] `/news/0.2.0/` · done · Fizlet 0.2.0 release notes · Fizlet
+- [x] `/news/0.2.1/` · done · Fizlet 0.2.1 release notes · Fizlet
+- [x] `/news/0.2.2/` · done · Fizlet 0.2.2 release notes · Fizlet
+- [x] `/news/0.2.3/` · done · Fizlet 0.2.3 release notes · Fizlet
+- [x] `/news/0.2.4/` · done · Fizlet 0.2.4 release notes · Fizlet
+- [x] `/news/0.20.0/` · done · Fizlet 0.20.0 release notes · Fizlet
+- [x] `/news/0.21.0/` · done · Fizlet 0.21.0 release notes · Fizlet
+- [x] `/news/0.21.1/` · done · Fizlet 0.21.1 release notes · Fizlet
+- [x] `/news/0.21.2/` · done · Fizlet 0.21.2 release notes · Fizlet
+- [x] `/news/0.21.3/` · done · Fizlet 0.21.3 release notes · Fizlet
+- [x] `/news/0.22.0/` · done · Fizlet 0.22.0 release notes · Fizlet
+- [x] `/news/0.23.0/` · done · Fizlet 0.23.0 release notes · Fizlet
+- [x] `/news/0.24.0/` · done · Fizlet 0.24.0 release notes · Fizlet
+- [x] `/news/0.25.0/` · done · Fizlet 0.25.0 release notes · Fizlet
+- [x] `/news/0.26.0/` · done · Fizlet 0.26.0 release notes · Fizlet
+- [x] `/news/0.27.0/` · done · Fizlet 0.27.0 release notes · Fizlet
+- [x] `/news/0.3.0/` · done · Fizlet 0.3.0 release notes · Fizlet
+- [x] `/news/0.3.1/` · done · Fizlet 0.3.1 release notes · Fizlet
+- [x] `/news/0.3.2/` · done · Fizlet 0.3.2 release notes · Fizlet
+- [x] `/news/0.3.3/` · done · Fizlet 0.3.3 release notes · Fizlet
+- [x] `/news/0.3.4/` · done · Fizlet 0.3.4 release notes · Fizlet
+- [x] `/news/0.3.5/` · done · Fizlet 0.3.5 release notes · Fizlet
+- [x] `/news/0.3.6/` · done · Fizlet 0.3.6 release notes · Fizlet
+- [x] `/news/0.4.0/` · done · Fizlet 0.4.0 release notes · Fizlet
+- [x] `/news/0.4.1/` · done · Fizlet 0.4.1 release notes · Fizlet
+- [x] `/news/0.4.2/` · done · Fizlet 0.4.2 release notes · Fizlet
+- [x] `/news/0.4.3/` · done · Fizlet 0.4.3 release notes · Fizlet
+- [x] `/news/0.4.4/` · done · Fizlet 0.4.4 release notes · Fizlet
+- [x] `/news/0.5.0/` · done · Fizlet 0.5.0 release notes · Fizlet
+- [x] `/news/0.5.1/` · done · Fizlet 0.5.1 release notes · Fizlet
+- [x] `/news/0.6.0/` · done · Fizlet 0.6.0 release notes · Fizlet
+- [x] `/news/0.6.1/` · done · Fizlet 0.6.1 release notes · Fizlet
+- [x] `/news/0.7.0/` · done · Fizlet 0.7.0 release notes · Fizlet
+- [x] `/news/0.8.0/` · done · Fizlet 0.8.0 release notes · Fizlet
+- [x] `/news/0.8.1/` · done · Fizlet 0.8.1 release notes · Fizlet
+- [x] `/news/0.8.2/` · done · Fizlet 0.8.2 release notes · Fizlet
+- [x] `/news/0.9.0/` · done · Fizlet 0.9.0 release notes · Fizlet
 
 </details>
 
 <details><summary><b>notes-index</b> (1)</summary>
 
-- [ ] `/notes/` · to do · Notes: what the games taught the engine · Fizlet
+- [x] `/notes/` · done · Notes: what the games taught the engine · Fizlet
 
 </details>
 
 <details><summary><b>note</b> (6)</summary>
 
-- [ ] `/notes/before-ai-2015/` · to do · Before AI: 2015, three micro animations · Fizlet
-- [ ] `/notes/how-small-is-small/` · to do · How small is small: Fizlet's sizes · Fizlet
-- [ ] `/notes/lockstep-multiplayer-in-a-few-kb/` · to do · Lockstep multiplayer in a few KB · Fizlet
-- [ ] `/notes/moving-the-games-onto-a-4-kb-kernel/` · to do · Moving the games onto a 4 KB kernel · Fizlet
-- [ ] `/notes/recall-the-page-always-comes-back/` · to do · Recall: how Fizlet gives the page back · Fizlet
-- [ ] `/notes/why-fzlt/` · to do · Why fzlt: the short mark of Fizlet, the DOM engine
+- [x] `/notes/before-ai-2015/` · done · Before AI: 2015, three micro animations · Fizlet
+- [x] `/notes/how-small-is-small/` · done · How small is small: Fizlet's sizes · Fizlet
+- [x] `/notes/lockstep-multiplayer-in-a-few-kb/` · done · Lockstep multiplayer in a few KB · Fizlet
+- [x] `/notes/moving-the-games-onto-a-4-kb-kernel/` · done · Moving the games onto a 4 KB kernel · Fizlet
+- [x] `/notes/recall-the-page-always-comes-back/` · done · Recall: how Fizlet gives the page back · Fizlet
+- [x] `/notes/why-fzlt/` · done · Why fzlt: the short mark of Fizlet, the DOM engine
 
 </details>
 

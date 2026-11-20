@@ -1,0 +1,9 @@
+---
+// A release's changelog section, as written: sub-headings, paragraphs and nested lists.
+import { md, listHtml, parse } from "../lib/releases";
+interface Props { source: string }
+const blocks = parse(Astro.props.source);
+---
+<section class="note-block release-body">
+      {blocks.map((b) => "h" in b ? <h2 set:html={md(b.h)} /> : "p" in b ? <p class="body" set:html={md(b.p)} /> : <Fragment set:html={listHtml(b.ul)} />)}
+    </section>

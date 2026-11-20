@@ -1,0 +1,25 @@
+---
+// /notes/: the field notes, newest first.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import NoteCard from "../../components/NoteCard.astro";
+import { allNotes } from "../../lib/content";
+import { inline, noteKind, notesIndexMeta } from "../../lib/notes";
+import { AUTHOR } from "../../lib/site";
+
+const notes = await allNotes();
+const lead = `Why each brick exists and what keeping it fast takes: the ports, the lessons and the numbers behind them, each one measured. By <a href="${AUTHOR}/">Chris Cooley ↗</a>.`;
+---
+<BaseLayout meta={{ ...notesIndexMeta(notes), scripts: ["/site.js"] }}>
+<section class="has-grid section" aria-labelledby="notes-title">
+  <div class="wrap">
+    <SectionHead index={String(notes.length)} eyebrow="NOTES · NEWEST FIRST" line="Field notes." accent="Measured, then written." lead={lead} id="notes-title" />
+    <ol class="gal note-cards">
+    {notes.map((n) => <NoteCard href={`/notes/${n.slug}/`} anim={"note:" + n.slug} index={n.date} kind={noteKind(n)} title={n.title}>
+      {n.subtitle && <p class="note-sub">{n.subtitle}</p>}
+      <p class="body" set:html={inline(n.lead[0] ?? "")} />
+    </NoteCard>)}
+    </ol>
+  </div>
+</section>
+</BaseLayout>

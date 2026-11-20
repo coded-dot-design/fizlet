@@ -1,0 +1,12 @@
+---
+// One release on /news/: its version and date, linked to its notes, and its headline items.
+import NoteCard from "./NoteCard.astro";
+import { longDate } from "../lib/notes";
+import { highlights, parse, plain, releasePath, type Release } from "../lib/releases";
+interface Props { release: Release }
+const r = Astro.props.release;
+const hl = highlights(parse(r.md)).slice(0, 4);
+---
+<NoteCard class="panel note-card rel-card" level="h3" href={"/" + releasePath(r)} anim={"release:" + r.version} index={r.version} kind={r.date ? longDate(r.date).toUpperCase() : "RELEASE"} title={`Fizlet ${r.version}`}>
+      {hl.length > 0 && <ul class="ledger-rules note-list">{hl.map((h) => <li>{plain(h)}</li>)}</ul>}
+</NoteCard>

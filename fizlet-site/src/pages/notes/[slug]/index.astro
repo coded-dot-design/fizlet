@@ -1,0 +1,32 @@
+---
+// One note (/notes/<slug>/): crumbs, head (title, lead, byline with the kernel's measured size), its blocks.
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Crumbs from "../../../components/Crumbs.astro";
+import SectionHead from "../../../components/SectionHead.astro";
+import ByLine from "../../../components/ByLine.astro";
+import SizeBadge from "../../../components/SizeBadge.astro";
+import NoteBlock from "../../../components/NoteBlock.astro";
+import BackLink from "../../../components/BackLink.astro";
+import { allNotes } from "../../../lib/content";
+import { inline, noteKind, noteMeta, type Note } from "../../../lib/notes";
+import BUILD from "../../../data/legacy/notes-build.json";
+
+export async function getStaticPaths() {
+  return (await allNotes()).map((note) => ({ params: { slug: note.slug }, props: { note } }));
+}
+interface Props { note: Note }
+const n = Astro.props.note;
+---
+<BaseLayout meta={{ ...noteMeta(n), scripts: ["/site.js"] }}>
+<article class="has-grid section note" aria-labelledby="note-title">
+  <div class="wrap">
+    <Crumbs trail={[{ href: "/notes/", label: "Notes" }]} current={n.title} />
+    <SectionHead tag="header" class="section-head note-head" index={n.date} eyebrow={noteKind(n)} line={n.title} accent={n.subtitle} id="note-title">
+      {n.lead.map((p) => <p class="lead" set:html={inline(p)} />)}
+      <ByLine date={n.date}><SizeBadge bytes={BUILD.kernelGzip} live={BUILD.live} what="the kernel on this build" /></ByLine>
+    </SectionHead>
+    {n.blocks.map((b) => <NoteBlock block={b} />)}
+    <BackLink href="/notes/" label="All notes" />
+  </div>
+</article>
+</BaseLayout>
