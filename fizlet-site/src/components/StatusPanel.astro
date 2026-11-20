@@ -1,0 +1,18 @@
+---
+// A brick page's status panel: its flag (a link to what the flags mean), what the flag says and why
+// this brick has it, an optional note (in-house bricks), then the evidence: the release it shipped
+// in, the games and pages that ship it, and its test files.
+import StatusPill, { type Pill } from "./StatusPill.astro";
+interface Props { flag: string; legend: string; pill: Pill; line: string; note?: string; since: string; shipped: string[]; none: string; tests: { href: string; name: string }[] }
+const { flag, legend, pill, line, note, since, shipped, none, tests } = Astro.props;
+---
+<div class="panel bp-status" data-flag={flag}>
+      <div class="code-head"><span class="bui-label"><b>STATUS</b> · <a href={legend}>what the flags mean</a></span><StatusPill {...pill} /></div>
+      <p set:html={line} />
+      {note && <p set:html={note} />}
+      <dl>
+        <div><dt>SINCE</dt><dd>{since}</dd></div>
+        <div><dt>SHIPPED IN</dt><dd>{shipped.length ? <ul>{shipped.map((s) => <li set:html={s} />)}</ul> : none}</dd></div>
+        <div><dt>TESTS</dt><dd><ul>{tests.map((t) => <li><a href={t.href}><code>{t.name}</code> ↗</a></li>)}</ul></dd></div>
+      </dl>
+    </div>

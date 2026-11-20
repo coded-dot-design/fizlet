@@ -59,11 +59,11 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 - **Brick pages componentized**: the head (BrickHead), the sizes (BrickSizes), the demo
   (BrickDemo with SizeBadge), the toy card (ToyCard, also on every index tile), the API (BrickApi:
   the table of contents, module heads and one ApiDecl per export, with StatusPill) and previous /
-  next (DocSteps) are components now; only the status panel is still kept as built. The rendered
-  `<main>` of all 43 brick pages, `/bricks/` and `/` matches the legacy build's markup once
-  whitespace and entity spelling are normalised. Re-measured, full page: 180 shots, 176 at 0.000%;
-  `/bricks/` 0.176% (1440 light, the live graph; 0.000% on the other three),
-  `/bricks/timeline.html` 0.001% (1440 light and dark), `/bricks/sound.html` 0.008% (390 light).
+  next (DocSteps) and the status panel (StatusPanel) are components now: nothing on a brick page
+  is kept as built. The rendered `<main>` of all 43 brick pages, `/bricks/` and `/` matches the
+  legacy build's markup once whitespace and entity spelling are normalised. Re-measured, full
+  page: 180 shots, 177 at 0.000%; `/bricks/` 0.041% (390 light, the live graph; 0.000% on the
+  other three), `/bricks/timeline.html` 0.001% (1440 light and dark).
 
 ## Design system
 
@@ -78,7 +78,7 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 - **Components** (`src/components/`): SiteHeader (Lockup, NavTree, ThemeToggle, Key), SiteFooter
   (SiteMap, SymChip), Crumbs, SectionHead, CodeBlock (with Copy), DocsSidebar, DocSteps, Callout,
   Key (buttons), BrickCard, BrickSticker, StatusCard, ToyCard, SizeBadge, StatusPill, BrickHead,
-  BrickSizes, BrickDemo, BrickApi, ApiDecl, GalleryCard, Icon, Mark, Html (kept-as-built markup).
+  BrickSizes, BrickDemo, BrickApi, ApiDecl, StatusPanel, GalleryCard, Icon, Mark, Html (kept-as-built markup).
 
 ## Known gaps (to do)
 
@@ -87,7 +87,7 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
   build these here from `@fzlt/core` (npm) and move the behaviour into the components' scripts.
 - **Kept as built** (`Html.astro`): the home page's 14 sections below the stats (origin, page-toc,
   play, story, profile, contract, board, loop, recall, specs, ship, games, roadmap, start, final),
-  the home hero's layers figure, the brick page's status panel, the bricks index's periodic table, sticker sheet, factory and live graph, the gallery's
+  the home hero's layers figure, the bricks index's periodic table, sticker sheet, factory and live graph, the gallery's
   theme chips, search, page nav, and each piece's stage and meta tail.
 - **Analytics**: the legacy build adds GA4 + PostHog behind consent only when its public ids are
   set (they were not for this export). Port `site/analytics` before cutover if they are.
@@ -112,7 +112,7 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 | not-found | 1 | 0 | to build: src/pages/404.astro | SectionHead, Key | W2-misc |
 | brand | 1 | 0 | to build: src/pages/brand/index.astro | Lockup, Mark, Key, token swatches (new, from tokens.json) | W2-misc |
 | bricks-index | 1 | 1 | src/pages/bricks/index.astro | SectionHead, BrickCard (full, in-house and planned tiles, with ToyCard), StatusCard, BrickSticker; the periodic table, sticker sheet, factory and live graph kept as built (Html) | W2-bricks: done (0.07-0.20%, the live graph's own noise); next componentize the periodic table and the sticker sheet |
-| brick | 43 | 43 | src/pages/bricks/[id].astro | Crumbs, BrickHead (BrickSticker, Key), BrickSizes, BrickDemo (SizeBadge), ToyCard, CodeBlock, BrickApi (ApiDecl, StatusPill), DocSteps; the status panel kept as built (Html) | W2-bricks: all 43 ported and componentized (0.000-0.008%); next a StatusPanel component |
+| brick | 43 | 43 | src/pages/bricks/[id].astro | Crumbs, BrickHead (BrickSticker, Key), BrickSizes, BrickDemo (SizeBadge), ToyCard, CodeBlock, BrickApi (ApiDecl, StatusPill), StatusPanel, DocSteps; nothing kept as built | W2-bricks: all 43 ported and componentized (0.000-0.008%) |
 | contest | 1 | 0 | to build: src/pages/contest/index.astro | SectionHead, Callout, a week card (new) | W2-daily |
 | legal | 2 | 0 | to build: src/pages/privacy/, src/pages/cookies/ | SectionHead, a table (new) | W2-misc |
 | demo | 7 | 0 | to build: the engine demos' own host pages (no site shell for some) | kept as built (Html) until the demos build from @fzlt/core here | W2-demos |

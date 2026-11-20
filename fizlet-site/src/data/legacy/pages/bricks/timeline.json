@@ -112,8 +112,31 @@
    }
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel bp-status\" data-flag=\"beta\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></div>\n      <p>Tested and budgeted; not yet carried by a shipped game, or its API is still moving. Shipped now; COMPLETE also asks that its API has had no breaking change since it shipped, which is still to be confirmed.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.19.0</dd></div>\n        <div><dt>SHIPPED IN</dt><dd><ul><li>fizlet.com: the home page's reveals and parallax, the origin hero and Before AI: 2015, live</li><li>the DOM VIRUS site: the cartridge console, the detail-page scenes and the diagrams</li></ul></dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/timeline.test.mjs\"><code>timeline.test.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/timeline.mjs\"><code>timeline.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+   "kind": "status",
+   "flag": "beta",
+   "legend": "/bricks/#status",
+   "pill": {
+    "flag": "beta",
+    "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+    "label": "BETA"
+   },
+   "line": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving. Shipped now; COMPLETE also asks that its API has had no breaking change since it shipped, which is still to be confirmed.",
+   "since": "v0.19.0",
+   "shipped": [
+    "fizlet.com: the home page's reveals and parallax, the origin hero and Before AI: 2015, live",
+    "the DOM VIRUS site: the cartridge console, the detail-page scenes and the diagrams"
+   ],
+   "none": "",
+   "tests": [
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/timeline.test.mjs",
+     "name": "timeline.test.mjs"
+    },
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/timeline.mjs",
+     "name": "timeline.mjs"
+    }
+   ]
   },
   {
    "kind": "use",

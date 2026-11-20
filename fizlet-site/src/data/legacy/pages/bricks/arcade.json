@@ -77,8 +77,40 @@
    "kind": "toy"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel bp-status\" data-flag=\"complete\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></div>\n      <p>Done, and always getting smaller and faster.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.11.0</dd></div>\n        <div><dt>SHIPPED IN</dt><dd><ul><li>Null Invaders 1.0.3</li><li>Byte Runner 1.0.2</li><li>Sherman Bytes 1.1.0</li></ul></dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/arcade.test.mjs\"><code>arcade.test.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/arcade.mjs\"><code>arcade.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/arcade-game.mjs\"><code>arcade-game.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/arcade-hud.mjs\"><code>arcade-hud.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+   "kind": "status",
+   "flag": "complete",
+   "legend": "/bricks/#status",
+   "pill": {
+    "flag": "complete",
+    "title": "Done, and always getting smaller and faster.",
+    "label": "COMPLETE"
+   },
+   "line": "Done, and always getting smaller and faster.",
+   "since": "v0.11.0",
+   "shipped": [
+    "Null Invaders 1.0.3",
+    "Byte Runner 1.0.2",
+    "Sherman Bytes 1.1.0"
+   ],
+   "none": "",
+   "tests": [
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/arcade.test.mjs",
+     "name": "arcade.test.mjs"
+    },
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/arcade.mjs",
+     "name": "arcade.mjs"
+    },
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/arcade-game.mjs",
+     "name": "arcade-game.mjs"
+    },
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/arcade-hud.mjs",
+     "name": "arcade-hud.mjs"
+    }
+   ]
   },
   {
    "kind": "use",

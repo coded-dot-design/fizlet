@@ -97,8 +97,30 @@
    }
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel bp-status\" data-flag=\"complete\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></div>\n      <p>Done, and always getting smaller and faster.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.17.0</dd></div>\n        <div><dt>SHIPPED IN</dt><dd><ul><li>Battlefield Blitz (the practice coach's steps and tricks on tour in src/game.ts, its own card; dom-battlefield-blitz#22, from its next release)</li></ul></dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/coach.test.mjs\"><code>coach.test.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/coach.mjs\"><code>coach.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+   "kind": "status",
+   "flag": "complete",
+   "legend": "/bricks/#status",
+   "pill": {
+    "flag": "complete",
+    "title": "Done, and always getting smaller and faster.",
+    "label": "COMPLETE"
+   },
+   "line": "Done, and always getting smaller and faster.",
+   "since": "v0.17.0",
+   "shipped": [
+    "Battlefield Blitz (the practice coach's steps and tricks on tour in src/game.ts, its own card; dom-battlefield-blitz#22, from its next release)"
+   ],
+   "none": "",
+   "tests": [
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/coach.test.mjs",
+     "name": "coach.test.mjs"
+    },
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/coach.mjs",
+     "name": "coach.mjs"
+    }
+   ]
   },
   {
    "kind": "use",

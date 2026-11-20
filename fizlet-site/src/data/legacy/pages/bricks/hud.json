@@ -97,8 +97,31 @@
    }
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel bp-status\" data-flag=\"beta\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></div>\n      <p>Tested and budgeted; not yet carried by a shipped game, or its API is still moving. Shipped now; COMPLETE also asks that its API has had no breaking change since it shipped, which is still to be confirmed.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.3.6</dd></div>\n        <div><dt>SHIPPED IN</dt><dd><ul><li>Sherman Bytes 1.1.0 (its scoreboard is @fzlt/core/arcade's skirmish preset)</li><li>fizlet.com: Before AI: 2015, live (the arcade column's score, combo and best)</li></ul></dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/hud.test.mjs\"><code>hud.test.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/browser.mjs\"><code>browser.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+   "kind": "status",
+   "flag": "beta",
+   "legend": "/bricks/#status",
+   "pill": {
+    "flag": "beta",
+    "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+    "label": "BETA"
+   },
+   "line": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving. Shipped now; COMPLETE also asks that its API has had no breaking change since it shipped, which is still to be confirmed.",
+   "since": "v0.3.6",
+   "shipped": [
+    "Sherman Bytes 1.1.0 (its scoreboard is @fzlt/core/arcade's skirmish preset)",
+    "fizlet.com: Before AI: 2015, live (the arcade column's score, combo and best)"
+   ],
+   "none": "",
+   "tests": [
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/hud.test.mjs",
+     "name": "hud.test.mjs"
+    },
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/browser.mjs",
+     "name": "browser.mjs"
+    }
+   ]
   },
   {
    "kind": "use",

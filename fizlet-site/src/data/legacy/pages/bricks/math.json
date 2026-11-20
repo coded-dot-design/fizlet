@@ -77,8 +77,28 @@
    "kind": "toy"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel bp-status\" data-flag=\"beta\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></div>\n      <p>Tested and budgeted; not yet carried by a shipped game, or its API is still moving. New: no released game runs its sim on it yet.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.27.0</dd></div>\n        <div><dt>SHIPPED IN</dt><dd>no released game or page yet</dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/math.test.mjs\"><code>math.test.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/math-engines.mjs\"><code>math-engines.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+   "kind": "status",
+   "flag": "beta",
+   "legend": "/bricks/#status",
+   "pill": {
+    "flag": "beta",
+    "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+    "label": "BETA"
+   },
+   "line": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving. New: no released game runs its sim on it yet.",
+   "since": "v0.27.0",
+   "shipped": [],
+   "none": "no released game or page yet",
+   "tests": [
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/math.test.mjs",
+     "name": "math.test.mjs"
+    },
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/math-engines.mjs",
+     "name": "math-engines.mjs"
+    }
+   ]
   },
   {
    "kind": "use",

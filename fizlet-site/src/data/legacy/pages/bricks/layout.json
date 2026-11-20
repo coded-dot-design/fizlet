@@ -77,8 +77,30 @@
    "kind": "toy"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel bp-status\" data-flag=\"experimental\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></div>\n      <p>In the package to try; no promise yet. New in E10 (diagrams); its API may still change.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.21.0</dd></div>\n        <div><dt>SHIPPED IN</dt><dd><ul><li>fizlet.com: the bricks index's brick graph</li></ul></dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/layout.test.mjs\"><code>layout.test.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/layout.mjs\"><code>layout.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+   "kind": "status",
+   "flag": "experimental",
+   "legend": "/bricks/#status",
+   "pill": {
+    "flag": "experimental",
+    "title": "In the package to try; no promise yet.",
+    "label": "ALPHA"
+   },
+   "line": "In the package to try; no promise yet. New in E10 (diagrams); its API may still change.",
+   "since": "v0.21.0",
+   "shipped": [
+    "fizlet.com: the bricks index's brick graph"
+   ],
+   "none": "",
+   "tests": [
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/layout.test.mjs",
+     "name": "layout.test.mjs"
+    },
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/layout.mjs",
+     "name": "layout.mjs"
+    }
+   ]
   },
   {
    "kind": "use",

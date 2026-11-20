@@ -77,8 +77,24 @@
    "kind": "toy"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel bp-status\" data-flag=\"experimental\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></div>\n      <p>In the package to try; no promise yet. New (E11): no game moves its units on it yet; DOM Battlefield is first in line (src/ACTORS.md).</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.28.0</dd></div>\n        <div><dt>SHIPPED IN</dt><dd>no released game or page yet</dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/actor.test.mjs\"><code>actor.test.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+   "kind": "status",
+   "flag": "experimental",
+   "legend": "/bricks/#status",
+   "pill": {
+    "flag": "experimental",
+    "title": "In the package to try; no promise yet.",
+    "label": "ALPHA"
+   },
+   "line": "In the package to try; no promise yet. New (E11): no game moves its units on it yet; DOM Battlefield is first in line (src/ACTORS.md).",
+   "since": "v0.28.0",
+   "shipped": [],
+   "none": "no released game or page yet",
+   "tests": [
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/actor.test.mjs",
+     "name": "actor.test.mjs"
+    }
+   ]
   },
   {
    "kind": "use",

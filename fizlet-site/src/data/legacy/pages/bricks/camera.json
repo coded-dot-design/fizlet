@@ -97,8 +97,28 @@
    }
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel bp-status\" data-flag=\"beta\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></div>\n      <p>Tested and budgeted; not yet carried by a shipped game, or its API is still moving. No released page or game runs on it: the fizz dropped it in 0.19.0.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.9.0</dd></div>\n        <div><dt>SHIPPED IN</dt><dd>no released game or page yet</dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/camera.test.mjs\"><code>camera.test.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/camera.mjs\"><code>camera.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+   "kind": "status",
+   "flag": "beta",
+   "legend": "/bricks/#status",
+   "pill": {
+    "flag": "beta",
+    "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+    "label": "BETA"
+   },
+   "line": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving. No released page or game runs on it: the fizz dropped it in 0.19.0.",
+   "since": "v0.9.0",
+   "shipped": [],
+   "none": "no released game or page yet",
+   "tests": [
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/camera.test.mjs",
+     "name": "camera.test.mjs"
+    },
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/camera.mjs",
+     "name": "camera.mjs"
+    }
+   ]
   },
   {
    "kind": "use",

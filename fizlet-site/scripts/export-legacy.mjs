@@ -217,6 +217,18 @@ const apiOf = (api, path) => {
   };
 };
 
+/** A brick page's status panel: its flag, what it means, then since, shipped in, and its tests. */
+const statusOf = (n, path) => {
+  const ps = n.querySelectorAll(":scope > p"), dd = (label) => n.querySelectorAll("dl > div").find((d) => text(d.querySelector("dt")) === label).querySelector("dd");
+  const shipped = dd("SHIPPED IN");
+  return {
+    flag: n.getAttribute("data-flag"), legend: absolute(`href="${n.querySelector(".code-head a").getAttribute("href")}"`, path).slice(6, -1),
+    pill: pillOf(n.querySelector(".status-pill")), line: inner(ps[0], path), ...(ps[1] ? { note: inner(ps[1], path) } : {}),
+    since: text(dd("SINCE")), shipped: shipped.querySelector("ul") ? shipped.querySelectorAll("li").map((li) => inner(li, path)) : [], none: shipped.querySelector("ul") ? "" : text(shipped),
+    tests: dd("TESTS").querySelectorAll("li a").map((a) => ({ href: a.getAttribute("href"), name: text(a.querySelector("code")) })),
+  };
+};
+
 // ---------- The brick pages (every bricks/<id>.html) ----------
 const BRICK_IDS = readdirSync(join(LEGACY, "bricks")).filter((f) => f.endsWith(".html") && f !== "index.html").map((f) => f.slice(0, -5)).sort();
 for (const id of BRICK_IDS) {
@@ -246,6 +258,7 @@ for (const id of BRICK_IDS) {
     blocks: wrap.childNodes.filter((n) => n.nodeType === 1 && !is(n, "nav.bp-crumbs, .bp-top")).map((n) =>
       is(n, "figure.bp-demo") ? { kind: "demo", demo: n.getAttribute("data-brick-demo"), badge: badgeOf(n.querySelector(".size-badge")), status: text(n.querySelector("[data-status]")), note: text(n.querySelector("figcaption > span:last-child")) }
       : is(n, "div.bp-card") ? { kind: "toy", ...(n.querySelector(".bc") ? toyOf(n.querySelector(".bc")) : {}) }
+      : is(n, "div.bp-status") ? { kind: "status", ...statusOf(n, path) }
       : is(n, "div.bp-use") ? { kind: "use", blocks: n.querySelectorAll(".code-card").map(codeOf) }
       : is(n, "div.code-card") ? { kind: "code", ...codeOf(n) }
       : is(n, "div.bp-api") ? { kind: "api", ...apiOf(n, path) }

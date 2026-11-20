@@ -77,8 +77,30 @@
    "kind": "toy"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel bp-status\" data-flag=\"experimental\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></div>\n      <p>In the package to try; no promise yet. New in E13: the format may still change, and the factory does not emit it yet.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.28.0</dd></div>\n        <div><dt>SHIPPED IN</dt><dd><ul><li>fizlet.com: two gallery micros (#38 and #40 are scene data)</li></ul></dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/scene.test.mjs\"><code>scene.test.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/scene.mjs\"><code>scene.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+   "kind": "status",
+   "flag": "experimental",
+   "legend": "/bricks/#status",
+   "pill": {
+    "flag": "experimental",
+    "title": "In the package to try; no promise yet.",
+    "label": "ALPHA"
+   },
+   "line": "In the package to try; no promise yet. New in E13: the format may still change, and the factory does not emit it yet.",
+   "since": "v0.28.0",
+   "shipped": [
+    "fizlet.com: two gallery micros (#38 and #40 are scene data)"
+   ],
+   "none": "",
+   "tests": [
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/scene.test.mjs",
+     "name": "scene.test.mjs"
+    },
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/scene.mjs",
+     "name": "scene.mjs"
+    }
+   ]
   },
   {
    "kind": "use",

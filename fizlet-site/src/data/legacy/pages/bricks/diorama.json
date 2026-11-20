@@ -77,8 +77,30 @@
    "kind": "toy"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel bp-status\" data-flag=\"experimental\">\n      <div class=\"code-head\"><span class=\"bui-label\"><b>STATUS</b> · <a href=\"/bricks/#status\">what the flags mean</a></span><span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></div>\n      <p>In the package to try; no promise yet. New: software 3D for tabletop scenes, lifted from the Salvo Bay prototype; its API may still change before a gallery piece ships on it.</p>\n      \n      <dl>\n        <div><dt>SINCE</dt><dd>v0.22.0</dd></div>\n        <div><dt>SHIPPED IN</dt><dd><ul><li>Salvo Bay prototype (gallery piece to follow)</li></ul></dd></div>\n        <div><dt>TESTS</dt><dd><ul><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/diorama.test.mjs\"><code>diorama.test.mjs</code> ↗</a></li><li><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/tests/diorama.mjs\"><code>diorama.mjs</code> ↗</a></li></ul></dd></div>\n      </dl>\n    </div>"
+   "kind": "status",
+   "flag": "experimental",
+   "legend": "/bricks/#status",
+   "pill": {
+    "flag": "experimental",
+    "title": "In the package to try; no promise yet.",
+    "label": "ALPHA"
+   },
+   "line": "In the package to try; no promise yet. New: software 3D for tabletop scenes, lifted from the Salvo Bay prototype; its API may still change before a gallery piece ships on it.",
+   "since": "v0.22.0",
+   "shipped": [
+    "Salvo Bay prototype (gallery piece to follow)"
+   ],
+   "none": "",
+   "tests": [
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/diorama.test.mjs",
+     "name": "diorama.test.mjs"
+    },
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/tests/diorama.mjs",
+     "name": "diorama.mjs"
+    }
+   ]
   },
   {
    "kind": "use",
