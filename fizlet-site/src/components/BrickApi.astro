@@ -1,0 +1,15 @@
+---
+// A brick's whole API: how it was generated, a table of contents, then each module (when the brick
+// has more than one) and each export as an ApiDecl.
+import ApiDecl from "./ApiDecl.astro";
+interface Props { note: string; toc: { href: string; names: string; what: string }[]; items: any[] }
+const { note, toc, items } = Astro.props;
+---
+<div class="bp-api" id="api">
+      <h2>API</h2>
+      <p class="bp-note" set:html={note} />
+      <nav class="panel bp-toc" aria-label="Exports"><ul>{toc.map((t) => <li><a href={t.href}><code>{t.names}</code></a><small>{t.what}</small></li>)}</ul></nav>
+      {items.map((it) => it.kind === "mod"
+        ? <Fragment><h3 class="bp-mod" id={it.id}><code>{it.name}</code></h3>{it.summary && <p set:html={it.summary} />}</Fragment>
+        : <ApiDecl {...it} />)}
+    </div>

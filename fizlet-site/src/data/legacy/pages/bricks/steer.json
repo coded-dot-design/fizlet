@@ -35,12 +35,66 @@
   "current": "@fzlt/core/steer"
  },
  "tone": "var(--k-advance)",
- "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">STEER</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"complete\" style=\"--tilt:3.5deg;--dx:6px;--dy:-2px\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/steer</code></h1>\n        <p class=\"lead\">How things move toward, away from and around a point, as DOM-free steering on typed arrays. Every mover has a position (<code>x</code>, <code>y</code>), a heading (<code>a</code>, radians) that turns at most <code>turn</code> rad/s, and moves <code>speed × scale</code> px/s along it. Behaviours: - <code>seek</code>: drive at a point, stop inside <code>stop</code>; - <code>flee</code>: drive straight away from a point until <code>far</code>; - <code>arrive</code>: seek with an arrival band: full pace far off, slower inside <code>slow</code>, stop inside <code>near</code>; <code>arriveGoal</code> is the same toward the goal the game wrote in <code>gx[i]</code>, <code>gy[i]</code> (a target that moves every frame: no double crosses a call, so nothing is boxed); - <code>wander</code>: pick a random goal in <code>area</code> every <code>every + random × jitter</code> s and seek it; - <code>patrol</code>: seek waypoints in turn, looping. Each writes the distance moved this call to <code>moved[i]</code> (0 when standing). The heading turn and the per-axis wall check (<code>blocked</code>, so a mover slides along walls) are DOM Battlefield Blitz's <code>drive</code>, and the defaults are its tank numbers, so a port keeps its feel. Nothing allocates: call them from a step, one mover at a time. Pass <code>engine.random</code> as <code>random</code> so seeded runs replay: the heading's trig is <code>@fzlt/core/math</code>'s, so a replay gives the same bits in every browser (in Node, the builtins' bits: the moves are Blitz's to the bit). Options are checked at setup: a bad number throws a RangeError with its name instead of turning into NaN mid-game.</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/steer.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
- "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/steer</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/steer\">2,759 B</b><small>2.7 KB of a 2.8 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.980\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
- "rest": [
+ "head": {
+  "tag": "STEER",
+  "version": "0.27.0",
+  "sticker": {
+   "flag": "complete",
+   "title": "Done, and always getting smaller and faster.",
+   "label": "COMPLETE",
+   "cls": "brick-sticker",
+   "style": "--tilt:3.5deg;--dx:6px;--dy:-2px"
+  },
+  "name": "@fzlt/core/steer",
+  "lead": "How things move toward, away from and around a point, as DOM-free steering on typed arrays. Every mover has a position (<code>x</code>, <code>y</code>), a heading (<code>a</code>, radians) that turns at most <code>turn</code> rad/s, and moves <code>speed × scale</code> px/s along it. Behaviours: - <code>seek</code>: drive at a point, stop inside <code>stop</code>; - <code>flee</code>: drive straight away from a point until <code>far</code>; - <code>arrive</code>: seek with an arrival band: full pace far off, slower inside <code>slow</code>, stop inside <code>near</code>; <code>arriveGoal</code> is the same toward the goal the game wrote in <code>gx[i]</code>, <code>gy[i]</code> (a target that moves every frame: no double crosses a call, so nothing is boxed); - <code>wander</code>: pick a random goal in <code>area</code> every <code>every + random × jitter</code> s and seek it; - <code>patrol</code>: seek waypoints in turn, looping. Each writes the distance moved this call to <code>moved[i]</code> (0 when standing). The heading turn and the per-axis wall check (<code>blocked</code>, so a mover slides along walls) are DOM Battlefield Blitz's <code>drive</code>, and the defaults are its tank numbers, so a port keeps its feel. Nothing allocates: call them from a step, one mover at a time. Pass <code>engine.random</code> as <code>random</code> so seeded runs replay: the heading's trig is <code>@fzlt/core/math</code>'s, so a replay gives the same bits in every browser (in Node, the builtins' bits: the moves are Blitz's to the bit). Options are checked at setup: a bad number throws a RangeError with its name instead of turning into NaN mid-game.",
+  "keys": [
+   {
+    "href": "#api",
+    "label": "API",
+    "tone": "sys",
+    "arcade": true,
+    "icon": "code"
+   },
+   {
+    "href": "https://github.com/coded-dot-design/fizlet/blob/main/src/steer.ts",
+    "label": "Source ↗",
+    "tone": "cmd",
+    "arcade": true,
+    "icon": "github"
+   }
+  ]
+ },
+ "sizes": [
   {
-   "kind": "html",
-   "html": "<div class=\"bp-card\"><div class=\"bc\" data-demo-host style=\"--tone: var(--k-advance)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks/steer#card-steer\" data-brick-card=\"steer\" data-tag=\"STEER\" data-bytes=\"2759\" role=\"img\" aria-label=\"@fzlt/core/steer, 2.7 KB gzip: a tower of small bricks that flee the pointer and arrive back in their own slots. Bring the pointer near, or tap the tower.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>STEER</b> 2.7 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Bring the pointer near, or tap the tower.</span><span class=\"size-badge\" role=\"img\" aria-label=\"8.4 KB gzipped: this card, with @fzlt/core/steer, 8,650 bytes, measured at build\" data-size-badge data-bytes=\"8650\" data-live=\"chunks/steer-SOHL7SNE.js\" title=\"8,650 B gzip, measured at build\"><b>8.4 KB</b> gz</span></p>\n</div></div>"
+   "name": "@fzlt/core/steer",
+   "bytes": "2,759 B",
+   "budget": "2.7 KB of a 2.8 KB budget",
+   "v": "0.980"
+  }
+ ],
+ "sizesNote": "Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.",
+ "blocks": [
+  {
+   "kind": "toy",
+   "tone": "var(--k-advance)",
+   "slot": "bricks/steer#card-steer",
+   "brick": "steer",
+   "tag": "STEER",
+   "bytes": "2759",
+   "aria": "@fzlt/core/steer, 2.7 KB gzip: a tower of small bricks that flee the pointer and arrive back in their own slots. Bring the pointer near, or tap the tower.",
+   "poster": {
+    "label": "STEER",
+    "size": "2.7 KB"
+   },
+   "cap": "Bring the pointer near, or tap the tower.",
+   "badge": {
+    "aria": "8.4 KB gzipped: this card, with @fzlt/core/steer, 8,650 bytes, measured at build",
+    "bytes": "8650",
+    "live": "chunks/steer-SOHL7SNE.js",
+    "title": "8,650 B gzip, measured at build",
+    "size": "8.4 KB",
+    "unit": "gz"
+   }
   },
   {
    "kind": "html",
@@ -66,16 +120,202 @@
    ]
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>IN SHORT</b></span></div><pre tabindex=\"0\" class=\"code\"><code>const m = steer({ cap: 16, random: e.random, blocked: (i, at) =&gt; wall(at[0], at[1]) });\nm.place(0, 100, 200);\nm.seek(0, player.x, player.y, dt); // in a step: also flee, arrive, wander, patrol</code></pre></div>"
+   "kind": "code",
+   "label": "<b>IN SHORT</b>",
+   "code": "const m = steer({ cap: 16, random: e.random, blocked: (i, at) => wall(at[0], at[1]) });\nm.place(0, 100, 200);\nm.seek(0, player.x, player.y, dt); // in a step: also flee, arrive, wander, patrol",
+   "wrap": false,
+   "copy": false,
+   "cls": "panel code-card bp-snippet"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-steer-SteerOptions\"><code>SteerOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-steer-turn\"><code>turn</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-steer-hypot\"><code>hypot</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-steer-steer\"><code>steer</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-steer-Steer\"><code>Steer</code></a><small>type</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-steer-SteerOptions\">\n        <h3><code>SteerOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Options for <code>steer()</code>: how many movers, their pace, turn rate and arrival bands, the wander area and timing, the wall check and the random source.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface SteerOptions {\n    /** Movers, a positive integer (fixed: the arrays never grow). */\n    cap: number;\n    /** Pixels per second at full pace (default 150) and a multiplier for the board's scale (default 1). */\n    speed?: number;\n    scale?: number;\n    /** Most the heading turns, radians per second (default 7). */\n    turn?: number;\n    /** Seek, wander and patrol stop inside this many pixels of the goal (default 16). */\n    stop?: number;\n    /** Arrive: stop inside `near` (14), slow down inside `slow` (140): pace `fast` (1.05) then `calm` (0.8). */\n    near?: number;\n    slow?: number;\n    fast?: number;\n    calm?: number;\n    /** Flee stops once this far away (default 240). */\n    far?: number;\n    /** Wander: a new goal every `every` (2) + random × `jitter` (2) seconds, inside `area` [left, top, width, height]. */\n    every?: number;\n    jitter?: number;\n    area?: readonly [number, number, number, number];\n    /** Is (at[0], at[1]) a wall for mover i? Checked per axis, so movers slide along walls. The spot\n     *  comes in a typed array, not as two numbers: doubles passed to a callback are boxed. */\n    blocked?(i: number, at: Float64Array): boolean;\n    /** 0..1 (default Math.random; pass engine.random to replay). */\n    random?(): number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-steer-turn\">\n        <h3><code>turn</code> <small>const</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Turn <code>from</code> toward <code>to</code> by at most <code>max</code> radians, the short way round.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>turn(from: number, to: number, max: number): number</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>from</code></dt><dd><code>number</code></dd></div><div><dt><code>to</code></dt><dd><code>number</code></dd></div><div><dt><code>max</code></dt><dd><code>number</code></dd></div><div><dt>Returns</dt><dd><code>number</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare const turn: (from: number, to: number, max: number) =&gt; number;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-steer-hypot\">\n        <h3><code>hypot</code> <small>const</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Math.hypot of two numbers, without the builtin call: V8 boxes Math.hypot's arguments, a heap number per call in a hot loop. Same steps as V8's own (Infinity wins over NaN, scale by the larger, sum, sqrt), so it returns the same bits (tested against Math.hypot).</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>hypot(dx: number, dy: number): number</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>dx</code></dt><dd><code>number</code></dd></div><div><dt><code>dy</code></dt><dd><code>number</code></dd></div><div><dt>Returns</dt><dd><code>number</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare const hypot: (dx: number, dy: number) =&gt; number;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-steer-steer\">\n        <h3><code>steer</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Steering for <code>o.cap</code> movers on typed arrays: <code>seek</code>, <code>flee</code>, <code>arrive</code>, <code>wander</code> and <code>patrol</code>, each with a turn-limited heading and a per-axis wall check. DOM-free and allocation-free: call them from a step, one mover at a time.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>steer(o: SteerOptions): Steer</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>o</code></dt><dd><code><a href=\"#api-fzlt-core-steer-SteerOptions\">SteerOptions</a></code></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-steer-Steer\">Steer</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function steer(o: SteerOptions): {\n    x: Float64Array&lt;ArrayBuffer&gt;;\n    y: Float64Array&lt;ArrayBuffer&gt;;\n    a: Float64Array&lt;ArrayBuffer&gt;;\n    /** The goal: wander's current one (and seconds until it picks the next), or one the game writes for `arriveGoal`. */\n    gx: Float64Array&lt;ArrayBuffer&gt;;\n    gy: Float64Array&lt;ArrayBuffer&gt;;\n    think: Float64Array&lt;ArrayBuffer&gt;;\n    /** Patrol: the waypoint each mover is heading for. */\n    leg: Uint32Array&lt;ArrayBuffer&gt;;\n    cap: number;\n    /** Put mover i at (px, py) facing `heading`; wander picks a goal at once, patrol starts at 0. */\n    place(i: number, px: number, py: number, heading?: number): void;\n    /** Pixels each mover went on its last call (0 when it stood). */\n    moved: Float64Array&lt;ArrayBuffer&gt;;\n    /** Drive mover i along (ax, ay) (a stick, length ≤ 1) for dt seconds. */\n    drive(i: number, ax: number, ay: number, dt: number): void;\n    /** Toward (tx, ty) at `pace` (dt is scaled by it, so the turn slows too), until inside `stop`. */\n    seek(i: number, tx: number, ty: number, dt: number, pace?: number): void;\n    flee(i: number, fx: number, fy: number, dt: number, pace?: number): undefined;\n    arrive(i: number, tx: number, ty: number, dt: number): void;\n    /**\n     * `arrive` toward (gx[i], gy[i]): write the goal there, then call it. For a goal computed every\n     * frame (a slot behind a leader): passed as two numbers, V8 boxes each one whenever it doesn't\n     * inline the call (3 young GCs per 20k steps in Blitz's platoons); a typed array never boxes.\n     */\n    arriveGoal(i: number, dt: number): void;\n    wander(i: number, dt: number, pace?: number): void;\n    /** Waypoints as [x0, y0, x1, y1, …] (a typed array is best); the next one once inside `stop`.\n     *  No waypoint (fewer than two numbers): it stands still. */\n    patrol(i: number, points: ArrayLike&lt;number&gt;, dt: number, pace?: number): undefined;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-steer-Steer\">\n        <h3><code>Steer</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>The movers <code>steer()</code> returns.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Steer = ReturnType&lt;typeof steer&gt;;</code></pre>\n      </article>\n    </div>"
+   "kind": "api",
+   "note": "Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.",
+   "toc": [
+    {
+     "href": "#api-fzlt-core-steer-SteerOptions",
+     "names": "SteerOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-steer-turn",
+     "names": "turn",
+     "what": "const"
+    },
+    {
+     "href": "#api-fzlt-core-steer-hypot",
+     "names": "hypot",
+     "what": "const"
+    },
+    {
+     "href": "#api-fzlt-core-steer-steer",
+     "names": "steer",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-steer-Steer",
+     "names": "Steer",
+     "what": "type"
+    }
+   ],
+   "items": [
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-steer-SteerOptions",
+     "level": "h3",
+     "names": "SteerOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Options for <code>steer()</code>: how many movers, their pace, turn rate and arrival bands, the wander area and timing, the wall check and the random source.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface SteerOptions {\n    /** Movers, a positive integer (fixed: the arrays never grow). */\n    cap: number;\n    /** Pixels per second at full pace (default 150) and a multiplier for the board's scale (default 1). */\n    speed?: number;\n    scale?: number;\n    /** Most the heading turns, radians per second (default 7). */\n    turn?: number;\n    /** Seek, wander and patrol stop inside this many pixels of the goal (default 16). */\n    stop?: number;\n    /** Arrive: stop inside `near` (14), slow down inside `slow` (140): pace `fast` (1.05) then `calm` (0.8). */\n    near?: number;\n    slow?: number;\n    fast?: number;\n    calm?: number;\n    /** Flee stops once this far away (default 240). */\n    far?: number;\n    /** Wander: a new goal every `every` (2) + random × `jitter` (2) seconds, inside `area` [left, top, width, height]. */\n    every?: number;\n    jitter?: number;\n    area?: readonly [number, number, number, number];\n    /** Is (at[0], at[1]) a wall for mover i? Checked per axis, so movers slide along walls. The spot\n     *  comes in a typed array, not as two numbers: doubles passed to a callback are boxed. */\n    blocked?(i: number, at: Float64Array): boolean;\n    /** 0..1 (default Math.random; pass engine.random to replay). */\n    random?(): number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-steer-turn",
+     "level": "h3",
+     "names": "turn",
+     "what": "const",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Turn <code>from</code> toward <code>to</code> by at most <code>max</code> radians, the short way round.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "turn(from: number, to: number, max: number): number",
+       "params": [
+        {
+         "name": "from",
+         "type": "number",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "to",
+         "type": "number",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "max",
+         "type": "number",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "number"
+      }
+     ],
+     "code": "export declare const turn: (from: number, to: number, max: number) => number;",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-steer-hypot",
+     "level": "h3",
+     "names": "hypot",
+     "what": "const",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Math.hypot of two numbers, without the builtin call: V8 boxes Math.hypot's arguments, a heap number per call in a hot loop. Same steps as V8's own (Infinity wins over NaN, scale by the larger, sum, sqrt), so it returns the same bits (tested against Math.hypot).",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "hypot(dx: number, dy: number): number",
+       "params": [
+        {
+         "name": "dx",
+         "type": "number",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "dy",
+         "type": "number",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "number"
+      }
+     ],
+     "code": "export declare const hypot: (dx: number, dy: number) => number;",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-steer-steer",
+     "level": "h3",
+     "names": "steer",
+     "what": "function",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Steering for <code>o.cap</code> movers on typed arrays: <code>seek</code>, <code>flee</code>, <code>arrive</code>, <code>wander</code> and <code>patrol</code>, each with a turn-limited heading and a per-axis wall check. DOM-free and allocation-free: call them from a step, one mover at a time.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "steer(o: SteerOptions): Steer",
+       "params": [
+        {
+         "name": "o",
+         "type": "<a href=\"#api-fzlt-core-steer-SteerOptions\">SteerOptions</a>",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-steer-Steer\">Steer</a>"
+      }
+     ],
+     "code": "export declare function steer(o: SteerOptions): {\n    x: Float64Array<ArrayBuffer>;\n    y: Float64Array<ArrayBuffer>;\n    a: Float64Array<ArrayBuffer>;\n    /** The goal: wander's current one (and seconds until it picks the next), or one the game writes for `arriveGoal`. */\n    gx: Float64Array<ArrayBuffer>;\n    gy: Float64Array<ArrayBuffer>;\n    think: Float64Array<ArrayBuffer>;\n    /** Patrol: the waypoint each mover is heading for. */\n    leg: Uint32Array<ArrayBuffer>;\n    cap: number;\n    /** Put mover i at (px, py) facing `heading`; wander picks a goal at once, patrol starts at 0. */\n    place(i: number, px: number, py: number, heading?: number): void;\n    /** Pixels each mover went on its last call (0 when it stood). */\n    moved: Float64Array<ArrayBuffer>;\n    /** Drive mover i along (ax, ay) (a stick, length ≤ 1) for dt seconds. */\n    drive(i: number, ax: number, ay: number, dt: number): void;\n    /** Toward (tx, ty) at `pace` (dt is scaled by it, so the turn slows too), until inside `stop`. */\n    seek(i: number, tx: number, ty: number, dt: number, pace?: number): void;\n    flee(i: number, fx: number, fy: number, dt: number, pace?: number): undefined;\n    arrive(i: number, tx: number, ty: number, dt: number): void;\n    /**\n     * `arrive` toward (gx[i], gy[i]): write the goal there, then call it. For a goal computed every\n     * frame (a slot behind a leader): passed as two numbers, V8 boxes each one whenever it doesn't\n     * inline the call (3 young GCs per 20k steps in Blitz's platoons); a typed array never boxes.\n     */\n    arriveGoal(i: number, dt: number): void;\n    wander(i: number, dt: number, pace?: number): void;\n    /** Waypoints as [x0, y0, x1, y1, …] (a typed array is best); the next one once inside `stop`.\n     *  No waypoint (fewer than two numbers): it stands still. */\n    patrol(i: number, points: ArrayLike<number>, dt: number, pace?: number): undefined;\n};",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-steer-Steer",
+     "level": "h3",
+     "names": "Steer",
+     "what": "type",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "The movers <code>steer()</code> returns.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Steer = ReturnType<typeof steer>;",
+     "folded": false
+    }
+   ]
   },
   {
-   "kind": "html",
-   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/rules.html\"><small>← PREVIOUS</small><code>@fzlt/core/rules</code></a><a class=\"bp-step next\" href=\"/bricks/coach.html\"><small>NEXT →</small><code>@fzlt/core/coach</code></a></nav>"
+   "kind": "steps",
+   "steps": [
+    {
+     "href": "/bricks/rules.html",
+     "label": "@fzlt/core/rules",
+     "dir": "prev"
+    },
+    {
+     "href": "/bricks/coach.html",
+     "label": "@fzlt/core/coach",
+     "dir": "next"
+    }
+   ]
   }
  ]
 }

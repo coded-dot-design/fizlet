@@ -1,0 +1,18 @@
+---
+// A brick page's head column: its tag, the version and its status sticker; its import path as the
+// title; the summary from the module's leading comment; keys to the API and the source.
+import BrickSticker from "./BrickSticker.astro";
+import Key from "./Key.astro";
+import type { Tone } from "../lib/site";
+interface Props {
+  tag: string; version: string; sticker: { flag: string; title: string; label: string; cls?: string; style?: string }; name: string; lead: string;
+  keys: { href: string; label: string; tone: Tone; arcade: boolean; icon: string }[];
+}
+const { tag, version, sticker, name, lead, keys } = Astro.props;
+---
+<div>
+        <p class="eyebrow bp-eyebrow"><span class="index">{tag}</span> V{version} <BrickSticker {...sticker} /></p>
+        <h1 id="bp-title" class="bp-title"><code>{name}</code></h1>
+        <p class="lead" set:html={lead} />
+        <div class="split-keys">{keys.map((k) => <Key {...k} />)}</div>
+      </div>

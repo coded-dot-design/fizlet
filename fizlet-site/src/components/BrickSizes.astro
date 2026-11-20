@@ -1,0 +1,6 @@
+---
+// A brick's measured sizes: one card per entry (gzip bytes, its budget, a meter), then how it was measured.
+interface Props { sizes: { name: string; bytes: string; budget: string; v: string }[]; note: string }
+const { sizes, note } = Astro.props;
+---
+<div class="bp-sizes">{sizes.map((s) => <div class="panel bp-size"><span class="bui-label"><b>{s.name}</b> · GZIP</span><b class="bp-bytes" data-size={s.name}>{s.bytes}</b><small>{s.budget}</small><span class="meter" aria-hidden="true"><i style={`--v:${s.v}`}></i></span></div>)}<p class="bp-note" set:html={note} /></div>

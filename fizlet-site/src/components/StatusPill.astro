@@ -1,0 +1,6 @@
+---
+// A status flag as a flat Board UI pill (a readout, not a key): COMPLETE, BETA, ALPHA…
+export interface Pill { flag: string; title: string; label: string }
+const { flag, title, label } = Astro.props as Pill;
+---
+<span class="status-pill" data-flag={flag} title={title}>{label}</span>

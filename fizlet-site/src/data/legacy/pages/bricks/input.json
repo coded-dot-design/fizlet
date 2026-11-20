@@ -35,12 +35,66 @@
   "current": "@fzlt/core/input"
  },
  "tone": "var(--k-sys)",
- "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">INPUT</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"complete\" style=\"--tilt:5deg;--dx:3px;--dy:-1px\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/input</code></h1>\n        <p class=\"lead\">One controller for keys, pointer and a touch stick, mapped to named intents. Listeners only record; the engine's read phase latches edges and measures the target, so a step sees a stable snapshot. Keys typed into the host page's fields (or inside [data-fizlet-ignore]) never count. Keys, the pointer, <code>press()</code> and <code>steer()</code> wake a settled engine. Held state is dropped on window blur, when the engine pauses, on dispose() and on destroy: nothing stays stuck. <code>hit</code> (an intent or the pointer): a press is seen by exactly one fixed step, the first step after it, even when that comes frames later (0-step frames while catching up) and never again in the same frame's later steps. Outside a step (read, render), <code>hit</code> is true for the one frame whose read latched it. Presses between two steps count once.</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/input.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
- "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/input</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/input\">1,909 B</b><small>1.9 KB of a 1.9 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.994\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
- "rest": [
+ "head": {
+  "tag": "INPUT",
+  "version": "0.27.0",
+  "sticker": {
+   "flag": "complete",
+   "title": "Done, and always getting smaller and faster.",
+   "label": "COMPLETE",
+   "cls": "brick-sticker",
+   "style": "--tilt:5deg;--dx:3px;--dy:-1px"
+  },
+  "name": "@fzlt/core/input",
+  "lead": "One controller for keys, pointer and a touch stick, mapped to named intents. Listeners only record; the engine's read phase latches edges and measures the target, so a step sees a stable snapshot. Keys typed into the host page's fields (or inside [data-fizlet-ignore]) never count. Keys, the pointer, <code>press()</code> and <code>steer()</code> wake a settled engine. Held state is dropped on window blur, when the engine pauses, on dispose() and on destroy: nothing stays stuck. <code>hit</code> (an intent or the pointer): a press is seen by exactly one fixed step, the first step after it, even when that comes frames later (0-step frames while catching up) and never again in the same frame's later steps. Outside a step (read, render), <code>hit</code> is true for the one frame whose read latched it. Presses between two steps count once.",
+  "keys": [
+   {
+    "href": "#api",
+    "label": "API",
+    "tone": "sys",
+    "arcade": true,
+    "icon": "code"
+   },
+   {
+    "href": "https://github.com/coded-dot-design/fizlet/blob/main/src/input.ts",
+    "label": "Source ↗",
+    "tone": "cmd",
+    "arcade": true,
+    "icon": "github"
+   }
+  ]
+ },
+ "sizes": [
   {
-   "kind": "html",
-   "html": "<div class=\"bp-card\"><div class=\"bc\" data-demo-host style=\"--tone: var(--k-sys)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks/input#card-input\" data-brick-card=\"input\" data-tag=\"INPUT\" data-bytes=\"1909\" role=\"img\" aria-label=\"@fzlt/core/input, 1.9 KB gzip: whack-a-brick: keys and the pointer map to the same named intents, each hit true for one step. Tap to start; whack a brick with a tap or its key (1–4, A S D F).\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>INPUT</b> 1.9 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap to start; whack a brick with a tap or its key (1–4, A S D F).</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.5 KB gzipped: this card, with @fzlt/core/input, 7,660 bytes, measured at build\" data-size-badge data-bytes=\"7660\" data-live=\"chunks/input-RZNBQDXA.js\" title=\"7,660 B gzip, measured at build\"><b>7.5 KB</b> gz</span></p>\n</div></div>"
+   "name": "@fzlt/core/input",
+   "bytes": "1,909 B",
+   "budget": "1.9 KB of a 1.9 KB budget",
+   "v": "0.994"
+  }
+ ],
+ "sizesNote": "Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.",
+ "blocks": [
+  {
+   "kind": "toy",
+   "tone": "var(--k-sys)",
+   "slot": "bricks/input#card-input",
+   "brick": "input",
+   "tag": "INPUT",
+   "bytes": "1909",
+   "aria": "@fzlt/core/input, 1.9 KB gzip: whack-a-brick: keys and the pointer map to the same named intents, each hit true for one step. Tap to start; whack a brick with a tap or its key (1–4, A S D F).",
+   "poster": {
+    "label": "INPUT",
+    "size": "1.9 KB"
+   },
+   "cap": "Tap to start; whack a brick with a tap or its key (1–4, A S D F).",
+   "badge": {
+    "aria": "7.5 KB gzipped: this card, with @fzlt/core/input, 7,660 bytes, measured at build",
+    "bytes": "7660",
+    "live": "chunks/input-RZNBQDXA.js",
+    "title": "7,660 B gzip, measured at build",
+    "size": "7.5 KB",
+    "unit": "gz"
+   }
   },
   {
    "kind": "html",
@@ -66,16 +120,205 @@
    ]
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>IN SHORT</b></span></div><pre tabindex=\"0\" class=\"code\"><code>const pad = controls(e, { keys: { fire: [&quot;Space&quot;] } });\nif (pad.hit(&quot;fire&quot;)) fire(); // true for one frame\nif (pad.pointer.hit) aim(pad.pointer.x, pad.pointer.y);</code></pre></div>"
+   "kind": "code",
+   "label": "<b>IN SHORT</b>",
+   "code": "const pad = controls(e, { keys: { fire: [\"Space\"] } });\nif (pad.hit(\"fire\")) fire(); // true for one frame\nif (pad.pointer.hit) aim(pad.pointer.x, pad.pointer.y);",
+   "wrap": false,
+   "copy": false,
+   "cls": "panel code-card bp-snippet"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-input-ControlsOptions\"><code>ControlsOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-input-Intent\"><code>Intent</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-input-controls\"><code>controls</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-input-Controls\"><code>Controls</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-input-GamepadOptions\"><code>GamepadOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-input-gamepad\"><code>gamepad</code></a><small>function</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-input-ControlsOptions\">\n        <h3><code>ControlsOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Options for <code>controls()</code>: the intents and their keys, the pointer target and the touch stick.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface ControlsOptions {\n    /** intent → key codes, e.g. { fire: [&quot;Space&quot;], up: [&quot;KeyW&quot;, &quot;ArrowUp&quot;] } (KeyboardEvent.code). */\n    keys?: Record&lt;string, string[]&gt;;\n    /** Where the pointer is measured and the stick lives (default: the engine root, else window). */\n    target?: HTMLElement;\n    /** Touch: a drag that starts on the left half (or anywhere: &quot;any&quot;) drives a virtual stick. */\n    stick?: &quot;left&quot; | &quot;any&quot; | false;\n    /** Stick radius in CSS px (default 60). */\n    radius?: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-input-Intent\">\n        <h3><code>Intent</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>An intent by name, or by the number <code>id(name)</code> gave.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Intent = string | number;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-input-controls\">\n        <h3><code>controls</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>One controller for keys, pointer and a touch stick on engine <code>e</code>, mapped to named intents: <code>down(intent)</code>, <code>hit(intent)</code> (one step per press), <code>pointer</code> and <code>stick</code>. It registers its own read-phase system; <code>dispose()</code> removes it.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>controls(e: Engine, o?: ControlsOptions): Controls</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>e</code></dt><dd><code>Engine</code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-input-ControlsOptions\">ControlsOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-input-Controls\">Controls</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function controls(e: Engine, o?: ControlsOptions): {\n    /** An intent's number, for a hot path: `const FIRE = c.id(&quot;fire&quot;)`, then `c.hit(FIRE)` in a step.\n     *  A name that is not an intent throws here, at setup (a typo is never a silent `false`). */\n    id(intent: string): number;\n    /** Held right now (any of its keys, or press()). */\n    down: (intent: Intent) =&gt; boolean;\n    /** Pressed: true in the first step after the press; outside steps, for the frame it latched. */\n    hit: (intent: Intent) =&gt; boolean;\n    /** -1..1 from two intents (keys), plus the stick when it's active. */\n    axis(neg: Intent, pos: Intent, stickAxis?: 0 | 1): number;\n    pointer: {\n        readonly x: number;\n        readonly y: number;\n        readonly down: boolean;\n        readonly hit: boolean;\n    };\n    stick: {\n        readonly x: number;\n        readonly y: number;\n        readonly active: boolean;\n    };\n    /** Press an intent from code (on-screen keys): `press(&quot;strike&quot;)`. */\n    press(intent: string, down?: boolean): void;\n    /** Drive the stick from code (an on-screen stick, @fzlt/core/pad): x, y in -1..1; `on = false` lets go. */\n    steer(x: number, y: number, on?: boolean): void;\n    dispose: () =&gt; void;\n    system: System;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-input-Controls\">\n        <h3><code>Controls</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>The controller <code>controls()</code> returns.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Controls = ReturnType&lt;typeof controls&gt;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-input-GamepadOptions\">\n        <h3><code>GamepadOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Options for <code>gamepad()</code>: which buttons press which intents, the dead zone, which pad.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface GamepadOptions {\n    /** intent → standard-layout button indices, e.g. { fire: [0], jump: [1, 7] } (0 is A / cross). */\n    map?: Record&lt;string, number[]&gt;;\n    /** Dead zone, 0..1, for the left stick and analog buttons (default 0.15). */\n    dead?: number;\n    /** Read only the pad at this `navigator.getGamepads()` index (local multiplayer: a controller per\n     *  seat); default: every pad, merged. */\n    index?: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-input-gamepad\">\n        <h3><code>gamepad</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Gamepads into a <code>controls()</code> controller: mapped buttons <code>press</code> their intents (down from half a pull), the left stick <code>steer</code>s the controller's stick, both past the dead zone. It polls in the controller's read phase, before the edges latch, and only while a pad is connected: a page without one never calls <code>getGamepads()</code> per frame. Pads have no events for buttons, so a settled engine is not polled: a pad connecting wakes it, and a game that settles between rounds wakes it from its own start key. Zero allocation per read. <code>stop()</code> removes it (listeners, polling, held intents and the stick).</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>gamepad(c: Controls, o?: GamepadOptions): { … }</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>c</code></dt><dd><code><a href=\"#api-fzlt-core-input-Controls\">Controls</a></code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-input-GamepadOptions\">GamepadOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code>{ … }</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function gamepad(c: Controls, o?: GamepadOptions): {\n    /** A pad is connected (the one at `index`, when given). */\n    readonly connected: boolean;\n    /** Pads connected (the one at `index` counts as at most 1). */\n    readonly count: number;\n    /** An intent's analog value, 0..1 past the dead zone (a trigger's pull), as of the last read. */\n    value: (intent: string) =&gt; number;\n    /** Stop reading pads: listeners off, polling off, its held intents and the stick let go. */\n    stop(): void;\n};</code></pre></details>\n      </article>\n    </div>"
+   "kind": "api",
+   "note": "Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.",
+   "toc": [
+    {
+     "href": "#api-fzlt-core-input-ControlsOptions",
+     "names": "ControlsOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-input-Intent",
+     "names": "Intent",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-input-controls",
+     "names": "controls",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-input-Controls",
+     "names": "Controls",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-input-GamepadOptions",
+     "names": "GamepadOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-input-gamepad",
+     "names": "gamepad",
+     "what": "function"
+    }
+   ],
+   "items": [
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-input-ControlsOptions",
+     "level": "h3",
+     "names": "ControlsOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Options for <code>controls()</code>: the intents and their keys, the pointer target and the touch stick.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface ControlsOptions {\n    /** intent → key codes, e.g. { fire: [\"Space\"], up: [\"KeyW\", \"ArrowUp\"] } (KeyboardEvent.code). */\n    keys?: Record<string, string[]>;\n    /** Where the pointer is measured and the stick lives (default: the engine root, else window). */\n    target?: HTMLElement;\n    /** Touch: a drag that starts on the left half (or anywhere: \"any\") drives a virtual stick. */\n    stick?: \"left\" | \"any\" | false;\n    /** Stick radius in CSS px (default 60). */\n    radius?: number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-input-Intent",
+     "level": "h3",
+     "names": "Intent",
+     "what": "type",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "An intent by name, or by the number <code>id(name)</code> gave.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Intent = string | number;",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-input-controls",
+     "level": "h3",
+     "names": "controls",
+     "what": "function",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "One controller for keys, pointer and a touch stick on engine <code>e</code>, mapped to named intents: <code>down(intent)</code>, <code>hit(intent)</code> (one step per press), <code>pointer</code> and <code>stick</code>. It registers its own read-phase system; <code>dispose()</code> removes it.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "controls(e: Engine, o?: ControlsOptions): Controls",
+       "params": [
+        {
+         "name": "e",
+         "type": "Engine",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-input-ControlsOptions\">ControlsOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-input-Controls\">Controls</a>"
+      }
+     ],
+     "code": "export declare function controls(e: Engine, o?: ControlsOptions): {\n    /** An intent's number, for a hot path: `const FIRE = c.id(\"fire\")`, then `c.hit(FIRE)` in a step.\n     *  A name that is not an intent throws here, at setup (a typo is never a silent `false`). */\n    id(intent: string): number;\n    /** Held right now (any of its keys, or press()). */\n    down: (intent: Intent) => boolean;\n    /** Pressed: true in the first step after the press; outside steps, for the frame it latched. */\n    hit: (intent: Intent) => boolean;\n    /** -1..1 from two intents (keys), plus the stick when it's active. */\n    axis(neg: Intent, pos: Intent, stickAxis?: 0 | 1): number;\n    pointer: {\n        readonly x: number;\n        readonly y: number;\n        readonly down: boolean;\n        readonly hit: boolean;\n    };\n    stick: {\n        readonly x: number;\n        readonly y: number;\n        readonly active: boolean;\n    };\n    /** Press an intent from code (on-screen keys): `press(\"strike\")`. */\n    press(intent: string, down?: boolean): void;\n    /** Drive the stick from code (an on-screen stick, @fzlt/core/pad): x, y in -1..1; `on = false` lets go. */\n    steer(x: number, y: number, on?: boolean): void;\n    dispose: () => void;\n    system: System;\n};",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-input-Controls",
+     "level": "h3",
+     "names": "Controls",
+     "what": "type",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "The controller <code>controls()</code> returns.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Controls = ReturnType<typeof controls>;",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-input-GamepadOptions",
+     "level": "h3",
+     "names": "GamepadOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Options for <code>gamepad()</code>: which buttons press which intents, the dead zone, which pad.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface GamepadOptions {\n    /** intent → standard-layout button indices, e.g. { fire: [0], jump: [1, 7] } (0 is A / cross). */\n    map?: Record<string, number[]>;\n    /** Dead zone, 0..1, for the left stick and analog buttons (default 0.15). */\n    dead?: number;\n    /** Read only the pad at this `navigator.getGamepads()` index (local multiplayer: a controller per\n     *  seat); default: every pad, merged. */\n    index?: number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-input-gamepad",
+     "level": "h3",
+     "names": "gamepad",
+     "what": "function",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Gamepads into a <code>controls()</code> controller: mapped buttons <code>press</code> their intents (down from half a pull), the left stick <code>steer</code>s the controller's stick, both past the dead zone. It polls in the controller's read phase, before the edges latch, and only while a pad is connected: a page without one never calls <code>getGamepads()</code> per frame. Pads have no events for buttons, so a settled engine is not polled: a pad connecting wakes it, and a game that settles between rounds wakes it from its own start key. Zero allocation per read. <code>stop()</code> removes it (listeners, polling, held intents and the stick).",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "gamepad(c: Controls, o?: GamepadOptions): { … }",
+       "params": [
+        {
+         "name": "c",
+         "type": "<a href=\"#api-fzlt-core-input-Controls\">Controls</a>",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-input-GamepadOptions\">GamepadOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "{ … }"
+      }
+     ],
+     "code": "export declare function gamepad(c: Controls, o?: GamepadOptions): {\n    /** A pad is connected (the one at `index`, when given). */\n    readonly connected: boolean;\n    /** Pads connected (the one at `index` counts as at most 1). */\n    readonly count: number;\n    /** An intent's analog value, 0..1 past the dead zone (a trigger's pull), as of the last read. */\n    value: (intent: string) => number;\n    /** Stop reading pads: listeners off, polling off, its held intents and the stick let go. */\n    stop(): void;\n};",
+     "folded": true
+    }
+   ]
   },
   {
-   "kind": "html",
-   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/kernel.html\"><small>← PREVIOUS</small><code>@fzlt/core</code></a><a class=\"bp-step next\" href=\"/bricks/pad.html\"><small>NEXT →</small><code>@fzlt/core/pad</code></a></nav>"
+   "kind": "steps",
+   "steps": [
+    {
+     "href": "/bricks/kernel.html",
+     "label": "@fzlt/core",
+     "dir": "prev"
+    },
+    {
+     "href": "/bricks/pad.html",
+     "label": "@fzlt/core/pad",
+     "dir": "next"
+    }
+   ]
   }
  ]
 }

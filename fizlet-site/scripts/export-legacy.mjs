@@ -160,6 +160,63 @@ for (const slug of ["getting-started"]) {
   });
 }
 
+// ---------- Brick pieces: stickers, pills, size badges, toy cards, API entries ----------
+const toneOf = (el) => el?.getAttribute("style")?.match(/--tone:\s*([^;]+)/)?.[1].trim() ?? "";
+const sticker = (s) => ({ flag: s.getAttribute("data-flag") ?? "", title: s.getAttribute("title") ?? "", label: text(s), cls: s.getAttribute("class"), style: s.getAttribute("style") ?? "" });
+const pillOf = (s) => ({ flag: s.getAttribute("data-flag"), title: s.getAttribute("title"), label: text(s) });
+const badgeOf = (s) => s && ({ aria: s.getAttribute("aria-label"), bytes: s.getAttribute("data-bytes"), live: s.getAttribute("data-live"), title: s.getAttribute("title"), size: text(s.querySelector("b")), unit: text(s).replace(text(s.querySelector("b")), "").trim() });
+// A brick's toy card (.bc): the engine fills the slot; the poster, caption and badge are ours.
+const toyOf = (bc) => {
+  const fig = bc.querySelector("figure"), block = fig.querySelector(".bc-block");
+  return {
+    tone: toneOf(bc), slot: fig.getAttribute("data-slot-target"), brick: fig.getAttribute("data-brick-card"), tag: fig.getAttribute("data-tag"),
+    bytes: fig.getAttribute("data-bytes"), aria: fig.getAttribute("aria-label"),
+    poster: { label: text(block.querySelector("b")), size: text(block).replace(text(block.querySelector("b")), "").trim() },
+    cap: text(bc.querySelector(".bc-cap > span:not(.size-badge)")), badge: badgeOf(bc.querySelector(".bc-cap .size-badge")),
+  };
+};
+/** One API entry (article.bp-decl): name, kind, flag, doc, @tags, each signature's parameters, the declaration. */
+const declOf = (a, path) => {
+  const h = a.querySelector("h3, h4");
+  const els = a.childNodes.filter((n) => n.nodeType === 1);
+  const row = (div) => {
+    const dd = div.querySelector("dd").innerHTML;
+    const m = dd.match(/^<code>([\s\S]*?)<\/code>( <small>optional<\/small>)?(?: ([\s\S]*))?$/);
+    if (!m) throw new Error(`${path}: an API row I can't read: ${dd.slice(0, 80)}`);
+    return { name: text(div.querySelector("dt")), type: absolute(m[1], path), optional: !!m[2], doc: absolute(m[3] ?? "", path) };
+  };
+  const sigs = [];
+  for (const n of els) {
+    if (is(n, "pre.bp-sig")) sigs.push({ text: n.querySelector("code").text, params: [], returns: "" });
+    else if (is(n, "dl.bp-params") && sigs.length) for (const div of n.querySelectorAll(":scope > div")) {
+      const r = row(div);
+      if (r.name === "Returns") sigs.at(-1).returns = r.type; else sigs.at(-1).params.push(r);
+    }
+  }
+  const typeRow = !sigs.length ? a.querySelector(":scope > dl.bp-params > div") : null;
+  const full = a.querySelector(":scope > details.bp-full");
+  return {
+    kind: "decl", id: a.getAttribute("id"), level: h.tagName.toLowerCase(), names: text(h.querySelector("code")), what: text(h.querySelector("small")), pill: pillOf(h.querySelector(".status-pill")),
+    doc: inner(els.find((n) => n.tagName === "P"), path),
+    tags: a.querySelectorAll(":scope > p.bp-tag").map((t) => ({ name: text(t.querySelector("b")).replace(/^@/, ""), html: inner(t, path).replace(/^<b>[^<]*<\/b>\s*/, "") })),
+    sigs, ...(typeRow ? { type: row(typeRow).type } : {}),
+    code: (full ?? a).querySelector(full ? "pre code" : ":scope > pre.code:not(.bp-sig) code").text, folded: !!full,
+  };
+};
+const apiOf = (api, path) => {
+  const items = [];
+  for (const n of api.childNodes.filter((n) => n.nodeType === 1)) {
+    if (is(n, "h3.bp-mod")) items.push({ kind: "mod", id: n.getAttribute("id"), name: text(n), summary: "" });
+    else if (n.tagName === "P" && items.at(-1)?.kind === "mod") items.at(-1).summary = inner(n, path);
+    else if (is(n, "article.bp-decl")) items.push(declOf(n, path));
+  }
+  return {
+    note: inner(api.querySelector(":scope > p.bp-note"), path),
+    toc: api.querySelectorAll("nav.bp-toc li").map((li) => ({ href: li.querySelector("a").getAttribute("href"), names: text(li.querySelector("code")), what: text(li.querySelector("small")) })),
+    items,
+  };
+};
+
 // ---------- The brick pages (every bricks/<id>.html) ----------
 const BRICK_IDS = readdirSync(join(LEGACY, "bricks")).filter((f) => f.endsWith(".html") && f !== "index.html").map((f) => f.slice(0, -5)).sort();
 for (const id of BRICK_IDS) {
@@ -169,16 +226,31 @@ for (const id of BRICK_IDS) {
   const wrap = doc.querySelector("main section.bp > .wrap");
   const top = wrap.querySelector(".bp-top");
   const lead = top.querySelector(":scope > div");
+  const eyebrow = lead.querySelector(".bp-eyebrow");
+  const sizes = top.querySelector(":scope > .bp-sizes");
   write(`pages/bricks/${id}.json`, {
     meta: metaOf(doc, path),
     styles: doc.querySelectorAll("main style").map((s) => s.text),
     crumbs: crumbsOf(wrap.querySelector("nav.bp-crumbs"), path),
-    tone: top.getAttribute("style")?.match(/--tone:\s*([^;]+)/)?.[1].trim() ?? "",
-    // The brick's head column, its demo and card: their markup is the engine's own (demo hosts, slots).
-    leadHtml: inner(lead, path),
-    asideHtml: top.childNodes.filter((n) => n.nodeType === 1 && n !== lead).map((n) => outer(n, path)).join("\n"),
-    rest: wrap.childNodes.filter((n) => n.nodeType === 1 && !is(n, "nav.bp-crumbs, .bp-top")).map((n) =>
-      n.classList.contains("bp-use") ? { kind: "use", blocks: n.querySelectorAll(".code-card").map(codeOf) } : { kind: "html", html: outer(n, path) }),
+    tone: toneOf(top),
+    head: {
+      tag: text(eyebrow.querySelector(".index")),
+      version: text(eyebrow.childNodes.find((n) => n.nodeType === 3 && n.text.trim())).replace(/^V/, ""),
+      sticker: sticker(eyebrow.querySelector(".brick-sticker")),
+      name: text(lead.querySelector("h1 code")),
+      lead: inner(lead.querySelector(".lead"), path),
+      keys: lead.querySelectorAll(".split-keys a").map((a) => keyOf(a, path)),
+    },
+    sizes: sizes.querySelectorAll(".bp-size").map((c) => ({ name: text(c.querySelector(".bui-label b")), bytes: text(c.querySelector(".bp-bytes")), budget: text(c.querySelector("small")), v: c.querySelector(".meter i").getAttribute("style").match(/--v:\s*([^;]+)/)[1] })),
+    sizesNote: inner(sizes.querySelector(".bp-note"), path),
+    blocks: wrap.childNodes.filter((n) => n.nodeType === 1 && !is(n, "nav.bp-crumbs, .bp-top")).map((n) =>
+      is(n, "figure.bp-demo") ? { kind: "demo", demo: n.getAttribute("data-brick-demo"), badge: badgeOf(n.querySelector(".size-badge")), status: text(n.querySelector("[data-status]")), note: text(n.querySelector("figcaption > span:last-child")) }
+      : is(n, "div.bp-card") ? { kind: "toy", ...(n.querySelector(".bc") ? toyOf(n.querySelector(".bc")) : {}) }
+      : is(n, "div.bp-use") ? { kind: "use", blocks: n.querySelectorAll(".code-card").map(codeOf) }
+      : is(n, "div.code-card") ? { kind: "code", ...codeOf(n) }
+      : is(n, "div.bp-api") ? { kind: "api", ...apiOf(n, path) }
+      : is(n, "nav.bp-steps") ? { kind: "steps", steps: n.querySelectorAll("a.bp-step").map((a) => ({ ...link(a, path), dir: a.classList.contains("next") ? "next" : "prev", label: text(a.querySelector("code")) })) }
+      : { kind: "html", html: outer(n, path) }),
   });
 }
 
@@ -234,8 +306,8 @@ const brickItem = (li, path) => {
     chips: inner(li.querySelector(".brick-chips"), path),
     // The bricks index's fuller tile: what it does, its toy card (an engine demo slot, kept as built),
     // its budget line, its meter, and (a planned brick) what it needs.
-    ...(li.querySelector(".brick-what") ? { what: text(li.querySelector(".brick-what")) } : {}),
-    ...(li.querySelector(":scope > .bc") ? { toy: outer(li.querySelector(":scope > .bc"), path) } : {}),
+    ...(li.querySelector(".brick-what") ? { what: inner(li.querySelector(".brick-what"), path) } : {}),
+    ...(li.querySelector(":scope > .bc") ? { toy: toyOf(li.querySelector(":scope > .bc")) } : {}),
     ...(li.querySelector(".brick-budget") ? { budget: inner(li.querySelector(".brick-budget"), path) } : {}),
     ...(li.querySelector(".brick-chips")?.getAttribute("aria-label") !== "Measured on this build" ? { chipsLabel: li.querySelector(".brick-chips").getAttribute("aria-label") } : {}),
     ...(li.querySelector(".brick-meter") ? { meter: { label: li.querySelector(".brick-meter").getAttribute("aria-label"), v: li.querySelector(".brick-meter i").getAttribute("style").match(/--v:\s*([^;]+)/)[1] } } : {}),
@@ -271,7 +343,6 @@ const bricksSection = (sec, path) => {
       lead: inner(h.querySelector(".lead"), path),
     };
   };
-  const sticker = (s) => ({ flag: s.getAttribute("data-flag") ?? "", title: s.getAttribute("title") ?? "", label: text(s), cls: s.getAttribute("class"), style: s.getAttribute("style") ?? "" });
   write("pages/bricks-index.json", {
     meta: metaOf(doc, path),
     styles: main.querySelectorAll(":scope > style").map((s) => s.text),

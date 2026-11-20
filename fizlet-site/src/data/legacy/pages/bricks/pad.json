@@ -35,12 +35,66 @@
   "current": "@fzlt/core/pad"
  },
  "tone": "var(--k-advance)",
- "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">PAD</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"complete\" style=\"--tilt:-5.5deg;--dx:2px;--dy:2px\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/pad</code></h1>\n        <p class=\"lead\">Swappable on-screen controls for touch (and mouse). One move control (an analog stick, a d-pad or move keys) under one thumb and round arcade action keys under the other, all driving <code>controls</code> intents through <code>press()</code> / <code>steer()</code>: game code reads <code>down</code>, <code>hit</code> and <code>axis</code> and never knows which scheme is on screen. Swap with <code>setScheme()</code> at any time. Visuals are the Board UI kit's (<code>.bui-pad</code>, <code>.bui-stick</code>, <code>.bui-dpad</code>, <code>.bui-arcade</code> + roles): mount the pad inside a <code>.bui</code> root. Listeners are delegated on the pad's one element (bound to the engine's signal), so a scheme swap adds none; the element goes through the ledger.</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/pad.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
- "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/pad</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/pad\">2,068 B</b><small>2.0 KB of a 2.1 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.975\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
- "rest": [
+ "head": {
+  "tag": "PAD",
+  "version": "0.27.0",
+  "sticker": {
+   "flag": "complete",
+   "title": "Done, and always getting smaller and faster.",
+   "label": "COMPLETE",
+   "cls": "brick-sticker",
+   "style": "--tilt:-5.5deg;--dx:2px;--dy:2px"
+  },
+  "name": "@fzlt/core/pad",
+  "lead": "Swappable on-screen controls for touch (and mouse). One move control (an analog stick, a d-pad or move keys) under one thumb and round arcade action keys under the other, all driving <code>controls</code> intents through <code>press()</code> / <code>steer()</code>: game code reads <code>down</code>, <code>hit</code> and <code>axis</code> and never knows which scheme is on screen. Swap with <code>setScheme()</code> at any time. Visuals are the Board UI kit's (<code>.bui-pad</code>, <code>.bui-stick</code>, <code>.bui-dpad</code>, <code>.bui-arcade</code> + roles): mount the pad inside a <code>.bui</code> root. Listeners are delegated on the pad's one element (bound to the engine's signal), so a scheme swap adds none; the element goes through the ledger.",
+  "keys": [
+   {
+    "href": "#api",
+    "label": "API",
+    "tone": "sys",
+    "arcade": true,
+    "icon": "code"
+   },
+   {
+    "href": "https://github.com/coded-dot-design/fizlet/blob/main/src/pad.ts",
+    "label": "Source ↗",
+    "tone": "cmd",
+    "arcade": true,
+    "icon": "github"
+   }
+  ]
+ },
+ "sizes": [
   {
-   "kind": "html",
-   "html": "<div class=\"bp-card\"><div class=\"bc\" data-demo-host style=\"--tone: var(--k-advance)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks/pad#card-pad\" data-brick-card=\"pad\" data-tag=\"PAD\" data-bytes=\"2068\" role=\"img\" aria-label=\"@fzlt/core/pad, 2.0 KB gzip: the Board UI pad drives a brick that pushes three crates home; a shoved crate slides on its own. Drive with the stick, the arrows or a tap; SHOVE to dash; SWAP for a d-pad.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>PAD</b> 2.0 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Drive with the stick, the arrows or a tap; SHOVE to dash; SWAP for a d-pad.</span><span class=\"size-badge\" role=\"img\" aria-label=\"12.9 KB gzipped: this card, with @fzlt/core/pad, 13,229 bytes, measured at build\" data-size-badge data-bytes=\"13229\" data-live=\"chunks/pad-LIUIJXSH.js\" title=\"13,229 B gzip, measured at build\"><b>12.9 KB</b> gz</span></p>\n</div></div>"
+   "name": "@fzlt/core/pad",
+   "bytes": "2,068 B",
+   "budget": "2.0 KB of a 2.1 KB budget",
+   "v": "0.975"
+  }
+ ],
+ "sizesNote": "Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.",
+ "blocks": [
+  {
+   "kind": "toy",
+   "tone": "var(--k-advance)",
+   "slot": "bricks/pad#card-pad",
+   "brick": "pad",
+   "tag": "PAD",
+   "bytes": "2068",
+   "aria": "@fzlt/core/pad, 2.0 KB gzip: the Board UI pad drives a brick that pushes three crates home; a shoved crate slides on its own. Drive with the stick, the arrows or a tap; SHOVE to dash; SWAP for a d-pad.",
+   "poster": {
+    "label": "PAD",
+    "size": "2.0 KB"
+   },
+   "cap": "Drive with the stick, the arrows or a tap; SHOVE to dash; SWAP for a d-pad.",
+   "badge": {
+    "aria": "12.9 KB gzipped: this card, with @fzlt/core/pad, 13,229 bytes, measured at build",
+    "bytes": "13229",
+    "live": "chunks/pad-LIUIJXSH.js",
+    "title": "13,229 B gzip, measured at build",
+    "size": "12.9 KB",
+    "unit": "gz"
+   }
   },
   {
    "kind": "html",
@@ -66,16 +120,285 @@
    ]
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>EXAMPLE</b> · typechecked against v0.27.0</span><button class=\"bui-key copy\" type=\"button\" data-copy><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 7h10v10H7ZM3 13V3h10\"></path></svg>Copy</button></div><pre tabindex=\"0\" class=\"code\"><code>const input = controls(e, { keys: { fire: [&quot;Space&quot;], auto: [&quot;KeyQ&quot;] } });\nconst touch = pad(e, input, { scheme: &quot;stick&quot;, actions: [\n  { intent: &quot;fire&quot;, label: &quot;FIRE&quot;, hold: true },   // the big primary key\n  { intent: &quot;auto&quot;, label: &quot;AUTO&quot;, toggle: true },\n] });\ntouch.setScheme(&quot;dpad&quot;); // the game still reads input.down, hit and axis</code></pre></div>"
+   "kind": "code",
+   "label": "<b>EXAMPLE</b> · typechecked against v0.27.0",
+   "code": "const input = controls(e, { keys: { fire: [\"Space\"], auto: [\"KeyQ\"] } });\nconst touch = pad(e, input, { scheme: \"stick\", actions: [\n  { intent: \"fire\", label: \"FIRE\", hold: true },   // the big primary key\n  { intent: \"auto\", label: \"AUTO\", toggle: true },\n] });\ntouch.setScheme(\"dpad\"); // the game still reads input.down, hit and axis",
+   "wrap": false,
+   "copy": true,
+   "cls": "panel code-card bp-snippet"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-pad-Scheme\"><code>Scheme</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-pad-PadRole\"><code>PadRole</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-pad-PadAction\"><code>PadAction</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-pad-PadOptions\"><code>PadOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-pad-stickAt\"><code>stickAt</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-pad-dpadAt\"><code>dpadAt</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-pad-pad\"><code>pad</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-pad-Pad\"><code>Pad</code></a><small>type</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-pad-Scheme\">\n        <h3><code>Scheme</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>The move control on screen: an analog stick, a one-finger d-pad, or a key per move intent.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Scheme = &quot;stick&quot; | &quot;dpad&quot; | &quot;buttons&quot;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-pad-PadRole\">\n        <h3><code>PadRole</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>A Board UI kit key role: it sets an action key's colour.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type PadRole = &quot;fire&quot; | &quot;aim&quot; | &quot;attack&quot; | &quot;advance&quot; | &quot;fallin&quot; | &quot;sys&quot; | &quot;cmd&quot; | &quot;go&quot; | &quot;flag&quot;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-pad-PadAction\">\n        <h3><code>PadAction</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>One round action key: the intent it drives, its caption and accessible name, its role colour.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface PadAction {\n    /** The `controls` intent this key drives. */\n    intent: string;\n    /** Short caption on the key (e.g. &quot;FIRE&quot;); empty for icon-only. */\n    label: string;\n    /** Accessible name (default: label), e.g. &quot;Hold to fire the cannon (Space)&quot;. */\n    name?: string;\n    /** Inline SVG markup (trusted game code). */\n    icon?: string;\n    /** Shortcut chip for fine pointers, e.g. &quot;SPACE&quot;. */\n    key?: string;\n    /** Kit role colour (default: &quot;fire&quot; for the first action, &quot;sys&quot; for the rest). */\n    role?: PadRole;\n    /** Held while the finger is down (default: a tap = one press, one `hit`). */\n    hold?: boolean;\n    /** Each tap flips the intent: `down(intent)` is the switch; `press(intent, on)` from code flips the key too. */\n    toggle?: boolean;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-pad-PadOptions\">\n        <h3><code>PadOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Options for <code>pad()</code>: the move scheme, the action keys, which thumb gets them and where the pad goes.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface PadOptions {\n    /** &quot;stick&quot; (analog, drives the stick axes), &quot;dpad&quot; (one finger, 8-way) or &quot;buttons&quot; (a key per move intent). */\n    scheme?: Scheme;\n    /** Action keys; the first is the big primary key. */\n    actions?: PadAction[];\n    /** Which thumb gets the action keys (default &quot;right&quot;); the move control takes the other. */\n    side?: &quot;left&quot; | &quot;right&quot;;\n    /** Where the pad goes (default: the engine root). Must be inside a `.bui` root for the kit look. */\n    host?: HTMLElement;\n    /** Move intents [up, down, left, right] for the d-pad and move keys; &quot;&quot; leaves one out. */\n    move?: string[];\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-pad-stickAt\">\n        <h3><code>stickAt</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Stick vector from a drag offset in radii: clamped to the unit circle, dead zone rescaled so a light push still creeps (Battlefield's feel). Writes out[0], out[1]; never allocates (the exact <code>hypot</code> from</p><p class=\"bp-tag\"><b>@fzlt</b> /core/steer: <code>Math.hypot</code> boxes its arguments, K5).</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>stickAt(dx: number, dy: number, out: Float64Array): void</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>dx</code></dt><dd><code>number</code></dd></div><div><dt><code>dy</code></dt><dd><code>number</code></dd></div><div><dt><code>out</code></dt><dd><code>Float64Array</code></dd></div><div><dt>Returns</dt><dd><code>void</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function stickAt(dx: number, dy: number, out: Float64Array): void;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-pad-dpadAt\">\n        <h3><code>dpadAt</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>D-pad direction mask (up 1, down 2, left 4, right 8; diagonals combine) from a drag offset in radii.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>dpadAt(dx: number, dy: number): number</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>dx</code></dt><dd><code>number</code></dd></div><div><dt><code>dy</code></dt><dd><code>number</code></dd></div><div><dt>Returns</dt><dd><code>number</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function dpadAt(dx: number, dy: number): number;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-pad-pad\">\n        <h3><code>pad</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>On-screen controls for touch (and mouse) that drive the intents of <code>c</code> (a <code>controls()</code> controller): a move control and action keys, in the Board UI kit's look. Swap the move control with <code>setScheme()</code>; <code>destroy()</code> (or the engine's) removes the pad.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>pad(e: Engine, c: Controls, o?: PadOptions): Pad</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>e</code></dt><dd><code>Engine</code></dd></div><div><dt><code>c</code></dt><dd><code>Controls</code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-pad-PadOptions\">PadOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-pad-Pad\">Pad</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function pad(e: Engine, c: Controls, o?: PadOptions): {\n    /** The pad's root element (`.bui-pad`). */\n    el: HTMLDivElement;\n    readonly scheme: Scheme;\n    setScheme: (s: Scheme) =&gt; void;\n    /** Let go of every finger, remove the listeners and the pad (engine.destroy() does this too). */\n    destroy(): void;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-pad-Pad\">\n        <h3><code>Pad</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>The pad <code>pad()</code> returns.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Pad = ReturnType&lt;typeof pad&gt;;</code></pre>\n      </article>\n    </div>"
+   "kind": "api",
+   "note": "Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.",
+   "toc": [
+    {
+     "href": "#api-fzlt-core-pad-Scheme",
+     "names": "Scheme",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-pad-PadRole",
+     "names": "PadRole",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-pad-PadAction",
+     "names": "PadAction",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-pad-PadOptions",
+     "names": "PadOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-pad-stickAt",
+     "names": "stickAt",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-pad-dpadAt",
+     "names": "dpadAt",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-pad-pad",
+     "names": "pad",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-pad-Pad",
+     "names": "Pad",
+     "what": "type"
+    }
+   ],
+   "items": [
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-pad-Scheme",
+     "level": "h3",
+     "names": "Scheme",
+     "what": "type",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "The move control on screen: an analog stick, a one-finger d-pad, or a key per move intent.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Scheme = \"stick\" | \"dpad\" | \"buttons\";",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-pad-PadRole",
+     "level": "h3",
+     "names": "PadRole",
+     "what": "type",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "A Board UI kit key role: it sets an action key's colour.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type PadRole = \"fire\" | \"aim\" | \"attack\" | \"advance\" | \"fallin\" | \"sys\" | \"cmd\" | \"go\" | \"flag\";",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-pad-PadAction",
+     "level": "h3",
+     "names": "PadAction",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "One round action key: the intent it drives, its caption and accessible name, its role colour.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface PadAction {\n    /** The `controls` intent this key drives. */\n    intent: string;\n    /** Short caption on the key (e.g. \"FIRE\"); empty for icon-only. */\n    label: string;\n    /** Accessible name (default: label), e.g. \"Hold to fire the cannon (Space)\". */\n    name?: string;\n    /** Inline SVG markup (trusted game code). */\n    icon?: string;\n    /** Shortcut chip for fine pointers, e.g. \"SPACE\". */\n    key?: string;\n    /** Kit role colour (default: \"fire\" for the first action, \"sys\" for the rest). */\n    role?: PadRole;\n    /** Held while the finger is down (default: a tap = one press, one `hit`). */\n    hold?: boolean;\n    /** Each tap flips the intent: `down(intent)` is the switch; `press(intent, on)` from code flips the key too. */\n    toggle?: boolean;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-pad-PadOptions",
+     "level": "h3",
+     "names": "PadOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Options for <code>pad()</code>: the move scheme, the action keys, which thumb gets them and where the pad goes.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface PadOptions {\n    /** \"stick\" (analog, drives the stick axes), \"dpad\" (one finger, 8-way) or \"buttons\" (a key per move intent). */\n    scheme?: Scheme;\n    /** Action keys; the first is the big primary key. */\n    actions?: PadAction[];\n    /** Which thumb gets the action keys (default \"right\"); the move control takes the other. */\n    side?: \"left\" | \"right\";\n    /** Where the pad goes (default: the engine root). Must be inside a `.bui` root for the kit look. */\n    host?: HTMLElement;\n    /** Move intents [up, down, left, right] for the d-pad and move keys; \"\" leaves one out. */\n    move?: string[];\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-pad-stickAt",
+     "level": "h3",
+     "names": "stickAt",
+     "what": "function",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Stick vector from a drag offset in radii: clamped to the unit circle, dead zone rescaled so a light push still creeps (Battlefield's feel). Writes out[0], out[1]; never allocates (the exact <code>hypot</code> from",
+     "tags": [
+      {
+       "name": "fzlt",
+       "html": "/core/steer: <code>Math.hypot</code> boxes its arguments, K5)."
+      }
+     ],
+     "sigs": [
+      {
+       "text": "stickAt(dx: number, dy: number, out: Float64Array): void",
+       "params": [
+        {
+         "name": "dx",
+         "type": "number",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "dy",
+         "type": "number",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "out",
+         "type": "Float64Array",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "void"
+      }
+     ],
+     "code": "export declare function stickAt(dx: number, dy: number, out: Float64Array): void;",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-pad-dpadAt",
+     "level": "h3",
+     "names": "dpadAt",
+     "what": "function",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "D-pad direction mask (up 1, down 2, left 4, right 8; diagonals combine) from a drag offset in radii.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "dpadAt(dx: number, dy: number): number",
+       "params": [
+        {
+         "name": "dx",
+         "type": "number",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "dy",
+         "type": "number",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "number"
+      }
+     ],
+     "code": "export declare function dpadAt(dx: number, dy: number): number;",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-pad-pad",
+     "level": "h3",
+     "names": "pad",
+     "what": "function",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "On-screen controls for touch (and mouse) that drive the intents of <code>c</code> (a <code>controls()</code> controller): a move control and action keys, in the Board UI kit's look. Swap the move control with <code>setScheme()</code>; <code>destroy()</code> (or the engine's) removes the pad.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "pad(e: Engine, c: Controls, o?: PadOptions): Pad",
+       "params": [
+        {
+         "name": "e",
+         "type": "Engine",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "c",
+         "type": "Controls",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-pad-PadOptions\">PadOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-pad-Pad\">Pad</a>"
+      }
+     ],
+     "code": "export declare function pad(e: Engine, c: Controls, o?: PadOptions): {\n    /** The pad's root element (`.bui-pad`). */\n    el: HTMLDivElement;\n    readonly scheme: Scheme;\n    setScheme: (s: Scheme) => void;\n    /** Let go of every finger, remove the listeners and the pad (engine.destroy() does this too). */\n    destroy(): void;\n};",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-pad-Pad",
+     "level": "h3",
+     "names": "Pad",
+     "what": "type",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "The pad <code>pad()</code> returns.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Pad = ReturnType<typeof pad>;",
+     "folded": false
+    }
+   ]
   },
   {
-   "kind": "html",
-   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/input.html\"><small>← PREVIOUS</small><code>@fzlt/core/input</code></a><a class=\"bp-step next\" href=\"/bricks/collide.html\"><small>NEXT →</small><code>@fzlt/core/collide</code></a></nav>"
+   "kind": "steps",
+   "steps": [
+    {
+     "href": "/bricks/input.html",
+     "label": "@fzlt/core/input",
+     "dir": "prev"
+    },
+    {
+     "href": "/bricks/collide.html",
+     "label": "@fzlt/core/collide",
+     "dir": "next"
+    }
+   ]
   }
  ]
 }

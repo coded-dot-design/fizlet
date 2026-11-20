@@ -35,12 +35,66 @@
   "current": "@fzlt/core/match"
  },
  "tone": "var(--k-go)",
- "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">MATCH</span> V0.27.0 <span class=\"brick-sticker brick-sticker-peel\" data-flag=\"beta\" style=\"--tilt:4deg;--dx:0px;--dy:-2px\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/match</code></h1>\n        <p class=\"lead\">The match flow every game shares, intro → count → play → paused → end, on the Board UI kit's overlay (grey dim, a sticker that slams, at most two sticker keys). One overlay is built once; each phase only flips attributes, styles and text through the ledger, so destroy() gives the page back exactly. Every transition is an event on the ring (<code>match:play</code>, …), so the HUD, sound and coach layers react without knowing about this one. Pass <code>null</code> as the root to run the phase machine headless (tests, a server).</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/match.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
- "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/match</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/match\">2,617 B</b><small>2.6 KB of a 2.8 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.929\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
- "rest": [
+ "head": {
+  "tag": "MATCH",
+  "version": "0.27.0",
+  "sticker": {
+   "flag": "beta",
+   "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+   "label": "BETA",
+   "cls": "brick-sticker brick-sticker-peel",
+   "style": "--tilt:4deg;--dx:0px;--dy:-2px"
+  },
+  "name": "@fzlt/core/match",
+  "lead": "The match flow every game shares, intro → count → play → paused → end, on the Board UI kit's overlay (grey dim, a sticker that slams, at most two sticker keys). One overlay is built once; each phase only flips attributes, styles and text through the ledger, so destroy() gives the page back exactly. Every transition is an event on the ring (<code>match:play</code>, …), so the HUD, sound and coach layers react without knowing about this one. Pass <code>null</code> as the root to run the phase machine headless (tests, a server).",
+  "keys": [
+   {
+    "href": "#api",
+    "label": "API",
+    "tone": "sys",
+    "arcade": true,
+    "icon": "code"
+   },
+   {
+    "href": "https://github.com/coded-dot-design/fizlet/blob/main/src/match.ts",
+    "label": "Source ↗",
+    "tone": "cmd",
+    "arcade": true,
+    "icon": "github"
+   }
+  ]
+ },
+ "sizes": [
   {
-   "kind": "html",
-   "html": "<div class=\"bp-card\"><div class=\"bc\" data-demo-host style=\"--tone: var(--k-go)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks/match#card-match\" data-brick-card=\"match\" data-tag=\"MATCH\" data-bytes=\"2617\" role=\"img\" aria-label=\"@fzlt/core/match, 2.6 KB gzip: a ten-second round on the match phase machine: start, count, play, stage clear or game over. Tap to start, then catch the bricks on your paddle.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>MATCH</b> 2.6 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap to start, then catch the bricks on your paddle.</span><span class=\"size-badge\" role=\"img\" aria-label=\"8.7 KB gzipped: this card, with @fzlt/core/match, 8,865 bytes, measured at build\" data-size-badge data-bytes=\"8865\" data-live=\"chunks/match-KALLHNIT.js\" title=\"8,865 B gzip, measured at build\"><b>8.7 KB</b> gz</span></p>\n</div></div>"
+   "name": "@fzlt/core/match",
+   "bytes": "2,617 B",
+   "budget": "2.6 KB of a 2.8 KB budget",
+   "v": "0.929"
+  }
+ ],
+ "sizesNote": "Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.",
+ "blocks": [
+  {
+   "kind": "toy",
+   "tone": "var(--k-go)",
+   "slot": "bricks/match#card-match",
+   "brick": "match",
+   "tag": "MATCH",
+   "bytes": "2617",
+   "aria": "@fzlt/core/match, 2.6 KB gzip: a ten-second round on the match phase machine: start, count, play, stage clear or game over. Tap to start, then catch the bricks on your paddle.",
+   "poster": {
+    "label": "MATCH",
+    "size": "2.6 KB"
+   },
+   "cap": "Tap to start, then catch the bricks on your paddle.",
+   "badge": {
+    "aria": "8.7 KB gzipped: this card, with @fzlt/core/match, 8,865 bytes, measured at build",
+    "bytes": "8865",
+    "live": "chunks/match-KALLHNIT.js",
+    "title": "8,865 B gzip, measured at build",
+    "size": "8.7 KB",
+    "unit": "gz"
+   }
   },
   {
    "kind": "html",
@@ -66,16 +120,236 @@
    ]
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>EXAMPLE</b> · typechecked against v0.27.0</span><button class=\"bui-key copy\" type=\"button\" data-copy><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 7h10v10H7ZM3 13V3h10\"></path></svg>Copy</button></div><pre tabindex=\"0\" class=\"code\"><code>const m = match(e, board, {\n  count: 3, seconds: 180,     // 3-2-1, then a three-minute clock\n  begin() { resetField(); },  // a new round\n  end({ won, why }) { console.log(won, why); }, // why: &quot;time&quot;, &quot;flag&quot; or yours\n});\ne.add({ step() { if (m.phase === &quot;play&quot;) play(); } });</code></pre></div>"
+   "kind": "code",
+   "label": "<b>EXAMPLE</b> · typechecked against v0.27.0",
+   "code": "const m = match(e, board, {\n  count: 3, seconds: 180,     // 3-2-1, then a three-minute clock\n  begin() { resetField(); },  // a new round\n  end({ won, why }) { console.log(won, why); }, // why: \"time\", \"flag\" or yours\n});\ne.add({ step() { if (m.phase === \"play\") play(); } });",
+   "wrap": false,
+   "copy": true,
+   "cls": "panel code-card bp-snippet"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-match-Phase\"><code>Phase</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-match-Sticker\"><code>Sticker</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-match-MatchKey\"><code>MatchKey</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-match-MatchLabels\"><code>MatchLabels</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-match-MatchResult\"><code>MatchResult</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-match-MatchOptions\"><code>MatchOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-match-match\"><code>match</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-match-Match\"><code>Match</code></a><small>type</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-match-Phase\">\n        <h3><code>Phase</code> <small>type</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>Where a match is: the intro, the countdown, play, paused or the end.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Phase = &quot;intro&quot; | &quot;count&quot; | &quot;play&quot; | &quot;paused&quot; | &quot;end&quot;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-match-Sticker\">\n        <h3><code>Sticker</code> <small>type</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>A sticker: kicker (small, blinking) and word (big).</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Sticker = [kicker: string, word: string];</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-match-MatchKey\">\n        <h3><code>MatchKey</code> <small>type</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>The overlay's sticker keys, by what they do.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type MatchKey = &quot;start&quot; | &quot;resume&quot; | &quot;surrender&quot; | &quot;again&quot; | &quot;next&quot;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-match-MatchLabels\">\n        <h3><code>MatchLabels</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>Every word on the match overlay: the stickers per phase, the countdown kicker and the key labels.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface MatchLabels extends Record&lt;MatchKey, string&gt; {\n    intro: Sticker;\n    /** The kicker over the 3-2-1. */\n    count: string;\n    paused: Sticker;\n    won: Sticker;\n    lost: Sticker;\n    /** Lost by surrender (the white flag). */\n    flag: Sticker;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-match-MatchResult\">\n        <h3><code>MatchResult</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>How a match ended: won or lost, why, and the clock.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface MatchResult {\n    won: boolean;\n    /** &quot;time&quot; (the clock ran out), &quot;flag&quot; (surrender) or what the game passed to finish(). */\n    why: string;\n    /** The clock when it ended. */\n    clock: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-match-MatchOptions\">\n        <h3><code>MatchOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>Options for <code>match()</code>: the countdown, the match length, labels and key icons, the pause keys.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface MatchOptions {\n    /** Countdown beats of one second before play (default 3; 0 skips it). */\n    count?: number;\n    /** Match length in seconds; 0 or left out = no time limit (the clock counts up). */\n    seconds?: number;\n    labels?: Partial&lt;MatchLabels&gt;;\n    /** SVG markup per key (64 × 64), e.g. the game's skull on KEEP FIGHTING. */\n    icons?: Partial&lt;Record&lt;MatchKey, string&gt;&gt;;\n    /** Pause / resume keys (KeyboardEvent.code; default Escape and P). [] turns them off. */\n    keys?: string[];\n    /** A new round starts (start, rematch): reset the game. Runs in the click (user activation). */\n    begin?(): void;\n    /** The match ended. Return a sticker to replace the default words (e.g. [&quot;INSERT COIN&quot;, &quot;RED WINS&quot;]). */\n    end?(r: MatchResult): Sticker | void;\n    /** The clock ran out: did the player win? (default: no) */\n    timeUp?(): boolean;\n    /** The kit's launch burst (`launch` from @fzlt/core/ui) for PRESS START and SURRENDER. */\n    launch?(key: HTMLElement, action: () =&gt; void, o: {\n        reduced?: boolean;\n    }): void;\n    /** Each phase change, once it is painted (in the call that made it, or in the render of the frame\n     *  a step made it in): a host that owns more than the overlay (@fzlt/core/arcade's skirmish preset)\n     *  follows the phase here. Not called for the first intro. */\n    on?(phase: Phase): void;\n    /** Phases that show no overlay (the phase machine and its events still run), e.g. [&quot;paused&quot;]. */\n    hide?: Phase[];\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-match-match\">\n        <h3><code>match</code> <small>function</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>The shared match flow on engine <code>e</code>, intro → count → play → paused → end, on the Board UI overlay in <code>root</code>. Every transition is an event on the ring (<code>match:play</code>, …). Drive it with <code>start()</code>, <code>pause()</code>, <code>finish()</code>, <code>restart()</code>; read <code>phase</code> and <code>clock</code>.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>match(e: Engine, root: HTMLElement | null, o?: MatchOptions): Match</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>e</code></dt><dd><code>Engine</code></dd></div><div><dt><code>root</code></dt><dd><code>HTMLElement | null</code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-match-MatchOptions\">MatchOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-match-Match\">Match</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function match(e: Engine, root: HTMLElement | null, o?: MatchOptions): {\n    readonly phase: Phase;\n    /** Seconds left (timed match) or played so far (no limit). Counts only in play. */\n    readonly clock: number;\n    /** The overlay element (null headless): add your own content, style it by `[data-phase]`. */\n    el: HTMLElement | null;\n    /** PRESS START: from the intro (or the result), begin a round. */\n    start(): void;\n    /** Pause (true), resume (false) or toggle (no argument). Only during play. */\n    pause(on?: boolean): void;\n    /** End the match now (a win, a loss, &quot;flag&quot; for surrender). */\n    finish(w: boolean, y?: string): void;\n    /** A new round from any phase: begin(), the clock reset, then the countdown. */\n    restart(): void;\n    /** Back to the start screen (NEW GAME). */\n    intro(): void;\n    system: System;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-match-Match\">\n        <h3><code>Match</code> <small>type</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h3>\n        <p>The match flow <code>match()</code> returns.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Match = ReturnType&lt;typeof match&gt;;</code></pre>\n      </article>\n    </div>"
+   "kind": "api",
+   "note": "Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.",
+   "toc": [
+    {
+     "href": "#api-fzlt-core-match-Phase",
+     "names": "Phase",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-match-Sticker",
+     "names": "Sticker",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-match-MatchKey",
+     "names": "MatchKey",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-match-MatchLabels",
+     "names": "MatchLabels",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-match-MatchResult",
+     "names": "MatchResult",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-match-MatchOptions",
+     "names": "MatchOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-match-match",
+     "names": "match",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-match-Match",
+     "names": "Match",
+     "what": "type"
+    }
+   ],
+   "items": [
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-match-Phase",
+     "level": "h3",
+     "names": "Phase",
+     "what": "type",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Where a match is: the intro, the countdown, play, paused or the end.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Phase = \"intro\" | \"count\" | \"play\" | \"paused\" | \"end\";",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-match-Sticker",
+     "level": "h3",
+     "names": "Sticker",
+     "what": "type",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "A sticker: kicker (small, blinking) and word (big).",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Sticker = [kicker: string, word: string];",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-match-MatchKey",
+     "level": "h3",
+     "names": "MatchKey",
+     "what": "type",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "The overlay's sticker keys, by what they do.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type MatchKey = \"start\" | \"resume\" | \"surrender\" | \"again\" | \"next\";",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-match-MatchLabels",
+     "level": "h3",
+     "names": "MatchLabels",
+     "what": "interface",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Every word on the match overlay: the stickers per phase, the countdown kicker and the key labels.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface MatchLabels extends Record<MatchKey, string> {\n    intro: Sticker;\n    /** The kicker over the 3-2-1. */\n    count: string;\n    paused: Sticker;\n    won: Sticker;\n    lost: Sticker;\n    /** Lost by surrender (the white flag). */\n    flag: Sticker;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-match-MatchResult",
+     "level": "h3",
+     "names": "MatchResult",
+     "what": "interface",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "How a match ended: won or lost, why, and the clock.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface MatchResult {\n    won: boolean;\n    /** \"time\" (the clock ran out), \"flag\" (surrender) or what the game passed to finish(). */\n    why: string;\n    /** The clock when it ended. */\n    clock: number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-match-MatchOptions",
+     "level": "h3",
+     "names": "MatchOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Options for <code>match()</code>: the countdown, the match length, labels and key icons, the pause keys.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface MatchOptions {\n    /** Countdown beats of one second before play (default 3; 0 skips it). */\n    count?: number;\n    /** Match length in seconds; 0 or left out = no time limit (the clock counts up). */\n    seconds?: number;\n    labels?: Partial<MatchLabels>;\n    /** SVG markup per key (64 × 64), e.g. the game's skull on KEEP FIGHTING. */\n    icons?: Partial<Record<MatchKey, string>>;\n    /** Pause / resume keys (KeyboardEvent.code; default Escape and P). [] turns them off. */\n    keys?: string[];\n    /** A new round starts (start, rematch): reset the game. Runs in the click (user activation). */\n    begin?(): void;\n    /** The match ended. Return a sticker to replace the default words (e.g. [\"INSERT COIN\", \"RED WINS\"]). */\n    end?(r: MatchResult): Sticker | void;\n    /** The clock ran out: did the player win? (default: no) */\n    timeUp?(): boolean;\n    /** The kit's launch burst (`launch` from @fzlt/core/ui) for PRESS START and SURRENDER. */\n    launch?(key: HTMLElement, action: () => void, o: {\n        reduced?: boolean;\n    }): void;\n    /** Each phase change, once it is painted (in the call that made it, or in the render of the frame\n     *  a step made it in): a host that owns more than the overlay (@fzlt/core/arcade's skirmish preset)\n     *  follows the phase here. Not called for the first intro. */\n    on?(phase: Phase): void;\n    /** Phases that show no overlay (the phase machine and its events still run), e.g. [\"paused\"]. */\n    hide?: Phase[];\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-match-match",
+     "level": "h3",
+     "names": "match",
+     "what": "function",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "The shared match flow on engine <code>e</code>, intro → count → play → paused → end, on the Board UI overlay in <code>root</code>. Every transition is an event on the ring (<code>match:play</code>, …). Drive it with <code>start()</code>, <code>pause()</code>, <code>finish()</code>, <code>restart()</code>; read <code>phase</code> and <code>clock</code>.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "match(e: Engine, root: HTMLElement | null, o?: MatchOptions): Match",
+       "params": [
+        {
+         "name": "e",
+         "type": "Engine",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "root",
+         "type": "HTMLElement | null",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-match-MatchOptions\">MatchOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-match-Match\">Match</a>"
+      }
+     ],
+     "code": "export declare function match(e: Engine, root: HTMLElement | null, o?: MatchOptions): {\n    readonly phase: Phase;\n    /** Seconds left (timed match) or played so far (no limit). Counts only in play. */\n    readonly clock: number;\n    /** The overlay element (null headless): add your own content, style it by `[data-phase]`. */\n    el: HTMLElement | null;\n    /** PRESS START: from the intro (or the result), begin a round. */\n    start(): void;\n    /** Pause (true), resume (false) or toggle (no argument). Only during play. */\n    pause(on?: boolean): void;\n    /** End the match now (a win, a loss, \"flag\" for surrender). */\n    finish(w: boolean, y?: string): void;\n    /** A new round from any phase: begin(), the clock reset, then the countdown. */\n    restart(): void;\n    /** Back to the start screen (NEW GAME). */\n    intro(): void;\n    system: System;\n};",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-match-Match",
+     "level": "h3",
+     "names": "Match",
+     "what": "type",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "The match flow <code>match()</code> returns.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Match = ReturnType<typeof match>;",
+     "folded": false
+    }
+   ]
   },
   {
-   "kind": "html",
-   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/hud.html\"><small>← PREVIOUS</small><code>@fzlt/core/hud</code></a><a class=\"bp-step next\" href=\"/bricks/board-page.html\"><small>NEXT →</small><code>@fzlt/core/board-page</code></a></nav>"
+   "kind": "steps",
+   "steps": [
+    {
+     "href": "/bricks/hud.html",
+     "label": "@fzlt/core/hud",
+     "dir": "prev"
+    },
+    {
+     "href": "/bricks/board-page.html",
+     "label": "@fzlt/core/board-page",
+     "dir": "next"
+    }
+   ]
   }
  ]
 }

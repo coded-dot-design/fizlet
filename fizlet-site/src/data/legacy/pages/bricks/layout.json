@@ -34,12 +34,47 @@
   "current": "@fzlt/core/layout"
  },
  "tone": "var(--k-advance)",
- "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">LAYOUT</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"experimental\" style=\"--tilt:2deg;--dx:5px;--dy:0px\" title=\"In the package to try; no promise yet.\">ALPHA</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/layout</code></h1>\n        <p class=\"lead\">Force-directed layout on typed arrays, with a Barnes-Hut pass, for diagrams and graphs that settle. Nodes repel (a quadtree, rebuilt each step, sums far groups as one mass: O(n log n)), links pull like springs toward their length, and a weak pull holds the graph around (<code>cx</code>, <code>cy</code>). One tick per fixed step, so a run replays exactly. - Settle: <code>alpha</code> cools from 1 toward 0 over <code>ticks</code> steps; when it is spent, or nothing moved more than <code>still</code> px in a step, the layout rests and stops calling <code>busy()</code>: the engine sleeps. <code>heat()</code>, <code>pin()</code> and <code>link()</code> warm it up and wake the engine. - Reduced motion: the whole run happens in one step, so the graph lands where it settles. - Zero allocation per step; fixed capacity (<code>cap</code> nodes, <code>links</code> links: add and link return -1 when full). - DOM-free: draw it anywhere (@fzlt/core/view-canvas), frame it with @fzlt/core/camera (<code>bounds</code>). Distances use steer's exact <code>hypot</code> (Math.hypot boxes its arguments).</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/layout.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
- "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/layout</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/layout\">1,745 B</b><small>1.7 KB of a 2.0 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.852\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
- "rest": [
+ "head": {
+  "tag": "LAYOUT",
+  "version": "0.27.0",
+  "sticker": {
+   "flag": "experimental",
+   "title": "In the package to try; no promise yet.",
+   "label": "ALPHA",
+   "cls": "brick-sticker",
+   "style": "--tilt:2deg;--dx:5px;--dy:0px"
+  },
+  "name": "@fzlt/core/layout",
+  "lead": "Force-directed layout on typed arrays, with a Barnes-Hut pass, for diagrams and graphs that settle. Nodes repel (a quadtree, rebuilt each step, sums far groups as one mass: O(n log n)), links pull like springs toward their length, and a weak pull holds the graph around (<code>cx</code>, <code>cy</code>). One tick per fixed step, so a run replays exactly. - Settle: <code>alpha</code> cools from 1 toward 0 over <code>ticks</code> steps; when it is spent, or nothing moved more than <code>still</code> px in a step, the layout rests and stops calling <code>busy()</code>: the engine sleeps. <code>heat()</code>, <code>pin()</code> and <code>link()</code> warm it up and wake the engine. - Reduced motion: the whole run happens in one step, so the graph lands where it settles. - Zero allocation per step; fixed capacity (<code>cap</code> nodes, <code>links</code> links: add and link return -1 when full). - DOM-free: draw it anywhere (@fzlt/core/view-canvas), frame it with @fzlt/core/camera (<code>bounds</code>). Distances use steer's exact <code>hypot</code> (Math.hypot boxes its arguments).",
+  "keys": [
+   {
+    "href": "#api",
+    "label": "API",
+    "tone": "sys",
+    "arcade": true,
+    "icon": "code"
+   },
+   {
+    "href": "https://github.com/coded-dot-design/fizlet/blob/main/src/layout.ts",
+    "label": "Source ↗",
+    "tone": "cmd",
+    "arcade": true,
+    "icon": "github"
+   }
+  ]
+ },
+ "sizes": [
   {
-   "kind": "html",
-   "html": "<div class=\"bp-card\"></div>"
+   "name": "@fzlt/core/layout",
+   "bytes": "1,745 B",
+   "budget": "1.7 KB of a 2.0 KB budget",
+   "v": "0.852"
+  }
+ ],
+ "sizesNote": "Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.",
+ "blocks": [
+  {
+   "kind": "toy"
   },
   {
    "kind": "html",
@@ -65,16 +100,120 @@
    ]
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>IN SHORT</b></span></div><pre tabindex=\"0\" class=\"code\"><code>const g = layout(e, { cap: 64, cx: 320, cy: 200 }); // DOM-free, typed arrays\nconst a = g.add(), b = g.add();\ng.link(a, b, 60); // settles in ≤ 300 steps, then stops calling busy()\ng.pin(a, px, py); // a drag: the rest flows round it; g.free(a) lets go\nconst [l, t, r, b] = g.bounds(box); // left, top, right, bottom\nfit(cam, l, t, r - l, b - t); // frame it with @fzlt/core/camera</code></pre></div>"
+   "kind": "code",
+   "label": "<b>IN SHORT</b>",
+   "code": "const g = layout(e, { cap: 64, cx: 320, cy: 200 }); // DOM-free, typed arrays\nconst a = g.add(), b = g.add();\ng.link(a, b, 60); // settles in ≤ 300 steps, then stops calling busy()\ng.pin(a, px, py); // a drag: the rest flows round it; g.free(a) lets go\nconst [l, t, r, b] = g.bounds(box); // left, top, right, bottom\nfit(cam, l, t, r - l, b - t); // frame it with @fzlt/core/camera",
+   "wrap": false,
+   "copy": false,
+   "cls": "panel code-card bp-snippet"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-layout-LayoutOptions\"><code>LayoutOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-layout-layout\"><code>layout</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-layout-Layout\"><code>Layout</code></a><small>type</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-layout-LayoutOptions\">\n        <h3><code>LayoutOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Options for <code>layout</code>: capacity, forces, cooling and motion.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface LayoutOptions {\n    /** Nodes (fixed: the arrays never grow). */\n    cap: number;\n    /** Links (default 2 × cap). */\n    links?: number;\n    /** Repulsion between nodes, px² per tick (default 30). */\n    charge?: number;\n    /** A link's rest length in px (default 40; `link` takes its own). */\n    distance?: number;\n    /** Pull toward the centre, per tick (default 0.04). */\n    gravity?: number;\n    /** The centre gravity pulls toward, x (default 0). */\n    cx?: number;\n    /** The centre gravity pulls toward, y (default 0). */\n    cy?: number;\n    /** Barnes-Hut accuracy: a cell of size s at distance d counts as one mass when s / d &lt; theta (default 0.9). */\n    theta?: number;\n    /** Velocity kept per tick (default 0.6). */\n    keep?: number;\n    /** Steps a full run cools over (default 300: five seconds at 60 Hz). */\n    ticks?: number;\n    /** At rest once no node moves more than this many px in a step (default 0.02). */\n    still?: number;\n    /** Animate (default: yes, unless the visitor prefers reduced motion; then each run lands at once). */\n    motion?: boolean;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-layout-layout\">\n        <h3><code>layout</code> <small>function</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A force-directed layout on typed arrays (<code>x</code>, <code>y</code>): Barnes-Hut repulsion, links, centre gravity. It cools over <code>ticks</code> steps, then rests and stops calling <code>busy()</code> so the engine settles. DOM-free.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>layout(engine: Engine, o: LayoutOptions): Layout</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>engine</code></dt><dd><code>Engine</code></dd></div><div><dt><code>o</code></dt><dd><code><a href=\"#api-fzlt-core-layout-LayoutOptions\">LayoutOptions</a></code></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-layout-Layout\">Layout</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function layout(engine: Engine, o: LayoutOptions): {\n    x: Float64Array&lt;ArrayBuffer&gt;;\n    y: Float64Array&lt;ArrayBuffer&gt;;\n    vx: Float64Array&lt;ArrayBuffer&gt;;\n    vy: Float64Array&lt;ArrayBuffer&gt;;\n    /** Nodes and links added so far. */\n    readonly size: number;\n    readonly links: number;\n    /** How warm the run is: 1 just heated, 0 at rest. */\n    readonly alpha: number;\n    /** At rest: no ticks, no busy(); the engine can settle. */\n    readonly resting: boolean;\n    /** Add a node at (x, y) (default: a sunflower spiral round the centre); its index, or -1 when full. */\n    add(ax?: number, ay?: number): number;\n    /** Link nodes a and b at rest length `len` (default `distance`); its index, or -1 when full. */\n    link(a: number, b: number, len?: number): number;\n    /** Hold node i at (x, y) (a drag): the rest flows round it. */\n    pin(i: number, ax: number, ay: number): void;\n    /** Let node i go. */\n    free(i: number): void;\n    /** Warm the run up to at least `alpha` (default 1) and wake the engine. */\n    heat(alpha?: number): void;\n    /** The node nearest (ax, ay) within `r` px, or -1. */\n    nearest(ax: number, ay: number, r?: number): number;\n    /** The box round every node, [left, top, right, bottom], into `out` (no allocation). */\n    bounds&lt;T extends {\n        [i: number]: number;\n    }&gt;(out: T): T;\n    step(e: Engine): void;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-layout-Layout\">\n        <h3><code>Layout</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>What <code>layout</code> returns: <code>x</code>, <code>y</code>, <code>add</code>, <code>link</code>, <code>pin</code>, <code>free</code>, <code>heat</code>, <code>nearest</code>, <code>bounds</code>.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Layout = ReturnType&lt;typeof layout&gt;;</code></pre>\n      </article>\n    </div>"
+   "kind": "api",
+   "note": "Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.",
+   "toc": [
+    {
+     "href": "#api-fzlt-core-layout-LayoutOptions",
+     "names": "LayoutOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-layout-layout",
+     "names": "layout",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-layout-Layout",
+     "names": "Layout",
+     "what": "type"
+    }
+   ],
+   "items": [
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-layout-LayoutOptions",
+     "level": "h3",
+     "names": "LayoutOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Options for <code>layout</code>: capacity, forces, cooling and motion.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface LayoutOptions {\n    /** Nodes (fixed: the arrays never grow). */\n    cap: number;\n    /** Links (default 2 × cap). */\n    links?: number;\n    /** Repulsion between nodes, px² per tick (default 30). */\n    charge?: number;\n    /** A link's rest length in px (default 40; `link` takes its own). */\n    distance?: number;\n    /** Pull toward the centre, per tick (default 0.04). */\n    gravity?: number;\n    /** The centre gravity pulls toward, x (default 0). */\n    cx?: number;\n    /** The centre gravity pulls toward, y (default 0). */\n    cy?: number;\n    /** Barnes-Hut accuracy: a cell of size s at distance d counts as one mass when s / d < theta (default 0.9). */\n    theta?: number;\n    /** Velocity kept per tick (default 0.6). */\n    keep?: number;\n    /** Steps a full run cools over (default 300: five seconds at 60 Hz). */\n    ticks?: number;\n    /** At rest once no node moves more than this many px in a step (default 0.02). */\n    still?: number;\n    /** Animate (default: yes, unless the visitor prefers reduced motion; then each run lands at once). */\n    motion?: boolean;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-layout-layout",
+     "level": "h3",
+     "names": "layout",
+     "what": "function",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A force-directed layout on typed arrays (<code>x</code>, <code>y</code>): Barnes-Hut repulsion, links, centre gravity. It cools over <code>ticks</code> steps, then rests and stops calling <code>busy()</code> so the engine settles. DOM-free.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "layout(engine: Engine, o: LayoutOptions): Layout",
+       "params": [
+        {
+         "name": "engine",
+         "type": "Engine",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o",
+         "type": "<a href=\"#api-fzlt-core-layout-LayoutOptions\">LayoutOptions</a>",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-layout-Layout\">Layout</a>"
+      }
+     ],
+     "code": "export declare function layout(engine: Engine, o: LayoutOptions): {\n    x: Float64Array<ArrayBuffer>;\n    y: Float64Array<ArrayBuffer>;\n    vx: Float64Array<ArrayBuffer>;\n    vy: Float64Array<ArrayBuffer>;\n    /** Nodes and links added so far. */\n    readonly size: number;\n    readonly links: number;\n    /** How warm the run is: 1 just heated, 0 at rest. */\n    readonly alpha: number;\n    /** At rest: no ticks, no busy(); the engine can settle. */\n    readonly resting: boolean;\n    /** Add a node at (x, y) (default: a sunflower spiral round the centre); its index, or -1 when full. */\n    add(ax?: number, ay?: number): number;\n    /** Link nodes a and b at rest length `len` (default `distance`); its index, or -1 when full. */\n    link(a: number, b: number, len?: number): number;\n    /** Hold node i at (x, y) (a drag): the rest flows round it. */\n    pin(i: number, ax: number, ay: number): void;\n    /** Let node i go. */\n    free(i: number): void;\n    /** Warm the run up to at least `alpha` (default 1) and wake the engine. */\n    heat(alpha?: number): void;\n    /** The node nearest (ax, ay) within `r` px, or -1. */\n    nearest(ax: number, ay: number, r?: number): number;\n    /** The box round every node, [left, top, right, bottom], into `out` (no allocation). */\n    bounds<T extends {\n        [i: number]: number;\n    }>(out: T): T;\n    step(e: Engine): void;\n};",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-layout-Layout",
+     "level": "h3",
+     "names": "Layout",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "What <code>layout</code> returns: <code>x</code>, <code>y</code>, <code>add</code>, <code>link</code>, <code>pin</code>, <code>free</code>, <code>heat</code>, <code>nearest</code>, <code>bounds</code>.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Layout = ReturnType<typeof layout>;",
+     "folded": false
+    }
+   ]
   },
   {
-   "kind": "html",
-   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/css-clock.html\"><small>← PREVIOUS</small><code>@fzlt/core/css-clock</code></a><a class=\"bp-step next\" href=\"/bricks/view-canvas.html\"><small>NEXT →</small><code>@fzlt/core/view-canvas</code></a></nav>"
+   "kind": "steps",
+   "steps": [
+    {
+     "href": "/bricks/css-clock.html",
+     "label": "@fzlt/core/css-clock",
+     "dir": "prev"
+    },
+    {
+     "href": "/bricks/view-canvas.html",
+     "label": "@fzlt/core/view-canvas",
+     "dir": "next"
+    }
+   ]
   }
  ]
 }

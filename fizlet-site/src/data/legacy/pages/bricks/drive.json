@@ -34,12 +34,47 @@
   "current": "@fzlt/core/drive"
  },
  "tone": "var(--k-advance)",
- "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">DRIVE</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"experimental\" style=\"--tilt:3deg;--dx:1px;--dy:2px\" title=\"In the package to try; no promise yet.\">ALPHA</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/drive</code></h1>\n        <p class=\"lead\">Vehicle feel on a heightfield, for diorama racing and trail games. One small, fixed-step model for two wheels (a dirt bike) and four (a Jeep, a truck, a buggy, a car): throttle, brake (and reverse), steering that tightens less at speed, grip and drift (the tyres hold a sideways slide only up to <code>grip</code>, a handbrake input lets the rear go), a spring and damper per wheel so the body pitches, rolls, squats and dives with the ground under each wheel, airtime off a lip, and a landing that is judged: a bike that lands nose or tail too far off the slope, or a car that rolls past <code>crashRoll</code>, crashes. - The ground is anything with <code>sample(x, z, out)</code> (out = [height, nx, ny, nz], returns a surface kind): <code>@fzlt/core/terrain</code> is one, and its painted kinds can change the grip (<code>surfaces</code>). - Deterministic: the same inputs from the same start give the same path, bit for bit. The model uses only + − × ÷, square roots and its own polynomial sine and arctangent (the builtins may differ in the last bit between browsers), so two players replaying the same inputs agree. - Suspension: each wheel samples the ground on its own and has its own spring (<code>stiffness</code> or <code>hz</code>, <code>progressive</code>), damper (<code>damping</code> compressing, <code>rebound</code> extending), <code>travel</code> and a <code>bump</code> stop; the body heaves, pitches and rolls on the sum of the spring loads with its own <code>inertia</code>, so a big drop compresses the springs, rebounds and settles (a long-travel buggy: <code>travel</code> 0.5 or more, soft and progressive, more rebound than compression damping). - Outputs for drawing: <code>pos</code> and <code>rot</code> (diorama's order: [roll, yaw, pitch]) for the body, per wheel <code>comp</code> (how far its spring is pushed in) and <code>press</code> (the same, 0..1 of the travel), <code>spin</code> (radians) and <code>contact</code>, <code>bodyPitch</code> and <code>bodyRoll</code> (the lean on the springs), <code>stroke</code> (the most any spring is in: 1 is the bump stop), the front wheels' <code>steerAngle</code>, and <code>dust</code> (0..1: how hard the tyres throw dirt, spray or sand) for an emitter. - Drift: the handbrake input lets the rear go (the grip drops to <code>drift</code>, the tail swings out by <code>swing</code>, the slide is held under <code>slide</code> radians and counter-steer catches it; letting go hands <code>recover</code> of the sideways speed back as forward speed). <code>drift</code> (0..1) says how hard it is drifting right now, <code>slide</code> the body's angle to its travel, <code>chain</code> the drift score so far (∫ drift dt); a chain that ends banks as <code>drive:drift</code> (v: its score; b: 1 when a crash or a spin-out broke it). <code>spinOut(rate, secs)</code> spins it round with no control for a moment. - Contact between vehicles: <code>touch(a, b, opts)</code> (or <code>touchAll(list, opts)</code>, every pair in order) pushes two hulls apart (a box from <code>hull</code> [half length, half width], or a circle: one radius) by their <code>mass</code> and bounces their velocities along the contact normal; <code>onHit(a, b, hit)</code> gets the impulse in <code>hit</code> (<code>touchHit</code>: [impulse, nx, nz, depth, x, z], the normal from a to b), so a game can spin out a drifting car it rams. - <code>chase(cam, target, opts, dt)</code> eases a diorama camera behind and above anything with <code>pos</code> and <code>yaw</code> (cosmetic: it uses the builtin maths; pass <code>snap</code> for reduced motion). - Rollback: <code>state</code> is every byte the model carries from step to step (one buffer); <code>save(dst)</code> and <code>load(src)</code> copy it out and back, so a game can rewind and replay a car bit for bit. Zero allocation per step, also with several vehicles in one process (typed arrays; locals; one class for every vehicle, its model in module functions, so a loop over cars keeps one call target). Speeds are world units per second, angles radians.</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/drive.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
- "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/drive</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/drive\">5,262 B</b><small>5.1 KB of a 5.2 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.991\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
- "rest": [
+ "head": {
+  "tag": "DRIVE",
+  "version": "0.27.0",
+  "sticker": {
+   "flag": "experimental",
+   "title": "In the package to try; no promise yet.",
+   "label": "ALPHA",
+   "cls": "brick-sticker",
+   "style": "--tilt:3deg;--dx:1px;--dy:2px"
+  },
+  "name": "@fzlt/core/drive",
+  "lead": "Vehicle feel on a heightfield, for diorama racing and trail games. One small, fixed-step model for two wheels (a dirt bike) and four (a Jeep, a truck, a buggy, a car): throttle, brake (and reverse), steering that tightens less at speed, grip and drift (the tyres hold a sideways slide only up to <code>grip</code>, a handbrake input lets the rear go), a spring and damper per wheel so the body pitches, rolls, squats and dives with the ground under each wheel, airtime off a lip, and a landing that is judged: a bike that lands nose or tail too far off the slope, or a car that rolls past <code>crashRoll</code>, crashes. - The ground is anything with <code>sample(x, z, out)</code> (out = [height, nx, ny, nz], returns a surface kind): <code>@fzlt/core/terrain</code> is one, and its painted kinds can change the grip (<code>surfaces</code>). - Deterministic: the same inputs from the same start give the same path, bit for bit. The model uses only + − × ÷, square roots and its own polynomial sine and arctangent (the builtins may differ in the last bit between browsers), so two players replaying the same inputs agree. - Suspension: each wheel samples the ground on its own and has its own spring (<code>stiffness</code> or <code>hz</code>, <code>progressive</code>), damper (<code>damping</code> compressing, <code>rebound</code> extending), <code>travel</code> and a <code>bump</code> stop; the body heaves, pitches and rolls on the sum of the spring loads with its own <code>inertia</code>, so a big drop compresses the springs, rebounds and settles (a long-travel buggy: <code>travel</code> 0.5 or more, soft and progressive, more rebound than compression damping). - Outputs for drawing: <code>pos</code> and <code>rot</code> (diorama's order: [roll, yaw, pitch]) for the body, per wheel <code>comp</code> (how far its spring is pushed in) and <code>press</code> (the same, 0..1 of the travel), <code>spin</code> (radians) and <code>contact</code>, <code>bodyPitch</code> and <code>bodyRoll</code> (the lean on the springs), <code>stroke</code> (the most any spring is in: 1 is the bump stop), the front wheels' <code>steerAngle</code>, and <code>dust</code> (0..1: how hard the tyres throw dirt, spray or sand) for an emitter. - Drift: the handbrake input lets the rear go (the grip drops to <code>drift</code>, the tail swings out by <code>swing</code>, the slide is held under <code>slide</code> radians and counter-steer catches it; letting go hands <code>recover</code> of the sideways speed back as forward speed). <code>drift</code> (0..1) says how hard it is drifting right now, <code>slide</code> the body's angle to its travel, <code>chain</code> the drift score so far (∫ drift dt); a chain that ends banks as <code>drive:drift</code> (v: its score; b: 1 when a crash or a spin-out broke it). <code>spinOut(rate, secs)</code> spins it round with no control for a moment. - Contact between vehicles: <code>touch(a, b, opts)</code> (or <code>touchAll(list, opts)</code>, every pair in order) pushes two hulls apart (a box from <code>hull</code> [half length, half width], or a circle: one radius) by their <code>mass</code> and bounces their velocities along the contact normal; <code>onHit(a, b, hit)</code> gets the impulse in <code>hit</code> (<code>touchHit</code>: [impulse, nx, nz, depth, x, z], the normal from a to b), so a game can spin out a drifting car it rams. - <code>chase(cam, target, opts, dt)</code> eases a diorama camera behind and above anything with <code>pos</code> and <code>yaw</code> (cosmetic: it uses the builtin maths; pass <code>snap</code> for reduced motion). - Rollback: <code>state</code> is every byte the model carries from step to step (one buffer); <code>save(dst)</code> and <code>load(src)</code> copy it out and back, so a game can rewind and replay a car bit for bit. Zero allocation per step, also with several vehicles in one process (typed arrays; locals; one class for every vehicle, its model in module functions, so a loop over cars keeps one call target). Speeds are world units per second, angles radians.",
+  "keys": [
+   {
+    "href": "#api",
+    "label": "API",
+    "tone": "sys",
+    "arcade": true,
+    "icon": "code"
+   },
+   {
+    "href": "https://github.com/coded-dot-design/fizlet/blob/main/src/drive.ts",
+    "label": "Source ↗",
+    "tone": "cmd",
+    "arcade": true,
+    "icon": "github"
+   }
+  ]
+ },
+ "sizes": [
   {
-   "kind": "html",
-   "html": "<div class=\"bp-card\"></div>"
+   "name": "@fzlt/core/drive",
+   "bytes": "5,262 B",
+   "budget": "5.1 KB of a 5.2 KB budget",
+   "v": "0.991"
+  }
+ ],
+ "sizesNote": "Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.",
+ "blocks": [
+  {
+   "kind": "toy"
   },
   {
    "kind": "html",
@@ -65,16 +100,372 @@
    ]
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>IN SHORT</b></span></div><pre tabindex=\"0\" class=\"code\"><code>const v = drive(t, { kind: &quot;bike&quot; }); // or &quot;car&quot;: four springs, rollovers\nv.reset(-9, 8, 0);\ne.add({ step(_, dt) { v.set(throttle, brake, steer, drift); if (v.step(dt)) e.busy(); chase(d.cam, v, follow, dt); } });\ncar.pos.set(v.pos); car.rot.set(v.rot); // body pose; v.comp, v.spin, v.steerAngle for the wheels\n// long travel: drive(t, { travel: 0.6, stiffness: 70, progressive: 1.2, rebound: 0.85 }); v.press[i], v.bodyRoll\nif (v.crashed) v.reset(x, z, yaw); // a nose-down landing; v.dust scales an emitter\nscore += v.drift * dt; // handbrake drifts (drift input 1); drive:drift banks each chain\ntouchAll(cars, { onHit: (a, b) =&gt; b.drift &gt; 0.3 &amp;&amp; b.spinOut(7, 1.2) }); // ram a drifter: it spins</code></pre></div>"
+   "kind": "code",
+   "label": "<b>IN SHORT</b>",
+   "code": "const v = drive(t, { kind: \"bike\" }); // or \"car\": four springs, rollovers\nv.reset(-9, 8, 0);\ne.add({ step(_, dt) { v.set(throttle, brake, steer, drift); if (v.step(dt)) e.busy(); chase(d.cam, v, follow, dt); } });\ncar.pos.set(v.pos); car.rot.set(v.rot); // body pose; v.comp, v.spin, v.steerAngle for the wheels\n// long travel: drive(t, { travel: 0.6, stiffness: 70, progressive: 1.2, rebound: 0.85 }); v.press[i], v.bodyRoll\nif (v.crashed) v.reset(x, z, yaw); // a nose-down landing; v.dust scales an emitter\nscore += v.drift * dt; // handbrake drifts (drift input 1); drive:drift banks each chain\ntouchAll(cars, { onHit: (a, b) => b.drift > 0.3 && b.spinOut(7, 1.2) }); // ram a drifter: it spins",
+   "wrap": false,
+   "copy": false,
+   "cls": "panel code-card bp-snippet"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-drive-DriveGround\"><code>DriveGround</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-drive-DriveEvents\"><code>DriveEvents</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-drive-DriveOptions\"><code>DriveOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-drive-Drive\"><code>Drive</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-drive-drive\"><code>drive</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-drive-touchHit\"><code>touchHit</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-drive-TouchOptions\"><code>TouchOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-drive-touch\"><code>touch</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-drive-touchAll\"><code>touchAll</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-drive-ChaseOptions\"><code>ChaseOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-drive-chase\"><code>chase</code></a><small>function</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-drive-DriveGround\">\n        <h3><code>DriveGround</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>What drive needs from the ground: height and normal under (x, z); the return is a surface kind.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface DriveGround {\n    sample(x: number, z: number, out: {\n        [i: number]: number;\n    }): number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-drive-DriveEvents\">\n        <h3><code>DriveEvents</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Something that takes events: an engine's ring (<code>engine.events</code>).</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface DriveEvents {\n    emit(type: string, a?: number, b?: number, x?: number, y?: number, v?: number): unknown;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-drive-DriveOptions\">\n        <h3><code>DriveOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Options for <code>drive()</code>: the vehicle's shape, its feel and its limits. Defaults by <code>kind</code>.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface DriveOptions {\n    /** &quot;car&quot; (four wheels, default) or &quot;bike&quot; (two in line, leans into turns, rear-wheel drive). */\n    kind?: &quot;car&quot; | &quot;bike&quot;;\n    /** Wheel offsets from the body's centre, [forward, right, …] (car: ±0.75 × ±0.5; bike: ±0.6 × 0). */\n    wheels?: ArrayLike&lt;number&gt;;\n    /** Wheel radius (car 0.28, bike 0.32). */\n    radius?: number;\n    /** Spring length at full stretch, from the body's origin to the wheel centre (car 0.3, bike 0.35). */\n    rest?: number;\n    /** Spring travel before the bump stop (car 0.24, bike 0.3; a long-travel buggy or trophy truck 0.5 or more). */\n    travel?: number;\n    /** Bounce frequency of the springs, Hz (default 2.2). */\n    hz?: number;\n    /** The spring rate instead of `hz`: the whole vehicle's, per unit mass, 1/s² (the sag is gravity / stiffness;\n     *  default (2π · 2.2)² ≈ 191). */\n    stiffness?: number;\n    /** Progressive springs: the rate grows by this share times (compression / travel)² (default 0: linear; 1 is\n     *  twice as stiff at full travel, soft over small bumps and firm on a big landing). */\n    progressive?: number;\n    /** Damping ratio of the springs while they compress (default 0.75). */\n    damping?: number;\n    /** Damping ratio while they extend (default `damping`): more holds the body down after a landing instead of a bounce. */\n    rebound?: number;\n    /** The bump stop past `travel`: its rate as a multiple of the spring's (default 10). */\n    bump?: number;\n    /** Body inertia for pitch and roll, a multiple of the springs' match (same bounce as heave): one number, or\n     *  [pitch, roll] (default 1; more pitches and rolls slower and further). */\n    inertia?: number | ArrayLike&lt;number&gt;;\n    /** How fast a wheel off the ground drops to full droop, units / s (default Infinity: at once; drawing only). */\n    droop?: number;\n    /** Gravity, units / s² (default 20). */\n    gravity?: number;\n    /** Acceleration at full throttle from a standstill (car 10, bike 12). */\n    accel?: number;\n    /** Top speed on the flat (car 16, bike 18): throttle's pull fades to 0 there. */\n    top?: number;\n    /** Braking deceleration (default 22). */\n    brake?: number;\n    /** Top speed backwards (brake held at a stop; default 5). */\n    reverse?: number;\n    /** Rolling drag with no pedal, units / s² (default 2.5). */\n    coast?: number;\n    /** Sideways grip, in g (car 1, bike 1.15): the most sideways acceleration the tyres hold. */\n    grip?: number;\n    /** Rear grip left at the full handbrake / drift input (default 0.4). */\n    drift?: number;\n    /** How far the tail swings out on the handbrake: the turn tightens by 1 + swing (default 1). */\n    swing?: number;\n    /** Most slide angle (body to travel) a drift holds before the swing stops, radians (default 0.8). */\n    slide?: number;\n    /** Share of the sideways speed the tyres hand back as forward speed coming out of a drift (default 0.35). */\n    recover?: number;\n    /** For `touch`: mass (car 1, bike 0.5). */\n    mass?: number;\n    /** For `touch`: the hull, [half length, half width] (a box; default the wheels plus their radius), or one radius (a circle). */\n    hull?: number | ArrayLike&lt;number&gt;;\n    /** Most steering, as a wheel angle (car 0.6, bike 0.7). */\n    steer?: number;\n    /** Speed at which steering is down to half (default 12). */\n    steerFall?: number;\n    /** Centre of mass height over the springs: squat, dive and body roll (car 0.35, bike 0.3). */\n    cg?: number;\n    /** Bike: most lean into a turn (default 0.9). */\n    lean?: number;\n    /** Pitch control in the air, rad / s² at full throttle (nose up) or brake (nose down) (car 2, bike 6). */\n    airPitch?: number;\n    /** A landing (or a moment on the ground) this far off the slope's pitch crashes (car 1, bike 0.65). */\n    crashPitch?: number;\n    /** Off the slope's roll by this much crashes: a rollover (car 1.1; bikes do not check). */\n    crashRoll?: number;\n    /** Landing faster than this downward crashes (default 30). */\n    crashDrop?: number;\n    /** Grip multiplier per ground kind: surfaces[k] for kind k (default 1). */\n    surfaces?: ArrayLike&lt;number&gt;;\n    /** Steps per `step()` (default 2: the springs stay stable at 60 Hz). */\n    substeps?: number;\n    /** An event ring: `drive:air`, `drive:land` (v: how far off the slope), `drive:crash`, `drive:drift`\n     *  (v: the chain's score; b: 1 when broken), with `id` as a. */\n    events?: DriveEvents;\n    /** The id events carry (default 0). */\n    id?: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-drive-Drive\">\n        <h3><code>Drive</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>What <code>drive</code> returns.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Drive = Ride;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-drive-drive\">\n        <h3><code>drive</code> <small>function</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A vehicle on <code>ground</code>: set <code>input</code> (or <code>set</code>), <code>step(dt)</code> from the engine's step, draw from <code>pos</code>, <code>rot</code>, <code>comp</code>.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>drive(ground: DriveGround, o?: DriveOptions): Drive</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>ground</code></dt><dd><code><a href=\"#api-fzlt-core-drive-DriveGround\">DriveGround</a></code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-drive-DriveOptions\">DriveOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-drive-Drive\">Drive</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function drive(ground: DriveGround, o?: DriveOptions): Drive;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-drive-touchHit\">\n        <h3><code>touchHit</code> <small>const</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p><code>touch</code>'s last contact: [impulse, normal x, normal z (from a to b), depth, contact x, contact z].</p>\n        <dl class=\"bp-params\"><div><dt>Type</dt><dd><code>Float64Array&lt;ArrayBuffer&gt;</code></dd></div></dl>\n        <pre tabindex=\"0\" class=\"code\"><code>export declare const touchHit: Float64Array&lt;ArrayBuffer&gt;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-drive-TouchOptions\">\n        <h3><code>TouchOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Options for <code>touch</code> and <code>touchAll</code>.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface TouchOptions {\n    /** Bounce along the normal, 0 (dead) .. 1 (elastic) (default 0.3). */\n    bounce?: number;\n    /** Two bodies further apart than this in height pass (one in the air over the other; default 1). */\n    height?: number;\n    /** Called on each contact, after the push: `hit` is `touchHit`. */\n    onHit?: (a: Drive, b: Drive, hit: Float64Array) =&gt; void;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-drive-touch\">\n        <h3><code>touch</code> <small>function</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Push vehicles <code>a</code> and <code>b</code> apart if their hulls overlap (box against box, box against circle, circle against circle, on the ground plane) by their masses, and bounce their velocities along the contact normal. Deterministic (no builtin trig: the headings' cosines come from the model). True on a contact.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>touch(a: Drive, b: Drive, o?: TouchOptions): boolean</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>a</code></dt><dd><code><a href=\"#api-fzlt-core-drive-Drive\">Drive</a></code></dd></div><div><dt><code>b</code></dt><dd><code><a href=\"#api-fzlt-core-drive-Drive\">Drive</a></code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-drive-TouchOptions\">TouchOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code>boolean</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function touch(a: Drive, b: Drive, o?: TouchOptions): boolean;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-drive-touchAll\">\n        <h3><code>touchAll</code> <small>function</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p><code>touch</code> every pair of <code>list</code>, in order (i &lt; j: the same order on every machine); returns the contacts.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>touchAll(list: ArrayLike&lt;Drive&gt;, o?: TouchOptions): number</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>list</code></dt><dd><code>ArrayLike&lt;<a href=\"#api-fzlt-core-drive-Drive\">Drive</a>&gt;</code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-drive-TouchOptions\">TouchOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code>number</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function touchAll(list: ArrayLike&lt;Drive&gt;, o?: TouchOptions): number;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-drive-ChaseOptions\">\n        <h3><code>ChaseOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Options for <code>chase</code>: where the camera sits behind its target and how fast it follows.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface ChaseOptions {\n    /** Distance from the target (default 9). */\n    dist?: number;\n    /** Look-down angle (default 0.45). */\n    pitch?: number;\n    /** Aim this far over the target (default 0.6). */\n    lift?: number;\n    /** Aim ahead by this many seconds of the target's velocity (default 0.25; needs `vel`). */\n    ahead?: number;\n    /** Turn from straight behind (radians; default 0). */\n    side?: number;\n    /** Follow rate, 1/s (default 4): higher is tighter. */\n    rate?: number;\n    /** Turn rate, 1/s (default 2.5). */\n    turn?: number;\n    /** Jump straight there (reduced motion, a respawn). */\n    snap?: boolean;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-drive-chase\">\n        <h3><code>chase</code> <small>function</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Ease diorama camera <code>cam</code> behind and above <code>target</code> (<code>pos</code> [x, y, z], <code>yaw</code>, optional <code>vel</code>) over dt seconds; returns true while it still moves (settle-friendly).</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>chase(cam: { yaw: number; pitch: number; dist: number; tx: number; ty: number; tz: number; }, target: { pos: ArrayLike&lt;number&gt;; yaw: number; vel?: ArrayLike&lt;number&gt;; }, o?: ChaseOptions, dt?: number): boolean</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>cam</code></dt><dd><code>{ yaw: number; pitch: number; dist: number; tx: number; ty: number; tz: number; }</code></dd></div><div><dt><code>target</code></dt><dd><code>{ pos: ArrayLike&lt;number&gt;; yaw: number; vel?: ArrayLike&lt;number&gt;; }</code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-drive-ChaseOptions\">ChaseOptions</a></code> <small>optional</small></dd></div><div><dt><code>dt?</code></dt><dd><code>number</code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code>boolean</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function chase(cam: {\n    yaw: number;\n    pitch: number;\n    dist: number;\n    tx: number;\n    ty: number;\n    tz: number;\n}, target: {\n    pos: ArrayLike&lt;number&gt;;\n    yaw: number;\n    vel?: ArrayLike&lt;number&gt;;\n}, o?: ChaseOptions, dt?: number): boolean;</code></pre></details>\n      </article>\n    </div>"
+   "kind": "api",
+   "note": "Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.",
+   "toc": [
+    {
+     "href": "#api-fzlt-core-drive-DriveGround",
+     "names": "DriveGround",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-drive-DriveEvents",
+     "names": "DriveEvents",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-drive-DriveOptions",
+     "names": "DriveOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-drive-Drive",
+     "names": "Drive",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-drive-drive",
+     "names": "drive",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-drive-touchHit",
+     "names": "touchHit",
+     "what": "const"
+    },
+    {
+     "href": "#api-fzlt-core-drive-TouchOptions",
+     "names": "TouchOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-drive-touch",
+     "names": "touch",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-drive-touchAll",
+     "names": "touchAll",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-drive-ChaseOptions",
+     "names": "ChaseOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-drive-chase",
+     "names": "chase",
+     "what": "function"
+    }
+   ],
+   "items": [
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-drive-DriveGround",
+     "level": "h3",
+     "names": "DriveGround",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "What drive needs from the ground: height and normal under (x, z); the return is a surface kind.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface DriveGround {\n    sample(x: number, z: number, out: {\n        [i: number]: number;\n    }): number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-drive-DriveEvents",
+     "level": "h3",
+     "names": "DriveEvents",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Something that takes events: an engine's ring (<code>engine.events</code>).",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface DriveEvents {\n    emit(type: string, a?: number, b?: number, x?: number, y?: number, v?: number): unknown;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-drive-DriveOptions",
+     "level": "h3",
+     "names": "DriveOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Options for <code>drive()</code>: the vehicle's shape, its feel and its limits. Defaults by <code>kind</code>.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface DriveOptions {\n    /** \"car\" (four wheels, default) or \"bike\" (two in line, leans into turns, rear-wheel drive). */\n    kind?: \"car\" | \"bike\";\n    /** Wheel offsets from the body's centre, [forward, right, …] (car: ±0.75 × ±0.5; bike: ±0.6 × 0). */\n    wheels?: ArrayLike<number>;\n    /** Wheel radius (car 0.28, bike 0.32). */\n    radius?: number;\n    /** Spring length at full stretch, from the body's origin to the wheel centre (car 0.3, bike 0.35). */\n    rest?: number;\n    /** Spring travel before the bump stop (car 0.24, bike 0.3; a long-travel buggy or trophy truck 0.5 or more). */\n    travel?: number;\n    /** Bounce frequency of the springs, Hz (default 2.2). */\n    hz?: number;\n    /** The spring rate instead of `hz`: the whole vehicle's, per unit mass, 1/s² (the sag is gravity / stiffness;\n     *  default (2π · 2.2)² ≈ 191). */\n    stiffness?: number;\n    /** Progressive springs: the rate grows by this share times (compression / travel)² (default 0: linear; 1 is\n     *  twice as stiff at full travel, soft over small bumps and firm on a big landing). */\n    progressive?: number;\n    /** Damping ratio of the springs while they compress (default 0.75). */\n    damping?: number;\n    /** Damping ratio while they extend (default `damping`): more holds the body down after a landing instead of a bounce. */\n    rebound?: number;\n    /** The bump stop past `travel`: its rate as a multiple of the spring's (default 10). */\n    bump?: number;\n    /** Body inertia for pitch and roll, a multiple of the springs' match (same bounce as heave): one number, or\n     *  [pitch, roll] (default 1; more pitches and rolls slower and further). */\n    inertia?: number | ArrayLike<number>;\n    /** How fast a wheel off the ground drops to full droop, units / s (default Infinity: at once; drawing only). */\n    droop?: number;\n    /** Gravity, units / s² (default 20). */\n    gravity?: number;\n    /** Acceleration at full throttle from a standstill (car 10, bike 12). */\n    accel?: number;\n    /** Top speed on the flat (car 16, bike 18): throttle's pull fades to 0 there. */\n    top?: number;\n    /** Braking deceleration (default 22). */\n    brake?: number;\n    /** Top speed backwards (brake held at a stop; default 5). */\n    reverse?: number;\n    /** Rolling drag with no pedal, units / s² (default 2.5). */\n    coast?: number;\n    /** Sideways grip, in g (car 1, bike 1.15): the most sideways acceleration the tyres hold. */\n    grip?: number;\n    /** Rear grip left at the full handbrake / drift input (default 0.4). */\n    drift?: number;\n    /** How far the tail swings out on the handbrake: the turn tightens by 1 + swing (default 1). */\n    swing?: number;\n    /** Most slide angle (body to travel) a drift holds before the swing stops, radians (default 0.8). */\n    slide?: number;\n    /** Share of the sideways speed the tyres hand back as forward speed coming out of a drift (default 0.35). */\n    recover?: number;\n    /** For `touch`: mass (car 1, bike 0.5). */\n    mass?: number;\n    /** For `touch`: the hull, [half length, half width] (a box; default the wheels plus their radius), or one radius (a circle). */\n    hull?: number | ArrayLike<number>;\n    /** Most steering, as a wheel angle (car 0.6, bike 0.7). */\n    steer?: number;\n    /** Speed at which steering is down to half (default 12). */\n    steerFall?: number;\n    /** Centre of mass height over the springs: squat, dive and body roll (car 0.35, bike 0.3). */\n    cg?: number;\n    /** Bike: most lean into a turn (default 0.9). */\n    lean?: number;\n    /** Pitch control in the air, rad / s² at full throttle (nose up) or brake (nose down) (car 2, bike 6). */\n    airPitch?: number;\n    /** A landing (or a moment on the ground) this far off the slope's pitch crashes (car 1, bike 0.65). */\n    crashPitch?: number;\n    /** Off the slope's roll by this much crashes: a rollover (car 1.1; bikes do not check). */\n    crashRoll?: number;\n    /** Landing faster than this downward crashes (default 30). */\n    crashDrop?: number;\n    /** Grip multiplier per ground kind: surfaces[k] for kind k (default 1). */\n    surfaces?: ArrayLike<number>;\n    /** Steps per `step()` (default 2: the springs stay stable at 60 Hz). */\n    substeps?: number;\n    /** An event ring: `drive:air`, `drive:land` (v: how far off the slope), `drive:crash`, `drive:drift`\n     *  (v: the chain's score; b: 1 when broken), with `id` as a. */\n    events?: DriveEvents;\n    /** The id events carry (default 0). */\n    id?: number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-drive-Drive",
+     "level": "h3",
+     "names": "Drive",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "What <code>drive</code> returns.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Drive = Ride;",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-drive-drive",
+     "level": "h3",
+     "names": "drive",
+     "what": "function",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A vehicle on <code>ground</code>: set <code>input</code> (or <code>set</code>), <code>step(dt)</code> from the engine's step, draw from <code>pos</code>, <code>rot</code>, <code>comp</code>.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "drive(ground: DriveGround, o?: DriveOptions): Drive",
+       "params": [
+        {
+         "name": "ground",
+         "type": "<a href=\"#api-fzlt-core-drive-DriveGround\">DriveGround</a>",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-drive-DriveOptions\">DriveOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-drive-Drive\">Drive</a>"
+      }
+     ],
+     "code": "export declare function drive(ground: DriveGround, o?: DriveOptions): Drive;",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-drive-touchHit",
+     "level": "h3",
+     "names": "touchHit",
+     "what": "const",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "<code>touch</code>'s last contact: [impulse, normal x, normal z (from a to b), depth, contact x, contact z].",
+     "tags": [],
+     "sigs": [],
+     "type": "Float64Array&lt;ArrayBuffer&gt;",
+     "code": "export declare const touchHit: Float64Array<ArrayBuffer>;",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-drive-TouchOptions",
+     "level": "h3",
+     "names": "TouchOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Options for <code>touch</code> and <code>touchAll</code>.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface TouchOptions {\n    /** Bounce along the normal, 0 (dead) .. 1 (elastic) (default 0.3). */\n    bounce?: number;\n    /** Two bodies further apart than this in height pass (one in the air over the other; default 1). */\n    height?: number;\n    /** Called on each contact, after the push: `hit` is `touchHit`. */\n    onHit?: (a: Drive, b: Drive, hit: Float64Array) => void;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-drive-touch",
+     "level": "h3",
+     "names": "touch",
+     "what": "function",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Push vehicles <code>a</code> and <code>b</code> apart if their hulls overlap (box against box, box against circle, circle against circle, on the ground plane) by their masses, and bounce their velocities along the contact normal. Deterministic (no builtin trig: the headings' cosines come from the model). True on a contact.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "touch(a: Drive, b: Drive, o?: TouchOptions): boolean",
+       "params": [
+        {
+         "name": "a",
+         "type": "<a href=\"#api-fzlt-core-drive-Drive\">Drive</a>",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "b",
+         "type": "<a href=\"#api-fzlt-core-drive-Drive\">Drive</a>",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-drive-TouchOptions\">TouchOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "boolean"
+      }
+     ],
+     "code": "export declare function touch(a: Drive, b: Drive, o?: TouchOptions): boolean;",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-drive-touchAll",
+     "level": "h3",
+     "names": "touchAll",
+     "what": "function",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "<code>touch</code> every pair of <code>list</code>, in order (i &lt; j: the same order on every machine); returns the contacts.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "touchAll(list: ArrayLike<Drive>, o?: TouchOptions): number",
+       "params": [
+        {
+         "name": "list",
+         "type": "ArrayLike&lt;<a href=\"#api-fzlt-core-drive-Drive\">Drive</a>&gt;",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-drive-TouchOptions\">TouchOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "number"
+      }
+     ],
+     "code": "export declare function touchAll(list: ArrayLike<Drive>, o?: TouchOptions): number;",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-drive-ChaseOptions",
+     "level": "h3",
+     "names": "ChaseOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Options for <code>chase</code>: where the camera sits behind its target and how fast it follows.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface ChaseOptions {\n    /** Distance from the target (default 9). */\n    dist?: number;\n    /** Look-down angle (default 0.45). */\n    pitch?: number;\n    /** Aim this far over the target (default 0.6). */\n    lift?: number;\n    /** Aim ahead by this many seconds of the target's velocity (default 0.25; needs `vel`). */\n    ahead?: number;\n    /** Turn from straight behind (radians; default 0). */\n    side?: number;\n    /** Follow rate, 1/s (default 4): higher is tighter. */\n    rate?: number;\n    /** Turn rate, 1/s (default 2.5). */\n    turn?: number;\n    /** Jump straight there (reduced motion, a respawn). */\n    snap?: boolean;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-drive-chase",
+     "level": "h3",
+     "names": "chase",
+     "what": "function",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Ease diorama camera <code>cam</code> behind and above <code>target</code> (<code>pos</code> [x, y, z], <code>yaw</code>, optional <code>vel</code>) over dt seconds; returns true while it still moves (settle-friendly).",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "chase(cam: { yaw: number; pitch: number; dist: number; tx: number; ty: number; tz: number; }, target: { pos: ArrayLike<number>; yaw: number; vel?: ArrayLike<number>; }, o?: ChaseOptions, dt?: number): boolean",
+       "params": [
+        {
+         "name": "cam",
+         "type": "{ yaw: number; pitch: number; dist: number; tx: number; ty: number; tz: number; }",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "target",
+         "type": "{ pos: ArrayLike&lt;number&gt;; yaw: number; vel?: ArrayLike&lt;number&gt;; }",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-drive-ChaseOptions\">ChaseOptions</a>",
+         "optional": true,
+         "doc": ""
+        },
+        {
+         "name": "dt?",
+         "type": "number",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "boolean"
+      }
+     ],
+     "code": "export declare function chase(cam: {\n    yaw: number;\n    pitch: number;\n    dist: number;\n    tx: number;\n    ty: number;\n    tz: number;\n}, target: {\n    pos: ArrayLike<number>;\n    yaw: number;\n    vel?: ArrayLike<number>;\n}, o?: ChaseOptions, dt?: number): boolean;",
+     "folded": true
+    }
+   ]
   },
   {
-   "kind": "html",
-   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/terrain.html\"><small>← PREVIOUS</small><code>@fzlt/core/terrain</code></a><a class=\"bp-step next\" href=\"/bricks/math.html\"><small>NEXT →</small><code>@fzlt/core/math</code></a></nav>"
+   "kind": "steps",
+   "steps": [
+    {
+     "href": "/bricks/terrain.html",
+     "label": "@fzlt/core/terrain",
+     "dir": "prev"
+    },
+    {
+     "href": "/bricks/math.html",
+     "label": "@fzlt/core/math",
+     "dir": "next"
+    }
+   ]
   }
  ]
 }

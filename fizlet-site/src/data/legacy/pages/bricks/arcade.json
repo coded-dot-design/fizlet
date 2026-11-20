@@ -34,12 +34,47 @@
   "current": "@fzlt/core/arcade"
  },
  "tone": "var(--k-go)",
- "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">ARCADE</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"complete\" style=\"--tilt:-4deg;--dx:5px;--dy:1px\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/arcade</code></h1>\n        <p class=\"lead\">The shell every page arcade game repeats, so a game is only its rules and its art. One engine per run over the host page (<code>@fzlt/core/board-page</code>: its words are terrain, its buttons are targets), a fixed overlay with a canvas and a scoreboard in the Board UI kit (title, sound, pause, fold and exit keys, readouts, an optional meter, action keys, a comms toast), keys and pointer (<code>@fzlt/core/input</code>), the touch pad on coarse pointers (<code>@fzlt/core/pad</code>), sound from the event ring (<code>@fzlt/core/sound</code>), sparks and stacking score popups, factory health painted into the buttons, and a controller a hub drives: start, pause, resume, stop, destroy, getSnapshot. While a run is live, a click on the page fires instead of following a link; the scoreboard, fields and <code>[data-virus-ignore]</code> / <code>[data-fizlet-ignore]</code> keep their clicks. Recall (Escape, the exit key, stop) destroys the engine, so every letter and button comes back exactly; a run that ends keeps the scoreboard with the result until Recall. The game supplies <code>create(ctx)</code>: its own systems on <code>ctx.engine</code>, reading <code>ctx.ctl</code> (written in the read phase) and drawing in render. The scoreboard and controls are a HUD preset, chosen per game with <code>hud</code> (BOARD-UI.md §19): <code>arcadeHud()</code> is today's card and the default (no <code>hud</code> renders it byte for byte); <code>skirmishHud({...})</code> is Battlefield Blitz's top bar with a clock, rank and armor bar, a feed, a banner, aim toggles and counted keys, and its flow (countdown, pause / surrender, result) on <code>@fzlt/core/match</code>: then match owns the phase, the shell asks it to pause, resume or end and follows it (<code>HudView.ask</code>, <code>HudRun.go</code>). Each preset is its own export, so a game ships only the one it names.</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/arcade.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
- "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/arcade</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/arcade\">24,145 B</b><small>23.6 KB of a 23.6 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:1.000\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
- "rest": [
+ "head": {
+  "tag": "ARCADE",
+  "version": "0.27.0",
+  "sticker": {
+   "flag": "complete",
+   "title": "Done, and always getting smaller and faster.",
+   "label": "COMPLETE",
+   "cls": "brick-sticker",
+   "style": "--tilt:-4deg;--dx:5px;--dy:1px"
+  },
+  "name": "@fzlt/core/arcade",
+  "lead": "The shell every page arcade game repeats, so a game is only its rules and its art. One engine per run over the host page (<code>@fzlt/core/board-page</code>: its words are terrain, its buttons are targets), a fixed overlay with a canvas and a scoreboard in the Board UI kit (title, sound, pause, fold and exit keys, readouts, an optional meter, action keys, a comms toast), keys and pointer (<code>@fzlt/core/input</code>), the touch pad on coarse pointers (<code>@fzlt/core/pad</code>), sound from the event ring (<code>@fzlt/core/sound</code>), sparks and stacking score popups, factory health painted into the buttons, and a controller a hub drives: start, pause, resume, stop, destroy, getSnapshot. While a run is live, a click on the page fires instead of following a link; the scoreboard, fields and <code>[data-virus-ignore]</code> / <code>[data-fizlet-ignore]</code> keep their clicks. Recall (Escape, the exit key, stop) destroys the engine, so every letter and button comes back exactly; a run that ends keeps the scoreboard with the result until Recall. The game supplies <code>create(ctx)</code>: its own systems on <code>ctx.engine</code>, reading <code>ctx.ctl</code> (written in the read phase) and drawing in render. The scoreboard and controls are a HUD preset, chosen per game with <code>hud</code> (BOARD-UI.md §19): <code>arcadeHud()</code> is today's card and the default (no <code>hud</code> renders it byte for byte); <code>skirmishHud({...})</code> is Battlefield Blitz's top bar with a clock, rank and armor bar, a feed, a banner, aim toggles and counted keys, and its flow (countdown, pause / surrender, result) on <code>@fzlt/core/match</code>: then match owns the phase, the shell asks it to pause, resume or end and follows it (<code>HudView.ask</code>, <code>HudRun.go</code>). Each preset is its own export, so a game ships only the one it names.",
+  "keys": [
+   {
+    "href": "#api",
+    "label": "API",
+    "tone": "sys",
+    "arcade": true,
+    "icon": "code"
+   },
+   {
+    "href": "https://github.com/coded-dot-design/fizlet/blob/main/src/arcade.ts",
+    "label": "Source ↗",
+    "tone": "cmd",
+    "arcade": true,
+    "icon": "github"
+   }
+  ]
+ },
+ "sizes": [
   {
-   "kind": "html",
-   "html": "<div class=\"bp-card\"></div>"
+   "name": "@fzlt/core/arcade",
+   "bytes": "24,145 B",
+   "budget": "23.6 KB of a 23.6 KB budget",
+   "v": "1.000"
+  }
+ ],
+ "sizesNote": "Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.",
+ "blocks": [
+  {
+   "kind": "toy"
   },
   {
    "kind": "html",
@@ -65,16 +100,498 @@
    ]
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>IN SHORT</b></span></div><pre tabindex=\"0\" class=\"code\"><code>const game = arcade({ id: &quot;null-invaders&quot;, title: &quot;Null Invaders&quot;, color: &quot;#06c4ff&quot;,\n  hint: &quot;Mouse / WASD · Space fires&quot;, css: KIT_CSS, fire: true,\n  readouts: [[&quot;Score&quot;, &quot;team&quot;], [&quot;Wave&quot;]], colors: [&quot;#06c4ff&quot;],\n  cues: { fire: &quot;fire&quot; }, create: (ctx) =&gt; myRules(ctx) }, { root: &quot;main&quot; });\ngame.start(); // Escape: Recall</code></pre></div>"
+   "kind": "code",
+   "label": "<b>IN SHORT</b>",
+   "code": "const game = arcade({ id: \"null-invaders\", title: \"Null Invaders\", color: \"#06c4ff\",\n  hint: \"Mouse / WASD · Space fires\", css: KIT_CSS, fire: true,\n  readouts: [[\"Score\", \"team\"], [\"Wave\"]], colors: [\"#06c4ff\"],\n  cues: { fire: \"fire\" }, create: (ctx) => myRules(ctx) }, { root: \"main\" });\ngame.start(); // Escape: Recall",
+   "wrap": false,
+   "copy": false,
+   "cls": "panel code-card bp-snippet"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-arcade-skirmishHud\"><code>skirmishHud</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-arcade-SkirmishOptions\"><code>SkirmishOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-arcade-SkirmishReadout\"><code>SkirmishReadout</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-arcade-MODE\"><code>MODE, PX, PY, PON, KX, KY, FIRE, VW, VH, CALM, TARGET_HP</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-arcade-ArcadeAction\"><code>ArcadeAction</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-arcade-ArcadeStatus\"><code>ArcadeStatus</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-arcade-ArcadeOptions\"><code>ArcadeOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-arcade-ArcadeSnapshot\"><code>ArcadeSnapshot</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-arcade-ArcadeController\"><code>ArcadeController</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-arcade-ArcadeContext\"><code>ArcadeContext</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-arcade-ArcadeGame\"><code>ArcadeGame</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-arcade-ArcadeDef\"><code>ArcadeDef</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-arcade-ArcadeHud\"><code>ArcadeHud</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-arcade-HudRun\"><code>HudRun</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-arcade-ArcadeFlow\"><code>ArcadeFlow</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-arcade-HudView\"><code>HudView</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-arcade-ArcadeHudOptions\"><code>ArcadeHudOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-arcade-arcadeHud\"><code>arcadeHud</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-arcade-arcade\"><code>arcade</code></a><small>function</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-skirmishHud\">\n        <h3><code>skirmishHud</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>The <code>skirmish</code> preset (Battlefield Blitz): <code>hud: skirmishHud({ readouts: [{ label: &quot;Kills&quot;, tone: &quot;team&quot; }, { label: &quot;Time&quot;, kind: &quot;clock&quot; }, { label: &quot;Armor&quot;, kind: &quot;bar&quot;, low: 0.3 }] })</code>. <code>hud(out)</code> fills the readouts in order, then any count slots.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>skirmishHud(o: SkirmishOptions): ArcadeHud</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>o</code></dt><dd><code><a href=\"#api-fzlt-core-arcade-SkirmishOptions\">SkirmishOptions</a></code></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-arcade-ArcadeHud\">ArcadeHud</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function skirmishHud(o: SkirmishOptions): ArcadeHud;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-SkirmishOptions\">\n        <h3><code>SkirmishOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Options for the <code>skirmish</code> HUD preset: its readouts, header and nav keys, feed, banner, overlays, result, aim toggles and key counts.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface SkirmishOptions {\n    /** Readouts, in the order `hud(out)` fills them. */\n    readouts: SkirmishReadout[];\n    /** Header keys, in order (default full screen, sound, pause, exit; `fold` hides the title and the\n     *  text keys). Full screen shows only where the page may use it. */\n    header?: (&quot;fullscreen&quot; | &quot;sound&quot; | &quot;pause&quot; | &quot;fold&quot; | &quot;exit&quot;)[];\n    /** Text keys after the actions, as on the card (default none): `next` (Next gate, G), `restart`,\n     *  `auto` (Auto fire: needs `fire`). */\n    nav?: (&quot;next&quot; | &quot;restart&quot; | &quot;auto&quot;)[];\n    /** A feed of the last `rows` (default 4) events of type `on`, newest first. */\n    feed?: {\n        rows?: number;\n        on: string;\n        line: (a: number, b: number) =&gt; string;\n    };\n    /** A centred banner (title, sub) on each event of type `on`. */\n    banner?: {\n        on: string;\n        text: (a: number, b: number) =&gt; readonly [string, string?];\n    };\n    /** Overlays (default all four; @fzlt/core/match runs the flow either way). `countdown` holds the start\n     *  for 3, 2, 1 on the flow's clock; without `pause` or `result` that phase shows no overlay; without\n     *  `surrender` the pause card has no SURRENDER key. */\n    overlays?: (&quot;pause&quot; | &quot;surrender&quot; | &quot;countdown&quot; | &quot;result&quot;)[];\n    /** The result card: `stats()` keys to list, and the one whose best is kept on this device. */\n    result?: {\n        stats: string[];\n        best?: string;\n    };\n    /** Aim toggles: the intents `aim-auto` and `aim-lock` (`ctx.input.down(&quot;aim-lock&quot;)`). */\n    aim?: (&quot;auto&quot; | &quot;lock&quot;)[];\n    /** Counted keys: action id → the `hud(out)` slot of its count, a badge on its keys. */\n    counts?: Record&lt;string, number&gt;;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-SkirmishReadout\">\n        <h3><code>SkirmishReadout</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>One readout on the skirmish bar: its label, how the value shows and its tone.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface SkirmishReadout {\n    label: string;\n    /** How the value shows: `num` (default) 12 · `clock` 3:05 from seconds · `rank` #2 · `pct` 75%\n     *  from 0..1 · `bar` a meter from 0..1 (armor, health). */\n    kind?: &quot;num&quot; | &quot;clock&quot; | &quot;rank&quot; | &quot;pct&quot; | &quot;bar&quot;;\n    tone?: &quot;team&quot; | &quot;enemy&quot;;\n    /** A bar: class `low` at or under this (0..1). */\n    low?: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-MODE\">\n        <h3><code>MODE, PX, PY, PON, KX, KY, FIRE, VW, VH, CALM, TARGET_HP</code> <small>const</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Controls and view, written once per frame in the read phase (a step reads them): mode (0 keys or stick, 1 pointer), pointer x, y and on, move x, y (-1..1), fire, viewport width and height, and reduced motion (1/0). The game writes TARGET_HP: the full health of a target, for its paint.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export declare const MODE = 0, PX = 1, PY = 2, PON = 3, KX = 4, KY = 5, FIRE = 6, VW = 7, VH = 8, CALM = 9, TARGET_HP = 10;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-ArcadeAction\">\n        <h3><code>ArcadeAction</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>One action key: the intent it drives, its keyboard code and its scoreboard text.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface ArcadeAction {\n    /** The controls intent: `ctx.input.hit(id)` in a step. */\n    id: string;\n    /** KeyboardEvent.code, e.g. &quot;KeyB&quot;. */\n    key: string;\n    /** Scoreboard key text, e.g. &quot;B · Cover&quot;. */\n    label: string;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-ArcadeStatus\">\n        <h3><code>ArcadeStatus</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Where a run is: idle, running, paused, won, game over or destroyed.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type ArcadeStatus = &quot;idle&quot; | &quot;running&quot; | &quot;paused&quot; | &quot;won&quot; | &quot;gameover&quot; | &quot;destroyed&quot;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-ArcadeOptions\">\n        <h3><code>ArcadeOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Options for <code>arcade()</code>: the board and its selectors, theme, seed, reduced motion, sound and controls, and the <code>onState</code> / <code>onEvent</code> / <code>onError</code> hooks.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface ArcadeOptions&lt;S&gt; {\n    /** The board: a selector or an element (default document.body). */\n    root?: string | Element;\n    textSelector?: string;\n    targetSelector?: string;\n    excludeSelector?: string;\n    /** &quot;system&quot; (default) follows the visitor's colour scheme. */\n    theme?: &quot;dark&quot; | &quot;light&quot; | &quot;system&quot;;\n    seed?: number;\n    reducedMotion?: boolean;\n    /** Start with sound on (default true; it waits for a gesture to unlock). */\n    sound?: boolean;\n    /** &quot;keyboard&quot;: the mouse never steers. */\n    controls?: &quot;mouse&quot; | &quot;keyboard&quot;;\n    onState?: (state: ArcadeSnapshot&lt;S&gt;) =&gt; void;\n    onEvent?: (event: {\n        type: string;\n        game: string;\n        [key: string]: unknown;\n    }) =&gt; void;\n    onError?: (error: unknown) =&gt; void;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-ArcadeSnapshot\">\n        <h3><code>ArcadeSnapshot</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>What the controller reports about a run: its status, time and frame cost, plus the game's own state.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type ArcadeSnapshot&lt;S&gt; = Partial&lt;S&gt; &amp; {\n    id: string;\n    status: ArcadeStatus;\n    elapsed: number;\n    frameMs: number;\n    maxFrameMs: number;\n    notice: string;\n    /** Letters indexed, on screen and spent, and the range reads the last measurement made. */\n    board?: {\n        indexed: number;\n        visible: number;\n        spent: number;\n        measurements: number;\n    };\n    /** Sparks alive (at most 100). */\n    particles?: number;\n};</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-ArcadeController\">\n        <h3><code>ArcadeController</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>The controller <code>arcade()</code> returns: start, pause, resume, stop and destroy a run, and read its snapshot.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface ArcadeController&lt;S&gt; {\n    start(): ArcadeSnapshot&lt;S&gt;;\n    pause(): void;\n    resume(): void;\n    stop(): void;\n    destroy(): void;\n    getSnapshot(): ArcadeSnapshot&lt;S&gt;;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-ArcadeContext\">\n        <h3><code>ArcadeContext</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>What <code>create</code> gets: the run's engine and board, the controls, and the shell's presentation.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface ArcadeContext {\n    engine: Engine;\n    board: BoardPage;\n    input: Controls;\n    /** MODE … TARGET_HP (see the constants). */\n    ctl: Float64Array;\n    reduced(): boolean;\n    /** A popup at (x, y): `+value` when `text` is null (stacked with nearby ones), else the text.\n     *  Tone 0 score, 1 accent (upgrade), 2 hurt. Call it from render (react). */\n    popup(x: number, y: number, value: number, text: string | null, tone?: 0 | 1 | 2): void;\n    /** n sparks from (x, y) in colour `c` (an index into `colors`); none under reduced motion. */\n    spark(x: number, y: number, n: number, c: number): void;\n    /** A line in the comms toast. */\n    say(text: string, ms?: number): void;\n    /** onEvent for the hub (a plain object: call it from render, not a step). */\n    emit(type: string, data?: Record&lt;string, unknown&gt;): void;\n    /** In-page art: a shadow root in an overlay inside `el` (an absolutely positioned host that\n     *  follows the page's layout, scrolling and transforms natively). A static `el` becomes\n     *  relative. Through the ledger: Recall removes it and puts the style back. Call from create\n     *  or reset (it reads computed style), never from a step. Null for replaced elements. */\n    attach(el: Element): ShadowRoot | null;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-ArcadeGame\">\n        <h3><code>ArcadeGame</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>One run of your game, as the shell drives it: reset, draw, the HUD and meter, page scroll, reactions to events, stats, and whether the run is over.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface ArcadeGame&lt;S&gt; {\n    /** A fresh run (the viewport is in ctl[VW], ctl[VH]). */\n    reset(): void;\n    /** 0 playing, 1 lost, 2 won: read every render; the run ends the frame it turns non-zero. */\n    over(): number;\n    /** The page scrolled by (dx, dy): move page-space things (read phase). */\n    scroll?(dx: number, dy: number): void;\n    /** Each event on the ring this frame (render): popups, sparks, the toast, onEvent. */\n    react?(ev: FizEvent): void;\n    /** Draw on the canvas (render), after the target beacons, before sparks and popups. */\n    draw(ctx: CanvasRenderingContext2D, dt: number): void;\n    /** The readout values, in `readouts` order, then the meter's change key (render, change-only). */\n    hud(out: Float64Array): void;\n    /** The meter's left text, right text and fill 0..1, when its change key moved. */\n    meter?(): readonly [string, string, number];\n    /** The snapshot's game fields (not a hot path). */\n    stats(): S;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-ArcadeDef\">\n        <h3><code>ArcadeDef</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Your game for <code>arcade()</code>: its id, title, accent, hint, CSS, actions, readouts, sound cues and <code>create()</code>, which makes a run.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface ArcadeDef&lt;S&gt; {\n    id: string;\n    title: string;\n    /** The game's accent (hex): title, meter, popups, target paint at full health. */\n    color: string;\n    hint: string;\n    touchHint?: string;\n    /** The Board UI kit CSS text (the game bakes in the sections it uses). */\n    css: string;\n    /** Hold Space / the pointer to fire; a Fire key on the touch pad and an Auto fire key. */\n    fire?: boolean;\n    actions?: ArcadeAction[];\n    /** Touch move control (default &quot;stick&quot;; &quot;dpad&quot; for grid games). */\n    pad?: &quot;stick&quot; | &quot;dpad&quot;;\n    /** Keys (or the stick) only: the mouse never steers. */\n    keyboard?: boolean;\n    /** The card's readouts: label, tone, how the value shows, and whether it hides when the board is\n     *  folded. A preset with its own readouts (skirmish) leaves this out. */\n    readouts?: [label: string, tone?: &quot;team&quot; | &quot;enemy&quot; | undefined, fmt?: ((v: number) =&gt; string) | undefined, fold?: boolean | undefined][];\n    meter?: {\n        label: string;\n    };\n    /** Spark colours, by index. */\n    colors: string[];\n    /** Event type → sound cue. */\n    cues: Record&lt;string, Cue&gt;;\n    /** Paint targets with their health (default true). */\n    paint?: boolean;\n    /** The scoreboard and controls: a HUD preset (default `arcadeHud()`, today's card). */\n    hud?: ArcadeHud;\n    create(ctx: ArcadeContext): ArcadeGame&lt;S&gt;;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-ArcadeHud\">\n        <h3><code>ArcadeHud</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>A HUD preset: its CSS (after the game's kit CSS) and a mount, once per run.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface ArcadeHud {\n    css: string;\n    /** Extra controls intents the HUD drives (e.g. aim toggles): intent → key codes. */\n    keys?: Record&lt;string, string[]&gt;;\n    mount(run: HudRun): HudView;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-HudRun\">\n        <h3><code>HudRun</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>What the shell gives a HUD when a run starts.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface HudRun {\n    /** The kit root (`.bui`), the canvas already in it. */\n    ui: HTMLElement;\n    def: ArcadeDef&lt;any&gt;;\n    engine: Engine;\n    input: Controls;\n    /** A coarse pointer: build the touch pad. */\n    coarse: boolean;\n    /** The game, once `create` returned: read it in `write`, never in `mount`. */\n    game: ArcadeGame&lt;any&gt;;\n    /** Sound (a scoreboard key flips `on`). */\n    sfx: {\n        on: boolean;\n    };\n    /** Aborts at Recall: the overlay's life. */\n    signal: AbortSignal;\n    status(): ArcadeStatus;\n    /** Moves the run, for a HUD that owns its flow (`ask`), once its phase changed: pause, resume,\n     *  the end (won, lost), a rematch (restart) or Recall (exit). */\n    go(to: ArcadeFlow | &quot;restart&quot; | &quot;exit&quot;): void;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-ArcadeFlow\">\n        <h3><code>ArcadeFlow</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>A change in a run's flow the HUD is told about: paused, resumed, won or lost.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type ArcadeFlow = &quot;pause&quot; | &quot;resume&quot; | &quot;won&quot; | &quot;lost&quot;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-HudView\">\n        <h3><code>HudView</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>A mounted HUD. Keys are <code>button[data-a]</code> (sound, pause, exit, restart, gate, auto, fold, or the HUD's own) and <code>button[data-act]</code> (an action): the shell runs them, then calls <code>key</code>.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface HudView {\n    /** The comms toast. */\n    msg: HTMLElement;\n    /** Every render and once at start: change-only writes, nothing allocated in the steady state. */\n    write(): void;\n    /** The status changed: the pause key, overlays. */\n    sync(): void;\n    /** A scoreboard key ran: repaint its face (`auto`: auto fire is on). */\n    key(a: string, b: HTMLElement, auto: boolean): void;\n    /** At start, in place of starting the engine: a countdown that calls `go` when it is done. */\n    begin?(go: () =&gt; void): void;\n    /** Before the engine goes at the end of a run (its ledger takes back what went through it). */\n    hold?(): void;\n    /** The run ended and the page is back: show the result. */\n    end(won: boolean, notice: string, stats: Record&lt;string, unknown&gt;): void;\n    /** The HUD owns the phase (skirmish: `@fzlt/core/match`): the shell's pause, resume and end are asked of\n     *  it, and it answers with `HudRun.go` (one owner; the shell keeps the keys and delegates). */\n    ask?(to: ArcadeFlow): void;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-ArcadeHudOptions\">\n        <h3><code>ArcadeHudOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Options for the default HUD: which header keys and which nav keys, in order.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface ArcadeHudOptions {\n    /** Header keys, in order (default all four). */\n    header?: (&quot;sound&quot; | &quot;pause&quot; | &quot;fold&quot; | &quot;exit&quot;)[];\n    /** The nav row after the action keys (default all three; `auto` needs `fire`). */\n    nav?: (&quot;next&quot; | &quot;restart&quot; | &quot;auto&quot;)[];\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-arcadeHud\">\n        <h3><code>arcadeHud</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>The <code>arcade</code> preset, the default: one card with the title, sound / pause / fold / exit keys, the readouts, one meter, the nav row (actions, Next gate, Restart, Auto fire) and the toast; phones get the pad and the card folded at the top. <code>arcadeHud()</code> renders exactly what leaving <code>hud</code> out renders. Values: <code>hud(out)</code> fills the readouts in order, then the meter's change key.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>arcadeHud(o?: ArcadeHudOptions): ArcadeHud</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-arcade-ArcadeHudOptions\">ArcadeHudOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-arcade-ArcadeHud\">ArcadeHud</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function arcadeHud(o?: ArcadeHudOptions): ArcadeHud;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-arcade-arcade\">\n        <h3><code>arcade</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>The shell every page arcade game repeats: one engine per run over the host page (its words are terrain, its buttons targets), a Board UI overlay with a canvas and scoreboard, input, sound and the run's flow. <code>def</code> is only the game's rules and art.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>arcade&lt;S&gt;(def: ArcadeDef&lt;S&gt;, options?: ArcadeOptions&lt;S&gt;): ArcadeController&lt;S&gt;</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>def</code></dt><dd><code><a href=\"#api-fzlt-core-arcade-ArcadeDef\">ArcadeDef</a>&lt;S&gt;</code></dd></div><div><dt><code>options?</code></dt><dd><code><a href=\"#api-fzlt-core-arcade-ArcadeOptions\">ArcadeOptions</a>&lt;S&gt;</code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-arcade-ArcadeController\">ArcadeController</a>&lt;S&gt;</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function arcade&lt;S&gt;(def: ArcadeDef&lt;S&gt;, options?: ArcadeOptions&lt;S&gt;): ArcadeController&lt;S&gt;;</code></pre></details>\n      </article>\n    </div>"
+   "kind": "api",
+   "note": "Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.",
+   "toc": [
+    {
+     "href": "#api-fzlt-core-arcade-skirmishHud",
+     "names": "skirmishHud",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-SkirmishOptions",
+     "names": "SkirmishOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-SkirmishReadout",
+     "names": "SkirmishReadout",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-MODE",
+     "names": "MODE, PX, PY, PON, KX, KY, FIRE, VW, VH, CALM, TARGET_HP",
+     "what": "const"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-ArcadeAction",
+     "names": "ArcadeAction",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-ArcadeStatus",
+     "names": "ArcadeStatus",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-ArcadeOptions",
+     "names": "ArcadeOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-ArcadeSnapshot",
+     "names": "ArcadeSnapshot",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-ArcadeController",
+     "names": "ArcadeController",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-ArcadeContext",
+     "names": "ArcadeContext",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-ArcadeGame",
+     "names": "ArcadeGame",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-ArcadeDef",
+     "names": "ArcadeDef",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-ArcadeHud",
+     "names": "ArcadeHud",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-HudRun",
+     "names": "HudRun",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-ArcadeFlow",
+     "names": "ArcadeFlow",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-HudView",
+     "names": "HudView",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-ArcadeHudOptions",
+     "names": "ArcadeHudOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-arcadeHud",
+     "names": "arcadeHud",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-arcade-arcade",
+     "names": "arcade",
+     "what": "function"
+    }
+   ],
+   "items": [
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-skirmishHud",
+     "level": "h3",
+     "names": "skirmishHud",
+     "what": "function",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "The <code>skirmish</code> preset (Battlefield Blitz): <code>hud: skirmishHud({ readouts: [{ label: &quot;Kills&quot;, tone: &quot;team&quot; }, { label: &quot;Time&quot;, kind: &quot;clock&quot; }, { label: &quot;Armor&quot;, kind: &quot;bar&quot;, low: 0.3 }] })</code>. <code>hud(out)</code> fills the readouts in order, then any count slots.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "skirmishHud(o: SkirmishOptions): ArcadeHud",
+       "params": [
+        {
+         "name": "o",
+         "type": "<a href=\"#api-fzlt-core-arcade-SkirmishOptions\">SkirmishOptions</a>",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-arcade-ArcadeHud\">ArcadeHud</a>"
+      }
+     ],
+     "code": "export declare function skirmishHud(o: SkirmishOptions): ArcadeHud;",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-SkirmishOptions",
+     "level": "h3",
+     "names": "SkirmishOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Options for the <code>skirmish</code> HUD preset: its readouts, header and nav keys, feed, banner, overlays, result, aim toggles and key counts.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface SkirmishOptions {\n    /** Readouts, in the order `hud(out)` fills them. */\n    readouts: SkirmishReadout[];\n    /** Header keys, in order (default full screen, sound, pause, exit; `fold` hides the title and the\n     *  text keys). Full screen shows only where the page may use it. */\n    header?: (\"fullscreen\" | \"sound\" | \"pause\" | \"fold\" | \"exit\")[];\n    /** Text keys after the actions, as on the card (default none): `next` (Next gate, G), `restart`,\n     *  `auto` (Auto fire: needs `fire`). */\n    nav?: (\"next\" | \"restart\" | \"auto\")[];\n    /** A feed of the last `rows` (default 4) events of type `on`, newest first. */\n    feed?: {\n        rows?: number;\n        on: string;\n        line: (a: number, b: number) => string;\n    };\n    /** A centred banner (title, sub) on each event of type `on`. */\n    banner?: {\n        on: string;\n        text: (a: number, b: number) => readonly [string, string?];\n    };\n    /** Overlays (default all four; @fzlt/core/match runs the flow either way). `countdown` holds the start\n     *  for 3, 2, 1 on the flow's clock; without `pause` or `result` that phase shows no overlay; without\n     *  `surrender` the pause card has no SURRENDER key. */\n    overlays?: (\"pause\" | \"surrender\" | \"countdown\" | \"result\")[];\n    /** The result card: `stats()` keys to list, and the one whose best is kept on this device. */\n    result?: {\n        stats: string[];\n        best?: string;\n    };\n    /** Aim toggles: the intents `aim-auto` and `aim-lock` (`ctx.input.down(\"aim-lock\")`). */\n    aim?: (\"auto\" | \"lock\")[];\n    /** Counted keys: action id → the `hud(out)` slot of its count, a badge on its keys. */\n    counts?: Record<string, number>;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-SkirmishReadout",
+     "level": "h3",
+     "names": "SkirmishReadout",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "One readout on the skirmish bar: its label, how the value shows and its tone.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface SkirmishReadout {\n    label: string;\n    /** How the value shows: `num` (default) 12 · `clock` 3:05 from seconds · `rank` #2 · `pct` 75%\n     *  from 0..1 · `bar` a meter from 0..1 (armor, health). */\n    kind?: \"num\" | \"clock\" | \"rank\" | \"pct\" | \"bar\";\n    tone?: \"team\" | \"enemy\";\n    /** A bar: class `low` at or under this (0..1). */\n    low?: number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-MODE",
+     "level": "h3",
+     "names": "MODE, PX, PY, PON, KX, KY, FIRE, VW, VH, CALM, TARGET_HP",
+     "what": "const",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Controls and view, written once per frame in the read phase (a step reads them): mode (0 keys or stick, 1 pointer), pointer x, y and on, move x, y (-1..1), fire, viewport width and height, and reduced motion (1/0). The game writes TARGET_HP: the full health of a target, for its paint.",
+     "tags": [],
+     "sigs": [],
+     "code": "export declare const MODE = 0, PX = 1, PY = 2, PON = 3, KX = 4, KY = 5, FIRE = 6, VW = 7, VH = 8, CALM = 9, TARGET_HP = 10;",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-ArcadeAction",
+     "level": "h3",
+     "names": "ArcadeAction",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "One action key: the intent it drives, its keyboard code and its scoreboard text.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface ArcadeAction {\n    /** The controls intent: `ctx.input.hit(id)` in a step. */\n    id: string;\n    /** KeyboardEvent.code, e.g. \"KeyB\". */\n    key: string;\n    /** Scoreboard key text, e.g. \"B · Cover\". */\n    label: string;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-ArcadeStatus",
+     "level": "h3",
+     "names": "ArcadeStatus",
+     "what": "type",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Where a run is: idle, running, paused, won, game over or destroyed.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type ArcadeStatus = \"idle\" | \"running\" | \"paused\" | \"won\" | \"gameover\" | \"destroyed\";",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-ArcadeOptions",
+     "level": "h3",
+     "names": "ArcadeOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Options for <code>arcade()</code>: the board and its selectors, theme, seed, reduced motion, sound and controls, and the <code>onState</code> / <code>onEvent</code> / <code>onError</code> hooks.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface ArcadeOptions<S> {\n    /** The board: a selector or an element (default document.body). */\n    root?: string | Element;\n    textSelector?: string;\n    targetSelector?: string;\n    excludeSelector?: string;\n    /** \"system\" (default) follows the visitor's colour scheme. */\n    theme?: \"dark\" | \"light\" | \"system\";\n    seed?: number;\n    reducedMotion?: boolean;\n    /** Start with sound on (default true; it waits for a gesture to unlock). */\n    sound?: boolean;\n    /** \"keyboard\": the mouse never steers. */\n    controls?: \"mouse\" | \"keyboard\";\n    onState?: (state: ArcadeSnapshot<S>) => void;\n    onEvent?: (event: {\n        type: string;\n        game: string;\n        [key: string]: unknown;\n    }) => void;\n    onError?: (error: unknown) => void;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-ArcadeSnapshot",
+     "level": "h3",
+     "names": "ArcadeSnapshot",
+     "what": "type",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "What the controller reports about a run: its status, time and frame cost, plus the game's own state.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type ArcadeSnapshot<S> = Partial<S> & {\n    id: string;\n    status: ArcadeStatus;\n    elapsed: number;\n    frameMs: number;\n    maxFrameMs: number;\n    notice: string;\n    /** Letters indexed, on screen and spent, and the range reads the last measurement made. */\n    board?: {\n        indexed: number;\n        visible: number;\n        spent: number;\n        measurements: number;\n    };\n    /** Sparks alive (at most 100). */\n    particles?: number;\n};",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-ArcadeController",
+     "level": "h3",
+     "names": "ArcadeController",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "The controller <code>arcade()</code> returns: start, pause, resume, stop and destroy a run, and read its snapshot.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface ArcadeController<S> {\n    start(): ArcadeSnapshot<S>;\n    pause(): void;\n    resume(): void;\n    stop(): void;\n    destroy(): void;\n    getSnapshot(): ArcadeSnapshot<S>;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-ArcadeContext",
+     "level": "h3",
+     "names": "ArcadeContext",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "What <code>create</code> gets: the run's engine and board, the controls, and the shell's presentation.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface ArcadeContext {\n    engine: Engine;\n    board: BoardPage;\n    input: Controls;\n    /** MODE … TARGET_HP (see the constants). */\n    ctl: Float64Array;\n    reduced(): boolean;\n    /** A popup at (x, y): `+value` when `text` is null (stacked with nearby ones), else the text.\n     *  Tone 0 score, 1 accent (upgrade), 2 hurt. Call it from render (react). */\n    popup(x: number, y: number, value: number, text: string | null, tone?: 0 | 1 | 2): void;\n    /** n sparks from (x, y) in colour `c` (an index into `colors`); none under reduced motion. */\n    spark(x: number, y: number, n: number, c: number): void;\n    /** A line in the comms toast. */\n    say(text: string, ms?: number): void;\n    /** onEvent for the hub (a plain object: call it from render, not a step). */\n    emit(type: string, data?: Record<string, unknown>): void;\n    /** In-page art: a shadow root in an overlay inside `el` (an absolutely positioned host that\n     *  follows the page's layout, scrolling and transforms natively). A static `el` becomes\n     *  relative. Through the ledger: Recall removes it and puts the style back. Call from create\n     *  or reset (it reads computed style), never from a step. Null for replaced elements. */\n    attach(el: Element): ShadowRoot | null;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-ArcadeGame",
+     "level": "h3",
+     "names": "ArcadeGame",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "One run of your game, as the shell drives it: reset, draw, the HUD and meter, page scroll, reactions to events, stats, and whether the run is over.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface ArcadeGame<S> {\n    /** A fresh run (the viewport is in ctl[VW], ctl[VH]). */\n    reset(): void;\n    /** 0 playing, 1 lost, 2 won: read every render; the run ends the frame it turns non-zero. */\n    over(): number;\n    /** The page scrolled by (dx, dy): move page-space things (read phase). */\n    scroll?(dx: number, dy: number): void;\n    /** Each event on the ring this frame (render): popups, sparks, the toast, onEvent. */\n    react?(ev: FizEvent): void;\n    /** Draw on the canvas (render), after the target beacons, before sparks and popups. */\n    draw(ctx: CanvasRenderingContext2D, dt: number): void;\n    /** The readout values, in `readouts` order, then the meter's change key (render, change-only). */\n    hud(out: Float64Array): void;\n    /** The meter's left text, right text and fill 0..1, when its change key moved. */\n    meter?(): readonly [string, string, number];\n    /** The snapshot's game fields (not a hot path). */\n    stats(): S;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-ArcadeDef",
+     "level": "h3",
+     "names": "ArcadeDef",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Your game for <code>arcade()</code>: its id, title, accent, hint, CSS, actions, readouts, sound cues and <code>create()</code>, which makes a run.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface ArcadeDef<S> {\n    id: string;\n    title: string;\n    /** The game's accent (hex): title, meter, popups, target paint at full health. */\n    color: string;\n    hint: string;\n    touchHint?: string;\n    /** The Board UI kit CSS text (the game bakes in the sections it uses). */\n    css: string;\n    /** Hold Space / the pointer to fire; a Fire key on the touch pad and an Auto fire key. */\n    fire?: boolean;\n    actions?: ArcadeAction[];\n    /** Touch move control (default \"stick\"; \"dpad\" for grid games). */\n    pad?: \"stick\" | \"dpad\";\n    /** Keys (or the stick) only: the mouse never steers. */\n    keyboard?: boolean;\n    /** The card's readouts: label, tone, how the value shows, and whether it hides when the board is\n     *  folded. A preset with its own readouts (skirmish) leaves this out. */\n    readouts?: [label: string, tone?: \"team\" | \"enemy\" | undefined, fmt?: ((v: number) => string) | undefined, fold?: boolean | undefined][];\n    meter?: {\n        label: string;\n    };\n    /** Spark colours, by index. */\n    colors: string[];\n    /** Event type → sound cue. */\n    cues: Record<string, Cue>;\n    /** Paint targets with their health (default true). */\n    paint?: boolean;\n    /** The scoreboard and controls: a HUD preset (default `arcadeHud()`, today's card). */\n    hud?: ArcadeHud;\n    create(ctx: ArcadeContext): ArcadeGame<S>;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-ArcadeHud",
+     "level": "h3",
+     "names": "ArcadeHud",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "A HUD preset: its CSS (after the game's kit CSS) and a mount, once per run.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface ArcadeHud {\n    css: string;\n    /** Extra controls intents the HUD drives (e.g. aim toggles): intent → key codes. */\n    keys?: Record<string, string[]>;\n    mount(run: HudRun): HudView;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-HudRun",
+     "level": "h3",
+     "names": "HudRun",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "What the shell gives a HUD when a run starts.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface HudRun {\n    /** The kit root (`.bui`), the canvas already in it. */\n    ui: HTMLElement;\n    def: ArcadeDef<any>;\n    engine: Engine;\n    input: Controls;\n    /** A coarse pointer: build the touch pad. */\n    coarse: boolean;\n    /** The game, once `create` returned: read it in `write`, never in `mount`. */\n    game: ArcadeGame<any>;\n    /** Sound (a scoreboard key flips `on`). */\n    sfx: {\n        on: boolean;\n    };\n    /** Aborts at Recall: the overlay's life. */\n    signal: AbortSignal;\n    status(): ArcadeStatus;\n    /** Moves the run, for a HUD that owns its flow (`ask`), once its phase changed: pause, resume,\n     *  the end (won, lost), a rematch (restart) or Recall (exit). */\n    go(to: ArcadeFlow | \"restart\" | \"exit\"): void;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-ArcadeFlow",
+     "level": "h3",
+     "names": "ArcadeFlow",
+     "what": "type",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "A change in a run's flow the HUD is told about: paused, resumed, won or lost.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type ArcadeFlow = \"pause\" | \"resume\" | \"won\" | \"lost\";",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-HudView",
+     "level": "h3",
+     "names": "HudView",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "A mounted HUD. Keys are <code>button[data-a]</code> (sound, pause, exit, restart, gate, auto, fold, or the HUD's own) and <code>button[data-act]</code> (an action): the shell runs them, then calls <code>key</code>.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface HudView {\n    /** The comms toast. */\n    msg: HTMLElement;\n    /** Every render and once at start: change-only writes, nothing allocated in the steady state. */\n    write(): void;\n    /** The status changed: the pause key, overlays. */\n    sync(): void;\n    /** A scoreboard key ran: repaint its face (`auto`: auto fire is on). */\n    key(a: string, b: HTMLElement, auto: boolean): void;\n    /** At start, in place of starting the engine: a countdown that calls `go` when it is done. */\n    begin?(go: () => void): void;\n    /** Before the engine goes at the end of a run (its ledger takes back what went through it). */\n    hold?(): void;\n    /** The run ended and the page is back: show the result. */\n    end(won: boolean, notice: string, stats: Record<string, unknown>): void;\n    /** The HUD owns the phase (skirmish: `@fzlt/core/match`): the shell's pause, resume and end are asked of\n     *  it, and it answers with `HudRun.go` (one owner; the shell keeps the keys and delegates). */\n    ask?(to: ArcadeFlow): void;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-ArcadeHudOptions",
+     "level": "h3",
+     "names": "ArcadeHudOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Options for the default HUD: which header keys and which nav keys, in order.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface ArcadeHudOptions {\n    /** Header keys, in order (default all four). */\n    header?: (\"sound\" | \"pause\" | \"fold\" | \"exit\")[];\n    /** The nav row after the action keys (default all three; `auto` needs `fire`). */\n    nav?: (\"next\" | \"restart\" | \"auto\")[];\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-arcadeHud",
+     "level": "h3",
+     "names": "arcadeHud",
+     "what": "function",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "The <code>arcade</code> preset, the default: one card with the title, sound / pause / fold / exit keys, the readouts, one meter, the nav row (actions, Next gate, Restart, Auto fire) and the toast; phones get the pad and the card folded at the top. <code>arcadeHud()</code> renders exactly what leaving <code>hud</code> out renders. Values: <code>hud(out)</code> fills the readouts in order, then the meter's change key.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "arcadeHud(o?: ArcadeHudOptions): ArcadeHud",
+       "params": [
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-arcade-ArcadeHudOptions\">ArcadeHudOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-arcade-ArcadeHud\">ArcadeHud</a>"
+      }
+     ],
+     "code": "export declare function arcadeHud(o?: ArcadeHudOptions): ArcadeHud;",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-arcade-arcade",
+     "level": "h3",
+     "names": "arcade",
+     "what": "function",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "The shell every page arcade game repeats: one engine per run over the host page (its words are terrain, its buttons targets), a Board UI overlay with a canvas and scoreboard, input, sound and the run's flow. <code>def</code> is only the game's rules and art.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "arcade<S>(def: ArcadeDef<S>, options?: ArcadeOptions<S>): ArcadeController<S>",
+       "params": [
+        {
+         "name": "def",
+         "type": "<a href=\"#api-fzlt-core-arcade-ArcadeDef\">ArcadeDef</a>&lt;S&gt;",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "options?",
+         "type": "<a href=\"#api-fzlt-core-arcade-ArcadeOptions\">ArcadeOptions</a>&lt;S&gt;",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-arcade-ArcadeController\">ArcadeController</a>&lt;S&gt;"
+      }
+     ],
+     "code": "export declare function arcade<S>(def: ArcadeDef<S>, options?: ArcadeOptions<S>): ArcadeController<S>;",
+     "folded": true
+    }
+   ]
   },
   {
-   "kind": "html",
-   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/math.html\"><small>← PREVIOUS</small><code>@fzlt/core/math</code></a><a class=\"bp-step next\" href=\"/bricks/debug.html\"><small>NEXT →</small><code>@fzlt/core/debug</code></a></nav>"
+   "kind": "steps",
+   "steps": [
+    {
+     "href": "/bricks/math.html",
+     "label": "@fzlt/core/math",
+     "dir": "prev"
+    },
+    {
+     "href": "/bricks/debug.html",
+     "label": "@fzlt/core/debug",
+     "dir": "next"
+    }
+   ]
   }
  ]
 }

@@ -1,0 +1,21 @@
+---
+// One export in a brick's API reference: its name, kind and status flag; its doc comment and @tags;
+// for a function or class each signature with its parameters and return type, for a const or type
+// its type; then the declaration as published (folded when a signature already says the most).
+// Type names the same module exports arrive as links to their entries.
+import StatusPill, { type Pill } from "./StatusPill.astro";
+type Row = { name: string; type: string; optional: boolean; doc: string };
+export interface Decl {
+  id: string; level: string; names: string; what: string; pill: Pill; doc: string; tags: { name: string; html: string }[];
+  sigs: { text: string; params: Row[]; returns: string }[]; type?: string; code: string; folded: boolean;
+}
+const { id, level, names, what, pill, doc, tags, sigs, type, code, folded } = Astro.props as Decl;
+const H = level === "h4" ? "h4" : "h3";
+---
+<article class="bp-decl" id={id}>
+        <H><code>{names}</code> <small>{what}</small> <StatusPill {...pill} /></H>
+        <p set:html={doc} />{tags.map((t) => <p class="bp-tag"><b>@{t.name}</b>{" "}<Fragment set:html={t.html} /></p>)}
+        {sigs.map((s) => <Fragment><pre tabindex="0" class="code bp-sig"><code>{s.text}</code></pre>
+        <dl class="bp-params">{s.params.map((p) => <div><dt><code>{p.name}</code></dt><dd><code set:html={p.type} />{p.optional && " "}{p.optional && <small>optional</small>}{p.doc && " "}{p.doc && <Fragment set:html={p.doc} />}</dd></div>)}<div><dt>Returns</dt><dd><code set:html={s.returns} /></dd></div></dl></Fragment>)}{type !== undefined && <dl class="bp-params"><div><dt>Type</dt><dd><code set:html={type} /></dd></div></dl>}
+        {folded ? <details class="bp-full"><summary>Declaration</summary><pre tabindex="0" class="code"><code>{code}</code></pre></details> : <pre tabindex="0" class="code"><code>{code}</code></pre>}
+      </article>

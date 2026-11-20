@@ -35,12 +35,66 @@
   "current": "@fzlt/core/rules"
  },
  "tone": "var(--k-advance)",
- "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">RULES</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"complete\" style=\"--tilt:-3.5deg;--dx:4px;--dy:2px\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/rules</code></h1>\n        <p class=\"lead\">The rules every arcade game repeats, as three small systems on the kernel: - <code>waves</code>: a wave clock, prepare → assault → rebuild, with a spawn budget per wave; - <code>drops</code>: pickups that fall, wait to be collected and expire; - <code>score</code>: points, a combo that decays, and levels from XP thresholds. Each is DOM-free, steps without allocating (state lives in typed arrays) and says what happened on the event ring (<code>wave:start</code>, <code>wave:clear</code>, <code>drop:spawn</code>, <code>drop:land</code>, <code>drop:collect</code>, <code>drop:expire</code>, <code>score</code>, <code>combo:end</code>, <code>level</code>), so the HUD, sound, fx and coach layers react without reaching into the game. Defaults are the DOM VIRUS core's (WaveDirector, SupplyDrops) and Null Invaders' numbers, so a port keeps its feel. The game still decides where and what to spawn. Call <code>collect</code>, <code>add</code> and <code>miss</code> from a step, like the rest of the game: their events go on that frame's ring.</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/rules.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
- "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/rules</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/rules\">1,318 B</b><small>1.3 KB of a 1.5 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.858\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
- "rest": [
+ "head": {
+  "tag": "RULES",
+  "version": "0.27.0",
+  "sticker": {
+   "flag": "complete",
+   "title": "Done, and always getting smaller and faster.",
+   "label": "COMPLETE",
+   "cls": "brick-sticker",
+   "style": "--tilt:-3.5deg;--dx:4px;--dy:2px"
+  },
+  "name": "@fzlt/core/rules",
+  "lead": "The rules every arcade game repeats, as three small systems on the kernel: - <code>waves</code>: a wave clock, prepare → assault → rebuild, with a spawn budget per wave; - <code>drops</code>: pickups that fall, wait to be collected and expire; - <code>score</code>: points, a combo that decays, and levels from XP thresholds. Each is DOM-free, steps without allocating (state lives in typed arrays) and says what happened on the event ring (<code>wave:start</code>, <code>wave:clear</code>, <code>drop:spawn</code>, <code>drop:land</code>, <code>drop:collect</code>, <code>drop:expire</code>, <code>score</code>, <code>combo:end</code>, <code>level</code>), so the HUD, sound, fx and coach layers react without reaching into the game. Defaults are the DOM VIRUS core's (WaveDirector, SupplyDrops) and Null Invaders' numbers, so a port keeps its feel. The game still decides where and what to spawn. Call <code>collect</code>, <code>add</code> and <code>miss</code> from a step, like the rest of the game: their events go on that frame's ring.",
+  "keys": [
+   {
+    "href": "#api",
+    "label": "API",
+    "tone": "sys",
+    "arcade": true,
+    "icon": "code"
+   },
+   {
+    "href": "https://github.com/coded-dot-design/fizlet/blob/main/src/rules.ts",
+    "label": "Source ↗",
+    "tone": "cmd",
+    "arcade": true,
+    "icon": "github"
+   }
+  ]
+ },
+ "sizes": [
   {
-   "kind": "html",
-   "html": "<div class=\"bp-card\"><div class=\"bc\" data-demo-host style=\"--tone: var(--k-advance)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks/rules#card-rules\" data-brick-card=\"rules\" data-tag=\"RULES\" data-bytes=\"1318\" role=\"img\" aria-label=\"@fzlt/core/rules, 1.3 KB gzip: supply crates fall in waves; collect them in a chain for a combo and level up, all on the three rules systems. Tap for a wave; tap landed crates before they expire, fast for a combo.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>RULES</b> 1.3 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap for a wave; tap landed crates before they expire, fast for a combo.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.4 KB gzipped: this card, with @fzlt/core/rules, 7,587 bytes, measured at build\" data-size-badge data-bytes=\"7587\" data-live=\"chunks/rules-TOV2CFG2.js\" title=\"7,587 B gzip, measured at build\"><b>7.4 KB</b> gz</span></p>\n</div></div>"
+   "name": "@fzlt/core/rules",
+   "bytes": "1,318 B",
+   "budget": "1.3 KB of a 1.5 KB budget",
+   "v": "0.858"
+  }
+ ],
+ "sizesNote": "Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.",
+ "blocks": [
+  {
+   "kind": "toy",
+   "tone": "var(--k-advance)",
+   "slot": "bricks/rules#card-rules",
+   "brick": "rules",
+   "tag": "RULES",
+   "bytes": "1318",
+   "aria": "@fzlt/core/rules, 1.3 KB gzip: supply crates fall in waves; collect them in a chain for a combo and level up, all on the three rules systems. Tap for a wave; tap landed crates before they expire, fast for a combo.",
+   "poster": {
+    "label": "RULES",
+    "size": "1.3 KB"
+   },
+   "cap": "Tap for a wave; tap landed crates before they expire, fast for a combo.",
+   "badge": {
+    "aria": "7.4 KB gzipped: this card, with @fzlt/core/rules, 7,587 bytes, measured at build",
+    "bytes": "7587",
+    "live": "chunks/rules-TOV2CFG2.js",
+    "title": "7,587 B gzip, measured at build",
+    "size": "7.4 KB",
+    "unit": "gz"
+   }
   },
   {
    "kind": "html",
@@ -66,16 +120,246 @@
    ]
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>EXAMPLE</b> · typechecked against v0.27.0</span><button class=\"bui-key copy\" type=\"button\" data-copy><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 7h10v10H7ZM3 13V3h10\"></path></svg>Copy</button></div><pre tabindex=\"0\" class=\"code\"><code>const w = waves(e, { alive: () =&gt; enemies });\nconst d = drops(e, { kinds: [&quot;repair&quot;, &quot;charge&quot;], every: 6, place: (out) =&gt; spot(out) });\nconst s = score(e, { levels: [8, 24, 50] });\ne.add({ step() {\n  if (w.ready()) { spawn(); w.spawned(); }\n  if (d.collect(px, py, 24) === &quot;repair&quot;) hp++;\n  if (hit) s.add(25, 4);  // 25 points × the combo, 4 xp: event &quot;score&quot;\n} });</code></pre></div>"
+   "kind": "code",
+   "label": "<b>EXAMPLE</b> · typechecked against v0.27.0",
+   "code": "const w = waves(e, { alive: () => enemies });\nconst d = drops(e, { kinds: [\"repair\", \"charge\"], every: 6, place: (out) => spot(out) });\nconst s = score(e, { levels: [8, 24, 50] });\ne.add({ step() {\n  if (w.ready()) { spawn(); w.spawned(); }\n  if (d.collect(px, py, 24) === \"repair\") hp++;\n  if (hit) s.add(25, 4);  // 25 points × the combo, 4 xp: event \"score\"\n} });",
+   "wrap": false,
+   "copy": true,
+   "cls": "panel code-card bp-snippet"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-rules-WavePhase\"><code>WavePhase</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-rules-WaveOptions\"><code>WaveOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-rules-waves\"><code>waves</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-rules-DropOptions\"><code>DropOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-rules-drops\"><code>drops</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-rules-ScoreOptions\"><code>ScoreOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-rules-score\"><code>score</code></a><small>function</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-rules-WavePhase\">\n        <h3><code>WavePhase</code> <small>type</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Where the wave clock is: prepare (before a wave), assault (spawning) or rebuild (between waves).</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type WavePhase = &quot;prepare&quot; | &quot;assault&quot; | &quot;rebuild&quot;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-rules-WaveOptions\">\n        <h3><code>WaveOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Options for <code>waves()</code>: how many are alive now, the cap, the phase lengths and each wave's size, limit and spawn gap.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface WaveOptions {\n    /** Alive now. A wave clears when it has spawned everything and this reaches 0. */\n    alive(): number;\n    /** Most alive at once, whatever the wave (default 32). */\n    cap?: number;\n    /** Seconds before wave 1 (default 4) and between waves (default 8). */\n    prepare?: number;\n    rebuild?: number;\n    /** Enemies in wave n (default min(40, 5 + 5n)). */\n    size?(wave: number): number;\n    /** Most alive at once in wave n, before `cap` (default 8 + 4n). */\n    limit?(wave: number): number;\n    /** Seconds between two spawns in wave n (default max(0.7, 2.1 − 0.12n)). */\n    gap?(wave: number): number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-rules-waves\">\n        <h3><code>waves</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>A wave clock on engine <code>e</code>, prepare → assault → rebuild, with a spawn budget per wave. It says when to spawn; the game decides where and what. Events: <code>wave:start</code>, <code>wave:clear</code>.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>waves(e: Engine, o: WaveOptions): { … }</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>e</code></dt><dd><code>Engine</code></dd></div><div><dt><code>o</code></dt><dd><code><a href=\"#api-fzlt-core-rules-WaveOptions\">WaveOptions</a></code></dd></div><div><dt>Returns</dt><dd><code>{ … }</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function waves(e: Engine, o: WaveOptions): {\n    system: System;\n    readonly wave: number;\n    readonly phase: WavePhase;\n    /** Enemies this wave still has to spawn. */\n    readonly left: number;\n    /** Seconds until the next wave starts (prepare, rebuild). */\n    readonly countdown: number;\n    /** Most alive at once in this wave. */\n    readonly limit: number;\n    /** Spawn one now? Assault, enemies left, the gap has passed and the board is under the limit. */\n    ready(): boolean;\n    /** One spawned: count it and wait the gap. */\n    spawned(): void;\n    reset: () =&gt; undefined;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-rules-DropOptions\">\n        <h3><code>DropOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Options for <code>drops()</code>: the pickup kinds, the cap, the timer for timed drops, their life and fall.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface DropOptions&lt;K extends string&gt; {\n    kinds: readonly K[];\n    /** Most on the board at once (default 6). */\n    cap?: number;\n    /** Seconds between timed drops; 0 or left out: only `spawn()` drops. */\n    every?: number;\n    /** Where the next timed drop lands: write x, y into `out`. Return false to skip this one. */\n    place?(out: Float64Array): boolean | void;\n    /** Kind of the n-th timed drop, as an index into `kinds` (default: in turn). */\n    pick?(n: number): number;\n    /** Seconds a drop lasts (default 14), how far it falls (default 60 px) and how fast (default 90 px/s). */\n    life?: number;\n    fall?: number;\n    speed?: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-rules-drops\">\n        <h3><code>drops</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Pickups on engine <code>e</code> that fall, wait to be collected and expire, from typed arrays. Call <code>collect()</code> from a step. Events: <code>drop:spawn</code>, <code>drop:land</code>, <code>drop:collect</code>, <code>drop:expire</code>.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>drops&lt;K extends string&gt;(e: Engine, o: DropOptions&lt;K&gt;): { … }</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>e</code></dt><dd><code>Engine</code></dd></div><div><dt><code>o</code></dt><dd><code><a href=\"#api-fzlt-core-rules-DropOptions\">DropOptions</a>&lt;K&gt;</code></dd></div><div><dt>Returns</dt><dd><code>{ … }</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function drops&lt;K extends string&gt;(e: Engine, o: DropOptions&lt;K&gt;): {\n    system: System;\n    /** Positions and kinds of the drops on the board, for drawing: index 0 to `count` − 1. */\n    x: Float64Array&lt;ArrayBuffer&gt;;\n    y: Float64Array&lt;ArrayBuffer&gt;;\n    kind: Uint8Array&lt;ArrayBuffer&gt;;\n    /** Seconds since each drop spawned (fall shadow, blink: `life` − age is the time left). */\n    age: Float64Array&lt;ArrayBuffer&gt;;\n    /** Where each drop lands: (x[i], landY[i]). Moves with `scroll`. */\n    landY: Float64Array&lt;ArrayBuffer&gt;;\n    /** Seconds a drop lasts, as configured. */\n    life: number;\n    readonly count: number;\n    /** Has drop i landed (only landed drops can be collected)? */\n    landed: (i: number) =&gt; boolean;\n    spawn: (px: number, py: number, k?: number) =&gt; boolean;\n    /** The kind of the first landed drop within r of (px, py), removed; or null. */\n    collect(px: number, py: number, r: number): K | null;\n    /** The page scrolled: move every drop with it. */\n    scroll(dx: number, dy: number): void;\n    reset(): void;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-rules-ScoreOptions\">\n        <h3><code>ScoreOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Options for <code>score()</code>: the combo window and steps (or no combo) and the XP for each level.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface ScoreOptions {\n    /** A streak lasts `window` seconds after each hit (default 3); the multiplier is\n     *  min(max, 1 + floor(streak / step)) (defaults 3 and 5). false: no combo. */\n    combo?: {\n        window?: number;\n        step?: number;\n        max?: number;\n    } | false;\n    /** XP to reach each level after level 0, rising (e.g. [8, 24, 50] gives levels 0 to 3). */\n    levels?: readonly number[];\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-rules-score\">\n        <h3><code>score</code> <small>function</small> <span class=\"status-pill\" data-flag=\"complete\" title=\"Done, and always getting smaller and faster.\">COMPLETE</span></h3>\n        <p>Points, a combo that decays and levels from XP thresholds, on engine <code>e</code>. Call <code>add()</code> and <code>miss()</code> from a step. Events: <code>score</code>, <code>combo:end</code>, <code>level</code>.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>score(e: Engine, o?: ScoreOptions): { … }</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>e</code></dt><dd><code>Engine</code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-rules-ScoreOptions\">ScoreOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code>{ … }</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function score(e: Engine, o?: ScoreOptions): {\n    system: System;\n    readonly points: number;\n    readonly streak: number;\n    readonly xp: number;\n    readonly level: number;\n    /** The multiplier the next hit gets. */\n    readonly combo: number;\n    /** XP still needed for the next level, or -1 at the top. */\n    readonly next: number;\n    /** A hit: `points` × the combo, plus `xp`. Returns the points awarded. Event `score` (a: points, b: multiplier, at x, y). */\n    add(points: number, xp?: number, px?: number, py?: number): number;\n    /** A miss: the streak ends now. */\n    miss(): void;\n    reset(): void;\n};</code></pre></details>\n      </article>\n    </div>"
+   "kind": "api",
+   "note": "Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.",
+   "toc": [
+    {
+     "href": "#api-fzlt-core-rules-WavePhase",
+     "names": "WavePhase",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-rules-WaveOptions",
+     "names": "WaveOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-rules-waves",
+     "names": "waves",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-rules-DropOptions",
+     "names": "DropOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-rules-drops",
+     "names": "drops",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-rules-ScoreOptions",
+     "names": "ScoreOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-rules-score",
+     "names": "score",
+     "what": "function"
+    }
+   ],
+   "items": [
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-rules-WavePhase",
+     "level": "h3",
+     "names": "WavePhase",
+     "what": "type",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Where the wave clock is: prepare (before a wave), assault (spawning) or rebuild (between waves).",
+     "tags": [],
+     "sigs": [],
+     "code": "export type WavePhase = \"prepare\" | \"assault\" | \"rebuild\";",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-rules-WaveOptions",
+     "level": "h3",
+     "names": "WaveOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Options for <code>waves()</code>: how many are alive now, the cap, the phase lengths and each wave's size, limit and spawn gap.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface WaveOptions {\n    /** Alive now. A wave clears when it has spawned everything and this reaches 0. */\n    alive(): number;\n    /** Most alive at once, whatever the wave (default 32). */\n    cap?: number;\n    /** Seconds before wave 1 (default 4) and between waves (default 8). */\n    prepare?: number;\n    rebuild?: number;\n    /** Enemies in wave n (default min(40, 5 + 5n)). */\n    size?(wave: number): number;\n    /** Most alive at once in wave n, before `cap` (default 8 + 4n). */\n    limit?(wave: number): number;\n    /** Seconds between two spawns in wave n (default max(0.7, 2.1 − 0.12n)). */\n    gap?(wave: number): number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-rules-waves",
+     "level": "h3",
+     "names": "waves",
+     "what": "function",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "A wave clock on engine <code>e</code>, prepare → assault → rebuild, with a spawn budget per wave. It says when to spawn; the game decides where and what. Events: <code>wave:start</code>, <code>wave:clear</code>.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "waves(e: Engine, o: WaveOptions): { … }",
+       "params": [
+        {
+         "name": "e",
+         "type": "Engine",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o",
+         "type": "<a href=\"#api-fzlt-core-rules-WaveOptions\">WaveOptions</a>",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "{ … }"
+      }
+     ],
+     "code": "export declare function waves(e: Engine, o: WaveOptions): {\n    system: System;\n    readonly wave: number;\n    readonly phase: WavePhase;\n    /** Enemies this wave still has to spawn. */\n    readonly left: number;\n    /** Seconds until the next wave starts (prepare, rebuild). */\n    readonly countdown: number;\n    /** Most alive at once in this wave. */\n    readonly limit: number;\n    /** Spawn one now? Assault, enemies left, the gap has passed and the board is under the limit. */\n    ready(): boolean;\n    /** One spawned: count it and wait the gap. */\n    spawned(): void;\n    reset: () => undefined;\n};",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-rules-DropOptions",
+     "level": "h3",
+     "names": "DropOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Options for <code>drops()</code>: the pickup kinds, the cap, the timer for timed drops, their life and fall.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface DropOptions<K extends string> {\n    kinds: readonly K[];\n    /** Most on the board at once (default 6). */\n    cap?: number;\n    /** Seconds between timed drops; 0 or left out: only `spawn()` drops. */\n    every?: number;\n    /** Where the next timed drop lands: write x, y into `out`. Return false to skip this one. */\n    place?(out: Float64Array): boolean | void;\n    /** Kind of the n-th timed drop, as an index into `kinds` (default: in turn). */\n    pick?(n: number): number;\n    /** Seconds a drop lasts (default 14), how far it falls (default 60 px) and how fast (default 90 px/s). */\n    life?: number;\n    fall?: number;\n    speed?: number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-rules-drops",
+     "level": "h3",
+     "names": "drops",
+     "what": "function",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Pickups on engine <code>e</code> that fall, wait to be collected and expire, from typed arrays. Call <code>collect()</code> from a step. Events: <code>drop:spawn</code>, <code>drop:land</code>, <code>drop:collect</code>, <code>drop:expire</code>.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "drops<K extends string>(e: Engine, o: DropOptions<K>): { … }",
+       "params": [
+        {
+         "name": "e",
+         "type": "Engine",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o",
+         "type": "<a href=\"#api-fzlt-core-rules-DropOptions\">DropOptions</a>&lt;K&gt;",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "{ … }"
+      }
+     ],
+     "code": "export declare function drops<K extends string>(e: Engine, o: DropOptions<K>): {\n    system: System;\n    /** Positions and kinds of the drops on the board, for drawing: index 0 to `count` − 1. */\n    x: Float64Array<ArrayBuffer>;\n    y: Float64Array<ArrayBuffer>;\n    kind: Uint8Array<ArrayBuffer>;\n    /** Seconds since each drop spawned (fall shadow, blink: `life` − age is the time left). */\n    age: Float64Array<ArrayBuffer>;\n    /** Where each drop lands: (x[i], landY[i]). Moves with `scroll`. */\n    landY: Float64Array<ArrayBuffer>;\n    /** Seconds a drop lasts, as configured. */\n    life: number;\n    readonly count: number;\n    /** Has drop i landed (only landed drops can be collected)? */\n    landed: (i: number) => boolean;\n    spawn: (px: number, py: number, k?: number) => boolean;\n    /** The kind of the first landed drop within r of (px, py), removed; or null. */\n    collect(px: number, py: number, r: number): K | null;\n    /** The page scrolled: move every drop with it. */\n    scroll(dx: number, dy: number): void;\n    reset(): void;\n};",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-rules-ScoreOptions",
+     "level": "h3",
+     "names": "ScoreOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Options for <code>score()</code>: the combo window and steps (or no combo) and the XP for each level.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface ScoreOptions {\n    /** A streak lasts `window` seconds after each hit (default 3); the multiplier is\n     *  min(max, 1 + floor(streak / step)) (defaults 3 and 5). false: no combo. */\n    combo?: {\n        window?: number;\n        step?: number;\n        max?: number;\n    } | false;\n    /** XP to reach each level after level 0, rising (e.g. [8, 24, 50] gives levels 0 to 3). */\n    levels?: readonly number[];\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-rules-score",
+     "level": "h3",
+     "names": "score",
+     "what": "function",
+     "pill": {
+      "flag": "complete",
+      "title": "Done, and always getting smaller and faster.",
+      "label": "COMPLETE"
+     },
+     "doc": "Points, a combo that decays and levels from XP thresholds, on engine <code>e</code>. Call <code>add()</code> and <code>miss()</code> from a step. Events: <code>score</code>, <code>combo:end</code>, <code>level</code>.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "score(e: Engine, o?: ScoreOptions): { … }",
+       "params": [
+        {
+         "name": "e",
+         "type": "Engine",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-rules-ScoreOptions\">ScoreOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "{ … }"
+      }
+     ],
+     "code": "export declare function score(e: Engine, o?: ScoreOptions): {\n    system: System;\n    readonly points: number;\n    readonly streak: number;\n    readonly xp: number;\n    readonly level: number;\n    /** The multiplier the next hit gets. */\n    readonly combo: number;\n    /** XP still needed for the next level, or -1 at the top. */\n    readonly next: number;\n    /** A hit: `points` × the combo, plus `xp`. Returns the points awarded. Event `score` (a: points, b: multiplier, at x, y). */\n    add(points: number, xp?: number, px?: number, py?: number): number;\n    /** A miss: the streak ends now. */\n    miss(): void;\n    reset(): void;\n};",
+     "folded": true
+    }
+   ]
   },
   {
-   "kind": "html",
-   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/perf.html\"><small>← PREVIOUS</small><code>@fzlt/core/perf</code></a><a class=\"bp-step next\" href=\"/bricks/steer.html\"><small>NEXT →</small><code>@fzlt/core/steer</code></a></nav>"
+   "kind": "steps",
+   "steps": [
+    {
+     "href": "/bricks/perf.html",
+     "label": "@fzlt/core/perf",
+     "dir": "prev"
+    },
+    {
+     "href": "/bricks/steer.html",
+     "label": "@fzlt/core/steer",
+     "dir": "next"
+    }
+   ]
   }
  ]
 }

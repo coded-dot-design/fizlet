@@ -57,7 +57,27 @@
      ],
      "chips": "<li><b>10</b> exports</li>",
      "what": "The kernel: one loop, bounded work, and the page always comes back.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-go)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-kernel\" data-brick-card=\"kernel\" data-tag=\"KERNEL\" data-bytes=\"3372\" role=\"img\" aria-label=\"@fzlt/core, 3.3 KB gzip: bricks drop, stack and settle; the engine sleeps the moment they stop. Tap the floor to drop a brick; tap a brick to knock it out.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>KERNEL</b> 3.3 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap the floor to drop a brick; tap a brick to knock it out.</span><span class=\"size-badge\" role=\"img\" aria-label=\"5.7 KB gzipped: this card, with @fzlt/core, 5,800 bytes, measured at build\" data-size-badge data-bytes=\"5800\" data-live=\"chunks/kernel-LRIZORTX.js\" title=\"5,800 B gzip, measured at build\"><b>5.7 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-go)",
+      "slot": "bricks#card-kernel",
+      "brick": "kernel",
+      "tag": "KERNEL",
+      "bytes": "3372",
+      "aria": "@fzlt/core, 3.3 KB gzip: bricks drop, stack and settle; the engine sleeps the moment they stop. Tap the floor to drop a brick; tap a brick to knock it out.",
+      "poster": {
+       "label": "KERNEL",
+       "size": "3.3 KB"
+      },
+      "cap": "Tap the floor to drop a brick; tap a brick to knock it out.",
+      "badge": {
+       "aria": "5.7 KB gzipped: this card, with @fzlt/core, 5,800 bytes, measured at build",
+       "bytes": "5800",
+       "live": "chunks/kernel-LRIZORTX.js",
+       "title": "5,800 B gzip, measured at build",
+       "size": "5.7 KB",
+       "unit": "gz"
+      }
+     },
      "budget": "<b data-size=\"@fzlt/core (kernel)\">3,372 B</b> <span>of a 4,096 B budget</span>",
      "meter": {
       "label": "3.3 KB of a 4.0 KB budget",
@@ -79,7 +99,27 @@
      ],
      "chips": "<li><b>1.9 KB</b> gzip</li><li>of <b>1.9 KB</b></li><li><b>2</b> exports</li>",
      "what": "One controller for keys, pointer and a touch stick, mapped to named intents.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-sys)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-input\" data-brick-card=\"input\" data-tag=\"INPUT\" data-bytes=\"1909\" role=\"img\" aria-label=\"@fzlt/core/input, 1.9 KB gzip: whack-a-brick: keys and the pointer map to the same named intents, each hit true for one step. Tap to start; whack a brick with a tap or its key (1–4, A S D F).\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>INPUT</b> 1.9 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap to start; whack a brick with a tap or its key (1–4, A S D F).</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.5 KB gzipped: this card, with @fzlt/core/input, 7,660 bytes, measured at build\" data-size-badge data-bytes=\"7660\" data-live=\"chunks/input-RZNBQDXA.js\" title=\"7,660 B gzip, measured at build\"><b>7.5 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-sys)",
+      "slot": "bricks#card-input",
+      "brick": "input",
+      "tag": "INPUT",
+      "bytes": "1909",
+      "aria": "@fzlt/core/input, 1.9 KB gzip: whack-a-brick: keys and the pointer map to the same named intents, each hit true for one step. Tap to start; whack a brick with a tap or its key (1–4, A S D F).",
+      "poster": {
+       "label": "INPUT",
+       "size": "1.9 KB"
+      },
+      "cap": "Tap to start; whack a brick with a tap or its key (1–4, A S D F).",
+      "badge": {
+       "aria": "7.5 KB gzipped: this card, with @fzlt/core/input, 7,660 bytes, measured at build",
+       "bytes": "7660",
+       "live": "chunks/input-RZNBQDXA.js",
+       "title": "7,660 B gzip, measured at build",
+       "size": "7.5 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "1.9 KB of a 1.9 KB budget",
       "v": "0.994"
@@ -100,7 +140,27 @@
      ],
      "chips": "<li><b>2.0 KB</b> gzip</li><li>of <b>2.1 KB</b></li><li><b>3</b> exports</li>",
      "what": "Swappable on-screen controls for touch (and mouse).",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-advance)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-pad\" data-brick-card=\"pad\" data-tag=\"PAD\" data-bytes=\"2068\" role=\"img\" aria-label=\"@fzlt/core/pad, 2.0 KB gzip: the Board UI pad drives a brick that pushes three crates home; a shoved crate slides on its own. Drive with the stick, the arrows or a tap; SHOVE to dash; SWAP for a d-pad.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>PAD</b> 2.0 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Drive with the stick, the arrows or a tap; SHOVE to dash; SWAP for a d-pad.</span><span class=\"size-badge\" role=\"img\" aria-label=\"12.9 KB gzipped: this card, with @fzlt/core/pad, 13,229 bytes, measured at build\" data-size-badge data-bytes=\"13229\" data-live=\"chunks/pad-LIUIJXSH.js\" title=\"13,229 B gzip, measured at build\"><b>12.9 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-advance)",
+      "slot": "bricks#card-pad",
+      "brick": "pad",
+      "tag": "PAD",
+      "bytes": "2068",
+      "aria": "@fzlt/core/pad, 2.0 KB gzip: the Board UI pad drives a brick that pushes three crates home; a shoved crate slides on its own. Drive with the stick, the arrows or a tap; SHOVE to dash; SWAP for a d-pad.",
+      "poster": {
+       "label": "PAD",
+       "size": "2.0 KB"
+      },
+      "cap": "Drive with the stick, the arrows or a tap; SHOVE to dash; SWAP for a d-pad.",
+      "badge": {
+       "aria": "12.9 KB gzipped: this card, with @fzlt/core/pad, 13,229 bytes, measured at build",
+       "bytes": "13229",
+       "live": "chunks/pad-LIUIJXSH.js",
+       "title": "13,229 B gzip, measured at build",
+       "size": "12.9 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "2.0 KB of a 2.1 KB budget",
       "v": "0.975"
@@ -121,7 +181,27 @@
      ],
      "chips": "<li><b>1.2 KB</b> gzip</li><li>of <b>1.5 KB</b></li><li><b>6</b> exports</li>",
      "what": "A fixed-capacity spatial hash (no allocation per insert or query) and the shape tests games need: circle–circle, circle–rect, swept segment–circle.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-cmd)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-collide\" data-brick-card=\"collide\" data-tag=\"COLLIDE\" data-bytes=\"1265\" role=\"img\" aria-label=\"@fzlt/core/collide, 1.2 KB gzip: balls knock bricks out of a wall; the spatial grid checks only the bricks a ball can touch. Tap to fire a ball at that spot.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>COLLIDE</b> 1.2 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap to fire a ball at that spot.</span><span class=\"size-badge\" role=\"img\" aria-label=\"9.7 KB gzipped: this card, with @fzlt/core/collide, 9,944 bytes, measured at build\" data-size-badge data-bytes=\"9944\" data-live=\"chunks/collide-DTFTKYDH.js\" title=\"9,944 B gzip, measured at build\"><b>9.7 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-cmd)",
+      "slot": "bricks#card-collide",
+      "brick": "collide",
+      "tag": "COLLIDE",
+      "bytes": "1265",
+      "aria": "@fzlt/core/collide, 1.2 KB gzip: balls knock bricks out of a wall; the spatial grid checks only the bricks a ball can touch. Tap to fire a ball at that spot.",
+      "poster": {
+       "label": "COLLIDE",
+       "size": "1.2 KB"
+      },
+      "cap": "Tap to fire a ball at that spot.",
+      "badge": {
+       "aria": "9.7 KB gzipped: this card, with @fzlt/core/collide, 9,944 bytes, measured at build",
+       "bytes": "9944",
+       "live": "chunks/collide-DTFTKYDH.js",
+       "title": "9,944 B gzip, measured at build",
+       "size": "9.7 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "1.2 KB of a 1.5 KB budget",
       "v": "0.824"
@@ -142,7 +222,27 @@
      ],
      "chips": "<li><b>1.6 KB</b> gzip</li><li>of <b>1.6 KB</b></li><li><b>5</b> exports</li>",
      "what": "The game board.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-flag)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-grid\" data-brick-card=\"grid\" data-tag=\"GRID\" data-bytes=\"1652\" role=\"img\" aria-label=\"@fzlt/core/grid, 1.6 KB gzip: A* finds the way across a seeded board of rocks and the brick walks it. Tap a cell to walk there; tap a rock to break it.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>GRID</b> 1.6 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap a cell to walk there; tap a rock to break it.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.5 KB gzipped: this card, with @fzlt/core/grid, 7,705 bytes, measured at build\" data-size-badge data-bytes=\"7705\" data-live=\"chunks/grid-6GGY5476.js\" title=\"7,705 B gzip, measured at build\"><b>7.5 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-flag)",
+      "slot": "bricks#card-grid",
+      "brick": "grid",
+      "tag": "GRID",
+      "bytes": "1652",
+      "aria": "@fzlt/core/grid, 1.6 KB gzip: A* finds the way across a seeded board of rocks and the brick walks it. Tap a cell to walk there; tap a rock to break it.",
+      "poster": {
+       "label": "GRID",
+       "size": "1.6 KB"
+      },
+      "cap": "Tap a cell to walk there; tap a rock to break it.",
+      "badge": {
+       "aria": "7.5 KB gzipped: this card, with @fzlt/core/grid, 7,705 bytes, measured at build",
+       "bytes": "7705",
+       "live": "chunks/grid-6GGY5476.js",
+       "title": "7,705 B gzip, measured at build",
+       "size": "7.5 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "1.6 KB of a 1.6 KB budget",
       "v": "0.993"
@@ -163,7 +263,27 @@
      ],
      "chips": "<li><b>2.7 KB</b> gzip</li><li>of <b>3.0 KB</b></li><li><b>8</b> exports</li>",
      "what": "Explosions that land.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-attack)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-fx\" data-brick-card=\"fx\" data-tag=\"FX\" data-bytes=\"2792\" role=\"img\" aria-label=\"@fzlt/core/fx, 2.7 KB gzip: a crate knocked around by small blasts until the hero blast takes it apart, from one fixed particle pool. Tap near the crate, or tap the crate.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>FX</b> 2.7 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap near the crate, or tap the crate.</span><span class=\"size-badge\" role=\"img\" aria-label=\"10.3 KB gzipped: this card, with @fzlt/core/fx, 10,558 bytes, measured at build\" data-size-badge data-bytes=\"10558\" data-live=\"chunks/fx-FD2S36D5.js\" title=\"10,558 B gzip, measured at build\"><b>10.3 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-attack)",
+      "slot": "bricks#card-fx",
+      "brick": "fx",
+      "tag": "FX",
+      "bytes": "2792",
+      "aria": "@fzlt/core/fx, 2.7 KB gzip: a crate knocked around by small blasts until the hero blast takes it apart, from one fixed particle pool. Tap near the crate, or tap the crate.",
+      "poster": {
+       "label": "FX",
+       "size": "2.7 KB"
+      },
+      "cap": "Tap near the crate, or tap the crate.",
+      "badge": {
+       "aria": "10.3 KB gzipped: this card, with @fzlt/core/fx, 10,558 bytes, measured at build",
+       "bytes": "10558",
+       "live": "chunks/fx-FD2S36D5.js",
+       "title": "10,558 B gzip, measured at build",
+       "size": "10.3 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "2.7 KB of a 3.0 KB budget",
       "v": "0.909"
@@ -184,7 +304,27 @@
      ],
      "chips": "<li><b>1.4 KB</b> gzip</li><li>of <b>1.5 KB</b></li><li><b>5</b> exports</li>",
      "what": "The page is the camera.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-go)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-camera\" data-brick-card=\"camera\" data-tag=\"CAMERA\" data-bytes=\"1400\" role=\"img\" aria-label=\"@fzlt/core/camera, 1.4 KB gzip: a tiny page of real DOM with fine print you can only read when the camera zooms in. Tap anywhere to dive in; tap again to fly back.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>CAMERA</b> 1.4 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap anywhere to dive in; tap again to fly back.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.1 KB gzipped: this card, with @fzlt/core/camera, 7,237 bytes, measured at build\" data-size-badge data-bytes=\"7237\" data-live=\"chunks/camera-LI6O6GVL.js\" title=\"7,237 B gzip, measured at build\"><b>7.1 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-go)",
+      "slot": "bricks#card-camera",
+      "brick": "camera",
+      "tag": "CAMERA",
+      "bytes": "1400",
+      "aria": "@fzlt/core/camera, 1.4 KB gzip: a tiny page of real DOM with fine print you can only read when the camera zooms in. Tap anywhere to dive in; tap again to fly back.",
+      "poster": {
+       "label": "CAMERA",
+       "size": "1.4 KB"
+      },
+      "cap": "Tap anywhere to dive in; tap again to fly back.",
+      "badge": {
+       "aria": "7.1 KB gzipped: this card, with @fzlt/core/camera, 7,237 bytes, measured at build",
+       "bytes": "7237",
+       "live": "chunks/camera-LI6O6GVL.js",
+       "title": "7,237 B gzip, measured at build",
+       "size": "7.1 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "1.4 KB of a 1.5 KB budget",
       "v": "0.911"
@@ -205,7 +345,27 @@
      ],
      "chips": "<li><b>1.4 KB</b> gzip</li><li>of <b>1.5 KB</b></li><li><b>3</b> exports</li>",
      "what": "The character layer's drawing primitive.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-fallin)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-sprite\" data-brick-card=\"sprite\" data-tag=\"SPRITE\" data-bytes=\"1437\" role=\"img\" aria-label=\"@fzlt/core/sprite, 1.4 KB gzip: a pixel bug that flashes, gets angry and bursts into its own pixels. Tap the bug. Four times.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>SPRITE</b> 1.4 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap the bug. Four times.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.2 KB gzipped: this card, with @fzlt/core/sprite, 7,408 bytes, measured at build\" data-size-badge data-bytes=\"7408\" data-live=\"chunks/sprite-PUYN2KQ5.js\" title=\"7,408 B gzip, measured at build\"><b>7.2 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-fallin)",
+      "slot": "bricks#card-sprite",
+      "brick": "sprite",
+      "tag": "SPRITE",
+      "bytes": "1437",
+      "aria": "@fzlt/core/sprite, 1.4 KB gzip: a pixel bug that flashes, gets angry and bursts into its own pixels. Tap the bug. Four times.",
+      "poster": {
+       "label": "SPRITE",
+       "size": "1.4 KB"
+      },
+      "cap": "Tap the bug. Four times.",
+      "badge": {
+       "aria": "7.2 KB gzipped: this card, with @fzlt/core/sprite, 7,408 bytes, measured at build",
+       "bytes": "7408",
+       "live": "chunks/sprite-PUYN2KQ5.js",
+       "title": "7,408 B gzip, measured at build",
+       "size": "7.2 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "1.4 KB of a 1.5 KB budget",
       "v": "0.936"
@@ -226,7 +386,27 @@
      ],
      "chips": "<li><b>1.0 KB</b> gzip</li><li>of <b>1.5 KB</b></li><li><b>1</b> export</li>",
      "what": "The sound adapter.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-advance)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-sound\" data-brick-card=\"sound\" data-tag=\"SOUND\" data-bytes=\"1062\" role=\"img\" aria-label=\"@fzlt/core/sound, 1.0 KB gzip: a ball bouncing down brick stairs; every landing plays that brick's cue from a tiny synth. Tap above the stairs to drop a ball (sound on).\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>SOUND</b> 1.0 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap above the stairs to drop a ball (sound on).</span><span class=\"size-badge\" role=\"img\" aria-label=\"6.9 KB gzipped: this card, with @fzlt/core/sound, 7,097 bytes, measured at build\" data-size-badge data-bytes=\"7097\" data-live=\"chunks/sound-GZG2SNC3.js\" title=\"7,097 B gzip, measured at build\"><b>6.9 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-advance)",
+      "slot": "bricks#card-sound",
+      "brick": "sound",
+      "tag": "SOUND",
+      "bytes": "1062",
+      "aria": "@fzlt/core/sound, 1.0 KB gzip: a ball bouncing down brick stairs; every landing plays that brick's cue from a tiny synth. Tap above the stairs to drop a ball (sound on).",
+      "poster": {
+       "label": "SOUND",
+       "size": "1.0 KB"
+      },
+      "cap": "Tap above the stairs to drop a ball (sound on).",
+      "badge": {
+       "aria": "6.9 KB gzipped: this card, with @fzlt/core/sound, 7,097 bytes, measured at build",
+       "bytes": "7097",
+       "live": "chunks/sound-GZG2SNC3.js",
+       "title": "7,097 B gzip, measured at build",
+       "size": "6.9 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "1.0 KB of a 1.5 KB budget",
       "v": "0.691"
@@ -247,7 +427,27 @@
      ],
      "chips": "<li><b>2.0 KB</b> gzip</li><li>of <b>2.5 KB</b></li><li><b>1</b> export</li>",
      "what": "Drop a game onto any page with one small config.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-fallin)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-embed\" data-brick-card=\"embed\" data-tag=\"EMBED\" data-bytes=\"2040\" role=\"img\" aria-label=\"@fzlt/core/embed, 2.0 KB gzip: a locked vault: embed stays dormant until its gesture or key sequence, then mounts the game and coins burst out. Double-tap the card, or type BRICK.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>EMBED</b> 2.0 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Double-tap the card, or type BRICK.</span><span class=\"size-badge\" role=\"img\" aria-label=\"8.3 KB gzipped: this card, with @fzlt/core/embed, 8,463 bytes, measured at build\" data-size-badge data-bytes=\"8463\" data-live=\"chunks/embed-XIUSBGWS.js\" title=\"8,463 B gzip, measured at build\"><b>8.3 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-fallin)",
+      "slot": "bricks#card-embed",
+      "brick": "embed",
+      "tag": "EMBED",
+      "bytes": "2040",
+      "aria": "@fzlt/core/embed, 2.0 KB gzip: a locked vault: embed stays dormant until its gesture or key sequence, then mounts the game and coins burst out. Double-tap the card, or type BRICK.",
+      "poster": {
+       "label": "EMBED",
+       "size": "2.0 KB"
+      },
+      "cap": "Double-tap the card, or type BRICK.",
+      "badge": {
+       "aria": "8.3 KB gzipped: this card, with @fzlt/core/embed, 8,463 bytes, measured at build",
+       "bytes": "8463",
+       "live": "chunks/embed-XIUSBGWS.js",
+       "title": "8,463 B gzip, measured at build",
+       "size": "8.3 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "2.0 KB of a 2.5 KB budget",
       "v": "0.797"
@@ -267,8 +467,28 @@
       "slot"
      ],
      "chips": "<li><b>1.8 KB</b> gzip</li><li>of <b>2.0 KB</b></li><li><b>2</b> exports</li>",
-     "what": "Mount a Fizlet scene into an Astro page engine slot: the element carrying class=\"ae-slot\" data-slot-target=\"<page>#<slot>\" role=\"img\" aria-label=\"…\".",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-sys)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-slot\" data-brick-card=\"slot\" data-tag=\"SLOT\" data-bytes=\"1849\" role=\"img\" aria-label=\"@fzlt/core/slot, 1.8 KB gzip: six real slot figures behind a window: each loads only when it comes into view, and at the end of the strip every one is given back exactly. Tap to slide the strip on; tap a live scene to drop its brick again.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>SLOT</b> 1.8 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap to slide the strip on; tap a live scene to drop its brick again.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.8 KB gzipped: this card, with @fzlt/core/slot, 8,024 bytes, measured at build\" data-size-badge data-bytes=\"8024\" data-live=\"chunks/slot-4UGRNAT7.js\" title=\"8,024 B gzip, measured at build\"><b>7.8 KB</b> gz</span></p>\n</div>",
+     "what": "Mount a Fizlet scene into an Astro page engine slot: the element carrying class=&quot;ae-slot&quot; data-slot-target=&quot;&lt;page&gt;#&lt;slot&gt;&quot; role=&quot;img&quot; aria-label=&quot;…&quot;.",
+     "toy": {
+      "tone": "var(--k-sys)",
+      "slot": "bricks#card-slot",
+      "brick": "slot",
+      "tag": "SLOT",
+      "bytes": "1849",
+      "aria": "@fzlt/core/slot, 1.8 KB gzip: six real slot figures behind a window: each loads only when it comes into view, and at the end of the strip every one is given back exactly. Tap to slide the strip on; tap a live scene to drop its brick again.",
+      "poster": {
+       "label": "SLOT",
+       "size": "1.8 KB"
+      },
+      "cap": "Tap to slide the strip on; tap a live scene to drop its brick again.",
+      "badge": {
+       "aria": "7.8 KB gzipped: this card, with @fzlt/core/slot, 8,024 bytes, measured at build",
+       "bytes": "8024",
+       "live": "chunks/slot-4UGRNAT7.js",
+       "title": "8,024 B gzip, measured at build",
+       "size": "7.8 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "1.8 KB of a 2.0 KB budget",
       "v": "0.903"
@@ -289,7 +509,27 @@
      ],
      "chips": "<li><b>1.3 KB</b> gzip</li><li>of <b>1.5 KB</b></li><li><b>1</b> export</li>",
      "what": "Change-only HUD bindings that never allocate in the steady state.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-aim)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-hud\" data-brick-card=\"hud\" data-tag=\"HUD\" data-bytes=\"1306\" role=\"img\" aria-label=\"@fzlt/core/hud, 1.3 KB gzip: a high striker whose real DOM scoreboard is written only when what it shows changes. Tap to strike; tap fast to heat it up and ring the bell.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>HUD</b> 1.3 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap to strike; tap fast to heat it up and ring the bell.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.7 KB gzipped: this card, with @fzlt/core/hud, 7,908 bytes, measured at build\" data-size-badge data-bytes=\"7908\" data-live=\"chunks/hud-DHO4S4R3.js\" title=\"7,908 B gzip, measured at build\"><b>7.7 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-aim)",
+      "slot": "bricks#card-hud",
+      "brick": "hud",
+      "tag": "HUD",
+      "bytes": "1306",
+      "aria": "@fzlt/core/hud, 1.3 KB gzip: a high striker whose real DOM scoreboard is written only when what it shows changes. Tap to strike; tap fast to heat it up and ring the bell.",
+      "poster": {
+       "label": "HUD",
+       "size": "1.3 KB"
+      },
+      "cap": "Tap to strike; tap fast to heat it up and ring the bell.",
+      "badge": {
+       "aria": "7.7 KB gzipped: this card, with @fzlt/core/hud, 7,908 bytes, measured at build",
+       "bytes": "7908",
+       "live": "chunks/hud-DHO4S4R3.js",
+       "title": "7,908 B gzip, measured at build",
+       "size": "7.7 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "1.3 KB of a 1.5 KB budget",
       "v": "0.850"
@@ -310,7 +550,27 @@
      ],
      "chips": "<li><b>2.6 KB</b> gzip</li><li>of <b>2.8 KB</b></li><li><b>1</b> export</li>",
      "what": "The match flow every game shares, intro → count → play → paused → end, on the Board UI kit's overlay (grey dim, a sticker that slams, at most two sticker keys).",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-go)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-match\" data-brick-card=\"match\" data-tag=\"MATCH\" data-bytes=\"2617\" role=\"img\" aria-label=\"@fzlt/core/match, 2.6 KB gzip: a ten-second round on the match phase machine: start, count, play, stage clear or game over. Tap to start, then catch the bricks on your paddle.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>MATCH</b> 2.6 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap to start, then catch the bricks on your paddle.</span><span class=\"size-badge\" role=\"img\" aria-label=\"8.7 KB gzipped: this card, with @fzlt/core/match, 8,865 bytes, measured at build\" data-size-badge data-bytes=\"8865\" data-live=\"chunks/match-KALLHNIT.js\" title=\"8,865 B gzip, measured at build\"><b>8.7 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-go)",
+      "slot": "bricks#card-match",
+      "brick": "match",
+      "tag": "MATCH",
+      "bytes": "2617",
+      "aria": "@fzlt/core/match, 2.6 KB gzip: a ten-second round on the match phase machine: start, count, play, stage clear or game over. Tap to start, then catch the bricks on your paddle.",
+      "poster": {
+       "label": "MATCH",
+       "size": "2.6 KB"
+      },
+      "cap": "Tap to start, then catch the bricks on your paddle.",
+      "badge": {
+       "aria": "8.7 KB gzipped: this card, with @fzlt/core/match, 8,865 bytes, measured at build",
+       "bytes": "8865",
+       "live": "chunks/match-KALLHNIT.js",
+       "title": "8,865 B gzip, measured at build",
+       "size": "8.7 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "2.6 KB of a 2.8 KB budget",
       "v": "0.929"
@@ -331,7 +591,27 @@
      ],
      "chips": "<li><b>4.0 KB</b> gzip</li><li>of <b>4.1 KB</b></li><li><b>1</b> export</li>",
      "what": "The host page as the board.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-attack)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-board-page\" data-brick-card=\"board-page\" data-tag=\"BOARD PAGE\" data-bytes=\"4104\" role=\"img\" aria-label=\"@fzlt/core/board-page, 4.0 KB gzip: a tiny page of real text and buttons is the board: each bite eats the letters it touches (turning them to 0s and 1s) and bounces off the buttons. Tap to fire a bite at that spot.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>BOARD PAGE</b> 4.0 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap to fire a bite at that spot.</span><span class=\"size-badge\" role=\"img\" aria-label=\"13.4 KB gzipped: this card, with @fzlt/core/board-page, 13,711 bytes, measured at build\" data-size-badge data-bytes=\"13711\" data-live=\"chunks/board-page-GZNM2243.js\" title=\"13,711 B gzip, measured at build\"><b>13.4 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-attack)",
+      "slot": "bricks#card-board-page",
+      "brick": "board-page",
+      "tag": "BOARD PAGE",
+      "bytes": "4104",
+      "aria": "@fzlt/core/board-page, 4.0 KB gzip: a tiny page of real text and buttons is the board: each bite eats the letters it touches (turning them to 0s and 1s) and bounces off the buttons. Tap to fire a bite at that spot.",
+      "poster": {
+       "label": "BOARD PAGE",
+       "size": "4.0 KB"
+      },
+      "cap": "Tap to fire a bite at that spot.",
+      "badge": {
+       "aria": "13.4 KB gzipped: this card, with @fzlt/core/board-page, 13,711 bytes, measured at build",
+       "bytes": "13711",
+       "live": "chunks/board-page-GZNM2243.js",
+       "title": "13,711 B gzip, measured at build",
+       "size": "13.4 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "4.0 KB of a 4.1 KB budget",
       "v": "0.987"
@@ -352,7 +632,27 @@
      ],
      "chips": "<li><b>2.8 KB</b> gzip</li><li>of <b>3.0 KB</b></li><li><b>10</b> exports</li>",
      "what": "The tiny behaviour half of board-ui.css.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-fire)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-ui\" data-brick-card=\"ui\" data-tag=\"BOARD UI\" data-bytes=\"2907\" role=\"img\" aria-label=\"@fzlt/core/ui, 2.8 KB gzip: a brick hops along four real Board UI arcade keys, pressing each one it lands on; four in a run slams the kit's sticker. Tap a key to fire a brick along the row, or tap above to drop one.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>BOARD UI</b> 2.8 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap a key to fire a brick along the row, or tap above to drop one.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.0 KB gzipped: this card, with @fzlt/core/ui, 7,179 bytes, measured at build\" data-size-badge data-bytes=\"7179\" data-live=\"chunks/ui-UZVUQ6GE.js\" title=\"7,179 B gzip, measured at build\"><b>7.0 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-fire)",
+      "slot": "bricks#card-ui",
+      "brick": "ui",
+      "tag": "BOARD UI",
+      "bytes": "2907",
+      "aria": "@fzlt/core/ui, 2.8 KB gzip: a brick hops along four real Board UI arcade keys, pressing each one it lands on; four in a run slams the kit's sticker. Tap a key to fire a brick along the row, or tap above to drop one.",
+      "poster": {
+       "label": "BOARD UI",
+       "size": "2.8 KB"
+      },
+      "cap": "Tap a key to fire a brick along the row, or tap above to drop one.",
+      "badge": {
+       "aria": "7.0 KB gzipped: this card, with @fzlt/core/ui, 7,179 bytes, measured at build",
+       "bytes": "7179",
+       "live": "chunks/ui-UZVUQ6GE.js",
+       "title": "7,179 B gzip, measured at build",
+       "size": "7.0 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "2.8 KB of a 3.0 KB budget",
       "v": "0.946"
@@ -373,7 +673,27 @@
      ],
      "chips": "<li><b>2.0 KB</b> gzip</li><li>of <b>2.0 KB</b></li><li><b>6</b> exports</li>",
      "what": "A live performance overlay for players, off until they switch it on.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-sys)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-perf\" data-brick-card=\"perf\" data-tag=\"PERF\" data-bytes=\"2019\" role=\"img\" aria-label=\"@fzlt/core/perf, 2.0 KB gzip: a brick that lands does real work in that step; the perf overlay draws the late frame over its budget line and counts the drops. Tap high or low to drop a long task.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>PERF</b> 2.0 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap high or low to drop a long task.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.6 KB gzipped: this card, with @fzlt/core/perf, 7,764 bytes, measured at build\" data-size-badge data-bytes=\"7764\" data-live=\"chunks/perf-YAFEF4IH.js\" title=\"7,764 B gzip, measured at build\"><b>7.6 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-sys)",
+      "slot": "bricks#card-perf",
+      "brick": "perf",
+      "tag": "PERF",
+      "bytes": "2019",
+      "aria": "@fzlt/core/perf, 2.0 KB gzip: a brick that lands does real work in that step; the perf overlay draws the late frame over its budget line and counts the drops. Tap high or low to drop a long task.",
+      "poster": {
+       "label": "PERF",
+       "size": "2.0 KB"
+      },
+      "cap": "Tap high or low to drop a long task.",
+      "badge": {
+       "aria": "7.6 KB gzipped: this card, with @fzlt/core/perf, 7,764 bytes, measured at build",
+       "bytes": "7764",
+       "live": "chunks/perf-YAFEF4IH.js",
+       "title": "7,764 B gzip, measured at build",
+       "size": "7.6 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "2.0 KB of a 2.0 KB budget",
       "v": "0.999"
@@ -393,8 +713,28 @@
       "rules"
      ],
      "chips": "<li><b>1.3 KB</b> gzip</li><li>of <b>1.5 KB</b></li><li><b>3</b> exports</li>",
-     "what": "The rules every arcade game repeats, as three small systems on the kernel: - waves: a wave clock, prepare → assault → rebuild, with a spawn budget per wave; - drops: pickups that fall, wait to be collected and expire; - score: points, a combo that decays, and levels from XP thresholds.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-advance)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-rules\" data-brick-card=\"rules\" data-tag=\"RULES\" data-bytes=\"1318\" role=\"img\" aria-label=\"@fzlt/core/rules, 1.3 KB gzip: supply crates fall in waves; collect them in a chain for a combo and level up, all on the three rules systems. Tap for a wave; tap landed crates before they expire, fast for a combo.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>RULES</b> 1.3 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap for a wave; tap landed crates before they expire, fast for a combo.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.4 KB gzipped: this card, with @fzlt/core/rules, 7,587 bytes, measured at build\" data-size-badge data-bytes=\"7587\" data-live=\"chunks/rules-TOV2CFG2.js\" title=\"7,587 B gzip, measured at build\"><b>7.4 KB</b> gz</span></p>\n</div>",
+     "what": "The rules every arcade game repeats, as three small systems on the kernel: - <code>waves</code>: a wave clock, prepare → assault → rebuild, with a spawn budget per wave; - <code>drops</code>: pickups that fall, wait to be collected and expire; - <code>score</code>: points, a combo that decays, and levels from XP thresholds.",
+     "toy": {
+      "tone": "var(--k-advance)",
+      "slot": "bricks#card-rules",
+      "brick": "rules",
+      "tag": "RULES",
+      "bytes": "1318",
+      "aria": "@fzlt/core/rules, 1.3 KB gzip: supply crates fall in waves; collect them in a chain for a combo and level up, all on the three rules systems. Tap for a wave; tap landed crates before they expire, fast for a combo.",
+      "poster": {
+       "label": "RULES",
+       "size": "1.3 KB"
+      },
+      "cap": "Tap for a wave; tap landed crates before they expire, fast for a combo.",
+      "badge": {
+       "aria": "7.4 KB gzipped: this card, with @fzlt/core/rules, 7,587 bytes, measured at build",
+       "bytes": "7587",
+       "live": "chunks/rules-TOV2CFG2.js",
+       "title": "7,587 B gzip, measured at build",
+       "size": "7.4 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "1.3 KB of a 1.5 KB budget",
       "v": "0.858"
@@ -415,7 +755,27 @@
      ],
      "chips": "<li><b>2.7 KB</b> gzip</li><li>of <b>2.8 KB</b></li><li><b>3</b> exports</li>",
      "what": "How things move toward, away from and around a point, as DOM-free steering on typed arrays.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-advance)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-steer\" data-brick-card=\"steer\" data-tag=\"STEER\" data-bytes=\"2759\" role=\"img\" aria-label=\"@fzlt/core/steer, 2.7 KB gzip: a tower of small bricks that flee the pointer and arrive back in their own slots. Bring the pointer near, or tap the tower.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>STEER</b> 2.7 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Bring the pointer near, or tap the tower.</span><span class=\"size-badge\" role=\"img\" aria-label=\"8.4 KB gzipped: this card, with @fzlt/core/steer, 8,650 bytes, measured at build\" data-size-badge data-bytes=\"8650\" data-live=\"chunks/steer-SOHL7SNE.js\" title=\"8,650 B gzip, measured at build\"><b>8.4 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-advance)",
+      "slot": "bricks#card-steer",
+      "brick": "steer",
+      "tag": "STEER",
+      "bytes": "2759",
+      "aria": "@fzlt/core/steer, 2.7 KB gzip: a tower of small bricks that flee the pointer and arrive back in their own slots. Bring the pointer near, or tap the tower.",
+      "poster": {
+       "label": "STEER",
+       "size": "2.7 KB"
+      },
+      "cap": "Bring the pointer near, or tap the tower.",
+      "badge": {
+       "aria": "8.4 KB gzipped: this card, with @fzlt/core/steer, 8,650 bytes, measured at build",
+       "bytes": "8650",
+       "live": "chunks/steer-SOHL7SNE.js",
+       "title": "8,650 B gzip, measured at build",
+       "size": "8.4 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "2.7 KB of a 2.8 KB budget",
       "v": "0.980"
@@ -435,8 +795,28 @@
       "coach"
      ],
      "chips": "<li><b>1.2 KB</b> gzip</li><li>of <b>1.5 KB</b></li><li><b>3</b> exports</li>",
-     "what": "The hints and tutorial layer the board games share, in three small parts: - flag: a once-only switch kept in localStorage (\"tips off\", \"seen the tour\").",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-sys)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-coach\" data-brick-card=\"coach\" data-tag=\"COACH\" data-bytes=\"1220\" role=\"img\" aria-label=\"@fzlt/core/coach, 1.2 KB gzip: a four-step tutorial: the coach card names a brick and rings it; the right tap passes the step, a wrong one is a miss. Tap the brick the coach card rings.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>COACH</b> 1.2 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap the brick the coach card rings.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.2 KB gzipped: this card, with @fzlt/core/coach, 7,416 bytes, measured at build\" data-size-badge data-bytes=\"7416\" data-live=\"chunks/coach-4KIFIOHD.js\" title=\"7,416 B gzip, measured at build\"><b>7.2 KB</b> gz</span></p>\n</div>",
+     "what": "The hints and tutorial layer the board games share, in three small parts: - <code>flag</code>: a once-only switch kept in localStorage (&quot;tips off&quot;, &quot;seen the tour&quot;).",
+     "toy": {
+      "tone": "var(--k-sys)",
+      "slot": "bricks#card-coach",
+      "brick": "coach",
+      "tag": "COACH",
+      "bytes": "1220",
+      "aria": "@fzlt/core/coach, 1.2 KB gzip: a four-step tutorial: the coach card names a brick and rings it; the right tap passes the step, a wrong one is a miss. Tap the brick the coach card rings.",
+      "poster": {
+       "label": "COACH",
+       "size": "1.2 KB"
+      },
+      "cap": "Tap the brick the coach card rings.",
+      "badge": {
+       "aria": "7.2 KB gzipped: this card, with @fzlt/core/coach, 7,416 bytes, measured at build",
+       "bytes": "7416",
+       "live": "chunks/coach-4KIFIOHD.js",
+       "title": "7,416 B gzip, measured at build",
+       "size": "7.2 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "1.2 KB of a 1.5 KB budget",
       "v": "0.794"
@@ -457,7 +837,27 @@
      ],
      "chips": "<li><b>2.1 KB</b> gzip</li><li>of <b>2.3 KB</b></li><li><b>2</b> exports</li>",
      "what": "Scripted DOM choreography on the kernel clock.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-fire)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-timeline\" data-brick-card=\"timeline\" data-tag=\"TIMELINE\" data-bytes=\"2137\" role=\"img\" aria-label=\"@fzlt/core/timeline, 2.1 KB gzip: six DOM bricks hop, then fly into a new arrangement on a scripted timeline. Tap to make the bricks dance into the next shape.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>TIMELINE</b> 2.1 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap to make the bricks dance into the next shape.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.9 KB gzipped: this card, with @fzlt/core/timeline, 8,068 bytes, measured at build\" data-size-badge data-bytes=\"8068\" data-live=\"chunks/timeline-XPBM7WRX.js\" title=\"8,068 B gzip, measured at build\"><b>7.9 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-fire)",
+      "slot": "bricks#card-timeline",
+      "brick": "timeline",
+      "tag": "TIMELINE",
+      "bytes": "2137",
+      "aria": "@fzlt/core/timeline, 2.1 KB gzip: six DOM bricks hop, then fly into a new arrangement on a scripted timeline. Tap to make the bricks dance into the next shape.",
+      "poster": {
+       "label": "TIMELINE",
+       "size": "2.1 KB"
+      },
+      "cap": "Tap to make the bricks dance into the next shape.",
+      "badge": {
+       "aria": "7.9 KB gzipped: this card, with @fzlt/core/timeline, 8,068 bytes, measured at build",
+       "bytes": "8068",
+       "live": "chunks/timeline-XPBM7WRX.js",
+       "title": "8,068 B gzip, measured at build",
+       "size": "7.9 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "2.1 KB of a 2.3 KB budget",
       "v": "0.928"
@@ -478,7 +878,27 @@
      ],
      "chips": "<li><b>0.3 KB</b> gzip</li><li>of <b>0.5 KB</b></li><li><b>2</b> exports</li>",
      "what": "Taps and swipes on an animation or a game never zoom or pan the page.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-sys)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-touch\" data-brick-card=\"touch\" data-tag=\"TOUCH\" data-bytes=\"310\" role=\"img\" aria-label=\"@fzlt/core/touch, 0.3 KB gzip: one finger grabs and throws; two fingers would zoom the page, and the card counts the pinches it cancelled. Drag the blue brick and let go to throw it.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>TOUCH</b> 0.3 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Drag the blue brick and let go to throw it.</span><span class=\"size-badge\" role=\"img\" aria-label=\"6.1 KB gzipped: this card, with @fzlt/core/touch, 6,295 bytes, measured at build\" data-size-badge data-bytes=\"6295\" data-live=\"chunks/touch-S7FBW5V3.js\" title=\"6,295 B gzip, measured at build\"><b>6.1 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-sys)",
+      "slot": "bricks#card-touch",
+      "brick": "touch",
+      "tag": "TOUCH",
+      "bytes": "310",
+      "aria": "@fzlt/core/touch, 0.3 KB gzip: one finger grabs and throws; two fingers would zoom the page, and the card counts the pinches it cancelled. Drag the blue brick and let go to throw it.",
+      "poster": {
+       "label": "TOUCH",
+       "size": "0.3 KB"
+      },
+      "cap": "Drag the blue brick and let go to throw it.",
+      "badge": {
+       "aria": "6.1 KB gzipped: this card, with @fzlt/core/touch, 6,295 bytes, measured at build",
+       "bytes": "6295",
+       "live": "chunks/touch-S7FBW5V3.js",
+       "title": "6,295 B gzip, measured at build",
+       "size": "6.1 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "0.3 KB of a 0.5 KB budget",
       "v": "0.605"
@@ -499,7 +919,27 @@
      ],
      "chips": "<li><b>5.2 KB</b> gzip</li><li>of <b>5.4 KB</b></li><li><b>1</b> export</li>",
      "what": "A page's own CSS @keyframes, on the kernel clock.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-fire)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-css-clock\" data-brick-card=\"css-clock\" data-tag=\"CSS CLOCK\" data-bytes=\"5368\" role=\"img\" aria-label=\"@fzlt/core/css-clock, 5.2 KB gzip: plain CSS keyframes, paused, read their time from one property the kernel clock moves; scrub it and they all follow. Tap anywhere to scrub the stylesheet's time.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>CSS CLOCK</b> 5.2 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap anywhere to scrub the stylesheet's time.</span><span class=\"size-badge\" role=\"img\" aria-label=\"8.6 KB gzipped: this card, with @fzlt/core/css-clock, 8,771 bytes, measured at build\" data-size-badge data-bytes=\"8771\" data-live=\"chunks/css-clock-KFN3OPUG.js\" title=\"8,771 B gzip, measured at build\"><b>8.6 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-fire)",
+      "slot": "bricks#card-css-clock",
+      "brick": "css-clock",
+      "tag": "CSS CLOCK",
+      "bytes": "5368",
+      "aria": "@fzlt/core/css-clock, 5.2 KB gzip: plain CSS keyframes, paused, read their time from one property the kernel clock moves; scrub it and they all follow. Tap anywhere to scrub the stylesheet's time.",
+      "poster": {
+       "label": "CSS CLOCK",
+       "size": "5.2 KB"
+      },
+      "cap": "Tap anywhere to scrub the stylesheet's time.",
+      "badge": {
+       "aria": "8.6 KB gzipped: this card, with @fzlt/core/css-clock, 8,771 bytes, measured at build",
+       "bytes": "8771",
+       "live": "chunks/css-clock-KFN3OPUG.js",
+       "title": "8,771 B gzip, measured at build",
+       "size": "8.6 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "5.2 KB of a 5.4 KB budget",
       "v": "0.964"
@@ -619,7 +1059,7 @@
       "water"
      ],
      "chips": "<li><b>5.1 KB</b> gzip</li><li>of <b>5.3 KB</b></li><li><b>1</b> export</li>",
-     "what": "Animated water for @fzlt/core/diorama scenes (a bay, a pond, a wave pool), lifted from the Salvo Bay prototype.",
+     "what": "Animated water for <code>@fzlt/core/diorama</code> scenes (a bay, a pond, a wave pool), lifted from the Salvo Bay prototype.",
      "meter": {
       "label": "5.1 KB of a 5.3 KB budget",
       "v": "0.979"
@@ -639,7 +1079,7 @@
       "props"
      ],
      "chips": "<li><b>3.0 KB</b> gzip</li><li>of <b>3.1 KB</b></li><li><b>20</b> exports</li>",
-     "what": "A kit of small low-poly models for @fzlt/core/diorama scenes, so a new diorama starts furnished.",
+     "what": "A kit of small low-poly models for <code>@fzlt/core/diorama</code> scenes, so a new diorama starts furnished.",
      "meter": {
       "label": "3.0 KB of a 3.1 KB budget",
       "v": "0.973"
@@ -934,7 +1374,27 @@
      ],
      "chips": "<li><b>2.1 KB</b> gzip</li><li>of <b>2.2 KB</b></li><li><b>15</b> exports</li>",
      "what": "Lockstep input exchange for multiplayer, behind a tiny transport adapter.",
-     "toy": "<div class=\"bc\" data-demo-host style=\"--tone: var(--k-cmd)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks#card-presence\" data-brick-card=\"presence\" data-tag=\"PRESENCE\" data-bytes=\"2197\" role=\"img\" aria-label=\"@fzlt/core/presence, 2.1 KB gzip: two seats a hundred milliseconds apart run one lockstep world: every brick lands on both boards and the hashes match. Tap a column on either board to drop a brick.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>PRESENCE</b> 2.1 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap a column on either board to drop a brick.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.4 KB gzipped: this card, with @fzlt/core/presence, 7,565 bytes, measured at build\" data-size-badge data-bytes=\"7565\" data-live=\"chunks/presence-XBHWLJW3.js\" title=\"7,565 B gzip, measured at build\"><b>7.4 KB</b> gz</span></p>\n</div>",
+     "toy": {
+      "tone": "var(--k-cmd)",
+      "slot": "bricks#card-presence",
+      "brick": "presence",
+      "tag": "PRESENCE",
+      "bytes": "2197",
+      "aria": "@fzlt/core/presence, 2.1 KB gzip: two seats a hundred milliseconds apart run one lockstep world: every brick lands on both boards and the hashes match. Tap a column on either board to drop a brick.",
+      "poster": {
+       "label": "PRESENCE",
+       "size": "2.1 KB"
+      },
+      "cap": "Tap a column on either board to drop a brick.",
+      "badge": {
+       "aria": "7.4 KB gzipped: this card, with @fzlt/core/presence, 7,565 bytes, measured at build",
+       "bytes": "7565",
+       "live": "chunks/presence-XBHWLJW3.js",
+       "title": "7,565 B gzip, measured at build",
+       "size": "7.4 KB",
+       "unit": "gz"
+      }
+     },
      "meter": {
       "label": "2.1 KB of a 2.2 KB budget",
       "v": "0.981"

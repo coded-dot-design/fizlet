@@ -1,0 +1,7 @@
+---
+// A measured-size badge on a demo or toy card: the gzip size of what the demo ships, the chunk it
+// loads (data-live) and its byte count (the runtime re-measures and checks it).
+export interface Badge { aria: string; bytes: string; live: string; title: string; size: string; unit: string }
+const { aria, bytes, live, title, size, unit } = Astro.props as Badge;
+---
+<span class="size-badge" role="img" aria-label={aria} data-size-badge data-bytes={bytes} data-live={live} title={title}><b>{size}</b>{" " + unit}</span>

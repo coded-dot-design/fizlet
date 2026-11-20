@@ -1,9 +1,15 @@
 ---
-// A brick page (bricks/<id>.html): crumbs, the brick's head with its demo and card, its use
-// snippets as code cards, its status and its whole API.
+// A brick page (bricks/<id>.html): crumbs, the brick's head and measured sizes, its live demo and
+// toy card, its status, its use snippets as code cards, its whole API, and previous / next.
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Crumbs from "../../components/Crumbs.astro";
 import CodeBlock from "../../components/CodeBlock.astro";
+import BrickHead from "../../components/BrickHead.astro";
+import BrickSizes from "../../components/BrickSizes.astro";
+import BrickDemo from "../../components/BrickDemo.astro";
+import ToyCard from "../../components/ToyCard.astro";
+import BrickApi from "../../components/BrickApi.astro";
+import DocSteps from "../../components/DocSteps.astro";
 import Html from "../../components/Html.astro";
 
 export function getStaticPaths() {
@@ -17,12 +23,16 @@ const { brick } = Astro.props;
   <div class="wrap">
     <Crumbs trail={brick.crumbs.trail} current={brick.crumbs.current} />
     <div class="split bp-top" style={`--tone: ${brick.tone}`}>
-      <div><Html html={brick.leadHtml} /></div>
-      <Html html={brick.asideHtml} />
+      <BrickHead {...brick.head} />
+      <BrickSizes sizes={brick.sizes} note={brick.sizesNote} />
     </div>
-    {brick.rest.map((r: any) => r.kind === "use"
-      ? <div class="bp-use">{r.blocks.map((b: any) => <CodeBlock label={b.label} code={b.code} wrap={b.wrap} copy={b.copy} class={b.cls} />)}</div>
-      : <Html html={r.html} />)}
+    {brick.blocks.map((b: any) => b.kind === "demo" ? <BrickDemo {...b} />
+      : b.kind === "toy" ? <div class="bp-card">{b.slot && <ToyCard {...b} />}</div>
+      : b.kind === "use" ? <div class="bp-use">{b.blocks.map((c: any) => <CodeBlock label={c.label} code={c.code} wrap={c.wrap} copy={c.copy} class={c.cls} />)}</div>
+      : b.kind === "code" ? <CodeBlock label={b.label} code={b.code} wrap={b.wrap} copy={b.copy} class={b.cls} />
+      : b.kind === "api" ? <BrickApi {...b} />
+      : b.kind === "steps" ? <DocSteps steps={b.steps} label="More bricks" code />
+      : <Html html={b.html} />)}
   </div>
 </section>
 </BaseLayout>

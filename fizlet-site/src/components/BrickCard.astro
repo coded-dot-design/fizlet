@@ -4,9 +4,10 @@
 // fuller tile adds what it does, its toy card (an engine demo slot, kept as built), its budget line
 // and meter; a planned brick has no page, a target for chips, and the bricks it needs.
 import Html from "./Html.astro";
+import ToyCard from "./ToyCard.astro";
 interface Props {
   id?: string; flag: string; cls: string; tone: string; head: string; level: string; href?: string; name: string[]; chips: string;
-  what?: string; toy?: string; budget?: string; chipsLabel?: string; meter?: { label: string; v: string }; needs?: string;
+  what?: string; toy?: any; budget?: string; chipsLabel?: string; meter?: { label: string; v: string }; needs?: string;
 }
 const { id, flag, cls, tone, head, level, href, name, chips, what, toy, budget, chipsLabel = "Measured on this build", meter, needs } = Astro.props;
 const H = level === "h4" ? "h4" : "h3";
@@ -16,8 +17,8 @@ const H = level === "h4" ? "h4" : "h3";
         {href
           ? <H class="brick-name"><a href={href}>{name.map((part, i) => <Fragment>{i > 0 && <wbr />}<span class="nw">{part}</span></Fragment>)}</a></H>
           : <H class="brick-name">{name.join("")}</H>}
-        {what && <p class="brick-what">{what}</p>}
-        {toy && <Html html={toy} />}
+        {what && <p class="brick-what" set:html={what} />}
+        {toy && <ToyCard {...toy} />}
         {budget && <p class="brick-budget" set:html={budget} />}
         <ul class="brick-chips" aria-label={chipsLabel} set:html={chips} />
         {meter && <span class="meter brick-meter" role="img" aria-label={meter.label}><i style={`--v:${meter.v}`}></i></span>}

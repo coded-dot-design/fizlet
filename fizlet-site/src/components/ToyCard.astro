@@ -1,0 +1,14 @@
+---
+// A brick's toy card: an engine slot (ae-slot) the brick-cards runtime fills with a tiny playable
+// demo; until then (and with no script) its poster shows the brick's tag and size. The caption says
+// how to play; the badge is the measured cost of the card.
+import SizeBadge, { type Badge } from "./SizeBadge.astro";
+export interface Toy { tone: string; slot: string; brick: string; tag: string; bytes: string; aria: string; poster: { label: string; size: string }; cap: string; badge: Badge }
+const { tone, slot, brick, tag, bytes, aria, poster, cap, badge } = Astro.props as Toy;
+---
+<div class="bc" data-demo-host style={`--tone: ${tone}`}>
+  <figure class="ae-slot bc-fig" data-slot-target={slot} data-brick-card={brick} data-tag={tag} data-bytes={bytes} role="img" aria-label={aria}>
+    <span class="ae-slot__placeholder bc-poster" aria-hidden="true"><span class="bc-block"><b>{poster.label}</b>{" " + poster.size}</span><span class="bc-floor"></span></span>
+  </figure>
+  <p class="bc-cap"><span>{cap}</span><SizeBadge {...badge} /></p>
+</div>

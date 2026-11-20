@@ -34,12 +34,47 @@
   "current": "@fzlt/core/beam"
  },
  "tone": "var(--k-attack)",
- "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">BEAM</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"experimental\" style=\"--tilt:6deg;--dx:6px;--dy:-1px\" title=\"In the package to try; no promise yet.\">ALPHA</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/beam</code></h1>\n        <p class=\"lead\">Lasers on a board. Parts (mirrors, splitters, blockers, targets, emitters) stand on a flat board plane in board coordinates [x, z], free or on a grid; <code>run()</code> casts every emitter's ray, reflecting off mirrors at any angle, passing through and splitting at splitters, stopping at blockers, targets and the board's edge, and writes the segments and hits into fixed typed arrays. - A part is a segment (<code>len</code>, turned by <code>a</code>) or a circle (<code>r</code>). Angles are radians from +x toward +z; on a diorama an object turned to angle a has <code>rot[1] = −a</code>. Multiples of π/4 take exact directions (no <code>Math.cos</code> rounding), so a grid puzzle traces the same bits in every browser. - Deterministic: the same parts give the same segments in the same order (depth first, the transmitted ray before the reflected one). <code>bounces</code> caps the turns on one path (<code>capped</code> counts the paths it stopped), <code>segs</code> the segments (<code>dropped</code> counts the rest). - <code>dioramaBeam</code> draws the result on an <code>@fzlt/core/diorama</code> board: glowing beams as decals in the depth sort (split into short pieces so they sort among the parts), a pulse of points along them, sparks where a beam hits a target or a blocker; a re-routed beam grows out from where it changed. No allocation per <code>run()</code> or <code>show()</code> in the steady state. 2D lengths use steer's exact <code>hypot</code>.</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/beam.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
- "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/beam</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/beam\">4,388 B</b><small>4.3 KB of a 4.4 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.979\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
- "rest": [
+ "head": {
+  "tag": "BEAM",
+  "version": "0.27.0",
+  "sticker": {
+   "flag": "experimental",
+   "title": "In the package to try; no promise yet.",
+   "label": "ALPHA",
+   "cls": "brick-sticker",
+   "style": "--tilt:6deg;--dx:6px;--dy:-1px"
+  },
+  "name": "@fzlt/core/beam",
+  "lead": "Lasers on a board. Parts (mirrors, splitters, blockers, targets, emitters) stand on a flat board plane in board coordinates [x, z], free or on a grid; <code>run()</code> casts every emitter's ray, reflecting off mirrors at any angle, passing through and splitting at splitters, stopping at blockers, targets and the board's edge, and writes the segments and hits into fixed typed arrays. - A part is a segment (<code>len</code>, turned by <code>a</code>) or a circle (<code>r</code>). Angles are radians from +x toward +z; on a diorama an object turned to angle a has <code>rot[1] = −a</code>. Multiples of π/4 take exact directions (no <code>Math.cos</code> rounding), so a grid puzzle traces the same bits in every browser. - Deterministic: the same parts give the same segments in the same order (depth first, the transmitted ray before the reflected one). <code>bounces</code> caps the turns on one path (<code>capped</code> counts the paths it stopped), <code>segs</code> the segments (<code>dropped</code> counts the rest). - <code>dioramaBeam</code> draws the result on an <code>@fzlt/core/diorama</code> board: glowing beams as decals in the depth sort (split into short pieces so they sort among the parts), a pulse of points along them, sparks where a beam hits a target or a blocker; a re-routed beam grows out from where it changed. No allocation per <code>run()</code> or <code>show()</code> in the steady state. 2D lengths use steer's exact <code>hypot</code>.",
+  "keys": [
+   {
+    "href": "#api",
+    "label": "API",
+    "tone": "sys",
+    "arcade": true,
+    "icon": "code"
+   },
+   {
+    "href": "https://github.com/coded-dot-design/fizlet/blob/main/src/beam.ts",
+    "label": "Source ↗",
+    "tone": "cmd",
+    "arcade": true,
+    "icon": "github"
+   }
+  ]
+ },
+ "sizes": [
   {
-   "kind": "html",
-   "html": "<div class=\"bp-card\"></div>"
+   "name": "@fzlt/core/beam",
+   "bytes": "4,388 B",
+   "budget": "4.3 KB of a 4.4 KB budget",
+   "v": "0.979"
+  }
+ ],
+ "sizesNote": "Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.",
+ "blocks": [
+  {
+   "kind": "toy"
   },
   {
    "kind": "html",
@@ -65,16 +100,271 @@
    ]
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>IN SHORT</b></span></div><pre tabindex=\"0\" class=\"code\"><code>const b = beam({ grid: { cell: 1, x0: -4, z0: -3 }, bounds: [-4, -3, 4, 3] });\nb.add({ kind: &quot;emitter&quot;, col: 0, row: 1, a: 0 });\nconst m = b.add({ kind: &quot;mirror&quot;, col: 4, row: 1, a: Math.PI / 4 }); // any angle; π/4 steps are exact\nb.add({ kind: &quot;target&quot;, col: 4, row: 5, r: 0.3 });\nb.run(); // segments in b.x0 … b.z1, hits in b.hp; b.lit[target] &gt; 0\nconst v = dioramaBeam(d, b, { on: &quot;board&quot;, light: (i, on) =&gt; tint(i, on) });\nv.show(t); // each frame: glowing beams in the depth sort, a pulse, sparks; false once it rests</code></pre></div>"
+   "kind": "code",
+   "label": "<b>IN SHORT</b>",
+   "code": "const b = beam({ grid: { cell: 1, x0: -4, z0: -3 }, bounds: [-4, -3, 4, 3] });\nb.add({ kind: \"emitter\", col: 0, row: 1, a: 0 });\nconst m = b.add({ kind: \"mirror\", col: 4, row: 1, a: Math.PI / 4 }); // any angle; π/4 steps are exact\nb.add({ kind: \"target\", col: 4, row: 5, r: 0.3 });\nb.run(); // segments in b.x0 … b.z1, hits in b.hp; b.lit[target] > 0\nconst v = dioramaBeam(d, b, { on: \"board\", light: (i, on) => tint(i, on) });\nv.show(t); // each frame: glowing beams in the depth sort, a pulse, sparks; false once it rests",
+   "wrap": false,
+   "copy": false,
+   "cls": "panel code-card bp-snippet"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-beam-MIRROR\"><code>MIRROR, SPLITTER, BLOCKER, TARGET, EMITTER</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-beam-BeamKind\"><code>BeamKind</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-beam-BeamPart\"><code>BeamPart</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-beam-BeamOptions\"><code>BeamOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-beam-beam\"><code>beam</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-beam-Beam\"><code>Beam</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-beam-DioramaBeamOptions\"><code>DioramaBeamOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-beam-dioramaBeam\"><code>dioramaBeam</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-beam-DioramaBeam\"><code>DioramaBeam</code></a><small>type</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-beam-MIRROR\">\n        <h3><code>MIRROR, SPLITTER, BLOCKER, TARGET, EMITTER</code> <small>const</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Part kinds, as stored in <code>kind</code>.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export declare const MIRROR = 1, SPLITTER = 2, BLOCKER = 3, TARGET = 4, EMITTER = 5;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-beam-BeamKind\">\n        <h3><code>BeamKind</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A part's kind by name.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type BeamKind = &quot;mirror&quot; | &quot;splitter&quot; | &quot;blocker&quot; | &quot;target&quot; | &quot;emitter&quot;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-beam-BeamPart\">\n        <h3><code>BeamPart</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>One part to <code>add</code>: where it stands, its shape and what it does to a beam.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface BeamPart {\n    /** What it does: reflect, split (pass and reflect), stop, stop and light, or emit. */\n    kind: BeamKind;\n    /** Board x (or `col` on the grid). */\n    x?: number;\n    /** Board z (or `row` on the grid). */\n    z?: number;\n    /** Grid column: x is the cell's centre (needs `grid`). */\n    col?: number;\n    /** Grid row: z is the cell's centre. */\n    row?: number;\n    /** Angle, radians from +x toward +z: a segment's direction, or an emitter's beam (default 0). */\n    a?: number;\n    /** Segment length (default: the grid cell, or 1). */\n    len?: number;\n    /** A circle of this radius instead of a segment (a peg, a round target). */\n    r?: number;\n    /** A mirror reflects on its front only (the side its normal (−sin a, cos a) points to); its back blocks. */\n    one?: boolean;\n    /** Off: beams pass it, emitters stay dark (default on). */\n    off?: boolean;\n    /** Anything (the game's object). */\n    tag?: unknown;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-beam-BeamOptions\">\n        <h3><code>BeamOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Options for <code>beam()</code>: capacities, the cap on turns, the board's edge and grid.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface BeamOptions {\n    /** The most parts (default 64). */\n    cap?: number;\n    /** The most segments per run (default 256). */\n    segs?: number;\n    /** The most hits per run (default 128). */\n    hits?: number;\n    /** The most turns (mirror or splitter hits) on one path (default 24). */\n    bounces?: number;\n    /** The board's edge [x0, z0, x1, z1]: beams stop there (default ±10,000). */\n    bounds?: ArrayLike&lt;number&gt;;\n    /** A grid: cell size and the board point of cell (0, 0)'s corner; `col`/`row` place parts on it. */\n    grid?: {\n        cell: number;\n        x0?: number;\n        z0?: number;\n    };\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-beam-beam\">\n        <h3><code>beam</code> <small>function</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A beam board: <code>add</code> parts, <code>run()</code> after any change, then read <code>segs</code> and <code>hits</code>.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>beam(o?: BeamOptions): Beam</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-beam-BeamOptions\">BeamOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-beam-Beam\">Beam</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function beam(o?: BeamOptions): {\n    /** Parts added. */\n    readonly parts: number;\n    /** Per part: its kind (MIRROR … EMITTER), centre, angle, direction, half length, radius. */\n    kind: Uint8Array&lt;ArrayBuffer&gt;;\n    x: Float64Array&lt;ArrayBuffer&gt;;\n    z: Float64Array&lt;ArrayBuffer&gt;;\n    a: Float64Array&lt;ArrayBuffer&gt;;\n    ux: Float64Array&lt;ArrayBuffer&gt;;\n    uz: Float64Array&lt;ArrayBuffer&gt;;\n    h: Float64Array&lt;ArrayBuffer&gt;;\n    r: Float64Array&lt;ArrayBuffer&gt;;\n    /** Per part: 1 off, 2 one-sided. */\n    flag: Uint8Array&lt;ArrayBuffer&gt;;\n    /** Per part: hits in the last run (a target is lit when &gt; 0). */\n    lit: Uint16Array&lt;ArrayBuffer&gt;;\n    /** Per part: what `add` was given as `tag`. */\n    tag: unknown[];\n    /** Segments in the last run. */\n    n: number;\n    /** Segment start and end, board coordinates. */\n    x0: Float64Array&lt;ArrayBuffer&gt;;\n    z0: Float64Array&lt;ArrayBuffer&gt;;\n    x1: Float64Array&lt;ArrayBuffer&gt;;\n    z1: Float64Array&lt;ArrayBuffer&gt;;\n    /** Segment: distance along its path from the emitter at the start (a re-route grows from here). */\n    sl: Float64Array&lt;ArrayBuffer&gt;;\n    /** Segment: power (1, halved at each split). */\n    sp: Float64Array&lt;ArrayBuffer&gt;;\n    /** Segment: turns before it. */\n    sg: Uint16Array&lt;ArrayBuffer&gt;;\n    /** Segment: the part it ends on, or −1 at the board's edge. */\n    se: Int16Array&lt;ArrayBuffer&gt;;\n    /** Segment: its emitter (−1 for `cast`). */\n    ss: Int16Array&lt;ArrayBuffer&gt;;\n    /** Hits in the last run. */\n    nh: number;\n    /** Hit: the part, the point, the segment that ends there. */\n    hp: Int16Array&lt;ArrayBuffer&gt;;\n    hx: Float64Array&lt;ArrayBuffer&gt;;\n    hz: Float64Array&lt;ArrayBuffer&gt;;\n    hs: Int16Array&lt;ArrayBuffer&gt;;\n    /** Paths the `bounces` cap stopped in the last run. */\n    capped: number;\n    /** Segments or splits past capacity in the last run. */\n    dropped: number;\n    /** Runs so far (a drawing helper redraws when it changes). */\n    ver: number;\n    /** Add a part; returns its index. */\n    add: (p: BeamPart) =&gt; number;\n    /** Move part i to (px, pz), turned to angle `ang` (radians). Then `run()`. */\n    set(i: number, px: number, pz: number, ang?: number): void;\n    /** Turn part i by `da` radians (a quarter turn of a grid mirror: π/2). Then `run()`. */\n    turn(i: number, da: number): void;\n    /** Switch part i on or off. Then `run()`. */\n    enable(i: number, on: boolean): void;\n    /** The grid cell [col, row] holding board point (px, pz): out = [col, row]. */\n    cellAt(px: number, pz: number, out: {\n        [i: number]: number;\n    }): {\n        [i: number]: number;\n    };\n    /** The part centred in grid cell (col, row), or −1. */\n    partAt(col: number, row: number): number;\n    /** Targets lit in the last run. */\n    litCount(): number;\n    /** Clear the last run (segments, hits, lit). */\n    reset: () =&gt; void;\n    /** Append one ray from (px, pz) along (dx, dz) (no emitter part) at `power`; returns the segment count. */\n    cast(px: number, pz: number, dx: number, dz: number, power?: number): number;\n    /** Clear, then cast every emitter that is on; returns the segment count. */\n    run: () =&gt; number;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-beam-Beam\">\n        <h3><code>Beam</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>What <code>beam</code> returns.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Beam = ReturnType&lt;typeof beam&gt;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-beam-DioramaBeamOptions\">\n        <h3><code>DioramaBeamOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Options for <code>dioramaBeam</code>: where the beams sit, their look and their motion.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface DioramaBeamOptions {\n    /** The id of the board object the parts stand on: board [x, z] is from its top centre. */\n    on: string;\n    /** The beams' height over the board (default 0.35). */\n    y?: number;\n    /** The cluster they sort in (default &quot;@&quot; + on, the board's own). */\n    cluster?: string;\n    /** Their layer in it (default 5: among parts resting on a root board). */\n    layer?: number;\n    /** Glow colour (default `#ff3b3b`). */\n    color?: string;\n    /** Core colour (default `#fff1ea`). */\n    core?: string;\n    /** Spark colour (default `#ffd36b`). */\n    spark?: string;\n    /** Beam width, world units (default 0.1). */\n    width?: number;\n    /** The longest piece a segment is drawn in (default 1): shorter pieces sort better among parts. */\n    piece?: number;\n    /** The most pieces (default 192). */\n    pieces?: number;\n    /** How fast a beam grows out, world units per second (default 24). */\n    speed?: number;\n    /** Pulse points' spacing along the beam (default 1.6; 0: none). */\n    pulse?: number;\n    /** Pulse speed, world units per second (default 5). */\n    pulseSpeed?: number;\n    /** The most pulse points (default 96). */\n    dots?: number;\n    /** The most sparks (default 64). */\n    sparks?: number;\n    /** Seconds the pulse plays after a change before it fades and `show` lets the engine settle (default 1.4; Infinity: always). */\n    hold?: number;\n    /** false (reduced motion): beams appear at once, no pulse, no sparks. */\n    motion?: boolean;\n    /** Called when a target's light turns on (the beam reached it) or off: tint the target. */\n    light?: (part: number, on: boolean) =&gt; void;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-beam-dioramaBeam\">\n        <h3><code>dioramaBeam</code> <small>function</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Draw beam <code>b</code> on diorama <code>d</code>. <code>show(t)</code> (t: a running clock in seconds) before each <code>d.draw()</code>; true while anything moves (a beam growing, sparks, the pulse within <code>hold</code> of a change).</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>dioramaBeam(d: Diorama, b: Beam, o: DioramaBeamOptions): DioramaBeam</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>d</code></dt><dd><code>Diorama</code></dd></div><div><dt><code>b</code></dt><dd><code><a href=\"#api-fzlt-core-beam-Beam\">Beam</a></code></dd></div><div><dt><code>o</code></dt><dd><code><a href=\"#api-fzlt-core-beam-DioramaBeamOptions\">DioramaBeamOptions</a></code></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-beam-DioramaBeam\">DioramaBeam</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function dioramaBeam(d: Diorama, b: Beam, o: DioramaBeamOptions): {\n    /** Per part: 1 once the drawn beam reached it (a target's light). */\n    on: Uint8Array&lt;ArrayBuffer&gt;;\n    /** Pieces drawn. */\n    readonly pieces: number;\n    /** Targets lit on screen. */\n    readonly lit: number;\n    /** The pulse points and sparks pools. */\n    dots: DioramaPoints;\n    sparks: DioramaPoints;\n    /** Pose the beams at t (seconds, a running clock); true while anything still moves. */\n    show(t: number): boolean;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-beam-DioramaBeam\">\n        <h3><code>DioramaBeam</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>What <code>dioramaBeam</code> returns.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type DioramaBeam = ReturnType&lt;typeof dioramaBeam&gt;;</code></pre>\n      </article>\n    </div>"
+   "kind": "api",
+   "note": "Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.",
+   "toc": [
+    {
+     "href": "#api-fzlt-core-beam-MIRROR",
+     "names": "MIRROR, SPLITTER, BLOCKER, TARGET, EMITTER",
+     "what": "const"
+    },
+    {
+     "href": "#api-fzlt-core-beam-BeamKind",
+     "names": "BeamKind",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-beam-BeamPart",
+     "names": "BeamPart",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-beam-BeamOptions",
+     "names": "BeamOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-beam-beam",
+     "names": "beam",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-beam-Beam",
+     "names": "Beam",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-beam-DioramaBeamOptions",
+     "names": "DioramaBeamOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-beam-dioramaBeam",
+     "names": "dioramaBeam",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-beam-DioramaBeam",
+     "names": "DioramaBeam",
+     "what": "type"
+    }
+   ],
+   "items": [
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-beam-MIRROR",
+     "level": "h3",
+     "names": "MIRROR, SPLITTER, BLOCKER, TARGET, EMITTER",
+     "what": "const",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Part kinds, as stored in <code>kind</code>.",
+     "tags": [],
+     "sigs": [],
+     "code": "export declare const MIRROR = 1, SPLITTER = 2, BLOCKER = 3, TARGET = 4, EMITTER = 5;",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-beam-BeamKind",
+     "level": "h3",
+     "names": "BeamKind",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A part's kind by name.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type BeamKind = \"mirror\" | \"splitter\" | \"blocker\" | \"target\" | \"emitter\";",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-beam-BeamPart",
+     "level": "h3",
+     "names": "BeamPart",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "One part to <code>add</code>: where it stands, its shape and what it does to a beam.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface BeamPart {\n    /** What it does: reflect, split (pass and reflect), stop, stop and light, or emit. */\n    kind: BeamKind;\n    /** Board x (or `col` on the grid). */\n    x?: number;\n    /** Board z (or `row` on the grid). */\n    z?: number;\n    /** Grid column: x is the cell's centre (needs `grid`). */\n    col?: number;\n    /** Grid row: z is the cell's centre. */\n    row?: number;\n    /** Angle, radians from +x toward +z: a segment's direction, or an emitter's beam (default 0). */\n    a?: number;\n    /** Segment length (default: the grid cell, or 1). */\n    len?: number;\n    /** A circle of this radius instead of a segment (a peg, a round target). */\n    r?: number;\n    /** A mirror reflects on its front only (the side its normal (−sin a, cos a) points to); its back blocks. */\n    one?: boolean;\n    /** Off: beams pass it, emitters stay dark (default on). */\n    off?: boolean;\n    /** Anything (the game's object). */\n    tag?: unknown;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-beam-BeamOptions",
+     "level": "h3",
+     "names": "BeamOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Options for <code>beam()</code>: capacities, the cap on turns, the board's edge and grid.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface BeamOptions {\n    /** The most parts (default 64). */\n    cap?: number;\n    /** The most segments per run (default 256). */\n    segs?: number;\n    /** The most hits per run (default 128). */\n    hits?: number;\n    /** The most turns (mirror or splitter hits) on one path (default 24). */\n    bounces?: number;\n    /** The board's edge [x0, z0, x1, z1]: beams stop there (default ±10,000). */\n    bounds?: ArrayLike<number>;\n    /** A grid: cell size and the board point of cell (0, 0)'s corner; `col`/`row` place parts on it. */\n    grid?: {\n        cell: number;\n        x0?: number;\n        z0?: number;\n    };\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-beam-beam",
+     "level": "h3",
+     "names": "beam",
+     "what": "function",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A beam board: <code>add</code> parts, <code>run()</code> after any change, then read <code>segs</code> and <code>hits</code>.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "beam(o?: BeamOptions): Beam",
+       "params": [
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-beam-BeamOptions\">BeamOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-beam-Beam\">Beam</a>"
+      }
+     ],
+     "code": "export declare function beam(o?: BeamOptions): {\n    /** Parts added. */\n    readonly parts: number;\n    /** Per part: its kind (MIRROR … EMITTER), centre, angle, direction, half length, radius. */\n    kind: Uint8Array<ArrayBuffer>;\n    x: Float64Array<ArrayBuffer>;\n    z: Float64Array<ArrayBuffer>;\n    a: Float64Array<ArrayBuffer>;\n    ux: Float64Array<ArrayBuffer>;\n    uz: Float64Array<ArrayBuffer>;\n    h: Float64Array<ArrayBuffer>;\n    r: Float64Array<ArrayBuffer>;\n    /** Per part: 1 off, 2 one-sided. */\n    flag: Uint8Array<ArrayBuffer>;\n    /** Per part: hits in the last run (a target is lit when > 0). */\n    lit: Uint16Array<ArrayBuffer>;\n    /** Per part: what `add` was given as `tag`. */\n    tag: unknown[];\n    /** Segments in the last run. */\n    n: number;\n    /** Segment start and end, board coordinates. */\n    x0: Float64Array<ArrayBuffer>;\n    z0: Float64Array<ArrayBuffer>;\n    x1: Float64Array<ArrayBuffer>;\n    z1: Float64Array<ArrayBuffer>;\n    /** Segment: distance along its path from the emitter at the start (a re-route grows from here). */\n    sl: Float64Array<ArrayBuffer>;\n    /** Segment: power (1, halved at each split). */\n    sp: Float64Array<ArrayBuffer>;\n    /** Segment: turns before it. */\n    sg: Uint16Array<ArrayBuffer>;\n    /** Segment: the part it ends on, or −1 at the board's edge. */\n    se: Int16Array<ArrayBuffer>;\n    /** Segment: its emitter (−1 for `cast`). */\n    ss: Int16Array<ArrayBuffer>;\n    /** Hits in the last run. */\n    nh: number;\n    /** Hit: the part, the point, the segment that ends there. */\n    hp: Int16Array<ArrayBuffer>;\n    hx: Float64Array<ArrayBuffer>;\n    hz: Float64Array<ArrayBuffer>;\n    hs: Int16Array<ArrayBuffer>;\n    /** Paths the `bounces` cap stopped in the last run. */\n    capped: number;\n    /** Segments or splits past capacity in the last run. */\n    dropped: number;\n    /** Runs so far (a drawing helper redraws when it changes). */\n    ver: number;\n    /** Add a part; returns its index. */\n    add: (p: BeamPart) => number;\n    /** Move part i to (px, pz), turned to angle `ang` (radians). Then `run()`. */\n    set(i: number, px: number, pz: number, ang?: number): void;\n    /** Turn part i by `da` radians (a quarter turn of a grid mirror: π/2). Then `run()`. */\n    turn(i: number, da: number): void;\n    /** Switch part i on or off. Then `run()`. */\n    enable(i: number, on: boolean): void;\n    /** The grid cell [col, row] holding board point (px, pz): out = [col, row]. */\n    cellAt(px: number, pz: number, out: {\n        [i: number]: number;\n    }): {\n        [i: number]: number;\n    };\n    /** The part centred in grid cell (col, row), or −1. */\n    partAt(col: number, row: number): number;\n    /** Targets lit in the last run. */\n    litCount(): number;\n    /** Clear the last run (segments, hits, lit). */\n    reset: () => void;\n    /** Append one ray from (px, pz) along (dx, dz) (no emitter part) at `power`; returns the segment count. */\n    cast(px: number, pz: number, dx: number, dz: number, power?: number): number;\n    /** Clear, then cast every emitter that is on; returns the segment count. */\n    run: () => number;\n};",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-beam-Beam",
+     "level": "h3",
+     "names": "Beam",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "What <code>beam</code> returns.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Beam = ReturnType<typeof beam>;",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-beam-DioramaBeamOptions",
+     "level": "h3",
+     "names": "DioramaBeamOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Options for <code>dioramaBeam</code>: where the beams sit, their look and their motion.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface DioramaBeamOptions {\n    /** The id of the board object the parts stand on: board [x, z] is from its top centre. */\n    on: string;\n    /** The beams' height over the board (default 0.35). */\n    y?: number;\n    /** The cluster they sort in (default \"@\" + on, the board's own). */\n    cluster?: string;\n    /** Their layer in it (default 5: among parts resting on a root board). */\n    layer?: number;\n    /** Glow colour (default `#ff3b3b`). */\n    color?: string;\n    /** Core colour (default `#fff1ea`). */\n    core?: string;\n    /** Spark colour (default `#ffd36b`). */\n    spark?: string;\n    /** Beam width, world units (default 0.1). */\n    width?: number;\n    /** The longest piece a segment is drawn in (default 1): shorter pieces sort better among parts. */\n    piece?: number;\n    /** The most pieces (default 192). */\n    pieces?: number;\n    /** How fast a beam grows out, world units per second (default 24). */\n    speed?: number;\n    /** Pulse points' spacing along the beam (default 1.6; 0: none). */\n    pulse?: number;\n    /** Pulse speed, world units per second (default 5). */\n    pulseSpeed?: number;\n    /** The most pulse points (default 96). */\n    dots?: number;\n    /** The most sparks (default 64). */\n    sparks?: number;\n    /** Seconds the pulse plays after a change before it fades and `show` lets the engine settle (default 1.4; Infinity: always). */\n    hold?: number;\n    /** false (reduced motion): beams appear at once, no pulse, no sparks. */\n    motion?: boolean;\n    /** Called when a target's light turns on (the beam reached it) or off: tint the target. */\n    light?: (part: number, on: boolean) => void;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-beam-dioramaBeam",
+     "level": "h3",
+     "names": "dioramaBeam",
+     "what": "function",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Draw beam <code>b</code> on diorama <code>d</code>. <code>show(t)</code> (t: a running clock in seconds) before each <code>d.draw()</code>; true while anything moves (a beam growing, sparks, the pulse within <code>hold</code> of a change).",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "dioramaBeam(d: Diorama, b: Beam, o: DioramaBeamOptions): DioramaBeam",
+       "params": [
+        {
+         "name": "d",
+         "type": "Diorama",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "b",
+         "type": "<a href=\"#api-fzlt-core-beam-Beam\">Beam</a>",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o",
+         "type": "<a href=\"#api-fzlt-core-beam-DioramaBeamOptions\">DioramaBeamOptions</a>",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-beam-DioramaBeam\">DioramaBeam</a>"
+      }
+     ],
+     "code": "export declare function dioramaBeam(d: Diorama, b: Beam, o: DioramaBeamOptions): {\n    /** Per part: 1 once the drawn beam reached it (a target's light). */\n    on: Uint8Array<ArrayBuffer>;\n    /** Pieces drawn. */\n    readonly pieces: number;\n    /** Targets lit on screen. */\n    readonly lit: number;\n    /** The pulse points and sparks pools. */\n    dots: DioramaPoints;\n    sparks: DioramaPoints;\n    /** Pose the beams at t (seconds, a running clock); true while anything still moves. */\n    show(t: number): boolean;\n};",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-beam-DioramaBeam",
+     "level": "h3",
+     "names": "DioramaBeam",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "What <code>dioramaBeam</code> returns.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type DioramaBeam = ReturnType<typeof dioramaBeam>;",
+     "folded": false
+    }
+   ]
   },
   {
-   "kind": "html",
-   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/props.html\"><small>← PREVIOUS</small><code>@fzlt/core/props</code></a><a class=\"bp-step next\" href=\"/bricks/cards.html\"><small>NEXT →</small><code>@fzlt/core/cards</code></a></nav>"
+   "kind": "steps",
+   "steps": [
+    {
+     "href": "/bricks/props.html",
+     "label": "@fzlt/core/props",
+     "dir": "prev"
+    },
+    {
+     "href": "/bricks/cards.html",
+     "label": "@fzlt/core/cards",
+     "dir": "next"
+    }
+   ]
   }
  ]
 }

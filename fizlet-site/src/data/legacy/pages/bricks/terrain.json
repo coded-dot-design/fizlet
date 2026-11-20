@@ -34,12 +34,47 @@
   "current": "@fzlt/core/terrain"
  },
  "tone": "var(--k-fallin)",
- "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">TERRAIN</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"experimental\" style=\"--tilt:-5deg;--dx:6px;--dy:0px\" title=\"In the package to try; no promise yet.\">ALPHA</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/terrain</code></h1>\n        <p class=\"lead\">A heightfield for diorama scenes. A grid of vertex heights in world units (y up, x and z the floor plane, like diorama), filled from data, a seeded noise generator (hills, or ridged dunes stretched across a wind) and stamps (<code>bump</code>, <code>ramp</code>, <code>whoops</code>, <code>berm</code>, a flat <code>ribbon</code> for the track), then queried for physics and drawn into a <code>@fzlt/core/diorama</code> scene. - Each cell is two triangles split along the same diagonal the drawing uses, so <code>height(x, z)</code> is exactly the surface on screen and <code>normal(x, z, out)</code> its face's normal; <code>sample</code> gives both. <code>split: &quot;adaptive&quot;</code> picks each cell's diagonal along its smaller height difference (sharp crests without stair-steps); the default keeps one fixed diagonal. - Generation is pure: integer hashing for the noise and only + − × ÷ and square roots (no sine, no cosine), so the same seed and stamps give the same heights, bit for bit, in every browser; both players of an online race drive the same course. - <code>terrainView(d, t, opts)</code> draws it as flat-shaded faces in diorama's painter's sort: a colour per height band, a steep band, painted kinds (the track); chunks, each culled off screen and drawn at a coarser cell further from the camera (<code>lod</code>), its edges stitched to the neighbour so no crack opens; blob shadows that lie on the slope. Nothing to call per frame: <code>d.draw()</code> runs it. No allocation per query or per draw (typed arrays; shades made once as strings). Lengths use steer's exact <code>hypot</code> (the builtin boxes its arguments).</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/terrain.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
- "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/terrain</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/terrain\">5,566 B</b><small>5.4 KB of a 5.4 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:1.000\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
- "rest": [
+ "head": {
+  "tag": "TERRAIN",
+  "version": "0.27.0",
+  "sticker": {
+   "flag": "experimental",
+   "title": "In the package to try; no promise yet.",
+   "label": "ALPHA",
+   "cls": "brick-sticker",
+   "style": "--tilt:-5deg;--dx:6px;--dy:0px"
+  },
+  "name": "@fzlt/core/terrain",
+  "lead": "A heightfield for diorama scenes. A grid of vertex heights in world units (y up, x and z the floor plane, like diorama), filled from data, a seeded noise generator (hills, or ridged dunes stretched across a wind) and stamps (<code>bump</code>, <code>ramp</code>, <code>whoops</code>, <code>berm</code>, a flat <code>ribbon</code> for the track), then queried for physics and drawn into a <code>@fzlt/core/diorama</code> scene. - Each cell is two triangles split along the same diagonal the drawing uses, so <code>height(x, z)</code> is exactly the surface on screen and <code>normal(x, z, out)</code> its face's normal; <code>sample</code> gives both. <code>split: &quot;adaptive&quot;</code> picks each cell's diagonal along its smaller height difference (sharp crests without stair-steps); the default keeps one fixed diagonal. - Generation is pure: integer hashing for the noise and only + − × ÷ and square roots (no sine, no cosine), so the same seed and stamps give the same heights, bit for bit, in every browser; both players of an online race drive the same course. - <code>terrainView(d, t, opts)</code> draws it as flat-shaded faces in diorama's painter's sort: a colour per height band, a steep band, painted kinds (the track); chunks, each culled off screen and drawn at a coarser cell further from the camera (<code>lod</code>), its edges stitched to the neighbour so no crack opens; blob shadows that lie on the slope. Nothing to call per frame: <code>d.draw()</code> runs it. No allocation per query or per draw (typed arrays; shades made once as strings). Lengths use steer's exact <code>hypot</code> (the builtin boxes its arguments).",
+  "keys": [
+   {
+    "href": "#api",
+    "label": "API",
+    "tone": "sys",
+    "arcade": true,
+    "icon": "code"
+   },
+   {
+    "href": "https://github.com/coded-dot-design/fizlet/blob/main/src/terrain.ts",
+    "label": "Source ↗",
+    "tone": "cmd",
+    "arcade": true,
+    "icon": "github"
+   }
+  ]
+ },
+ "sizes": [
   {
-   "kind": "html",
-   "html": "<div class=\"bp-card\"></div>"
+   "name": "@fzlt/core/terrain",
+   "bytes": "5,566 B",
+   "budget": "5.4 KB of a 5.4 KB budget",
+   "v": "1.000"
+  }
+ ],
+ "sizesNote": "Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.",
+ "blocks": [
+  {
+   "kind": "toy"
   },
   {
    "kind": "html",
@@ -65,16 +100,328 @@
    ]
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>IN SHORT</b></span></div><pre tabindex=\"0\" class=\"code\"><code>const t = terrain({ cols: 96, rows: 64, cell: 0.5 });\nt.noise({ seed, amp: 2.2, ridge: 0.7, wind: [1, 0.3], stretch: 2.5 }); // dunes, the same in every browser\nt.ribbon(loop, { width: 3.6, kind: 1 }).ramp([-3, 8], [1, 8], { height: 0.9 }); // a flat track, a jump\nterrainView(d, t, { bands, kinds: [&quot;#9c7a55&quot;], lod: [26] }); // flat-shaded faces in d.draw()\nt.sample(x, z, out); // [height, nx, ny, nz] under a wheel: the drawn triangle's</code></pre></div>"
+   "kind": "code",
+   "label": "<b>IN SHORT</b>",
+   "code": "const t = terrain({ cols: 96, rows: 64, cell: 0.5 });\nt.noise({ seed, amp: 2.2, ridge: 0.7, wind: [1, 0.3], stretch: 2.5 }); // dunes, the same in every browser\nt.ribbon(loop, { width: 3.6, kind: 1 }).ramp([-3, 8], [1, 8], { height: 0.9 }); // a flat track, a jump\nterrainView(d, t, { bands, kinds: [\"#9c7a55\"], lod: [26] }); // flat-shaded faces in d.draw()\nt.sample(x, z, out); // [height, nx, ny, nz] under a wheel: the drawn triangle's",
+   "wrap": false,
+   "copy": false,
+   "cls": "panel code-card bp-snippet"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-terrain-TerrainOptions\"><code>TerrainOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-terrain-NoiseOptions\"><code>NoiseOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-terrain-StampOptions\"><code>StampOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-terrain-Terrain\"><code>Terrain</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-terrain-terrain\"><code>terrain</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-terrain-TerrainWindowOptions\"><code>TerrainWindowOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-terrain-TerrainWindow\"><code>TerrainWindow</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-terrain-terrainWindow\"><code>terrainWindow</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-terrain-TerrainViewOptions\"><code>TerrainViewOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-terrain-TerrainView\"><code>TerrainView</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-terrain-terrainView\"><code>terrainView</code></a><small>function</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-terrain-TerrainOptions\">\n        <h3><code>TerrainOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Options for <code>terrain()</code>: the grid and its first heights.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface TerrainOptions {\n    /** Cells along x (vertices: cols + 1). */\n    cols: number;\n    /** Cells along z (vertices: rows + 1). */\n    rows: number;\n    /** A cell's side in world units (default 1). */\n    cell?: number;\n    /** World x of the first vertex (default: the grid centred on 0). */\n    x0?: number;\n    /** World z of the first vertex (default: centred). */\n    z0?: number;\n    /** Vertex heights, row by row along x ((cols + 1) × (rows + 1)); default all `base`. */\n    heights?: ArrayLike&lt;number&gt;;\n    /** The starting height (default 0). */\n    base?: number;\n    /** How each cell splits into two triangles: &quot;fixed&quot; (default) along (i, j)–(i + 1, j + 1) in every\n     *  cell; &quot;adaptive&quot; along the diagonal with the smaller height difference (it follows a crest or a\n     *  gully, so a sharp ridge reads as a straight fold, not stair-steps). The queries use the same split. */\n    split?: &quot;fixed&quot; | &quot;adaptive&quot;;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-terrain-NoiseOptions\">\n        <h3><code>NoiseOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Options for <code>noise()</code>: seeded value noise in octaves, added to the heights.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface NoiseOptions {\n    /** The seed (an integer; the same seed, the same hills). */\n    seed: number;\n    /** Height of the tallest hill (default 1): the noise adds 0..amp. */\n    amp?: number;\n    /** World units between noise lattice points of the first octave (default 8). */\n    scale?: number;\n    /** Octaves (default 3), each half the size and `gain` the height of the last. */\n    octaves?: number;\n    /** Each octave's height over the last (default 0.5). */\n    gain?: number;\n    /** 0..1: sharp crests (dunes) instead of round hills (default 0). */\n    ridge?: number;\n    /** The wind's direction [x, z] (default [1, 0]): crests run across it. */\n    wind?: ArrayLike&lt;number&gt;;\n    /** How much longer the features are across the wind than along it (default 1; dunes ~3). */\n    stretch?: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-terrain-StampOptions\">\n        <h3><code>StampOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Options shared by the line stamps: width and a soft edge.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface StampOptions {\n    /** Full height across this width (default 2). */\n    width?: number;\n    /** Height of the stamp (default 1; negative digs). */\n    height?: number;\n    /** Fade out over this much past the width on each side (default 1). */\n    edge?: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-terrain-Terrain\">\n        <h3><code>Terrain</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A heightfield: heights, the queries and the stamps.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Terrain = ReturnType&lt;typeof terrain&gt;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-terrain-terrain\">\n        <h3><code>terrain</code> <small>function</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A heightfield of <code>cols</code> × <code>rows</code> cells: <code>h</code> holds the vertex heights; stamp it, query it, draw it.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>terrain(o: TerrainOptions): Terrain</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>o</code></dt><dd><code><a href=\"#api-fzlt-core-terrain-TerrainOptions\">TerrainOptions</a></code></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-terrain-Terrain\">Terrain</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function terrain(o: TerrainOptions): {\n    /** Cells along x. */\n    cols: number;\n    /** Cells along z. */\n    rows: number;\n    /** A cell's side, world units. */\n    cell: number;\n    /** World x of vertex column 0 (`terrainWindow` moves it). */\n    x0: number;\n    /** World z of vertex row 0 (`terrainWindow` moves it). */\n    z0: number;\n    /** Vertex heights, (cols + 1) per row; write them freely, then bump `version`. */\n    h: Float64Array&lt;ArrayBuffer&gt;;\n    /** A painted kind per triangle (0: none), two per cell (the one with corner (i + 1, j) first; in an\n     *  adaptive cell split along 10–01, the one with (i + 1, j + 1) first):\n     *  `ribbon` paints the track; `terrainView` colours it; `sample` returns it. */\n    kind: Uint8Array&lt;ArrayBuffer&gt;;\n    /** The cells' split (&quot;fixed&quot; or &quot;adaptive&quot;): `terrainView` draws the same one by default. */\n    split: string;\n    /** Bumped by every stamp: a view re-reads its bounds when it changes. */\n    version: number;\n    /** The surface height under (x, z) (the drawn triangle's; outside the grid, its edge). */\n    height: (x: number, z: number) =&gt; number;\n    /** The face's unit normal under (x, z): out = [nx, ny, nz]; returns out. */\n    normal&lt;O extends {\n        [i: number]: number;\n    }&gt;(x: number, z: number, out: O): O;\n    /** Height and normal at once (what a wheel needs): out = [h, nx, ny, nz]; returns the face's kind. */\n    sample(x: number, z: number, out: {\n        [i: number]: number;\n    }): number;\n    /** The kind painted on the face under (x, z) (0: none). */\n    kindAt: (x: number, z: number) =&gt; number;\n    /** Vertex height at column i, row j. */\n    at: (i: number, j: number) =&gt; number;\n    /** Set every vertex: h = fn(x, z, h). */\n    shape: (fn: (x: number, z: number, h: number) =&gt; number) =&gt; /*elided*/ any;\n    /** Add seeded value noise (`NoiseOptions`): round hills, or ridged dunes with `ridge`, `wind`, `stretch`. */\n    noise(n: NoiseOptions): /*elided*/ any;\n    /** A round bump (or a dip, height &lt; 0) of radius r at (x, z): smooth to its rim. */\n    bump(x: number, z: number, r: number, height: number): /*elided*/ any;\n    /** A jump ramp from `from` [x, z] rising to `height` at `to`, then falling back to the ground over\n     *  `back` (default one cell: a sharp lip that throws a vehicle into the air). */\n    ramp(from: ArrayLike&lt;number&gt;, to: ArrayLike&lt;number&gt;, so?: StampOptions &amp; {\n        back?: number;\n    }): /*elided*/ any;\n    /** `count` rolling humps (whoops) from `from` to `to`. */\n    whoops(from: ArrayLike&lt;number&gt;, to: ArrayLike&lt;number&gt;, so?: StampOptions &amp; {\n        count?: number;\n    }): /*elided*/ any;\n    /** A banked turn along `points` [x0, z0, x1, z1, …]: a bowl across its width, rising toward\n     *  `side` (1, the default: the right of the direction of travel, the outside of a left turn; −1\n     *  the left). Past each end the bank keeps its cross-section and runs out to the ground over\n     *  `edge` (no lump on the centre line beyond the ends). */\n    berm(points: ArrayLike&lt;number&gt;, so?: StampOptions &amp; {\n        side?: number;\n    }): /*elided*/ any;\n    /** Carve a flat track along `points`: its cross-section level (at the height the ground had under\n     *  each point, or `y`), blended into the ground over `edge`; paints `kind` on the faces whose centre is inside its width. */\n    ribbon(points: ArrayLike&lt;number&gt;, so?: {\n        width?: number;\n        edge?: number;\n        y?: number;\n        kind?: number;\n    }): /*elided*/ any;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-terrain-TerrainWindowOptions\">\n        <h3><code>TerrainWindowOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Options for <code>terrainWindow()</code>: the window's grid, how far it slides, and the ground it shows.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface TerrainWindowOptions {\n    /** Cells along x (vertices: cols + 1). */\n    cols: number;\n    /** Cells along z (default `cols`). */\n    rows?: number;\n    /** A cell's side in world units (default 1). */\n    cell?: number;\n    /** Cells per slide (default 8): `follow` moves the window in whole steps. */\n    step?: number;\n    /** The cells' split, as `terrain()`'s (the queries and `terrainView` use it). */\n    split?: &quot;fixed&quot; | &quot;adaptive&quot;;\n    /** Write the ground into the window: heights `t.h[j * (t.cols + 1) + i]` for every vertex i0..i1,\n     *  j0..j1 (window indices, inclusive), and kinds (0: none) for every cell inside that range, if the\n     *  game paints any. Vertex (i, j) is at lattice point (t.origin[0] + i, t.origin[1] + j), world\n     *  ((t.origin[0] + i) × cell, (t.origin[1] + j) × cell). It must be a pure function of the place: a\n     *  range can repeat one vertex row or column the window already holds. Only integers cross this call. */\n    fill(i0: number, j0: number, i1: number, j1: number, t: TerrainWindow): void;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-terrain-TerrainWindow\">\n        <h3><code>TerrainWindow</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A terrain whose origin follows a point: what <code>terrainWindow</code> returns.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type TerrainWindow = Terrain &amp; {\n    /** The first vertex on the world lattice [i, j] (x0 = i × cell, z0 = j × cell). */\n    origin: Int32Array;\n    /** Moves so far (the first fill included); vertices `fill` was asked for so far. */\n    stats: {\n        slides: number;\n        filled: number;\n    };\n    /** Put the first vertex at lattice point (i, j): keep the overlap, fill the rest. True if it moved. */\n    moveTo(i: number, j: number): boolean;\n    /** Keep (x, z) in the middle step: slide by whole steps when it leaves it. True if it slid. */\n    follow(x: number, z: number): boolean;\n};</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-terrain-terrainWindow\">\n        <h3><code>terrainWindow</code> <small>function</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>An endless ground: a <code>terrain</code> of cols × rows cells that slides over the world lattice and asks <code>fill</code> only for the rows and columns it gains. The same queries (the same face rule) and the same <code>terrainView</code>; <code>version</code> bumps once per slide. The window decides no height (they come from <code>fill</code>), so where it sits is not game state. Nothing is filled until the first <code>follow</code> or <code>moveTo</code>.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>terrainWindow(o: TerrainWindowOptions): TerrainWindow</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>o</code></dt><dd><code><a href=\"#api-fzlt-core-terrain-TerrainWindowOptions\">TerrainWindowOptions</a></code></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-terrain-TerrainWindow\">TerrainWindow</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function terrainWindow(o: TerrainWindowOptions): TerrainWindow;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-terrain-TerrainViewOptions\">\n        <h3><code>TerrainViewOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Options for <code>terrainView</code>: colours, light, chunks and level of detail, how it sorts, shadows.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface TerrainViewOptions {\n    /** Colour by height: [[top, &quot;#rrggbb&quot;], …] low to high; a face takes the first band its mean\n     *  height is under (the last above all). Default one sand colour. */\n    bands?: ArrayLike&lt;readonly [number, string]&gt;;\n    /** Faces steeper than this (1 − normal y, 0..1) take `steepColor` (default 0.35; 1: never). */\n    steep?: number;\n    /** The steep faces' colour (default: the first band's, darker). */\n    steepColor?: string;\n    /** Colours of painted kinds: kinds[0] is kind 1 (the ribbon's track). */\n    kinds?: ArrayLike&lt;string&gt;;\n    /** Towards the light (default diorama's [0.5, 1, 0.4]). */\n    light?: ArrayLike&lt;number&gt;;\n    /** Ambient light, 0..1 (default 0.56). */\n    ambient?: number;\n    /** Cells per chunk side, a power of two (default 8): the unit of culling and detail. */\n    chunk?: number;\n    /** Camera distances past which a chunk's drawn cell doubles: [30, 60] draws 1×, 2×, then 4×. */\n    lod?: ArrayLike&lt;number&gt;;\n    /** &quot;ground&quot; (default): every face before every object (a cluster fixed at `fixed`), exact among\n     *  themselves; &quot;depth&quot;: a cluster per chunk ranked by its far edge, so hills hide what is behind. */\n    sort?: &quot;ground&quot; | &quot;depth&quot;;\n    /** The cluster name (default &quot;terrain&quot;; depth mode adds &quot;:&lt;chunk&gt;&quot;). */\n    cluster?: string;\n    /** Ground mode: its fixed rank (default 0). */\n    fixed?: number;\n    /** Its layer (default 0). */\n    layer?: number;\n    /** The cells' split as drawn (default the terrain's `split`); &quot;adaptive&quot; picks each drawn cell's\n     *  diagonal along its smaller height difference, at every level of detail. */\n    split?: &quot;fixed&quot; | &quot;adaptive&quot;;\n    /** Stroke each face in its own colour to close anti-aliasing seams (default true). */\n    seams?: boolean;\n    /** Blob shadows on the slope, set with `shadow(i, …)` (default 8). */\n    shadows?: number;\n    /** Shadow colour (default `#000000`). */\n    shadowColor?: string;\n    /** Faces fade into `color` with their distance in the floor plane from the camera's target (the\n     *  player, under a chase camera): untouched before `from`, all `color` past `to` (16 steps between).\n     *  Shadows are not hazed. */\n    haze?: {\n        from: number;\n        to: number;\n        color: string;\n    };\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-terrain-TerrainView\">\n        <h3><code>TerrainView</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>What <code>terrainView</code> returns.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type TerrainView = ReturnType&lt;typeof terrainView&gt;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-terrain-terrainView\">\n        <h3><code>terrainView</code> <small>function</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Draw terrain <code>t</code> into diorama <code>d</code> as flat-shaded faces, painted inside <code>d.draw()</code> (decals in the sort): nothing to call per frame. Faces with a vertex behind the camera are dropped.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>terrainView(d: Diorama, t: Terrain, o?: TerrainViewOptions): TerrainView</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>d</code></dt><dd><code>Diorama</code></dd></div><div><dt><code>t</code></dt><dd><code><a href=\"#api-fzlt-core-terrain-Terrain\">Terrain</a></code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-terrain-TerrainViewOptions\">TerrainViewOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-terrain-TerrainView\">TerrainView</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function terrainView(d: Diorama, t: Terrain, o?: TerrainViewOptions): {\n    /** The last draw: faces painted, chunks on screen. */\n    stats: {\n        faces: number;\n        chunks: number;\n    };\n    /** Chunks along x and z. */\n    chunks: readonly [number, number];\n    /** Chunk strides from the last draw (1: every cell; 2: every other…). */\n    stride: Int32Array&lt;ArrayBuffer&gt;;\n    /** Set shadow i: a disc of radius r at (x, z) on the ground, alpha a (0 hides it). */\n    shadow(i: number, x: number, z: number, r: number, a: number): void;\n    /** New colours (a theme change): bands, steep colour, kinds, haze (default the option's). */\n    colors: (bands?: ArrayLike&lt;readonly [number, string]&gt;, steepColor?: string, kinds?: ArrayLike&lt;string&gt;, haze?: TerrainViewOptions[&quot;haze&quot;] | null) =&gt; void;\n    /** Project now (draw does it): after a camera change outside a draw, e.g. before `d.pick`. */\n    update: () =&gt; void;\n};</code></pre></details>\n      </article>\n    </div>"
+   "kind": "api",
+   "note": "Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.",
+   "toc": [
+    {
+     "href": "#api-fzlt-core-terrain-TerrainOptions",
+     "names": "TerrainOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-terrain-NoiseOptions",
+     "names": "NoiseOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-terrain-StampOptions",
+     "names": "StampOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-terrain-Terrain",
+     "names": "Terrain",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-terrain-terrain",
+     "names": "terrain",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-terrain-TerrainWindowOptions",
+     "names": "TerrainWindowOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-terrain-TerrainWindow",
+     "names": "TerrainWindow",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-terrain-terrainWindow",
+     "names": "terrainWindow",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-terrain-TerrainViewOptions",
+     "names": "TerrainViewOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-terrain-TerrainView",
+     "names": "TerrainView",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-terrain-terrainView",
+     "names": "terrainView",
+     "what": "function"
+    }
+   ],
+   "items": [
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-terrain-TerrainOptions",
+     "level": "h3",
+     "names": "TerrainOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Options for <code>terrain()</code>: the grid and its first heights.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface TerrainOptions {\n    /** Cells along x (vertices: cols + 1). */\n    cols: number;\n    /** Cells along z (vertices: rows + 1). */\n    rows: number;\n    /** A cell's side in world units (default 1). */\n    cell?: number;\n    /** World x of the first vertex (default: the grid centred on 0). */\n    x0?: number;\n    /** World z of the first vertex (default: centred). */\n    z0?: number;\n    /** Vertex heights, row by row along x ((cols + 1) × (rows + 1)); default all `base`. */\n    heights?: ArrayLike<number>;\n    /** The starting height (default 0). */\n    base?: number;\n    /** How each cell splits into two triangles: \"fixed\" (default) along (i, j)–(i + 1, j + 1) in every\n     *  cell; \"adaptive\" along the diagonal with the smaller height difference (it follows a crest or a\n     *  gully, so a sharp ridge reads as a straight fold, not stair-steps). The queries use the same split. */\n    split?: \"fixed\" | \"adaptive\";\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-terrain-NoiseOptions",
+     "level": "h3",
+     "names": "NoiseOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Options for <code>noise()</code>: seeded value noise in octaves, added to the heights.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface NoiseOptions {\n    /** The seed (an integer; the same seed, the same hills). */\n    seed: number;\n    /** Height of the tallest hill (default 1): the noise adds 0..amp. */\n    amp?: number;\n    /** World units between noise lattice points of the first octave (default 8). */\n    scale?: number;\n    /** Octaves (default 3), each half the size and `gain` the height of the last. */\n    octaves?: number;\n    /** Each octave's height over the last (default 0.5). */\n    gain?: number;\n    /** 0..1: sharp crests (dunes) instead of round hills (default 0). */\n    ridge?: number;\n    /** The wind's direction [x, z] (default [1, 0]): crests run across it. */\n    wind?: ArrayLike<number>;\n    /** How much longer the features are across the wind than along it (default 1; dunes ~3). */\n    stretch?: number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-terrain-StampOptions",
+     "level": "h3",
+     "names": "StampOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Options shared by the line stamps: width and a soft edge.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface StampOptions {\n    /** Full height across this width (default 2). */\n    width?: number;\n    /** Height of the stamp (default 1; negative digs). */\n    height?: number;\n    /** Fade out over this much past the width on each side (default 1). */\n    edge?: number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-terrain-Terrain",
+     "level": "h3",
+     "names": "Terrain",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A heightfield: heights, the queries and the stamps.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Terrain = ReturnType<typeof terrain>;",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-terrain-terrain",
+     "level": "h3",
+     "names": "terrain",
+     "what": "function",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A heightfield of <code>cols</code> × <code>rows</code> cells: <code>h</code> holds the vertex heights; stamp it, query it, draw it.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "terrain(o: TerrainOptions): Terrain",
+       "params": [
+        {
+         "name": "o",
+         "type": "<a href=\"#api-fzlt-core-terrain-TerrainOptions\">TerrainOptions</a>",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-terrain-Terrain\">Terrain</a>"
+      }
+     ],
+     "code": "export declare function terrain(o: TerrainOptions): {\n    /** Cells along x. */\n    cols: number;\n    /** Cells along z. */\n    rows: number;\n    /** A cell's side, world units. */\n    cell: number;\n    /** World x of vertex column 0 (`terrainWindow` moves it). */\n    x0: number;\n    /** World z of vertex row 0 (`terrainWindow` moves it). */\n    z0: number;\n    /** Vertex heights, (cols + 1) per row; write them freely, then bump `version`. */\n    h: Float64Array<ArrayBuffer>;\n    /** A painted kind per triangle (0: none), two per cell (the one with corner (i + 1, j) first; in an\n     *  adaptive cell split along 10–01, the one with (i + 1, j + 1) first):\n     *  `ribbon` paints the track; `terrainView` colours it; `sample` returns it. */\n    kind: Uint8Array<ArrayBuffer>;\n    /** The cells' split (\"fixed\" or \"adaptive\"): `terrainView` draws the same one by default. */\n    split: string;\n    /** Bumped by every stamp: a view re-reads its bounds when it changes. */\n    version: number;\n    /** The surface height under (x, z) (the drawn triangle's; outside the grid, its edge). */\n    height: (x: number, z: number) => number;\n    /** The face's unit normal under (x, z): out = [nx, ny, nz]; returns out. */\n    normal<O extends {\n        [i: number]: number;\n    }>(x: number, z: number, out: O): O;\n    /** Height and normal at once (what a wheel needs): out = [h, nx, ny, nz]; returns the face's kind. */\n    sample(x: number, z: number, out: {\n        [i: number]: number;\n    }): number;\n    /** The kind painted on the face under (x, z) (0: none). */\n    kindAt: (x: number, z: number) => number;\n    /** Vertex height at column i, row j. */\n    at: (i: number, j: number) => number;\n    /** Set every vertex: h = fn(x, z, h). */\n    shape: (fn: (x: number, z: number, h: number) => number) => /*elided*/ any;\n    /** Add seeded value noise (`NoiseOptions`): round hills, or ridged dunes with `ridge`, `wind`, `stretch`. */\n    noise(n: NoiseOptions): /*elided*/ any;\n    /** A round bump (or a dip, height < 0) of radius r at (x, z): smooth to its rim. */\n    bump(x: number, z: number, r: number, height: number): /*elided*/ any;\n    /** A jump ramp from `from` [x, z] rising to `height` at `to`, then falling back to the ground over\n     *  `back` (default one cell: a sharp lip that throws a vehicle into the air). */\n    ramp(from: ArrayLike<number>, to: ArrayLike<number>, so?: StampOptions & {\n        back?: number;\n    }): /*elided*/ any;\n    /** `count` rolling humps (whoops) from `from` to `to`. */\n    whoops(from: ArrayLike<number>, to: ArrayLike<number>, so?: StampOptions & {\n        count?: number;\n    }): /*elided*/ any;\n    /** A banked turn along `points` [x0, z0, x1, z1, …]: a bowl across its width, rising toward\n     *  `side` (1, the default: the right of the direction of travel, the outside of a left turn; −1\n     *  the left). Past each end the bank keeps its cross-section and runs out to the ground over\n     *  `edge` (no lump on the centre line beyond the ends). */\n    berm(points: ArrayLike<number>, so?: StampOptions & {\n        side?: number;\n    }): /*elided*/ any;\n    /** Carve a flat track along `points`: its cross-section level (at the height the ground had under\n     *  each point, or `y`), blended into the ground over `edge`; paints `kind` on the faces whose centre is inside its width. */\n    ribbon(points: ArrayLike<number>, so?: {\n        width?: number;\n        edge?: number;\n        y?: number;\n        kind?: number;\n    }): /*elided*/ any;\n};",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-terrain-TerrainWindowOptions",
+     "level": "h3",
+     "names": "TerrainWindowOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Options for <code>terrainWindow()</code>: the window's grid, how far it slides, and the ground it shows.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface TerrainWindowOptions {\n    /** Cells along x (vertices: cols + 1). */\n    cols: number;\n    /** Cells along z (default `cols`). */\n    rows?: number;\n    /** A cell's side in world units (default 1). */\n    cell?: number;\n    /** Cells per slide (default 8): `follow` moves the window in whole steps. */\n    step?: number;\n    /** The cells' split, as `terrain()`'s (the queries and `terrainView` use it). */\n    split?: \"fixed\" | \"adaptive\";\n    /** Write the ground into the window: heights `t.h[j * (t.cols + 1) + i]` for every vertex i0..i1,\n     *  j0..j1 (window indices, inclusive), and kinds (0: none) for every cell inside that range, if the\n     *  game paints any. Vertex (i, j) is at lattice point (t.origin[0] + i, t.origin[1] + j), world\n     *  ((t.origin[0] + i) × cell, (t.origin[1] + j) × cell). It must be a pure function of the place: a\n     *  range can repeat one vertex row or column the window already holds. Only integers cross this call. */\n    fill(i0: number, j0: number, i1: number, j1: number, t: TerrainWindow): void;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-terrain-TerrainWindow",
+     "level": "h3",
+     "names": "TerrainWindow",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A terrain whose origin follows a point: what <code>terrainWindow</code> returns.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type TerrainWindow = Terrain & {\n    /** The first vertex on the world lattice [i, j] (x0 = i × cell, z0 = j × cell). */\n    origin: Int32Array;\n    /** Moves so far (the first fill included); vertices `fill` was asked for so far. */\n    stats: {\n        slides: number;\n        filled: number;\n    };\n    /** Put the first vertex at lattice point (i, j): keep the overlap, fill the rest. True if it moved. */\n    moveTo(i: number, j: number): boolean;\n    /** Keep (x, z) in the middle step: slide by whole steps when it leaves it. True if it slid. */\n    follow(x: number, z: number): boolean;\n};",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-terrain-terrainWindow",
+     "level": "h3",
+     "names": "terrainWindow",
+     "what": "function",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "An endless ground: a <code>terrain</code> of cols × rows cells that slides over the world lattice and asks <code>fill</code> only for the rows and columns it gains. The same queries (the same face rule) and the same <code>terrainView</code>; <code>version</code> bumps once per slide. The window decides no height (they come from <code>fill</code>), so where it sits is not game state. Nothing is filled until the first <code>follow</code> or <code>moveTo</code>.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "terrainWindow(o: TerrainWindowOptions): TerrainWindow",
+       "params": [
+        {
+         "name": "o",
+         "type": "<a href=\"#api-fzlt-core-terrain-TerrainWindowOptions\">TerrainWindowOptions</a>",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-terrain-TerrainWindow\">TerrainWindow</a>"
+      }
+     ],
+     "code": "export declare function terrainWindow(o: TerrainWindowOptions): TerrainWindow;",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-terrain-TerrainViewOptions",
+     "level": "h3",
+     "names": "TerrainViewOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Options for <code>terrainView</code>: colours, light, chunks and level of detail, how it sorts, shadows.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface TerrainViewOptions {\n    /** Colour by height: [[top, \"#rrggbb\"], …] low to high; a face takes the first band its mean\n     *  height is under (the last above all). Default one sand colour. */\n    bands?: ArrayLike<readonly [number, string]>;\n    /** Faces steeper than this (1 − normal y, 0..1) take `steepColor` (default 0.35; 1: never). */\n    steep?: number;\n    /** The steep faces' colour (default: the first band's, darker). */\n    steepColor?: string;\n    /** Colours of painted kinds: kinds[0] is kind 1 (the ribbon's track). */\n    kinds?: ArrayLike<string>;\n    /** Towards the light (default diorama's [0.5, 1, 0.4]). */\n    light?: ArrayLike<number>;\n    /** Ambient light, 0..1 (default 0.56). */\n    ambient?: number;\n    /** Cells per chunk side, a power of two (default 8): the unit of culling and detail. */\n    chunk?: number;\n    /** Camera distances past which a chunk's drawn cell doubles: [30, 60] draws 1×, 2×, then 4×. */\n    lod?: ArrayLike<number>;\n    /** \"ground\" (default): every face before every object (a cluster fixed at `fixed`), exact among\n     *  themselves; \"depth\": a cluster per chunk ranked by its far edge, so hills hide what is behind. */\n    sort?: \"ground\" | \"depth\";\n    /** The cluster name (default \"terrain\"; depth mode adds \":<chunk>\"). */\n    cluster?: string;\n    /** Ground mode: its fixed rank (default 0). */\n    fixed?: number;\n    /** Its layer (default 0). */\n    layer?: number;\n    /** The cells' split as drawn (default the terrain's `split`); \"adaptive\" picks each drawn cell's\n     *  diagonal along its smaller height difference, at every level of detail. */\n    split?: \"fixed\" | \"adaptive\";\n    /** Stroke each face in its own colour to close anti-aliasing seams (default true). */\n    seams?: boolean;\n    /** Blob shadows on the slope, set with `shadow(i, …)` (default 8). */\n    shadows?: number;\n    /** Shadow colour (default `#000000`). */\n    shadowColor?: string;\n    /** Faces fade into `color` with their distance in the floor plane from the camera's target (the\n     *  player, under a chase camera): untouched before `from`, all `color` past `to` (16 steps between).\n     *  Shadows are not hazed. */\n    haze?: {\n        from: number;\n        to: number;\n        color: string;\n    };\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-terrain-TerrainView",
+     "level": "h3",
+     "names": "TerrainView",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "What <code>terrainView</code> returns.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type TerrainView = ReturnType<typeof terrainView>;",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-terrain-terrainView",
+     "level": "h3",
+     "names": "terrainView",
+     "what": "function",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Draw terrain <code>t</code> into diorama <code>d</code> as flat-shaded faces, painted inside <code>d.draw()</code> (decals in the sort): nothing to call per frame. Faces with a vertex behind the camera are dropped.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "terrainView(d: Diorama, t: Terrain, o?: TerrainViewOptions): TerrainView",
+       "params": [
+        {
+         "name": "d",
+         "type": "Diorama",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "t",
+         "type": "<a href=\"#api-fzlt-core-terrain-Terrain\">Terrain</a>",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-terrain-TerrainViewOptions\">TerrainViewOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-terrain-TerrainView\">TerrainView</a>"
+      }
+     ],
+     "code": "export declare function terrainView(d: Diorama, t: Terrain, o?: TerrainViewOptions): {\n    /** The last draw: faces painted, chunks on screen. */\n    stats: {\n        faces: number;\n        chunks: number;\n    };\n    /** Chunks along x and z. */\n    chunks: readonly [number, number];\n    /** Chunk strides from the last draw (1: every cell; 2: every other…). */\n    stride: Int32Array<ArrayBuffer>;\n    /** Set shadow i: a disc of radius r at (x, z) on the ground, alpha a (0 hides it). */\n    shadow(i: number, x: number, z: number, r: number, a: number): void;\n    /** New colours (a theme change): bands, steep colour, kinds, haze (default the option's). */\n    colors: (bands?: ArrayLike<readonly [number, string]>, steepColor?: string, kinds?: ArrayLike<string>, haze?: TerrainViewOptions[\"haze\"] | null) => void;\n    /** Project now (draw does it): after a camera change outside a draw, e.g. before `d.pick`. */\n    update: () => void;\n};",
+     "folded": true
+    }
+   ]
   },
   {
-   "kind": "html",
-   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/scene.html\"><small>← PREVIOUS</small><code>@fzlt/core/scene</code></a><a class=\"bp-step next\" href=\"/bricks/drive.html\"><small>NEXT →</small><code>@fzlt/core/drive</code></a></nav>"
+   "kind": "steps",
+   "steps": [
+    {
+     "href": "/bricks/scene.html",
+     "label": "@fzlt/core/scene",
+     "dir": "prev"
+    },
+    {
+     "href": "/bricks/drive.html",
+     "label": "@fzlt/core/drive",
+     "dir": "next"
+    }
+   ]
   }
  ]
 }

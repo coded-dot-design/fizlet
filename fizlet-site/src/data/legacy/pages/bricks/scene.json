@@ -34,12 +34,47 @@
   "current": "@fzlt/core/scene"
  },
  "tone": "var(--k-aim)",
- "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">SCENE</span> V0.27.0 <span class=\"brick-sticker\" data-flag=\"experimental\" style=\"--tilt:6deg;--dx:5px;--dy:1px\" title=\"In the package to try; no promise yet.\">ALPHA</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/scene</code></h1>\n        <p class=\"lead\">An animation recipe as data. A scene is JSON: a **stage** (a fixed pixel grid fitted to the box, a background, a starfield, shake, the clock), a **cast** (sprites, rects, text and lines, drawn in order, each value a number, a track or a blink on the scene clock), the **cues** (one-shot fx moments: a pop word, a kick, a burst) and the **gags** (a running bit: an fx emitter held open over a window, following a track). One player runs them all, so a gallery entry ships its data, not its own code. Bricks: the kernel (fps cap, settle), @fzlt/core/fx (particles, words, shake), @fzlt/core/sprite (pixel art, baked once), @fzlt/core/timeline's easings, and @fzlt/core/slot (<code>scene(data)</code> is a slot mount). The contract: time moves in the step on numbers only (no DOM, no allocation); one canvas, added through the ledger, so <code>destroy()</code> gives the page back exactly; after <code>end</code> seconds it rests on the last frame and the engine settles (<code>busy(sec)</code> holds it awake until then); a tap plays it again. With reduced motion it draws the poster frame (no cues, no gags) and settles.</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/scene.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
- "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/scene</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/scene\">8,369 B</b><small>8.2 KB of a 8.5 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.962\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
- "rest": [
+ "head": {
+  "tag": "SCENE",
+  "version": "0.27.0",
+  "sticker": {
+   "flag": "experimental",
+   "title": "In the package to try; no promise yet.",
+   "label": "ALPHA",
+   "cls": "brick-sticker",
+   "style": "--tilt:6deg;--dx:5px;--dy:1px"
+  },
+  "name": "@fzlt/core/scene",
+  "lead": "An animation recipe as data. A scene is JSON: a **stage** (a fixed pixel grid fitted to the box, a background, a starfield, shake, the clock), a **cast** (sprites, rects, text and lines, drawn in order, each value a number, a track or a blink on the scene clock), the **cues** (one-shot fx moments: a pop word, a kick, a burst) and the **gags** (a running bit: an fx emitter held open over a window, following a track). One player runs them all, so a gallery entry ships its data, not its own code. Bricks: the kernel (fps cap, settle), @fzlt/core/fx (particles, words, shake), @fzlt/core/sprite (pixel art, baked once), @fzlt/core/timeline's easings, and @fzlt/core/slot (<code>scene(data)</code> is a slot mount). The contract: time moves in the step on numbers only (no DOM, no allocation); one canvas, added through the ledger, so <code>destroy()</code> gives the page back exactly; after <code>end</code> seconds it rests on the last frame and the engine settles (<code>busy(sec)</code> holds it awake until then); a tap plays it again. With reduced motion it draws the poster frame (no cues, no gags) and settles.",
+  "keys": [
+   {
+    "href": "#api",
+    "label": "API",
+    "tone": "sys",
+    "arcade": true,
+    "icon": "code"
+   },
+   {
+    "href": "https://github.com/coded-dot-design/fizlet/blob/main/src/scene.ts",
+    "label": "Source ↗",
+    "tone": "cmd",
+    "arcade": true,
+    "icon": "github"
+   }
+  ]
+ },
+ "sizes": [
   {
-   "kind": "html",
-   "html": "<div class=\"bp-card\"></div>"
+   "name": "@fzlt/core/scene",
+   "bytes": "8,369 B",
+   "budget": "8.2 KB of a 8.5 KB budget",
+   "v": "0.962"
+  }
+ ],
+ "sizesNote": "Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.",
+ "blocks": [
+  {
+   "kind": "toy"
   },
   {
    "kind": "html",
@@ -65,16 +100,387 @@
    ]
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>IN SHORT</b></span></div><pre tabindex=\"0\" class=\"code\"><code>// The recipe is data: stage, cast (values on the clock), cues, gags\nconst d = { v: 1, stage: { w: 160, h: 90, bg: &quot;#07060f&quot;, end: 2 },\n  fx: { words: [&quot;GO!&quot;] }, cue: [[0.5, &quot;word&quot;, 0, 80, 45, 0, 14]] };\nslot(fig, () =&gt; scene(d)); // rests on the last frame, settles; a tap replays</code></pre></div>"
+   "kind": "code",
+   "label": "<b>IN SHORT</b>",
+   "code": "// The recipe is data: stage, cast (values on the clock), cues, gags\nconst d = { v: 1, stage: { w: 160, h: 90, bg: \"#07060f\", end: 2 },\n  fx: { words: [\"GO!\"] }, cue: [[0.5, \"word\", 0, 80, 45, 0, 14]] };\nslot(fig, () => scene(d)); // rests on the last frame, settles; a tap replays",
+   "wrap": false,
+   "copy": false,
+   "cls": "panel code-card bp-snippet"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-scene-Val\"><code>Val</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-scene-Blink\"><code>Blink</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-scene-SpriteItem\"><code>SpriteItem</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-scene-RectItem\"><code>RectItem</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-scene-TextItem\"><code>TextItem</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-scene-LineItem\"><code>LineItem</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-scene-Item\"><code>Item</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-scene-Cue\"><code>Cue</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-scene-Gag\"><code>Gag</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-scene-SceneData\"><code>SceneData</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-scene-SceneOptions\"><code>SceneOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-scene-Scene\"><code>Scene</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-scene-mountScene\"><code>mountScene</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-scene-scene\"><code>scene</code></a><small>const</small></li></ul></nav>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-Val\">\n        <h3><code>Val</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A value on the scene clock <code>t</code> (seconds): - a number or a string (a colour): constant; - a track <code>[from, to, at, dur, ease?]</code>: <code>from</code> until <code>at</code>, then eased to <code>to</code> over <code>dur</code> seconds (an EASES name, default &quot;linear&quot;); <code>dur</code> 0 jumps once <code>t</code> is past <code>at</code>, and works on strings; - a blink <code>{ blink: [a, b], hz, on?: [from, to], then? }</code>: <code>a</code> before <code>from</code>; inside the window <code>b</code> on odd ticks of <code>hz</code> per second, <code>a</code> on even ones; <code>then</code> (default <code>a</code>) from <code>to</code> on.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Val = number | string | readonly [number | string, number | string, number, number, string?] | Blink;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-Blink\">\n        <h3><code>Blink</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A blink: <code>blink[0]</code> outside its window, <code>blink[1]</code> on odd ticks of <code>hz</code> inside it, <code>then</code> after it (see Val).</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface Blink {\n    blink: readonly [number | string, number | string];\n    hz: number;\n    on?: readonly [number, number?];\n    then?: number | string;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-SpriteItem\">\n        <h3><code>SpriteItem</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A sprite from <code>art</code>: centre at (x, y), turned by <code>rot</code> radians, <code>scale</code> px per art pixel, a palette index.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type SpriteItem = On &amp; {\n    sprite: string;\n    x: Val;\n    y: Val;\n    rot?: Val;\n    scale?: Val;\n    pal?: Val;\n};</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-RectItem\">\n        <h3><code>RectItem</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A filled rectangle <code>[x, y, w, h]</code>.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type RectItem = On &amp; {\n    rect: readonly [Val, Val, Val, Val];\n    fill: Val;\n};</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-TextItem\">\n        <h3><code>TextItem</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>One line of text; with <code>stroke</code> it gets an outline <code>lw</code> wide first.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type TextItem = On &amp; {\n    text: string;\n    x: Val;\n    y: Val;\n    font: string;\n    fill: Val;\n    align?: CanvasTextAlign;\n    stroke?: Val;\n    lw?: Val;\n};</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-LineItem\">\n        <h3><code>LineItem</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A line <code>[x0, y0, x1, y1]</code>.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type LineItem = On &amp; {\n    line: readonly [Val, Val, Val, Val];\n    stroke: Val;\n    lw: Val;\n    cap?: CanvasLineCap;\n};</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-Item\">\n        <h3><code>Item</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>One thing in the cast: a sprite, a rect, a line of text or a line, drawn in order.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Item = SpriteItem | RectItem | TextItem | LineItem;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-Cue\">\n        <h3><code>Cue</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A cue, once, when <code>t</code> passes its time (in order; several may share a time): <code>[t, &quot;word&quot;, word, x, y, colour, size]</code>, <code>[t, &quot;kick&quot;, amount]</code> or <code>[t, &quot;emit&quot;, kind, x, y, n, colour, colours, scale]</code> (@fzlt/core/fx's word, kick and emit).</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Cue = readonly [number, &quot;word&quot; | &quot;kick&quot; | &quot;emit&quot;, ...(number | string)[]];</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-Gag\">\n        <h3><code>Gag</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A gag: every step while <code>from &lt; t &lt; to</code>, emit <code>n</code> of <code>kind</code> at (x + dx, y + dy); x and y may be tracks.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface Gag {\n    emit: string;\n    on: readonly [number, number];\n    x: Val;\n    y: Val;\n    dx?: number;\n    dy?: number;\n    n: number;\n    c?: number;\n    cn?: number;\n    scale?: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-SceneData\">\n        <h3><code>SceneData</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>A scene as JSON: the stage, the art, the cast, the cues and the gags (format version 1).</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface SceneData {\n    /** Format version: 1. */\n    v: 1;\n    stage: {\n        /** The grid in scene pixels, fitted to the box and centred. */\n        w: number;\n        h: number;\n        /** Frame-rate cap (default 30). */\n        fps?: number;\n        /** Background colour (painted past the grid too). */\n        bg: string;\n        /** Seconds it plays before it rests on the last frame. */\n        end: number;\n        /** Seconds after `end` before it plays again while visible; 0 (default): once, then it sleeps. */\n        loop?: number;\n        /** Seconds held still before the clock starts (an intro delay; default 0). */\n        delay?: number;\n        /** Starfield: `[count, colour, share of the height]`, seeded from the engine. */\n        stars?: readonly [number, string, number];\n        /** fx shake to scene pixels (default 0: none). */\n        shake?: number;\n        /** The reduced-motion poster: the time drawn (default `end`). */\n        poster?: number;\n    };\n    /** @fzlt/core/fx options, and its particle kinds by name (a Kind, or a name in fx's KINDS). */\n    fx?: {\n        cap?: number;\n        gravity?: number;\n        scorch?: number;\n        colors?: string[];\n        words?: string[];\n        kinds?: Record&lt;string, Kind | keyof typeof KINDS&gt;;\n    };\n    /** Pixel art by name: rows of characters (@fzlt/core/sprite), coloured by `ink` and `palettes`. */\n    art?: Record&lt;string, string[]&gt;;\n    ink?: Record&lt;string, string&gt;;\n    palettes?: Record&lt;string, string&gt;[];\n    /** Drawn in order, under the effects; shaken with them. */\n    cast?: Item[];\n    /** Drawn last, above the effects, never shaken (captions). */\n    over?: Item[];\n    cue?: Cue[];\n    gag?: Gag[];\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-SceneOptions\">\n        <h3><code>SceneOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>How a scene mounts: whether it animates.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface SceneOptions {\n    /** Animate (default: yes, unless the visitor prefers reduced motion; then the poster frame). */\n    motion?: boolean;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-Scene\">\n        <h3><code>Scene</code> <small>type</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>The mounted scene: its engine, <code>play()</code> from the start, <code>destroy()</code> (Recall), and the system the engine runs (read, step, render).</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Scene = SlotScene &amp; System &amp; {\n    engine: Engine;\n    play(): void;\n};</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-mountScene\">\n        <h3><code>mountScene</code> <small>function</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Mount scene <code>d</code> on <code>stage</code> (any positioned box). Returns its engine, <code>play()</code> and <code>destroy()</code>.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>mountScene(stage: HTMLElement, d: SceneData, o?: SceneOptions): Scene</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>stage</code></dt><dd><code>HTMLElement</code></dd></div><div><dt><code>d</code></dt><dd><code><a href=\"#api-fzlt-core-scene-SceneData\">SceneData</a></code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-scene-SceneOptions\">SceneOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-scene-Scene\">Scene</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function mountScene(stage: HTMLElement, d: SceneData, o?: SceneOptions): Scene;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-scene-scene\">\n        <h3><code>scene</code> <small>const</small> <span class=\"status-pill\" data-flag=\"experimental\" title=\"In the package to try; no promise yet.\">ALPHA</span></h3>\n        <p>Scene data as a slot mount: <code>slot(fig, () =&gt; import(&quot;./anim.js&quot;).then((m) =&gt; m.mount))</code>.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>scene(d: SceneData, o?: SceneOptions): SlotMount</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>d</code></dt><dd><code><a href=\"#api-fzlt-core-scene-SceneData\">SceneData</a></code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-scene-SceneOptions\">SceneOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code>SlotMount</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare const scene: (d: SceneData, o?: SceneOptions) =&gt; SlotMount;</code></pre></details>\n      </article>\n    </div>"
+   "kind": "api",
+   "note": "Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.",
+   "toc": [
+    {
+     "href": "#api-fzlt-core-scene-Val",
+     "names": "Val",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-scene-Blink",
+     "names": "Blink",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-scene-SpriteItem",
+     "names": "SpriteItem",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-scene-RectItem",
+     "names": "RectItem",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-scene-TextItem",
+     "names": "TextItem",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-scene-LineItem",
+     "names": "LineItem",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-scene-Item",
+     "names": "Item",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-scene-Cue",
+     "names": "Cue",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-scene-Gag",
+     "names": "Gag",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-scene-SceneData",
+     "names": "SceneData",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-scene-SceneOptions",
+     "names": "SceneOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-scene-Scene",
+     "names": "Scene",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-scene-mountScene",
+     "names": "mountScene",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-scene-scene",
+     "names": "scene",
+     "what": "const"
+    }
+   ],
+   "items": [
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-Val",
+     "level": "h3",
+     "names": "Val",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A value on the scene clock <code>t</code> (seconds): - a number or a string (a colour): constant; - a track <code>[from, to, at, dur, ease?]</code>: <code>from</code> until <code>at</code>, then eased to <code>to</code> over <code>dur</code> seconds (an EASES name, default &quot;linear&quot;); <code>dur</code> 0 jumps once <code>t</code> is past <code>at</code>, and works on strings; - a blink <code>{ blink: [a, b], hz, on?: [from, to], then? }</code>: <code>a</code> before <code>from</code>; inside the window <code>b</code> on odd ticks of <code>hz</code> per second, <code>a</code> on even ones; <code>then</code> (default <code>a</code>) from <code>to</code> on.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Val = number | string | readonly [number | string, number | string, number, number, string?] | Blink;",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-Blink",
+     "level": "h3",
+     "names": "Blink",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A blink: <code>blink[0]</code> outside its window, <code>blink[1]</code> on odd ticks of <code>hz</code> inside it, <code>then</code> after it (see Val).",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface Blink {\n    blink: readonly [number | string, number | string];\n    hz: number;\n    on?: readonly [number, number?];\n    then?: number | string;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-SpriteItem",
+     "level": "h3",
+     "names": "SpriteItem",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A sprite from <code>art</code>: centre at (x, y), turned by <code>rot</code> radians, <code>scale</code> px per art pixel, a palette index.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type SpriteItem = On & {\n    sprite: string;\n    x: Val;\n    y: Val;\n    rot?: Val;\n    scale?: Val;\n    pal?: Val;\n};",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-RectItem",
+     "level": "h3",
+     "names": "RectItem",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A filled rectangle <code>[x, y, w, h]</code>.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type RectItem = On & {\n    rect: readonly [Val, Val, Val, Val];\n    fill: Val;\n};",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-TextItem",
+     "level": "h3",
+     "names": "TextItem",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "One line of text; with <code>stroke</code> it gets an outline <code>lw</code> wide first.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type TextItem = On & {\n    text: string;\n    x: Val;\n    y: Val;\n    font: string;\n    fill: Val;\n    align?: CanvasTextAlign;\n    stroke?: Val;\n    lw?: Val;\n};",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-LineItem",
+     "level": "h3",
+     "names": "LineItem",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A line <code>[x0, y0, x1, y1]</code>.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type LineItem = On & {\n    line: readonly [Val, Val, Val, Val];\n    stroke: Val;\n    lw: Val;\n    cap?: CanvasLineCap;\n};",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-Item",
+     "level": "h3",
+     "names": "Item",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "One thing in the cast: a sprite, a rect, a line of text or a line, drawn in order.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Item = SpriteItem | RectItem | TextItem | LineItem;",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-Cue",
+     "level": "h3",
+     "names": "Cue",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A cue, once, when <code>t</code> passes its time (in order; several may share a time): <code>[t, &quot;word&quot;, word, x, y, colour, size]</code>, <code>[t, &quot;kick&quot;, amount]</code> or <code>[t, &quot;emit&quot;, kind, x, y, n, colour, colours, scale]</code> (@fzlt/core/fx's word, kick and emit).",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Cue = readonly [number, \"word\" | \"kick\" | \"emit\", ...(number | string)[]];",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-Gag",
+     "level": "h3",
+     "names": "Gag",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A gag: every step while <code>from &lt; t &lt; to</code>, emit <code>n</code> of <code>kind</code> at (x + dx, y + dy); x and y may be tracks.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface Gag {\n    emit: string;\n    on: readonly [number, number];\n    x: Val;\n    y: Val;\n    dx?: number;\n    dy?: number;\n    n: number;\n    c?: number;\n    cn?: number;\n    scale?: number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-SceneData",
+     "level": "h3",
+     "names": "SceneData",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "A scene as JSON: the stage, the art, the cast, the cues and the gags (format version 1).",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface SceneData {\n    /** Format version: 1. */\n    v: 1;\n    stage: {\n        /** The grid in scene pixels, fitted to the box and centred. */\n        w: number;\n        h: number;\n        /** Frame-rate cap (default 30). */\n        fps?: number;\n        /** Background colour (painted past the grid too). */\n        bg: string;\n        /** Seconds it plays before it rests on the last frame. */\n        end: number;\n        /** Seconds after `end` before it plays again while visible; 0 (default): once, then it sleeps. */\n        loop?: number;\n        /** Seconds held still before the clock starts (an intro delay; default 0). */\n        delay?: number;\n        /** Starfield: `[count, colour, share of the height]`, seeded from the engine. */\n        stars?: readonly [number, string, number];\n        /** fx shake to scene pixels (default 0: none). */\n        shake?: number;\n        /** The reduced-motion poster: the time drawn (default `end`). */\n        poster?: number;\n    };\n    /** @fzlt/core/fx options, and its particle kinds by name (a Kind, or a name in fx's KINDS). */\n    fx?: {\n        cap?: number;\n        gravity?: number;\n        scorch?: number;\n        colors?: string[];\n        words?: string[];\n        kinds?: Record<string, Kind | keyof typeof KINDS>;\n    };\n    /** Pixel art by name: rows of characters (@fzlt/core/sprite), coloured by `ink` and `palettes`. */\n    art?: Record<string, string[]>;\n    ink?: Record<string, string>;\n    palettes?: Record<string, string>[];\n    /** Drawn in order, under the effects; shaken with them. */\n    cast?: Item[];\n    /** Drawn last, above the effects, never shaken (captions). */\n    over?: Item[];\n    cue?: Cue[];\n    gag?: Gag[];\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-SceneOptions",
+     "level": "h3",
+     "names": "SceneOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "How a scene mounts: whether it animates.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface SceneOptions {\n    /** Animate (default: yes, unless the visitor prefers reduced motion; then the poster frame). */\n    motion?: boolean;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-Scene",
+     "level": "h3",
+     "names": "Scene",
+     "what": "type",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "The mounted scene: its engine, <code>play()</code> from the start, <code>destroy()</code> (Recall), and the system the engine runs (read, step, render).",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Scene = SlotScene & System & {\n    engine: Engine;\n    play(): void;\n};",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-mountScene",
+     "level": "h3",
+     "names": "mountScene",
+     "what": "function",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Mount scene <code>d</code> on <code>stage</code> (any positioned box). Returns its engine, <code>play()</code> and <code>destroy()</code>.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "mountScene(stage: HTMLElement, d: SceneData, o?: SceneOptions): Scene",
+       "params": [
+        {
+         "name": "stage",
+         "type": "HTMLElement",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "d",
+         "type": "<a href=\"#api-fzlt-core-scene-SceneData\">SceneData</a>",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-scene-SceneOptions\">SceneOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-scene-Scene\">Scene</a>"
+      }
+     ],
+     "code": "export declare function mountScene(stage: HTMLElement, d: SceneData, o?: SceneOptions): Scene;",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-scene-scene",
+     "level": "h3",
+     "names": "scene",
+     "what": "const",
+     "pill": {
+      "flag": "experimental",
+      "title": "In the package to try; no promise yet.",
+      "label": "ALPHA"
+     },
+     "doc": "Scene data as a slot mount: <code>slot(fig, () =&gt; import(&quot;./anim.js&quot;).then((m) =&gt; m.mount))</code>.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "scene(d: SceneData, o?: SceneOptions): SlotMount",
+       "params": [
+        {
+         "name": "d",
+         "type": "<a href=\"#api-fzlt-core-scene-SceneData\">SceneData</a>",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-scene-SceneOptions\">SceneOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "SlotMount"
+      }
+     ],
+     "code": "export declare const scene: (d: SceneData, o?: SceneOptions) => SlotMount;",
+     "folded": true
+    }
+   ]
   },
   {
-   "kind": "html",
-   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/announce.html\"><small>← PREVIOUS</small><code>@fzlt/core/announce</code></a><a class=\"bp-step next\" href=\"/bricks/terrain.html\"><small>NEXT →</small><code>@fzlt/core/terrain</code></a></nav>"
+   "kind": "steps",
+   "steps": [
+    {
+     "href": "/bricks/announce.html",
+     "label": "@fzlt/core/announce",
+     "dir": "prev"
+    },
+    {
+     "href": "/bricks/terrain.html",
+     "label": "@fzlt/core/terrain",
+     "dir": "next"
+    }
+   ]
   }
  ]
 }

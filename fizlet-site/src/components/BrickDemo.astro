@@ -1,0 +1,12 @@
+---
+// A brick page's live demo: the stage the brick-demo runtime mounts the demo into, its measured
+// cost, its status (LOADING until it runs; NO LOOP for a still one) and what to try.
+import SizeBadge, { type Badge } from "./SizeBadge.astro";
+interface Props { demo: string; badge?: Badge; status: string; note: string }
+const { demo, badge, status, note } = Astro.props;
+---
+<figure class="panel lit bp-demo" data-brick-demo={demo} data-demo-host>
+      {badge && <SizeBadge {...badge} />}
+      <div class="bp-stage" data-stage></div>
+      <figcaption><span class="bui-label"><b>LIVE</b> · <span data-status>{status}</span></span><span>{note}</span></figcaption>
+    </figure>

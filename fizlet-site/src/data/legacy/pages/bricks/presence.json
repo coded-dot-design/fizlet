@@ -35,12 +35,78 @@
   "current": "@fzlt/core/presence"
  },
  "tone": "var(--k-cmd)",
- "leadHtml": "<p class=\"eyebrow bp-eyebrow\"><span class=\"index\">PRESENCE</span> V0.27.0 <span class=\"brick-sticker brick-sticker-peel\" data-flag=\"beta\" style=\"--tilt:-4deg;--dx:6px;--dy:-2px\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></p>\n        <h1 id=\"bp-title\" class=\"bp-title\"><code>@fzlt/core/presence</code></h1>\n        <p class=\"lead\">Lockstep input exchange for multiplayer, behind a tiny transport adapter. Every peer runs the same fixed-step simulation from the same seed. Each sim frame needs every player's input for that frame; your own input is sent <code>delay</code> frames ahead, so on a good link the game never waits. A missing input stalls the sim (never guesses), so peers can't drift apart. Inputs live in fixed rings of typed arrays: a confirmed per-frame input log a rollback layer can replay. State hashes are exchanged every <code>hashEvery</code> frames to catch a desync early.</p>\n        <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-sys\" href=\"#api\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 5 2 10l5 5M13 5l5 5-5 5\"></path></svg>API</a><a class=\"bui-key bui-arcade bui-cmd\" href=\"https://github.com/coded-dot-design/fizlet/blob/main/src/presence.ts\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source ↗</a></div>",
- "asideHtml": "<div class=\"bp-sizes\"><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/presence</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/presence\">2,197 B</b><small>2.1 KB of a 2.2 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.981\"></i></span></div><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/presence/check</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/presence/check\">4,870 B</b><small>4.8 KB of a 5.0 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.951\"></i></span></div><div class=\"panel bp-size\"><span class=\"bui-label\"><b>@fzlt/core/presence/rollback</b> · GZIP</span><b class=\"bp-bytes\" data-size=\"@fzlt/core/presence/rollback\">2,176 B</b><small>2.1 KB of a 2.3 KB budget</small><span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.944\"></i></span></div><p class=\"bp-note\">Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.</p></div>",
- "rest": [
+ "head": {
+  "tag": "PRESENCE",
+  "version": "0.27.0",
+  "sticker": {
+   "flag": "beta",
+   "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+   "label": "BETA",
+   "cls": "brick-sticker brick-sticker-peel",
+   "style": "--tilt:-4deg;--dx:6px;--dy:-2px"
+  },
+  "name": "@fzlt/core/presence",
+  "lead": "Lockstep input exchange for multiplayer, behind a tiny transport adapter. Every peer runs the same fixed-step simulation from the same seed. Each sim frame needs every player's input for that frame; your own input is sent <code>delay</code> frames ahead, so on a good link the game never waits. A missing input stalls the sim (never guesses), so peers can't drift apart. Inputs live in fixed rings of typed arrays: a confirmed per-frame input log a rollback layer can replay. State hashes are exchanged every <code>hashEvery</code> frames to catch a desync early.",
+  "keys": [
+   {
+    "href": "#api",
+    "label": "API",
+    "tone": "sys",
+    "arcade": true,
+    "icon": "code"
+   },
+   {
+    "href": "https://github.com/coded-dot-design/fizlet/blob/main/src/presence.ts",
+    "label": "Source ↗",
+    "tone": "cmd",
+    "arcade": true,
+    "icon": "github"
+   }
+  ]
+ },
+ "sizes": [
   {
-   "kind": "html",
-   "html": "<div class=\"bp-card\"><div class=\"bc\" data-demo-host style=\"--tone: var(--k-cmd)\">\n  <figure class=\"ae-slot bc-fig\" data-slot-target=\"bricks/presence#card-presence\" data-brick-card=\"presence\" data-tag=\"PRESENCE\" data-bytes=\"2197\" role=\"img\" aria-label=\"@fzlt/core/presence, 2.1 KB gzip: two seats a hundred milliseconds apart run one lockstep world: every brick lands on both boards and the hashes match. Tap a column on either board to drop a brick.\">\n    <span class=\"ae-slot__placeholder bc-poster\" aria-hidden=\"true\"><span class=\"bc-block\"><b>PRESENCE</b> 2.1 KB</span><span class=\"bc-floor\"></span></span>\n  </figure>\n  <p class=\"bc-cap\"><span>Tap a column on either board to drop a brick.</span><span class=\"size-badge\" role=\"img\" aria-label=\"7.4 KB gzipped: this card, with @fzlt/core/presence, 7,565 bytes, measured at build\" data-size-badge data-bytes=\"7565\" data-live=\"chunks/presence-XBHWLJW3.js\" title=\"7,565 B gzip, measured at build\"><b>7.4 KB</b> gz</span></p>\n</div></div>"
+   "name": "@fzlt/core/presence",
+   "bytes": "2,197 B",
+   "budget": "2.1 KB of a 2.2 KB budget",
+   "v": "0.981"
+  },
+  {
+   "name": "@fzlt/core/presence/check",
+   "bytes": "4,870 B",
+   "budget": "4.8 KB of a 5.0 KB budget",
+   "v": "0.951"
+  },
+  {
+   "name": "@fzlt/core/presence/rollback",
+   "bytes": "2,176 B",
+   "budget": "2.1 KB of a 2.3 KB budget",
+   "v": "0.944"
+  }
+ ],
+ "sizesNote": "Measured on this build: minified and gzipped with everything it imports, the way <code>npm run size</code> checks the budget in CI.",
+ "blocks": [
+  {
+   "kind": "toy",
+   "tone": "var(--k-cmd)",
+   "slot": "bricks/presence#card-presence",
+   "brick": "presence",
+   "tag": "PRESENCE",
+   "bytes": "2197",
+   "aria": "@fzlt/core/presence, 2.1 KB gzip: two seats a hundred milliseconds apart run one lockstep world: every brick lands on both boards and the hashes match. Tap a column on either board to drop a brick.",
+   "poster": {
+    "label": "PRESENCE",
+    "size": "2.1 KB"
+   },
+   "cap": "Tap a column on either board to drop a brick.",
+   "badge": {
+    "aria": "7.4 KB gzipped: this card, with @fzlt/core/presence, 7,565 bytes, measured at build",
+    "bytes": "7565",
+    "live": "chunks/presence-XBHWLJW3.js",
+    "title": "7,565 B gzip, measured at build",
+    "size": "7.4 KB",
+    "unit": "gz"
+   }
   },
   {
    "kind": "html",
@@ -66,16 +132,566 @@
    ]
   },
   {
-   "kind": "html",
-   "html": "<div class=\"panel code-card bp-snippet\"><div class=\"code-head\"><span class=\"bui-label\"><b>EXAMPLE</b> · typechecked against v0.27.0</span><button class=\"bui-key copy\" type=\"button\" data-copy><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 7h10v10H7ZM3 13V3h10\"></path></svg>Copy</button></div><pre tabindex=\"0\" class=\"code\"><code>const { transport, slot, players, seed } = await join(ROOM_URL);\nconst e = createEngine({ seed }), keys = controls(e);\nconst net = presence(e, { transport, slot, players, delay: 2,\n  input: () =&gt; (keys.down(&quot;left&quot;) ? 1 : 0) | (keys.down(&quot;right&quot;) ? 2 : 0),\n  step: (_e, inputs) =&gt; sim(inputs),   // same inputs + same seed = same state\n  hash: () =&gt; hash32(bytes) });        // net.desync stays -1 while in sync\ne.start();</code></pre></div>"
+   "kind": "code",
+   "label": "<b>EXAMPLE</b> · typechecked against v0.27.0",
+   "code": "const { transport, slot, players, seed } = await join(ROOM_URL);\nconst e = createEngine({ seed }), keys = controls(e);\nconst net = presence(e, { transport, slot, players, delay: 2,\n  input: () => (keys.down(\"left\") ? 1 : 0) | (keys.down(\"right\") ? 2 : 0),\n  step: (_e, inputs) => sim(inputs),   // same inputs + same seed = same state\n  hash: () => hash32(bytes) });        // net.desync stays -1 while in sync\ne.start();",
+   "wrap": false,
+   "copy": true,
+   "cls": "panel code-card bp-snippet"
   },
   {
-   "kind": "html",
-   "html": "<div class=\"bp-api\" id=\"api\">\n      <h2>API</h2>\n      <p class=\"bp-note\">Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.</p>\n      <nav class=\"panel bp-toc\" aria-label=\"Exports\"><ul><li><a href=\"#api-fzlt-core-presence-INPUT\"><code>INPUT, HASH, WELCOME, LEAVE, RESUME, AWAY, START, LOBBY</code></a><small>const</small></li><li><a href=\"#api-fzlt-core-presence-Transport\"><code>Transport</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-presence-PresenceOptions\"><code>PresenceOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-presence-presence\"><code>presence</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-presence-Presence\"><code>Presence</code></a><small>type</small></li><li><a href=\"#api-fzlt-core-presence-hash32\"><code>hash32</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-presence-memory\"><code>memory</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-presence-websocket\"><code>websocket</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-presence-JoinOptions\"><code>JoinOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-presence-join\"><code>join</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-presence-check-SyncGame\"><code>SyncGame</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-presence-check-SyncOptions\"><code>SyncOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-presence-check-SyncResult\"><code>SyncResult</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-presence-check-syncCheck\"><code>syncCheck</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-presence-rollback-RollbackOptions\"><code>RollbackOptions</code></a><small>interface</small></li><li><a href=\"#api-fzlt-core-presence-rollback-rollback\"><code>rollback</code></a><small>function</small></li><li><a href=\"#api-fzlt-core-presence-rollback-Rollback\"><code>Rollback</code></a><small>type</small></li></ul></nav>\n      <h3 class=\"bp-mod\" id=\"mod--fzlt-core-presence\"><code>@fzlt/core/presence</code></h3><p>Lockstep input exchange for multiplayer, behind a tiny transport adapter. Every peer runs the same fixed-step simulation from the same seed. Each sim frame needs every player's input for that frame; your own input is sent <code>delay</code> frames ahead, so on a good link the game never waits. A missing input stalls the sim (never guesses), so peers can't drift apart. Inputs live in fixed rings of typed arrays: a confirmed per-frame input log a rollback layer can replay. State hashes are exchanged every <code>hashEvery</code> frames to catch a desync early.</p>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-INPUT\">\n        <h4><code>INPUT, HASH, WELCOME, LEAVE, RESUME, AWAY, START, LOBBY</code> <small>const</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>Wire kinds. Every message is 12 bytes: kind, slot, players, mode, u32 frame (or seed), u32 value (or token). From the room: WELCOME, LEAVE, RESUME (a seat is back: resend), AWAY (a seat dropped and may come back), LOBBY (before the start: your seat, room size, seated); START goes to the room from the host (the protocol: /guides/build-your-own-room-server/).</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export declare const INPUT = 1, HASH = 2, WELCOME = 3, LEAVE = 4, RESUME = 5, AWAY = 6, START = 7, LOBBY = 8;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-Transport\">\n        <h4><code>Transport</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>Moves 12-byte messages to the room (or the other peers) and back.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface Transport {\n    /** Send one message. The buffer is reused: copy it before returning. */\n    send(data: Uint8Array): void;\n    /** Deliver every incoming message to `fn` (messages that arrived earlier are flushed to it). */\n    listen(fn: ((data: Uint8Array) =&gt; void) | null): void;\n    close(): void;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-PresenceOptions\">\n        <h4><code>PresenceOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>Options for <code>presence()</code>: the transport, this peer's seat, the number of players, the input delay and the ring sizes.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface PresenceOptions {\n    transport: Transport;\n    /** This peer's seat, 0..players-1 (the room says which). */\n    slot: number;\n    players: number;\n    /** Frames of input delay (default 2: 33 ms at 60 Hz). */\n    delay?: number;\n    /** Input frames kept per player (default 64; at least 2 × delay + 2). */\n    cap?: number;\n    /** This player's input for the frame being scheduled, as bits (read latched intents here). */\n    input(): number;\n    /** The simulation for one frame: same inputs + same seed → same state on every peer. */\n    step(e: Engine, inputs: Uint32Array, frame: number): void;\n    /** A hash of the sim state (see `hash32`); compared across peers to catch a desync. */\n    hash?(): number;\n    /** Frames between hash checks (default 30). */\n    hashEvery?: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-presence\">\n        <h4><code>presence</code> <small>function</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>Lockstep multiplayer on engine <code>e</code>: each sim frame waits for every player's input (sent <code>delay</code> frames ahead), so peers never drift; state hashes are compared to catch a desync. Read <code>frame</code>, <code>stalls</code>, <code>desync</code> and <code>lost</code>; <code>destroy()</code> stops it.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>presence(e: Engine, o: PresenceOptions): Presence</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>e</code></dt><dd><code>Engine</code></dd></div><div><dt><code>o</code></dt><dd><code><a href=\"#api-fzlt-core-presence-PresenceOptions\">PresenceOptions</a></code></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-presence-Presence\">Presence</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function presence(e: Engine, o: PresenceOptions): {\n    system: System;\n    /** Sim frames run so far (every peer passes the same frames, maybe at different times). */\n    readonly frame: number;\n    /** Engine steps spent waiting for someone's input. */\n    readonly stalls: number;\n    /** Messages refused (out of the window, bad seat, a second input or hash for one frame). */\n    readonly dropped: number;\n    /** First frame whose state hash differed from a peer's, or -1. */\n    readonly desync: number;\n    /** Bitmask of seats the room said left (their frames never arrive: the sim waits). */\n    readonly lost: number;\n    /** Bitmask of seats reconnecting (dropped, may come back; this one too, while `join`'s link retries). */\n    readonly away: number;\n    /** The confirmed input of `slot` for `frame`, or -1 if it isn't known (yet, or any more). */\n    confirmed(slot: number, frame: number): number;\n    destroy: () =&gt; void;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-Presence\">\n        <h4><code>Presence</code> <small>type</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>The lockstep session <code>presence()</code> returns.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Presence = ReturnType&lt;typeof presence&gt;;</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-hash32\">\n        <h4><code>hash32</code> <small>function</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>FNV-1a over bytes: hash a byte view of your state's typed arrays (make the view once).</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>hash32(bytes: Uint8Array, h?: number): number</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>bytes</code></dt><dd><code>Uint8Array</code></dd></div><div><dt><code>h?</code></dt><dd><code>number</code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code>number</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function hash32(bytes: Uint8Array, h?: number): number;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-memory\">\n        <h4><code>memory</code> <small>function</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>In-memory hub: <code>peers</code> transports that broadcast to each other (like the room relay) after <code>latency</code> ± <code>jitter</code> ticks. Call <code>tick()</code> once per frame. Bounded: <code>cap</code> messages in flight.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>memory(o: { peers: number; latency?: number; jitter?: number; seed?: number; cap?: number; }): { … }</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>o</code></dt><dd><code>{ peers: number; latency?: number; jitter?: number; seed?: number; cap?: number; }</code></dd></div><div><dt>Returns</dt><dd><code>{ … }</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function memory(o: {\n    peers: number;\n    latency?: number;\n    jitter?: number;\n    seed?: number;\n    cap?: number;\n}): {\n    ends: Transport[];\n    /** Advance the link clock one tick and deliver what's due (later messages may overtake). */\n    tick(): void;\n    readonly queued: number;\n    readonly dropped: number;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-websocket\">\n        <h4><code>websocket</code> <small>function</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>Wrap an open-or-opening WebSocket as a transport. Messages before <code>listen</code> are kept (≤ 256). <code>send</code> takes presence's 12-byte messages (the room refuses any other size). <code>eat</code> (join's) sees each message first and keeps it from the listener when it returns true.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>websocket(ws: WebSocket, eat?: (d: Uint8Array) =&gt; unknown): Transport</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>ws</code></dt><dd><code>WebSocket</code></dd></div><div><dt><code>eat?</code></dt><dd><code>(d: Uint8Array) =&gt; unknown</code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-presence-Transport\">Transport</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function websocket(ws: WebSocket, eat?: (d: Uint8Array) =&gt; unknown): Transport;</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-JoinOptions\">\n        <h4><code>JoinOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>Options for <code>join()</code>.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface JoinOptions {\n    /** Reconnect tries after a drop, 250 ms apart and doubling (default 6: about 16 s; 0: off). Meanwhile\n     *  `away` has this seat's bit (the others see AWAY); when they run out, `lost` (LEAVE). */\n    retry?: number;\n    /** Called on each LOBBY from the room before the start (on every join and leave): this player's\n     *  `seat`, how many are `seated`, the room `size`. Seat 0 is the host: its `start(seats, mode)` asks\n     *  the room to begin once `seats` are taken (0: now) with the seats it has; `mode` (0..255) reaches\n     *  every peer. Other seats' starts are ignored by the room. */\n    lobby?(start: (seats?: number, mode?: number) =&gt; void, seat: number, seated: number, size: number): void;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-join\">\n        <h4><code>join</code> <small>function</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>Join a room (a server speaking the <code>fizlet-rooms</code> subprotocol): resolves when the room starts with your seat, the player count, the shared seed and the host's <code>mode</code>. <code>protocols</code> go to the WebSocket handshake: the room reads its access token there (<code>[&quot;fizlet-rooms&quot;, &quot;invite.&quot; + code]</code>), so the code stays out of the URL and the logs. A dropped link (1006, or a server restart: 1011, 1012, 1014) reconnects on its own (<code>o.retry</code>) with the seat's resume token, kept in memory only (never in a URL); the room's own closes (idle, full, seat gone, the caps) end it.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>join(url: string, signal?: AbortSignal, protocols?: string | string[], o?: JoinOptions): Promise&lt;{ transport: Transport; slot: number; players: number; seed: number; mode: number; }&gt;</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>url</code></dt><dd><code>string</code></dd></div><div><dt><code>signal?</code></dt><dd><code>AbortSignal</code> <small>optional</small></dd></div><div><dt><code>protocols?</code></dt><dd><code>string | string[]</code> <small>optional</small></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-presence-JoinOptions\">JoinOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code>Promise&lt;{ transport: <a href=\"#api-fzlt-core-presence-Transport\">Transport</a>; slot: number; players: number; seed: number; mode: number; }&gt;</code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function join(url: string, signal?: AbortSignal, protocols?: string | string[], o?: JoinOptions): Promise&lt;{\n    transport: Transport;\n    slot: number;\n    players: number;\n    seed: number;\n    mode: number;\n}&gt;;</code></pre></details>\n      </article>\n      <h3 class=\"bp-mod\" id=\"mod--fzlt-core-presence-check\"><code>@fzlt/core/presence/check</code></h3><p>The determinism check as one function any game can call from a test. It runs <code>players</code> copies of your sim as lockstep clients over the in-memory link (each with only its own input), hashes the state after every frame, and reports the first frame that differs.</p>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-check-SyncGame\">\n        <h4><code>SyncGame</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>Your sim as <code>syncCheck()</code> runs it: its input for the next frame, one step from every player's inputs, and a byte view of its whole state.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface SyncGame {\n    /** This player's input bits for the next scheduled frame (only this client knows them). */\n    input(): number;\n    /** One sim frame from every player's inputs. Use `e.random`, never Math.random or the clock. */\n    step(e: Engine, inputs: Uint32Array, frame: number): void;\n    /** A byte view of the whole sim state (typed arrays; make the view once). */\n    state: Uint8Array;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-check-SyncOptions\">\n        <h4><code>SyncOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>Options for <code>syncCheck()</code>: players, frames, seed, input delay and the simulated link.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface SyncOptions {\n    players?: number;\n    frames?: number;\n    seed?: number;\n    delay?: number;\n    latency?: number;\n    jitter?: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-check-SyncResult\">\n        <h4><code>SyncResult</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>What <code>syncCheck()</code> found: whether every client agreed, how far they got and the first frame that differed.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface SyncResult {\n    /** Every client reached `frames` with the same state hash on every frame. */\n    ok: boolean;\n    /** Frames every client completed (≤ frames). */\n    frames: number;\n    /** First frame whose state differed between clients, or -1. */\n    diverged: number;\n    /** Engine steps spent waiting for inputs, summed over clients. */\n    stalls: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-check-syncCheck\">\n        <h4><code>syncCheck</code> <small>function</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>Check a sim is deterministic: run <code>players</code> copies as lockstep clients over the in-memory link, hash the state every frame and report the first frame that differs (<code>diverged</code>, -1 if none).</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>syncCheck(setup: (e: Engine, slot: number, players: number) =&gt; SyncGame, o?: SyncOptions): SyncResult</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>setup</code></dt><dd><code>(e: Engine, slot: number, players: number) =&gt; <a href=\"#api-fzlt-core-presence-check-SyncGame\">SyncGame</a></code></dd></div><div><dt><code>o?</code></dt><dd><code><a href=\"#api-fzlt-core-presence-check-SyncOptions\">SyncOptions</a></code> <small>optional</small></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-presence-check-SyncResult\">SyncResult</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function syncCheck(setup: (e: Engine, slot: number, players: number) =&gt; SyncGame, o?: SyncOptions): SyncResult;</code></pre></details>\n      </article>\n      <h3 class=\"bp-mod\" id=\"mod--fzlt-core-presence-rollback\"><code>@fzlt/core/presence/rollback</code></h3><p>Rollback netcode for a deterministic sim, on presence's 12-byte wire and room (nothing in the room server changes). Presence's lockstep waits for every input, so on a phone's network the sim runs only as fast as the slowest round trip; this runs every frame at once instead. Each frame runs with this screen's own input (a small delay, 1 to 3 frames, picked from the measured latency) and a guess for everyone else's (the last input heard from them). When a real input arrives that differs from the guess, the state goes back to that frame (a ring of snapshots of the sim's byte views, made once) and the frames since run again: the sim is deterministic, so every screen ends on the same state. A frame whose inputs are all real is final: <code>confirm</code> hears each one, in order, once; state hashes are compared on final frames only (a desync shows; it never drifts). A screen that runs ahead of the others (by the trip each side measures, carried in the INPUT message's spare byte) waits a frame now and then until they meet. At most <code>window</code> frames run past the last final one: past it the sim waits (a link that went quiet). A seat the room says left plays <code>gone</code> from the frame after its last input, on every screen. No allocation per frame. Wire: INPUT [1, seat, delay, lead × 2 (int8), frame u32, bits u32], HASH [2, seat, 0, 0, frame, hash]. One INPUT per frame, frames rising (the room relays each once; over TCP nothing is lost or reordered, and a resend only follows a RESUME).</p>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-rollback-RollbackOptions\">\n        <h4><code>RollbackOptions</code> <small>interface</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>Options for <code>rollback()</code>: the link, the seat, the sim (its input, step and bytes) and the window.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export interface RollbackOptions {\n    transport: Transport;\n    /** This screen's seat, 0..players-1 (the room says which). */\n    slot: number;\n    /** Seats in the room, at most 8. */\n    players: number;\n    /** This screen's input bits for `frame` (called once per frame, in order, `delay` frames ahead). */\n    input(frame: number): number;\n    /** Run one frame from `inputs[0..players-1]`. `live`: the first time this frame runs (false: again,\n     *  after a correction); `sure`: every input is real and every frame before it final (it never runs\n     *  again). Return false to wait instead (nothing changed). Only the state in `bytes` may change. */\n    step(inputs: Uint32Array, frame: number, live: boolean, sure: boolean): boolean | void;\n    /** The sim's whole state (typed-array byte views, the seeded random's state too): saved and restored\n     *  byte for byte, and hashed on final frames. */\n    bytes: Uint8Array[];\n    /** A final frame, in order, once, with its real inputs (a replay log, scores, sounds that must not repeat). */\n    confirm?(inputs: Uint32Array, frame: number): void;\n    /** Around a correction: before the state goes back (true) and after the frames ran again (false). */\n    rewind?(before: boolean): void;\n    /** The input bits a seat that left plays from the frame after its last one (default 0). */\n    gone?: number;\n    /** Frames run past the last final frame, at most, 2..100 (default 64: 1.07 s at 60 Hz). */\n    window?: number;\n    /** Frames between hash checks (default 30). */\n    hashEvery?: number;\n    /** A fixed input delay, 1..3 frames; omitted, it adapts 1..3 to the measured latency. */\n    delay?: number;\n}</code></pre>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-rollback-rollback\">\n        <h4><code>rollback</code> <small>function</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>Rollback multiplayer on engine <code>e</code>: runs every frame at once on guessed remote inputs and runs frames again when a real input differs; final frames are hashed and compared. Read <code>frame</code>, <code>final</code>, <code>desync</code>, <code>delay</code>; <code>destroy()</code> stops it.</p>\n        <pre tabindex=\"0\" class=\"code bp-sig\"><code>rollback(e: Engine, o: RollbackOptions): Rollback</code></pre>\n        <dl class=\"bp-params\"><div><dt><code>e</code></dt><dd><code>Engine</code></dd></div><div><dt><code>o</code></dt><dd><code><a href=\"#api-fzlt-core-presence-rollback-RollbackOptions\">RollbackOptions</a></code></dd></div><div><dt>Returns</dt><dd><code><a href=\"#api-fzlt-core-presence-rollback-Rollback\">Rollback</a></code></dd></div></dl>\n        <details class=\"bp-full\"><summary>Declaration</summary><pre tabindex=\"0\" class=\"code\"><code>export declare function rollback(e: Engine, o: RollbackOptions): {\n    /** Frames run so far on this screen (some on guesses). */\n    readonly frame: number;\n    /** Frames final so far (every input real): the same frames on every screen, maybe at different times. */\n    readonly final: number;\n    /** Engine steps the sim waited: the window was full (someone went quiet) or a step asked to. */\n    readonly stalls: number;\n    /** Engine steps this screen waited a frame for the others to catch up (time sync). */\n    readonly waits: number;\n    /** Frames run again after corrections, in all. */\n    readonly resims: number;\n    /** The deepest correction (frames run again at once). */\n    readonly deepest: number;\n    /** Corrections so far. */\n    readonly corrections: number;\n    /** The slowest correction so far (ms, the frames run again). */\n    readonly resimMs: number;\n    /** All the time spent running frames again (ms). */\n    readonly resimTotal: number;\n    /** Engine steps so far. */\n    readonly steps: number;\n    /** The input delay now (frames, 1..3). */\n    readonly delay: number;\n    /** How far this screen runs ahead of the others (frames, the mean over the seats still playing). */\n    readonly lead: number;\n    /** The first frame whose state hash differed from a seat's, or −1. */\n    readonly desync: number;\n    /** Seats the room said left, as bits (this one too when its own link is gone for good). */\n    readonly lost: number;\n    /** Seats reconnecting, as bits. */\n    readonly away: number;\n    /** Other seats that left (they play `gone`), as bits. */\n    readonly left: number;\n    /** The frame seat s's `gone` starts, or −1 (it has not left). */\n    leftAt: (s: number) =&gt; number;\n    /** Messages ignored: late, repeated, out of the ring or of an unknown kind. */\n    readonly dropped: number;\n    /** Stop running new frames at `frame` (−1: run on); inputs and corrections still land (tests, a\n     *  match's end). */\n    hold: number;\n    /** Stop: the system leaves the engine, the link closes. */\n    destroy: () =&gt; void;\n};</code></pre></details>\n      </article>\n      <article class=\"bp-decl\" id=\"api-fzlt-core-presence-rollback-Rollback\">\n        <h4><code>Rollback</code> <small>type</small> <span class=\"status-pill\" data-flag=\"beta\" title=\"Tested and budgeted; not yet carried by a shipped game, or its API is still moving.\">BETA</span></h4>\n        <p>What <code>rollback()</code> returns.</p>\n        \n        <pre tabindex=\"0\" class=\"code\"><code>export type Rollback = ReturnType&lt;typeof rollback&gt;;</code></pre>\n      </article>\n    </div>"
+   "kind": "api",
+   "note": "Every export with its signature, parameters, return type, doc comment and status flag, generated at build time from the published type declarations of v0.27.0 by the TypeScript compiler. For AI agents: <a href=\"/llms-full.txt\">the whole API as plain text</a>.",
+   "toc": [
+    {
+     "href": "#api-fzlt-core-presence-INPUT",
+     "names": "INPUT, HASH, WELCOME, LEAVE, RESUME, AWAY, START, LOBBY",
+     "what": "const"
+    },
+    {
+     "href": "#api-fzlt-core-presence-Transport",
+     "names": "Transport",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-presence-PresenceOptions",
+     "names": "PresenceOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-presence-presence",
+     "names": "presence",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-presence-Presence",
+     "names": "Presence",
+     "what": "type"
+    },
+    {
+     "href": "#api-fzlt-core-presence-hash32",
+     "names": "hash32",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-presence-memory",
+     "names": "memory",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-presence-websocket",
+     "names": "websocket",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-presence-JoinOptions",
+     "names": "JoinOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-presence-join",
+     "names": "join",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-presence-check-SyncGame",
+     "names": "SyncGame",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-presence-check-SyncOptions",
+     "names": "SyncOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-presence-check-SyncResult",
+     "names": "SyncResult",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-presence-check-syncCheck",
+     "names": "syncCheck",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-presence-rollback-RollbackOptions",
+     "names": "RollbackOptions",
+     "what": "interface"
+    },
+    {
+     "href": "#api-fzlt-core-presence-rollback-rollback",
+     "names": "rollback",
+     "what": "function"
+    },
+    {
+     "href": "#api-fzlt-core-presence-rollback-Rollback",
+     "names": "Rollback",
+     "what": "type"
+    }
+   ],
+   "items": [
+    {
+     "kind": "mod",
+     "id": "mod--fzlt-core-presence",
+     "name": "@fzlt/core/presence",
+     "summary": "Lockstep input exchange for multiplayer, behind a tiny transport adapter. Every peer runs the same fixed-step simulation from the same seed. Each sim frame needs every player's input for that frame; your own input is sent <code>delay</code> frames ahead, so on a good link the game never waits. A missing input stalls the sim (never guesses), so peers can't drift apart. Inputs live in fixed rings of typed arrays: a confirmed per-frame input log a rollback layer can replay. State hashes are exchanged every <code>hashEvery</code> frames to catch a desync early."
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-INPUT",
+     "level": "h4",
+     "names": "INPUT, HASH, WELCOME, LEAVE, RESUME, AWAY, START, LOBBY",
+     "what": "const",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Wire kinds. Every message is 12 bytes: kind, slot, players, mode, u32 frame (or seed), u32 value (or token). From the room: WELCOME, LEAVE, RESUME (a seat is back: resend), AWAY (a seat dropped and may come back), LOBBY (before the start: your seat, room size, seated); START goes to the room from the host (the protocol: /guides/build-your-own-room-server/).",
+     "tags": [],
+     "sigs": [],
+     "code": "export declare const INPUT = 1, HASH = 2, WELCOME = 3, LEAVE = 4, RESUME = 5, AWAY = 6, START = 7, LOBBY = 8;",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-Transport",
+     "level": "h4",
+     "names": "Transport",
+     "what": "interface",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Moves 12-byte messages to the room (or the other peers) and back.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface Transport {\n    /** Send one message. The buffer is reused: copy it before returning. */\n    send(data: Uint8Array): void;\n    /** Deliver every incoming message to `fn` (messages that arrived earlier are flushed to it). */\n    listen(fn: ((data: Uint8Array) => void) | null): void;\n    close(): void;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-PresenceOptions",
+     "level": "h4",
+     "names": "PresenceOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Options for <code>presence()</code>: the transport, this peer's seat, the number of players, the input delay and the ring sizes.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface PresenceOptions {\n    transport: Transport;\n    /** This peer's seat, 0..players-1 (the room says which). */\n    slot: number;\n    players: number;\n    /** Frames of input delay (default 2: 33 ms at 60 Hz). */\n    delay?: number;\n    /** Input frames kept per player (default 64; at least 2 × delay + 2). */\n    cap?: number;\n    /** This player's input for the frame being scheduled, as bits (read latched intents here). */\n    input(): number;\n    /** The simulation for one frame: same inputs + same seed → same state on every peer. */\n    step(e: Engine, inputs: Uint32Array, frame: number): void;\n    /** A hash of the sim state (see `hash32`); compared across peers to catch a desync. */\n    hash?(): number;\n    /** Frames between hash checks (default 30). */\n    hashEvery?: number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-presence",
+     "level": "h4",
+     "names": "presence",
+     "what": "function",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Lockstep multiplayer on engine <code>e</code>: each sim frame waits for every player's input (sent <code>delay</code> frames ahead), so peers never drift; state hashes are compared to catch a desync. Read <code>frame</code>, <code>stalls</code>, <code>desync</code> and <code>lost</code>; <code>destroy()</code> stops it.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "presence(e: Engine, o: PresenceOptions): Presence",
+       "params": [
+        {
+         "name": "e",
+         "type": "Engine",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o",
+         "type": "<a href=\"#api-fzlt-core-presence-PresenceOptions\">PresenceOptions</a>",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-presence-Presence\">Presence</a>"
+      }
+     ],
+     "code": "export declare function presence(e: Engine, o: PresenceOptions): {\n    system: System;\n    /** Sim frames run so far (every peer passes the same frames, maybe at different times). */\n    readonly frame: number;\n    /** Engine steps spent waiting for someone's input. */\n    readonly stalls: number;\n    /** Messages refused (out of the window, bad seat, a second input or hash for one frame). */\n    readonly dropped: number;\n    /** First frame whose state hash differed from a peer's, or -1. */\n    readonly desync: number;\n    /** Bitmask of seats the room said left (their frames never arrive: the sim waits). */\n    readonly lost: number;\n    /** Bitmask of seats reconnecting (dropped, may come back; this one too, while `join`'s link retries). */\n    readonly away: number;\n    /** The confirmed input of `slot` for `frame`, or -1 if it isn't known (yet, or any more). */\n    confirmed(slot: number, frame: number): number;\n    destroy: () => void;\n};",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-Presence",
+     "level": "h4",
+     "names": "Presence",
+     "what": "type",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "The lockstep session <code>presence()</code> returns.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Presence = ReturnType<typeof presence>;",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-hash32",
+     "level": "h4",
+     "names": "hash32",
+     "what": "function",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "FNV-1a over bytes: hash a byte view of your state's typed arrays (make the view once).",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "hash32(bytes: Uint8Array, h?: number): number",
+       "params": [
+        {
+         "name": "bytes",
+         "type": "Uint8Array",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "h?",
+         "type": "number",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "number"
+      }
+     ],
+     "code": "export declare function hash32(bytes: Uint8Array, h?: number): number;",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-memory",
+     "level": "h4",
+     "names": "memory",
+     "what": "function",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "In-memory hub: <code>peers</code> transports that broadcast to each other (like the room relay) after <code>latency</code> ± <code>jitter</code> ticks. Call <code>tick()</code> once per frame. Bounded: <code>cap</code> messages in flight.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "memory(o: { peers: number; latency?: number; jitter?: number; seed?: number; cap?: number; }): { … }",
+       "params": [
+        {
+         "name": "o",
+         "type": "{ peers: number; latency?: number; jitter?: number; seed?: number; cap?: number; }",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "{ … }"
+      }
+     ],
+     "code": "export declare function memory(o: {\n    peers: number;\n    latency?: number;\n    jitter?: number;\n    seed?: number;\n    cap?: number;\n}): {\n    ends: Transport[];\n    /** Advance the link clock one tick and deliver what's due (later messages may overtake). */\n    tick(): void;\n    readonly queued: number;\n    readonly dropped: number;\n};",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-websocket",
+     "level": "h4",
+     "names": "websocket",
+     "what": "function",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Wrap an open-or-opening WebSocket as a transport. Messages before <code>listen</code> are kept (≤ 256). <code>send</code> takes presence's 12-byte messages (the room refuses any other size). <code>eat</code> (join's) sees each message first and keeps it from the listener when it returns true.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "websocket(ws: WebSocket, eat?: (d: Uint8Array) => unknown): Transport",
+       "params": [
+        {
+         "name": "ws",
+         "type": "WebSocket",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "eat?",
+         "type": "(d: Uint8Array) =&gt; unknown",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-presence-Transport\">Transport</a>"
+      }
+     ],
+     "code": "export declare function websocket(ws: WebSocket, eat?: (d: Uint8Array) => unknown): Transport;",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-JoinOptions",
+     "level": "h4",
+     "names": "JoinOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Options for <code>join()</code>.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface JoinOptions {\n    /** Reconnect tries after a drop, 250 ms apart and doubling (default 6: about 16 s; 0: off). Meanwhile\n     *  `away` has this seat's bit (the others see AWAY); when they run out, `lost` (LEAVE). */\n    retry?: number;\n    /** Called on each LOBBY from the room before the start (on every join and leave): this player's\n     *  `seat`, how many are `seated`, the room `size`. Seat 0 is the host: its `start(seats, mode)` asks\n     *  the room to begin once `seats` are taken (0: now) with the seats it has; `mode` (0..255) reaches\n     *  every peer. Other seats' starts are ignored by the room. */\n    lobby?(start: (seats?: number, mode?: number) => void, seat: number, seated: number, size: number): void;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-join",
+     "level": "h4",
+     "names": "join",
+     "what": "function",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Join a room (a server speaking the <code>fizlet-rooms</code> subprotocol): resolves when the room starts with your seat, the player count, the shared seed and the host's <code>mode</code>. <code>protocols</code> go to the WebSocket handshake: the room reads its access token there (<code>[&quot;fizlet-rooms&quot;, &quot;invite.&quot; + code]</code>), so the code stays out of the URL and the logs. A dropped link (1006, or a server restart: 1011, 1012, 1014) reconnects on its own (<code>o.retry</code>) with the seat's resume token, kept in memory only (never in a URL); the room's own closes (idle, full, seat gone, the caps) end it.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "join(url: string, signal?: AbortSignal, protocols?: string | string[], o?: JoinOptions): Promise<{ transport: Transport; slot: number; players: number; seed: number; mode: number; }>",
+       "params": [
+        {
+         "name": "url",
+         "type": "string",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "signal?",
+         "type": "AbortSignal",
+         "optional": true,
+         "doc": ""
+        },
+        {
+         "name": "protocols?",
+         "type": "string | string[]",
+         "optional": true,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-presence-JoinOptions\">JoinOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "Promise&lt;{ transport: <a href=\"#api-fzlt-core-presence-Transport\">Transport</a>; slot: number; players: number; seed: number; mode: number; }&gt;"
+      }
+     ],
+     "code": "export declare function join(url: string, signal?: AbortSignal, protocols?: string | string[], o?: JoinOptions): Promise<{\n    transport: Transport;\n    slot: number;\n    players: number;\n    seed: number;\n    mode: number;\n}>;",
+     "folded": true
+    },
+    {
+     "kind": "mod",
+     "id": "mod--fzlt-core-presence-check",
+     "name": "@fzlt/core/presence/check",
+     "summary": "The determinism check as one function any game can call from a test. It runs <code>players</code> copies of your sim as lockstep clients over the in-memory link (each with only its own input), hashes the state after every frame, and reports the first frame that differs."
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-check-SyncGame",
+     "level": "h4",
+     "names": "SyncGame",
+     "what": "interface",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Your sim as <code>syncCheck()</code> runs it: its input for the next frame, one step from every player's inputs, and a byte view of its whole state.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface SyncGame {\n    /** This player's input bits for the next scheduled frame (only this client knows them). */\n    input(): number;\n    /** One sim frame from every player's inputs. Use `e.random`, never Math.random or the clock. */\n    step(e: Engine, inputs: Uint32Array, frame: number): void;\n    /** A byte view of the whole sim state (typed arrays; make the view once). */\n    state: Uint8Array;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-check-SyncOptions",
+     "level": "h4",
+     "names": "SyncOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Options for <code>syncCheck()</code>: players, frames, seed, input delay and the simulated link.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface SyncOptions {\n    players?: number;\n    frames?: number;\n    seed?: number;\n    delay?: number;\n    latency?: number;\n    jitter?: number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-check-SyncResult",
+     "level": "h4",
+     "names": "SyncResult",
+     "what": "interface",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "What <code>syncCheck()</code> found: whether every client agreed, how far they got and the first frame that differed.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface SyncResult {\n    /** Every client reached `frames` with the same state hash on every frame. */\n    ok: boolean;\n    /** Frames every client completed (≤ frames). */\n    frames: number;\n    /** First frame whose state differed between clients, or -1. */\n    diverged: number;\n    /** Engine steps spent waiting for inputs, summed over clients. */\n    stalls: number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-check-syncCheck",
+     "level": "h4",
+     "names": "syncCheck",
+     "what": "function",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Check a sim is deterministic: run <code>players</code> copies as lockstep clients over the in-memory link, hash the state every frame and report the first frame that differs (<code>diverged</code>, -1 if none).",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "syncCheck(setup: (e: Engine, slot: number, players: number) => SyncGame, o?: SyncOptions): SyncResult",
+       "params": [
+        {
+         "name": "setup",
+         "type": "(e: Engine, slot: number, players: number) =&gt; <a href=\"#api-fzlt-core-presence-check-SyncGame\">SyncGame</a>",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o?",
+         "type": "<a href=\"#api-fzlt-core-presence-check-SyncOptions\">SyncOptions</a>",
+         "optional": true,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-presence-check-SyncResult\">SyncResult</a>"
+      }
+     ],
+     "code": "export declare function syncCheck(setup: (e: Engine, slot: number, players: number) => SyncGame, o?: SyncOptions): SyncResult;",
+     "folded": true
+    },
+    {
+     "kind": "mod",
+     "id": "mod--fzlt-core-presence-rollback",
+     "name": "@fzlt/core/presence/rollback",
+     "summary": "Rollback netcode for a deterministic sim, on presence's 12-byte wire and room (nothing in the room server changes). Presence's lockstep waits for every input, so on a phone's network the sim runs only as fast as the slowest round trip; this runs every frame at once instead. Each frame runs with this screen's own input (a small delay, 1 to 3 frames, picked from the measured latency) and a guess for everyone else's (the last input heard from them). When a real input arrives that differs from the guess, the state goes back to that frame (a ring of snapshots of the sim's byte views, made once) and the frames since run again: the sim is deterministic, so every screen ends on the same state. A frame whose inputs are all real is final: <code>confirm</code> hears each one, in order, once; state hashes are compared on final frames only (a desync shows; it never drifts). A screen that runs ahead of the others (by the trip each side measures, carried in the INPUT message's spare byte) waits a frame now and then until they meet. At most <code>window</code> frames run past the last final one: past it the sim waits (a link that went quiet). A seat the room says left plays <code>gone</code> from the frame after its last input, on every screen. No allocation per frame. Wire: INPUT [1, seat, delay, lead × 2 (int8), frame u32, bits u32], HASH [2, seat, 0, 0, frame, hash]. One INPUT per frame, frames rising (the room relays each once; over TCP nothing is lost or reordered, and a resend only follows a RESUME)."
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-rollback-RollbackOptions",
+     "level": "h4",
+     "names": "RollbackOptions",
+     "what": "interface",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Options for <code>rollback()</code>: the link, the seat, the sim (its input, step and bytes) and the window.",
+     "tags": [],
+     "sigs": [],
+     "code": "export interface RollbackOptions {\n    transport: Transport;\n    /** This screen's seat, 0..players-1 (the room says which). */\n    slot: number;\n    /** Seats in the room, at most 8. */\n    players: number;\n    /** This screen's input bits for `frame` (called once per frame, in order, `delay` frames ahead). */\n    input(frame: number): number;\n    /** Run one frame from `inputs[0..players-1]`. `live`: the first time this frame runs (false: again,\n     *  after a correction); `sure`: every input is real and every frame before it final (it never runs\n     *  again). Return false to wait instead (nothing changed). Only the state in `bytes` may change. */\n    step(inputs: Uint32Array, frame: number, live: boolean, sure: boolean): boolean | void;\n    /** The sim's whole state (typed-array byte views, the seeded random's state too): saved and restored\n     *  byte for byte, and hashed on final frames. */\n    bytes: Uint8Array[];\n    /** A final frame, in order, once, with its real inputs (a replay log, scores, sounds that must not repeat). */\n    confirm?(inputs: Uint32Array, frame: number): void;\n    /** Around a correction: before the state goes back (true) and after the frames ran again (false). */\n    rewind?(before: boolean): void;\n    /** The input bits a seat that left plays from the frame after its last one (default 0). */\n    gone?: number;\n    /** Frames run past the last final frame, at most, 2..100 (default 64: 1.07 s at 60 Hz). */\n    window?: number;\n    /** Frames between hash checks (default 30). */\n    hashEvery?: number;\n    /** A fixed input delay, 1..3 frames; omitted, it adapts 1..3 to the measured latency. */\n    delay?: number;\n}",
+     "folded": false
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-rollback-rollback",
+     "level": "h4",
+     "names": "rollback",
+     "what": "function",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "Rollback multiplayer on engine <code>e</code>: runs every frame at once on guessed remote inputs and runs frames again when a real input differs; final frames are hashed and compared. Read <code>frame</code>, <code>final</code>, <code>desync</code>, <code>delay</code>; <code>destroy()</code> stops it.",
+     "tags": [],
+     "sigs": [
+      {
+       "text": "rollback(e: Engine, o: RollbackOptions): Rollback",
+       "params": [
+        {
+         "name": "e",
+         "type": "Engine",
+         "optional": false,
+         "doc": ""
+        },
+        {
+         "name": "o",
+         "type": "<a href=\"#api-fzlt-core-presence-rollback-RollbackOptions\">RollbackOptions</a>",
+         "optional": false,
+         "doc": ""
+        }
+       ],
+       "returns": "<a href=\"#api-fzlt-core-presence-rollback-Rollback\">Rollback</a>"
+      }
+     ],
+     "code": "export declare function rollback(e: Engine, o: RollbackOptions): {\n    /** Frames run so far on this screen (some on guesses). */\n    readonly frame: number;\n    /** Frames final so far (every input real): the same frames on every screen, maybe at different times. */\n    readonly final: number;\n    /** Engine steps the sim waited: the window was full (someone went quiet) or a step asked to. */\n    readonly stalls: number;\n    /** Engine steps this screen waited a frame for the others to catch up (time sync). */\n    readonly waits: number;\n    /** Frames run again after corrections, in all. */\n    readonly resims: number;\n    /** The deepest correction (frames run again at once). */\n    readonly deepest: number;\n    /** Corrections so far. */\n    readonly corrections: number;\n    /** The slowest correction so far (ms, the frames run again). */\n    readonly resimMs: number;\n    /** All the time spent running frames again (ms). */\n    readonly resimTotal: number;\n    /** Engine steps so far. */\n    readonly steps: number;\n    /** The input delay now (frames, 1..3). */\n    readonly delay: number;\n    /** How far this screen runs ahead of the others (frames, the mean over the seats still playing). */\n    readonly lead: number;\n    /** The first frame whose state hash differed from a seat's, or −1. */\n    readonly desync: number;\n    /** Seats the room said left, as bits (this one too when its own link is gone for good). */\n    readonly lost: number;\n    /** Seats reconnecting, as bits. */\n    readonly away: number;\n    /** Other seats that left (they play `gone`), as bits. */\n    readonly left: number;\n    /** The frame seat s's `gone` starts, or −1 (it has not left). */\n    leftAt: (s: number) => number;\n    /** Messages ignored: late, repeated, out of the ring or of an unknown kind. */\n    readonly dropped: number;\n    /** Stop running new frames at `frame` (−1: run on); inputs and corrections still land (tests, a\n     *  match's end). */\n    hold: number;\n    /** Stop: the system leaves the engine, the link closes. */\n    destroy: () => void;\n};",
+     "folded": true
+    },
+    {
+     "kind": "decl",
+     "id": "api-fzlt-core-presence-rollback-Rollback",
+     "level": "h4",
+     "names": "Rollback",
+     "what": "type",
+     "pill": {
+      "flag": "beta",
+      "title": "Tested and budgeted; not yet carried by a shipped game, or its API is still moving.",
+      "label": "BETA"
+     },
+     "doc": "What <code>rollback()</code> returns.",
+     "tags": [],
+     "sigs": [],
+     "code": "export type Rollback = ReturnType<typeof rollback>;",
+     "folded": false
+    }
+   ]
   },
   {
-   "kind": "html",
-   "html": "<nav class=\"bp-steps\" aria-label=\"More bricks\"><a class=\"bp-step prev\" href=\"/bricks/board-page.html\"><small>← PREVIOUS</small><code>@fzlt/core/board-page</code></a><a class=\"bp-step next\" href=\"/bricks/ui.html\"><small>NEXT →</small><code>@fzlt/core/ui</code></a></nav>"
+   "kind": "steps",
+   "steps": [
+    {
+     "href": "/bricks/board-page.html",
+     "label": "@fzlt/core/board-page",
+     "dir": "prev"
+    },
+    {
+     "href": "/bricks/ui.html",
+     "label": "@fzlt/core/ui",
+     "dir": "next"
+    }
+   ]
   }
  ]
 }

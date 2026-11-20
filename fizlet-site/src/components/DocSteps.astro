@@ -1,7 +1,9 @@
 ---
-// Previous / next in reading order.
-interface Props { steps: { href: string; label: string; dir: string }[] }
-const prev = Astro.props.steps.find((s) => s.dir === "prev");
-const next = Astro.props.steps.find((s) => s.dir === "next");
+// Previous / next in reading order (docs: titles; bricks: import paths, as code).
+interface Props { steps: { href: string; label: string; dir: string }[]; label?: string; code?: boolean }
+const { steps, label = "More docs", code = false } = Astro.props;
+const prev = steps.find((s) => s.dir === "prev");
+const next = steps.find((s) => s.dir === "next");
+const T = code ? "code" : "span";
 ---
-<nav class="bp-steps" aria-label="More docs">{prev ? <a class="bp-step prev" href={prev.href}><small>← PREVIOUS</small><span>{prev.label}</span></a> : <span></span>}{next ? <a class="bp-step next" href={next.href}><small>NEXT →</small><span>{next.label}</span></a> : <span></span>}</nav>
+<nav class="bp-steps" aria-label={label}>{prev ? <a class="bp-step prev" href={prev.href}><small>← PREVIOUS</small><T>{prev.label}</T></a> : <span></span>}{next ? <a class="bp-step next" href={next.href}><small>NEXT →</small><T>{next.label}</T></a> : <span></span>}</nav>
