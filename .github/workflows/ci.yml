@@ -40,6 +40,9 @@ jobs:
       # COMPLETE bricks keep their API: the snapshots in api/ match the build, and one that changed
       # since the base names its brick under "## Unreleased" in CHANGELOG.md.
       - run: npm run api:check -- --base HEAD^
+      # Every public export, option and return member has TSDoc: one without it that is not in the
+      # baseline (scripts/docs-coverage.json, which only shrinks) fails here. dist/ is built by check.
+      - run: npm run docs:coverage -- --no-build --check
       # Size budgets: kernel <= 4 KB gzip, each brick ~1.5 KB.
       - run: npm run size
       # The runtime has no dependencies, ever.

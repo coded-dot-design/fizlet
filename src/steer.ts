@@ -27,6 +27,7 @@ export interface SteerOptions {
   cap: number;
   /** Pixels per second at full pace (default 150) and a multiplier for the board's scale (default 1). */
   speed?: number;
+  /** Multiplier on `speed` for the board's scale (default 1). */
   scale?: number;
   /** Most the heading turns, radians per second (default 7). */
   turn?: number;
@@ -34,14 +35,19 @@ export interface SteerOptions {
   stop?: number;
   /** Arrive: stop inside `near` (14), slow down inside `slow` (140): pace `fast` (1.05) then `calm` (0.8). */
   near?: number;
+  /** Arrive: px from the goal where the pace drops from `fast` to `calm` (default 140). */
   slow?: number;
+  /** Arrive: pace outside `slow` (default 1.05). */
   fast?: number;
+  /** Arrive: pace inside `slow` (default 0.8). */
   calm?: number;
   /** Flee stops once this far away (default 240). */
   far?: number;
   /** Wander: a new goal every `every` (2) + random × `jitter` (2) seconds, inside `area` [left, top, width, height]. */
   every?: number;
+  /** Wander: up to this many seconds more, at random, between goals (default 2). */
   jitter?: number;
+  /** Wander: goals are picked inside [left, top, width, height] px (default [0, 0, 640, 480]). */
   area?: readonly [number, number, number, number];
   /** Is (at[0], at[1]) a wall for mover i? Checked per axis, so movers slide along walls. The spot
    *  comes in a typed array, not as two numbers: doubles passed to a callback are boxed. */
@@ -97,11 +103,21 @@ export function steer(o: SteerOptions) {
     go(i);
   }
   return {
-    x, y, a,
+    /** Positions x per mover, px. */
+    x,
+    /** Positions y per mover, px. */
+    y,
+    /** Headings per mover, radians (0 faces +x). */
+    a,
     /** The goal: wander's current one (and seconds until it picks the next), or one the game writes for `arriveGoal`. */
-    gx, gy, think,
+    gx,
+    /** The goal's y (see `gx`). */
+    gy,
+    /** Wander: seconds until mover i picks its next goal. */
+    think,
     /** Patrol: the waypoint each mover is heading for. */
     leg,
+    /** Movers (o.cap): every array is this long. */
     cap: n,
     /** Put mover i at (px, py) facing `heading`; wander picks a goal at once, patrol starts at 0. */
     place(i: number, px: number, py: number, heading = 0) {
@@ -119,12 +135,14 @@ export function steer(o: SteerOptions) {
       v[0] = tx; v[1] = ty; v[2] = dt;
       toward(i, pace, stop);
     },
+    /** Straight away from (fx, fy) at `pace` for dt seconds, until `far` px off (it stands still when exactly on it). */
     flee(i: number, fx: number, fy: number, dt: number, pace = 1) {
       const dx = x[i]! - fx, dy = y[i]! - fy, d = hypot(dx, dy);
       if (d >= far || d === 0) return void (moved[i] = 0);
       v[0] = dx / d; v[1] = dy / d; v[2] = dt * pace;
       go(i);
     },
+    /** Toward (tx, ty) for dt seconds at pace `fast`, `calm` inside `slow`, stopping inside `near`. */
     arrive(i: number, tx: number, ty: number, dt: number) {
       v[0] = tx; v[1] = ty; v[2] = dt;
       toward(i, -1, near);
@@ -138,6 +156,8 @@ export function steer(o: SteerOptions) {
       v[0] = gx[i]!; v[1] = gy[i]!; v[2] = dt;
       toward(i, -1, near);
     },
+    /** Seek a random goal in `area` at `pace` for dt seconds, a new one every `every` + random × `jitter`
+     *  seconds (drawn from `random`), stopping inside `stop` until then. */
     wander(i: number, dt: number, pace = 1) {
       if ((think[i]! -= dt) <= 0) {
         think[i] = every + random() * jitter;

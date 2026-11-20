@@ -511,6 +511,7 @@ export function dioramaBeam(d: Diorama, b: Beam, o: DioramaBeamOptions) {
     },
     /** The pulse points and sparks pools. */
     dots,
+    /** The sparks pool: points where a beam hits a target or a blocker (capacity `sparks`). */
     sparks,
     /** Pose the beams at t (seconds, a running clock); true while anything still moves. */
     show(t: number) {

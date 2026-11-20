@@ -16,6 +16,7 @@ import type { Engine } from "./kernel/engine";
 /** A localStorage switch: `on` when `key` holds `value` (default "1"). Never throws. */
 export function flag(key: string, value = "1") {
   return {
+    /** True when `key` holds `value`; false when it doesn't or storage is blocked. */
     get on() {
       try {
         return localStorage.getItem(key) === value;
@@ -29,6 +30,7 @@ export function flag(key: string, value = "1") {
         localStorage.setItem(key, value);
       } catch {}
     },
+    /** Unset it (removes `key`). */
     clear() {
       try {
         localStorage.removeItem(key);
@@ -43,6 +45,7 @@ export interface TourOptions {
   steps?: number;
   /** Tips shown in turn after the last step (default 7), one every `every` seconds (default 6). */
   tips?: number;
+  /** Seconds each tip shows after the tutorial (default 6). */
   every?: number;
 }
 
@@ -57,7 +60,9 @@ export function tour(e: Engine, o: TourOptions = {}) {
     time: t,
     /** The step the player is on; `steps` once the tutorial is over. */
     get step() { return n[0]!; },
+    /** True once the last tutorial step has passed. */
     get done() { return n[0]! >= steps; },
+    /** Tutorial steps, as configured (default 10). */
     steps,
     /** Count dt on this step. Call once a step, before you test whether it is done. */
     tick(dt: number) {
@@ -92,7 +97,9 @@ export type Tour = ReturnType<typeof tour>;
 export interface CardOptions {
   /** The End button's label (default "END PRACTICE") and what it does (hidden if none). */
   end?: string;
+  /** What the End button does; without it the card has no End button. */
   onEnd?(): void;
+  /** When it aborts the card is removed (at once if it already has); it also unbinds the End button. */
   signal?: AbortSignal;
 }
 
@@ -130,6 +137,7 @@ export function card(host: HTMLElement, o: CardOptions = {}) {
     ringed = null;
   };
   const api = {
+    /** The card element (class `fizlet-coach`, role status), hidden until `show`. */
     el,
     /** Show a card (writes only what changed); `target` gets the dashed ring. */
     show(c: string, t: string, body: string, target?: HTMLElement | null) {
@@ -140,10 +148,12 @@ export function card(host: HTMLElement, o: CardOptions = {}) {
       }
       el.hidden = false;
     },
+    /** Hide the card; the ringed control gets its own outline back. */
     hide() {
       unring();
       el.hidden = true;
     },
+    /** Hide the card and take it off the page (runs when `signal` aborts). */
     remove() {
       api.hide();
       el.remove();

@@ -60,28 +60,43 @@ export type ArcadeStatus = "idle" | "running" | "paused" | "won" | "gameover" | 
 export interface ArcadeOptions<S> {
   /** The board: a selector or an element (default document.body). */
   root?: string | Element;
+  /** Text containers whose glyphs are terrain (default board-page's, plus [data-virus-text]). */
   textSelector?: string;
+  /** Targets (default board-page's, plus [data-virus-target]). */
   targetSelector?: string;
+  /** More to leave alone, on top of [data-virus-ignore], [data-fizlet-ignore] and board-page's own. */
   excludeSelector?: string;
   /** "system" (default) follows the visitor's colour scheme. */
   theme?: "dark" | "light" | "system";
+  /** The runs' random seed (default a new random one each run). */
   seed?: number;
+  /** Reduced motion on or off (default: the visitor's prefers-reduced-motion, read live). */
   reducedMotion?: boolean;
   /** Start with sound on (default true; it waits for a gesture to unlock). */
   sound?: boolean;
   /** "keyboard": the mouse never steers. */
   controls?: "mouse" | "keyboard";
+  /** The snapshot, on each change of the run and about every 0.1 s while it renders. */
   onState?: (state: ArcadeSnapshot<S>) => void;
+  /** The hub's events, with `game` the def's id: start, pause, resume, won, gameover (with `score`),
+   *  recall, jump, and the game's own `ctx.emit`. */
   onEvent?: (event: { type: string; game: string; [key: string]: unknown }) => void;
+  /** A run failed to start (start() rethrows) or a hook threw (the run is stopped first). */
   onError?: (error: unknown) => void;
 }
 /** What the controller reports about a run: its status, time and frame cost, plus the game's own state. */
 export type ArcadeSnapshot<S> = Partial<S> & {
+  /** The game's id (`def.id`). */
   id: string;
+  /** Where the run is. */
   status: ArcadeStatus;
+  /** Seconds on the run's engine clock (0 with no run). */
   elapsed: number;
+  /** Average frame cost over the run, in ms (0 with no run). */
   frameMs: number;
+  /** Worst frame cost over the run, in ms (0 with no run). */
   maxFrameMs: number;
+  /** A line for the visitor on how the run ended or why it stopped (empty while it runs). */
   notice: string;
   /** Letters indexed, on screen and spent, and the range reads the last measurement made. */
   board?: { indexed: number; visible: number; spent: number; measurements: number };
@@ -90,20 +105,31 @@ export type ArcadeSnapshot<S> = Partial<S> & {
 };
 /** The controller `arcade()` returns: start, pause, resume, stop and destroy a run, and read its snapshot. */
 export interface ArcadeController<S> {
+  /** Start a fresh run (ending the current one) and return its snapshot. Throws after destroy() or
+   *  when the run fails to start (nothing is left behind). */
   start(): ArcadeSnapshot<S>;
+  /** Pause a running run. */
   pause(): void;
+  /** Resume a paused run (not while the tab is hidden). */
   resume(): void;
+  /** Recall: end the run and give the page back exactly; the overlay goes too. */
   stop(): void;
+  /** Stop, then retire the controller: start() throws from now on. */
   destroy(): void;
+  /** The run's state now: a new object each call (not for a hot path). */
   getSnapshot(): ArcadeSnapshot<S>;
 }
 /** What `create` gets: the run's engine and board, the controls, and the shell's presentation. */
 export interface ArcadeContext {
+  /** The run's engine: add the game's systems to it. Destroyed at the run's end and at Recall. */
   engine: Engine;
+  /** The host page as the board (`@fzlt/core/board-page`). */
   board: BoardPage;
+  /** Keys, pointer and the action intents (`@fzlt/core/input`). */
   input: Controls;
   /** MODE … TARGET_HP (see the constants). */
   ctl: Float64Array;
+  /** Reduced motion now: the option, else the visitor's setting. */
   reduced(): boolean;
   /** A popup at (x, y): `+value` when `text` is null (stacked with nearby ones), else the text.
    *  Tone 0 score, 1 accent (upgrade), 2 hurt. Call it from render (react). */
@@ -143,16 +169,21 @@ export interface ArcadeGame<S> {
 /** Your game for `arcade()`: its id, title, accent, hint, CSS, actions, readouts, sound cues and
  *  `create()`, which makes a run. */
 export interface ArcadeDef<S> {
+  /** A stable id: the snapshot's `id`, onEvent's `game` and the host's data attributes. */
   id: string;
+  /** The name on the scoreboard (upper-cased) and in its label. */
   title: string;
   /** The game's accent (hex): title, meter, popups, target paint at full health. */
   color: string;
+  /** The toast at the start of a run. */
   hint: string;
+  /** The toast at the start on a coarse pointer (default `hint`). */
   touchHint?: string;
   /** The Board UI kit CSS text (the game bakes in the sections it uses). */
   css: string;
   /** Hold Space / the pointer to fire; a Fire key on the touch pad and an Auto fire key. */
   fire?: boolean;
+  /** Action keys: each a controls intent, a keyboard key, a scoreboard key and a pad key on phones. */
   actions?: ArcadeAction[];
   /** Touch move control (default "stick"; "dpad" for grid games). */
   pad?: "stick" | "dpad";
@@ -161,6 +192,7 @@ export interface ArcadeDef<S> {
   /** The card's readouts: label, tone, how the value shows, and whether it hides when the board is
    *  folded. A preset with its own readouts (skirmish) leaves this out. */
   readouts?: [label: string, tone?: "team" | "enemy" | undefined, fmt?: ((v: number) => string) | undefined, fold?: boolean | undefined][];
+  /** One meter on the card, `label` its accessible name; the game's `meter()` fills it. */
   meter?: { label: string };
   /** Spark colours, by index. */
   colors: string[];
@@ -170,22 +202,28 @@ export interface ArcadeDef<S> {
   paint?: boolean;
   /** The scoreboard and controls: a HUD preset (default `arcadeHud()`, today's card). */
   hud?: ArcadeHud;
+  /** Make a run: add systems to `ctx.engine` and return the game. Called once per run. */
   create(ctx: ArcadeContext): ArcadeGame<S>;
 }
 
 /** A HUD preset: its CSS (after the game's kit CSS) and a mount, once per run. */
 export interface ArcadeHud {
+  /** The preset's CSS text, added after the game's kit CSS and the shell's base. */
   css: string;
   /** Extra controls intents the HUD drives (e.g. aim toggles): intent → key codes. */
   keys?: Record<string, string[]>;
+  /** Build the HUD into `run.ui`, once per run, and return its view. */
   mount(run: HudRun): HudView;
 }
 /** What the shell gives a HUD when a run starts. */
 export interface HudRun {
   /** The kit root (`.bui`), the canvas already in it. */
   ui: HTMLElement;
+  /** The game's definition. */
   def: ArcadeDef<any>;
+  /** The run's engine. */
   engine: Engine;
+  /** The run's controls (its `keys` included). */
   input: Controls;
   /** A coarse pointer: build the touch pad. */
   coarse: boolean;
@@ -195,6 +233,7 @@ export interface HudRun {
   sfx: { on: boolean };
   /** Aborts at Recall: the overlay's life. */
   signal: AbortSignal;
+  /** Where the run is now. */
   status(): ArcadeStatus;
   /** Moves the run, for a HUD that owns its flow (`ask`), once its phase changed: pause, resume,
    *  the end (won, lost), a rematch (restart) or Recall (exit). */

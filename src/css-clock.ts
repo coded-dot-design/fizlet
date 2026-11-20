@@ -57,7 +57,9 @@ export function cssClock(root: HTMLElement, o: CssClockOptions = {}) {
   engine.start();
   play();
   return {
+    /** The clock's own engine (settle 0.5 s, `o.fps`, `o.signal`). */
     engine,
+    /** The timeline moving the custom property: linear over `span` × `loops` seconds. */
     tl,
     /** Play from the start (unless held). */
     play,

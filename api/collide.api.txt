@@ -27,6 +27,8 @@ export declare class Grid {
     private readonly a;
     insert(id: number, x: number, y: number, r: number): void;
     private p;
+    private readonly o;
+    private b;
     add(x: Nums, y: Nums, r: Nums, i: number): void;
     near(x: Nums, y: Nums, r: Nums, i: number, out: Int32Array, pad?: number): number;
     query(x: number, y: number, r: number, out: Int32Array): number;

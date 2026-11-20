@@ -192,6 +192,22 @@
       "types": "./dist/drive.d.ts",
       "default": "./dist/drive.js"
     },
+    "./rig": {
+      "types": "./dist/rig.d.ts",
+      "default": "./dist/rig.js"
+    },
+    "./ribbon": {
+      "types": "./dist/ribbon.d.ts",
+      "default": "./dist/ribbon.js"
+    },
+    "./turntable": {
+      "types": "./dist/turntable.d.ts",
+      "default": "./dist/turntable.js"
+    },
+    "./ground": {
+      "types": "./dist/ground.d.ts",
+      "default": "./dist/ground.js"
+    },
     "./scene": {
       "types": "./dist/scene.d.ts",
       "default": "./dist/scene.js"
@@ -223,11 +239,12 @@
     "check": "npm run typecheck && npm test && npm run build",
     "size": "node scripts/size.mjs",
     "readme:sizes": "node scripts/readme-sizes.mjs",
-    "test:browser": "node tests/browser.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/drag.mjs && node tests/coach.mjs && node tests/timeline.mjs && node tests/touch.mjs && node tests/css-clock.mjs && node tests/shadow.mjs && node tests/view-canvas.mjs && node tests/layout.mjs && node tests/diorama.mjs && node tests/dice-track.mjs && node tests/water.mjs && node tests/props.mjs && node tests/beam-cards.mjs && node tests/flick.mjs && node tests/terrain-drive.mjs && node tests/drive-drift.mjs && node tests/drive-suspension.mjs && node tests/math-engines.mjs && node tests/view-dom.mjs && node tests/announce.mjs",
+    "test:browser": "node tests/browser.mjs && node tests/camera.mjs && node tests/arcade.mjs && node tests/arcade-hud.mjs && node tests/drag.mjs && node tests/coach.mjs && node tests/timeline.mjs && node tests/touch.mjs && node tests/css-clock.mjs && node tests/shadow.mjs && node tests/view-canvas.mjs && node tests/layout.mjs && node tests/diorama.mjs && node tests/dice-track.mjs && node tests/water.mjs && node tests/props.mjs && node tests/beam-cards.mjs && node tests/flick.mjs && node tests/terrain-drive.mjs && node tests/drive-drift.mjs && node tests/drive-suspension.mjs && node tests/math-engines.mjs && node tests/view-dom.mjs && node tests/announce.mjs && node tests/rig.mjs && node tests/ribbon.mjs && node tests/turntable.mjs && node tests/ground.mjs",
     "test:webkit": "node tests/webkit-input.mjs && node tests/webkit-pad.mjs && node tests/webkit-touch.mjs && node tests/webkit-gamepad.mjs && MATH_ENGINES=webkit node tests/math-engines.mjs && node tests/webkit-ui.mjs && node tests/webkit-touchlog.mjs",
     "test:pack": "node scripts/pack-smoke.mjs",
     "api:check": "node scripts/api-snapshot.mjs check",
     "api:write": "node scripts/api-snapshot.mjs write",
+    "docs:coverage": "node scripts/docs-coverage.mjs",
     "prepack": "npm run build",
     "perf": "node tests/perf/run.mjs",
     "test:alloc": "node tests/perf/alloc.mjs",

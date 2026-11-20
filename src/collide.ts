@@ -28,8 +28,11 @@ function size(name: string, v: number) {
  *   must not drop, so a game should treat any of these counters rising as a bug.
  */
 export class Grid {
+  /** Bucket size in world units (px), a finite number above 0. */
   cell: number;
+  /** Buckets across: ceil(w / cell), at least 1 (set by `resize`). */
   cols = 0;
+  /** Buckets down: ceil(h / cell), at least 1 (set by `resize`). */
   rows = 0;
   /** Entity capacity: valid ids are 0..cap-1. */
   readonly cap: number;
@@ -37,7 +40,7 @@ export class Grid {
   readonly nodes: number;
   // Private names are one letter on purpose (esbuild keeps property names; board-page ships this):
   // h cell heads, n next node, d node ids, s query stamps, u nodes used, k stamp; a the circle,
-  // p put, q scan.
+  // o its cell range, b that range, p put, q scan.
   private h = new Int32Array(0);
   private readonly n: Int32Array;
   private readonly d: Int32Array;
@@ -68,6 +71,7 @@ export class Grid {
     if (this.h.length < this.cols * this.rows) this.h = new Int32Array(this.cols * this.rows);
     this.clear();
   }
+  /** Empty the index (every bucket, the node store); call it each step before inserting again. Counters stay. */
   clear() {
     this.h.fill(-1);
     this.u = 0;
@@ -84,15 +88,10 @@ export class Grid {
     this.p(id);
   }
   private p(id: number) {
-    const a = this.a, x = a[0]!, y = a[1]!, r = a[2]!;
-    if (!((id | 0) === id && id >= 0 && id < this.cap && finite(x) && finite(y) && finite(r) && r >= 0)) return void this.rejected++;
-    const c = this.cell, mx = this.cols - 1, my = this.rows - 1;
-    let x0 = Math.floor((x - r) / c), x1 = Math.floor((x + r) / c), y0 = Math.floor((y - r) / c), y1 = Math.floor((y + r) / c);
-    x0 = x0 < 0 ? 0 : x0 > mx ? mx : x0;
-    x1 = x1 < 0 ? 0 : x1 > mx ? mx : x1;
-    y0 = y0 < 0 ? 0 : y0 > my ? my : y0;
-    y1 = y1 < 0 ? 0 : y1 > my ? my : y1;
-    for (let gy = y0; gy <= y1; gy++)
+    const a = this.a;
+    if (!((id | 0) === id && id >= 0 && id < this.cap && finite(a[0]!) && finite(a[1]!) && finite(a[2]!) && a[2]! >= 0)) return void this.rejected++;
+    const o = this.b(), x0 = o[0]!, x1 = o[1]!, y1 = o[3]!;
+    for (let gy = o[2]!; gy <= y1; gy++)
       for (let gx = x0; gx <= x1; gx++) {
         if (this.u === this.nodes) {
           this.dropped += (y1 - gy) * (x1 - x0 + 1) + x1 - gx + 1;
@@ -103,6 +102,20 @@ export class Grid {
         this.n[n] = this.h[k]!;
         this.h[k] = n;
       }
+  }
+  /** The cells the circle in `a` covers, clamped to the board: x0, x1, y0, y1 in `o` (shared by p and q). */
+  private readonly o = new Int32Array(4);
+  private b() {
+    const a = this.a, o = this.o, x = a[0]!, y = a[1]!, r = a[2]!, c = this.cell, mx = this.cols - 1, my = this.rows - 1;
+    let v = Math.floor((x - r) / c);
+    o[0] = v < 0 ? 0 : v > mx ? mx : v;
+    v = Math.floor((x + r) / c);
+    o[1] = v < 0 ? 0 : v > mx ? mx : v;
+    v = Math.floor((y - r) / c);
+    o[2] = v < 0 ? 0 : v > my ? my : v;
+    v = Math.floor((y + r) / c);
+    o[3] = v < 0 ? 0 : v > my ? my : v;
+    return o;
   }
   /**
    * Hot-path forms: read body i's x, y, r from typed arrays (arrays and integers never box, even
@@ -115,6 +128,8 @@ export class Grid {
     a[2] = r[i]!;
     this.p(i);
   }
+  /** `query` round body i (radius r[i] + `pad`), from typed arrays: ids into `out`, returns the count.
+   *  Body i itself is among them when it was added. */
   near(x: Nums, y: Nums, r: Nums, i: number, out: Int32Array, pad = 0) {
     const a = this.a;
     a[0] = x[i]!;
@@ -134,19 +149,14 @@ export class Grid {
     return this.q(out);
   }
   private q(out: Int32Array): number {
-    const a = this.a, x = a[0]!, y = a[1]!, r = a[2]!;
+    const a = this.a;
     this.missed = 0;
-    if (!(finite(x) && finite(y) && finite(r))) return this.rejected++, 0;
+    if (!(finite(a[0]!) && finite(a[1]!) && finite(a[2]!))) return this.rejected++, 0;
     // The dedupe stamp wraps after 2^31 queries: start the stamps over instead of aliasing.
     if (this.k === 0x7fffffff) this.s.fill(0), (this.k = 0);
-    const m = ++this.k, c = this.cell, mx = this.cols - 1, my = this.rows - 1;
-    let x0 = Math.floor((x - r) / c), x1 = Math.floor((x + r) / c), y0 = Math.floor((y - r) / c), y1 = Math.floor((y + r) / c);
-    x0 = x0 < 0 ? 0 : x0 > mx ? mx : x0;
-    x1 = x1 < 0 ? 0 : x1 > mx ? mx : x1;
-    y0 = y0 < 0 ? 0 : y0 > my ? my : y0;
-    y1 = y1 < 0 ? 0 : y1 > my ? my : y1;
+    const m = ++this.k, o = this.b(), x0 = o[0]!, x1 = o[1]!, y1 = o[3]!;
     let count = 0, missed = 0;
-    for (let gy = y0; gy <= y1; gy++)
+    for (let gy = o[2]!; gy <= y1; gy++)
       for (let gx = x0; gx <= x1; gx++)
         for (let n = this.h[gy * this.cols + gx]!; n >= 0; n = this.n[n]!) {
           const id = this.d[n]!;

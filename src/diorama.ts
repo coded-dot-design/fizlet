@@ -903,8 +903,12 @@ export function occlude(d: Diorama, o: OccludeOptions) {
   const R = new Float64Array(9), Bd = new Float64Array(6); // R: local origin, direction, extent; Bd: the rays' bounds
   const ghost = o.ghost ?? 0.16, near = o.near ?? 0, t = o.t ?? 0.15;
   const oc = {
+    /** Reduced motion: alphas snap to their goal instead of fading (live: set it any time). */
     reduced: !!o.reduced,
+    /** Boxes ray-tested in the last `step` (the rest were off the rays' bounds). */
     tested: 0,
+    /** Fade, over dt seconds, the objects between `d.eye()` and the first `n` points of `pts`
+     *  ([x, y, z, …], world); true while any alpha still eases. No allocation. */
     step(dt: number, pts: ArrayLike<number>, n = (pts.length / 3) | 0) {
       d.eye(E);
       let busy = false;
@@ -949,4 +953,22 @@ export function occlude(d: Diorama, o: OccludeOptions) {
     },
   };
   return oc;
+}
+
+/** glide's flag: a field still moved this call. */
+const FAR = /* @__PURE__ */ new Uint8Array(1);
+/** One field of glide: v moved k of the way to g, or g itself within tol (or when g is not given: v). */
+const toward = (v: number, g: number | undefined, tol: number, k: number) => (g === undefined ? v : k < 1 && Math.abs(g - v) > tol ? ((FAR[0] = 1), v + (g - v) * k) : g);
+/** Ease camera `c` (a diorama's `cam`) toward `goal` over dt seconds: each field `goal` names moves
+ *  `1 − e^(−rate·dt)` of the way and lands exactly on it once it is close (angles within 0.0005 rad,
+ *  lengths 0.01, the screen shift 0.4 px); fields it leaves out stay. `snap` (reduced motion, a cut)
+ *  puts it there at once. Returns true while it still moves (keep the engine awake). A view change after
+ *  `fit(goal, …)`, a pan that follows a player, a reframe after a resize. No allocation. */
+export function glide(c: DioramaCamera, goal: Partial<DioramaCamera>, rate = 5.5, dt = 1 / 60, snap = false): boolean {
+  const k = snap ? 1 : 1 - Math.exp(-rate * dt);
+  FAR[0] = 0;
+  c.yaw = toward(c.yaw, goal.yaw, 5e-4, k); c.pitch = toward(c.pitch, goal.pitch, 5e-4, k); c.fov = toward(c.fov, goal.fov, 5e-4, k);
+  c.dist = toward(c.dist, goal.dist, 0.01, k); c.tx = toward(c.tx, goal.tx, 0.01, k); c.ty = toward(c.ty, goal.ty, 0.01, k); c.tz = toward(c.tz, goal.tz, 0.01, k);
+  c.ox = toward(c.ox, goal.ox, 0.4, k); c.oy = toward(c.oy, goal.oy, 0.4, k);
+  return FAR[0] > 0;
 }

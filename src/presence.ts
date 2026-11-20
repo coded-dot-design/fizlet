@@ -21,15 +21,18 @@ export interface Transport {
   send(data: Uint8Array): void;
   /** Deliver every incoming message to `fn` (messages that arrived earlier are flushed to it). */
   listen(fn: ((data: Uint8Array) => void) | null): void;
+  /** Shut the link for good (a WebSocket closes with 1000, a leave). Presence calls it on destroy. */
   close(): void;
 }
 
 /** Options for `presence()`: the transport, this peer's seat, the number of players, the input delay
  *  and the ring sizes. */
 export interface PresenceOptions {
+  /** The link to the room or the other peers (`websocket`, `join`'s, or a `memory` end). Closed on destroy. */
   transport: Transport;
   /** This peer's seat, 0..players-1 (the room says which). */
   slot: number;
+  /** Players in the session, 1..32 (every seat's input is needed for each frame). */
   players: number;
   /** Frames of input delay (default 2: 33 ms at 60 Hz). */
   delay?: number;
@@ -58,13 +61,12 @@ export function presence(e: Engine, o: PresenceOptions) {
   // One ring slot per (player, frame % cap): the frame it holds and the bits; same for hashes.
   const tag = new Int32Array(P * C).fill(-1), bits = new Uint32Array(P * C);
   const htag = new Int32Array(P * C).fill(-1), hval = new Uint32Array(P * C);
-  const now = new Uint32Array(P), n = new Int32Array(6), out = new Uint8Array(12);
+  const now = new Uint32Array(P), n = new Int32Array(6), out = new Uint8Array(12), dv = new DataView(out.buffer);
   n[3 /* DESYNC */] = -1;
   const put = (s: number, f: number, b: number) => ((tag[s * C + (f % C)] = f), (bits[s * C + (f % C)] = b));
   for (let s = 0; s < P; s++) for (let f = 0; f < D; f++) put(s, f, 0);
   const send = (k: number, f: number, v: number) => {
-    out[0] = k, out[1] = me, out[4] = f, out[5] = f >>> 8, out[6] = f >>> 16, out[7] = f >>> 24;
-    out[8] = v, out[9] = v >>> 8, out[10] = v >>> 16, out[11] = v >>> 24;
+    out[0] = k, out[1] = me, dv.setUint32(4, f, true), dv.setUint32(8, v, true);
     t.send(out);
   };
   const check = (s: number, f: number, h: number) => {
@@ -117,6 +119,7 @@ export function presence(e: Engine, o: PresenceOptions) {
   const stop = () => (e.remove(system), t.listen(null), t.close());
   e.signal.addEventListener("abort", stop, { once: true });
   return {
+    /** The system it added to the engine (its step runs one sim frame, or waits); removed on destroy. */
     system,
     /** Sim frames run so far (every peer passes the same frames, maybe at different times). */
     get frame() {
@@ -147,6 +150,8 @@ export function presence(e: Engine, o: PresenceOptions) {
       const i = slot * C + (frame % C);
       return tag[i] === frame ? bits[i]! : -1;
     },
+    /** Stop: remove the system, stop listening and close the transport. Runs by itself at Recall
+     *  (engine.destroy aborts the engine's signal). */
     destroy: stop,
   };
 }
@@ -161,7 +166,18 @@ export function hash32(bytes: Uint8Array, h = 0x811c9dc5): number {
 
 /** In-memory hub: `peers` transports that broadcast to each other (like the room relay) after
  *  `latency` ± `jitter` ticks. Call `tick()` once per frame. Bounded: `cap` messages in flight. */
-export function memory(o: { peers: number; latency?: number; jitter?: number; seed?: number; cap?: number }) {
+export function memory(o: {
+  /** Transports to make, one per peer. */
+  peers: number;
+  /** Ticks before a message is delivered (default 0: on the next `tick()`). */
+  latency?: number;
+  /** Extra random delay per message, 0..jitter ticks (default 0); later messages may overtake. */
+  jitter?: number;
+  /** Seed for the jitter (default 1). */
+  seed?: number;
+  /** Messages in flight at most (default 1024); past it a message is dropped and counted. */
+  cap?: number
+}) {
   const cap = o.cap ?? 1024, lat = o.latency ?? 0, jit = o.jitter ?? 0, rnd = seeded(o.seed ?? 1);
   const buf = new Uint8Array(cap * 12), due = new Int32Array(cap), to = new Uint8Array(cap), n = new Int32Array(3); // clock, queued, dropped
   const fns: (((d: Uint8Array) => void) | null)[] = [], scratch = new Uint8Array(12);
@@ -185,6 +201,7 @@ export function memory(o: { peers: number; latency?: number; jitter?: number; se
     });
   }
   return {
+    /** The transports, ends[p] for peer p; each send goes to every other end. */
     ends,
     /** Advance the link clock one tick and deliver what's due (later messages may overtake). */
     tick() {
@@ -201,9 +218,11 @@ export function memory(o: { peers: number; latency?: number; jitter?: number; se
       }
       n[1] = w;
     },
+    /** Messages in flight now (sent, not yet delivered). */
     get queued() {
       return n[1]!;
     },
+    /** Messages refused because `cap` were already in flight. Cumulative. */
     get dropped() {
       return n[2]!;
     },
@@ -255,7 +274,18 @@ export interface JoinOptions {
  *  logs. A dropped link (1006, or a server restart: 1011, 1012, 1014) reconnects on its own (`o.retry`) with the seat's resume token, kept in
  *  memory only (never in a URL); the room's own closes (idle, full, seat gone, the caps) end it. */
 export function join(url: string, signal?: AbortSignal, protocols?: string | string[], o: JoinOptions = {}) {
-  return new Promise<{ transport: Transport; slot: number; players: number; seed: number; mode: number }>((ok, fail) => {
+  return new Promise<{
+    /** The room link for `presence()` or `rollback()`: it survives reconnects; close it to leave. */
+    transport: Transport;
+    /** This player's seat, 0..players-1. */
+    slot: number;
+    /** The player count the room sent (seats in the session). */
+    players: number;
+    /** The room's shared seed (u32): seed every peer's engine with it. */
+    seed: number;
+    /** The host's `start` mode, 0..255. */
+    mode: number
+  }>((ok, fail) => {
     // tries < 0: closed for good. `cur` is the link to the current socket; `t` outlives it.
     let cur: Transport, fn: ((d: Uint8Array) => void) | null = null, me = -1, token = 0, tries = 0;
     const t: Transport = { send: (d) => cur.send(d), listen: (f) => cur.listen((fn = f)), close: () => ((tries = -1), cur.close()) };

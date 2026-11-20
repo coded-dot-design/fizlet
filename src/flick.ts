@@ -26,6 +26,8 @@ import { need } from "./kernel/need";
 
 /** Something that takes events: an engine's ring (`engine.events`). */
 export interface FlickEvents {
+  /** Take event `type`: `flick:hit` (a, b: the pieces; x, z: the contact; v: closing speed),
+   *  `flick:topple` (a), `flick:fall` (a), `flick:rest`. */
   emit(type: string, a?: number, b?: number, x?: number, y?: number, v?: number): unknown;
 }
 

@@ -17,6 +17,73 @@
   built with fzlt, sponsored by coded.design (`tests/credits.test.mjs`). `docs/SPLIT.md`: what this
   repository is now, where the site lives, how a release reaches it, and the transfer steps.
 
+- **`@fzlt/core/ribbon`** (new brick, ALPHA; 2,683 B gz, budget 2,752): roads, tracks and edge strips
+  drawn along their true curve at their true width on a heightfield, lifted from Holeshot's road-edge
+  ribbons (its road graph and materials stay in the game). `ribbon(d, ground, options)` adds one decal to
+  the ground's cluster; `band(line, from, to, color, closed)` paints the strip between two offsets
+  across a line, mitred at the joints, every corner on the ground's own height; near-clipped, culled,
+  slope-shaded, far to near in depth buckets, one fill per colour and shade, seamless; `hide` skips
+  pieces behind a crest. Zero allocation per frame.
+  - Tests: `tests/ribbon.test.mjs` (corners where the diorama projects them, draped on the terrain's own
+    sample, mitred joints, near clip, cull, hide, cap, 0 young GCs over 2,000 frames with a terrain and
+    three bands) and `tests/ribbon.mjs` (Chromium: a dune track with two edge strips, the track's colour
+    under its projected centre line, orbiting, settles to 0 frames).
+
+- **`@fzlt/core/rig`** (new brick, ALPHA; 1,321 B gz, budget 1,344): jointed limbs for diorama figures,
+  lifted from Holeshot's rider (its art stays in the game). `limb(d, id, { on, l1, l2, normal, bend })`
+  adds two groups (`:a` the upper bone, `:b` the lower; parts hang along +x) and `reach(ax, ay, az, bx,
+  by, bz)` poses both so the lower bone's tip lands on the target (pulled in along the line out of
+  reach). `ik2` (a plane) and `ik3` (3D, in the plane nearest a normal, with each bone's diorama
+  rotation) stand alone; `outset` grows an outline for an ink edge. Zero allocation per pose.
+  - Tests: `tests/rig.test.mjs` (lengths, tips, bend sides, frames through the diorama's own matrices,
+    degenerate inputs, 0 young GCs posing four limbs for 100k frames) and `tests/rig.mjs` (Chromium: a
+    pedalling figure, every hand and foot within 0.5 px of its target, moving, settles to 0 frames).
+
+- **`@fzlt/core/turntable`** (new brick, ALPHA; 1,395 B gz, budget 1,408): a model viewer's angle, lifted
+  from the garage turntables Holeshot and CitySmash each built by hand (the art and the drawing stay in
+  the game). `turntable(engine, el, { yaw, rate, key, friction, snap, ease, spin, motion, label, onTurn })`:
+  a sideways drag turns it at once, ← → and Home with focus, `spin(secs)` after a change, an opt-in throw
+  (`friction`) and step (`snap`), a slider's ARIA with `label`; reduced motion jumps and never spins.
+  `onTurn(yaw)` runs in render only when the angle changed; the engine sleeps at rest.
+  - Tests: `tests/turntable.test.mjs` (drag, keys, Home, spin, throw and snap, motion off, the ledger
+    gives the element back, 0 young GCs over 300k steps) and `tests/turntable.mjs` (Chromium: a diorama
+    model turned by a real mouse drag and keys, reduced motion, settles to 0 frames).
+
+- **`@fzlt/core/ground`** (new brick, ALPHA; 603 B gz, budget 640): paint on a diorama's ground
+  through its own projection, lifted from the decal painters Holeshot, CitySmash, Dune Hop and Salvo Bay
+  each wrote by hand. `seg` (a world line, dropped at the eye), `spot` (a level disc as an ellipse sized by
+  depth), `ring` (a closed ring on a plane or on a ground's slope), `shadow` (a blob that fades and narrows
+  with lift) and `horizon` (its screen y); `at` is the last point projected. Calls add to the current
+  path. Zero allocation per call.
+  - Tests: `tests/ground.test.mjs` (each against the diorama's own `project`, the eye and `near`, a real
+    terrain's slope, the horizon against far ground, 0 young GCs over 20k frames) and `tests/ground.mjs`
+    (Chromium: the pixels where the diorama projects them, a shadow that fades as its ball lifts).
+
+- **`@fzlt/core/diorama`: `glide(cam, goal, rate, dt, snap)`, a camera ease.** Three games eased a diorama's
+  camera toward a goal by hand each frame and jumped under reduced motion (Salvo Bay's view changes,
+  CitySmash's pan, Dune Hop's reframe). `glide` moves each field the goal names `1 − e^(−rate·dt)` of the
+  way, lands exactly once close (0.0005 rad, 0.01 units, 0.4 px), leaves the other fields alone, and
+  returns true while it moves (settle-friendly); `snap` cuts. API-compatible (a new export; it tree-shakes:
+  `diorama()` alone stays 6,613 B). The whole module: 7,456 B gz (+198 B), budget 7,296 → 7,488.
+  - Tests: `tests/diorama-glide.test.mjs` (the step, the exact landing, partial goals, snap, 0 young GCs
+    over 1M steps).
+
+- **`@fzlt/core/presence`: `send()` writes a message's frame and value through one DataView (−11 B gz).**
+  2,197 → 2,186 B gz (budget 2,240 → 2,208), presence/check 4,870 → 4,850 B. The same 12 little-endian bytes on
+  the wire; 4 peers in lockstep cost the same (1.02–1.08 µs a round before and after, Node 24, median of 7 ×
+  20,000 rounds, 3 runs each); still no allocation per message.
+
+- **`@fzlt/core/ui`: `launch()` reads the key's look and the board's tones before it adds the burst layer (no
+  forced layout).** The burst layer went onto `<body>` before the key's look and the board's tones were read, so
+  those reads forced a style and layout pass; now they come before the layer is added. One click on a 4,000-node page at 4× CPU: 6.7–7.8 → 4.6 ms
+  median (40 clicks, 2 runs each, Chromium), forced layouts in the call 1 → 0. Same burst, same colours; 2,907 →
+  2,900 B gz.
+
+- **`@fzlt/core/collide`: Grid's insert and query share one cell-range helper (−14 B gz, about 24 % faster).**
+  1,265 → 1,251 B gz (budget 1,536 → 1,280); 512 inserts + 512 queries a frame 42.5 → 32.0 µs (Node 24, median
+  of 7 × 2,000 frames, 3 runs each); board-page 4,104 → 4,076 B, arcade 24,145 → 24,115 B. Same cells, same
+  ids, same counters: no behaviour change. The API snapshot lists Grid's two new private members (`o`, `b`).
+
 - **Brick audit (`fe audit fizlet`): no fails, no gaps in exports, README or tests.** `@fzlt/core/presence/rollback`
   no longer reads wall time in its step: the correction meters `resimMs` and `resimTotal` read a clock the
   host passes (`clock: () => performance.now()`, a profiling opt-in) and stay 0 without one (2,181 B gz,

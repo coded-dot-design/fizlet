@@ -142,6 +142,7 @@ export function dice(o: DiceOptions = {}) {
   const api = {
     /** Dice in the next roll (1..cap). */
     n: Math.min(cap, Math.max(1, o.count ?? 1)),
+    /** The most dice (the `cap` option). */
     cap, size: s, duration: dur, rate,
     /** Samples per die in `path`. */
     frames: F,

@@ -18,13 +18,18 @@ export interface SpriteDef {
   colors?: Record<string, Paint>;
   /** Pivot in sprite pixels (default: the centre). Draw places it at (x, y) and rotates about it. */
   ax?: number;
+  /** Pivot y in sprite pixels (default: the centre). */
   ay?: number;
   /** A 1px rim around the silhouette (colour or role): readable on light and dark pages. */
   outline?: Paint;
   /** Vector sprite instead of pixels: its size, frame count and a painter, baked like the rest. */
   w?: number;
+  /** Vector sprite height in sprite pixels (default: the frames' row count). */
   h?: number;
+  /** Frame count (default: the frames given, at least 1). */
   n?: number;
+  /** Paint frame `frame` into `c` in sprite pixels (the bake scales it); `color` turns a colour or role
+   *  into the palette's colour. Called once per baked tile. */
   paint?: (c: CanvasRenderingContext2D, frame: number, color: (p: Paint) => string) => void;
 }
 
@@ -140,11 +145,17 @@ export function sprites<K extends string>(defs: Record<K, SpriteDef>, o: SpriteO
   }
 
   return {
+    /** Each sprite's number by name, in the order of `defs` (the fast id for `draw` and `tile`). */
     ids,
     /** Width and height of each sprite in sprite pixels (outline not included), by id. */
     w: W,
+    /** Height of each sprite in sprite pixels (outline not included), by id. */
     h: H,
+    /** The palettes in use (the option's array, or one empty palette): push more (max 32), `clear()`
+     *  after editing one. */
     palettes: pals,
+    /** The baked tile (canvas) for sprite `id` at `frame`, `scale` (baked at 1–8, rounded up) and
+     *  `palette`; bakes on a miss, else no allocation. An id that names no sprite throws a RangeError. */
     tile,
     /**
      * Draw sprite `id` (number from `ids`, or its name) with its pivot at (x, y), turned by `angle`
