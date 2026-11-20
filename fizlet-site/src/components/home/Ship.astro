@@ -1,0 +1,12 @@
+---
+// 07 · Build once, ship each: the release pipeline, step by step.
+import HomeSection from "./HomeSection.astro";
+import SectionCopy from "./SectionCopy.astro";
+const { sec, head, steps } = Astro.props as any;
+---
+<HomeSection {...sec}>
+  <div class="wrap">
+    <SectionCopy head={head} id={sec.labelledby} cls="section-head" />
+    <ol class="pipeline">{steps.map((s: any) => <li><em>{s.n}</em><b>{s.title}</b><span>{s.sub}</span></li>)}</ol>
+  </div>
+</HomeSection>

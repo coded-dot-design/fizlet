@@ -1,0 +1,19 @@
+---
+// 00 · The page profile: the copy, and the page build's measured size against its budget.
+import HomeSection from "./HomeSection.astro";
+import SectionCopy from "./SectionCopy.astro";
+import RuleList from "./RuleList.astro";
+const { sec, head, card } = Astro.props as any;
+---
+<HomeSection {...sec}>
+  <div class="wrap split">
+    <SectionCopy head={head} id={sec.labelledby} />
+    <div class="panel lit profile-card" style={`--tone: var(--k-${card.tone})`}>
+      <span class="bui-label" set:html={card.label} />
+      <b class="profile-size" data-size={card.sizeKey}>{card.size}</b>
+      <small>{card.note}</small>
+      <span class="meter" aria-hidden="true"><i style={`--v:${card.meter}`}></i></span>
+      <RuleList rules={card.rules} />
+    </div>
+  </div>
+</HomeSection>

@@ -1,0 +1,7 @@
+---
+// The short rules under a panel (the ledger's, the page build's): one line each, its lead in bold.
+interface Props { rules: string[] }
+---
+<ul class="ledger-rules">
+  {Astro.props.rules.map((r) => <li set:html={r} />)}
+</ul>

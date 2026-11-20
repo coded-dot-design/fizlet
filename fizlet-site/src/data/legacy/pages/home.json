@@ -115,7 +115,65 @@
   },
   {
    "id": "page-toc",
-   "html": "<nav class=\"page-toc\" aria-label=\"On this page\">\n  <div class=\"wrap\"><span class=\"bui-label\"><b>ON THIS PAGE</b></span><ol><li><a href=\"#contract\"><b>01</b>Contract</a></li><li><a href=\"#bricks\"><b>02</b>Bricks</a></li><li><a href=\"#board\"><b>03</b>The frame</a></li><li><a href=\"#loop\"><b>04</b>The loop</a></li><li><a href=\"#recall\"><b>05</b>Recall</a></li><li><a href=\"#specs\"><b>06</b>Specs</a></li><li><a href=\"#ship\"><b>07</b>Ship</a></li><li><a href=\"#games\"><b>08</b>Games</a></li><li><a href=\"#roadmap\"><b>09</b>Roadmap</a></li><li><a href=\"#start\"><b>10</b>Quick start</a></li><li><a href=\"/contest/\"><b>→</b>Weekly contest</a></li></ol></div>\n</nav>"
+   "kind": "page-toc",
+   "label": "<b>ON THIS PAGE</b>",
+   "items": [
+    {
+     "href": "#contract",
+     "n": "01",
+     "label": "Contract"
+    },
+    {
+     "href": "#bricks",
+     "n": "02",
+     "label": "Bricks"
+    },
+    {
+     "href": "#board",
+     "n": "03",
+     "label": "The frame"
+    },
+    {
+     "href": "#loop",
+     "n": "04",
+     "label": "The loop"
+    },
+    {
+     "href": "#recall",
+     "n": "05",
+     "label": "Recall"
+    },
+    {
+     "href": "#specs",
+     "n": "06",
+     "label": "Specs"
+    },
+    {
+     "href": "#ship",
+     "n": "07",
+     "label": "Ship"
+    },
+    {
+     "href": "#games",
+     "n": "08",
+     "label": "Games"
+    },
+    {
+     "href": "#roadmap",
+     "n": "09",
+     "label": "Roadmap"
+    },
+    {
+     "href": "#start",
+     "n": "10",
+     "label": "Quick start"
+    },
+    {
+     "href": "/contest/",
+     "n": "→",
+     "label": "Weekly contest"
+    }
+   ]
   },
   {
    "id": "play",
@@ -127,11 +185,120 @@
   },
   {
    "id": "profile",
-   "html": "<section id=\"profile\" class=\"section\" data-reveal aria-labelledby=\"profile-title\">\n  <div class=\"wrap split\">\n    <div>\n      <p class=\"eyebrow\"><span class=\"index\">00</span> HEROES AND DIAGRAMS · THE PAGE PROFILE</p>\n      <h2 id=\"profile-title\">Costs nothing<br><em>while it's still.</em></h2>\n      <p class=\"lead\">Fizlet is not only for games: it is built just as much for landing-page heroes and interactive diagrams, where the page is the product. The page profile is a lighter build of the same bricks for them.</p>\n      <p class=\"body\"><b>Settle.</b> Pass <code>settle: 0.5</code> and systems call <code>engine.busy()</code> in any frame where something moves. Half a second after the last one, the engine sleeps: no requestAnimationFrame at all, zero frames, until <code>wake()</code>, its input or <code>start()</code>. Something due later (an intro delay, an autoplay beat) holds it awake with <code>engine.busy(seconds)</code>. <b>fps.</b> <code>fps: 30</code> caps an ambient loop on the shared clock. <b>slot.</b> Loads the scene only once it nears the viewport and the main thread is idle, and replays the tap that woke it.</p>\n      <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-go\" href=\"/bricks/kernel.html\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"m6 4 10 6-10 6Z\"></path></svg>Try settle live</a><a class=\"bui-key bui-arcade bui-sys\" href=\"/bricks/slot.html\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 3h9a3 3 0 0 1 3 3v11H7a3 3 0 0 1-3-3ZM4 14a3 3 0 0 1 3-3h9\"></path></svg>@fzlt/core/slot</a></div>\n    </div>\n    <div class=\"panel lit profile-card\" style=\"--tone: var(--k-go)\">\n      <span class=\"bui-label\"><b>PAGE BUILD</b> · kernel + slot + input + fx</span>\n      <b class=\"profile-size\" data-size=\"page build (kernel+slot+input+fx)\">7,098 B</b>\n      <small>gzip, measured on this build, against a 6.9 KB budget checked in CI</small>\n      <span class=\"meter\" aria-hidden=\"true\"><i style=\"--v:0.999\"></i></span>\n      <ul class=\"ledger-rules\">\n        <li><b>0 frames</b> once settled, offscreen, in a hidden tab, and under reduced motion when you opt in.</li>\n        <li><b>Lazy scene.</b> The scene's own code loads only once its slot nears the viewport.</li>\n        <li><b>No game bricks.</b> No sound, pad, hud or match in the page build (a test fails if one gets in).</li>\n      </ul>\n    </div>\n  </div>\n</section>"
+   "kind": "profile",
+   "sec": {
+    "id": "profile",
+    "cls": "section",
+    "labelledby": "profile-title",
+    "num": "",
+    "rule": false
+   },
+   "head": {
+    "index": "00",
+    "eyebrow": "HEROES AND DIAGRAMS · THE PAGE PROFILE",
+    "line": "Costs nothing",
+    "accent": "while it's still.",
+    "lead": "Fizlet is not only for games: it is built just as much for landing-page heroes and interactive diagrams, where the page is the product. The page profile is a lighter build of the same bricks for them.",
+    "body": [
+     "<b>Settle.</b> Pass <code>settle: 0.5</code> and systems call <code>engine.busy()</code> in any frame where something moves. Half a second after the last one, the engine sleeps: no requestAnimationFrame at all, zero frames, until <code>wake()</code>, its input or <code>start()</code>. Something due later (an intro delay, an autoplay beat) holds it awake with <code>engine.busy(seconds)</code>. <b>fps.</b> <code>fps: 30</code> caps an ambient loop on the shared clock. <b>slot.</b> Loads the scene only once it nears the viewport and the main thread is idle, and replays the tap that woke it."
+    ],
+    "keys": [
+     {
+      "href": "/bricks/kernel.html",
+      "label": "Try settle live",
+      "tone": "go",
+      "arcade": true,
+      "icon": "play"
+     },
+     {
+      "href": "/bricks/slot.html",
+      "label": "@fzlt/core/slot",
+      "tone": "sys",
+      "arcade": true,
+      "icon": "book"
+     }
+    ]
+   },
+   "card": {
+    "tone": "go",
+    "label": "<b>PAGE BUILD</b> · kernel + slot + input + fx",
+    "size": "7,098 B",
+    "sizeKey": "page build (kernel+slot+input+fx)",
+    "note": "gzip, measured on this build, against a 6.9 KB budget checked in CI",
+    "meter": "0.999",
+    "rules": [
+     "<b>0 frames</b> once settled, offscreen, in a hidden tab, and under reduced motion when you opt in.",
+     "<b>Lazy scene.</b> The scene's own code loads only once its slot nears the viewport.",
+     "<b>No game bricks.</b> No sound, pad, hud or match in the page build (a test fails if one gets in)."
+    ]
+   }
   },
   {
    "id": "contract",
-   "html": "<section id=\"contract\" class=\"section\" data-reveal aria-labelledby=\"contract-title\">\n  <span class=\"sec-rule\" aria-hidden=\"true\"></span>\n  <span class=\"sec-num\" aria-hidden=\"true\">01</span>\n  <div class=\"wrap\">\n    <div class=\"section-head\">\n      <p class=\"eyebrow\"><span class=\"index\">01</span> WHY · THE CONTRACT</p>\n      <h2 id=\"contract-title\">Nine promises.<br><em>Each one tested.</em></h2>\n      <p class=\"lead\">Most engines assume they own the page. Fizlet is a guest: it runs inside someone else's site, on a phone, next to their code, and it leaves no trace. Every brick and every game built on it keeps these.</p>\n    </div>\n    <ol class=\"rules\">\n      <li class=\"panel rule\"><b>01</b><h3>One clock per page</h3><p>Every engine on the page shares one requestAnimationFrame. A fixed 60 Hz step with a catch-up cap: a long frame drops time, it never spirals.</p></li>\n      <li class=\"panel rule\"><b>02</b><h3>Bounded everything</h3><p>Pools and the event ring have a fixed capacity and refuse work when full. Nothing grows during a session.</p></li>\n      <li class=\"panel rule\"><b>03</b><h3>Zero steady-state allocation</h3><p>One million kernel steps of a busy system cause no young-generation GC. Each brick alone allocates nothing.</p></li>\n      <li class=\"panel rule\"><b>04</b><h3>No layout reads in the step</h3><p>Read in read, simulate in step, write in render. @fzlt/core/debug counts any layout read made during a step.</p></li>\n      <li class=\"panel rule\"><b>05</b><h3>Change-only writes</h3><p>The ledger skips writes that change nothing. Writing the same value twice makes zero DOM mutations.</p></li>\n      <li class=\"panel rule\"><b>06</b><h3>Pause by default</h3><p>Hidden tab, page leaving, root off screen, typing in the host's own fields. Zero CPU while paused.</p></li>\n      <li class=\"panel rule\"><b>07</b><h3>Own nothing you can't give back</h3><p>Every page change goes through the ledger. destroy() restores it exactly, and a newer host edit always wins.</p></li>\n      <li class=\"panel rule\"><b>08</b><h3>Embed-safe</h3><p>No globals, no global styles, many engines per page. Every root Fizlet owns is CSS-contained. One AbortSignal removes every listener and observer.</p></li>\n      <li class=\"panel rule\"><b>09</b><h3>Budgets in CI</h3><p>Kernel at most 4 KB gzip; every brick and the page build have their own budget. Over budget, the build fails.</p></li>\n    </ol>\n  </div>\n</section>"
+   "kind": "contract",
+   "sec": {
+    "id": "contract",
+    "cls": "section",
+    "labelledby": "contract-title",
+    "num": "01",
+    "rule": true
+   },
+   "head": {
+    "index": "01",
+    "eyebrow": "WHY · THE CONTRACT",
+    "line": "Nine promises.",
+    "accent": "Each one tested.",
+    "lead": "Most engines assume they own the page. Fizlet is a guest: it runs inside someone else's site, on a phone, next to their code, and it leaves no trace. Every brick and every game built on it keeps these.",
+    "body": [],
+    "keys": []
+   },
+   "rules": [
+    {
+     "n": "01",
+     "title": "One clock per page",
+     "text": "Every engine on the page shares one requestAnimationFrame. A fixed 60 Hz step with a catch-up cap: a long frame drops time, it never spirals."
+    },
+    {
+     "n": "02",
+     "title": "Bounded everything",
+     "text": "Pools and the event ring have a fixed capacity and refuse work when full. Nothing grows during a session."
+    },
+    {
+     "n": "03",
+     "title": "Zero steady-state allocation",
+     "text": "One million kernel steps of a busy system cause no young-generation GC. Each brick alone allocates nothing."
+    },
+    {
+     "n": "04",
+     "title": "No layout reads in the step",
+     "text": "Read in read, simulate in step, write in render. @fzlt/core/debug counts any layout read made during a step."
+    },
+    {
+     "n": "05",
+     "title": "Change-only writes",
+     "text": "The ledger skips writes that change nothing. Writing the same value twice makes zero DOM mutations."
+    },
+    {
+     "n": "06",
+     "title": "Pause by default",
+     "text": "Hidden tab, page leaving, root off screen, typing in the host's own fields. Zero CPU while paused."
+    },
+    {
+     "n": "07",
+     "title": "Own nothing you can't give back",
+     "text": "Every page change goes through the ledger. destroy() restores it exactly, and a newer host edit always wins."
+    },
+    {
+     "n": "08",
+     "title": "Embed-safe",
+     "text": "No globals, no global styles, many engines per page. Every root Fizlet owns is CSS-contained. One AbortSignal removes every listener and observer."
+    },
+    {
+     "n": "09",
+     "title": "Budgets in CI",
+     "text": "Kernel at most 4 KB gzip; every brick and the page build have their own budget. Over budget, the build fails."
+    }
+   ]
   },
   {
    "id": "bricks",
@@ -816,15 +983,246 @@
   },
   {
    "id": "board",
-   "html": "<section id=\"board\" class=\"section\" data-reveal aria-labelledby=\"board-title\">\n  <span class=\"sec-rule\" aria-hidden=\"true\"></span>\n  <span class=\"sec-num\" aria-hidden=\"true\">03</span>\n  <div class=\"wrap split\">\n    <div>\n      <p class=\"eyebrow\"><span class=\"index\">03</span> ONE FRAME, THREE PHASES</p>\n      <h2 id=\"board-title\">Read. Step.<br><em>Render.</em></h2>\n      <p class=\"lead\">Every brick works the DOM the same way: read it cheaply, change only what it owns, leave cleanly. That is the part we stopped rewriting. Every frame runs three phases, in order, for every system.</p>\n      <p class=\"body\">Geometry is read once in <code>read</code> and cached. The simulation runs in <code>step</code> on plain numbers, at a fixed 60 Hz, with no DOM at all. <code>render</code> writes only what changed, through the ledger. The demo above counts layout reads made during a step with <code>@fzlt/core/debug</code>: the number stays at zero.</p>\n    </div>\n    <ol class=\"phases\" aria-label=\"One frame\">\n      <li style=\"--tone: var(--k-sys)\"><i class=\"phase-sticker\" aria-hidden=\"true\">PHASE 1</i><b>READ</b><span>once a frame</span><p>Cached geometry, input edges latched. The only phase that may measure the page.</p></li>\n      <li style=\"--tone: var(--k-go)\"><i class=\"phase-sticker\" aria-hidden=\"true\">PHASE 2</i><b>STEP <small>× 0–4</small></b><span>fixed dt = 1/60 s</span><p>The simulation. No DOM reads, no DOM writes, no allocation. Events go into the ring.</p></li>\n      <li style=\"--tone: var(--k-attack)\"><i class=\"phase-sticker\" aria-hidden=\"true\">PHASE 3</i><b>RENDER</b><span>once a frame · alpha</span><p>Change-only writes through engine.ledger. Sound and effects read the event ring.</p></li>\n    </ol>\n  </div>\n</section>"
+   "kind": "board",
+   "sec": {
+    "id": "board",
+    "cls": "section",
+    "labelledby": "board-title",
+    "num": "03",
+    "rule": true
+   },
+   "head": {
+    "index": "03",
+    "eyebrow": "ONE FRAME, THREE PHASES",
+    "line": "Read. Step.",
+    "accent": "Render.",
+    "lead": "Every brick works the DOM the same way: read it cheaply, change only what it owns, leave cleanly. That is the part we stopped rewriting. Every frame runs three phases, in order, for every system.",
+    "body": [
+     "Geometry is read once in <code>read</code> and cached. The simulation runs in <code>step</code> on plain numbers, at a fixed 60 Hz, with no DOM at all. <code>render</code> writes only what changed, through the ledger. The demo above counts layout reads made during a step with <code>@fzlt/core/debug</code>: the number stays at zero."
+    ],
+    "keys": []
+   },
+   "label": "One frame",
+   "phases": [
+    {
+     "tone": "sys",
+     "sticker": "PHASE 1",
+     "title": "READ",
+     "sub": "once a frame",
+     "text": "Cached geometry, input edges latched. The only phase that may measure the page."
+    },
+    {
+     "tone": "go",
+     "sticker": "PHASE 2",
+     "title": "STEP <small>× 0–4</small>",
+     "sub": "fixed dt = 1/60 s",
+     "text": "The simulation. No DOM reads, no DOM writes, no allocation. Events go into the ring."
+    },
+    {
+     "tone": "attack",
+     "sticker": "PHASE 3",
+     "title": "RENDER",
+     "sub": "once a frame · alpha",
+     "text": "Change-only writes through engine.ledger. Sound and effects read the event ring."
+    }
+   ]
   },
   {
    "id": "loop",
-   "html": "<section id=\"loop\" class=\"section\" data-reveal aria-labelledby=\"loop-title\">\n  <span class=\"sec-rule\" aria-hidden=\"true\"></span>\n  <span class=\"sec-num\" aria-hidden=\"true\">04</span>\n  <div class=\"wrap split flip\">\n    <div>\n      <p class=\"eyebrow\"><span class=\"index\">04</span> A FRAME, NOT A FREE-FOR-ALL</p>\n      <h2 id=\"loop-title\">One loop.<br><em>Bounded work.</em></h2>\n      <p class=\"lead\">One requestAnimationFrame drives every engine on the page. Pools are filled up front and never grow; when one is full it says no, and the frame stays inside its budget.</p>\n      <p class=\"body\">A slow frame runs at most four catch-up steps and drops the rest of the time (it shows in <code>stats().dropped</code>). Hidden tab, page leaving, root scrolled away, a visitor typing in a field: the engine pauses and costs nothing. Scroll the demo away and back: it sleeps.</p>\n    </div>\n    <div class=\"loop panel\" aria-label=\"Three engines, one requestAnimationFrame, a fixed step with a catch-up cap\">\n      <div class=\"loop-row\"><span class=\"bui-label\"><b>RAF</b> · ONE PER PAGE</span><div class=\"raf\"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class=\"long\"></i><i></i><i></i><i></i><i></i></div></div>\n      <div class=\"loop-row\"><span class=\"bui-label\"><b>ENGINES</b> · SHARE IT</span><div class=\"engines\"><span>hero</span><span>game</span><span>widget</span></div></div>\n      <div class=\"loop-row\"><span class=\"bui-label\"><b>STEPS</b> · CAP 4, THEN DROP</span><div class=\"steps\"><span><i></i></span><span><i></i></span><span><i></i><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i><i></i><i></i><i></i><i class=\"drop\"></i><i class=\"drop\"></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span></div></div>\n      <div class=\"loop-row\"><span class=\"bui-label\"><b>POOL</b> · 24 SLOTS, NEVER GROWS</span><div class=\"slots\"><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i></i><i></i><i></i><i></i><i></i></div></div>\n      <p class=\"loop-note\">A long frame (the wide tick) runs four steps and drops the rest. Engines 2 and 3 cost no extra frames.</p>\n    </div>\n  </div>\n</section>"
+   "kind": "loop",
+   "sec": {
+    "id": "loop",
+    "cls": "section",
+    "labelledby": "loop-title",
+    "num": "04",
+    "rule": true
+   },
+   "flip": true,
+   "head": {
+    "index": "04",
+    "eyebrow": "A FRAME, NOT A FREE-FOR-ALL",
+    "line": "One loop.",
+    "accent": "Bounded work.",
+    "lead": "One requestAnimationFrame drives every engine on the page. Pools are filled up front and never grow; when one is full it says no, and the frame stays inside its budget.",
+    "body": [
+     "A slow frame runs at most four catch-up steps and drops the rest of the time (it shows in <code>stats().dropped</code>). Hidden tab, page leaving, root scrolled away, a visitor typing in a field: the engine pauses and costs nothing. Scroll the demo away and back: it sleeps."
+    ],
+    "keys": []
+   },
+   "label": "Three engines, one requestAnimationFrame, a fixed step with a catch-up cap",
+   "raf": {
+    "label": "<b>RAF</b> · ONE PER PAGE",
+    "ticks": [
+     "",
+     "",
+     "",
+     "",
+     "",
+     "",
+     "",
+     "long",
+     "",
+     "",
+     "",
+     ""
+    ]
+   },
+   "engines": {
+    "label": "<b>ENGINES</b> · SHARE IT",
+    "names": [
+     "hero",
+     "game",
+     "widget"
+    ]
+   },
+   "steps": {
+    "label": "<b>STEPS</b> · CAP 4, THEN DROP",
+    "frames": [
+     [
+      ""
+     ],
+     [
+      ""
+     ],
+     [
+      "",
+      ""
+     ],
+     [
+      ""
+     ],
+     [
+      ""
+     ],
+     [
+      ""
+     ],
+     [
+      ""
+     ],
+     [
+      "",
+      "",
+      "",
+      "",
+      "drop",
+      "drop"
+     ],
+     [
+      ""
+     ],
+     [
+      ""
+     ],
+     [
+      ""
+     ],
+     [
+      ""
+     ]
+    ]
+   },
+   "pool": {
+    "label": "<b>POOL</b> · 24 SLOTS, NEVER GROWS",
+    "slots": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   },
+   "note": "A long frame (the wide tick) runs four steps and drops the rest. Engines 2 and 3 cost no extra frames."
   },
   {
    "id": "recall",
-   "html": "<section id=\"recall\" class=\"section\" data-reveal aria-labelledby=\"recall-title\">\n  <span class=\"sec-rule\" aria-hidden=\"true\"></span>\n  <span class=\"sec-num\" aria-hidden=\"true\">05</span>\n  <div class=\"wrap split\">\n    <div>\n      <p class=\"eyebrow\"><span class=\"index\">05</span> THE PART WE CARE ABOUT MOST</p>\n      <h2 id=\"recall-title\">Recall gives<br><em>the page back.</em></h2>\n      <p class=\"lead\">Every change Fizlet makes to the page goes through one ledger. It records the original and what the engine wrote. <code>destroy()</code> puts back everything the engine still owns, newest first.</p>\n      <p class=\"body\">If the host page changed something after the engine did, the host wins: the ledger stops writing it and never restores over it. A style attribute comes back byte for byte. Try it in the demo: blast the heading, then press <b>Recall</b>. That key runs <code>engine.ledger.restore()</code>, the same call <code>destroy()</code> makes.</p>\n      <div class=\"split-keys\"><a class=\"bui-key bui-arcade bui-cmd\" href=\"#play\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 10a6 6 0 1 0 2-4.5M4 3v3h3\"></path></svg>Back to the demo</a></div>\n    </div>\n    <div class=\"panel lit ledger\">\n      <div class=\"ledger-head\"><span class=\"bui-label\"><b>engine.ledger</b> · WHAT IT OWNS</span><span class=\"ledger-led\">TESTED IN CHROMIUM</span></div>\n      <div class=\"table-scroll\"><table><thead><tr><th>Call</th><th>Owns</th><th>For example</th></tr></thead><tbody><tr><td><code>ledger.text(node, v)</code></td><td>a text node's value</td><td>the 0s and 1s a shot leaves in a word</td></tr><tr><td><code>ledger.style(el, prop, v)</code></td><td>one inline style property</td><td>transforms, custom properties</td></tr><tr><td><code>ledger.attr(el, name, v)</code></td><td>an attribute (null removes)</td><td>aria-busy, data-hp</td></tr><tr><td><code>ledger.cls(el, name, on)</code></td><td>one class</td><td>smashed, burning</td></tr><tr><td><code>ledger.add(node)</code></td><td>a node you put on the page</td><td>a canvas, an overlay, debris</td></tr></tbody></table></div>\n      <ul class=\"ledger-rules\">\n        <li><b>Change-only.</b> Writing a value that is already there makes no mutation.</li>\n        <li><b>Host wins.</b> A newer edit by the page is never overwritten or undone.</li>\n        <li><b>Exact.</b> After destroy() the DOM matches the snapshot taken before.</li>\n      </ul>\n    </div>\n  </div>\n</section>"
+   "kind": "recall",
+   "sec": {
+    "id": "recall",
+    "cls": "section",
+    "labelledby": "recall-title",
+    "num": "05",
+    "rule": true
+   },
+   "head": {
+    "index": "05",
+    "eyebrow": "THE PART WE CARE ABOUT MOST",
+    "line": "Recall gives",
+    "accent": "the page back.",
+    "lead": "Every change Fizlet makes to the page goes through one ledger. It records the original and what the engine wrote. <code>destroy()</code> puts back everything the engine still owns, newest first.",
+    "body": [
+     "If the host page changed something after the engine did, the host wins: the ledger stops writing it and never restores over it. A style attribute comes back byte for byte. Try it in the demo: blast the heading, then press <b>Recall</b>. That key runs <code>engine.ledger.restore()</code>, the same call <code>destroy()</code> makes."
+    ],
+    "keys": [
+     {
+      "href": "#play",
+      "label": "Back to the demo",
+      "tone": "cmd",
+      "arcade": true,
+      "icon": "recall"
+     }
+    ]
+   },
+   "ledger": {
+    "label": "<b>engine.ledger</b> · WHAT IT OWNS",
+    "led": "TESTED IN CHROMIUM",
+    "cols": [
+     "Call",
+     "Owns",
+     "For example"
+    ],
+    "rows": [
+     [
+      "<code>ledger.text(node, v)</code>",
+      "a text node's value",
+      "the 0s and 1s a shot leaves in a word"
+     ],
+     [
+      "<code>ledger.style(el, prop, v)</code>",
+      "one inline style property",
+      "transforms, custom properties"
+     ],
+     [
+      "<code>ledger.attr(el, name, v)</code>",
+      "an attribute (null removes)",
+      "aria-busy, data-hp"
+     ],
+     [
+      "<code>ledger.cls(el, name, on)</code>",
+      "one class",
+      "smashed, burning"
+     ],
+     [
+      "<code>ledger.add(node)</code>",
+      "a node you put on the page",
+      "a canvas, an overlay, debris"
+     ]
+    ],
+    "rules": [
+     "<b>Change-only.</b> Writing a value that is already there makes no mutation.",
+     "<b>Host wins.</b> A newer edit by the page is never overwritten or undone.",
+     "<b>Exact.</b> After destroy() the DOM matches the snapshot taken before."
+    ]
+   }
   },
   {
    "id": "specs",
@@ -832,7 +1230,50 @@
   },
   {
    "id": "ship",
-   "html": "<section id=\"ship\" class=\"section\" data-reveal aria-labelledby=\"ship-title\">\n  <span class=\"sec-rule\" aria-hidden=\"true\"></span>\n  <span class=\"sec-num\" aria-hidden=\"true\">07</span>\n  <div class=\"wrap\">\n    <div class=\"section-head\">\n      <p class=\"eyebrow\"><span class=\"index\">07</span> INDEPENDENT PACKAGES · SHARED FOUNDATIONS</p>\n      <h2 id=\"ship-title\">Build once.<br><em>Ship each.</em></h2>\n      <p class=\"lead\">The engine lives in one repo. Each game takes a fingerprinted snapshot, tests itself and tags its own release. Pages serves static files: no runtime iframe, no remote content service, no client framework.</p>\n    </div>\n    <ol class=\"pipeline\"><li><em>01</em><b>src/</b><span>the engine</span></li><li><em>02</em><b>npm run check</b><span>types · tests · size</span></li><li><em>03</em><b>CI tags vX.Y.Z</b><span>from package.json</span></li><li><em>04</em><b>vendor/fizlet</b><span>snapshot + ORIGIN.json</span></li><li><em>05</em><b>Pages</b><span>static, no server</span></li></ol>\n  </div>\n</section>"
+   "kind": "ship",
+   "sec": {
+    "id": "ship",
+    "cls": "section",
+    "labelledby": "ship-title",
+    "num": "07",
+    "rule": true
+   },
+   "head": {
+    "index": "07",
+    "eyebrow": "INDEPENDENT PACKAGES · SHARED FOUNDATIONS",
+    "line": "Build once.",
+    "accent": "Ship each.",
+    "lead": "The engine lives in one repo. Each game takes a fingerprinted snapshot, tests itself and tags its own release. Pages serves static files: no runtime iframe, no remote content service, no client framework.",
+    "body": [],
+    "keys": []
+   },
+   "steps": [
+    {
+     "n": "01",
+     "title": "src/",
+     "sub": "the engine"
+    },
+    {
+     "n": "02",
+     "title": "npm run check",
+     "sub": "types · tests · size"
+    },
+    {
+     "n": "03",
+     "title": "CI tags vX.Y.Z",
+     "sub": "from package.json"
+    },
+    {
+     "n": "04",
+     "title": "vendor/fizlet",
+     "sub": "snapshot + ORIGIN.json"
+    },
+    {
+     "n": "05",
+     "title": "Pages",
+     "sub": "static, no server"
+    }
+   ]
   },
   {
    "id": "games",
@@ -847,8 +1288,51 @@
    "html": "<section id=\"start\" class=\"section\" data-reveal aria-labelledby=\"start-title\">\n  <span class=\"sec-rule\" aria-hidden=\"true\"></span>\n  <span class=\"sec-num\" aria-hidden=\"true\">10</span>\n  <div class=\"wrap start\">\n    <div class=\"start-head\">\n      <p class=\"eyebrow\"><span class=\"index\">10</span> QUICK START</p>\n      <h2 id=\"start-title\">Ten lines<br><em>to a blast.</em></h2>\n      <p class=\"lead\">One script tag puts the kernel and every brick on <code>window.fizlet</code>. Click the canvas: that's the hero explosion, pooled, paused when you scroll away.</p>\n      <ol class=\"start-steps\">\n        <li><b>Script tag.</b> <code>fizlet.js</code> (13.5 KB gzip), one file, no build step.</li>\n        <li><b>Modules.</b> Import only the bricks you use from <code>https://fizlet.com/dist/</code>.</li>\n        <li><b>npm.</b> <code>npm install @fzlt/core</code>, with the subpath exports.</li>\n      </ol>\n      <div class=\"split-keys\">\n        <a class=\"bui-key bui-arcade bui-go\" href=\"/examples/quick-start.html\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"m6 4 10 6-10 6Z\"></path></svg>Run the example</a>\n        <a class=\"bui-key bui-arcade bui-sys\" href=\"https://github.com/coded-dot-design/fizlet#readme\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M4 3h9a3 3 0 0 1 3 3v11H7a3 3 0 0 1-3-3ZM4 14a3 3 0 0 1 3-3h9\"></path></svg>Read the API on GitHub ↗</a>\n      </div>\n    </div>\n    <div class=\"start-code\">\n      <div class=\"panel lit code-card\"><div class=\"code-head\"><span class=\"bui-label\"><b>SCRIPT TAG</b> · index.html</span><button class=\"bui-key copy\" type=\"button\" data-copy><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 7h10v10H7ZM3 13V3h10\"></path></svg>Copy</button></div><pre tabindex=\"0\" class=\"code\"><code>&lt;canvas id=&quot;board&quot; width=&quot;640&quot; height=&quot;320&quot;&gt;&lt;/canvas&gt;\n&lt;script src=&quot;https://fizlet.com/fizlet.js&quot;&gt;&lt;/script&gt;\n&lt;script&gt;\n  const { createEngine, effects } = fizlet;\n  const canvas = document.getElementById(&quot;board&quot;), ctx = canvas.getContext(&quot;2d&quot;);\n  const engine = createEngine({ root: canvas }), fx = effects();\n  canvas.onclick = (ev) =&gt; fx.blast(ev.offsetX * 640 / canvas.clientWidth, ev.offsetY * 320 / canvas.clientHeight);\n  engine.add({\n    step: (e, dt) =&gt; fx.step(dt),\n    render: () =&gt; (ctx.clearRect(0, 0, 640, 320), fx.drawGround(ctx), fx.draw(ctx)),\n  });\n  engine.start();\n&lt;/script&gt;</code></pre></div>\n      <div class=\"panel code-card\"><div class=\"code-head\"><span class=\"bui-label\"><b>MODULES</b> · only what you use</span><button class=\"bui-key copy\" type=\"button\" data-copy><svg viewBox=\"0 0 20 20\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7 7h10v10H7ZM3 13V3h10\"></path></svg>Copy</button></div><pre tabindex=\"0\" class=\"code\"><code>&lt;script type=&quot;module&quot;&gt;\n  import { createEngine } from &quot;https://fizlet.com/dist/index.js&quot;;\n  import { effects } from &quot;https://fizlet.com/dist/fx.js&quot;;\n  import { controls } from &quot;https://fizlet.com/dist/input.js&quot;;\n&lt;/script&gt;</code></pre></div>\n    </div>\n  </div>\n</section>"
   },
   {
-   "id": "section final",
-   "html": "<section class=\"section final\" data-reveal aria-labelledby=\"final-title\">\n  <span class=\"sec-rule\" aria-hidden=\"true\"></span>\n  <div class=\"wrap final-inner\">\n    <p class=\"eyebrow\">MIT · NO DEPENDENCIES · V0.27.0</p>\n    <h2 id=\"final-title\">Bring the logic and style.</h2>\n    <div class=\"final-keys\">\n      <a class=\"bui-key bui-arcade bui-go\" href=\"#start\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"m6 4 10 6-10 6Z\"></path></svg>Quick start</a>\n      <a class=\"bui-key bui-arcade bui-sys\" href=\"https://github.com/coded-dot-design/fizlet\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M7.5 17c-4 1.2-4-2-5.5-2.5m11 4.5v-3a2.6 2.6 0 0 0-.7-2c2.4-.3 4.9-1.2 4.9-5.3a4.1 4.1 0 0 0-1.1-2.8 3.8 3.8 0 0 0-.1-2.8s-.9-.3-2.9 1.1a10 10 0 0 0-5.2 0C5.9 2.8 5 3.1 5 3.1a3.8 3.8 0 0 0-.1 2.8 4.1 4.1 0 0 0-1.1 2.8c0 4.1 2.5 5 4.9 5.3a2.6 2.6 0 0 0-.7 2v3\"></path></svg>Source on GitHub ↗</a>\n    </div>\n    <p class=\"final-links\"><a href=\"https://github.com/coded-dot-design/fizlet/blob/main/CHANGELOG.md\">Changelog ↗</a> · <a href=\"https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md\">Engine plan ↗</a> · <a href=\"https://domvirus.com/\">DOM VIRUS ↗</a> · <a href=\"https://battlefield.domvirus.com/\">DOM Battlefield ↗</a></p>\n  </div>\n</section>"
+   "id": "final",
+   "kind": "final",
+   "sec": {
+    "id": "",
+    "cls": "section final",
+    "labelledby": "final-title",
+    "num": "",
+    "rule": true
+   },
+   "eyebrow": "MIT · NO DEPENDENCIES · V0.27.0",
+   "title": "Bring the logic and style.",
+   "keys": [
+    {
+     "href": "#start",
+     "label": "Quick start",
+     "tone": "go",
+     "arcade": true,
+     "icon": "play"
+    },
+    {
+     "href": "https://github.com/coded-dot-design/fizlet",
+     "label": "Source on GitHub ↗",
+     "tone": "sys",
+     "arcade": true,
+     "icon": "github"
+    }
+   ],
+   "links": [
+    {
+     "href": "https://github.com/coded-dot-design/fizlet/blob/main/CHANGELOG.md",
+     "label": "Changelog ↗"
+    },
+    {
+     "href": "https://github.com/coded-dot-design/dom-virus/blob/main/ENGINE.md",
+     "label": "Engine plan ↗"
+    },
+    {
+     "href": "https://domvirus.com/",
+     "label": "DOM VIRUS ↗"
+    },
+    {
+     "href": "https://battlefield.domvirus.com/",
+     "label": "DOM Battlefield ↗"
+    }
+   ]
   }
  ]
 }

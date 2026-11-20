@@ -1,0 +1,20 @@
+---
+// 04 · One loop: the diagram of one requestAnimationFrame shared by three engines, the fixed steps
+// a frame runs (a long frame caps at four and drops the rest), and a pool that never grows.
+import HomeSection from "./HomeSection.astro";
+import SectionCopy from "./SectionCopy.astro";
+const { sec, flip, head, label, raf, engines, steps, pool, note } = Astro.props as any;
+const c = (cls: string) => cls || undefined;
+---
+<HomeSection {...sec}>
+  <div class={flip ? "wrap split flip" : "wrap split"}>
+    <SectionCopy head={head} id={sec.labelledby} />
+    <div class="loop panel" aria-label={label}>
+      <div class="loop-row"><span class="bui-label" set:html={raf.label} /><div class="raf">{raf.ticks.map((t: string) => <i class={c(t)}></i>)}</div></div>
+      <div class="loop-row"><span class="bui-label" set:html={engines.label} /><div class="engines">{engines.names.map((e: string) => <span>{e}</span>)}</div></div>
+      <div class="loop-row"><span class="bui-label" set:html={steps.label} /><div class="steps">{steps.frames.map((f: string[]) => <span>{f.map((t) => <i class={c(t)}></i>)}</span>)}</div></div>
+      <div class="loop-row"><span class="bui-label" set:html={pool.label} /><div class="slots">{pool.slots.map((on: boolean) => <i class={on ? "on" : undefined}></i>)}</div></div>
+      <p class="loop-note" set:html={note} />
+    </div>
+  </div>
+</HomeSection>

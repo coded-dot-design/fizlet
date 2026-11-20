@@ -1,0 +1,14 @@
+---
+// A section's copy: SectionHead (eyebrow, two-line title, lead), then its body paragraphs and keys.
+// `head` is the exported shape (src/data/legacy/pages/home.json); `cls` is "section-head" for a
+// full-width head, "" for the copy column of a split section.
+import SectionHead from "../SectionHead.astro";
+import KeyRow from "./KeyRow.astro";
+export interface Head { index: string; eyebrow: string; line: string; accent: string; lead: string; body: string[]; keys: any[] }
+interface Props { head: Head; id: string; cls?: string }
+const { head, id, cls = "" } = Astro.props;
+---
+<SectionHead level="h2" id={id} class={cls} index={head.index} eyebrow={head.eyebrow} line={head.line} accent={head.accent} lead={head.lead || undefined}>
+  {head.body.map((b) => <p class="body" set:html={b} />)}
+  {head.keys.length > 0 && <KeyRow keys={head.keys} />}
+</SectionHead>

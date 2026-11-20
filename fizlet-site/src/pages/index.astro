@@ -6,10 +6,20 @@ import Icon from "../components/Icon.astro";
 import CodeBlock from "../components/CodeBlock.astro";
 import BrickCard from "../components/BrickCard.astro";
 import Html from "../components/Html.astro";
+import PageToc from "../components/home/PageToc.astro";
+import Profile from "../components/home/Profile.astro";
+import Contract from "../components/home/Contract.astro";
+import Board from "../components/home/Board.astro";
+import Loop from "../components/home/Loop.astro";
+import Recall from "../components/home/Recall.astro";
+import Ship from "../components/home/Ship.astro";
+import Final from "../components/home/Final.astro";
 import DATA from "../data/legacy/pages/home.json";
 import type { Tone } from "../lib/site";
 const h = DATA as any;
 const hero = h.hero;
+// Each componentized section by its kind; a section without one is still the legacy markup (Html).
+const SECTIONS: Record<string, any> = { "page-toc": PageToc, profile: Profile, contract: Contract, board: Board, loop: Loop, recall: Recall, ship: Ship, final: Final };
 ---
 <BaseLayout meta={h.meta}>
 <section class="hero has-grid" aria-labelledby="hero-title">
@@ -36,7 +46,7 @@ const hero = h.hero;
     {h.stats.map((s: any) => s.soon ? <span class="soon"><i></i><b>{s.value}</b><small>{s.label}</small></span> : <span><b>{s.value}</b><small>{s.label}</small></span>)}
   </div>
 </section>
-{h.sections.map((s: any) => s.kind === "bricks"
+{h.sections.map((s: any) => SECTIONS[s.kind] ? (() => { const C = SECTIONS[s.kind]; return <C {...s} />; })() : s.kind === "bricks"
   ? <section {...s.attrs}>
   <Html html={s.pre} />
   <div class="wrap">

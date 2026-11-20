@@ -2,7 +2,7 @@
   "$description": "The migration plan, one source: each legacy page type's Astro template and components, and which routes are ported (done = built here and pixel-compared at <= 3%). scripts/migration.mjs writes MIGRATION.md's inventory from this and src/data/legacy/routes.json.",
   "done": ["", "docs/getting-started/", "bricks/kernel.html", "gallery/"],
   "types": {
-    "home": { "template": "src/pages/index.astro", "components": "Hero (in page), stats row, BrickCard, CodeBlock, Key; 14 sections kept as built (Html)", "wave": "W2-home: componentize origin, play, story, profile, contract, board, loop, recall, specs, ship, games, roadmap, start, final" },
+    "home": { "template": "src/pages/index.astro", "components": "Hero (in page), stats row, BrickCard, CodeBlock, Key; home/: HomeSection, SectionCopy, KeyRow, RuleList, PageToc, Profile, Contract, Board, Loop, Recall, Ship, Final; 7 sections kept as built (Html)", "wave": "W2-home: componentize origin, play, story, specs, games, roadmap, start" },
     "doc": { "template": "src/pages/docs/[slug]/index.astro", "components": "Crumbs, SectionHead, CodeBlock, Key, DocSteps, DocsSidebar", "wave": "W2-docs: add the slug to export-legacy.mjs (guides need a guides/[slug] route on the same template), then compare" },
     "docs-index": { "template": "to build: src/pages/docs/index.astro, src/pages/guides/index.astro", "components": "SectionHead, a doc list card (new)", "wave": "W2-docs" },
     "brick": { "template": "src/pages/bricks/[id].astro", "components": "Crumbs, CodeBlock; the head, demo, card and API kept as built (Html)", "wave": "W2-bricks: add the ids to export-legacy.mjs, then compare; later an ApiDecl component for the API" },

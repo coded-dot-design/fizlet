@@ -1,0 +1,14 @@
+---
+// The closing call: licence and version, one line, the two keys, the project links.
+import HomeSection from "./HomeSection.astro";
+import KeyRow from "./KeyRow.astro";
+const { sec, eyebrow, title, keys, links } = Astro.props as any;
+---
+<HomeSection {...sec}>
+  <div class="wrap final-inner">
+    <p class="eyebrow">{eyebrow}</p>
+    <h2 id={sec.labelledby}>{title}</h2>
+    <KeyRow keys={keys} cls="final-keys" />
+    <p class="final-links">{links.map((l: any, i: number) => <Fragment>{i > 0 && " · "}<a href={l.href}>{l.label}</a></Fragment>)}</p>
+  </div>
+</HomeSection>

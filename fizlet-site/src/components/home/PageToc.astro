@@ -1,0 +1,8 @@
+---
+// The home page's table of contents: the numbered sections, then the contest.
+interface Props { label: string; items: { href: string; n: string; label: string }[] }
+const { label, items } = Astro.props;
+---
+<nav class="page-toc" aria-label="On this page">
+  <div class="wrap"><span class="bui-label" set:html={label} /><ol>{items.map((i) => <li><a href={i.href}><b>{i.n}</b>{i.label}</a></li>)}</ol></div>
+</nav>

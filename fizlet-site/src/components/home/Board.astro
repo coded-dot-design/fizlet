@@ -1,0 +1,14 @@
+---
+// 03 · One frame, three phases: the copy, and read → step → render, each in its colour family.
+import HomeSection from "./HomeSection.astro";
+import SectionCopy from "./SectionCopy.astro";
+const { sec, head, label, phases } = Astro.props as any;
+---
+<HomeSection {...sec}>
+  <div class="wrap split">
+    <SectionCopy head={head} id={sec.labelledby} />
+    <ol class="phases" aria-label={label}>
+      {phases.map((p: any) => <li style={`--tone: var(--k-${p.tone})`}><i class="phase-sticker" aria-hidden="true">{p.sticker}</i><b set:html={p.title} /><span>{p.sub}</span><p set:html={p.text} /></li>)}
+    </ol>
+  </div>
+</HomeSection>

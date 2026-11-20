@@ -1,0 +1,14 @@
+---
+// 01 · The contract: nine numbered rules, each one tested.
+import HomeSection from "./HomeSection.astro";
+import SectionCopy from "./SectionCopy.astro";
+const { sec, head, rules } = Astro.props as any;
+---
+<HomeSection {...sec}>
+  <div class="wrap">
+    <SectionCopy head={head} id={sec.labelledby} cls="section-head" />
+    <ol class="rules">
+      {rules.map((r: any) => <li class="panel rule"><b>{r.n}</b><h3>{r.title}</h3><p set:html={r.text} /></li>)}
+    </ol>
+  </div>
+</HomeSection>

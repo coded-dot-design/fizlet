@@ -245,6 +245,95 @@ const bricksSection = (sec, path) => {
   };
 };
 
+// ---------- The home page's sections (W2-home): each one's content as data, rendered by its own
+// component in src/components/home/. A section not listed here stays as built (Html).
+/** The section shell: its id, class, heading id, and the rule and ghost number of a numbered one. */
+const secOf = (sec) => ({
+  id: sec.getAttribute("id") ?? "", cls: sec.getAttribute("class"), labelledby: sec.getAttribute("aria-labelledby"),
+  num: text(sec.querySelector(":scope > .sec-num")), rule: !!sec.querySelector(":scope > .sec-rule"),
+});
+/** A section's copy: eyebrow (and its index), the two-line title, lead, body paragraphs, keys. */
+const headOf = (el, path) => {
+  const eb = el.querySelector(":scope > .eyebrow"), h = el.querySelector(":scope > h2"), index = text(eb?.querySelector(".index"));
+  return {
+    index, eyebrow: index ? text(eb).slice(index.length).trim() : text(eb),
+    line: h.childNodes[0].text, accent: text(h.querySelector("em")),
+    lead: inner(el.querySelector(":scope > .lead"), path),
+    body: el.querySelectorAll(":scope > p.body").map((p) => inner(p, path)),
+    keys: (el.querySelector(":scope > .split-keys")?.querySelectorAll("a.bui-key") ?? []).map((a) => keyOf(a, path)),
+  };
+};
+const toneOf = (el) => el?.getAttribute("style")?.match(/--tone:\s*var\(--k-([\w-]+)\)/)?.[1] ?? "";
+const rulesOf = (ul, path) => (ul?.querySelectorAll(":scope > li") ?? []).map((li) => inner(li, path));
+const HOME = {
+  "page-toc": (n, path) => ({
+    label: inner(n.querySelector(".bui-label"), path),
+    items: n.querySelectorAll("ol > li > a").map((a) => ({ href: absolute(`href="${a.getAttribute("href")}"`, path).slice(6, -1), n: text(a.querySelector("b")), label: text(a).slice(text(a.querySelector("b")).length) })),
+  }),
+  profile: (n, path) => {
+    const card = n.querySelector(".profile-card"), size = card.querySelector(".profile-size");
+    return {
+      sec: secOf(n), head: headOf(n.querySelector(".split > div:first-child"), path),
+      card: {
+        tone: toneOf(card), label: inner(card.querySelector(":scope > .bui-label"), path), size: text(size), sizeKey: size.getAttribute("data-size"),
+        note: text(card.querySelector(":scope > small")), meter: card.querySelector(".meter i").getAttribute("style").match(/--v:\s*([\d.]+)/)[1],
+        rules: rulesOf(card.querySelector(".ledger-rules"), path),
+      },
+    };
+  },
+  contract: (n, path) => ({
+    sec: secOf(n), head: headOf(n.querySelector(".section-head"), path),
+    rules: n.querySelectorAll("ol.rules > li").map((li) => ({ n: text(li.querySelector("b")), title: text(li.querySelector("h3")), text: inner(li.querySelector("p"), path) })),
+  }),
+  board: (n, path) => {
+    const ol = n.querySelector("ol.phases");
+    return {
+      sec: secOf(n), head: headOf(n.querySelector(".split > div:first-child"), path), label: ol.getAttribute("aria-label"),
+      phases: ol.querySelectorAll(":scope > li").map((li) => ({ tone: toneOf(li), sticker: text(li.querySelector(".phase-sticker")), title: inner(li.querySelector(":scope > b"), path), sub: text(li.querySelector(":scope > span")), text: inner(li.querySelector(":scope > p"), path) })),
+    };
+  },
+  loop: (n, path) => {
+    const fig = n.querySelector(".loop"), row = (cls) => fig.querySelector(`.${cls}`), label = (cls) => inner(row(cls).parentNode.querySelector(".bui-label"), path);
+    return {
+      sec: secOf(n), flip: n.querySelector(".split").classList.contains("flip"), head: headOf(n.querySelector(".split > div:first-child"), path), label: fig.getAttribute("aria-label"),
+      raf: { label: label("raf"), ticks: row("raf").querySelectorAll(":scope > i").map((i) => i.getAttribute("class") ?? "") },
+      engines: { label: label("engines"), names: row("engines").querySelectorAll(":scope > span").map(text) },
+      steps: { label: label("steps"), frames: row("steps").querySelectorAll(":scope > span").map((s) => s.querySelectorAll(":scope > i").map((i) => i.getAttribute("class") ?? "")) },
+      pool: { label: label("slots"), slots: row("slots").querySelectorAll(":scope > i").map((i) => i.classList.contains("on")) },
+      note: inner(fig.querySelector(".loop-note"), path),
+    };
+  },
+  recall: (n, path) => {
+    const led = n.querySelector(".ledger"), table = led.querySelector("table");
+    return {
+      sec: secOf(n), head: headOf(n.querySelector(".split > div:first-child"), path),
+      ledger: {
+        label: inner(led.querySelector(".ledger-head .bui-label"), path), led: text(led.querySelector(".ledger-led")),
+        cols: table.querySelectorAll("thead th").map(text),
+        rows: table.querySelectorAll("tbody tr").map((tr) => tr.querySelectorAll("td").map((td) => inner(td, path))),
+        rules: rulesOf(led.querySelector(".ledger-rules"), path),
+      },
+    };
+  },
+  ship: (n, path) => ({
+    sec: secOf(n), head: headOf(n.querySelector(".section-head"), path),
+    steps: n.querySelectorAll("ol.pipeline > li").map((li) => ({ n: text(li.querySelector("em")), title: text(li.querySelector("b")), sub: text(li.querySelector("span")) })),
+  }),
+  final: (n, path) => {
+    const w = n.querySelector(".final-inner");
+    return {
+      sec: secOf(n), eyebrow: text(w.querySelector(".eyebrow")), title: text(w.querySelector("h2")),
+      keys: w.querySelectorAll(".final-keys a.bui-key").map((a) => keyOf(a, path)),
+      links: w.querySelectorAll(".final-links a").map((a) => link(a, path)),
+    };
+  },
+};
+const homeSection = (n, path) => {
+  const id = n.getAttribute("id") ?? (n.classList.contains("final") ? "final" : n.getAttribute("class"));
+  if (id === "bricks") return bricksSection(n, path);
+  return HOME[id] ? { id, kind: id, ...HOME[id](n, path) } : { id, html: outer(n, path) };
+};
+
 // ---------- The home page ----------
 {
   const path = "";
@@ -270,7 +359,7 @@ const bricksSection = (sec, path) => {
     stats: main.querySelectorAll("section.stats .stats-row > span").map((s) => ({ value: text(s.querySelector("b")), label: text(s.querySelector("small")), soon: s.classList.contains("soon") })),
     // The sections below the fold: the engine's demos and the long-form story, kept as built
     // (MIGRATION.md lists each one's component work).
-    sections: main.childNodes.filter((n) => n.nodeType === 1 && !is(n, "section.hero, section.stats")).map((n) => n.getAttribute("id") === "bricks" ? bricksSection(n, path) : ({ id: n.getAttribute("id") ?? n.getAttribute("class"), html: outer(n, path) })),
+    sections: main.childNodes.filter((n) => n.nodeType === 1 && !is(n, "section.hero, section.stats")).map((n) => homeSection(n, path)),
   });
 }
 

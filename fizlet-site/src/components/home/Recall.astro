@@ -1,0 +1,17 @@
+---
+// 05 · Recall: the copy, and what engine.ledger owns (one call per kind of page change).
+import HomeSection from "./HomeSection.astro";
+import SectionCopy from "./SectionCopy.astro";
+import RuleList from "./RuleList.astro";
+const { sec, head, ledger } = Astro.props as any;
+---
+<HomeSection {...sec}>
+  <div class="wrap split">
+    <SectionCopy head={head} id={sec.labelledby} />
+    <div class="panel lit ledger">
+      <div class="ledger-head"><span class="bui-label" set:html={ledger.label} /><span class="ledger-led">{ledger.led}</span></div>
+      <div class="table-scroll"><table><thead><tr>{ledger.cols.map((c: string) => <th>{c}</th>)}</tr></thead><tbody>{ledger.rows.map((r: string[]) => <tr>{r.map((td) => <td set:html={td} />)}</tr>)}</tbody></table></div>
+      <RuleList rules={ledger.rules} />
+    </div>
+  </div>
+</HomeSection>
