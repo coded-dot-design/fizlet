@@ -165,10 +165,19 @@ export const BUDGETS = [
   ["@fzlt/core/rig", "src/rig.ts", 1344],
   // Roads, tracks and edge strips at their true width on a heightfield (diorama is a type-only import;
   // the exact hypot from @fzlt/core/math; lifted from Holeshot's ribbons): 2,683 B gz when added.
-  // 3,793 B (+1,110 B, budget 2,752 → 3,840) with what Holeshot's tracks need: colour runs with gaps
-  // along a band, `bands` with an under-lap and one bucket per row, the exact cut at a crest, and the
-  // painter's pieces public (color, light, layout, paint, WP, B, BK, hy, hidden, bucket, emit).
-  ["@fzlt/core/ribbon", "src/ribbon.ts", 3840],
+  ["@fzlt/core/ribbon", "src/ribbon.ts", 2752],
+  // What a game's tracks need on top of ribbon, as separate exports on one small painter (a second
+  // entry point: ribbon is one closure, which esbuild cannot drop parts of, and hooks for runs and the
+  // cut inside it would cost every ribbon user bytes; ribbon stays 2,683 B). 3,778 B gz with all of it
+  // when added. What a page ships by what it imports (the rows below, each a stub in scripts/):
+  // painter (the pieces) 1,986 B; with band 2,843 B (+857: the mitred line, its pieces, the exact
+  // hypot); band and runs 3,112 B (+269); bands 2,960 B (+117 over band); painter and cut 2,625 B (+639).
+  ["@fzlt/core/ribbon-tracks", "src/ribbon-tracks.ts", 3840],
+  ["ribbon-tracks: painter", "scripts/ribbon-tracks-pieces.ts", 2048],
+  ["ribbon-tracks: painter + band", "scripts/ribbon-tracks-band.ts", 2880],
+  ["ribbon-tracks: painter + band + runs", "scripts/ribbon-tracks-runs.ts", 3136],
+  ["ribbon-tracks: painter + bands", "scripts/ribbon-tracks-bands.ts", 3008],
+  ["ribbon-tracks: painter + cut", "scripts/ribbon-tracks-cut.ts", 2688],
   // A model viewer's angle (drag, keys, Home, a showcase spin, an opt-in throw and snap, a slider's ARIA),
   // lifted from the turntables two games built by hand: 1,395 B gz when added (~110 B of it the
   // kernel's `need`, shared on a page; the engine and ledger are type-only imports).

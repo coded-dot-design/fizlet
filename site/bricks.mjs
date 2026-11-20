@@ -337,14 +337,13 @@ d.add({ size: [0.4, 0.1, 0.1], pos: [0.2, -0.05, 0], on: "leg:a" }); // the thig
 d.add({ size: [0.42, 0.08, 0.08], pos: [0.21, -0.04, 0], on: "leg:b" }); // the shin
 e.add({ render() { leg.reach(hip[0], hip[1], 0, peg[0], peg[1], 0.15); d.draw(); } }); // the foot on the peg
 ik2(J, ax, ay, bx, by, 0.3, 0.3, -1); // J = [upper angle, lower angle, elbow x, elbow y]` },
-  { id: "ribbon", no: 45, sym: "rb", family: "render", status: "experimental", since: "0.28.0", tests: ["ribbon.test.mjs", "ribbon.mjs"], used: [], why: "New: lifted from Holeshot's road-edge ribbons (the game still carries its own copy until its port); its API may still change before a game ships on it.",
-    tag: "RIBBON", role: "fallin", modules: [mod("@fzlt/core/ribbon", "ribbon")],
+  { id: "ribbon", no: 45, sym: "rb", family: "render", status: "experimental", since: "0.28.0", tests: ["ribbon.test.mjs", "ribbon.mjs", "ribbon-tracks.test.mjs", "ribbon-tracks.mjs"], used: [], why: "New: lifted from Holeshot's road-edge ribbons (the game still carries its own copy until its port); its API may still change before a game ships on it.",
+    tag: "RIBBON", role: "fallin", modules: [mod("@fzlt/core/ribbon", "ribbon"), mod("@fzlt/core/ribbon-tracks", "ribbon-tracks")],
     snippet: `terrainView(d, t, { bands }); // the ground, then the ribbons over it in its cluster
 const r = ribbon(d, t, { step: 0.5, hide: true }); // one decal; nothing to call per frame
 r.band(loop, -1.4, 1.4, "#6d4c3a", true); // the track: closed, 2.8 wide, mitred, draped
 r.band(loop, -1.7, -1.4, "#f4f1e6", true); // a white edge strip on its left
-r.band(loop, 1.4, 1.7, "#e8483c", true, { at: [1], colors: ["#f4f1e6"], period: 2 }); // a kerb: red, white, every unit
-r.band(loop, -0.06, 0.06, "#f4f1e6", true, { at: [2], colors: [null], period: 4 }); // a dashed centre line` },
+r.band(loop, 1.4, 1.7, "#e8483c", true); // a red one on its right` },
   { id: "turntable", no: 46, sym: "tb", family: "motion", status: "experimental", since: "0.28.0", tests: ["turntable.test.mjs", "turntable.mjs"], used: [], why: "New: lifted from the garage turntables of Holeshot and CitySmash (each game still carries its own copy until its port); its API may still change before a game ships on it.",
     tag: "TURNTABLE", role: "advance", modules: [mod("@fzlt/core/turntable", "turntable")],
     snippet: `const tt = turntable(engine, canvas, { yaw: -0.15, label: "Turn the bike: drag, or the arrow keys",
