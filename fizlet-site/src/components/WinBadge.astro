@@ -1,0 +1,10 @@
+---
+// A contest sticker: the week's winner, its smallest piece that can win, or the Hi-Fi lane. The same
+// sticker on /contest/, on Daily and on the maker's page.
+import Icon from "./Icon.astro";
+export type Win = "winner" | "smallest" | "hifi";
+interface Props { kind: Win }
+const { kind } = Astro.props;
+const BADGE = { winner: { cls: "win-badge", text: "WINNER", icon: true }, smallest: { cls: "win-badge ct-small", text: "SMALLEST", icon: true }, hifi: { cls: "win-badge ct-hifi", text: "HI-FI", icon: false } }[kind];
+---
+<span class={BADGE.cls}>{BADGE.icon && <Icon name="check" size={14} />}{BADGE.text}</span>

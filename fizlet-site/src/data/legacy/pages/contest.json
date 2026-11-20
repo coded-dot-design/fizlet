@@ -1,0 +1,469 @@
+{
+ "meta": {
+  "path": "contest/",
+  "title": "Daily contest: top picks, weekly winners · Fizlet",
+  "description": "The Fizlet Daily contest: up to 40 entries a day, the top 1 to 5 picked, a weekly and a monthly winner; over 10,240 B live can't win.",
+  "ld": [],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "cls": "has-grid section ct",
+ "head": {
+  "index": "DAILY",
+  "eyebrow": "PICKED EACH DAY · WON EACH WEEK AND MONTH",
+  "title": {
+   "line": "The Daily contest.",
+   "accent": "Small wins."
+  },
+  "lead": "Tiny examples, made every day. It's how we test the engine. We turned it into a contest. Up to <b>40 entries a day</b>. The <b>top 1 to 5</b> of each day are picked, and all of them are <b>posted at the end of the week</b>. Then a <b>weekly winner</b>, and a <b>monthly winner</b>. The voters: the studio crew, <a href=\"/people/frame-zero/\">Frame Zero</a>, <a href=\"/people/dj-mempool/\">DJ Mempool</a>, <a href=\"/people/hex-hazel/\">Hex Hazel</a>, <a href=\"/people/quill/\">Quill</a>, <a href=\"/people/pip/\">Pip</a> and <a href=\"/people/chris-cooley/\">Chris Cooley</a>. When a day has too few entries, the team backfills it with its own pieces. Over 10,240 B live, a piece goes in the <b>Hi-Fi</b> lane, with a weekly winner of its own. See the pieces on <a href=\"/gallery/\">Daily</a>."
+ },
+ "week": {
+  "index": "2026-W47",
+  "line": "Open · 17 PIECES",
+  "label": "THEME",
+  "theme": "Any prompt",
+  "brief": "No theme was set this week: any prompt counts, and the week's approved dailies are its entries.",
+  "dates": "Monday, November 16 to Sunday, November 22, 2026"
+ },
+ "lanes": [
+  {
+   "id": "ct-entries",
+   "title": "This week's pieces so far, smallest first",
+   "pieces": [
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#light-cycles-duel-on-the-grid",
+     "label": "Grid duel",
+     "tags": [
+      "smallest"
+     ],
+     "prompt": "“two light-cycles duel on a neon grid laid over the page: tap to turn, their walls of light crash into the page's real elements and each other, a crash breaks into pixels; every round sudden death against a new rival AI”",
+     "badge": {
+      "bytes": 8805,
+      "live": "gallery/light-cycles-duel-on-the-grid.js",
+      "what": "Grid duel, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#claw-machine-grabs-letters",
+     "label": "Grab-O-Tron",
+     "tags": [],
+     "prompt": "“a wood-grain claw machine whose prizes are the page's letters: tap to drop the claw; half the time it fumbles the block back onto the pile, and a win spits out tickets”",
+     "badge": {
+      "bytes": 9121,
+      "live": "gallery/claw-machine-grabs-letters.js",
+      "what": "Grab-O-Tron, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#bubble-top-car-puffs-smoke-rings",
+     "label": "the bubble-top",
+     "tags": [],
+     "prompt": "“a space-age bubble-top car zips past houses on stilts above the clouds, puffing smoke rings: tap to swerve, honk or bump a house”",
+     "badge": {
+      "bytes": 9361,
+      "live": "gallery/bubble-top-car-puffs-smoke-rings.js",
+      "what": "the bubble-top, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#spin-it-back",
+     "label": "Spin it back",
+     "tags": [],
+     "prompt": "“a caped flier circles the globe until the world spins backwards and the page rewinds”",
+     "badge": {
+      "bytes": 9587,
+      "live": "gallery/spin-it-back.js",
+      "what": "Spin it back, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-20",
+     "line": "",
+     "href": "/gallery/#stack-it",
+     "label": "Stack it",
+     "tags": [],
+     "prompt": "“the bricks, by their real names and measured sizes, scatter over the stage, stack up and morph into an app; then you stack your own, press FINISHED and your app gets its stars”",
+     "badge": {
+      "bytes": 9611,
+      "live": "gallery/stack-it.js",
+      "what": "Stack it, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#sky-city-rush-hour-pile-up",
+     "label": "rush hour",
+     "tags": [],
+     "prompt": "“sky-city rush hour: flying bubble cars weave between floating platforms; tap to drop a traffic beacon and cause a comic pile-up”",
+     "badge": {
+      "bytes": 9620,
+      "live": "gallery/sky-city-rush-hour-pile-up.js",
+      "what": "rush hour, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#hill-war-pick-weapon-mind-wind",
+     "label": "Hill war",
+     "tags": [],
+     "prompt": "“two critters on two hills take turns: pick a weapon chip (ball, cluster, bouncy, mega bomb), tap where it should land, mind the wind; every blast chunks the hill and knocks the sign's words off”",
+     "badge": {
+      "bytes": 9685,
+      "live": "gallery/hill-war-pick-weapon-mind-wind.js",
+      "what": "Hill war, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#netrunner-jacks-into-the-page",
+     "label": "Jack in",
+     "tags": [],
+     "prompt": "“a netrunner jacks into a corp's page behind rain-soaked glass: its real elements are ICE nodes, taps fire hack packets that ricochet off them, a breach glitches only the text it hits; trip the alarm and black ICE hunts your cursor”",
+     "badge": {
+      "bytes": 9722,
+      "live": "gallery/netrunner-jacks-into-the-page.js",
+      "what": "Jack in, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#wall-crawler-climbs-page",
+     "label": "Gecko climbs the page",
+     "tags": [],
+     "prompt": "“a gecko-suited hero climbs the page and swings between its blocks on a grappling line”",
+     "badge": {
+      "bytes": 10081,
+      "live": "gallery/wall-crawler-climbs-page.js",
+      "what": "Gecko climbs the page, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#pricing-war-forts-fire-back",
+     "label": "Pricing war",
+     "tags": [],
+     "prompt": "“two pricing plans are forts built from their own page blocks: tap to fire (one tap a fast shell, two a big slow bomb), the other plan fires back, and every hit crumbles real blocks and knocks letters out”",
+     "badge": {
+      "bytes": 10086,
+      "live": "gallery/pricing-war-forts-fire-back.js",
+      "what": "Pricing war, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#space-pup-walkway-flings",
+     "label": "WALKIES",
+     "tags": [],
+     "prompt": "“a space-age pup on a moving walkway: tap to go faster until it flings him across the page”",
+     "badge": {
+      "bytes": 10094,
+      "live": "gallery/space-pup-walkway-flings.js",
+      "what": "WALKIES, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#pumpkin-patch-slash",
+     "label": "Patch slash",
+     "tags": [],
+     "prompt": "“pumpkins, gourds and the odd black bomb pumpkin toss up over a harvest-fair flyer; swipe to slice: halves fly, pulp splats stick to the letters, a bomb blows a word apart, combos count”",
+     "badge": {
+      "bytes": 10106,
+      "live": "gallery/pumpkin-patch-slash.js",
+      "what": "Patch slash, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#stone-bowling-strike",
+     "label": "Stone strike",
+     "tags": [],
+     "prompt": "“a stone-age bowler twirls on tiptoe and rolls a stone ball where you click, into the page's words set up as ten pins; they scatter and knock each other over, all ten is a strike, a double click throws a hooking twister, and a pterosaur pinsetter sets the words back”",
+     "badge": {
+      "bytes": 10124,
+      "live": "gallery/stone-bowling-strike.js",
+      "what": "Stone strike, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#stone-car-skids",
+     "label": "Foot brake",
+     "tags": [],
+     "prompt": "“a stone-age dad runs his foot-powered stone car down Main Street; click and he brakes with his heels, the car skids in a cloud of dust and its load of rocks flies on into the billboard's letters; a double click floors it, and the speed bump is a page element he hops”",
+     "badge": {
+      "bytes": 10150,
+      "live": "gallery/stone-car-skids.js",
+      "what": "Foot brake, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ct-hifi",
+   "title": "This week's Hi-Fi pieces, their own lane",
+   "pieces": [
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#space-pup-belly-rub-zoomies",
+     "label": "GOOD BOY",
+     "tags": [
+      "hifi"
+     ],
+     "prompt": "“a space-age pup rolls over for a belly rub: scratch him till he floats, too much and he gets the zoomies”",
+     "badge": {
+      "bytes": 10624,
+      "live": "gallery/space-pup-belly-rub-zoomies.js",
+      "what": "GOOD BOY, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-19",
+     "line": "",
+     "href": "/gallery/#dino-crane-drops-boulders",
+     "label": "Rock drop",
+     "tags": [
+      "hifi"
+     ],
+     "prompt": "“a long-neck crane dino at the stone-age quarry drops boulders where you click; they crack the stone letter blocks, knock them out of the stack and bounce, and a double click hauls the big one that shakes the page”",
+     "badge": {
+      "bytes": 10775,
+      "live": "gallery/dino-crane-drops-boulders.js",
+      "what": "Rock drop, its live chunk"
+     },
+     "by": {
+      "href": "/people/chris-cooley/",
+      "label": "Chris Cooley"
+     }
+    },
+    {
+     "index": "2026-11-16",
+     "line": "",
+     "href": "/gallery/#dom-kaiju",
+     "label": "CitySmash",
+     "tags": [
+      "hifi"
+     ],
+     "prompt": "“a giant cyber ape against a tabletop city block, side-on: dress him first (fur colour and pattern, a brow, a crest or tusks, a cyber arm, a visor, a chest plate, tail spikes, a neon trim), then jump at the buildings' side walls, hang on and punch the windows next to you until each building shakes and pancakes floor by floor; live wires and neon signs shock you off, people at the windows are snacks, soldiers, a tank and a helicopter fight back; two rival giants of our own (a crystal crab-beast and a tentacle blob) wreck the same block, and a second player can take one”",
+     "badge": {
+      "bytes": 47086,
+      "live": "gallery/dom-kaiju.js",
+      "what": "CitySmash, its live chunk"
+     },
+     "by": {
+      "href": "/people/pip/",
+      "label": "Pip"
+     }
+    }
+   ],
+   "note": {
+    "href": "/gallery/hifi/",
+    "label": "Every Hi-Fi piece on Daily"
+   }
+  }
+ ],
+ "rules": {
+  "title": "Rules",
+  "items": [
+   "<b>Up to 40 entries a day.</b> Anyone can enter: a prompt, or a piece of your own. A week runs Monday to Sunday, UTC.",
+   "<b>The top 1 to 5 of each day are picked</b> by the voters: the studio crew, <a href=\"/people/frame-zero/\">Frame Zero</a>, <a href=\"/people/dj-mempool/\">DJ Mempool</a>, <a href=\"/people/hex-hazel/\">Hex Hazel</a>, <a href=\"/people/quill/\">Quill</a>, <a href=\"/people/pip/\">Pip</a> and <a href=\"/people/chris-cooley/\">Chris Cooley</a>.",
+   "<b>All the picks are posted at the end of the week</b> on Daily, each approved by the owner before it goes live. Archived pieces don't enter.",
+   "<b>One weekly winner</b>, from that week's picks, then <b>one monthly winner</b> from the month's weekly winners. Winners wear a Winner badge on Daily and on their maker's page.",
+   "<b>Not enough entries?</b> The team backfills the day with its own pieces, credited to whoever made them.",
+   "<b>Small wins.</b> Size decides, not the prompt: to win, a piece's live code is <b>10 KB gzip or less</b> (10,240 B, measured at build). The week's smallest piece that can win is marked <b>Smallest</b>.",
+   "<b>Hi-Fi has its own lane.</b> Bigger, high-fidelity pieces (dioramas, 2.5D, full mini-games, heroes over the cap) are marked <b>Hi-Fi</b> and compete only with each other, for their own weekly winner. Every piece over the cap is Hi-Fi; a Hi-Fi piece can't win the micro week, and a micro can't win Hi-Fi.",
+   "Every piece keeps the contract: still once it settles, asleep off screen, and the page comes back."
+  ]
+ },
+ "enter": {
+  "title": "How to enter",
+  "intro": "Entries come in on GitHub for now.",
+  "steps": [
+   "<b>Open an issue</b> from the prefilled form below: the week is in the title; add your prompt and, if you have them, a link to your code and its size. If the voters pick it, you are credited.",
+   "Or <b>open a pull request</b> that adds your piece to <code>site/gallery/</code>. The build measures it; over 10 KB it goes in the Hi-Fi lane (<code>\"lane\": \"hifi\"</code> on its entry)."
+  ],
+  "planned": {
+   "label": "PLANNED",
+   "text": "An entry form on this page. Not live yet; until then, GitHub."
+  },
+  "keys": [
+   {
+    "href": "https://github.com/coded-dot-design/fizlet/issues/new?title=Contest%202026-W47%3A%20&body=Prompt%20(what%20it%20does%2C%20one%20line)%3A%0A%0ALink%20to%20the%20code%20or%20a%20pull%20request%20(optional)%3A%0A%0ALive%20size%20in%20bytes%20gzip%2C%20if%20you%20measured%20it%3A%0A",
+    "label": "Enter on GitHub ↗",
+    "tone": "go",
+    "arcade": true,
+    "icon": "out"
+   },
+   {
+    "href": "/gallery/",
+    "label": "See Daily",
+    "tone": "sys",
+    "arcade": true,
+    "icon": "grid"
+   }
+  ]
+ },
+ "past": {
+  "title": "Past winners",
+  "winners": [
+   {
+    "index": "2026-W46",
+    "line": "Any prompt · 18 Hi-Fi pieces",
+    "href": "/gallery/#tilt-maze",
+    "label": "Tilt Maze",
+    "tags": [
+     "winner",
+     "hifi"
+    ],
+    "prompt": "“the classic wooden labyrinth box on a tabletop diorama: tilt the board (drag, the arrows, or the phone itself after a permission key) to roll a steel ball along a numbered line past the holes; fall in one and it drops through and comes back to the start; real rolling physics with gravity from the tilt, friction, wall bounces, the ball's shadow and highlight, the board leaning on its frame and the knobs turning with it; three boards of rising difficulty, a timer and a best time”",
+    "badge": null,
+    "by": {
+     "href": "/people/pip/",
+     "label": "Pip"
+    }
+   },
+   {
+    "index": "2026-W45",
+    "line": "Any prompt · 7 pieces",
+    "href": "/gallery/page/3/#never-loses",
+    "label": "Never Loses",
+    "tags": [
+     "winner"
+    ],
+    "prompt": "“tic-tac-toe against a smug bot that plays perfectly; beside the board its source grows one more nested if with every move until the ladder runs off the panel, and play again only nests it deeper”",
+    "badge": null,
+    "by": {
+     "href": "/people/pip/",
+     "label": "Pip"
+    }
+   },
+   {
+    "index": "2026-W45",
+    "line": "Any prompt · 10 Hi-Fi pieces",
+    "href": "/gallery/page/2/#mirror-maze",
+    "label": "Mirror Maze",
+    "tags": [
+     "winner",
+     "hifi"
+    ],
+    "prompt": "“five little laser puzzles on a tabletop diorama: a tray on a table with a laser emitter, stone posts, two to four mirrors you tap to turn 45 degrees and later a glass splitter that sends the light two ways; light every crystal, each chimes as the beam reaches it, and the next board slides in; a moves counter and a par for every board”",
+    "badge": null,
+    "by": {
+     "href": "/people/pip/",
+     "label": "Pip"
+    }
+   },
+   {
+    "index": "2026-W44",
+    "line": "Halloween · 60 pieces",
+    "href": "/gallery/page/4/#iloveyou",
+    "label": "ILOVEYOU",
+    "tags": [
+     "winner"
+    ],
+    "prompt": "“Outbreak, act 1 (2000): the love letter opens itself and mails a copy to every contact in the address book, and every contact who opens it mails it on; tap a letter in flight to delete it, and its blast shreds the letters beside it”",
+    "badge": null,
+    "by": {
+     "href": "/people/chris-cooley/",
+     "label": "Chris Cooley"
+    }
+   },
+   {
+    "index": "2026-W44",
+    "line": "Halloween · 10 Hi-Fi pieces",
+    "href": "/gallery/page/4/#oodles-o-moles",
+    "label": "Oodles o' Moles",
+    "tags": [
+     "winner",
+     "hifi"
+    ],
+    "prompt": "“a midway poster with a hole punched in every O and a mole in each: bonk them with the mallet for tickets, a hard hat takes two, and bonking the one with the bomb blows the letters about”",
+    "badge": null,
+    "by": {
+     "href": "/people/chris-cooley/",
+     "label": "Chris Cooley"
+    }
+   }
+  ],
+  "empty": ""
+ }
+}

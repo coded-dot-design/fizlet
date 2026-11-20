@@ -1,0 +1,48 @@
+---
+// A person: crumbs, the avatar and who they are, two stats measured on this build, what they make,
+// their favourite games and hobbies, the games they made, and their gallery entries.
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Crumbs from "../../../components/Crumbs.astro";
+import PersonAvatar from "../../../components/PersonAvatar.astro";
+import PersonRoles from "../../../components/PersonRoles.astro";
+import Callout from "../../../components/Callout.astro";
+import EntryRow from "../../../components/EntryRow.astro";
+import Icon from "../../../components/Icon.astro";
+import Html from "../../../components/Html.astro";
+
+const PEOPLE = import.meta.glob<{ default: any }>("../../../data/legacy/pages/people/*.json", { eager: true });
+export function getStaticPaths() {
+  const all = import.meta.glob<{ default: any }>("../../../data/legacy/pages/people/*.json", { eager: true });
+  return Object.keys(all).map((f) => f.match(/([\w-]+)\.json$/)![1]).filter((id) => id !== "index").map((id) => ({ params: { id } }));
+}
+const { id } = Astro.params;
+const p = Object.entries(PEOPLE).find(([f]) => f.endsWith(`/${id}.json`))![1].default;
+const { style, lists } = p.cards;
+---
+<BaseLayout meta={p.meta}>
+<article class={p.cls} aria-labelledby="person-name">
+  <div class="wrap">
+    <Crumbs trail={p.crumbs.trail} current={p.crumbs.current} />
+    <header class="ppl-head">
+      <PersonAvatar {...p.avatar} />
+      <div class="ppl-who">
+        <p class="eyebrow"><span class="index">{p.index}</span> {p.handle}</p>
+        <h1 id="person-name" data-person={p.id}>{p.name}</h1>
+        <PersonRoles role={p.role} tagline={p.tagline} reports={p.reports} />
+        <p class="lead">{p.lead}</p>
+        {p.url && <p class="ppl-url"><a href={p.url.href}><Icon name={p.url.icon} size={16} />{p.url.label}</a></p>}
+      </div>
+    </header>
+    <ul class="rules ppl-stats" aria-label="Measured on this build">
+      {p.stats.map((s: any) => <li class="panel rule"><b data-stat={s.stat}>{s.value}</b><p>{s.label}</p></li>)}
+    </ul>
+    <div class="ppl-grid">
+      <Callout class="ppl-card" tag="section" labelledby="ppl-style"><h2 id="ppl-style">{style.title}</h2><p>{style.text}</p>{style.promptStyle && <Fragment><h3>{style.promptTitle}</h3><p>{style.promptStyle}</p></Fragment>}{style.sample && <p class="gal-prompt"><span class="bui-label">PROMPT</span> {style.sample}</p>}</Callout>
+      {lists.map((l: any) => <Callout class="ppl-card" tag="section" labelledby={l.id}><h2 id={l.id}>{l.title}</h2><ul class="ppl-list" aria-label={l.label}>{l.items.map((x: any) => x.todo ? <li class="ppl-todo">{x.text}</li> : <li>{x.text}</li>)}</ul></Callout>)}
+    </div>
+    {p.games && <section class="ppl-games" aria-labelledby="ppl-games-made"><h2 id="ppl-games-made">{p.games.title}</h2><ul class="ppl-entries">{p.games.items.map((g: any) => <EntryRow href={g.href} label={g.label} note={g.note} />)}</ul></section>}
+    <section class="ppl-gallery" aria-labelledby="ppl-entries"><h2 id="ppl-entries">{p.entries.title}</h2>{p.entries.items.length ? <ol class="ppl-entries">{p.entries.items.map((e: any) => <EntryRow {...e} />)}</ol> : <p class="body"><Html html={p.entries.emptyHtml} /></p>}</section>
+    <p class="note-back"><a href={p.back.href}><Icon name={p.back.icon} size={16} />{p.back.label}</a></p>
+  </div>
+</article>
+</BaseLayout>

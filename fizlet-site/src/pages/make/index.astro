@@ -1,0 +1,49 @@
+---
+// Make one: a prompt in, a snippet out, all in the browser. The page is the default prompt's snippet
+// made at build (so the download works before any script runs); make/make.js (the legacy runtime)
+// takes over from there and remakes the same nodes for every prompt.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import SizeBadge from "../../components/SizeBadge.astro";
+import Key from "../../components/Key.astro";
+import Icon from "../../components/Icon.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import Html from "../../components/Html.astro";
+import DATA from "../../data/legacy/pages/make.json";
+const m = DATA as any;
+const { head, form, out } = m;
+---
+<BaseLayout meta={m.meta}>
+<section class={m.cls} aria-labelledby="make-title">
+  <div class="wrap">
+    <SectionHead index={head.index} eyebrow={head.eyebrow} line={head.title.line} accent={head.title.accent} lead={head.lead} id="make-title">
+      <p class="make-badge"><SizeBadge {...head.badge} /></p>
+    </SectionHead>
+    <form class="panel make-form" data-make action={form.action} method="get">
+      <label class="bui-label" for={form.input.id} set:html={form.label} />
+      <div class="make-row">
+        <input {...form.input}>
+        <Key type="submit" tone="go" icon={form.submit.icon} label={form.submit.label} />
+      </div>
+      <p class="make-try"><span class="bui-label">{form.tryLabel}</span>{form.tries.map((t: string) => <Fragment> <Key arcade={false} class="copy" data-try={t} label={t} /></Fragment>)}</p>
+      <p class="make-private"><Icon name={form.private.icon} size={16} /><span>{form.private.text}</span></p>
+    </form>
+    <div class="make-out" data-out data-id={out.id}>
+      <div class="make-stage" data-stage><p class="make-still">{out.still}</p></div>
+      <div class="panel make-meta">
+        <p class="eyebrow">{out.recipeLabel} <b data-recipe>{out.recipe}</b></p>
+        <h2>{out.matchedTitle}</h2>
+        <ul class="make-matched" data-matched aria-label="Words that matched"><Html html={out.matchedHtml} /></ul>
+        <p class="make-miss" data-miss><Html html={out.missHtml} /></p>
+        <p><span class="size-badge" data-snippet-size><b>{out.size.value}</b><small>{out.size.label}</small></span></p>
+        <div class="split-keys make-keys">
+          <Key tone="sys" icon={out.copy.icon} label={out.copy.label} data-copy-snippet="" />
+          <Key tone="go" icon={out.download.icon} label={out.download.label} href={out.download.href} download={out.download.file} data-download="" />
+        </div>
+        <p class="make-status" data-status role="status">{out.status}</p>
+      </div>
+      <CodeBlock class="panel code-card make-code" label={out.code.label} code={out.code.text} field={{ id: out.code.id, rows: out.code.rows }} />
+    </div>
+  </div>
+</section>
+</BaseLayout>

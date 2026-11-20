@@ -20,10 +20,10 @@ const routes = json("src/data/legacy/routes.json");
 const paths = new Set(routes.map((r) => r.path));
 if (paths.size !== routes.length) fail.push("routes.json: duplicate paths");
 const plan = json("src/data/migration.json");
-const DATA = { "": "pages/home.json", "gallery/": "pages/gallery/index.json" };
+const DATA = { "": "pages/home.json", "gallery/": "pages/gallery/index.json", "make/": "pages/make.json", "contest/": "pages/contest.json", "people/": "pages/people/index.json" };
 for (const p of plan.done) {
   if (!paths.has(p)) fail.push(`migration.json: done route /${p} is not a legacy route`);
-  const file = DATA[p] ?? (p.startsWith("docs/") ? `pages/docs/${p.split("/")[1]}.json` : p.startsWith("bricks/") ? `pages/bricks/${p.slice(7, -5)}.json` : null);
+  const file = DATA[p] ?? (p.startsWith("docs/") ? `pages/docs/${p.split("/")[1]}.json` : p.startsWith("bricks/") ? `pages/bricks/${p.slice(7, -5)}.json` : p.startsWith("people/") ? `pages/people/${p.split("/")[1]}.json` : null);
   if (!file || !existsSync(`src/data/legacy/${file}`)) { fail.push(`/${p}: done, but no page data (${file})`); continue; }
   const { meta } = json(`src/data/legacy/${file}`);
   if (meta.path !== p) fail.push(`${file}: meta.path ${meta.path} is not ${p}`);

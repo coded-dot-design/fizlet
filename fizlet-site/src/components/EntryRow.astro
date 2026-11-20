@@ -1,0 +1,9 @@
+---
+// A row in a person's lists: a gallery entry (its title linked to its card, stickers, the prompt, its
+// measured size and date) or a game they made (linked to its site, its pitch).
+import SizeBadge from "./SizeBadge.astro";
+import WinBadge, { type Win } from "./WinBadge.astro";
+interface Props { href: string; label: string; note: string; tags?: Win[]; badge?: { bytes: number; live: string; what: string } | null; date?: string }
+const { href, label, note, tags = [], badge, date } = Astro.props;
+---
+<li class="panel"><a href={href}>{label}</a>{tags.map((t) => <Fragment> <WinBadge kind={t} /></Fragment>)}<span class="ppl-prompt">{note}</span>{badge && <span class="ppl-size"><SizeBadge {...badge} /><small>{date}</small></span>}</li>

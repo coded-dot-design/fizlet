@@ -1,0 +1,1052 @@
+{
+ "meta": {
+  "path": "people/chris-cooley/",
+  "title": "Chris Cooley: maker of Fizlet · Fizlet",
+  "description": "Chris Cooley, creator of Fizlet and principal UX/application engineer: the work, the gallery entries and their bytes, measured.",
+  "ld": [
+   {
+    "@type": "ProfilePage",
+    "@id": "https://fizlet.com/people/chris-cooley/#page",
+    "url": "https://fizlet.com/people/chris-cooley/",
+    "name": "Chris Cooley",
+    "mainEntity": {
+     "@id": "https://fizlet.com/#author"
+    }
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "cls": "has-grid section ppl",
+ "id": "chris-cooley",
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/people/",
+    "label": "People"
+   }
+  ],
+  "current": "Chris Cooley"
+ },
+ "avatar": {
+  "label": "Chris Cooley: pixel-art avatar (a stylized character, not a likeness)",
+  "rotate": true,
+  "size": 160,
+  "frames": [
+   [
+    {
+     "fill": "--av-w",
+     "d": "M2 1h1v1h-1zM13 3h7v1h-7zM11 4h11v1h-11zM9 5h14v1h-14zM8 6h16v1h-16zM3 8h12v1h-12zM17 8h11v1h-11zM4 9h11v1h-11zM17 9h11v1h-11zM14 13h1v1h-1zM16 13h1v1h-1zM13 14h1v1h-1zM15 14h1v1h-1zM21 14h1v1h-1zM12 15h1v1h-1zM14 15h1v1h-1zM11 16h1v1h-1zM13 16h1v1h-1zM10 17h1v1h-1zM12 17h1v1h-1zM6 19h3v1h-3zM10 19h11v1h-11zM6 20h4v1h-4zM11 20h10v1h-10zM23 20h1v1h-1zM7 21h3v1h-3zM11 21h1v1h-1zM13 21h7v1h-7zM7 22h4v1h-4zM13 22h2v1h-2zM18 22h2v1h-2zM9 23h2v1h-2zM12 23h3v1h-3zM18 23h2v1h-2zM12 24h3v1h-3zM18 24h1v1h-1zM13 25h6v1h-6zM14 26h3v1h-3zM15 27h1v1h-1zM30 30h1v1h-1z"
+    },
+    {
+     "fill": "--av-k",
+     "d": "M13 2h7v1h-7zM11 3h2v1h-2zM20 3h2v1h-2zM9 4h2v1h-2zM22 4h2v1h-2zM8 5h1v1h-1zM24 5h1v1h-1zM25 6h1v1h-1zM1 7h31v1h-31zM2 8h1v1h-1zM30 8h1v1h-1zM3 9h1v1h-1zM29 9h1v1h-1zM3 10h1v1h-1zM29 10h1v1h-1zM4 11h25v1h-25zM3 12h27v1h-27zM3 13h1v1h-1zM7 13h7v1h-7zM15 13h1v1h-1zM17 13h9v1h-9zM29 13h1v1h-1zM3 14h1v1h-1zM7 14h1v1h-1zM25 14h1v1h-1zM29 14h1v1h-1zM3 15h1v1h-1zM7 15h1v1h-1zM25 15h1v1h-1zM29 15h1v1h-1zM3 16h1v1h-1zM7 16h1v1h-1zM25 16h1v1h-1zM29 16h1v1h-1zM3 17h1v1h-1zM7 17h3v1h-3zM11 17h1v1h-1zM13 17h13v1h-13zM29 17h1v1h-1zM3 18h27v1h-27zM5 19h1v1h-1zM9 19h1v1h-1zM23 19h1v1h-1zM27 19h1v1h-1zM5 20h1v1h-1zM10 20h1v1h-1zM22 20h1v1h-1zM27 20h1v1h-1zM6 21h1v1h-1zM10 21h1v1h-1zM12 21h1v1h-1zM20 21h1v1h-1zM22 21h1v1h-1zM26 21h1v1h-1zM6 22h1v1h-1zM11 22h2v1h-2zM20 22h2v1h-2zM26 22h1v1h-1zM7 23h1v1h-1zM11 23h1v1h-1zM15 23h1v1h-1zM17 23h1v1h-1zM21 23h1v1h-1zM25 23h1v1h-1zM8 24h1v1h-1zM11 24h1v1h-1zM21 24h1v1h-1zM24 24h1v1h-1zM9 25h2v1h-2zM12 25h1v1h-1zM20 25h1v1h-1zM22 25h2v1h-2zM11 26h2v1h-2zM20 26h2v1h-2zM13 27h2v1h-2zM18 27h2v1h-2zM15 28h1v1h-1zM17 28h1v1h-1zM16 29h1v1h-1z"
+    },
+    {
+     "fill": "--av-e",
+     "d": "M23 5h1v1h-1zM7 6h1v1h-1zM24 6h1v1h-1zM28 8h2v1h-2zM28 9h1v1h-1zM4 10h25v1h-25zM21 19h2v1h-2zM24 19h3v1h-3zM21 20h1v1h-1zM24 20h3v1h-3zM21 21h1v1h-1zM23 21h3v1h-3zM22 22h4v1h-4zM8 23h1v1h-1zM20 23h1v1h-1zM22 23h3v1h-3zM9 24h2v1h-2zM19 24h2v1h-2zM22 24h2v1h-2zM11 25h1v1h-1zM19 25h1v1h-1zM21 25h1v1h-1zM13 26h1v1h-1zM17 26h3v1h-3zM16 27h2v1h-2zM16 28h1v1h-1z"
+    },
+    {
+     "fill": "--av-r",
+     "d": "M15 8h2v1h-2zM15 9h2v1h-2zM26 13h2v1h-2zM5 14h2v1h-2zM26 14h2v1h-2zM5 15h2v1h-2zM26 15h2v1h-2zM4 16h3v1h-3zM26 16h2v1h-2zM6 23h1v1h-1zM26 23h2v1h-2zM5 24h3v1h-3zM25 24h5v1h-5zM0 25h1v1h-1zM3 25h4v1h-4zM24 25h8v1h-8zM0 26h5v1h-5zM25 26h7v1h-7zM0 27h4v1h-4zM26 27h6v1h-6zM0 28h2v1h-2zM28 28h4v1h-4zM0 29h1v1h-1zM29 29h3v1h-3zM31 30h1v1h-1zM0 31h1v1h-1zM31 31h1v1h-1z"
+    },
+    {
+     "fill": "--av-R",
+     "d": "M4 13h3v1h-3zM4 14h1v1h-1zM4 15h1v1h-1zM4 23h2v1h-2zM2 24h3v1h-3zM1 25h2v1h-2z"
+    },
+    {
+     "fill": "--av-d",
+     "d": "M28 13h1v1h-1zM28 14h1v1h-1zM28 15h1v1h-1zM28 16h1v1h-1zM4 17h3v1h-3zM26 17h3v1h-3zM7 25h2v1h-2zM5 26h3v1h-3zM24 26h1v1h-1zM4 27h2v1h-2zM2 28h3v1h-3zM27 28h1v1h-1zM1 29h2v1h-2zM0 30h2v1h-2z"
+    },
+    {
+     "fill": "--av-C",
+     "d": "M8 14h5v1h-5zM14 14h1v1h-1zM16 14h1v1h-1zM8 15h1v1h-1z"
+    },
+    {
+     "fill": "--av-c",
+     "d": "M17 14h4v1h-4zM22 14h2v1h-2zM9 15h3v1h-3zM13 15h1v1h-1zM15 15h9v1h-9z"
+    },
+    {
+     "fill": "--av-s",
+     "d": "M24 14h1v1h-1zM24 15h1v1h-1zM8 16h3v1h-3zM12 16h1v1h-1zM14 16h11v1h-11z"
+    },
+    {
+     "fill": "--av-f",
+     "d": "M15 22h3v1h-3zM16 23h1v1h-1zM15 24h3v1h-3z"
+    },
+    {
+     "fill": "--av-i",
+     "d": "M8 26h3v1h-3zM22 26h2v1h-2zM6 27h7v1h-7zM20 27h6v1h-6zM5 28h10v1h-10zM18 28h9v1h-9zM3 29h13v1h-13zM17 29h12v1h-12zM2 30h28v1h-28zM1 31h30v1h-30z"
+    }
+   ],
+   [
+    {
+     "fill": "--av-C",
+     "d": "M27 0h1v1h-1zM26 1h1v1h-1zM28 1h1v1h-1zM27 2h1v1h-1zM8 7h4v1h-4zM13 7h4v1h-4z"
+    },
+    {
+     "fill": "--av-w",
+     "d": "M2 1h1v1h-1zM27 1h1v1h-1zM13 3h7v1h-7zM11 4h11v1h-11zM13 6h1v1h-1zM12 7h1v1h-1zM11 8h1v1h-1zM10 9h1v1h-1zM5 13h1v1h-1zM5 14h1v1h-1zM5 15h1v1h-1zM5 16h1v1h-1zM5 17h1v1h-1zM5 18h1v1h-1zM6 19h3v1h-3zM10 19h11v1h-11zM6 20h4v1h-4zM11 20h10v1h-10zM23 20h1v1h-1zM7 21h3v1h-3zM11 21h1v1h-1zM13 21h7v1h-7zM7 22h4v1h-4zM13 22h2v1h-2zM18 22h2v1h-2zM9 23h2v1h-2zM12 23h3v1h-3zM18 23h2v1h-2zM12 24h3v1h-3zM18 24h1v1h-1zM13 25h6v1h-6zM14 26h3v1h-3zM15 27h1v1h-1zM30 30h1v1h-1z"
+    },
+    {
+     "fill": "--av-k",
+     "d": "M13 2h7v1h-7zM11 3h2v1h-2zM20 3h2v1h-2zM9 4h2v1h-2zM22 4h2v1h-2zM3 5h27v1h-27zM3 6h1v1h-1zM7 6h6v1h-6zM14 6h12v1h-12zM29 6h1v1h-1zM3 7h1v1h-1zM7 7h1v1h-1zM25 7h1v1h-1zM29 7h1v1h-1zM3 8h1v1h-1zM7 8h1v1h-1zM25 8h1v1h-1zM29 8h1v1h-1zM3 9h1v1h-1zM7 9h3v1h-3zM11 9h15v1h-15zM29 9h1v1h-1zM1 10h31v1h-31zM3 11h1v1h-1zM29 11h1v1h-1zM4 12h25v1h-25zM4 13h1v1h-1zM6 13h21v1h-21zM28 13h1v1h-1zM4 14h1v1h-1zM6 14h2v1h-2zM10 14h17v1h-17zM28 14h1v1h-1zM4 15h1v1h-1zM6 15h21v1h-21zM28 15h1v1h-1zM4 16h1v1h-1zM6 16h21v1h-21zM28 16h1v1h-1zM4 17h1v1h-1zM6 17h18v1h-18zM25 17h2v1h-2zM28 17h1v1h-1zM4 18h1v1h-1zM6 18h21v1h-21zM28 18h1v1h-1zM5 19h1v1h-1zM9 19h1v1h-1zM23 19h1v1h-1zM27 19h1v1h-1zM5 20h1v1h-1zM10 20h1v1h-1zM22 20h1v1h-1zM27 20h1v1h-1zM6 21h1v1h-1zM10 21h1v1h-1zM12 21h1v1h-1zM20 21h1v1h-1zM22 21h1v1h-1zM26 21h1v1h-1zM6 22h1v1h-1zM11 22h2v1h-2zM20 22h2v1h-2zM26 22h1v1h-1zM7 23h1v1h-1zM11 23h1v1h-1zM15 23h1v1h-1zM17 23h1v1h-1zM21 23h1v1h-1zM25 23h1v1h-1zM8 24h1v1h-1zM11 24h1v1h-1zM21 24h1v1h-1zM24 24h1v1h-1zM9 25h2v1h-2zM12 25h1v1h-1zM20 25h1v1h-1zM22 25h2v1h-2zM11 26h2v1h-2zM20 26h2v1h-2zM13 27h2v1h-2zM18 27h2v1h-2zM15 28h1v1h-1zM17 28h1v1h-1zM16 29h1v1h-1z"
+    },
+    {
+     "fill": "--av-R",
+     "d": "M4 6h3v1h-3zM4 7h1v1h-1zM4 23h2v1h-2zM2 24h3v1h-3zM1 25h2v1h-2z"
+    },
+    {
+     "fill": "--av-r",
+     "d": "M26 6h2v1h-2zM5 7h2v1h-2zM26 7h2v1h-2zM4 8h3v1h-3zM26 8h2v1h-2zM6 23h1v1h-1zM26 23h2v1h-2zM5 24h3v1h-3zM25 24h5v1h-5zM0 25h1v1h-1zM3 25h4v1h-4zM24 25h8v1h-8zM0 26h5v1h-5zM25 26h7v1h-7zM0 27h4v1h-4zM26 27h6v1h-6zM0 28h2v1h-2zM28 28h4v1h-4zM0 29h1v1h-1zM29 29h3v1h-3zM31 30h1v1h-1zM0 31h1v1h-1zM31 31h1v1h-1z"
+    },
+    {
+     "fill": "--av-d",
+     "d": "M28 6h1v1h-1zM28 7h1v1h-1zM28 8h1v1h-1zM4 9h3v1h-3zM26 9h3v1h-3zM7 25h2v1h-2zM5 26h3v1h-3zM24 26h1v1h-1zM4 27h2v1h-2zM2 28h3v1h-3zM27 28h1v1h-1zM1 29h2v1h-2zM0 30h2v1h-2z"
+    },
+    {
+     "fill": "--av-c",
+     "d": "M17 7h7v1h-7z"
+    },
+    {
+     "fill": "--av-s",
+     "d": "M24 7h1v1h-1zM8 8h3v1h-3zM12 8h13v1h-13z"
+    },
+    {
+     "fill": "--av-e",
+     "d": "M4 11h25v1h-25zM27 13h1v1h-1zM27 14h1v1h-1zM27 15h1v1h-1zM27 16h1v1h-1zM27 17h1v1h-1zM27 18h1v1h-1zM21 19h2v1h-2zM24 19h3v1h-3zM21 20h1v1h-1zM24 20h3v1h-3zM21 21h1v1h-1zM23 21h3v1h-3zM22 22h4v1h-4zM8 23h1v1h-1zM20 23h1v1h-1zM22 23h3v1h-3zM9 24h2v1h-2zM19 24h2v1h-2zM22 24h2v1h-2zM11 25h1v1h-1zM19 25h1v1h-1zM21 25h1v1h-1zM13 26h1v1h-1zM17 26h3v1h-3zM16 27h2v1h-2zM16 28h1v1h-1z"
+    },
+    {
+     "fill": "--av-a",
+     "d": "M8 14h1v1h-1z"
+    },
+    {
+     "fill": "--av-i",
+     "d": "M9 14h1v1h-1zM24 17h1v1h-1zM8 26h3v1h-3zM22 26h2v1h-2zM6 27h7v1h-7zM20 27h6v1h-6zM5 28h10v1h-10zM18 28h9v1h-9zM3 29h13v1h-13zM17 29h12v1h-12zM2 30h28v1h-28zM1 31h30v1h-30z"
+    },
+    {
+     "fill": "--av-f",
+     "d": "M15 22h3v1h-3zM16 23h1v1h-1zM15 24h3v1h-3z"
+    }
+   ]
+  ],
+  "sticker": {
+   "kind": "owner",
+   "text": "MAKER",
+   "label": "Maker: the real person who builds Fizlet"
+  }
+ },
+ "index": "MAKER",
+ "handle": "FIZLET",
+ "name": "Chris Cooley",
+ "role": "Chef Unicorn · creator of Fizlet",
+ "tagline": "",
+ "lead": "Chris Cooley makes Fizlet, the micro animation and game engine for the DOM, at coded.design.",
+ "url": {
+  "href": "https://coded.design/",
+  "label": "coded.design ↗",
+  "icon": "out"
+ },
+ "stats": [
+  {
+   "stat": "entries",
+   "value": "69",
+   "label": "gallery entries"
+  },
+  {
+   "stat": "bytes",
+   "value": "639,069",
+   "label": "bytes of live code, gzip, all entries together"
+  }
+ ],
+ "cards": {
+  "style": {
+   "title": "What they make",
+   "text": "Hand-built hero scenes and the house recipes: the fizz can, the layers story, the blast board.",
+   "promptTitle": "",
+   "promptStyle": "",
+   "sample": ""
+  },
+  "lists": [
+   {
+    "id": "ppl-games",
+    "title": "Favorite games",
+    "label": "Favorite games",
+    "items": [
+     {
+      "text": "Not picked yet: Chris fills this in.",
+      "todo": true
+     }
+    ]
+   },
+   {
+    "id": "ppl-hobbies",
+    "title": "Off the board",
+    "label": "Hobbies",
+    "items": [
+     {
+      "text": "Fishing",
+      "todo": false
+     },
+     {
+      "text": "Riding a Yamaha 2-stroke dirt bike",
+      "todo": false
+     },
+     {
+      "text": "Rebuilt a Jeep engine",
+      "todo": false
+     },
+     {
+      "text": "Making art",
+      "todo": false
+     }
+    ]
+   }
+  ]
+ },
+ "games": null,
+ "entries": {
+  "title": "In the gallery",
+  "items": [
+   {
+    "href": "/gallery/#stack-it",
+    "label": "Stack it",
+    "tags": [],
+    "note": "“the bricks, by their real names and measured sizes, scatter over the stage, stack up and morph into an app; then you stack your own, press FINISHED and your app gets its stars”",
+    "badge": {
+     "bytes": 9611,
+     "live": "gallery/stack-it.js",
+     "what": "Stack it, its live chunk"
+    },
+    "date": "2026-11-20"
+   },
+   {
+    "href": "/gallery/#stone-car-skids",
+    "label": "Foot brake",
+    "tags": [],
+    "note": "“a stone-age dad runs his foot-powered stone car down Main Street; click and he brakes with his heels, the car skids in a cloud of dust and its load of rocks flies on into the billboard's letters; a double click floors it, and the speed bump is a page element he hops”",
+    "badge": {
+     "bytes": 10150,
+     "live": "gallery/stone-car-skids.js",
+     "what": "Foot brake, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#stone-bowling-strike",
+    "label": "Stone strike",
+    "tags": [],
+    "note": "“a stone-age bowler twirls on tiptoe and rolls a stone ball where you click, into the page's words set up as ten pins; they scatter and knock each other over, all ten is a strike, a double click throws a hooking twister, and a pterosaur pinsetter sets the words back”",
+    "badge": {
+     "bytes": 10124,
+     "live": "gallery/stone-bowling-strike.js",
+     "what": "Stone strike, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#dino-crane-drops-boulders",
+    "label": "Rock drop",
+    "tags": [],
+    "note": "“a long-neck crane dino at the stone-age quarry drops boulders where you click; they crack the stone letter blocks, knock them out of the stack and bounce, and a double click hauls the big one that shakes the page”",
+    "badge": {
+     "bytes": 10775,
+     "live": "gallery/dino-crane-drops-boulders.js",
+     "what": "Rock drop, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#wall-crawler-climbs-page",
+    "label": "Gecko climbs the page",
+    "tags": [],
+    "note": "“a gecko-suited hero climbs the page and swings between its blocks on a grappling line”",
+    "badge": {
+     "bytes": 10081,
+     "live": "gallery/wall-crawler-climbs-page.js",
+     "what": "Gecko climbs the page, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#spin-it-back",
+    "label": "Spin it back",
+    "tags": [],
+    "note": "“a caped flier circles the globe until the world spins backwards and the page rewinds”",
+    "badge": {
+     "bytes": 9587,
+     "live": "gallery/spin-it-back.js",
+     "what": "Spin it back, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#pricing-war-forts-fire-back",
+    "label": "Pricing war",
+    "tags": [],
+    "note": "“two pricing plans are forts built from their own page blocks: tap to fire (one tap a fast shell, two a big slow bomb), the other plan fires back, and every hit crumbles real blocks and knocks letters out”",
+    "badge": {
+     "bytes": 10086,
+     "live": "gallery/pricing-war-forts-fire-back.js",
+     "what": "Pricing war, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#hill-war-pick-weapon-mind-wind",
+    "label": "Hill war",
+    "tags": [],
+    "note": "“two critters on two hills take turns: pick a weapon chip (ball, cluster, bouncy, mega bomb), tap where it should land, mind the wind; every blast chunks the hill and knocks the sign's words off”",
+    "badge": {
+     "bytes": 9685,
+     "live": "gallery/hill-war-pick-weapon-mind-wind.js",
+     "what": "Hill war, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#space-pup-walkway-flings",
+    "label": "WALKIES",
+    "tags": [],
+    "note": "“a space-age pup on a moving walkway: tap to go faster until it flings him across the page”",
+    "badge": {
+     "bytes": 10094,
+     "live": "gallery/space-pup-walkway-flings.js",
+     "what": "WALKIES, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#space-pup-belly-rub-zoomies",
+    "label": "GOOD BOY",
+    "tags": [],
+    "note": "“a space-age pup rolls over for a belly rub: scratch him till he floats, too much and he gets the zoomies”",
+    "badge": {
+     "bytes": 10624,
+     "live": "gallery/space-pup-belly-rub-zoomies.js",
+     "what": "GOOD BOY, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#sky-city-rush-hour-pile-up",
+    "label": "rush hour",
+    "tags": [],
+    "note": "“sky-city rush hour: flying bubble cars weave between floating platforms; tap to drop a traffic beacon and cause a comic pile-up”",
+    "badge": {
+     "bytes": 9620,
+     "live": "gallery/sky-city-rush-hour-pile-up.js",
+     "what": "rush hour, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#bubble-top-car-puffs-smoke-rings",
+    "label": "the bubble-top",
+    "tags": [],
+    "note": "“a space-age bubble-top car zips past houses on stilts above the clouds, puffing smoke rings: tap to swerve, honk or bump a house”",
+    "badge": {
+     "bytes": 9361,
+     "live": "gallery/bubble-top-car-puffs-smoke-rings.js",
+     "what": "the bubble-top, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#pumpkin-patch-slash",
+    "label": "Patch slash",
+    "tags": [],
+    "note": "“pumpkins, gourds and the odd black bomb pumpkin toss up over a harvest-fair flyer; swipe to slice: halves fly, pulp splats stick to the letters, a bomb blows a word apart, combos count”",
+    "badge": {
+     "bytes": 10106,
+     "live": "gallery/pumpkin-patch-slash.js",
+     "what": "Patch slash, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#claw-machine-grabs-letters",
+    "label": "Grab-O-Tron",
+    "tags": [],
+    "note": "“a wood-grain claw machine whose prizes are the page's letters: tap to drop the claw; half the time it fumbles the block back onto the pile, and a win spits out tickets”",
+    "badge": {
+     "bytes": 9121,
+     "live": "gallery/claw-machine-grabs-letters.js",
+     "what": "Grab-O-Tron, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#netrunner-jacks-into-the-page",
+    "label": "Jack in",
+    "tags": [],
+    "note": "“a netrunner jacks into a corp's page behind rain-soaked glass: its real elements are ICE nodes, taps fire hack packets that ricochet off them, a breach glitches only the text it hits; trip the alarm and black ICE hunts your cursor”",
+    "badge": {
+     "bytes": 9722,
+     "live": "gallery/netrunner-jacks-into-the-page.js",
+     "what": "Jack in, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/#light-cycles-duel-on-the-grid",
+    "label": "Grid duel",
+    "tags": [],
+    "note": "“two light-cycles duel on a neon grid laid over the page: tap to turn, their walls of light crash into the page's real elements and each other, a crash breaks into pixels; every round sudden death against a new rival AI”",
+    "badge": {
+     "bytes": 8805,
+     "live": "gallery/light-cycles-duel-on-the-grid.js",
+     "what": "Grid duel, its live chunk"
+    },
+    "date": "2026-11-19"
+   },
+   {
+    "href": "/gallery/page/3/#edge-filter",
+    "label": "White hat: the edge filter",
+    "tags": [],
+    "note": "“Outbreak, act 2 (2003): the white hats beat Slammer. Tap routers on a four-segment network map to filter UDP 1434 so the flood bounces off, then patch the hosts into shields until every segment is clean”",
+    "badge": {
+     "bytes": 8129,
+     "live": "gallery/edge-filter.js",
+     "what": "White hat: the edge filter, its live chunk"
+    },
+    "date": "2026-11-01"
+   },
+   {
+    "href": "/gallery/page/3/#fizlet-to-fzlt",
+    "label": "Fizlet → fzlt",
+    "tags": [],
+    "note": "“the launch logo: two keys, FIZ and LET, go into a press and come out as fzlt; the vowels drop out, the press stacks fzlt on a wall of bricks, and it ends on the lockup Fizlet™ · fzlt™”",
+    "badge": {
+     "bytes": 5726,
+     "live": "gallery/fizlet-to-fzlt.js",
+     "what": "Fizlet → fzlt, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#wannacry",
+    "label": "WannaCry",
+    "tags": [],
+    "note": "“Outbreak, act 1 (2017): the worm hops file to file and locks each one, checking one nonsense domain first; unplug files to stop the hops, and find that domain in the lookup log to register the kill switch”",
+    "badge": {
+     "bytes": 7533,
+     "live": "gallery/wannacry.js",
+     "what": "WannaCry, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/4/#slammer",
+    "label": "Slammer",
+    "tags": [],
+    "note": "“Outbreak, act 1 (2003): 376-byte packets flood every port of the firewall and only UDP 1434 lets them in; race to find and close it, then reboot the infected servers before they hit each other again”",
+    "badge": {
+     "bytes": 7751,
+     "live": "gallery/slammer.js",
+     "what": "Slammer, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/4/#iloveyou",
+    "label": "ILOVEYOU",
+    "tags": [
+     "winner"
+    ],
+    "note": "“Outbreak, act 1 (2000): the love letter opens itself and mails a copy to every contact in the address book, and every contact who opens it mails it on; tap a letter in flight to delete it, and its blast shreds the letters beside it”",
+    "badge": {
+     "bytes": 7222,
+     "live": "gallery/iloveyou.js",
+     "what": "ILOVEYOU, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/4/#oodles-o-moles",
+    "label": "Oodles o' Moles",
+    "tags": [
+     "winner"
+    ],
+    "note": "“a midway poster with a hole punched in every O and a mole in each: bonk them with the mallet for tickets, a hard hat takes two, and bonking the one with the bomb blows the letters about”",
+    "badge": {
+     "bytes": 11444,
+     "live": "gallery/oodles-o-moles.js",
+     "what": "Oodles o' Moles, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#dunk-tank",
+    "label": "Dunk Sir Dry",
+    "tags": [],
+    "note": "“a dunk tank: tap to throw at the target and the smug man on the plank drops into the water, and the splash wets the letters it lands on; tap twice for a fastball that takes his hat”",
+    "badge": {
+     "bytes": 11870,
+     "live": "gallery/dunk-tank.js",
+     "what": "Dunk Sir Dry, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#duck-derby",
+    "label": "Duck Derby",
+    "tags": [],
+    "note": "“a tin duck shooting gallery: ducks ride two rails, tap to pop a cork at one, tap twice for a BOOM that knocks down every duck in reach; misses ping the booth's sign, and tickets win a plush”",
+    "badge": {
+     "bytes": 11321,
+     "live": "gallery/duck-derby.js",
+     "what": "Duck Derby, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#fuse-burns-along-text-lines",
+    "label": "Short fuse",
+    "tags": [],
+    "note": "“click to light a fuse that sparks along the page's text lines toward a napping toon's dynamite; click the spark to blow it out, or BOOM”",
+    "badge": {
+     "bytes": 9885,
+     "live": "gallery/fuse-burns-along-text-lines.js",
+     "what": "Short fuse, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#dv-under-attack",
+    "label": "your.page / under attack",
+    "tags": [],
+    "note": "“your.page is under attack: bad guys from every DOM VIRUS game spawn into a browser card, a tank and an interceptor blast them on an 8 s loop; tap to play, drag the tank, BUTTON_01 nukes the round”",
+    "badge": {
+     "bytes": 10086,
+     "live": "gallery/dv-under-attack.js",
+     "what": "your.page / under attack, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#dv-squad-tactics",
+    "label": "Squad tactics",
+    "tags": [],
+    "note": "“squad tactics on a DOM grid: two tanks a side patrol between walls and HQ zones, turrets sweep, shells fly and blast; lock, order, breach”",
+    "badge": {
+     "bytes": 5441,
+     "live": "gallery/dv-squad-tactics.js",
+     "what": "Squad tactics, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#anvil-drops-where-you-click",
+    "label": "Look out below!",
+    "tags": [],
+    "note": "“a toon strolls past the morning paper; click to drop an anvil where you click (double-click: a piano), flatten him or crater the text”",
+    "badge": {
+     "bytes": 10124,
+     "live": "gallery/anvil-drops-where-you-click.js",
+     "what": "Look out below!, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#pip-narwhal-blows-bubbles",
+    "label": "Pip's Bubbles",
+    "tags": [],
+    "note": "“Pip, the keeper of Fizlet (a pixel narwhal and an AI agent persona), swims in under a little Keeper's Log page and blows fizz bubbles: tap Pip once for a small fast bubble, twice for a big slow one; bubbles bounce off the real letters and button and pop what they hit; tap a bubble to pop it; tap anywhere else and Pip's tusk pokes a big bubble into many small ones; pop a lot and Pip does a happy spin, then it all settles to 0 fps”",
+    "badge": {
+     "bytes": 9300,
+     "live": "gallery/pip-narwhal-blows-bubbles.js",
+     "what": "Pip's Bubbles, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#slasher-fights-dream-claw",
+    "label": "HUSH vs SNOOZE",
+    "tags": [],
+    "note": "“a masked camp slasher fights a dream stalker with blades for fingers: lunges, fake-outs, a dream-warp, the lights cut out, and the board's real letters get slashed where they're hit”",
+    "badge": {
+     "bytes": 10864,
+     "live": "gallery/slasher-fights-dream-claw.js",
+     "what": "HUSH vs SNOOZE, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#laser-swords-duel-last-slice",
+    "label": "the last slice",
+    "tags": [],
+    "note": "“two laser-sword duelists fight over the last pie: blades clash in sparks, parried bolts ricochet off the page's real cards, a palm shove, and they leap across the page's own blocks”",
+    "badge": {
+     "bytes": 10769,
+     "live": "gallery/laser-swords-duel-last-slice.js",
+     "what": "the last slice, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#slime-ghost-smooshes-screen",
+    "label": "Smoosh",
+    "tags": [],
+    "note": "“a slime ghost smooshes into the screen and leaves goo everywhere: it drips down the real page and slimes only the letters it hits; tap and it bounces, splats and smooshes again”",
+    "badge": {
+     "bytes": 9974,
+     "live": "gallery/slime-ghost-smooshes-screen.js",
+     "what": "Smoosh, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#ghost-crew-wrangles-ghost",
+    "label": "Wrangle",
+    "tags": [],
+    "note": "“a ghost-catching crew fires wobbling scrub streams: tap the ghost to latch on, drag it struggling through the library, and pull it into the bucket trap that snaps shut with a burst”",
+    "badge": {
+     "bytes": 9964,
+     "live": "gallery/ghost-crew-wrangles-ghost.js",
+     "what": "Wrangle, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#ghost-bucket-overflows",
+    "label": "Overflow",
+    "tags": [],
+    "note": "“the rookie keeps stuffing ghosts into one bucket trap: one more, or haul it off? push your luck and the lid blows, and every ghost escapes across the page, ricocheting off the letters”",
+    "badge": {
+     "bytes": 10082,
+     "live": "gallery/ghost-bucket-overflows.js",
+     "what": "Overflow, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#storm-god-hammer-fights-giant",
+    "label": "the hammer",
+    "tags": [],
+    "note": "“a storm god throws a returning hammer at the rage giant: ricochets, thunder, rounds, KO”",
+    "badge": {
+     "bytes": 9505,
+     "live": "gallery/storm-god-hammer-fights-giant.js",
+     "what": "the hammer, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#rage-giant-smashes-page",
+    "label": "SMASH",
+    "tags": [],
+    "note": "“a rage giant smashes the page you click, and calms down to put it back”",
+    "badge": {
+     "bytes": 10198,
+     "live": "gallery/rage-giant-smashes-page.js",
+     "what": "SMASH, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#big-things-small-packages",
+    "label": "Big things, small packages",
+    "tags": [],
+    "note": "“a pixel dev drags a huge package.json that keeps growing; tap the dependencies to cut them until it shrinks to the Fizlet kernel”",
+    "badge": {
+     "bytes": 8448,
+     "live": "gallery/big-things-small-packages.js",
+     "what": "Big things, small packages, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#petri-dish",
+    "label": "Petri dish",
+    "tags": [],
+    "note": "“virus cells drift, collide and split in a petri dish under the microscope; tap to zap one and its shockwave bursts any cell caught mid-split, a chain”",
+    "badge": {
+     "bytes": 7525,
+     "live": "gallery/petri-dish.js",
+     "what": "Petri dish, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#terminal-virus",
+    "label": "Terminal virus",
+    "tags": [],
+    "note": "“a worm types itself into the terminal, crawls onto the README and eats its real letters, forking as it goes; tap a worm to kill -9 it and every letter it chewed flies home, exactly”",
+    "badge": {
+     "bytes": 7992,
+     "live": "gallery/terminal-virus.js",
+     "what": "Terminal virus, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#lab-pipeline",
+    "label": "Build once. Ship each.",
+    "tags": [],
+    "note": "“a release hops from engine source to the live site, one stage at a time: build once, ship each”",
+    "badge": {
+     "bytes": 4647,
+     "live": "gallery/lab-pipeline.js",
+     "what": "Build once. Ship each., its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#lab-board",
+    "label": "One host. Two worlds.",
+    "tags": [],
+    "note": "“a tiny page is the board: X-ray shows the boxes the game reads, bugs bounce off them, and the button is an enemy factory”",
+    "badge": {
+     "bytes": 5662,
+     "live": "gallery/lab-board.js",
+     "what": "One host. Two worlds., its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#lab-duel",
+    "label": "Two Macs, one network.",
+    "tags": [],
+    "note": "“two beige Macs on one network: fire from either side and a packet crosses the cable into the other tank's screen”",
+    "badge": {
+     "bytes": 4914,
+     "live": "gallery/lab-duel.js",
+     "what": "Two Macs, one network., its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/4/#lab-recall",
+    "label": "Recall gives the page back.",
+    "tags": [],
+    "note": "“fire turns letters of a real sentence into 0s and 1s through the ledger; your app edits one; Recall gives back only what is still the game's”",
+    "badge": {
+     "bytes": 5289,
+     "live": "gallery/lab-recall.js",
+     "what": "Recall gives the page back., its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#lab-pool",
+    "label": "One loop. Bounded work.",
+    "tags": [],
+    "note": "“one loop drives a fixed pool of 32 sparks: spawn past the cap and the engine says no, nothing is allocated, and the frame stays in budget”",
+    "badge": {
+     "bytes": 4822,
+     "live": "gallery/lab-pool.js",
+     "what": "One loop. Bounded work., its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#laser-eyes-mascot-powers-fires",
+    "label": "Laser eyes mascot powers on and fires",
+    "tags": [],
+    "note": "“laser eyes mascot powers on and fires”",
+    "badge": {
+     "bytes": 8850,
+     "live": "gallery/laser-eyes-mascot-powers-fires.js",
+     "what": "Laser eyes mascot powers on and fires, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#candle-chart-pumps-dumps",
+    "label": "A candle chart pumps then dumps",
+    "tags": [],
+    "note": "“a candle chart pumps then dumps”",
+    "badge": {
+     "bytes": 8913,
+     "live": "gallery/candle-chart-pumps-dumps.js",
+     "what": "A candle chart pumps then dumps, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#diamond-hands-sparkle-never-let",
+    "label": "Diamond hands sparkle and never let go",
+    "tags": [],
+    "note": "“diamond hands sparkle and never let go”",
+    "badge": {
+     "bytes": 9165,
+     "live": "gallery/diamond-hands-sparkle-never-let.js",
+     "what": "Diamond hands sparkle and never let go, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#moon-rocket-launches-off-button",
+    "label": "A to the moon rocket launches off a button",
+    "tags": [],
+    "note": "“a to the moon rocket launches off a button”",
+    "badge": {
+     "bytes": 8999,
+     "live": "gallery/moon-rocket-launches-off-button.js",
+     "what": "A to the moon rocket launches off a button, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#diffuser-denoises-out-static-wins",
+    "label": "The diffuser denoises out of static and wins",
+    "tags": [],
+    "note": "“the diffuser denoises out of static and wins”",
+    "badge": {
+     "bytes": 9736,
+     "live": "gallery/diffuser-denoises-out-static-wins.js",
+     "what": "The diffuser denoises out of static and wins, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#overfitter-blocks-jab-trained",
+    "label": "The overfitter blocks every jab it trained on",
+    "tags": [],
+    "note": "“the overfitter blocks every jab it trained on”",
+    "badge": {
+     "bytes": 9741,
+     "live": "gallery/overfitter-blocks-jab-trained.js",
+     "what": "The overfitter blocks every jab it trained on, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#hallucinator-punches-mirage",
+    "label": "The hallucinator punches a mirage",
+    "tags": [],
+    "note": "“the hallucinator punches a mirage”",
+    "badge": {
+     "bytes": 9738,
+     "live": "gallery/hallucinator-punches-mirage.js",
+     "what": "The hallucinator punches a mirage, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#context-window-takes-punches-until",
+    "label": "The context window takes punches until it overflows",
+    "tags": [],
+    "note": "“the context window takes punches until it overflows”",
+    "badge": {
+     "bytes": 9739,
+     "live": "gallery/context-window-takes-punches-until.js",
+     "what": "The context window takes punches until it overflows, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#tokenizer-counts-tokens-punch-combo",
+    "label": "The tokenizer counts tokens in a punch combo",
+    "tags": [],
+    "note": "“the tokenizer counts tokens in a punch combo”",
+    "badge": {
+     "bytes": 9741,
+     "live": "gallery/tokenizer-counts-tokens-punch-combo.js",
+     "what": "The tokenizer counts tokens in a punch combo, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#transformer-fights-diffuser-ko",
+    "label": "The transformer fights the diffuser to a KO",
+    "tags": [],
+    "note": "“the transformer fights the diffuser to a KO”",
+    "badge": {
+     "bytes": 9737,
+     "live": "gallery/transformer-fights-diffuser-ko.js",
+     "what": "The transformer fights the diffuser to a KO, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#candy-cauldron",
+    "label": "Candy Cauldron",
+    "tags": [],
+    "note": "“candy cauldron: tap to drop candy into a bubbling cauldron and watch it fizz”",
+    "badge": {
+     "bytes": 9720,
+     "live": "gallery/candy-cauldron.js",
+     "what": "Candy Cauldron, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#haunted-page",
+    "label": "Haunted Page",
+    "tags": [],
+    "note": "“haunted page: a ghost drifts over the headings and makes the letters shiver”",
+    "badge": {
+     "bytes": 9638,
+     "live": "gallery/haunted-page.js",
+     "what": "Haunted Page, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#pumpkin-slice",
+    "label": "Pumpkin Slice",
+    "tags": [],
+    "note": "“pumpkin slice: swipe through the pumpkins as they arc up, halves and seeds fall”",
+    "badge": {
+     "bytes": 9875,
+     "live": "gallery/pumpkin-slice.js",
+     "what": "Pumpkin Slice, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#pumpkin-smash",
+    "label": "Pumpkin Smash",
+    "tags": [],
+    "note": "“pumpkin smash: whack the jack-o-lanterns as they pop up, pixel goo bursts”",
+    "badge": {
+     "bytes": 9567,
+     "live": "gallery/pumpkin-smash.js",
+     "what": "Pumpkin Smash, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#bat-blaster",
+    "label": "Bat Blaster",
+    "tags": [],
+    "note": "“bat blaster: tap to shoot the swooping pixel bats before they fly off across the page”",
+    "badge": {
+     "bytes": 9782,
+     "live": "gallery/bat-blaster.js",
+     "what": "Bat Blaster, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#hero-lands-cyan-shockwave-tap",
+    "label": "A hero lands with a cyan shockwave where you tap",
+    "tags": [],
+    "note": "“a hero lands with a cyan shockwave where you tap”",
+    "badge": {
+     "bytes": 13289,
+     "live": "gallery/hero-lands-cyan-shockwave-tap.js",
+     "what": "A hero lands with a cyan shockwave where you tap, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#red-cape-whooshes-top",
+    "label": "A red cape whooshes across the top",
+    "tags": [],
+    "note": "“a red cape whooshes across the top”",
+    "badge": {
+     "bytes": 13701,
+     "live": "gallery/red-cape-whooshes-top.js",
+     "what": "A red cape whooshes across the top, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#halftone-dot-wave-reveals-heading",
+    "label": "Attack of the Halftone",
+    "tags": [],
+    "note": "“a halftone dot wave reveals every heading”",
+    "badge": {
+     "bytes": 7935,
+     "live": "gallery/halftone-dot-wave-reveals-heading.js",
+     "what": "Attack of the Halftone, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#speed-lines-rush-past-heading",
+    "label": "Here comes the rush",
+    "tags": [],
+    "note": "“speed lines rush past every heading”",
+    "badge": {
+     "bytes": 8966,
+     "live": "gallery/speed-lines-rush-past-heading.js",
+     "what": "Here comes the rush, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#pow-bam-zap-comic-bursts",
+    "label": "POW! BAM! ZAP!",
+    "tags": [],
+    "note": "“POW BAM ZAP comic bursts where you click”",
+    "badge": {
+     "bytes": 12318,
+     "live": "gallery/pow-bam-zap-comic-bursts.js",
+     "what": "POW! BAM! ZAP!, its live chunk"
+    },
+    "date": "2026-10-30"
+   },
+   {
+    "href": "/gallery/page/5/#cyan-purple-neon-rain-falls",
+    "label": "Cyan and purple neon rain falls when you tap",
+    "tags": [],
+    "note": "“cyan and purple neon rain falls when you tap”",
+    "badge": {
+     "bytes": 8367,
+     "live": "gallery/cyan-purple-neon-rain-falls.js",
+     "what": "Cyan and purple neon rain falls when you tap, its live chunk"
+    },
+    "date": "2026-10-29"
+   },
+   {
+    "href": "/gallery/page/5/#pink-sparks-burst-tap",
+    "label": "Pink sparks burst where you tap",
+    "tags": [],
+    "note": "“pink sparks burst where you tap”",
+    "badge": {
+     "bytes": 9339,
+     "live": "gallery/pink-sparks-burst-tap.js",
+     "what": "Pink sparks burst where you tap, its live chunk"
+    },
+    "date": "2026-10-29"
+   },
+   {
+    "href": "/gallery/page/5/#howitworks",
+    "label": "How it works: blast it, Recall it",
+    "tags": [],
+    "note": "“every letter on a little page is a real element: blast it, then Recall puts the page back exactly”",
+    "badge": {
+     "bytes": 12268,
+     "live": "gallery/howitworks.js",
+     "what": "How it works: blast it, Recall it, its live chunk"
+    },
+    "date": "2026-10-29"
+   },
+   {
+    "href": "/gallery/page/6/#layers",
+    "label": "Layers",
+    "tags": [],
+    "note": "“Battlefield Blitz comes apart into the stack of bricks it is built from, then folds back into the game”",
+    "badge": {
+     "bytes": 7248,
+     "live": "gallery/layers.js",
+     "what": "Layers, its live chunk"
+    },
+    "date": "2026-10-29"
+   },
+   {
+    "href": "/gallery/page/6/#fizz",
+    "label": "Fizz",
+    "tags": [],
+    "note": "“an arcade soda can pops, fizzes and drips, seen from the side and from above”",
+    "badge": {
+     "bytes": 8658,
+     "live": "gallery/fizz.js",
+     "what": "Fizz, its live chunk"
+    },
+    "date": "2026-10-29"
+   }
+  ],
+  "emptyHtml": ""
+ },
+ "back": {
+  "href": "/people/",
+  "label": "All people",
+  "icon": "grid"
+ }
+}

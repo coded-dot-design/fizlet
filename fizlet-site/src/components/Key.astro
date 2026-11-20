@@ -1,10 +1,10 @@
 ---
-// A Board UI key: a link or a button, in one colour family (tone), arcade-sized or small.
+// A Board UI key: a link or a button (a submit button in a form), in one colour family (tone), arcade-sized or small.
 import Icon from "./Icon.astro";
 import type { Tone } from "../lib/site";
-interface Props { href?: string; tone?: Tone; arcade?: boolean; icon?: string; iconSize?: number; class?: string; label?: string; [attr: string]: unknown }
-const { href, tone = "", arcade = true, icon, iconSize = 16, class: cls = "", label, ...rest } = Astro.props;
+interface Props { href?: string; type?: "button" | "submit"; tone?: Tone; arcade?: boolean; icon?: string; iconSize?: number; class?: string; label?: string; [attr: string]: unknown }
+const { href, type = "button", tone = "", arcade = true, icon, iconSize = 16, class: cls = "", label, ...rest } = Astro.props;
 const classes = ["bui-key", arcade && "bui-arcade", tone && `bui-${tone}`, cls].filter(Boolean).join(" ");
 const Tag = href ? "a" : "button";
 ---
-<Tag class={classes} href={href} type={href ? undefined : "button"} {...rest}>{icon && <Icon name={icon} size={iconSize} />}{label}<slot /></Tag>
+<Tag class={classes} href={href} type={href ? undefined : type} {...rest}>{icon && <Icon name={icon} size={iconSize} />}{label}<slot /></Tag>

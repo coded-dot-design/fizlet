@@ -1,0 +1,8 @@
+---
+// The size badge: what a piece ships, gzipped, measured by the build ("9.4 KB GZ"). `bytes`: gzip
+// bytes; `live`: the built file they were measured from; `what`: what it is (screen readers, tooltip).
+interface Props { bytes: number; live: string; what: string }
+const { bytes, live, what } = Astro.props;
+const n = bytes.toLocaleString("en-US"), kb = (bytes / 1024).toFixed(1);
+---
+<span class="size-badge" role="img" aria-label={`${kb} KB gzipped: ${what}, ${n} bytes, measured at build`} data-size-badge data-bytes={bytes} data-live={live} title={`${n} B gzip, measured at build`}><b>{kb} KB</b> gz</span>

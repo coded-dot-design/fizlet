@@ -274,11 +274,204 @@ const bricksSection = (sec, path) => {
   });
 }
 
+// ---------- W2-daily: Make one, the contest, the people pages ----------
+/** A size badge, as its numbers: `bytes` (gzip), the file it was measured from, what it is. */
+const badgeOf = (el) => el && ({
+  bytes: +el.getAttribute("data-bytes"),
+  live: el.getAttribute("data-live"),
+  what: el.getAttribute("aria-label").replace(/^[\d.]+ KB gzipped: /, "").replace(/, [\d,]+ bytes, measured at build$/, ""),
+});
+/** A section head's parts (eyebrow sticker and text, the title's line and accent, the lead). */
+const headOf = (head, path) => {
+  const h1 = head.querySelector("h1");
+  return {
+    index: text(head.querySelector(".eyebrow .index")),
+    eyebrow: text(head.querySelector(".eyebrow")).replace(/^\S+\s/, ""),
+    title: { line: h1.childNodes[0].text, accent: text(h1.querySelector("em")) },
+    lead: inner(head.querySelector(".lead"), path),
+  };
+};
+/** The stickers next to a title: winner, smallest, hi-fi (in order). */
+const tagsOf = (el) => el.querySelectorAll(":scope > .win-badge").map((b) => b.classList.contains("ct-small") ? "smallest" : b.classList.contains("ct-hifi") ? "hifi" : "winner");
+const byOf = (el, path) => { const a = el?.querySelector("a"); return a ? link(a, path) : undefined; };
+
+// Make one: the form, the default prompt's snippet made at build (the runtime remakes it).
+{
+  const path = "make/";
+  const doc = parse(read(`${path}index.html`));
+  const section = doc.querySelector("main > section");
+  const form = section.querySelector("form.make-form");
+  const out = section.querySelector(".make-out");
+  const meta = out.querySelector(".make-meta");
+  const dl = meta.querySelector("a[data-download]");
+  write("pages/make.json", {
+    meta: metaOf(doc, path),
+    cls: section.getAttribute("class"),
+    head: { ...headOf(section.querySelector(".section-head"), path), badge: badgeOf(section.querySelector(".make-badge .size-badge")) },
+    form: {
+      action: form.getAttribute("action"),
+      label: form.querySelector("label").innerHTML.trim(),
+      input: Object.fromEntries(Object.entries(form.querySelector("input").attributes).map(([k, v]) => [k, v === "" ? true : v])), // a bare attribute (required) as true
+      submit: { label: text(form.querySelector("button[type=submit]")), icon: iconName(form.querySelector("button[type=submit] svg path").getAttribute("d")) },
+      tryLabel: text(form.querySelector(".make-try .bui-label")),
+      tries: form.querySelectorAll("[data-try]").map((b) => b.getAttribute("data-try")),
+      private: { icon: iconName(form.querySelector(".make-private svg path").getAttribute("d")), text: text(form.querySelector(".make-private span")) },
+    },
+    out: {
+      id: out.getAttribute("data-id"),
+      still: text(out.querySelector(".make-still")),
+      recipe: text(meta.querySelector("[data-recipe]")),
+      recipeLabel: meta.querySelector(".eyebrow").childNodes[0].text.trim(),
+      matchedTitle: text(meta.querySelector("h2")),
+      // What matched and what did not: the make runtime's own render (site/make/render.mjs), which
+      // it re-renders into the same nodes for every prompt.
+      matchedHtml: meta.querySelector("[data-matched]").innerHTML,
+      missHtml: meta.querySelector("[data-miss]").innerHTML,
+      size: { value: text(meta.querySelector("[data-snippet-size] b")), label: text(meta.querySelector("[data-snippet-size] small")) },
+      copy: { label: text(meta.querySelector("[data-copy-snippet]")), icon: iconName(meta.querySelector("[data-copy-snippet] svg path").getAttribute("d")) },
+      download: { label: text(dl), icon: iconName(dl.querySelector("svg path").getAttribute("d")), href: absolute(`href="${dl.getAttribute("href")}"`, path).slice(6, -1), file: dl.getAttribute("download") },
+      status: text(meta.querySelector("[data-status]")),
+      code: { id: out.querySelector("textarea").getAttribute("id"), label: out.querySelector(".code-head label").innerHTML.trim(), rows: +out.querySelector("textarea").getAttribute("rows"), text: out.querySelector("textarea").rawText.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&") },
+    },
+  });
+}
+
+// The contest: the head, this week's theme, its pieces by lane, the rules, how to enter, past winners.
+{
+  const path = "contest/";
+  const doc = parse(read(`${path}index.html`));
+  const section = doc.querySelector("main > section");
+  const wrap = section.querySelector(".wrap");
+  const today = wrap.querySelector(".ct-today");
+  const piece = (li) => {
+    const h3 = li.querySelector("h3"), eb = li.querySelector(".eyebrow");
+    return {
+      index: text(eb.querySelector(".index")),
+      line: text(eb).replace(/^\S+\s?/, ""),
+      ...link(h3.querySelector("a"), path),
+      tags: tagsOf(h3),
+      prompt: text(li.querySelector(".gal-prompt")),
+      badge: badgeOf(li.querySelector(".size-badge")),
+      by: byOf(li.querySelector(".ct-by"), path),
+    };
+  };
+  const enter = wrap.querySelector("section[aria-labelledby=ct-enter]");
+  write("pages/contest.json", {
+    meta: metaOf(doc, path),
+    cls: section.getAttribute("class"),
+    head: headOf(wrap.querySelector(".section-head"), path),
+    week: today && {
+      index: text(today.querySelector(".eyebrow .index")),
+      line: text(today.querySelector(".eyebrow")).replace(/^\S+\s/, ""),
+      label: text(today.querySelector("h2 .bui-label")),
+      theme: text(today.querySelector("h2")).replace(/^\S+\s/, ""),
+      brief: text(today.querySelector(".body")),
+      dates: text(today.querySelector(".ct-date")),
+    },
+    lanes: wrap.querySelectorAll(":scope > section.ct-entries").map((s) => ({
+      id: s.querySelector("h2").getAttribute("id"),
+      title: text(s.querySelector("h2")),
+      pieces: s.querySelectorAll("ol > li").map(piece),
+      note: s.querySelector(".ct-note a") ? link(s.querySelector(".ct-note a"), path) : undefined,
+    })),
+    rules: { title: text(wrap.querySelector("#ct-rules")), items: wrap.querySelectorAll("section[aria-labelledby=ct-rules] ol > li").map((li) => inner(li, path)) },
+    enter: {
+      title: text(enter.querySelector("h2")),
+      intro: text(enter.querySelector(":scope > p")),
+      steps: enter.querySelectorAll("ol > li").map((li) => inner(li, path)),
+      planned: { label: text(enter.querySelector(".ct-note .bui-label")), text: text(enter.querySelector(".ct-note")).replace(/^\S+\s/, "") },
+      keys: enter.querySelectorAll(".split-keys a").map((a) => keyOf(a, path)),
+    },
+    past: {
+      title: text(wrap.querySelector("#ct-past")),
+      winners: wrap.querySelectorAll(".ct-past ol > li").map(piece),
+      empty: text(wrap.querySelector(".ct-past > p.body")),
+    },
+  });
+}
+
+// The people: one avatar (its frames' paths by colour), one tile per person, one page each.
+const avatarOf = (wrap) => {
+  const frame = wrap.querySelector(".ppl-frame"), sticker = wrap.querySelector(".ppl-sticker");
+  return {
+    label: frame.getAttribute("aria-label"),
+    rotate: frame.hasAttribute("data-rotate"),
+    size: +frame.querySelector("svg").getAttribute("width"),
+    frames: frame.querySelectorAll("svg").map((svg) => svg.querySelectorAll("path").map((p) => ({ fill: p.getAttribute("fill").replace(/^var\((.*)\)$/, "$1"), d: p.getAttribute("d") }))),
+    sticker: { kind: sticker.getAttribute("class").match(/ppl-sticker-(\w+)/)[1], text: text(sticker), label: sticker.getAttribute("aria-label") },
+  };
+};
+/** Who they are: the role, the tagline, and who they report to. */
+const rolesOf = (el, path) => {
+  const rep = el.querySelector(".ppl-reports");
+  return {
+    role: text(el.querySelector(".ppl-role")),
+    tagline: text(el.querySelector(".ppl-tagline")),
+    reports: rep ? { ...link(rep.querySelector("a"), path), as: text(rep).replace(/^.*, the /, "") } : undefined,
+  };
+};
+{
+  const path = "people/";
+  const doc = parse(read(`${path}index.html`));
+  const section = doc.querySelector("main > section");
+  write("pages/people/index.json", {
+    meta: metaOf(doc, path),
+    cls: section.getAttribute("class"),
+    head: headOf(section.querySelector(".section-head"), path),
+    people: section.querySelectorAll("li.ppl-tile").map((li) => ({
+      id: li.getAttribute("data-person"),
+      avatar: avatarOf(li.querySelector(".ppl-av-wrap")),
+      ...link(li.querySelector("h2 a"), path),
+      ...rolesOf(li.querySelector(".ppl-tile-body"), path),
+      count: li.querySelectorAll(".ppl-count > span").map((s) => ({ value: text(s.querySelector("b")).replace(/ B$/, ""), label: text(s).replace(/^\S+( B)?\s/, ""), unit: /^\S+ B\s/.test(text(s)) ? "B" : "" })),
+    })),
+  });
+}
+for (const id of readdirSync(join(LEGACY, "people")).filter((f) => statSync(join(LEGACY, "people", f)).isDirectory()).sort()) {
+  const path = `people/${id}/`;
+  const doc = parse(read(`${path}index.html`));
+  const art = doc.querySelector("main > article");
+  const who = art.querySelector(".ppl-who");
+  const card = (key) => art.querySelector(`section[aria-labelledby=${key}]`);
+  const style = card("ppl-style");
+  const list = (sec) => sec.querySelectorAll("ul > li").map((li) => ({ text: text(li), todo: li.classList.contains("ppl-todo") }));
+  const gallery = card("ppl-entries");
+  const url = who.querySelector(".ppl-url a");
+  write(`pages/people/${id}.json`, {
+    meta: metaOf(doc, path),
+    cls: art.getAttribute("class"),
+    id,
+    crumbs: crumbsOf(art.querySelector("nav.bp-crumbs"), path),
+    avatar: avatarOf(art.querySelector(".ppl-head .ppl-av-wrap")),
+    index: text(who.querySelector(".eyebrow .index")),
+    handle: text(who.querySelector(".eyebrow")).replace(/^.*\s(\S+)$/, "$1"),
+    name: text(who.querySelector("h1")),
+    ...rolesOf(who, path),
+    lead: text(who.querySelector(".lead")),
+    url: url && { href: url.getAttribute("href"), label: text(url), icon: iconName(url.querySelector("svg path").getAttribute("d")) },
+    stats: art.querySelectorAll(".ppl-stats > li").map((li) => ({ stat: li.querySelector("b").getAttribute("data-stat"), value: text(li.querySelector("b")), label: text(li.querySelector("p")) })),
+    cards: {
+      style: { title: text(style.querySelector("h2")), text: text(style.querySelector(":scope > p:not(.gal-prompt)")), promptTitle: text(style.querySelector("h3")), promptStyle: text(style.querySelectorAll(":scope > p:not(.gal-prompt)")[1]), sample: text(style.querySelector(".gal-prompt")).replace(/^PROMPT\s/, "") },
+      lists: ["ppl-games", "ppl-hobbies"].map((k) => ({ id: k, title: text(card(k).querySelector("h2")), label: card(k).querySelector("ul").getAttribute("aria-label"), items: list(card(k)) })),
+    },
+    games: card("ppl-games-made") && { title: text(card("ppl-games-made").querySelector("h2")), items: card("ppl-games-made").querySelectorAll("li").map((li) => ({ ...link(li.querySelector("a"), path), note: text(li.querySelector(".ppl-prompt")) })) },
+    entries: {
+      title: text(gallery.querySelector("h2")),
+      items: gallery.querySelectorAll("ol > li").map((li) => ({ ...link(li.querySelector(":scope > a"), path), tags: tagsOf(li), note: text(li.querySelector(".ppl-prompt")), badge: badgeOf(li.querySelector(".size-badge")), date: text(li.querySelector(".ppl-size small")) })),
+      emptyHtml: inner(gallery.querySelector("p.body"), path),
+    },
+    back: { ...link(art.querySelector(".note-back a"), path), icon: iconName(art.querySelector(".note-back svg path").getAttribute("d")) },
+  });
+}
+// W2-daily's pages (their scripts and what those import are copied below), and the make runtime's
+// templates, fetched by name at run time so no import names them.
+const DAILY_PAGES = ["make/index.html", "contest/index.html", "people/index.html", ...readdirSync(join(LEGACY, "people")).filter((f) => statSync(join(LEGACY, "people", f)).isDirectory()).map((f) => `people/${f}/index.html`)];
+
 // ---------- Runtime assets the ported pages load (the legacy engine bundles) ----------
 // Scripts, stylesheets-free: every module script the four pages load, and every file those import.
 const assets = new Set(["icon.svg", "og.png", "robots.txt", "llms.txt", "llms-full.txt", "fizlet.js"]);
 const queue = [];
-for (const f of ["index.html", "docs/getting-started/index.html", "bricks/kernel.html", "gallery/index.html"]) {
+for (const f of ["index.html", "docs/getting-started/index.html", "bricks/kernel.html", "gallery/index.html", ...DAILY_PAGES]) {
   const h = read(f);
   for (const m of h.matchAll(/(?:src|href|data-live|data-src|data-module)="([^"#?]+\.(?:js|json|svg|png|webp|css|txt))"/g)) {
     if (/^https?:/.test(m[1])) continue;
@@ -292,6 +485,7 @@ while (queue.length) {
   assets.add(p);
   if (p.endsWith(".js")) for (const m of read(p).matchAll(/(?:from|import\(|import)\s*"(\.{1,2}\/[^"]+)"|"(\.\/[\w./-]+\.js)"/g)) queue.push(new URL(m[1] ?? m[2], `https://fizlet.com/${p}`).pathname.slice(1));
 }
+for (const f of walk(join(LEGACY, "make")).filter((f) => !f.endsWith(".html"))) assets.add(relative(LEGACY, f).split("\\").join("/"));
 // The hosted ESM build (dist/) the quick start and docs link to.
 for (const f of walk(join(LEGACY, "dist"))) assets.add(relative(LEGACY, f).split("\\").join("/"));
 const LIST = [...assets].sort();

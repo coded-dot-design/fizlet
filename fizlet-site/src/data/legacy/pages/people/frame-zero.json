@@ -1,0 +1,254 @@
+{
+ "meta": {
+  "path": "people/frame-zero/",
+  "title": "Frame Zero: studio crew · Fizlet",
+  "description": "Frame Zero, Fizlet studio crew (a character, not a real person): a speedrunner whose prompts are 20 characters or fewer.",
+  "ld": [
+   {
+    "@type": "ProfilePage",
+    "@id": "https://fizlet.com/people/frame-zero/#page",
+    "url": "https://fizlet.com/people/frame-zero/",
+    "name": "Frame Zero",
+    "about": {
+     "@type": "Thing",
+     "name": "Frame Zero",
+     "description": "Studio crew — a Fizlet character, not a real person. Frame Zero treats every prompt like a speedrun: fewest characters, fastest settle. If an animation is still moving after a second, it was a dropped frame. Frame Zero pitches animation ideas and prompts for the gallery, and votes in the weekly contest with Quill, Pip and Chris."
+    }
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "cls": "has-grid section ppl",
+ "id": "frame-zero",
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/people/",
+    "label": "People"
+   }
+  ],
+  "current": "Frame Zero"
+ },
+ "avatar": {
+  "label": "Frame Zero: pixel-art avatar",
+  "rotate": true,
+  "size": 160,
+  "frames": [
+   [
+    {
+     "fill": "--av-k",
+     "d": "M8 0h1v1h-1zM18 0h1v1h-1zM8 1h3v1h-3zM17 1h1v1h-1zM19 1h1v1h-1zM9 2h1v1h-1zM11 2h2v1h-2zM15 2h2v1h-2zM19 2h1v1h-1zM25 2h1v1h-1zM2 3h1v1h-1zM9 3h1v1h-1zM13 3h2v1h-2zM20 3h6v1h-6zM3 4h6v1h-6zM25 4h1v1h-1zM4 5h1v1h-1zM25 5h1v1h-1zM5 6h1v1h-1zM25 6h1v1h-1zM1 7h4v1h-4zM25 7h1v1h-1zM1 8h2v1h-2zM25 8h1v1h-1zM1 9h3v1h-3zM25 9h1v1h-1zM0 10h1v1h-1zM4 10h23v1h-23zM0 11h3v1h-3zM7 11h1v1h-1zM25 11h2v1h-2zM3 12h1v1h-1zM7 12h1v1h-1zM24 12h3v1h-3zM2 13h1v1h-1zM5 13h20v1h-20zM26 13h1v1h-1zM1 14h4v1h-4zM8 14h1v1h-1zM11 14h2v1h-2zM20 14h2v1h-2zM24 14h1v1h-1zM26 14h1v1h-1zM0 15h1v1h-1zM8 15h1v1h-1zM13 15h2v1h-2zM18 15h2v1h-2zM23 15h5v1h-5zM8 16h1v1h-1zM13 16h1v1h-1zM19 16h1v1h-1zM22 16h1v1h-1zM28 16h1v1h-1zM8 17h1v1h-1zM12 17h2v1h-2zM18 17h2v1h-2zM21 17h1v1h-1zM29 17h1v1h-1zM8 18h1v1h-1zM20 18h1v1h-1zM25 18h1v1h-1zM30 18h1v1h-1zM9 19h1v1h-1zM19 19h1v1h-1zM25 19h1v1h-1zM31 19h1v1h-1zM9 20h1v1h-1zM19 20h1v1h-1zM25 20h1v1h-1zM9 21h1v1h-1zM14 21h6v1h-6zM25 21h1v1h-1zM10 22h1v1h-1zM17 22h1v1h-1zM19 22h1v1h-1zM26 22h2v1h-2zM9 23h3v1h-3zM19 23h3v1h-3zM31 23h1v1h-1zM7 24h2v1h-2zM12 24h2v1h-2zM18 24h1v1h-1zM22 24h1v1h-1zM30 24h1v1h-1zM4 25h3v1h-3zM14 25h4v1h-4zM23 25h1v1h-1zM29 25h1v1h-1zM2 26h2v1h-2zM17 26h1v1h-1zM23 26h1v1h-1zM28 26h2v1h-2zM2 27h1v1h-1zM17 27h1v1h-1zM23 27h5v1h-5zM29 27h1v1h-1zM1 28h1v1h-1zM18 28h1v1h-1zM22 28h1v1h-1zM30 28h1v1h-1zM1 29h1v1h-1zM19 29h3v1h-3zM30 29h1v1h-1zM0 30h1v1h-1zM31 30h1v1h-1z"
+    },
+    {
+     "fill": "--av-s",
+     "d": "M18 1h1v1h-1zM24 4h1v1h-1zM24 5h1v1h-1zM24 6h1v1h-1zM24 7h1v1h-1zM24 8h1v1h-1zM9 9h15v1h-15zM25 13h1v1h-1zM25 14h1v1h-1zM0 22h5v1h-5zM0 25h4v1h-4z"
+    },
+    {
+     "fill": "--av-C",
+     "d": "M10 2h1v1h-1zM10 3h1v1h-1zM12 3h1v1h-1zM9 4h2v1h-2zM14 4h1v1h-1zM5 5h5v1h-5zM24 17h3v1h-3zM22 18h2v1h-2zM27 18h2v1h-2zM22 19h1v1h-1zM28 19h1v1h-1zM21 20h1v1h-1zM29 20h1v1h-1zM21 21h1v1h-1zM29 21h1v1h-1zM21 22h1v1h-1zM29 22h1v1h-1zM22 23h1v1h-1zM28 23h1v1h-1zM23 24h1v1h-1zM27 24h2v1h-2zM24 25h3v1h-3z"
+    },
+    {
+     "fill": "--av-c",
+     "d": "M17 2h2v1h-2zM11 3h1v1h-1zM15 3h5v1h-5zM11 4h3v1h-3zM15 4h9v1h-9zM10 5h14v1h-14zM6 6h18v1h-18zM5 7h19v1h-19zM3 8h21v1h-21zM4 9h5v1h-5zM24 9h1v1h-1z"
+    },
+    {
+     "fill": "--av-w",
+     "d": "M3 3h1v1h-1zM29 6h1v1h-1zM12 16h1v1h-1zM18 16h1v1h-1zM23 16h5v1h-5zM22 17h2v1h-2zM27 17h2v1h-2zM21 18h1v1h-1zM24 18h1v1h-1zM26 18h1v1h-1zM29 18h1v1h-1zM20 19h2v1h-2zM23 19h2v1h-2zM26 19h2v1h-2zM29 19h2v1h-2zM20 20h1v1h-1zM22 20h3v1h-3zM26 20h3v1h-3zM30 20h2v1h-2zM20 21h1v1h-1zM22 21h3v1h-3zM26 21h3v1h-3zM30 21h2v1h-2zM15 22h2v1h-2zM20 22h1v1h-1zM22 22h4v1h-4zM28 22h1v1h-1zM31 22h1v1h-1zM23 23h5v1h-5zM24 24h3v1h-3zM15 26h1v1h-1zM15 27h1v1h-1zM15 28h1v1h-1zM15 29h1v1h-1zM15 30h1v1h-1z"
+    },
+    {
+     "fill": "--av-Y",
+     "d": "M29 5h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM29 7h1v1h-1zM9 14h1v1h-1zM9 15h1v1h-1zM19 24h2v1h-2zM18 25h2v1h-2zM18 26h1v1h-1z"
+    },
+    {
+     "fill": "--av-n",
+     "d": "M1 10h1v1h-1zM24 11h1v1h-1zM4 12h3v1h-3zM8 12h16v1h-16zM3 13h2v1h-2z"
+    },
+    {
+     "fill": "--av-M",
+     "d": "M2 10h2v1h-2zM8 11h9v1h-9zM10 19h1v1h-1z"
+    },
+    {
+     "fill": "--av-m",
+     "d": "M3 11h4v1h-4zM17 11h7v1h-7z"
+    },
+    {
+     "fill": "--av-y",
+     "d": "M10 14h1v1h-1zM13 14h7v1h-7zM10 15h3v1h-3zM15 15h3v1h-3zM20 15h2v1h-2zM9 16h3v1h-3zM14 16h4v1h-4zM20 16h2v1h-2zM9 17h3v1h-3zM14 17h4v1h-4zM20 17h1v1h-1zM9 18h11v1h-11zM11 19h8v1h-8zM10 20h9v1h-9zM10 21h4v1h-4zM12 22h3v1h-3zM21 24h1v1h-1zM20 25h2v1h-2zM19 26h3v1h-3zM18 27h3v1h-3z"
+    },
+    {
+     "fill": "--av-t",
+     "d": "M22 14h2v1h-2zM22 15h1v1h-1zM11 22h1v1h-1zM18 22h1v1h-1zM12 23h7v1h-7zM14 24h4v1h-4zM22 25h1v1h-1zM22 26h1v1h-1zM21 27h2v1h-2zM19 28h3v1h-3z"
+    },
+    {
+     "fill": "--av-e",
+     "d": "M30 22h1v1h-1zM29 23h2v1h-2zM29 24h1v1h-1zM27 25h2v1h-2zM24 26h4v1h-4z"
+    },
+    {
+     "fill": "--av-G",
+     "d": "M9 24h3v1h-3zM7 25h3v1h-3zM4 26h4v1h-4zM14 26h1v1h-1zM16 26h1v1h-1zM3 27h2v1h-2zM14 27h1v1h-1zM16 27h1v1h-1zM14 28h1v1h-1zM16 28h2v1h-2zM14 29h1v1h-1zM16 29h2v1h-2zM14 30h1v1h-1zM16 30h2v1h-2zM14 31h4v1h-4z"
+    },
+    {
+     "fill": "--av-g",
+     "d": "M10 25h4v1h-4zM8 26h6v1h-6zM5 27h9v1h-9zM28 27h1v1h-1zM2 28h12v1h-12zM23 28h6v1h-6zM2 29h12v1h-12zM18 29h1v1h-1zM22 29h8v1h-8zM1 30h13v1h-13zM18 30h13v1h-13zM0 31h14v1h-14zM18 31h14v1h-14z"
+    },
+    {
+     "fill": "--av-h",
+     "d": "M29 28h1v1h-1z"
+    }
+   ],
+   [
+    {
+     "fill": "--av-k",
+     "d": "M8 0h1v1h-1zM18 0h1v1h-1zM8 1h3v1h-3zM17 1h1v1h-1zM19 1h1v1h-1zM9 2h1v1h-1zM11 2h2v1h-2zM15 2h2v1h-2zM19 2h1v1h-1zM25 2h1v1h-1zM2 3h1v1h-1zM9 3h1v1h-1zM13 3h2v1h-2zM20 3h6v1h-6zM3 4h6v1h-6zM25 4h1v1h-1zM4 5h1v1h-1zM25 5h1v1h-1zM5 6h1v1h-1zM25 6h1v1h-1zM1 7h4v1h-4zM25 7h1v1h-1zM2 8h1v1h-1zM25 8h1v1h-1zM3 9h1v1h-1zM25 9h1v1h-1zM2 10h1v1h-1zM4 10h1v1h-1zM7 10h20v1h-20zM1 11h1v1h-1zM3 11h5v1h-5zM25 11h2v1h-2zM1 12h1v1h-1zM7 12h1v1h-1zM24 12h3v1h-3zM0 13h2v1h-2zM7 13h13v1h-13zM21 13h3v1h-3zM2 14h1v1h-1zM4 14h3v1h-3zM8 14h1v1h-1zM11 14h2v1h-2zM20 14h2v1h-2zM24 14h1v1h-1zM26 14h1v1h-1zM2 15h2v1h-2zM8 15h1v1h-1zM13 15h2v1h-2zM18 15h2v1h-2zM23 15h5v1h-5zM1 16h1v1h-1zM8 16h1v1h-1zM13 16h1v1h-1zM19 16h1v1h-1zM22 16h1v1h-1zM28 16h1v1h-1zM8 17h1v1h-1zM12 17h2v1h-2zM18 17h2v1h-2zM21 17h1v1h-1zM29 17h1v1h-1zM8 18h1v1h-1zM20 18h1v1h-1zM28 18h1v1h-1zM30 18h1v1h-1zM9 19h1v1h-1zM19 19h1v1h-1zM27 19h1v1h-1zM31 19h1v1h-1zM9 20h1v1h-1zM19 20h1v1h-1zM26 20h1v1h-1zM9 21h1v1h-1zM14 21h6v1h-6zM25 21h1v1h-1zM10 22h1v1h-1zM17 22h1v1h-1zM19 22h1v1h-1zM9 23h3v1h-3zM19 23h3v1h-3zM31 23h1v1h-1zM7 24h2v1h-2zM12 24h2v1h-2zM18 24h1v1h-1zM22 24h1v1h-1zM30 24h1v1h-1zM4 25h3v1h-3zM14 25h4v1h-4zM23 25h1v1h-1zM29 25h1v1h-1zM2 26h2v1h-2zM17 26h1v1h-1zM23 26h1v1h-1zM28 26h2v1h-2zM2 27h1v1h-1zM17 27h1v1h-1zM23 27h5v1h-5zM29 27h1v1h-1zM1 28h1v1h-1zM18 28h1v1h-1zM22 28h1v1h-1zM30 28h1v1h-1zM1 29h1v1h-1zM19 29h3v1h-3zM30 29h1v1h-1zM0 30h1v1h-1zM31 30h1v1h-1z"
+    },
+    {
+     "fill": "--av-s",
+     "d": "M18 1h1v1h-1zM24 4h1v1h-1zM24 5h1v1h-1zM24 6h1v1h-1zM24 7h1v1h-1zM24 8h1v1h-1zM9 9h15v1h-15zM25 13h1v1h-1zM25 14h1v1h-1zM0 22h5v1h-5zM0 25h4v1h-4z"
+    },
+    {
+     "fill": "--av-C",
+     "d": "M10 2h1v1h-1zM10 3h1v1h-1zM12 3h1v1h-1zM9 4h2v1h-2zM14 4h1v1h-1zM5 5h5v1h-5zM20 11h1v1h-1zM19 12h1v1h-1zM21 12h1v1h-1zM20 13h1v1h-1zM24 17h3v1h-3zM22 18h2v1h-2zM27 18h1v1h-1zM22 19h1v1h-1zM28 19h1v1h-1zM21 20h1v1h-1zM29 20h1v1h-1zM21 21h1v1h-1zM29 21h1v1h-1zM21 22h1v1h-1zM29 22h1v1h-1zM22 23h1v1h-1zM28 23h1v1h-1zM23 24h1v1h-1zM27 24h2v1h-2zM24 25h3v1h-3z"
+    },
+    {
+     "fill": "--av-c",
+     "d": "M17 2h2v1h-2zM11 3h1v1h-1zM15 3h5v1h-5zM11 4h3v1h-3zM15 4h9v1h-9zM10 5h14v1h-14zM6 6h18v1h-18zM5 7h19v1h-19zM3 8h21v1h-21zM4 9h5v1h-5zM24 9h1v1h-1zM5 10h2v1h-2zM24 13h1v1h-1zM26 13h1v1h-1z"
+    },
+    {
+     "fill": "--av-w",
+     "d": "M29 2h1v1h-1zM3 3h1v1h-1zM30 10h1v1h-1zM20 12h1v1h-1zM12 16h1v1h-1zM18 16h1v1h-1zM23 16h5v1h-5zM22 17h2v1h-2zM27 17h2v1h-2zM21 18h1v1h-1zM24 18h3v1h-3zM29 18h1v1h-1zM20 19h2v1h-2zM23 19h4v1h-4zM29 19h2v1h-2zM20 20h1v1h-1zM22 20h4v1h-4zM27 20h2v1h-2zM30 20h2v1h-2zM20 21h1v1h-1zM22 21h3v1h-3zM26 21h3v1h-3zM30 21h2v1h-2zM15 22h2v1h-2zM20 22h1v1h-1zM22 22h7v1h-7zM31 22h1v1h-1zM23 23h5v1h-5zM24 24h3v1h-3zM15 26h1v1h-1zM15 27h1v1h-1zM15 28h1v1h-1zM15 29h1v1h-1zM15 30h1v1h-1z"
+    },
+    {
+     "fill": "--av-Y",
+     "d": "M30 9h1v1h-1zM29 10h1v1h-1zM31 10h1v1h-1zM30 11h1v1h-1zM9 14h1v1h-1zM9 15h1v1h-1zM19 24h2v1h-2zM18 25h2v1h-2zM18 26h1v1h-1z"
+    },
+    {
+     "fill": "--av-M",
+     "d": "M2 11h1v1h-1zM8 11h9v1h-9zM2 12h1v1h-1zM4 12h1v1h-1zM10 19h1v1h-1z"
+    },
+    {
+     "fill": "--av-m",
+     "d": "M17 11h3v1h-3zM21 11h3v1h-3zM3 12h1v1h-1zM5 12h1v1h-1zM2 13h1v1h-1z"
+    },
+    {
+     "fill": "--av-n",
+     "d": "M24 11h1v1h-1zM6 12h1v1h-1zM8 12h11v1h-11zM22 12h2v1h-2zM3 13h4v1h-4zM3 14h1v1h-1z"
+    },
+    {
+     "fill": "--av-y",
+     "d": "M10 14h1v1h-1zM13 14h7v1h-7zM10 15h3v1h-3zM15 15h3v1h-3zM20 15h2v1h-2zM9 16h3v1h-3zM14 16h4v1h-4zM20 16h2v1h-2zM9 17h3v1h-3zM14 17h4v1h-4zM20 17h1v1h-1zM9 18h11v1h-11zM11 19h8v1h-8zM10 20h9v1h-9zM10 21h4v1h-4zM12 22h3v1h-3zM21 24h1v1h-1zM20 25h2v1h-2zM19 26h3v1h-3zM18 27h3v1h-3z"
+    },
+    {
+     "fill": "--av-t",
+     "d": "M22 14h2v1h-2zM22 15h1v1h-1zM11 22h1v1h-1zM18 22h1v1h-1zM12 23h7v1h-7zM14 24h4v1h-4zM22 25h1v1h-1zM22 26h1v1h-1zM21 27h2v1h-2zM19 28h3v1h-3z"
+    },
+    {
+     "fill": "--av-e",
+     "d": "M30 22h1v1h-1zM29 23h2v1h-2zM29 24h1v1h-1zM27 25h2v1h-2zM24 26h4v1h-4z"
+    },
+    {
+     "fill": "--av-G",
+     "d": "M9 24h3v1h-3zM7 25h3v1h-3zM4 26h4v1h-4zM14 26h1v1h-1zM16 26h1v1h-1zM3 27h2v1h-2zM14 27h1v1h-1zM16 27h1v1h-1zM14 28h1v1h-1zM16 28h2v1h-2zM14 29h1v1h-1zM16 29h2v1h-2zM14 30h1v1h-1zM16 30h2v1h-2zM14 31h4v1h-4z"
+    },
+    {
+     "fill": "--av-g",
+     "d": "M10 25h4v1h-4zM8 26h6v1h-6zM5 27h9v1h-9zM28 27h1v1h-1zM2 28h12v1h-12zM23 28h6v1h-6zM2 29h12v1h-12zM18 29h1v1h-1zM22 29h8v1h-8zM1 30h13v1h-13zM18 30h13v1h-13zM0 31h14v1h-14zM18 31h14v1h-14z"
+    },
+    {
+     "fill": "--av-h",
+     "d": "M29 28h1v1h-1z"
+    }
+   ]
+  ],
+  "sticker": {
+   "kind": "persona",
+   "text": "CHARACTER",
+   "label": "Character: a Fizlet character, not a real person"
+  }
+ },
+ "index": "STUDIO CREW",
+ "handle": "@frame-zero",
+ "name": "Frame Zero",
+ "role": "Studio crew · speedrunner",
+ "tagline": "",
+ "reports": {
+  "href": "/people/quill/",
+  "label": "Quill",
+  "as": "Keeper-in-Chief"
+ },
+ "lead": "Frame Zero treats every prompt like a speedrun: fewest characters, fastest settle. If an animation is still moving after a second, it was a dropped frame. Frame Zero pitches animation ideas and prompts for the gallery, and votes in the weekly contest with Quill, Pip and Chris.",
+ "url": null,
+ "stats": [
+  {
+   "stat": "entries",
+   "value": "0",
+   "label": "gallery entries"
+  },
+  {
+   "stat": "bytes",
+   "value": "0",
+   "label": "bytes of live code, gzip, all entries together"
+  }
+ ],
+ "cards": {
+  "style": {
+   "title": "What they make",
+   "text": "One-shot bursts that land and settle in under a second: pops, snaps, sparks on tap.",
+   "promptTitle": "Prompt style",
+   "promptStyle": "Twenty characters or fewer, verb first, no adjectives it can cut.",
+   "sample": "“pink pop on tap”"
+  },
+  "lists": [
+   {
+    "id": "ppl-games",
+    "title": "Favorite games",
+    "label": "Favorite games",
+    "items": [
+     {
+      "text": "Robotron: 2084",
+      "todo": false
+     },
+     {
+      "text": "Tempest",
+      "todo": false
+     },
+     {
+      "text": "Defender",
+      "todo": false
+     }
+    ]
+   },
+   {
+    "id": "ppl-hobbies",
+    "title": "Off the board",
+    "label": "Hobbies",
+    "items": [
+     {
+      "text": "Any% route planning",
+      "todo": false
+     },
+     {
+      "text": "Frame-counting old arcade cabinets",
+      "todo": false
+     },
+     {
+      "text": "Shaving bytes off a split",
+      "todo": false
+     }
+    ]
+   }
+  ]
+ },
+ "games": null,
+ "entries": {
+  "title": "In the gallery",
+  "items": [],
+  "emptyHtml": "No gallery entries yet. Frame Zero pitches pieces for the <a href=\"/contest/\">weekly contest</a>."
+ },
+ "back": {
+  "href": "/people/",
+  "label": "All people",
+  "icon": "grid"
+ }
+}

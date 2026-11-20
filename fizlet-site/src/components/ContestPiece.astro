@@ -1,0 +1,10 @@
+---
+// A contest piece: this week's (its date, its measured size and its maker) or a past winner (its
+// week, the theme and the lane's count). Its stickers follow the title.
+import SizeBadge from "./SizeBadge.astro";
+import WinBadge, { type Win } from "./WinBadge.astro";
+interface Link { href: string; label: string }
+interface Props { index: string; line: string; href: string; label: string; tags: Win[]; prompt: string; badge?: { bytes: number; live: string; what: string } | null; by?: Link }
+const { index, line, href, label, tags, prompt, badge, by } = Astro.props;
+---
+<li class="panel"><p class="eyebrow"><span class="index">{index}</span>{line && ` ${line}`}</p><h3><a href={href}>{label}</a>{tags.map((t) => <Fragment> <WinBadge kind={t} /></Fragment>)}</h3><p class="gal-prompt">{prompt}</p>{badge ? <p class="ppl-size"><SizeBadge {...badge} />{by && <span class="ct-by">By <a href={by.href}>{by.label}</a></span>}</p> : by && <p class="ct-by">By <a href={by.href}>{by.label}</a></p>}</li>

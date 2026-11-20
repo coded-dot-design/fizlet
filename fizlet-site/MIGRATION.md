@@ -41,6 +41,46 @@ to the export loop in `scripts/export-legacy.mjs`, re-export, add the path to `d
 
 Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same heights on both sites.
 
+## W2-daily results (measured 2026-11-20, legacy build v0.27.0)
+
+Make one, the contest, the people index and the 7 person pages, rendered from data
+(`pages/make.json`, `pages/contest.json`, `pages/people/*.json`) through shared components.
+`npm run compare -- http://localhost:4801/ http://localhost:4802/ <out> --full <paths>`, full-page shots:
+
+| Page | 1440 light | 1440 dark | 390 light | 390 dark | Page height (1440 / 390) |
+|---|---:|---:|---:|---:|---|
+| `/make/` | 0.000% | 0.000% | 0.000% | 0.000% | 2,692 / 3,183 px |
+| `/contest/` | 0.000% | 0.000% | 0.000% | 0.000% | 7,852 / 11,365 px |
+| `/people/` | 0.000% | 0.000% | 0.000% | 0.000% | 2,435 / 3,874 px |
+| `/people/chris-cooley/` | 0.000% | 0.000% | 0.000% | 0.000% | 12,383 / 17,438 px |
+| `/people/david-cooley/` | 0.000% | 0.000% | 0.000% | 0.000% | 2,364 / 2,983 px |
+| `/people/dj-mempool/` | 0.000% | 0.000% | 0.000% | 0.000% | 2,222 / 2,956 px |
+| `/people/frame-zero/` | 0.000% | 0.000% | 0.000% | 0.000% | 2,166 / 2,930 px |
+| `/people/hex-hazel/` | 0.000% | 0.000% | 0.000% | 0.000% | 2,166 / 2,956 px |
+| `/people/pip/` | 0.000% | 0.000% | 0.000% | 0.000% | 11,793 / 21,201 px |
+| `/people/quill/` | 0.000% | 0.000% | 0.000% | 0.000% | 2,067 / 2,746 px |
+
+Viewport-only shots (1440×900, 390×900): 0.000% on all 40. Same heights on both sites. The `<main>`
+markup of all 10 pages is the legacy markup once whitespace and URL form (root-absolute here,
+page-relative there) are normalized.
+
+- **Make one's runtime**: `make/make.js`, its 14 scene templates and `default.snippet.txt` are the
+  legacy build's files (copied into `public/make/`). `npm run make:check` (in the gates and CI)
+  opens `/make/` in Chromium and checks that the snippet the runtime makes for the default prompt
+  is the legacy build's, byte for byte, and that the download is the snippet shown. Given the
+  legacy URL (`node scripts/make-check.mjs dist http://localhost:4801/`) it makes 8 prompts (the
+  default, the 4 TRY prompts, 3 more, one that matches nothing) on both sites: snippet, download,
+  size, recipe, matched words and status were identical for all 8.
+- **New components**: SizeBadge (the measured gzip sticker), WinBadge (winner, smallest, Hi-Fi),
+  WeekCard (the contest week), ContestPiece (a week's piece or a past winner), PersonAvatar (the
+  pixel frames from data, the sticker), PersonRoles, PersonCard (a tile on `/people/`), EntryRow
+  (a gallery entry or a game on a person's page). Extended: Key (`type="submit"`), CodeBlock
+  (`field`: a read-only text field), Callout (as a `<section>` with `labelledby`).
+- **Kept as built**: Make one's matched words and missed words (`Html`): the runtime's own render
+  (`site/make/render.mjs`), which it re-renders into the same nodes on every prompt; port it with
+  the runtime. A person's entries are not GalleryCards: the legacy page lists them as rows (title,
+  prompt, size, date), so EntryRow keeps that markup.
+
 ## Design system
 
 - **Tokens**: `src/design/tokens.json` is the one source (groups: color, type, space, radius,
@@ -79,7 +119,7 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 ## Route inventory
 
 <!-- INVENTORY:START -->
-148 legacy pages, 4 done, 144 to do (legacy build v0.27.0).
+148 legacy pages, 14 done, 134 to do (legacy build v0.27.0).
 
 | Type | Pages | Done | Template | Components | Next wave |
 |---|---:|---:|---|---|---|
@@ -88,7 +128,7 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 | brand | 1 | 0 | to build: src/pages/brand/index.astro | Lockup, Mark, Key, token swatches (new, from tokens.json) | W2-misc |
 | bricks-index | 1 | 0 | to build: src/pages/bricks/index.astro | BrickCard, SymChip, periodic table + stickers + factory (Html until componentized) | W2-bricks |
 | brick | 43 | 1 | src/pages/bricks/[id].astro | Crumbs, CodeBlock; the head, demo, card and API kept as built (Html) | W2-bricks: add the ids to export-legacy.mjs, then compare; later an ApiDecl component for the API |
-| contest | 1 | 0 | to build: src/pages/contest/index.astro | SectionHead, Callout, a week card (new) | W2-daily |
+| contest | 1 | 1 | src/pages/contest/index.astro | SectionHead, WeekCard, ContestPiece (SizeBadge, WinBadge), Callout, Key | W2-daily: done |
 | legal | 2 | 0 | to build: src/pages/privacy/, src/pages/cookies/ | SectionHead, a table (new) | W2-misc |
 | demo | 7 | 0 | to build: the engine demos' own host pages (no site shell for some) | kept as built (Html) until the demos build from @fzlt/core here | W2-demos |
 | docs-index | 2 | 0 | to build: src/pages/docs/index.astro, src/pages/guides/index.astro | SectionHead, a doc list card (new) | W2-docs |
@@ -97,13 +137,13 @@ Viewport-only shots (1440×900, 390×900): 0.000% on all 16 as well. Same height
 | gallery-archive | 1 | 0 | to build: src/pages/gallery/archive/index.astro (noindex,nofollow) | GalleryCard | W2-gallery |
 | gallery-lane | 1 | 0 | to build: src/pages/gallery/hifi/index.astro | GalleryCard | W2-gallery |
 | redirect | 2 | 0 | to build: a redirect (Cloudflare _redirects 301, plus the meta-refresh page) | none | W2-misc |
-| make | 1 | 0 | to build: src/pages/make/index.astro | CodeBlock, Key; make.js runtime | W2-daily |
+| make | 1 | 1 | src/pages/make/index.astro | SectionHead, SizeBadge, Key, Icon, CodeBlock (field); make/make.js runtime (legacy bundle, npm run make:check); the matched list kept as the runtime renders it (Html) | W2-daily: done; later build make.js here from @fzlt/core |
 | news-index | 1 | 0 | to build: src/pages/news/index.astro | a release row (new) | W2-notes |
 | release | 51 | 0 | to build: src/pages/news/[version]/index.astro | Crumbs, SectionHead | W2-notes |
 | notes-index | 1 | 0 | to build: src/pages/notes/index.astro | a note card (new) | W2-notes |
 | note | 6 | 0 | to build: src/pages/notes/[slug]/index.astro | Crumbs, SectionHead, CodeBlock, Callout | W2-notes |
-| people-index | 1 | 0 | to build: src/pages/people/index.astro | a person card (new) | W2-daily |
-| person | 7 | 0 | to build: src/pages/people/[id]/index.astro | a person card (new), GalleryCard | W2-daily |
+| people-index | 1 | 1 | src/pages/people/index.astro | SectionHead, PersonCard (PersonAvatar, PersonRoles) | W2-daily: done |
+| person | 7 | 7 | src/pages/people/[id]/index.astro | Crumbs, PersonAvatar, PersonRoles, Callout, EntryRow (SizeBadge, WinBadge), Icon | W2-daily: done |
 
 Every route (`/path` · type · status · in sitemap · title):
 
@@ -181,7 +221,7 @@ Every route (`/path` · type · status · in sitemap · title):
 
 <details><summary><b>contest</b> (1)</summary>
 
-- [ ] `/contest/` · to do · Daily contest: top picks, weekly winners · Fizlet
+- [x] `/contest/` · done · Daily contest: top picks, weekly winners · Fizlet
 
 </details>
 
@@ -259,7 +299,7 @@ Every route (`/path` · type · status · in sitemap · title):
 
 <details><summary><b>make</b> (1)</summary>
 
-- [ ] `/make/` · to do · Make one: a prompt in, a snippet out · Fizlet
+- [x] `/make/` · done · Make one: a prompt in, a snippet out · Fizlet
 
 </details>
 
@@ -344,19 +384,19 @@ Every route (`/path` · type · status · in sitemap · title):
 
 <details><summary><b>people-index</b> (1)</summary>
 
-- [ ] `/people/` · to do · People: the maker, AI agents and studio crew · Fizlet
+- [x] `/people/` · done · People: the maker, AI agents and studio crew · Fizlet
 
 </details>
 
 <details><summary><b>person</b> (7)</summary>
 
-- [ ] `/people/chris-cooley/` · to do · Chris Cooley: maker of Fizlet · Fizlet
-- [ ] `/people/david-cooley/` · to do · David Cooley: creator · Fizlet
-- [ ] `/people/dj-mempool/` · to do · DJ Mempool: studio crew · Fizlet
-- [ ] `/people/frame-zero/` · to do · Frame Zero: studio crew · Fizlet
-- [ ] `/people/hex-hazel/` · to do · Hex Hazel: studio crew · Fizlet
-- [ ] `/people/pip/` · to do · Pip: an AI agent on the team · Fizlet
-- [ ] `/people/quill/` · to do · Quill: an AI agent on the team · Fizlet
+- [x] `/people/chris-cooley/` · done · Chris Cooley: maker of Fizlet · Fizlet
+- [x] `/people/david-cooley/` · done · David Cooley: creator · Fizlet
+- [x] `/people/dj-mempool/` · done · DJ Mempool: studio crew · Fizlet
+- [x] `/people/frame-zero/` · done · Frame Zero: studio crew · Fizlet
+- [x] `/people/hex-hazel/` · done · Hex Hazel: studio crew · Fizlet
+- [x] `/people/pip/` · done · Pip: an AI agent on the team · Fizlet
+- [x] `/people/quill/` · done · Quill: an AI agent on the team · Fizlet
 
 </details>
 

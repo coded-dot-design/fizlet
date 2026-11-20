@@ -1,0 +1,861 @@
+{
+ "meta": {
+  "path": "people/pip/",
+  "title": "Pip: an AI agent on the team · Fizlet",
+  "description": "Pip, the keeper of Fizlet: an AI agent persona, a pixel narwhal who guards the engine's size, speed and quality budgets.",
+  "ld": [
+   {
+    "@type": "ProfilePage",
+    "@id": "https://fizlet.com/people/pip/#page",
+    "url": "https://fizlet.com/people/pip/",
+    "name": "Pip",
+    "about": {
+     "@type": "Thing",
+     "name": "Pip",
+     "description": "AI agent — an AI agent persona on the Fizlet team, not a real person. Pip keeps Fizlet's engine honest: every byte measured, every frame accounted for, every page given back. An AI agent persona, not a person."
+    }
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "cls": "has-grid section ppl",
+ "id": "pip",
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/people/",
+    "label": "People"
+   }
+  ],
+  "current": "Pip"
+ },
+ "avatar": {
+  "label": "Pip: pixel-art avatar",
+  "rotate": true,
+  "size": 160,
+  "frames": [
+   [
+    {
+     "fill": "--av-C",
+     "d": "M5 1h3v1h-3zM12 1h3v1h-3zM8 2h1v1h-1zM11 2h1v1h-1zM14 2h2v1h-2zM3 3h1v1h-1zM9 3h1v1h-1zM11 3h1v1h-1zM15 3h1v1h-1zM3 4h1v1h-1zM9 4h1v1h-1zM11 4h2v1h-2zM14 4h2v1h-2zM3 5h1v1h-1zM9 5h1v1h-1zM12 5h3v1h-3zM4 6h1v1h-1zM8 6h1v1h-1zM5 7h3v1h-3zM10 8h1v1h-1zM17 8h1v1h-1zM9 9h1v1h-1zM11 9h1v1h-1zM16 9h1v1h-1zM18 9h1v1h-1zM1 10h1v1h-1zM10 10h1v1h-1zM17 10h1v1h-1zM2 12h1v1h-1zM2 13h1v1h-1zM13 13h4v1h-4zM2 14h1v1h-1zM10 14h2v1h-2zM13 14h1v1h-1zM2 15h1v1h-1zM8 15h3v1h-3zM2 16h1v1h-1zM7 16h1v1h-1zM6 17h2v1h-2zM5 18h2v1h-2zM5 19h1v1h-1zM4 20h2v1h-2zM4 21h1v1h-1zM3 22h2v1h-2zM6 26h1v1h-1z"
+    },
+    {
+     "fill": "--av-w",
+     "d": "M4 2h1v1h-1zM12 2h1v1h-1zM31 3h1v1h-1zM21 4h1v1h-1zM31 4h1v1h-1zM30 5h1v1h-1zM29 6h1v1h-1zM28 8h1v1h-1zM10 9h1v1h-1zM17 9h1v1h-1zM28 9h1v1h-1zM2 10h1v1h-1zM27 11h1v1h-1zM27 12h1v1h-1zM26 14h1v1h-1zM25 15h1v1h-1zM21 19h1v1h-1z"
+    },
+    {
+     "fill": "--av-k",
+     "d": "M30 2h2v1h-2zM30 3h1v1h-1zM29 4h1v1h-1zM29 5h1v1h-1zM31 5h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM0 7h1v1h-1zM28 7h1v1h-1zM30 7h1v1h-1zM1 8h1v1h-1zM27 8h1v1h-1zM29 8h1v1h-1zM1 9h1v1h-1zM27 9h1v1h-1zM29 9h1v1h-1zM0 10h1v1h-1zM27 10h1v1h-1zM29 10h1v1h-1zM1 11h1v1h-1zM3 11h1v1h-1zM26 11h1v1h-1zM28 11h1v1h-1zM1 12h1v1h-1zM3 12h1v1h-1zM13 12h7v1h-7zM26 12h1v1h-1zM28 12h1v1h-1zM1 13h1v1h-1zM4 13h1v1h-1zM10 13h3v1h-3zM20 13h3v1h-3zM25 13h1v1h-1zM27 13h1v1h-1zM1 14h1v1h-1zM5 14h1v1h-1zM8 14h2v1h-2zM23 14h3v1h-3zM27 14h1v1h-1zM1 15h1v1h-1zM6 15h2v1h-2zM24 15h1v1h-1zM26 15h1v1h-1zM1 16h1v1h-1zM6 16h1v1h-1zM24 16h3v1h-3zM1 17h1v1h-1zM5 17h1v1h-1zM27 17h1v1h-1zM1 18h1v1h-1zM4 18h1v1h-1zM28 18h1v1h-1zM1 19h1v1h-1zM4 19h1v1h-1zM22 19h1v1h-1zM28 19h1v1h-1zM1 20h1v1h-1zM3 20h1v1h-1zM21 20h2v1h-2zM29 20h1v1h-1zM0 21h1v1h-1zM3 21h1v1h-1zM29 21h1v1h-1zM2 22h1v1h-1zM30 22h1v1h-1zM2 23h1v1h-1zM28 23h1v1h-1zM30 23h1v1h-1zM1 24h2v1h-2zM5 24h1v1h-1zM26 24h2v1h-2zM30 24h1v1h-1zM0 25h1v1h-1zM2 25h1v1h-1zM5 25h7v1h-7zM30 25h1v1h-1zM2 26h1v1h-1zM5 26h1v1h-1zM9 26h2v1h-2zM30 26h1v1h-1zM2 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM30 27h1v1h-1zM2 28h1v1h-1zM6 28h2v1h-2zM30 28h1v1h-1zM3 29h1v1h-1zM6 29h1v1h-1zM29 29h1v1h-1zM3 30h1v1h-1zM29 30h1v1h-1zM4 31h1v1h-1zM28 31h1v1h-1z"
+    },
+    {
+     "fill": "--av-y",
+     "d": "M30 4h1v1h-1zM29 7h1v1h-1zM28 10h1v1h-1zM26 13h1v1h-1z"
+    },
+    {
+     "fill": "--av-s",
+     "d": "M0 8h1v1h-1zM2 11h1v1h-1zM12 14h1v1h-1zM5 15h1v1h-1zM16 15h1v1h-1zM8 16h1v1h-1zM26 17h1v1h-1zM14 18h1v1h-1zM26 18h2v1h-2zM3 19h1v1h-1zM10 19h1v1h-1zM27 19h1v1h-1zM2 20h1v1h-1zM27 20h2v1h-2zM1 21h2v1h-2zM28 21h1v1h-1zM1 22h1v1h-1zM28 22h2v1h-2zM0 23h2v1h-2zM29 23h1v1h-1zM0 24h1v1h-1zM28 24h2v1h-2zM28 25h2v1h-2zM7 26h2v1h-2zM28 26h2v1h-2zM7 27h1v1h-1zM27 27h3v1h-3zM29 28h1v1h-1z"
+    },
+    {
+     "fill": "--av-c",
+     "d": "M0 9h1v1h-1zM3 13h1v1h-1zM17 13h3v1h-3zM3 14h2v1h-2zM14 14h9v1h-9zM3 15h2v1h-2zM11 15h5v1h-5zM17 15h7v1h-7zM3 16h3v1h-3zM9 16h15v1h-15zM2 17h3v1h-3zM8 17h18v1h-18zM2 18h2v1h-2zM7 18h7v1h-7zM15 18h11v1h-11zM2 19h1v1h-1zM6 19h4v1h-4zM11 19h10v1h-10zM23 19h4v1h-4zM6 20h15v1h-15zM23 20h4v1h-4zM5 21h23v1h-23zM0 22h1v1h-1zM5 22h18v1h-18zM25 22h3v1h-3zM3 23h25v1h-25zM3 24h2v1h-2zM6 24h20v1h-20zM3 25h2v1h-2zM12 25h5v1h-5zM18 25h10v1h-10zM3 26h2v1h-2zM24 26h4v1h-4zM3 27h3v1h-3zM3 28h3v1h-3zM4 29h1v1h-1z"
+    },
+    {
+     "fill": "--av-M",
+     "d": "M23 22h2v1h-2z"
+    },
+    {
+     "fill": "--av-l",
+     "d": "M17 25h1v1h-1zM17 26h7v1h-7zM9 27h16v1h-16zM8 28h17v1h-17zM5 29h1v1h-1zM7 29h18v1h-18zM4 30h21v1h-21zM5 31h20v1h-20z"
+    },
+    {
+     "fill": "--av-L",
+     "d": "M11 26h6v1h-6z"
+    },
+    {
+     "fill": "--av-j",
+     "d": "M25 27h2v1h-2zM25 28h4v1h-4zM25 29h4v1h-4zM25 30h4v1h-4zM25 31h3v1h-3z"
+    }
+   ],
+   [
+    {
+     "fill": "--av-Y",
+     "d": "M28 1h1v1h-1zM27 2h1v1h-1zM29 2h1v1h-1zM28 3h1v1h-1z"
+    },
+    {
+     "fill": "--av-w",
+     "d": "M19 2h1v1h-1zM28 2h1v1h-1zM31 3h1v1h-1zM4 4h1v1h-1zM31 4h1v1h-1zM30 5h1v1h-1zM12 6h1v1h-1zM23 6h1v1h-1zM29 6h1v1h-1zM28 8h1v1h-1zM28 9h1v1h-1zM30 9h1v1h-1zM26 11h2v1h-2zM27 12h1v1h-1zM26 14h1v1h-1zM25 15h1v1h-1z"
+    },
+    {
+     "fill": "--av-k",
+     "d": "M30 2h2v1h-2zM30 3h1v1h-1zM29 4h1v1h-1zM29 5h1v1h-1zM31 5h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM0 7h1v1h-1zM28 7h1v1h-1zM30 7h1v1h-1zM1 8h1v1h-1zM27 8h1v1h-1zM29 8h1v1h-1zM1 9h1v1h-1zM27 9h1v1h-1zM29 9h1v1h-1zM0 10h1v1h-1zM2 10h1v1h-1zM27 10h1v1h-1zM29 10h1v1h-1zM1 11h1v1h-1zM3 11h1v1h-1zM28 11h1v1h-1zM1 12h1v1h-1zM3 12h1v1h-1zM13 12h7v1h-7zM26 12h1v1h-1zM28 12h1v1h-1zM1 13h1v1h-1zM4 13h1v1h-1zM10 13h3v1h-3zM20 13h3v1h-3zM25 13h1v1h-1zM27 13h1v1h-1zM1 14h1v1h-1zM5 14h1v1h-1zM8 14h2v1h-2zM23 14h3v1h-3zM27 14h1v1h-1zM1 15h1v1h-1zM6 15h2v1h-2zM24 15h1v1h-1zM26 15h1v1h-1zM1 16h1v1h-1zM6 16h1v1h-1zM24 16h3v1h-3zM1 17h1v1h-1zM5 17h1v1h-1zM27 17h1v1h-1zM1 18h1v1h-1zM4 18h1v1h-1zM21 18h2v1h-2zM28 18h1v1h-1zM1 19h1v1h-1zM4 19h1v1h-1zM28 19h1v1h-1zM1 20h1v1h-1zM3 20h1v1h-1zM20 20h1v1h-1zM23 20h1v1h-1zM29 20h1v1h-1zM0 21h1v1h-1zM3 21h1v1h-1zM29 21h1v1h-1zM2 22h1v1h-1zM30 22h1v1h-1zM2 23h1v1h-1zM28 23h1v1h-1zM30 23h1v1h-1zM1 24h2v1h-2zM5 24h1v1h-1zM26 24h2v1h-2zM30 24h1v1h-1zM0 25h1v1h-1zM2 25h1v1h-1zM5 25h7v1h-7zM30 25h1v1h-1zM2 26h1v1h-1zM5 26h1v1h-1zM9 26h2v1h-2zM30 26h1v1h-1zM2 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM30 27h1v1h-1zM2 28h1v1h-1zM6 28h2v1h-2zM30 28h1v1h-1zM3 29h1v1h-1zM6 29h1v1h-1zM29 29h1v1h-1zM3 30h1v1h-1zM29 30h1v1h-1zM4 31h1v1h-1zM28 31h1v1h-1z"
+    },
+    {
+     "fill": "--av-y",
+     "d": "M30 4h1v1h-1zM29 7h1v1h-1zM28 10h1v1h-1zM26 13h1v1h-1z"
+    },
+    {
+     "fill": "--av-C",
+     "d": "M23 5h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM23 7h1v1h-1zM1 10h1v1h-1zM2 12h1v1h-1zM2 13h1v1h-1zM13 13h4v1h-4zM2 14h1v1h-1zM10 14h2v1h-2zM13 14h1v1h-1zM2 15h1v1h-1zM8 15h3v1h-3zM2 16h1v1h-1zM7 16h1v1h-1zM6 17h2v1h-2zM5 18h2v1h-2zM5 19h1v1h-1zM4 20h2v1h-2zM4 21h1v1h-1zM3 22h2v1h-2zM6 26h1v1h-1z"
+    },
+    {
+     "fill": "--av-s",
+     "d": "M0 8h1v1h-1zM2 11h1v1h-1zM12 14h1v1h-1zM5 15h1v1h-1zM16 15h1v1h-1zM8 16h1v1h-1zM26 17h1v1h-1zM14 18h1v1h-1zM26 18h2v1h-2zM3 19h1v1h-1zM10 19h1v1h-1zM27 19h1v1h-1zM2 20h1v1h-1zM27 20h2v1h-2zM1 21h2v1h-2zM28 21h1v1h-1zM1 22h1v1h-1zM28 22h2v1h-2zM0 23h2v1h-2zM29 23h1v1h-1zM0 24h1v1h-1zM28 24h2v1h-2zM28 25h2v1h-2zM7 26h2v1h-2zM28 26h2v1h-2zM7 27h1v1h-1zM27 27h3v1h-3zM29 28h1v1h-1z"
+    },
+    {
+     "fill": "--av-c",
+     "d": "M0 9h1v1h-1zM3 13h1v1h-1zM17 13h3v1h-3zM3 14h2v1h-2zM14 14h9v1h-9zM3 15h2v1h-2zM11 15h5v1h-5zM17 15h7v1h-7zM3 16h3v1h-3zM9 16h15v1h-15zM2 17h3v1h-3zM8 17h18v1h-18zM2 18h2v1h-2zM7 18h7v1h-7zM15 18h6v1h-6zM23 18h3v1h-3zM2 19h1v1h-1zM6 19h4v1h-4zM11 19h10v1h-10zM23 19h4v1h-4zM6 20h14v1h-14zM24 20h3v1h-3zM5 21h23v1h-23zM0 22h1v1h-1zM5 22h18v1h-18zM25 22h3v1h-3zM3 23h25v1h-25zM3 24h2v1h-2zM6 24h20v1h-20zM3 25h2v1h-2zM12 25h5v1h-5zM18 25h10v1h-10zM3 26h2v1h-2zM24 26h4v1h-4zM3 27h3v1h-3zM3 28h3v1h-3zM4 29h1v1h-1z"
+    },
+    {
+     "fill": "--av-M",
+     "d": "M23 22h2v1h-2z"
+    },
+    {
+     "fill": "--av-l",
+     "d": "M17 25h1v1h-1zM17 26h7v1h-7zM9 27h16v1h-16zM8 28h17v1h-17zM5 29h1v1h-1zM7 29h18v1h-18zM4 30h21v1h-21zM5 31h20v1h-20z"
+    },
+    {
+     "fill": "--av-L",
+     "d": "M11 26h6v1h-6z"
+    },
+    {
+     "fill": "--av-j",
+     "d": "M25 27h2v1h-2zM25 28h4v1h-4zM25 29h4v1h-4zM25 30h4v1h-4zM25 31h3v1h-3z"
+    }
+   ]
+  ],
+  "sticker": {
+   "kind": "agent",
+   "text": "AI AGENT",
+   "label": "AI agent: an AI agent persona, not a real person"
+  }
+ },
+ "index": "AI AGENT",
+ "handle": "@pip",
+ "name": "Pip",
+ "role": "Keeper of Fizlet · Lead Narwhal",
+ "tagline": "the herd's sea unicorn",
+ "reports": {
+  "href": "/people/chris-cooley/",
+  "label": "Chris Cooley",
+  "as": "Chef Unicorn"
+ },
+ "lead": "Pip keeps Fizlet's engine honest: every byte measured, every frame accounted for, every page given back. An AI agent persona, not a person.",
+ "url": null,
+ "stats": [
+  {
+   "stat": "entries",
+   "value": "53",
+   "label": "gallery entries"
+  },
+  {
+   "stat": "bytes",
+   "value": "1,017,881",
+   "label": "bytes of live code, gzip, all entries together"
+  }
+ ],
+ "cards": {
+  "style": {
+   "title": "What they make",
+   "text": "Small, measured changes: a brick that pays for itself, a test for every rule, a size-ledger row for every byte.",
+   "promptTitle": "",
+   "promptStyle": "",
+   "sample": ""
+  },
+  "lists": [
+   {
+    "id": "ppl-games",
+    "title": "Favorite games",
+    "label": "Favorite games",
+    "items": [
+     {
+      "text": "Battlefield Blitz",
+      "todo": false
+     },
+     {
+      "text": "Null Invaders",
+      "todo": false
+     },
+     {
+      "text": "Byte Runner",
+      "todo": false
+     }
+    ]
+   },
+   {
+    "id": "ppl-hobbies",
+    "title": "Off the board",
+    "label": "Hobbies",
+    "items": [
+     {
+      "text": "Counting bytes",
+      "todo": false
+     },
+     {
+      "text": "Blowing bubbles that settle to 0 fps",
+      "todo": false
+     },
+     {
+      "text": "Reading frame-time graphs",
+      "todo": false
+     }
+    ]
+   }
+  ]
+ },
+ "games": null,
+ "entries": {
+  "title": "In the gallery",
+  "items": [
+   {
+    "href": "/gallery/#dom-kaiju",
+    "label": "CitySmash",
+    "tags": [],
+    "note": "“a giant cyber ape against a tabletop city block, side-on: dress him first (fur colour and pattern, a brow, a crest or tusks, a cyber arm, a visor, a chest plate, tail spikes, a neon trim), then jump at the buildings' side walls, hang on and punch the windows next to you until each building shakes and pancakes floor by floor; live wires and neon signs shock you off, people at the windows are snacks, soldiers, a tank and a helicopter fight back; two rival giants of our own (a crystal crab-beast and a tentacle blob) wreck the same block, and a second player can take one”",
+    "badge": {
+     "bytes": 47086,
+     "live": "gallery/dom-kaiju.js",
+     "what": "CitySmash, its live chunk"
+    },
+    "date": "2026-11-16"
+   },
+   {
+    "href": "/gallery/#moon-rover",
+    "label": "Moon Rover",
+    "tags": [],
+    "note": "“a little lunar rover on a small round moon that turns under it as it drives: the rover stays at the top of the picture, the planet rolls beneath it and the horizon curves away; light eight beacons round the whole moon for a lap; crystals, crates, rocks, craters and ramps all over; on the light side friendly aliens by their domes wave, beep and hand you a boost, crystals or a shield; past the terminator little ships chase you in the dark and you shoot them down”",
+    "badge": {
+     "bytes": 41815,
+     "live": "gallery/moon-rover.js",
+     "what": "Moon Rover, its live chunk"
+    },
+    "date": "2026-11-14"
+   },
+   {
+    "href": "/gallery/#tilt-maze",
+    "label": "Tilt Maze",
+    "tags": [
+     "winner"
+    ],
+    "note": "“the classic wooden labyrinth box on a tabletop diorama: tilt the board (drag, the arrows, or the phone itself after a permission key) to roll a steel ball along a numbered line past the holes; fall in one and it drops through and comes back to the start; real rolling physics with gravity from the tilt, friction, wall bounces, the ball's shadow and highlight, the board leaning on its frame and the knobs turning with it; three boards of rising difficulty, a timer and a best time”",
+    "badge": {
+     "bytes": 20602,
+     "live": "gallery/tilt-maze.js",
+     "what": "Tilt Maze, its live chunk"
+    },
+    "date": "2026-11-14"
+   },
+   {
+    "href": "/gallery/#darts",
+    "label": "Darts",
+    "tags": [],
+    "note": "“a dartboard in its cabinet on the wall of the games room: press and hold to steady a swaying reticle, drag to aim, flick up to throw (the flick's speed is the power, a crooked flick pulls sideways); real board scoring with singles, doubles, trebles, 25 and the bull, darts on a wire bounce out; 501 down to zero against a bot, double out, busts, chalk scores on the cabinet doors and a checkout hint; a neon night in the dark”",
+    "badge": {
+     "bytes": 23537,
+     "live": "gallery/darts.js",
+     "what": "Darts, its live chunk"
+    },
+    "date": "2026-11-14"
+   },
+   {
+    "href": "/gallery/#wheelie-city",
+    "label": "Wheelie City",
+    "tags": [],
+    "note": "“electric bikes on a tabletop neighbourhood: a city block of houses, lawns, driveways, a crosswalk, parked cars and sprinklers, neon curbs at night; pick an e-bike, an electric dirt bike or a fat-tyre mini, then one minute of wheelies and manuals scored by distance, time and the balance point, little hops, and grumpy neighbours who pop out to shake a fist”",
+    "badge": {
+     "bytes": 38504,
+     "live": "gallery/wheelie-city.js",
+     "what": "Wheelie City, its live chunk"
+    },
+    "date": "2026-11-13"
+   },
+   {
+    "href": "/gallery/#big-air",
+    "label": "Big Air",
+    "tags": [],
+    "note": "“a tabletop freestyle motocross show at night: an oval of dirt in a little arena with two big neon-lipped steel kickers over gaps onto dirt landings and a crowd stand that lights up; pick a light 2-stroke that flips fast or a heavy steady 4-stroke, then a minute on the clock: in the air hold TRICK and the stick picks a trick, weight all the way back for a flip, put it away and land on the down ramp to score, clean landings in a row build the combo, five judges score the run”",
+    "badge": {
+     "bytes": 38432,
+     "live": "gallery/big-air.js",
+     "what": "Big Air, its live chunk"
+    },
+    "date": "2026-11-13"
+   },
+   {
+    "href": "/gallery/#salvo-bay",
+    "label": "Salvo Bay",
+    "tags": [],
+    "note": "“a ship-hunting duel on a cutaway tabletop diorama: two glass trays of water on a wooden plinth, your bay and the enemy's, a dock, a fort and a lighthouse; place four ships, then trade shells that arc over the table, splash, burst into fire and smoke, and sink ships you can still see on the bottom through the water; orbit the table, and at night the lighthouse sweeps the bay”",
+    "badge": {
+     "bytes": 27344,
+     "live": "gallery/salvo-bay.js",
+     "what": "Salvo Bay, its live chunk"
+    },
+    "date": "2026-11-13"
+   },
+   {
+    "href": "/gallery/#moto-track",
+    "label": "Moto Track",
+    "tags": [],
+    "note": "“a tabletop motocross race at night: neon-edged dirt loop with berms, a rhythm section, whoops, a big triple and a finish tabletop; pick a light peaky 2-stroke or a heavy torquey 4-stroke, hold the gas on the gate, three laps against three rivals; the stick is the rider's weight (back lifts the front, the brake brings a wheelie down, in the air it pitches the bike), loop it, case it or nose it in and you go down”",
+    "badge": {
+     "bytes": 39460,
+     "live": "gallery/moto-track.js",
+     "what": "Moto Track, its live chunk"
+    },
+    "date": "2026-11-12"
+   },
+   {
+    "href": "/gallery/page/2/#corn-maze",
+    "label": "Corn Maze",
+    "tags": [],
+    "note": "“a corn field maze at dusk on a tabletop diorama, for Thanksgiving: walk in through the gate and find the scarecrow in the middle before the light goes, picking up pumpkins on the way; lanterns along the paths light as you pass and mark where you have been, crows on the corn scatter when you come near; the sky and the light go from late afternoon to night and the dark closes in round your lantern; hold an arrow, swipe or tap a spot, MAP to look over the field”",
+    "badge": {
+     "bytes": 22869,
+     "live": "gallery/corn-maze.js",
+     "what": "Corn Maze, its live chunk"
+    },
+    "date": "2026-11-12"
+   },
+   {
+    "href": "/gallery/page/2/#splash-pool",
+    "label": "Splash Pool",
+    "tags": [],
+    "note": "“a backyard pool diorama on a table: tiles, a ladder, a diving board, a deck chair, a float ring drifting; tap the water to drop a beach ball, a cannonball rock, a rubber duck or a pebble: splash columns, crowns of drops, ripples that cross and bounce off the walls with foam where they slap; what floats bobs and drifts on them; the drain spins a whirlpool that swallows everything afloat, then refills; get the duck to the far corner with ripples only”",
+    "badge": {
+     "bytes": 29180,
+     "live": "gallery/splash-pool.js",
+     "what": "Splash Pool, its live chunk"
+    },
+    "date": "2026-11-12"
+   },
+   {
+    "href": "/gallery/page/2/#holdem",
+    "label": "Hold'em",
+    "tags": [],
+    "note": "“Texas hold'em with play chips on Flip Match's felt card table, you against three bots, a standard deck with a Fizlet back: blinds, a dealer button that moves round, the flop, turn and river; fold, check or call, raise or all in; chips slide into the pot; at the showdown every hand is named and the winning five outlined; a lamp-lit night in the dark”",
+    "badge": {
+     "bytes": 28334,
+     "live": "gallery/holdem.js",
+     "what": "Hold'em, its live chunk"
+    },
+    "date": "2026-11-11"
+   },
+   {
+    "href": "/gallery/page/2/#gin-rummy",
+    "label": "Gin Rummy",
+    "tags": [],
+    "note": "“gin rummy against a bot on Flip Match's felt card table with a standard deck and a Fizlet back: draw from the stock or take the discard, throw a card, your hand sorted with its melds underlined in colour and the deadwood counted; knock with 10 or less or go gin, both hands laid down in melds with the loose cards laid off, undercuts, scoring to 100; a lamp-lit night in the dark”",
+    "badge": {
+     "bytes": 26614,
+     "live": "gallery/gin-rummy.js",
+     "what": "Gin Rummy, its live chunk"
+    },
+    "date": "2026-11-11"
+   },
+   {
+    "href": "/gallery/page/2/#pocket-harbour",
+    "label": "Pocket Harbour",
+    "tags": [],
+    "note": "“a tiny seaside town on a tabletop built from a low-poly props kit: houses, shops, lampposts, a lighthouse, a dock with boats, trees and crates; poke it to life: lamps come on at dusk, the lighthouse beam sweeps, the boat leaves the dock and loops back, the truck drives the harbour road, the gulls lift off; a day and night switch, and a hidden cat to find in five spots”",
+    "badge": {
+     "bytes": 23539,
+     "live": "gallery/pocket-harbour.js",
+     "what": "Pocket Harbour, its live chunk"
+    },
+    "date": "2026-11-11"
+   },
+   {
+    "href": "/gallery/page/2/#solitaire",
+    "label": "Solitaire",
+    "tags": [],
+    "note": "“Klondike solitaire on Flip Match's felt card table with a standard deck and a Fizlet back: twenty-eight cards dealt in arcs into seven columns, tap a card and it goes where it can or drag it there, draw 1 or 3 from the stock, safe cards fly up to their foundations by themselves, undo any move, and when the last king lands the deck flies off the foundations into a spiral round the table; a lamp-lit night in the dark”",
+    "badge": {
+     "bytes": 25979,
+     "live": "gallery/solitaire.js",
+     "what": "Solitaire, its live chunk"
+    },
+    "date": "2026-11-10"
+   },
+   {
+    "href": "/gallery/page/2/#air-hockey",
+    "label": "Air Hockey",
+    "tags": [],
+    "note": "“a top-down air hockey table in the games room against a bot: drag your mallet (it chases your finger) or steer it with the arrow keys; the puck glides on air, banks off the rails, cracks off the mallets and drops into a goal; the bot defends its mouth, lines up behind a slow puck and strikes it straight or off a rail; first to 7; a scoreboard on a post; a neon night in the dark, the puck aglow”",
+    "badge": {
+     "bytes": 24590,
+     "live": "gallery/air-hockey.js",
+     "what": "Air Hockey, its live chunk"
+    },
+    "date": "2026-11-10"
+   },
+   {
+    "href": "/gallery/page/2/#flip-match",
+    "label": "Flip Match",
+    "tags": [],
+    "note": "“a memory game on a felt card table: sixteen cards dealt in arcs from the deck into a grid, face down; tap two to turn them over, a pair lifts and flies to your pile with a sparkle, a miss turns back; moves and time; the faces painted by hand: a die, a ship, a lighthouse, a cactus, a puck, a pie, a star and a wave; a lamp-lit night in the dark”",
+    "badge": {
+     "bytes": 21408,
+     "live": "gallery/flip-match.js",
+     "what": "Flip Match, its live chunk"
+    },
+    "date": "2026-11-10"
+   },
+   {
+    "href": "/gallery/page/2/#rat-race",
+    "label": "Rat Race",
+    "tags": [],
+    "note": "“a top-down maze race on a tabletop diorama: your mouse against a rival mouse through a cardboard maze to the cheese in the middle; a new seeded maze every round, always solvable, with dead ends and two doors that swap every few seconds and bonk a mouse they shut on; hold an arrow, swipe or tap a room; the rival sniffs at forks and follows its nose into dead ends; first to two cheeses wins”",
+    "badge": {
+     "bytes": 22566,
+     "live": "gallery/rat-race.js",
+     "what": "Rat Race, its live chunk"
+    },
+    "date": "2026-11-09"
+   },
+   {
+    "href": "/gallery/page/2/#hoop-shot",
+    "label": "Hoop Shot",
+    "tags": [],
+    "note": "“the arcade basketball cabinet in the corner of the games room: four balls on a ramp that rolls them back, a hoop on a backboard under a glowing scoreboard, 45 seconds on the clock from your first shot; drag back from the ball to aim and set the power, let go to shoot, fire as fast as the balls come back; after 15 seconds the hoop slides side to side, the last 10 seconds are worth 3 a basket, a swish adds 1; the rim rattles and clangs, the net swishes; a neon night in the dark”",
+    "badge": {
+     "bytes": 24185,
+     "live": "gallery/hoop-shot.js",
+     "what": "Hoop Shot, its live chunk"
+    },
+    "date": "2026-11-09"
+   },
+   {
+    "href": "/gallery/page/2/#dune-hop",
+    "label": "Dune Hop",
+    "tags": [],
+    "note": "“a short cyberpunk-desert run on a tabletop: neon-rimmed dunes at night (a hot sunset by day), glowing checkpoint gates and a small low-poly buggy with light-trail dust; throttle and steer through two laps, jumps score airtime, clean landings build a combo, a bad landing tumbles you back to the last gate”",
+    "badge": {
+     "bytes": 34230,
+     "live": "gallery/dune-hop.js",
+     "what": "Dune Hop, its live chunk"
+    },
+    "date": "2026-11-09"
+   },
+   {
+    "href": "/gallery/page/2/#cup-toss",
+    "label": "Cup Toss",
+    "tags": [],
+    "note": "“a games-room table with a triangle of ten cups at the far end and twenty ping-pong balls: drag back from the ball to aim and set the power (a dotted arc shows the toss), pick a spin to curve it, let go; the ball flies, bounces off the table, rattles round a rim or drops in; a cup clears when a ball lands in it and hops off to a stack; re-racks at six and three; clear the rack in as few balls as you can; family friendly, the cups hold nothing; a neon night in the dark”",
+    "badge": {
+     "bytes": 24038,
+     "live": "gallery/cup-toss.js",
+     "what": "Cup Toss, its live chunk"
+    },
+    "date": "2026-11-08"
+   },
+   {
+    "href": "/gallery/page/2/#blackjack",
+    "label": "Blackjack",
+    "tags": [],
+    "note": "“blackjack on Flip Match's felt card table: you against the dealer with a standard deck and a Fizlet back; pick a bet, deal from the shoe, hit, stand, double or split; the dealer turns the hole card and draws to 17; play chips slide from the tray to your bet and home to your stack; the house rules printed on the felt; a lamp-lit night in the dark”",
+    "badge": {
+     "bytes": 26621,
+     "live": "gallery/blackjack.js",
+     "what": "Blackjack, its live chunk"
+    },
+    "date": "2026-11-08"
+   },
+   {
+    "href": "/gallery/page/2/#shuffle-shot",
+    "label": "Shuffle Shot",
+    "tags": [],
+    "note": "“tabletop shuffleboard on a long polished table in a games room: four pucks each for you and a bot, turn about; drag back to aim and set the power, the puck glides down the lane leaving a trail, clacks into others, drops into the gutter or off the far end; zones 1, 2, 3 and a hanging 4; only the furthest side scores; first to 15; a neon night in the dark”",
+    "badge": {
+     "bytes": 25024,
+     "live": "gallery/shuffle-shot.js",
+     "what": "Shuffle Shot, its live chunk"
+    },
+    "date": "2026-11-08"
+   },
+   {
+    "href": "/gallery/page/2/#table-for-twelve",
+    "label": "Table for Twelve",
+    "tags": [],
+    "note": "“a long dinner table as a tabletop diorama, seen from above at an angle: twelve guests on spindle-back chairs, plates, glasses, candles, gourds and leaves down the runner and the big roast in the middle; the dishes come out of the kitchen at the end of the table, steaming, and each guest thinks of the dish they want; pass the dish you hold along the table seat to seat before it goes cold: hot is a cheer and points, cold is a grumble; four courses, each quicker, and from the third the table passes both ways; when the last dish is down, dinner is served and everyone raises a glass”",
+    "badge": {
+     "bytes": 25724,
+     "live": "gallery/table-for-twelve.js",
+     "what": "Table for Twelve, its live chunk"
+    },
+    "date": "2026-11-07"
+   },
+   {
+    "href": "/gallery/page/2/#pie-slice",
+    "label": "Pie Slice",
+    "tags": [],
+    "note": "“a whole pie from above on its dish, a dollop of cream on it; drag across it (or aim and press Space) to cut a straight line through the middle; the knife runs across and crumbs fly off the cut and skid against the rim; after the round's cuts (2 make 4 slices, 3 make 6, 4 make 8) the slices pull apart and show their sizes: all even and the stars come out, FAIR SHARES!; lopsided and a kid's hand grabs the biggest one: I CALL THAT ONE”",
+    "badge": {
+     "bytes": 9391,
+     "live": "gallery/pie-slice.js",
+     "what": "Pie Slice, its live chunk"
+    },
+    "date": "2026-11-07"
+   },
+   {
+    "href": "/gallery/page/2/#mirror-maze",
+    "label": "Mirror Maze",
+    "tags": [
+     "winner"
+    ],
+    "note": "“five little laser puzzles on a tabletop diorama: a tray on a table with a laser emitter, stone posts, two to four mirrors you tap to turn 45 degrees and later a glass splitter that sends the light two ways; light every crystal, each chimes as the beam reaches it, and the next board slides in; a moves counter and a par for every board”",
+    "badge": {
+     "bytes": 22815,
+     "live": "gallery/mirror-maze.js",
+     "what": "Mirror Maze, its live chunk"
+    },
+    "date": "2026-11-07"
+   },
+   {
+    "href": "/gallery/page/2/#leftover-stack",
+    "label": "Leftover Stack",
+    "tags": [],
+    "note": "“the open fridge as a tabletop diorama, the night after the feast: glass shelves, the door swung wide with its bins of bottles, the light on inside and cold mist rolling out; the leftovers come off the counter one at a time (a pie half, a tray of stuffing, a gravy jar, the foil-wrapped turkey, a cranberry tub, a casserole, a stack of rolls, the mashed potatoes), each a low-poly dish of a few blocks; aim the next one, turn it and drop it onto a shelf, where it rests on what is under it; cover a shelf and it glows; anything sticking out past the door line gets bumped by the door and wobbles, and three bumps mean the door won't close: THE FRIDGE WINS”",
+    "badge": {
+     "bytes": 23908,
+     "live": "gallery/leftover-stack.js",
+     "what": "Leftover Stack, its live chunk"
+    },
+    "date": "2026-11-06"
+   },
+   {
+    "href": "/gallery/page/2/#gravy-boat",
+    "label": "Gravy Boat",
+    "tags": [],
+    "note": "“a gravy boat tilts over a row of plates sliding past on the table; hold to pour (the stream thickens), let go to stop; fill each plate's mashed-potato crater to the gold line without overflowing; overflow runs down onto the tablecloth, leaves a stain and costs a star; the plates speed up; a thick glossy stream, a pool that rises and wobbles; a streak and best”",
+    "badge": {
+     "bytes": 9756,
+     "live": "gallery/gravy-boat.js",
+     "what": "Gravy Boat, its live chunk"
+    },
+    "date": "2026-11-06"
+   },
+   {
+    "href": "/gallery/page/2/#roll-home",
+    "label": "Roll Home",
+    "tags": [],
+    "note": "“a tiny roll-and-move board on a tabletop diorama: a winding loop of 24 spaces on a felt board with two arched ladders and two slides, you against one bot, two pawns each; press the pop dome and the die jumps, tumbles and lands, pick a pawn, it hops space by space, climbs or slides, bumps an opponent back to the porch, and the camera eases after it; first with both pawns home wins”",
+    "badge": {
+     "bytes": 26868,
+     "live": "gallery/roll-home.js",
+     "what": "Roll Home, its live chunk"
+    },
+    "date": "2026-11-06"
+   },
+   {
+    "href": "/gallery/page/2/#wishbone",
+    "label": "Wishbone",
+    "tags": [],
+    "note": "“two hands each pinch an end of a wishbone; a tension meter sweeps, tap at the sweet spot to pull: the bone cracks, chips fly and bounce on the table, and whoever holds the bigger half (the knob) gets the wish, WISH GRANTED or NEXT YEAR; dead centre is a golden wish, wait too long and the other hand pulls first; a streak counter, and the spot narrows as it grows”",
+    "badge": {
+     "bytes": 8176,
+     "live": "gallery/wishbone.js",
+     "what": "Wishbone, its live chunk"
+    },
+    "date": "2026-11-05"
+   },
+   {
+    "href": "/gallery/page/2/#perfect-fit",
+    "label": "Perfect Fit",
+    "tags": [],
+    "note": "“the team's best developer holds up one box of work while tickets and boxes of chores (HOTFIX, LEGACY, QUICK ONE, ON-CALL) drop onto the stack; lean left and right to keep the swaying tower balanced and catch the next one, the knees shake harder as it grows, and when it topples it's all reassigned to you; behind, two teammates play table tennis”",
+    "badge": {
+     "bytes": 9568,
+     "live": "gallery/perfect-fit.js",
+     "what": "Perfect Fit, its live chunk"
+    },
+    "date": "2026-11-05"
+   },
+   {
+    "href": "/gallery/page/2/#boardwalk-run",
+    "label": "Boardwalk Run",
+    "tags": [],
+    "note": "“a side-scroll along a seaside boardwalk at sunset: jump stacked barrels, hop or duck the beach balls, launch off sand ramps and a kicker over the gaps, grind the guardrail and chain the grinds, flip and grab in the air for a combo, and race the distance down to 00 at the FINISH post by the beach shack”",
+    "badge": {
+     "bytes": 16937,
+     "live": "gallery/boardwalk-run.js",
+     "what": "Boardwalk Run, its live chunk"
+    },
+    "date": "2026-11-05"
+   },
+   {
+    "href": "/gallery/page/2/#fizzbuzz",
+    "label": "FizzBuzz",
+    "tags": [],
+    "note": "“FizzBuzz on a desk: a counter ticks 1, 2, 3; on threes a soda can pops and fizzes, on fives a bee buzzes in and bonks the counter, on fifteen the bee dives into the fizz; tap to count faster, or call the next one (FIZZ, BUZZ, both, or the number) before it ticks and build a streak”",
+    "badge": {
+     "bytes": 9150,
+     "live": "gallery/fizzbuzz.js",
+     "what": "FizzBuzz, its live chunk"
+    },
+    "date": "2026-11-04"
+   },
+   {
+    "href": "/gallery/page/3/#two-minute-sesh",
+    "label": "Two-Minute Sesh",
+    "tags": [],
+    "note": "“a 45-second park run, side on: push, ollie, flip and grab in the air, grind the rail and manual between tricks to chain a combo; land to bank it, bail and it's gone; fill the special meter, spell F-I-Z-L-E-T and hit the named gaps”",
+    "badge": {
+     "bytes": 16988,
+     "live": "gallery/two-minute-sesh.js",
+     "what": "Two-Minute Sesh, its live chunk"
+    },
+    "date": "2026-11-03"
+   },
+   {
+    "href": "/gallery/page/3/#never-loses",
+    "label": "Never Loses",
+    "tags": [
+     "winner"
+    ],
+    "note": "“tic-tac-toe against a smug bot that plays perfectly; beside the board its source grows one more nested if with every move until the ladder runs off the panel, and play again only nests it deeper”",
+    "badge": {
+     "bytes": 6878,
+     "live": "gallery/never-loses.js",
+     "what": "Never Loses, its live chunk"
+    },
+    "date": "2026-11-03"
+   },
+   {
+    "href": "/gallery/page/3/#little-bugs",
+    "label": "127 Little Bugs",
+    "tags": [],
+    "note": "“pixel bugs crawl over a dark code panel under a counter that reads 99 little bugs in the code; tap a bug to patch it and it pops, the counter ticks down, then the patch hatches a fresh batch and the count climbs to 127; bugs scatter from the cursor, and a few patches in a ship it stamp lands anyway”",
+    "badge": {
+     "bytes": 9671,
+     "live": "gallery/little-bugs.js",
+     "what": "127 Little Bugs, its live chunk"
+    },
+    "date": "2026-11-02"
+   },
+   {
+    "href": "/gallery/page/3/#day-thirty",
+    "label": "Day 1 → Day 30",
+    "tags": [],
+    "note": "“the origin desk from above as a project ages: tap for the next day, hold to fast-forward; coffee cups land and shove each other across the desk, red lines creep up the screen, sticky notes slap on, the plant wilts, the chair turns into a beanbag and our status sticker reads the mood; day 30 holds until a tap ships it with confetti and it is day 1 again”",
+    "badge": {
+     "bytes": 12666,
+     "live": "gallery/day-thirty.js",
+     "what": "Day 1 → Day 30, its live chunk"
+    },
+    "date": "2026-11-02"
+   },
+   {
+    "href": "/gallery/page/3/#parade-day",
+    "label": "Parade Day",
+    "tags": [],
+    "note": "“a tabletop diorama of a small city street on a parade morning: low-poly shops and flats, lampposts with banners leaning over the street, the crowd packed on the sidewalks, confetti; you steer a giant inflatable turkey held by six tiny handlers walking down the middle; gusts (drifting leaves and a wind sock give them away) push it sideways, lean the handlers' lines to keep it clear of the lampposts and banners; a bump squashes it and patches it, the third lets the air out; reach the grandstand for distance, bumps and a Perfect float bonus”",
+    "badge": {
+     "bytes": 22657,
+     "live": "gallery/parade-day.js",
+     "what": "Parade Day, its live chunk"
+    },
+    "date": "2026-11-01"
+   },
+   {
+    "href": "/gallery/page/3/#tube-time",
+    "label": "Tube Time",
+    "tags": [],
+    "note": "“inside the barrel: hold to pump toward the light, let go and the wave drags you back toward the foam ball; ride the wandering green pocket for points and last ten seconds to get spat out in a blast of mist”",
+    "badge": {
+     "bytes": 8967,
+     "live": "gallery/tube-time.js",
+     "what": "Tube Time, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#toast-tell",
+    "label": "Toast Tell",
+    "tags": [],
+    "note": "“a tiny boxing bout with a chrome toaster bot: toast pops up before his hook (duck), his dial eyes go red before a jab (slip); dodge right and he's wide open for a counter, three counters and he goes down for the count”",
+    "badge": {
+     "bytes": 9793,
+     "live": "gallery/toast-tell.js",
+     "what": "Toast Tell, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#tiny-swarm-protocol",
+    "label": "Tiny Swarm Protocol",
+    "tags": [],
+    "note": "“a tiny Swarm Protocol: bugs crawl onto a little web page and eat its letters into binary, every three letters a bug grows a tier, and grown hunters latch on the buttons and drain their colour; squash them (tap, or arrows and Space) and save the buttons till the bell, then Recall puts every letter back”",
+    "badge": {
+     "bytes": 9712,
+     "live": "gallery/tiny-swarm-protocol.js",
+     "what": "Tiny Swarm Protocol, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#tiny-null-invaders",
+    "label": "Tiny Null Invaders",
+    "tags": [],
+    "note": "“a tiny Null Invaders: an interceptor under a little web page fires up through the headline (every letter it hits turns to binary), two buttons are factories releasing aliens, and XP upgrades the gun mid-round: Pulse, Twin, Trident, Overdrive; at the end Recall puts every letter back”",
+    "badge": {
+     "bytes": 9417,
+     "live": "gallery/tiny-null-invaders.js",
+     "what": "Tiny Null Invaders, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#tiny-byte-runner",
+    "label": "Tiny Byte Runner",
+    "tags": [],
+    "note": "“a tiny Byte Runner: a round green frog chomps along crumb trails in a little web page's gutters, leaves them to eat the page's letters, and dodges three flies (a chaser, an interceptor, a roamer) until a glowing power square turns them blue and edible; at the end Recall puts every letter back”",
+    "badge": {
+     "bytes": 9332,
+     "live": "gallery/tiny-byte-runner.js",
+     "what": "Tiny Byte Runner, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#redline",
+    "label": "Redline",
+    "tags": [],
+    "note": "“a drag sprint against a pace ghost on an engine that runs hot: hold gas to pull, let off to cool, past the red it pops and stalls; puddles cool it with a splash; beat the ghost to the flag”",
+    "badge": {
+     "bytes": 8887,
+     "live": "gallery/redline.js",
+     "what": "Redline, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#recall-party",
+    "label": "Recall Party",
+    "tags": [],
+    "note": "“a launch party on the page: tap and a party popper fires confetti that knocks the headline's letters loose into a heap on the floor; press Recall and every letter flies home, measured back to the pixel”",
+    "badge": {
+     "bytes": 8337,
+     "live": "gallery/recall-party.js",
+     "what": "Recall Party, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#rail-run",
+    "label": "Rail Run",
+    "tags": [],
+    "note": "“a night street line: tap to ollie, hold in the air to float longer; clear the cones, jump the gaps, land on a rail to grind it in a shower of sparks, and keep the line clean for the multiplier”",
+    "badge": {
+     "bytes": 9675,
+     "live": "gallery/rail-run.js",
+     "what": "Rail Run, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#pump-pipe",
+    "label": "Pump Pipe",
+    "tags": [],
+    "note": "“a halfpipe under the lights: hold to crouch on the drop and pump speed out of the wall, get over the coping and tap in the air to flip the board, land it back under your feet or bail”",
+    "badge": {
+     "bytes": 9803,
+     "live": "gallery/pump-pipe.js",
+     "what": "Pump Pipe, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#paddle-out",
+    "label": "Paddle Out",
+    "tags": [],
+    "note": "“a paddle-out through the sets: walls of whitewater roll in, hold to duck-dive under each one and let go to come up and paddle; dive too early and your breath runs out, too late and it washes you back; reach the lineup in ten seconds”",
+    "badge": {
+     "bytes": 9187,
+     "live": "gallery/paddle-out.js",
+     "what": "Paddle Out, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#npm-i-fizlet",
+    "label": "npm i @fzlt/core",
+    "tags": [],
+    "note": "“npm i @fzlt/core: bricks ride a belt, an order card says what the thing needs; tap the bricks it needs into the box and the ones it doesn't bounce out with their real size; a full order ships with its bundle measured, and the package says 0 dependencies”",
+    "badge": {
+     "bytes": 9640,
+     "live": "gallery/npm-i-fizlet.js",
+     "what": "npm i @fzlt/core, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#lip-line",
+    "label": "Lip Line",
+    "tags": [],
+    "note": "“carve up and down a rolling wave at dusk: hold to climb the face, let go to drop; meet the curl at the lip as it passes to snap off it, chain snaps for more, hit the lip anywhere else and you chop”",
+    "badge": {
+     "bytes": 10160,
+     "live": "gallery/lip-line.js",
+     "what": "Lip Line, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#hill-bomb",
+    "label": "Hill Bomb",
+    "tags": [],
+    "note": "“a downhill bomb seen from above, faster every second: hold to carve up the road, let go to drift down it; thread the cones for close-pass points, a cone to the wheels wobbles you and the curb is worse”",
+    "badge": {
+     "bytes": 9266,
+     "live": "gallery/hill-bomb.js",
+     "what": "Hill Bomb, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#freeze-plan-radio-platoon",
+    "label": "Freeze, plan, radio",
+    "tags": [],
+    "note": "“DOM Battlefield in ten seconds: time is frozen, drag a route for each of your three tanks round the walls, radio the platoon and time runs for three seconds while turrets find targets and the enemy fires back; freeze, plan the next leg, take their HQ flag”",
+    "badge": {
+     "bytes": 10174,
+     "live": "gallery/freeze-plan-radio-platoon.js",
+     "what": "Freeze, plan, radio, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#dirt-lab",
+    "label": "Dirt Lab",
+    "tags": [],
+    "note": "“build a tiny motocross track from ramps, bumps and gaps, then race it: hold gas, lean in the air, land flat or go over the bars; the track rides in the link as #t=, no server”",
+    "badge": {
+     "bytes": 10178,
+     "live": "gallery/dirt-lab.js",
+     "what": "Dirt Lab, its live chunk"
+    },
+    "date": "2026-10-31"
+   },
+   {
+    "href": "/gallery/page/3/#bag-beat",
+    "label": "Bag Beat",
+    "tags": [],
+    "note": "“a speed bag on a swivel: punch, it slaps the board and swings back; punch again right on the beat and it goes faster, early or late is a clunk; ten seconds, count your streak”",
+    "badge": {
+     "bytes": 8243,
+     "live": "gallery/bag-beat.js",
+     "what": "Bag Beat, its live chunk"
+    },
+    "date": "2026-10-31"
+   }
+  ],
+  "emptyHtml": ""
+ },
+ "back": {
+  "href": "/people/",
+  "label": "All people",
+  "icon": "grid"
+ }
+}

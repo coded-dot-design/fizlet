@@ -1,0 +1,8 @@
+---
+// A person's pixel avatar: every frame stacked (the first shown; site.js cross-fades the rest unless
+// the viewer asks for reduced motion), one accessible name, and the sticker that says what they are
+// (maker, creator, AI agent, character). Each frame is its paths, one per palette colour token.
+interface Props { label: string; rotate: boolean; size: number; frames: { fill: string; d: string }[][]; sticker: { kind: string; text: string; label: string } }
+const { label, rotate, size, frames, sticker } = Astro.props;
+---
+<div class="ppl-av-wrap"><span class="ppl-frame" role="img" aria-label={label} data-rotate={rotate ? "" : undefined}>{frames.map((paths, i) => <svg class={i ? "ppl-av" : "ppl-av on"} viewBox="0 0 32 32" width={size} height={size} aria-hidden="true" shape-rendering="crispEdges"><rect width="32" height="32" fill="var(--av-bg)"/>{paths.map((p) => <path fill={`var(${p.fill})`} d={p.d}/>)}</svg>)}</span><span class={`ppl-sticker ppl-sticker-${sticker.kind}`} role="img" aria-label={sticker.label} title={sticker.label}>{sticker.text}</span></div>

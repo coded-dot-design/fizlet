@@ -1,0 +1,34 @@
+---
+// The Daily contest: the head, this week's theme and its pieces by lane (the micros smallest first,
+// the Hi-Fi pieces apart), the rules, how to enter, and the past winners, newest first.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import WeekCard from "../../components/WeekCard.astro";
+import ContestPiece from "../../components/ContestPiece.astro";
+import Callout from "../../components/Callout.astro";
+import Key from "../../components/Key.astro";
+import type { Tone } from "../../lib/site";
+import DATA from "../../data/legacy/pages/contest.json";
+const c = DATA as any;
+---
+<BaseLayout meta={c.meta}>
+<section class={c.cls} aria-labelledby="ct-title">
+  <div class="wrap">
+    <SectionHead index={c.head.index} eyebrow={c.head.eyebrow} line={c.head.title.line} accent={c.head.title.accent} lead={c.head.lead} id="ct-title" />
+    {c.week ? <WeekCard {...c.week} /> : <div class="panel ct-today"><h2 id="ct-theme">No theme set yet</h2><p class="body">The next theme is posted here.</p></div>}
+    {c.lanes.map((l: any) => <section class="ct-entries" aria-labelledby={l.id}><h2 id={l.id}>{l.title}</h2><ol class="ct-winners">{l.pieces.map((p: any) => <ContestPiece {...p} />)}</ol>{l.note && <p class="ct-note"><a href={l.note.href}>{l.note.label}</a></p>}</section>)}
+    <div class="ct-grid">
+      <Callout class="ct-card" tag="section" labelledby="ct-rules"><h2 id="ct-rules">{c.rules.title}</h2><ol class="ledger-rules note-list">{c.rules.items.map((r: string) => <li set:html={r} />)}</ol></Callout>
+      <Callout class="ct-card" tag="section" labelledby="ct-enter"><h2 id="ct-enter">{c.enter.title}</h2>
+        <p>{c.enter.intro}</p>
+        <ol class="ledger-rules note-list">
+          {c.enter.steps.map((s: string) => <li set:html={s} />)}
+        </ol>
+        <p class="ct-note"><span class="bui-label"><b>{c.enter.planned.label}</b></span> {c.enter.planned.text}</p>
+        <div class="split-keys">{c.enter.keys.map((k: any) => <Key href={k.href} tone={k.tone as Tone} arcade={k.arcade} icon={k.icon} label={k.label} />)}</div>
+      </Callout>
+    </div>
+    <section class="ct-past" aria-labelledby="ct-past"><h2 id="ct-past">{c.past.title}</h2>{c.past.winners.length ? <ol class="ct-winners">{c.past.winners.map((p: any) => <ContestPiece {...p} />)}</ol> : <p class="body">{c.past.empty}</p>}</section>
+  </div>
+</section>
+</BaseLayout>

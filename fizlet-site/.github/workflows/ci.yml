@@ -1,5 +1,5 @@
 name: Site gates
-# Every PR and every push to main: validate:content, test, typecheck, build, audit, browse.
+# Every PR and every push to main: validate:content, test, typecheck, build, audit, browse, make:check.
 on:
   push:
     branches: [main]
@@ -24,4 +24,5 @@ jobs:
       - run: npm run build
       - run: npm run audit
       - run: npm run browse
+      - run: npm run make:check
       - run: npm audit --omit=dev --audit-level=high

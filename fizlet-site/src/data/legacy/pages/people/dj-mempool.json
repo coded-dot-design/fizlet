@@ -1,0 +1,270 @@
+{
+ "meta": {
+  "path": "people/dj-mempool/",
+  "title": "DJ Mempool: studio crew · Fizlet",
+  "description": "DJ Mempool, Fizlet studio crew (a character, not a real person): a synthwave DJ who spins crypto-meme bits.",
+  "ld": [
+   {
+    "@type": "ProfilePage",
+    "@id": "https://fizlet.com/people/dj-mempool/#page",
+    "url": "https://fizlet.com/people/dj-mempool/",
+    "name": "DJ Mempool",
+    "about": {
+     "@type": "Thing",
+     "name": "DJ Mempool",
+     "description": "Studio crew — a Fizlet character, not a real person. DJ Mempool spins synthwave sets and crypto-meme bits: green candles, rockets to the moon, numbers that only go up. The page always comes back down; that is the joke. DJ Mempool pitches animation ideas and prompts for the gallery, and votes in the weekly contest with Quill, Pip and Chris."
+    }
+   }
+  ],
+  "scripts": [
+   "/site.js"
+  ]
+ },
+ "cls": "has-grid section ppl",
+ "id": "dj-mempool",
+ "crumbs": {
+  "trail": [
+   {
+    "href": "/people/",
+    "label": "People"
+   }
+  ],
+  "current": "DJ Mempool"
+ },
+ "avatar": {
+  "label": "DJ Mempool: pixel-art avatar",
+  "rotate": true,
+  "size": 160,
+  "frames": [
+   [
+    {
+     "fill": "--av-k",
+     "d": "M19 0h1v1h-1zM13 1h10v1h-10zM11 2h2v1h-2zM20 2h2v1h-2zM23 2h4v1h-4zM10 3h1v1h-1zM14 3h5v1h-5zM22 3h1v1h-1zM26 3h1v1h-1zM9 4h1v1h-1zM12 4h2v1h-2zM19 4h2v1h-2zM23 4h1v1h-1zM25 4h1v1h-1zM8 5h1v1h-1zM11 5h1v1h-1zM21 5h1v1h-1zM24 5h2v1h-2zM7 6h1v1h-1zM10 6h1v1h-1zM22 6h1v1h-1zM25 6h1v1h-1zM6 7h1v1h-1zM9 7h1v1h-1zM13 7h11v1h-11zM26 7h1v1h-1zM6 8h1v1h-1zM9 8h1v1h-1zM12 8h1v1h-1zM22 8h2v1h-2zM26 8h1v1h-1zM6 9h1v1h-1zM8 9h1v1h-1zM11 9h1v1h-1zM22 9h1v1h-1zM24 9h1v1h-1zM26 9h1v1h-1zM5 10h1v1h-1zM8 10h1v1h-1zM10 10h1v1h-1zM23 10h2v1h-2zM27 10h1v1h-1zM5 11h5v1h-5zM23 11h1v1h-1zM25 11h3v1h-3zM5 12h1v1h-1zM8 12h2v1h-2zM24 12h1v1h-1zM27 12h1v1h-1zM4 13h1v1h-1zM9 13h15v1h-15zM28 13h1v1h-1zM3 14h1v1h-1zM9 14h1v1h-1zM16 14h1v1h-1zM22 14h2v1h-2zM29 14h1v1h-1zM3 15h1v1h-1zM9 15h15v1h-15zM29 15h1v1h-1zM3 16h1v1h-1zM9 16h15v1h-15zM29 16h1v1h-1zM3 17h1v1h-1zM10 17h1v1h-1zM22 17h1v1h-1zM29 17h3v1h-3zM3 18h1v1h-1zM10 18h1v1h-1zM22 18h1v1h-1zM29 18h1v1h-1zM3 19h1v1h-1zM10 19h1v1h-1zM13 19h1v1h-1zM19 19h1v1h-1zM22 19h1v1h-1zM29 19h1v1h-1zM4 20h1v1h-1zM9 20h1v1h-1zM14 20h5v1h-5zM23 20h1v1h-1zM28 20h2v1h-2zM31 20h1v1h-1zM5 21h1v1h-1zM8 21h1v1h-1zM10 21h1v1h-1zM22 21h1v1h-1zM24 21h1v1h-1zM27 21h2v1h-2zM6 22h2v1h-2zM10 22h1v1h-1zM22 22h1v1h-1zM25 22h2v1h-2zM28 22h1v1h-1zM9 23h3v1h-3zM21 23h2v1h-2zM28 23h1v1h-1zM7 24h2v1h-2zM12 24h2v1h-2zM19 24h2v1h-2zM23 24h2v1h-2zM28 24h1v1h-1zM4 25h3v1h-3zM14 25h5v1h-5zM25 25h4v1h-4zM30 25h1v1h-1zM2 26h2v1h-2zM28 26h1v1h-1zM30 26h1v1h-1zM2 27h1v1h-1zM28 27h1v1h-1zM30 27h1v1h-1zM1 28h1v1h-1zM27 28h1v1h-1zM30 28h1v1h-1zM1 29h1v1h-1zM27 29h1v1h-1zM30 29h1v1h-1zM0 30h1v1h-1zM27 30h1v1h-1zM29 30h1v1h-1zM31 30h1v1h-1zM27 31h1v1h-1zM29 31h1v1h-1z"
+    },
+    {
+     "fill": "--av-M",
+     "d": "M27 0h1v1h-1zM26 1h1v1h-1zM28 1h1v1h-1zM27 2h1v1h-1zM11 14h1v1h-1zM19 14h1v1h-1zM6 15h1v1h-1zM25 15h1v1h-1zM9 24h3v1h-3zM7 25h3v1h-3zM4 26h4v1h-4zM3 27h2v1h-2z"
+    },
+    {
+     "fill": "--av-w",
+     "d": "M27 1h1v1h-1zM2 4h1v1h-1zM30 13h1v1h-1zM30 19h1v1h-1zM30 20h1v1h-1zM30 21h1v1h-1zM30 22h1v1h-1zM30 23h1v1h-1zM30 24h1v1h-1zM29 25h1v1h-1zM29 26h1v1h-1zM29 27h1v1h-1zM29 28h1v1h-1zM29 29h1v1h-1z"
+    },
+    {
+     "fill": "--av-c",
+     "d": "M13 2h7v1h-7zM11 3h3v1h-3zM19 3h3v1h-3zM10 4h2v1h-2zM21 4h2v1h-2zM9 5h2v1h-2zM22 5h2v1h-2zM8 6h2v1h-2zM23 6h2v1h-2zM7 7h2v1h-2zM24 7h2v1h-2zM7 8h2v1h-2zM24 8h2v1h-2zM7 9h1v1h-1zM25 9h1v1h-1zM6 10h2v1h-2zM25 10h2v1h-2zM7 12h1v1h-1zM26 12h1v1h-1zM7 13h2v1h-2zM26 13h2v1h-2zM8 14h1v1h-1zM27 14h1v1h-1zM4 17h1v1h-1zM23 17h1v1h-1zM4 18h1v1h-1zM23 18h1v1h-1zM4 19h2v1h-2zM23 19h2v1h-2zM5 20h2v1h-2zM24 20h2v1h-2zM4 28h23v1h-23z"
+    },
+    {
+     "fill": "--av-p",
+     "d": "M22 2h1v1h-1zM23 3h1v1h-1zM14 4h5v1h-5zM12 5h9v1h-9zM11 6h1v1h-1zM10 7h1v1h-1z"
+    },
+    {
+     "fill": "--av-q",
+     "d": "M24 3h2v1h-2zM24 4h1v1h-1zM12 6h10v1h-10zM11 7h2v1h-2zM10 8h2v1h-2zM9 9h2v1h-2zM9 10h1v1h-1z"
+    },
+    {
+     "fill": "--av-y",
+     "d": "M13 8h7v1h-7zM12 9h9v1h-9zM12 10h9v1h-9zM11 11h11v1h-11zM11 12h11v1h-11zM11 17h10v1h-10zM11 18h10v1h-10zM11 19h2v1h-2zM14 19h5v1h-5zM10 20h4v1h-4zM19 20h1v1h-1zM11 21h8v1h-8zM12 22h5v1h-5z"
+    },
+    {
+     "fill": "--av-t",
+     "d": "M20 8h2v1h-2zM21 9h1v1h-1zM21 10h2v1h-2zM22 11h1v1h-1zM22 12h2v1h-2zM21 17h1v1h-1zM21 18h1v1h-1zM20 19h2v1h-2zM20 20h3v1h-3zM19 21h3v1h-3zM11 22h1v1h-1zM17 22h5v1h-5zM12 23h9v1h-9zM14 24h5v1h-5z"
+    },
+    {
+     "fill": "--av-b",
+     "d": "M5 9h1v1h-1zM23 9h1v1h-1zM27 9h1v1h-1zM4 10h1v1h-1zM28 10h1v1h-1zM4 11h1v1h-1zM24 11h1v1h-1zM28 11h1v1h-1zM3 12h2v1h-2zM28 12h2v1h-2zM3 13h1v1h-1zM2 15h1v1h-1zM30 15h1v1h-1zM2 16h1v1h-1zM30 16h1v1h-1zM2 17h1v1h-1zM2 18h1v1h-1zM2 19h1v1h-1zM2 20h2v1h-2zM2 21h3v1h-3zM9 21h1v1h-1zM23 21h1v1h-1zM3 22h3v1h-3zM8 22h2v1h-2zM23 22h2v1h-2zM27 22h1v1h-1zM3 23h6v1h-6zM23 23h5v1h-5zM3 24h4v1h-4zM25 24h3v1h-3z"
+    },
+    {
+     "fill": "--av-Y",
+     "d": "M11 10h1v1h-1zM10 11h1v1h-1zM10 12h1v1h-1z"
+    },
+    {
+     "fill": "--av-C",
+     "d": "M6 12h1v1h-1zM25 12h1v1h-1zM5 13h2v1h-2zM24 13h2v1h-2zM4 14h2v1h-2zM24 14h1v1h-1zM4 15h1v1h-1zM4 16h1v1h-1z"
+    },
+    {
+     "fill": "--av-G",
+     "d": "M30 12h1v1h-1zM29 13h1v1h-1zM31 13h1v1h-1zM30 14h1v1h-1z"
+    },
+    {
+     "fill": "--av-m",
+     "d": "M6 14h2v1h-2zM12 14h1v1h-1zM20 14h1v1h-1zM25 14h2v1h-2zM5 15h1v1h-1zM7 15h2v1h-2zM24 15h1v1h-1zM26 15h2v1h-2zM5 16h4v1h-4zM24 16h4v1h-4zM5 17h4v1h-4zM24 17h4v1h-4zM5 18h4v1h-4zM24 18h4v1h-4zM6 19h2v1h-2zM25 19h2v1h-2zM21 24h2v1h-2zM10 25h4v1h-4zM19 25h6v1h-6zM8 26h20v1h-20zM5 27h23v1h-23zM2 28h2v1h-2zM2 29h25v1h-25zM1 30h26v1h-26zM30 30h1v1h-1zM0 31h27v1h-27zM30 31h2v1h-2z"
+    },
+    {
+     "fill": "--av-a",
+     "d": "M10 14h1v1h-1zM13 14h3v1h-3z"
+    },
+    {
+     "fill": "--av-i",
+     "d": "M17 14h2v1h-2zM21 14h1v1h-1z"
+    },
+    {
+     "fill": "--av-s",
+     "d": "M28 14h1v1h-1zM28 15h1v1h-1zM28 16h1v1h-1zM9 17h1v1h-1zM28 17h1v1h-1zM9 18h1v1h-1zM28 18h1v1h-1zM8 19h2v1h-2zM27 19h2v1h-2zM7 20h2v1h-2zM26 20h2v1h-2zM6 21h2v1h-2zM25 21h2v1h-2z"
+    },
+    {
+     "fill": "--av-g",
+     "d": "M30 18h2v1h-2zM31 19h1v1h-1zM29 21h1v1h-1zM29 22h1v1h-1zM29 23h1v1h-1zM29 24h1v1h-1zM28 28h1v1h-1zM28 29h1v1h-1zM28 30h1v1h-1zM28 31h1v1h-1z"
+    }
+   ],
+   [
+    {
+     "fill": "--av-k",
+     "d": "M19 0h1v1h-1zM13 1h10v1h-10zM11 2h2v1h-2zM20 2h2v1h-2zM23 2h4v1h-4zM10 3h1v1h-1zM14 3h5v1h-5zM22 3h1v1h-1zM26 3h1v1h-1zM9 4h1v1h-1zM12 4h2v1h-2zM19 4h2v1h-2zM23 4h1v1h-1zM25 4h1v1h-1zM8 5h1v1h-1zM11 5h1v1h-1zM21 5h1v1h-1zM24 5h2v1h-2zM7 6h1v1h-1zM10 6h1v1h-1zM22 6h1v1h-1zM25 6h1v1h-1zM6 7h1v1h-1zM9 7h1v1h-1zM13 7h11v1h-11zM26 7h1v1h-1zM6 8h1v1h-1zM9 8h1v1h-1zM12 8h1v1h-1zM22 8h2v1h-2zM26 8h1v1h-1zM6 9h1v1h-1zM8 9h1v1h-1zM11 9h1v1h-1zM22 9h1v1h-1zM24 9h1v1h-1zM26 9h1v1h-1zM5 10h1v1h-1zM8 10h1v1h-1zM10 10h1v1h-1zM23 10h2v1h-2zM27 10h1v1h-1zM5 11h5v1h-5zM23 11h1v1h-1zM25 11h3v1h-3zM5 12h1v1h-1zM8 12h2v1h-2zM24 12h1v1h-1zM27 12h1v1h-1zM4 13h1v1h-1zM9 13h15v1h-15zM28 13h1v1h-1zM3 14h1v1h-1zM9 14h1v1h-1zM16 14h1v1h-1zM22 14h2v1h-2zM29 14h1v1h-1zM3 15h1v1h-1zM9 15h15v1h-15zM29 15h1v1h-1zM3 16h1v1h-1zM9 16h15v1h-15zM29 16h1v1h-1zM3 17h1v1h-1zM10 17h1v1h-1zM22 17h1v1h-1zM29 17h1v1h-1zM3 18h1v1h-1zM10 18h1v1h-1zM22 18h1v1h-1zM25 18h3v1h-3zM29 18h1v1h-1zM3 19h1v1h-1zM10 19h1v1h-1zM13 19h1v1h-1zM19 19h1v1h-1zM22 19h1v1h-1zM24 19h1v1h-1zM28 19h2v1h-2zM4 20h1v1h-1zM9 20h1v1h-1zM14 20h5v1h-5zM23 20h1v1h-1zM29 20h1v1h-1zM5 21h1v1h-1zM8 21h1v1h-1zM10 21h1v1h-1zM22 21h2v1h-2zM29 21h1v1h-1zM6 22h2v1h-2zM10 22h1v1h-1zM22 22h2v1h-2zM29 22h1v1h-1zM9 23h3v1h-3zM21 23h2v1h-2zM24 23h1v1h-1zM28 23h1v1h-1zM7 24h2v1h-2zM12 24h2v1h-2zM19 24h2v1h-2zM23 24h5v1h-5zM5 25h2v1h-2zM14 25h5v1h-5zM25 25h3v1h-3zM28 26h2v1h-2zM29 27h1v1h-1zM30 28h1v1h-1zM30 29h1v1h-1zM0 30h1v1h-1zM31 30h1v1h-1z"
+    },
+    {
+     "fill": "--av-c",
+     "d": "M13 2h7v1h-7zM11 3h3v1h-3zM19 3h3v1h-3zM10 4h2v1h-2zM21 4h2v1h-2zM9 5h2v1h-2zM22 5h2v1h-2zM8 6h2v1h-2zM23 6h2v1h-2zM7 7h2v1h-2zM24 7h2v1h-2zM7 8h2v1h-2zM24 8h2v1h-2zM7 9h1v1h-1zM25 9h1v1h-1zM6 10h2v1h-2zM25 10h2v1h-2zM7 12h1v1h-1zM26 12h1v1h-1zM7 13h2v1h-2zM26 13h2v1h-2zM8 14h1v1h-1zM27 14h1v1h-1zM4 17h1v1h-1zM23 17h1v1h-1zM4 18h1v1h-1zM23 18h1v1h-1zM4 19h2v1h-2zM23 19h1v1h-1zM5 20h2v1h-2zM7 28h21v1h-21z"
+    },
+    {
+     "fill": "--av-p",
+     "d": "M22 2h1v1h-1zM23 3h1v1h-1zM14 4h5v1h-5zM12 5h9v1h-9zM11 6h1v1h-1zM10 7h1v1h-1z"
+    },
+    {
+     "fill": "--av-C",
+     "d": "M2 3h1v1h-1zM1 4h1v1h-1zM3 4h1v1h-1zM2 5h1v1h-1zM6 12h1v1h-1zM25 12h1v1h-1zM5 13h2v1h-2zM24 13h2v1h-2zM5 14h1v1h-1zM24 14h1v1h-1zM4 15h1v1h-1zM4 16h1v1h-1z"
+    },
+    {
+     "fill": "--av-q",
+     "d": "M24 3h2v1h-2zM24 4h1v1h-1zM12 6h10v1h-10zM11 7h2v1h-2zM10 8h2v1h-2zM9 9h2v1h-2zM9 10h1v1h-1z"
+    },
+    {
+     "fill": "--av-w",
+     "d": "M28 3h2v1h-2zM2 4h1v1h-1zM29 4h1v1h-1zM27 5h1v1h-1zM29 5h1v1h-1zM27 6h2v1h-2zM4 14h1v1h-1z"
+    },
+    {
+     "fill": "--av-y",
+     "d": "M13 8h7v1h-7zM12 9h9v1h-9zM12 10h9v1h-9zM11 11h11v1h-11zM11 12h11v1h-11zM11 17h10v1h-10zM11 18h10v1h-10zM11 19h2v1h-2zM14 19h5v1h-5zM27 19h1v1h-1zM10 20h4v1h-4zM19 20h1v1h-1zM26 20h2v1h-2zM11 21h8v1h-8zM25 21h3v1h-3zM12 22h5v1h-5zM24 22h3v1h-3z"
+    },
+    {
+     "fill": "--av-t",
+     "d": "M20 8h2v1h-2zM21 9h1v1h-1zM21 10h2v1h-2zM22 11h1v1h-1zM22 12h2v1h-2zM21 17h1v1h-1zM21 18h1v1h-1zM20 19h2v1h-2zM20 20h3v1h-3zM28 20h1v1h-1zM19 21h3v1h-3zM28 21h1v1h-1zM11 22h1v1h-1zM17 22h5v1h-5zM27 22h2v1h-2zM12 23h9v1h-9zM25 23h3v1h-3zM14 24h5v1h-5z"
+    },
+    {
+     "fill": "--av-b",
+     "d": "M5 9h1v1h-1zM23 9h1v1h-1zM27 9h1v1h-1zM4 10h1v1h-1zM28 10h1v1h-1zM4 11h1v1h-1zM24 11h1v1h-1zM28 11h1v1h-1zM3 12h2v1h-2zM28 12h2v1h-2zM3 13h1v1h-1zM29 13h1v1h-1zM2 15h1v1h-1zM30 15h1v1h-1zM2 16h1v1h-1zM30 16h1v1h-1zM2 17h1v1h-1zM30 17h1v1h-1zM2 18h1v1h-1zM30 18h1v1h-1zM2 19h1v1h-1zM30 19h1v1h-1zM2 20h2v1h-2zM30 20h1v1h-1zM2 21h3v1h-3zM9 21h1v1h-1zM30 21h1v1h-1zM5 22h1v1h-1zM8 22h2v1h-2zM5 23h4v1h-4zM23 23h1v1h-1zM29 23h1v1h-1zM5 24h2v1h-2zM28 24h2v1h-2zM28 25h1v1h-1z"
+    },
+    {
+     "fill": "--av-Y",
+     "d": "M11 10h1v1h-1zM10 11h1v1h-1zM10 12h1v1h-1zM25 19h2v1h-2zM24 20h2v1h-2zM24 21h1v1h-1z"
+    },
+    {
+     "fill": "--av-m",
+     "d": "M6 14h2v1h-2zM12 14h1v1h-1zM20 14h1v1h-1zM25 14h2v1h-2zM5 15h1v1h-1zM7 15h2v1h-2zM24 15h1v1h-1zM26 15h2v1h-2zM5 16h4v1h-4zM24 16h4v1h-4zM5 17h4v1h-4zM24 17h4v1h-4zM5 18h4v1h-4zM24 18h1v1h-1zM6 19h2v1h-2zM3 22h2v1h-2zM3 23h2v1h-2zM3 24h2v1h-2zM21 24h2v1h-2zM3 25h2v1h-2zM10 25h4v1h-4zM19 25h6v1h-6zM3 26h2v1h-2zM8 26h20v1h-20zM3 27h2v1h-2zM7 27h22v1h-22zM3 28h2v1h-2zM28 28h1v1h-1zM3 29h2v1h-2zM7 29h23v1h-23zM3 30h2v1h-2zM7 30h24v1h-24zM0 31h1v1h-1zM3 31h2v1h-2zM7 31h25v1h-25z"
+    },
+    {
+     "fill": "--av-a",
+     "d": "M10 14h1v1h-1zM13 14h3v1h-3z"
+    },
+    {
+     "fill": "--av-M",
+     "d": "M11 14h1v1h-1zM19 14h1v1h-1zM6 15h1v1h-1zM25 15h1v1h-1zM9 24h3v1h-3zM7 25h3v1h-3zM7 26h1v1h-1z"
+    },
+    {
+     "fill": "--av-i",
+     "d": "M17 14h2v1h-2zM21 14h1v1h-1z"
+    },
+    {
+     "fill": "--av-s",
+     "d": "M28 14h1v1h-1zM28 15h1v1h-1zM28 16h1v1h-1zM9 17h1v1h-1zM28 17h1v1h-1zM9 18h1v1h-1zM28 18h1v1h-1zM8 19h2v1h-2zM7 20h2v1h-2zM6 21h2v1h-2z"
+    },
+    {
+     "fill": "--av-g",
+     "d": "M1 25h2v1h-2zM1 26h2v1h-2zM5 26h2v1h-2zM1 27h2v1h-2zM5 27h2v1h-2zM1 28h2v1h-2zM5 28h2v1h-2zM1 29h2v1h-2zM5 29h2v1h-2zM1 30h2v1h-2zM5 30h2v1h-2zM1 31h2v1h-2zM5 31h2v1h-2z"
+    },
+    {
+     "fill": "--av-n",
+     "d": "M29 28h1v1h-1z"
+    }
+   ]
+  ],
+  "sticker": {
+   "kind": "persona",
+   "text": "CHARACTER",
+   "label": "Character: a Fizlet character, not a real person"
+  }
+ },
+ "index": "STUDIO CREW",
+ "handle": "@dj-mempool",
+ "name": "DJ Mempool",
+ "role": "Studio crew · synthwave DJ",
+ "tagline": "",
+ "reports": {
+  "href": "/people/quill/",
+  "label": "Quill",
+  "as": "Keeper-in-Chief"
+ },
+ "lead": "DJ Mempool spins synthwave sets and crypto-meme bits: green candles, rockets to the moon, numbers that only go up. The page always comes back down; that is the joke. DJ Mempool pitches animation ideas and prompts for the gallery, and votes in the weekly contest with Quill, Pip and Chris.",
+ "url": null,
+ "stats": [
+  {
+   "stat": "entries",
+   "value": "0",
+   "label": "gallery entries"
+  },
+  {
+   "stat": "bytes",
+   "value": "0",
+   "label": "bytes of live code, gzip, all entries together"
+  }
+ ],
+ "cards": {
+  "style": {
+   "title": "What they make",
+   "text": "Crypto-meme bits on a synthwave beat: candles, rockets, pumps that Recall puts back.",
+   "promptTitle": "Prompt style",
+   "promptStyle": "ALL CAPS meme speak with a beat drop at the end.",
+   "sample": "“GREEN CANDLES RAIN UP. WAGMI. DROP”"
+  },
+  "lists": [
+   {
+    "id": "ppl-games",
+    "title": "Favorite games",
+    "label": "Favorite games",
+    "items": [
+     {
+      "text": "OutRun",
+      "todo": false
+     },
+     {
+      "text": "Pole Position",
+      "todo": false
+     },
+     {
+      "text": "Joust",
+      "todo": false
+     }
+    ]
+   },
+   {
+    "id": "ppl-hobbies",
+    "title": "Off the board",
+    "label": "Hobbies",
+    "items": [
+     {
+      "text": "Digging for cassette tapes",
+      "todo": false
+     },
+     {
+      "text": "Night drives with the visor down",
+      "todo": false
+     },
+     {
+      "text": "Tuning a modular synth",
+      "todo": false
+     }
+    ]
+   }
+  ]
+ },
+ "games": null,
+ "entries": {
+  "title": "In the gallery",
+  "items": [],
+  "emptyHtml": "No gallery entries yet. DJ Mempool pitches pieces for the <a href=\"/contest/\">weekly contest</a>."
+ },
+ "back": {
+  "href": "/people/",
+  "label": "All people",
+  "icon": "grid"
+ }
+}

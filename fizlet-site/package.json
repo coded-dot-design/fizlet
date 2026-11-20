@@ -16,9 +16,10 @@
     "test": "node --test tests/*.test.mjs",
     "audit": "node scripts/audit.mjs",
     "browse": "node scripts/browse.mjs dist",
+    "make:check": "node scripts/make-check.mjs dist",
     "export:legacy": "node scripts/export-legacy.mjs",
     "compare": "node scripts/compare.mjs",
-    "gates": "npm run validate:content && npm test && npm run typecheck && npm run build && npm run audit && npm run browse",
+    "gates": "npm run validate:content && npm test && npm run typecheck && npm run build && npm run audit && npm run browse && npm run make:check",
     "tokens": "node scripts/tokens.mjs",
     "migration": "node scripts/migration.mjs"
   },

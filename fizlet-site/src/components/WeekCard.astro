@@ -1,0 +1,11 @@
+---
+// The contest week: its number and status, its theme, the brief, and its dates (Monday to Sunday).
+interface Props { index: string; line: string; label: string; theme: string; brief: string; dates: string }
+const { index, line, label, theme, brief, dates } = Astro.props;
+---
+<div class="panel ct-today" aria-labelledby="ct-theme">
+        <p class="eyebrow"><span class="index">{index}</span> {line}</p>
+        <h2 id="ct-theme"><span class="bui-label">{label}</span> {theme}</h2>
+        <p class="body">{brief}</p>
+        <p class="ct-date">{dates}</p>
+      </div>

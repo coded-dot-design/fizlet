@@ -1,0 +1,16 @@
+---
+// A person on /people/: the avatar, the name linked to their page, who they are, and their two
+// counts measured on this build (gallery entries, live bytes).
+import PersonAvatar from "./PersonAvatar.astro";
+import PersonRoles from "./PersonRoles.astro";
+interface Props { id: string; href: string; label: string; avatar: any; role: string; tagline?: string; reports?: { href: string; label: string; as: string }; count: { value: string; label: string; unit: string }[] }
+const { id, href, label, avatar, role, tagline, reports, count } = Astro.props;
+---
+<li class="panel ppl-tile" data-person={id}>
+      <PersonAvatar {...avatar} />
+      <div class="ppl-tile-body">
+        <h2><a href={href}>{label}</a></h2>
+        <PersonRoles role={role} tagline={tagline} reports={reports} />
+        <p class="ppl-count" aria-label="Measured on this build">{count.map((c) => <span><b>{c.value}{c.unit && ` ${c.unit}`}</b> {c.label}</span>)}</p>
+      </div>
+    </li>

@@ -1,7 +1,11 @@
 ---
 // A code card: a label (bold kicker · detail), a Copy key, and the code. `wrap` lets long lines wrap.
+// `field`: the code in a read-only text field (its id, its rows) that a script fills (Make one).
 import Icon from "./Icon.astro";
-interface Props { label: string; code: string; wrap?: boolean; copy?: boolean; class?: string }
-const { label, code, wrap = false, copy = true, class: cls = "panel code-card" } = Astro.props;
+interface Props { label: string; code: string; wrap?: boolean; copy?: boolean; class?: string; field?: { id: string; rows: number } }
+const { label, code, wrap = false, copy = true, class: cls = "panel code-card", field } = Astro.props;
 ---
-<div class={cls}><div class="code-head"><span class="bui-label" set:html={label} />{copy && <button class="bui-key copy" type="button" data-copy><Icon name="copy" size={14} />Copy</button>}</div><pre tabindex="0" class={wrap ? "code wrap" : "code"}><code>{code}</code></pre></div>
+{field ? <div class={cls}>
+        <div class="code-head"><label class="bui-label" for={field.id} set:html={label} /></div>
+        <textarea id={field.id} class="code" data-code readonly rows={field.rows} spellcheck="false">{code}</textarea>
+      </div> : <div class={cls}><div class="code-head"><span class="bui-label" set:html={label} />{copy && <button class="bui-key copy" type="button" data-copy><Icon name="copy" size={14} />Copy</button>}</div><pre tabindex="0" class={wrap ? "code wrap" : "code"}><code>{code}</code></pre></div>}

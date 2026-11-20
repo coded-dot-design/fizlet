@@ -1,0 +1,8 @@
+---
+// Who a person is, under their name: the role in mono caps, the tagline, and who they report to.
+interface Props { role: string; tagline?: string; reports?: { href: string; label: string; as: string } }
+const { role, tagline, reports } = Astro.props;
+---
+<p class="ppl-role">{role}</p>
+{tagline && <p class="ppl-tagline">{tagline}</p>}
+{reports && <p class="ppl-reports"><span aria-hidden="true">↳</span> reports to <a href={reports.href}>{reports.label}</a>, the {reports.as}</p>}
