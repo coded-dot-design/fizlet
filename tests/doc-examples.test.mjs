@@ -1,4 +1,5 @@
-// Every code example in the docs is proven: each ```ts / ```js block of README.md and the brick docs
+// Every code example in the docs is proven: each ```ts / ```js block of README.md and the brick docs,
+// and each site listing (site/brick-examples, site/docs/code: the brick and docs pages' code)
 // (scripts/doc-examples.mjs lists the files) is typechecked against the bricks' real types, then run
 // in Chromium against the source, a few frames long, and fails on any error it throws. Free names a
 // fragment leaves to the page around it get a value: a running engine, a canvas context, elements
@@ -34,6 +35,20 @@ for (const f of [...readdirSync("src"), ...readdirSync("src/kernel").map((f) => 
       BRICK_NAMES.add(n);
 
 const all = examples();
+
+/** The site's listings: brick pages' examples and the docs pages' code (typechecked by npm run typecheck). */
+const LISTINGS = ["site/brick-examples", "site/docs/code"].flatMap((d) => readdirSync(d).filter((f) => f.endsWith(".ts")).sort().map((f) => `${d}/${f}`));
+
+/** A runtime value for a listing's `declare const name: type` (the stand-in for anything else). */
+function valueFor(name, type) {
+  if (/^HTML\w*Element$/.test(type)) return `__ctx("stage").appendChild(document.createElement("div"))`;
+  if (type === "Text") return `document.createTextNode("")`;
+  if (type === "number") return "0";
+  if (type === "string") return `""`;
+  if (type === "boolean") return "false";
+  if (/^(Float64|Float32|Uint8|Uint32|Int32)Array$/.test(type)) return `new ${type}(64)`;
+  return `__ctx(${JSON.stringify(name)})`;
+}
 const dir = mkdtempSync(join(tmpdir(), "fzlt-doc-examples-"));
 const fileOf = (i) => join(dir, `ex${i}.${all[i].lang}`);
 
@@ -148,16 +163,31 @@ for (const n of NUMBERS) ctx[n] = () => 0;
       });
     },
   };
+  // The site's typechecked listings (npm run typecheck covers their types) run the same way. Their
+  // `declare const` names are globals the page would have: each gets a value by its declared type.
+  const entries = run.map((i) => ({ at: `${all[i].file}:${all[i].line}`, entry: fileOf(i) }));
+  for (const f of LISTINGS) {
+    const src = readFileSync(f, "utf8");
+    if (/^\/\/ doc-test: (typecheck|skip)\b/m.test(src)) continue;
+    const sets = [];
+    for (const [, list] of src.matchAll(/^declare (?:const|let) (.+);$/gm))
+      for (const [, n, type] of list.matchAll(/([A-Za-z_$][\w$]*): ((?:[^,(){}]|\([^)]*\)|\{[^}]*\})+)/g))
+        sets.push(`g.${n} = ${valueFor(n, type.trim())};`);
+    const wrap = join(dir, `listing${entries.length}.ts`);
+    writeFileSync(wrap, `import "./prelude.ts";\nimport "./globals${entries.length}.ts";\nimport ${JSON.stringify(join(ROOT, f))};\n`);
+    writeFileSync(join(dir, `globals${entries.length}.ts`), `const g = globalThis as any;\n${sets.join("\n")}\n`);
+    entries.push({ at: f, entry: wrap });
+  }
   const browser = await chromium.launch(launchOptions());
   const failures = [];
   try {
-    for (const i of run) {
+    for (const { at, entry } of entries) {
       const out = await build({
-        entryPoints: [fileOf(i)], bundle: true, format: "esm", write: false, outdir: dir, plugins: [plugin],
+        entryPoints: [entry], bundle: true, format: "esm", write: false, outdir: dir, plugins: [plugin],
         loader: { ".css": "css" }, logLevel: "silent", target: "es2022",
       }).catch((err) => ({ err }));
       if (out.err) {
-        failures.push(`${all[i].file}:${all[i].line} does not bundle: ${out.err.message.split("\n")[0]}`);
+        failures.push(`${at} does not bundle: ${out.err.message.split("\n")[0]}`);
         continue;
       }
       const js = out.outputFiles.find((f) => f.path.endsWith(".js")).text;
@@ -172,11 +202,11 @@ for (const n of NUMBERS) ctx[n] = () => 0;
       await page.evaluate(() => (globalThis.__engine?.() ?? null)?.destroy());
       await page.waitForTimeout(50);
       await page.close();
-      if (errors.length) failures.push(`${all[i].file}:${all[i].line} threw: ${errors.join(" | ")}`);
+      if (errors.length) failures.push(`${at} threw: ${errors.join(" | ")}`);
     }
   } finally {
     await browser.close();
   }
-  console.log(`# doc examples: ${all.length} found, ${live.length} typechecked, ${run.length} run`);
+  console.log(`# doc examples: ${all.length} found, ${live.length} typechecked, ${run.length} run; site listings: ${LISTINGS.length} found, ${entries.length - run.length} run`);
   assert.deepEqual(failures, [], "examples that fail when run:\n" + failures.join("\n"));
 });

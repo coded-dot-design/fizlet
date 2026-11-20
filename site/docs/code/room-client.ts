@@ -1,4 +1,5 @@
 // Docs code (shown on /guides/build-your-own-room-server/): a client of a room server you run.
+// doc-test: typecheck (it joins a room server; tests/doc-examples.test.mjs runs the rest)
 import { createEngine } from "@fzlt/core";
 import { controls } from "@fzlt/core/input";
 import { presence, join, hash32 } from "@fzlt/core/presence";

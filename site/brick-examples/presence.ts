@@ -1,4 +1,5 @@
 // The usage example on bricks/presence.html (see pad.ts).
+// doc-test: typecheck (it joins a room server; tests/doc-examples.test.mjs runs the rest)
 import { createEngine } from "../../src/index";
 import { controls } from "../../src/input";
 import { presence, join, hash32 } from "../../src/presence";
