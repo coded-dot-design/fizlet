@@ -8,9 +8,9 @@
  * the order they come onto a small stage: the intro's five first, then one of every app.
  */
 export const BRICKS =
-  "kernel go 3443,input sys 1335,sprite fallin 1437,fx attack 2797,hud aim 1325,timeline fire 2060,camera go 1385," +
-  "grid flag 1533,rules advance 1318,steer advance 950,presence cmd 1834,sound advance 1015,match go 2652," +
-  "collide cmd 1293,pad advance 2073,coach sys 1220,perf sys 1958,slot sys 1855,board-page attack 4162,ui fire 2893";
+  "kernel go 3372,input sys 1909,sprite fallin 1437,fx attack 2792,hud aim 1306,timeline fire 2137,camera go 1400," +
+  "grid flag 1652,rules advance 1318,steer advance 2759,presence cmd 2197,sound advance 1062,match go 2617,collide cmd 1265," +
+  "pad advance 2068,coach sys 1220,perf sys 2019,slot sys 1849,board-page attack 4104,ui fire 2907";
 
 /** The intro stacks these (indices into BRICKS): kernel, input, sprite, fx, hud: a shooter. */
 export const DEMO = [0, 1, 2, 3, 4];

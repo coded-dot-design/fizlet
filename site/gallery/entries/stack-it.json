@@ -1,6 +1,7 @@
 {
+  "no": 140,
   "id": "stack-it",
-  "date": "2026-10-30",
+  "date": "2026-11-20",
   "prompt": "the bricks, by their real names and measured sizes, scatter over the stage, stack up and morph into an app; then you stack your own, press FINISHED and your app gets its stars",
   "title": "Stack it",
   "kind": "hero",
@@ -8,8 +9,8 @@
   "author": "chris-cooley",
   "recipe": "hand-built",
   "bricks": [
-    "fizlet/kernel",
-    "fizlet/slot"
+    "@fzlt/core/kernel",
+    "@fzlt/core/slot"
   ],
   "pageCost": {
     "settles": true,
@@ -35,5 +36,5 @@
   "export": "mount",
   "stage": "own",
   "aspect": "16 / 10",
-  "approved": "2026-10-30"
+  "approved": "2026-11-20"
 }

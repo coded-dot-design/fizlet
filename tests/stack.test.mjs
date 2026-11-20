@@ -8,7 +8,7 @@ import { BRICKS as CATALOG } from "../site/bricks.mjs";
 import { APPS, BRICKS, DEMO, HELLO, VERDICT, build, bytesLabel, kb } from "../site/demos/stack/data.ts";
 
 const rows = BRICKS.split(",").map((s) => s.split(" "));
-const sizeName = (id) => (id === "kernel" ? "fizlet (kernel)" : id === "ui" ? "fizlet/ui (js)" : `fizlet/${id}`);
+const sizeName = (id) => (id === "kernel" ? "@fzlt/core (kernel)" : id === "ui" ? "@fzlt/core/ui (js)" : `@fzlt/core/${id}`);
 
 test("stack: each brick's bytes are its measured gzip size, its colour its catalog role", async () => {
   const sizes = Object.fromEntries((await measure()).map((m) => [m.name, m.gzip]));
