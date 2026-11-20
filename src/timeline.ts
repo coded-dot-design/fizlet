@@ -227,6 +227,7 @@ export function timeline(engine: Engine, o: TimelineOptions = {}) {
     get duration() {
       return total();
     },
+    /** Moving right now (forward or backward); false once paused, ended or reverted. */
     get playing() {
       return dir !== 0;
     },
@@ -234,6 +235,8 @@ export function timeline(engine: Engine, o: TimelineOptions = {}) {
     get reduced() {
       return still();
     },
+    /** Its System step: moves the playhead dt seconds times `rate`, emits "timeline:start", labels and
+     *  "timeline:end" on the ring, and keeps the engine busy while playing. No DOM, no allocation. */
     step(e: Engine, dt: number) {
       const d = dir, a = s[0]!;
       if (d) {
@@ -252,6 +255,8 @@ export function timeline(engine: Engine, o: TimelineOptions = {}) {
       owe = 0;
       sample(s[0]!);
     },
+    /** Its System render: writes every changed property, styles through the ledger (change-only), so
+     *  Recall restores them. */
     render() {
       for (let i = 0; i < props.length; i++) {
         const p = props[i]!, w = p.w, out = p.o;

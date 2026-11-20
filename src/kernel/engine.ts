@@ -55,14 +55,25 @@ export interface EngineOptions {
 /** What `engine.stats()` reports: frame and step counts, frame time, the event ring and pool
  *  fill, the ledger's size and the auto-pause rules holding the engine right now. */
 export interface EngineStats {
+  /** Frames run (scheduled or by `advance()`). */
   frames: number;
+  /** Fixed steps run so far. */
   steps: number;
+  /** Fixed steps dropped because a frame needed more than `maxSteps`. */
   dropped: number;
+  /** Engine time in seconds: steps run times `dt`. */
   time: number;
+  /** Milliseconds a frame's hooks took: the average over every frame, and the worst. */
   frameMs: { avg: number; max: number };
+  /** The event ring: events since its last clear, its capacity, and events dropped over its lifetime. */
   events: { size: number; cap: number; dropped: number };
+  /** Each `engine.pool` by name: items in use and capacity. */
   pools: Record<string, { used: number; cap: number }>;
+  /** Page changes the ledger holds: styles, attributes, classes and text it wrote, plus nodes it
+   *  added (what Recall restores). */
   ledger: number;
+  /** The reasons it's paused right now ("stopped", "hidden", "offscreen", "editable",
+   *  "reduced-motion", "settled"); empty when running. */
   paused: string[];
 }
 
@@ -145,10 +156,15 @@ export function createEngine(o: EngineOptions = {}) {
   };
 
   const engine = {
+    /** Aborted at destroy(): pass it to every listener (`{ signal }`) so Recall removes them all. */
     signal,
+    /** The event ring: cleared at the start of each frame, filled in step, read in render. */
     events,
+    /** Every page change goes through it; restored (and closed) at destroy(), which is Recall. */
     ledger,
+    /** Seeded random (`o.seed`, default 1): use it for anything that changes the simulation. */
     random,
+    /** The element the engine lives in (`o.root`), or null. */
     root,
     /**
      * The current (or last) frame, as a typed-array view (reading a slot never boxes a number):
@@ -158,6 +174,7 @@ export function createEngine(o: EngineOptions = {}) {
     timing: n.subarray(9 /* DELTA */, 10 /* WORK */ + 1),
     /** Fixed step length in seconds. */
     dt,
+    /** Engine time in seconds: fixed steps run times `dt` (it doesn't advance while paused). */
     get time() {
       return n[2 /* TIME */]!;
     },
@@ -165,6 +182,7 @@ export function createEngine(o: EngineOptions = {}) {
     get steps() {
       return n[4 /* STEPS */]!;
     },
+    /** The frame phase right now: IDLE 0, READ 1, STEP 2 or RENDER 3. */
     get phase() {
       return phase;
     },
@@ -174,6 +192,7 @@ export function createEngine(o: EngineOptions = {}) {
       for (let i = 0; i < pools.length; i++) k += pools[i]![1].size;
       return k;
     },
+    /** True while on the clock: not paused for any reason and not destroyed. */
     get running() {
       return !held && !dead;
     },
@@ -181,6 +200,7 @@ export function createEngine(o: EngineOptions = {}) {
     get paused() {
       return REASONS.filter((_, i) => held & (1 << i));
     },
+    /** Add a system (it runs after those already added) and return it. Ignored once destroyed. */
     add<S extends System>(s: S): S {
       if (!dead) systems.push(s);
       return s;
@@ -217,6 +237,7 @@ export function createEngine(o: EngineOptions = {}) {
       engine.busy(); // the quiet time starts again; a hold still ahead stays
       if (held & 32 /* SETTLED */) set(32 /* SETTLED */, false);
     },
+    /** Pause ("stopped") until `start()`; systems get their `pause` hook if it was running. */
     stop() {
       set(1 /* STOPPED */, true);
     },
@@ -280,6 +301,7 @@ export function createEngine(o: EngineOptions = {}) {
       // Written every frame: a store that runs only on a new maximum would deopt this hot function each time.
       n[7 /* MAX */] = ms > n[7 /* MAX */]! ? ms : n[7 /* MAX */]!;
     },
+    /** A snapshot of the engine's counters for the debug HUD and tests (allocates: not for step). */
     stats(): EngineStats {
       const p: EngineStats["pools"] = {};
       for (const [name, pool] of pools) p[name] = { used: pool.size, cap: pool.cap };

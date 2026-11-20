@@ -31,7 +31,9 @@ export interface SlotScene {
 }
 /** A tap on the slot before the scene was up: where (px from the slot's top left) and when. */
 export interface SlotTap {
+  /** CSS px from the slot's left edge. */
   x: number;
+  /** CSS px from the slot's top edge. */
   y: number;
   /** `performance.now()` when the finger went down. */
   at: number;
@@ -125,6 +127,7 @@ export function slot(target: string | HTMLElement, load: () => Promise<SlotMount
   return {
     /** The slot figure, or null when no slot matches the target. */
     el,
+    /** A scene is up right now (false before it loads, under reduced motion and after destroy()). */
     get mounted() {
       return !!scene;
     },

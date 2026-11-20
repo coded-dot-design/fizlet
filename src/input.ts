@@ -174,15 +174,24 @@ export function controls(e: Engine, o: ControlsOptions = {}) {
       const k = +isDown(index(pos)) - +isDown(index(neg));
       return k || (stickAxis === undefined ? 0 : s[stickAxis]!);
     },
+    /** The mouse or a non-stick touch, as of the last read phase. */
     pointer: {
+      /** CSS px from the target's left edge. */
       get x() { return p[0]!; },
+      /** CSS px from the target's top edge. */
       get y() { return p[1]!; },
+      /** A button or finger is held (released anywhere, even outside the target). */
       get down() { return p[2] === 1; },
+      /** Pressed: the same one-step edge as `hit(intent)`. */
       get hit() { return hit(N); },
     },
+    /** The touch stick (or `steer()`), as of now. */
     stick: {
+      /** -1..1, right positive; clamped to the stick radius. */
       get x() { return s[0]!; },
+      /** -1..1, down positive; clamped to the stick radius. */
       get y() { return s[1]!; },
+      /** A finger (or `steer()`) is driving the stick. */
       get active() { return s[2] === 1; },
     },
     /** Press an intent from code (on-screen keys): `press("strike")`. */
@@ -200,7 +209,10 @@ export function controls(e: Engine, o: ControlsOptions = {}) {
       s[1] = on ? y : 0;
       s[2] = on ? 1 : 0;
     },
+    /** Remove this controller only (listeners, system, held state); the engine keeps running. Runs
+     *  on its own at destroy (Recall). */
     dispose,
+    /** Its read-phase system (already added to the engine); `gamepad()` hooks its read. */
     system,
   };
 }

@@ -16,6 +16,7 @@ export const SHAPES = ["square", "disc", "ring", "frame", "word", "smoke", "stre
 
 /** A particle kind, as data. Ranges are [min, max]; speed and size scale with emit's `scale`. */
 export interface Kind {
+  /** How it draws: one of `SHAPES`. */
   shape: (typeof SHAPES)[number];
   /** Velocity lost per second, as a fraction (1.4 is the blast's smoke and flashes). */
   drag: number;
@@ -23,9 +24,13 @@ export interface Kind {
   gravity: number;
   /** Emit direction in radians (-π/2 is up) and the spread around it (2π: all round). */
   angle: number;
+  /** Spread around `angle`, in radians (2π: all round). */
   spread: number;
+  /** Launch speed range in px/s (times `scale`). */
   speed: readonly [number, number];
+  /** Size range in px (a square's side; times `scale`). */
   size: readonly [number, number];
+  /** Lifetime range in seconds (min must be above 0). */
   life: readonly [number, number];
 }
 // The built-in kinds, one const each so a page that takes one ships only that one. Angles are
@@ -115,12 +120,19 @@ export function effects(o: FxOptions = {}) {
   };
 
   const fx = {
+    /** The colour table (`o.colors` or the blast palette); particles store an index into it. */
     colors,
+    /** The pop-word table (`o.words` or BOOM, KABOOM, ...); `word()` takes an index into it. */
     words,
+    /** Add one particle by kind id (0-5 the blast's parts, 6+ from `emitter()`): x, y in px, vx, vy in
+     *  px/s, size in px, life in seconds, colour index, rotation (radians), spin (radians/s), word
+     *  index. Never allocates. Returns false, counted in `dropped`, when full or the input is invalid. */
     spawn,
+    /** Particles alive right now. */
     get live() {
       return st[0]!;
     },
+    /** Screen shake right now, 0..18; it decays by 40 a second in `step()`. */
     get shake() {
       return st[2]!;
     },
@@ -299,6 +311,7 @@ export function effects(o: FxOptions = {}) {
       }
       ctx.globalAlpha = 1;
     },
+    /** Remove every particle, the shake and the scorch marks (`dropped` is kept). */
     clear() {
       st[0] = st[2] = 0;
       SL.fill(0);
@@ -328,6 +341,7 @@ export function emitter<N extends string>(fx: Effects, kinds: Record<N, Kind>) {
     ids[name] = nk++;
   }
   return {
+    /** Each kind's id by name (6 and up), for `emit()`. */
     ids,
     /**
      * `n` particles of kind `k` from (x, y), as that kind's data says: direction, spread, speed, size

@@ -3,6 +3,7 @@
  *  The state lives in a Uint32Array so drawing a number never allocates. */
 export interface Random {
   (): number;
+  /** The generator's 32-bit state: read it to snapshot, write it to restore the sequence. */
   state: number;
 }
 /** A seeded random number generator: `r()` returns [0, 1). The same seed gives the same sequence;
